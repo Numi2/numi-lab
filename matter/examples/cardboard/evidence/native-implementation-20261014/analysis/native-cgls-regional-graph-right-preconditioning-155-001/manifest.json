@@ -1,0 +1,179 @@
+{
+  "adverse_cpu_evidence": {
+    "manifest_sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524",
+    "patch_matrix_max_abs_error": 7.339122992666702e-08,
+    "predeclared_per_entry_atol": 1e-09,
+    "relative_true_residual_at_64": {
+      "block3_cpu_fp32": 0.08979,
+      "block3_fp64": 0.08845,
+      "identity_cpu_fp32": 0.23562,
+      "identity_fp64": 0.22967,
+      "regional5_base_graph_cpu_fp32": 0.9234,
+      "regional5_base_graph_fp64": 0.57905
+    },
+    "result": "regional5 map missed the local-entry gate and was worse at the fixed CGLS cap in this CPU experiment; native CGLS result remains untested",
+    "results_sha256": "204746d22d06b6dd5447fb4a364f1c4cac3088bd5c74db541179a70d320df353",
+    "scope": "same captured source419 A,b, 64-step CPU CGLS reference/approximate FP32 recurrence; source151 base formula-only with completed latch cleared on a reference clone",
+    "source464_package": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002"
+  },
+  "artifacts": {
+    "README.md": {
+      "bytes": 4241,
+      "sha256": "67be2d30337eb6a9d42767857187842a243f6bd499ccfa99cd45a06a4b26312e"
+    },
+    "compile/base_cgls.diff": {
+      "bytes": 25269,
+      "sha256": "8f0f63459c9c37fe70fbf8a004e23c3b8c44546641deb19ef6881a9f382a3d7a"
+    },
+    "compile/cpu-check.json": {
+      "bytes": 1300,
+      "sha256": "edafbfe6cced2a8cedc0ff72fb2d597aeafc99cc493a9024b0808a707a23d587"
+    },
+    "compile/cpu-check.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile/fgmres.diff": {
+      "bytes": 11139,
+      "sha256": "52b054ce447a33fcffbc23e481c3d84683cc50d68336fde30d6c4d87a1e71849"
+    },
+    "compile/matter/src/matter_kernels.metal": {
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    "compile/metal-base149-syntax.log": {
+      "bytes": 2356,
+      "sha256": "30027bf78cc6936ec80e020cabc4d2a4d3aca10e51ef235e083d3fbc7e2c41bc"
+    },
+    "compile/metal-syntax.log": {
+      "bytes": 2545,
+      "sha256": "b745a216b870fcdf2087d04df5cd336aae9fe8b6e040e719491870d14181754a"
+    },
+    "compile/objc-syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile/patch-dry-run.log": {
+      "bytes": 139,
+      "sha256": "4f65fa10d314526c48a4edb31b3ca281dbfa27aabcabfa39e6137ce39fdb2d47"
+    },
+    "compile/runtime.diff": {
+      "bytes": 35757,
+      "sha256": "dd28888668e9bd95d62f738652c17190f5f8b44799b1237ac3d1e936e6824a47"
+    },
+    "source-overlay.patch": {
+      "bytes": 72165,
+      "sha256": "62605b190b4c669e88d326675085451ae8b5c7188f1121f39017a8b21a692443"
+    },
+    "source/matter/src/metal/base_cgls.metalinc": {
+      "bytes": 55733,
+      "sha256": "37b27e2da39a65ea3e6594a507e45355ac3dcdf6d3ca943c9b9fab3acfa45b1a"
+    },
+    "source/matter/src/metal/fgmres.metalinc": {
+      "bytes": 404921,
+      "sha256": "5ce74e826c468901a94dbcd3a2cf7827dd268578d85bb020d19a8a1c91bf2df5"
+    },
+    "source/matter/src/runtime.mm": {
+      "bytes": 1886932,
+      "sha256": "6a06b004a5dfb6fff9b87e73bff53834fb7eb81c0156a0bf44ce4b89e3ae21c3"
+    },
+    "tests/check_regional_right_map.py": {
+      "bytes": 11071,
+      "sha256": "337841b41f7c96763a629feffc98991f5fd14db26a2158f2dcfcb19bae1f9283"
+    }
+  },
+  "base_changed_file_bindings": {
+    "frozen-source.json": {
+      "sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5"
+    },
+    "matter/src/metal/base_cgls.metalinc": {
+      "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "matter/src/runtime.mm": {
+      "sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    }
+  },
+  "base_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "base_snapshot_frozen_source_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "design": {
+    "additional_resident_or_private_metal_bytes": 0,
+    "map_dispatches_per_call": {
+      "S": 5,
+      "S_transpose": 6,
+      "per_K_iteration_total": 11,
+      "total_for_K_iterations": "11*(K+1), including initial transpose and final forward map"
+    },
+    "native_capture": "existing binary CGLS state capture v1 is explicitly rejected with regional5 because that schema omits the graph map",
+    "operator_change": false,
+    "opt_in": "NM_FEM_BASE_CGLS_RIGHT_SCALE=regional5; requires existing NM_FEM_BASE_CGLS_ITERATIONS=32|64 and base CGLS fallback",
+    "reuse": "existing base selector-5 factors/AP/basis/graph scratch, CGLS right-scale physical temporary, and private CGLS error words; block3 row scratch remains reserved but unused for regional5",
+    "scope_gates": [
+      "compiled selector must be 5",
+      "restart augmentation is rejected",
+      "rigidGeneralizedCapacity must be zero",
+      "same-Newton current base selector-5 arrays must exist",
+      "mode count 1..32 and all selected-env coarse/graph factors valid"
+    ],
+    "threadgroup_scratch": "transpose patch routine declares four 768-float arrays = 12 KiB, bounded by <=256 patch nodes; no new persistent allocation"
+  },
+  "modified_source_files": {
+    "matter/src/metal/base_cgls.metalinc": {
+      "bytes": 55733,
+      "sha256": "37b27e2da39a65ea3e6594a507e45355ac3dcdf6d3ca943c9b9fab3acfa45b1a"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "bytes": 404921,
+      "sha256": "5ce74e826c468901a94dbcd3a2cf7827dd268578d85bb020d19a8a1c91bf2df5"
+    },
+    "matter/src/runtime.mm": {
+      "bytes": 1886932,
+      "sha256": "6a06b004a5dfb6fff9b87e73bff53834fb7eb81c0156a0bf44ce4b89e3ae21c3"
+    }
+  },
+  "not_claimed": [
+    "native Metal S/S-transpose parity",
+    "native CGLS convergence or Armijo acceptance",
+    "that selector-5 augmented restart map was consumed",
+    "shipping/physical qualification",
+    "runtime speedup"
+  ],
+  "overlay_id": "native-cgls-regional-graph-right-preconditioning-155-001",
+  "patch": {
+    "bytes": 72165,
+    "sha256": "62605b190b4c669e88d326675085451ae8b5c7188f1121f39017a8b21a692443"
+  },
+  "schema": "numi.matter.cgls_regional5_right_map_overlay.v1",
+  "scope": "isolated experimental source overlay; no shared checkout/source snapshot was modified",
+  "validation": {
+    "cpu_source_reference_check": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/tests/check_regional_right_map.py",
+      "exit_code": 0,
+      "output_file": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/cpu-check.json",
+      "output_sha256": "edafbfe6cced2a8cedc0ff72fb2d597aeafc99cc493a9024b0808a707a23d587",
+      "scope": "binary64 algebraic/source-contract checks only; not edited Metal execution"
+    },
+    "metal_overlay_syntax": {
+      "baseline_comparison": "frozen149 syntax compile emits the same two existing FGMRES graph LU/refinement warnings",
+      "baseline_warnings": 2,
+      "command": "xcrun -sdk macosx metal -std=metal4.0 -fno-fast-math -fsyntax-only -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal /Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/matter_kernels.metal",
+      "exit_code": 0,
+      "output_file": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/metal-syntax.log",
+      "warnings": 2
+    },
+    "native_gpu_execution": "not run",
+    "objcxx_syntax": {
+      "command": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -fblocks -fsyntax-only -target arm64-apple-macosx14.0 -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src -I /Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/src /Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/source/matter/src/runtime.mm",
+      "exit_code": 0,
+      "output_file": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/objc-syntax.log"
+    },
+    "patch_application_dry_run": {
+      "command": "patch --dry-run -p1",
+      "exit_code": 0,
+      "output_file": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/patch-dry-run.log"
+    }
+  }
+}

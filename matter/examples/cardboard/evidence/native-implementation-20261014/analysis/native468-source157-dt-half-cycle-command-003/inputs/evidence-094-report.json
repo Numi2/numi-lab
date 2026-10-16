@@ -1,0 +1,102 @@
+{
+  "checks": 4,
+  "phase_name_counterexample": "old reporter logged post_release_relaxation as constrained=1 while commanded target w=2",
+  "schedules": {
+    "complete_with_postrelease": {
+      "old_phase_guess_mismatch_steps": [
+        10,
+        11,
+        12
+      ],
+      "old_phase_guess_mismatches": 3,
+      "phase_counts": {
+        "hold": 1,
+        "loading": 3,
+        "post_release_relaxation": 3,
+        "relaxation": 2,
+        "release": 2,
+        "unloading": 2
+      },
+      "right_grip_modes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rows": 13
+    },
+    "complete_without_postrelease": {
+      "old_phase_guess_mismatch_steps": [],
+      "old_phase_guess_mismatches": 0,
+      "phase_counts": {
+        "hold": 1,
+        "loading": 3,
+        "post_release_relaxation": 0,
+        "relaxation": 2,
+        "release": 2,
+        "unloading": 2
+      },
+      "right_grip_modes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "rows": 10
+    },
+    "terminal_one_step_release": {
+      "old_phase_guess_mismatch_steps": [],
+      "old_phase_guess_mismatches": 0,
+      "phase_counts": {
+        "hold": 0,
+        "loading": 1,
+        "post_release_relaxation": 0,
+        "relaxation": 0,
+        "release": 1,
+        "unloading": 0
+      },
+      "right_grip_modes": [
+        1,
+        0
+      ],
+      "rows": 2
+    },
+    "zero_release": {
+      "old_phase_guess_mismatch_steps": [],
+      "old_phase_guess_mismatches": 0,
+      "phase_counts": {
+        "hold": 1,
+        "loading": 2,
+        "post_release_relaxation": 0,
+        "relaxation": 1,
+        "release": 0,
+        "unloading": 2
+      },
+      "right_grip_modes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rows": 6
+    }
+  },
+  "source_target_generation_unchanged": true
+}

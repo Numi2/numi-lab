@@ -1,0 +1,9 @@
+{
+  "equal": true,
+  "meaning": "The target-generation function is unchanged; source157 corrects the CSV right-grip telemetry by reading generated target constraint modes. This is not physical/grip-behavior qualification.",
+  "schema": "numi.cardboard.source157.fill-targets-equivalence.v1",
+  "source154_fillTargets_body_sha256": "cfec49a4be92145586acbf0a3d99c59585475790148859165835e36bafafdbb4",
+  "source154_probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "source157_fillTargets_body_sha256": "cfec49a4be92145586acbf0a3d99c59585475790148859165835e36bafafdbb4",
+  "source157_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd"
+}

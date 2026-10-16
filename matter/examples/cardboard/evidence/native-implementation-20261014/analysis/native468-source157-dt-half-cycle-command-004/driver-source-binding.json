@@ -1,0 +1,16 @@
+{
+  "anchors": {
+    "phase_count_parsing": "4067-4086",
+    "source154 hardcoded CSV flag": "6180-6187",
+    "source157 actual target-mode lookup": "12565-12570",
+    "source157 target-mode CSV flag": "6179-6212",
+    "target generation": "4232-4265"
+  },
+  "method": "Source-bound Python transcription of the schedule formulas using the retained 467 compiled mesh and runtime float32 dt. This checks prescribed clocks/targets and logging logic only; it is not a native physics/reaction comparison.",
+  "schema": "numi.cardboard.native468.source157-driver-binding.v1",
+  "source154_probe_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/tools/cardboard_probe.mm",
+  "source154_probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "source157_probe_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157/matter/tools/cardboard_probe.mm",
+  "source157_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "source_map_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd"
+}

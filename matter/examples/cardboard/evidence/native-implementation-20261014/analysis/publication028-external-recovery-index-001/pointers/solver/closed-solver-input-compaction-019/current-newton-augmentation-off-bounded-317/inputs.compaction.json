@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16836906,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/current-newton-augmentation-off-bounded-317/inputs.tar.gz",
+  "archive_sha256": "fb8be70406d0bbf9cec7ce8cb8bf2f6f5ba454a76d405350a7eabd6acb81cde7",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/current-newton-augmentation-off-bounded-317/before-inventory.json",
+  "before_manifest_sha256": "b3b16d15a50b9b24a4b1169d9ed55451dd6686586c8e3410616f2f9104b08cb3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-bounded-317",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,80 @@
+{
+  "allocated_file_bytes": 8941568,
+  "archive": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/archives/build-cardboard-provenance-118-CMakeFiles.zip",
+  "archive_bytes": 1872189,
+  "archive_command": [
+    "/usr/bin/ditto",
+    "-c",
+    "-k",
+    "--sequesterRsrc",
+    "--keepParent",
+    "--extattr",
+    "--acl",
+    "--rsrc",
+    "--qtn",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/CMakeFiles",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/archives/build-cardboard-provenance-118-CMakeFiles.zip"
+  ],
+  "archive_sha256": "2582b82572a0968f92a016afc188905fe036247d330202b1fb5d9aaf589e8ea3",
+  "birthtime_limit": "Filesystem-created birthtime is recorded but changes on extraction; all required file bytes, mode, uid/gid, nanosecond mtime, flags, link count, xattrs, ACL, and path inventory were compared.",
+  "build": "build-cardboard-provenance-118",
+  "df_after_archive": {
+    "free": 1840914432,
+    "total": 494353338368,
+    "used": 492512423936
+  },
+  "df_after_restore_test_cleanup": {
+    "free": 1873080320,
+    "total": 494353338368,
+    "used": 492480258048
+  },
+  "df_before": {
+    "free": 1823612928,
+    "total": 494353338368,
+    "used": 492529725440
+  },
+  "inventory": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/inventories/build-cardboard-provenance-118-CMakeFiles.json.gz",
+  "inventory_entries": 2005,
+  "inventory_gzip_sha256": "c462fa08a28c1b8e54acc214ae1e3cdfa0ba33b45fbaec0162bb8609e21bb078",
+  "inventory_uncompressed_sha256": "6a4f2ec531e5729d235dee49de41f2d2e5224e9736194f9f51eae6d5ad0905ef",
+  "logical_file_bytes": 3552843,
+  "lsof_gate": {
+    "command": [
+      "/usr/sbin/lsof",
+      "+D",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/CMakeFiles"
+    ],
+    "exit_code": 1,
+    "open_handles": 0
+  },
+  "process_gate": {
+    "command": [
+      "/bin/ps",
+      "-axo",
+      "pid=,comm=,args="
+    ],
+    "target_mentions_from_build_tools": []
+  },
+  "restore_command": [
+    "/usr/bin/ditto",
+    "-x",
+    "-k",
+    "--extattr",
+    "--acl",
+    "--rsrc",
+    "--qtn",
+    "/Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/archives/build-cardboard-provenance-118-CMakeFiles.zip",
+    "<temp>"
+  ],
+  "restore_test": {
+    "acl_entry_count": 0,
+    "directory_count": 408,
+    "file_count": 1597,
+    "path_and_metadata_hash_match": true,
+    "restored_path_count": 2005,
+    "xattr_entry_count": 2005
+  },
+  "schema": "numi.cardboard.provenance-cmakefiles-prepare.v1",
+  "target": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-118/CMakeFiles",
+  "tracked_files": []
+}

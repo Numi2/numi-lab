@@ -1,0 +1,38 @@
+{
+  "base_frozen_probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "base_frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "base_probe_path": "matter/tools/cardboard_probe.mm",
+  "base_probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "changed_source_files": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "files": {
+    "README.md": "76646be498a55a4a711b80c2eabb2daf6677237c798f1835a49f36ea06f49229",
+    "source/matter/tools/cardboard_probe.mm": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+    "source157.patch": "575eb0d75717250b77f6c2d63a78df06900a01406c0d22e42f7cc2b8339f18cb",
+    "syntax-check.txt": "ba49d155c8528f8c275de35a54e1738c80ac0ff8366512431fe7415990089e78",
+    "tests/check_right_grip_telemetry.py": "05419f49c119f732c88b8809ee7080d9acae59b9bbf55eb2b83e5f5426c84fe7",
+    "tests/report.json": "7ddd630ce42ea9747893ab3a03e93f06bccd1e4cd2d87b036ddcd20c66b84409",
+    "tests/stdout.json": "7ddd630ce42ea9747893ab3a03e93f06bccd1e4cd2d87b036ddcd20c66b84409"
+  },
+  "limits": [
+    "telemetry fix only",
+    "no production snapshot/build/native run",
+    "does not qualify physical grip-release behavior"
+  ],
+  "overlay_id": "source157-right-grip-telemetry-fix-001",
+  "patched_probe_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "unchanged_physics_source_function": {
+    "base_body_sha256": "cfec49a4be92145586acbf0a3d99c59585475790148859165835e36bafafdbb4",
+    "name": "fillTargets",
+    "patched_body_sha256": "cfec49a4be92145586acbf0a3d99c59585475790148859165835e36bafafdbb4"
+  },
+  "validation": {
+    "cpu_schedule_source_contract": "PASS: four schedules; all generated right-grip modes agree with logged values",
+    "native_or_gpu_run": "NOT RUN by instruction",
+    "objective_cxx_syntax_only": "PASS, exit 0; one existing unused-function warning",
+    "patch_apply_dry_run": "PASS against source154 root"
+  }
+}

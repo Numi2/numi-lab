@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16355786,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/archives/cgls-block-right-disabled-parity-462/inputs.tar.gz",
+  "archive_sha256": "c9d084711b024cc0f74ab7846812f1ee0acf5929127f8d67b8c9a716b7c420a4",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/cases/cgls-block-right-disabled-parity-462/before-inventory.json",
+  "before_manifest_sha256": "a8fc49f736c43d8c05b7030a9e8be1100b31ba52cc8f3d75033f3ae2213e8312",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-disabled-parity-462",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

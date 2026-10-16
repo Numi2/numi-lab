@@ -1,0 +1,9 @@
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":2.69982}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"completed","encoding_wall_s":2.69982,"commit_and_wait_wall_s":149.745,"gpu_wall_s":149.449,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":1,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_base_cgls_enabled={"schema":1,"root":1,"iterations":64,"operator_changed":false,"linear_solve_claim":false}
+fem_base_cgls_primary_policy_enabled={"schema":1,"root":1,"start_newton_inclusive":48,"selection":"healthy_base_above_noop_bound_with_original_linear_certificate","armijo_fallback_allowed":false,"operator_changed":false}
+fem_base_cauchy_all_newton_enabled={"schema":1,"root":1,"scope":"all_newton_iterations_on_all_control_steps","maximum_trace_records":512,"physical_operator_changed":false}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_end","encoding_wall_s":2.04553}

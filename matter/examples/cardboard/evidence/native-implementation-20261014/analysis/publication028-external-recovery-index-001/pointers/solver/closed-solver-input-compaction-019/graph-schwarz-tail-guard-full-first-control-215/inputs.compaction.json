@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15059843,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-tail-guard-full-first-control-215/inputs.tar.gz",
+  "archive_sha256": "8564a83bbcbf4f83e67a029831a9588289efd6cf1402fe140a15b6656e117a66",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/graph-schwarz-tail-guard-full-first-control-215/before-inventory.json",
+  "before_manifest_sha256": "3ef1e1520979b4690d81145ea83190e9c1737a272b2d71de4b5c2e922e5f4362",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-tail-guard-full-first-control-215",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

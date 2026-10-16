@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15059871,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-tail-guard-one-newton-214/inputs.tar.gz",
+  "archive_sha256": "6839567e3fbb6351496ba2d5c274a55c5ef658a0930267a559573fbf0a66e943",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/graph-schwarz-tail-guard-one-newton-214/before-inventory.json",
+  "before_manifest_sha256": "8b014ae4fef0ff2f82a4a888e0922dfd2e9f7aaf795d6d7ab5434739b071d9f3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-tail-guard-one-newton-214",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

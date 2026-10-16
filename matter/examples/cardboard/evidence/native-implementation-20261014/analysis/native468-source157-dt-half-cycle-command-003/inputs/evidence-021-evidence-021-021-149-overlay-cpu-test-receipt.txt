@@ -1,0 +1,22 @@
+Command: PYTHONDONTWRITEBYTECODE=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest discover -s /Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/cpu -v
+Exit code: 0
+
+test_default_unscaled_recurrence_is_same_as_identity_transform (test_right_cgls_reference.RightCGLSTests) ... ok
+test_field_and_quiet_rows_are_exactly_zero (test_right_cgls_reference.RightCGLSTests) ... ok
+test_human_tag_and_wrong_fixed_quiet_masks_fail_closed (test_right_cgls_reference.RightCGLSTests) ... ok
+test_right_recurrence_reduces_original_unscaled_residual (test_right_cgls_reference.RightCGLSTests) ... ok
+test_singular_node_block_is_not_regularized_or_accepted (test_right_cgls_reference.RightCGLSTests) ... ok
+test_transpose_is_required_for_nonsymmetric_scale (test_right_cgls_reference.RightCGLSTests) ... ok
+test_capture_version_disambiguates_scaled_coordinate_rows (test_source_contract.SourceContractTests) ... ok
+test_exact_opt_in_and_default_off (test_source_contract.SourceContractTests) ... ok
+test_fail_closed_row_and_block_guards (test_source_contract.SourceContractTests) ... ok
+test_newton_local_fresh_selected_block_build (test_source_contract.SourceContractTests) ... ok
+test_physical_install_and_certificate_kernel_unchanged (test_source_contract.SourceContractTests) ... ok
+test_right_scale_builder_uses_private_scratch_not_fgmres_arena (test_source_contract.SourceContractTests) ... ok
+test_s_and_transpose_are_applied_on_correct_sides (test_source_contract.SourceContractTests) ... ok
+test_unselected_block_outputs_are_initialized_before_skip (test_source_contract.SourceContractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.024s
+
+OK

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16777160,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-order-augmentation-off-N28-capture27-345/inputs.tar.gz",
+  "archive_sha256": "5dba158e3454f595c83f44dba89c8e4ee5f339090455c4cd152f6342b1b24b9a",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/reset-order-augmentation-off-N28-capture27-345/before-inventory.json",
+  "before_manifest_sha256": "fa8e3f4346e59b03b049c0207238d1556b60df4a9fa7ed0881d298e6d934ab99",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

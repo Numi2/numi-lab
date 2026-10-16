@@ -1,0 +1,9 @@
+{
+  "512MiB_abort_floor_bytes": 536870912,
+  "instruction": "Recheck live free space before native launch; this preparation-time measurement is not a launch authorization.",
+  "native_execution": "not launched",
+  "native_launch_allowed_by_this_observation": false,
+  "native_launch_minimum_free_bytes": 1610612736,
+  "observed_free_bytes_at_preparation": 125775872,
+  "schema": "numi.cardboard.native468.source157.capacity-preflight.v1"
+}

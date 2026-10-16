@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16777147,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-order-augmentation-complete-coupon-352/inputs.tar.gz",
+  "archive_sha256": "9ff1073ade124f49203b198dd3dc20822e74b8ee59b63bf5c9cd3fd91e2d2120",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/reset-order-augmentation-complete-coupon-352/before-inventory.json",
+  "before_manifest_sha256": "fefbf2a915d0ce80d78f90f87fbfda3c28bf88b57a14bc3192035df33f3e98fd",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-complete-coupon-352",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

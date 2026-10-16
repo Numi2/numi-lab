@@ -1,0 +1,21 @@
+{
+  "added_archive_sha256": "6238ad621213b6bd0f85117ed84ea50b3f4494607545b58da52b089521a3edee",
+  "added_build": "build-cardboard-provenance-084",
+  "added_inventory_gzip_sha256": "24661ac5daca6a2a7ef1a66ae51fbd03f972f3d4e9fc36e0bc9bf1f7ed9fc4e9",
+  "added_pointer_sha256": "e1c00dd8a780bd11d5676101c8eed1130e1fd64b5e7c3df58331c035dc5d6341",
+  "added_prepare_receipt_sha256": "c66b7f6e722ac81fcb7330ef2dfacfa004e961436d44ce551bdab2cc50dd4164",
+  "added_removal_receipt_sha256": "4b0ef5c34881de5edc025554c99587cfb57d88c32806addff8880e6b17b0ce8d",
+  "added_tree_restore_verified_before_removal": true,
+  "final_observed_df_free_bytes": 2502127616,
+  "final_observed_df_free_kib": 2443484,
+  "no_more_trees_compacted": true,
+  "readme_v2_sha256": "206034f84e45047a1434a33e85c2f816a090a89d9d99912f43e2ca227d2a442f",
+  "schema": "numi.cardboard.provenance-cmakefiles-seal-receipt.v2",
+  "threshold_kib": 2621440,
+  "threshold_met_at_receipt": false,
+  "v1_manifest_sha256": "4d552ed8b468d627ddbfc95dedcccfb719cfa8ae1e7330a80c504cc085f22192",
+  "v1_preserved_unchanged": true,
+  "v2_manifest": "archive-manifest-v2.json",
+  "v2_manifest_sha256": "a3e3adddf0468259822bbd21b148c7519d9738f3b3d8b45449c8f622a012bb2e",
+  "v2_sealer_script_sha256": "985b3bfa857ac29e4cb31eea5b6cd9101bf98bb69066b12c3e3ae360ae256745"
+}

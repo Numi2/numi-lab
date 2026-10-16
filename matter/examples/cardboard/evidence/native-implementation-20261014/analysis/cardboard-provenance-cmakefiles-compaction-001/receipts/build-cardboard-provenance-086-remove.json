@@ -1,0 +1,44 @@
+{
+  "archive_sha256": "fcd6207bd0e4972e47b6e42883f45058677f9047ea353f6c4ac91a911c379fad",
+  "build": "build-cardboard-provenance-086",
+  "df_after_remove": {
+    "free": 2678050816,
+    "total": 494353338368,
+    "used": 491675287552
+  },
+  "df_before_remove": {
+    "free": 2668216320,
+    "total": 494353338368,
+    "used": 491685122048
+  },
+  "inventory_sha256": "9717b566d3fdd1dc6c025e9b52cd6074f0be9c0ab7d0c8e78b4fe50b6d47f91c",
+  "lsof_gate": {
+    "command": [
+      "/usr/sbin/lsof",
+      "+D",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/CMakeFiles"
+    ],
+    "exit_code": 1,
+    "open_handles": 0
+  },
+  "measured_free_increase_since_prepare": 8257536,
+  "pointer": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/CMakeFiles/RESTORE_FROM_COMPACTION.txt",
+  "process_gate": {
+    "command": [
+      "/bin/ps",
+      "-axo",
+      "pid=,comm=,args="
+    ],
+    "target_mentions_from_build_tools": []
+  },
+  "remaining_entries": [
+    ".",
+    "RESTORE_FROM_COMPACTION.txt"
+  ],
+  "removed_allocated_bytes": 8925184,
+  "removed_directories": 407,
+  "removed_files": 1595,
+  "removed_logical_bytes": 3559396,
+  "schema": "numi.cardboard.provenance-cmakefiles-removal.v1",
+  "target": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/CMakeFiles"
+}

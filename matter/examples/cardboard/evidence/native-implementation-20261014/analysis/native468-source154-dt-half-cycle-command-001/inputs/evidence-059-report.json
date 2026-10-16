@@ -1,0 +1,252 @@
+{
+  "capacity_arithmetic": {
+    "abort_floor_bytes": 536870912,
+    "below_floor_bytes": 76591104,
+    "minimum_available_bytes": 460279808,
+    "signalled_process_groups": [
+      31314
+    ],
+    "wrapper_exit_code": 143
+  },
+  "capacity_guard_receipt": {
+    "abort_floor_bytes": 536870912,
+    "available_after_run": 572215296,
+    "available_before_launch": 1518501888,
+    "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467",
+    "command_sha256": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30",
+    "emergency_reserve_allocated_bytes": 134217728,
+    "finished_at_utc": "2026-10-16T00:16:36.468523+00:00",
+    "minimum_observed_available_bytes": 460279808,
+    "native_child_process_groups_signalled": [
+      31314
+    ],
+    "schema": "numi.cardboard.native-launch-capacity-guard.v1",
+    "space_abort": true,
+    "started_at_utc": "2026-10-16T00:04:53.269475+00:00",
+    "wall_seconds": 703.1963630840182,
+    "wrapper_exit_code": 143
+  },
+  "case": "cgls-complete-outer128-allcontrols-467",
+  "classification": "CAPACITY_GUARD_SIGTERM_INTERRUPTION",
+  "control0_completed": {
+    "accepted_observation_rows": 2,
+    "accepted_step_files": [
+      "accepted_step_000001_bent.obj",
+      "accepted_step_000001_held_reference.obj"
+    ],
+    "timing_record": "cardboard_step_timing={\"schema\":1,\"control_step\":0,\"stage\":\"completed\",\"encoding_wall_s\":2.69982,\"commit_and_wait_wall_s\":149.745,\"gpu_wall_s\":149.449,\"command_buffer_status\":4}"
+  },
+  "control1_state_at_interruption": {
+    "accepted_step_files": [],
+    "completion_record_present": false,
+    "log_events": [
+      "cardboard_step_timing={\"schema\":1,\"control_step\":1,\"stage\":\"encode_begin\",\"scope\":\"prescribed_fem_transaction\"}",
+      "cardboard_step_timing={\"schema\":1,\"control_step\":1,\"stage\":\"encode_end\",\"encoding_wall_s\":2.04553}"
+    ]
+  },
+  "evidence": [
+    {
+      "bytes": 117828,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/prediction.json",
+      "role": "case_prediction",
+      "sha256": "3472045b083551f64b25d8f458bf2af9e4eb30114e43c4a2d8c92d5ead69118e"
+    },
+    {
+      "bytes": 307,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/receipt.json",
+      "role": "native_receipt",
+      "sha256": "af63d6a08b19834cdc8471baf099bd09fe34eb27ae13396e40021a3e32477957"
+    },
+    {
+      "bytes": 8699528,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/stderr.log",
+      "role": "native_stderr",
+      "sha256": "52ae27f9b4e679ffeb35823b343607a8124399ea45b34ac8fbf550d91e6113f2"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/stdout.log",
+      "role": "native_stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 287,
+      "path": "/Users/home/cardboard-implementation-20261014/native467-runner.log",
+      "role": "native_runner_stdout",
+      "sha256": "66bf0d3e8158356798ac7c66253a1f224bae8cd0617592bcf51c23e6b516970c"
+    },
+    {
+      "bytes": 11771,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/output/manifest.json",
+      "role": "output_manifest",
+      "sha256": "6c1c90cb2fb760f2ebef408d645b401e61091d6ff40fd324ad6bd8889b4ebefd"
+    },
+    {
+      "bytes": 1831,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/output/observations.csv",
+      "role": "observations",
+      "sha256": "f201346bf57d07d9912489b3493414509a8f16110f5a1f9421683fcbe06d5445"
+    },
+    {
+      "bytes": 729,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-launch-guard-001/receipt.json",
+      "role": "launch_guard_receipt",
+      "sha256": "8167bf47ebeec6eccaf6acc1e720f0cf63b0ced2211c10a09c036544d4f21438"
+    },
+    {
+      "bytes": 510,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-launch-guard-001/launch.json",
+      "role": "launch_guard_launch",
+      "sha256": "6327fc68de6c8021daef18e45a7c9928be2c7833fd45dd5b6d4219fc0f9d9867"
+    },
+    {
+      "bytes": 5448,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-launch-guard-001/runner.py",
+      "role": "launch_guard_runner",
+      "sha256": "2d8bd6e8724dd7db1db6b7326e24c5cb3e8a2297b335cf0d79ec68129dbc4d27"
+    },
+    {
+      "bytes": 12702,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/native-467-command.json",
+      "role": "launch_command",
+      "sha256": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30"
+    },
+    {
+      "bytes": 1251,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-capacity-interruption-audit-001/stderr-lifecycle-excerpt.txt",
+      "role": "stderr_lifecycle_excerpt",
+      "sha256": "0c4475d8b05c1354e4b3208f874f6e02ca81afe5771a524e08942bc7e941c74c"
+    }
+  ],
+  "guard_launch": {
+    "abort_floor_bytes": 536870912,
+    "available_before_launch": 1518501888,
+    "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467",
+    "command_sha256": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30",
+    "emergency_reserve_allocated_bytes": 134217728,
+    "native_child_process_groups_signalled": [],
+    "schema": "numi.cardboard.native-launch-capacity-guard.v1",
+    "space_abort": false,
+    "started_at_utc": "2026-10-16T00:04:53.269475+00:00"
+  },
+  "guard_state_note": "launch.json records the initial pre-run state (space_abort=false); receipt.json is the final state and records space_abort=true plus the signalled native child PGID.",
+  "limits": [
+    "The native child was interrupted by the owned capacity guard; no full control1 native completion or solver verdict is available.",
+    "No GPU-driver or kernel crash evidence was found in the bounded system-log/diagnostic-report query.",
+    "The child had no live process entry by the post-termination check; RSS/VSZ zero in the earlier parent snapshot alone was not used to infer that it was idle.",
+    "The full stderr log remains at its original case path and is hash-bound, not duplicated into this package."
+  ],
+  "native_runner_receipt": {
+    "changed_inputs": [],
+    "execution_started": true,
+    "exit_code": -15,
+    "finished_at_utc": "2026-10-16T00:16:36.200440+00:00",
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "source_inputs_unchanged": true,
+    "termination_errors": [],
+    "timed_out": false,
+    "wall_seconds": 702.3278890410438
+  },
+  "process_evidence": {
+    "parent_reported_pretermination": {
+      "native_child_pgid": 31314,
+      "native_child_pid": 31314,
+      "native_child_rss_bytes": 0,
+      "native_child_state": "?Es",
+      "native_child_vsz_bytes": 0,
+      "observed_at_utc": "2026-10-16T00:16:50Z",
+      "provenance": "parent task observation before this audit",
+      "root_pid": 31297,
+      "wrapper_pid": 31303
+    },
+    "posttermination_check": {
+      "lsof_rows_for_these_processes": 0,
+      "observed_at_utc": "2026-10-16T00:16:50Z",
+      "ps_rows_for_31297_31303_31314": 0
+    },
+    "system_log_query": "No matching process/Metal command-buffer records or diagnostic reports returned for 02:04\u201302:18 local time."
+  },
+  "runner_exit_interpretation": {
+    "configured_timeout_seconds": 14400,
+    "guard_command_sha256_matches_bound_command": true,
+    "guard_wrapper_exit_code": 143,
+    "native_returncode": -15,
+    "signal_name": "SIGTERM",
+    "timeout_was_runner_timeout": false
+  },
+  "schema": "numi.cardboard.native-interruption-forensics.v1",
+  "scope": {
+    "argv": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe",
+      "--preset",
+      "literature2009",
+      "--line-search-steps",
+      "24",
+      "--without-self-contact",
+      "--reference-displacement-gradient",
+      "--compensated-paper-arithmetic",
+      "--residual-tolerance",
+      "1e-6",
+      "--newton-iterations",
+      "128",
+      "--fgmres-restart",
+      "16",
+      "--fgmres-iterations",
+      "1024",
+      "--fgmres-preconditioner",
+      "regional-galerkin-schwarz",
+      "--steps",
+      "12",
+      "--hold-steps",
+      "3",
+      "--unload-steps",
+      "6",
+      "--relax-steps",
+      "3",
+      "--post-release-relax-steps",
+      "3",
+      "--release-steps",
+      "3",
+      "--nx",
+      "8",
+      "--ny",
+      "2",
+      "--thickness-slices",
+      "1",
+      "--bend-angle",
+      ".375",
+      "--dt",
+      ".0001",
+      "--material-iterations",
+      "32",
+      "--metallib",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/output",
+      "--liner-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "--medium-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "--cache-fem-algorithmic-tangent",
+      "--compensated-source-paper-projection",
+      "--accurate-source-paper-projection"
+    ],
+    "configured_timeout_seconds": 14400,
+    "environment": {
+      "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "all:all",
+      "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+      "NM_FEM_BASE_CGLS_PRIMARY_AFTER": "48",
+      "NM_FEM_BASE_CGLS_RIGHT_SCALE": "block3",
+      "NM_FEM_CACHE_PROJECTION_REUSE": "1",
+      "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+      "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+      "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+      "NM_FEM_TRUE_RESIDUAL_ROOT": "all",
+      "NUMI_CARDBOARD_STEP_TIMING": "1"
+    },
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154"
+  },
+  "solver_verdict": "INCOMPLETE_NOT_A_NONLINEAR_SOLVER_FAILURE"
+}

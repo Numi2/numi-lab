@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.native467-admission.v1",
+  "prior_command": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-002/native-467-command.json",
+  "prior_command_sha256": "8578decb2ff5f33fcd14feb7c9c65fd7a10859e348b9204f66ffe3558ac711e1",
+  "new_command_sha256": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30",
+  "full_attempt_default64_parity_passed": true,
+  "native466_unmodified_inputs": true,
+  "build_topology_difference_explicitly_retained": true,
+  "only_external_evidence_inputs_added": true,
+  "physical_argv_unchanged": true,
+  "environment_unchanged": true,
+  "inputs": [
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-default64-native466-parity-001/report.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/admission-inputs/admission-00-source154-default64-native466-parity-001-report.json",
+      "sha256": "a94ba8c9fed80ad86ac87a7be2a0e15b192a959f455976e6c508ecf4084f39fb"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-default64-native466-parity-001/manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/admission-inputs/admission-01-source154-default64-native466-parity-001-manifest.json",
+      "sha256": "63b42ab545e1b477854ddcb3b0198e852746a6eae62677395425bb9666692423"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/solver/cgls-newton128-default64-parity-466/receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/admission-inputs/admission-02-cgls-newton128-default64-parity-466-receipt.json",
+      "sha256": "b4522a3c3e6dde1727cd785508287eda49624e3b71d8686512d60e15cca10d04"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/native466-launch-guard-001/receipt.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/admission-inputs/admission-03-native466-launch-guard-001-receipt.json",
+      "sha256": "70eec401d77da67f034d8cf0010f27c19d995140a9553814e9832113ccd8b03b"
+    },
+    {
+      "original": "/Users/home/cardboard-implementation-20261014/analysis/source154-build-topology-erratum-001/manifest.json",
+      "copied": "/Users/home/cardboard-implementation-20261014/analysis/native467-source154-allcontrol-outer128-command-003/admission-inputs/admission-04-source154-build-topology-erratum-001-manifest.json",
+      "sha256": "95e92b0c32cb9611211a73e856cb80e2f7a8cc51fa415131a625828a9f965cdd"
+    }
+  ],
+  "gpu_execution": "not launched"
+}

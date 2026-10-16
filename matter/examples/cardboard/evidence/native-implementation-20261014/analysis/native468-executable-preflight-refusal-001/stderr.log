@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/run_native468.py", line 23, in <module>
+    assert build['success'] and executable in build['artifacts_sha256'], 'executable/build mismatch'
+AssertionError: executable/build mismatch

@@ -1,0 +1,91 @@
+{
+  "all_live_hashes_match": true,
+  "artifacts": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/numi-matter-cardboard-probe": {
+      "actual_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+      "expected_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+      "matches": true
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatter.metallib": {
+      "actual_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "expected_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+      "matches": true
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "actual_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+      "matches": true
+    }
+  },
+  "build_metadata": {
+    "CMakeCache.txt": {
+      "actual_sha256": "c1eb143c01191b44269eb76e6e7e79461723d8a51a9bcabf8255d22734aef496",
+      "expected_sha256": "c1eb143c01191b44269eb76e6e7e79461723d8a51a9bcabf8255d22734aef496",
+      "matches": true
+    },
+    "compile_commands.json": {
+      "actual_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+      "expected_sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a",
+      "matches": true
+    }
+  },
+  "build_package_manifest_sha256": "5d2a07d62a17ad3d48a5f1f44255b539aeed8ce15cf9c74bfbdeffccd5b9e6a6",
+  "build_topology": {
+    "same_release_target_and_cmake_source_relative_root": true,
+    "source154_jobs": 4,
+    "source157_jobs": 2,
+    "source_relative_root": "matter",
+    "target": "numi-matter-cardboard-probe",
+    "warning": "Job count differs; no claim of identical build command. Both source-bound builds are individually hashed."
+  },
+  "compile_only": {
+    "128": {
+      "accepted_steps": 0,
+      "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+      "compiled_world_fingerprint": 18424858654715171865,
+      "damage_overlay_mapping_sha256": "",
+      "failure": "",
+      "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+      "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "compile_only",
+      "tetrahedra": 1920
+    },
+    "64": {
+      "accepted_steps": 0,
+      "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+      "compiled_world_fingerprint": 8485105279886344921,
+      "damage_overlay_mapping_sha256": "",
+      "failure": "",
+      "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+      "material_map_sha256": "a695cb1bf6c22547013c15007998b171fc7639433c438380a15972cf36483f7b",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "compile_only",
+      "tetrahedra": 1920
+    }
+  },
+  "configure_support_file_hash_count": 1034,
+  "configure_support_hash_mismatches": [],
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "host_probe_byte_identical_to_source154": false,
+  "metallibs_byte_identical_to_source154": true,
+  "schema": "numi.cardboard.native468.source-build-bindings.v1",
+  "source154_parent_artifacts_sha256": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+  },
+  "source_build_provenance_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/source-build.json",
+  "source_build_provenance_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5",
+  "source_file_hash_count": 787,
+  "source_file_hash_mismatches": [],
+  "source_overlay_manifest_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "source_recovery_sha256": "d9f7f7b7f111e077c80c14db6f7ec8c4873717fd373fe614fb2bc0015d698301",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "source_snapshot_manifest_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "verification_report_sha256": "a5de04b73b07097c3254c281751ae06aac5b48f40446a117e01d8e0230902bed"
+}

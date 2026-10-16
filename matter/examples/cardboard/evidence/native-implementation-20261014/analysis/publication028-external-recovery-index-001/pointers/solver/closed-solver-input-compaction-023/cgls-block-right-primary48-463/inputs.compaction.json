@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16355804,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/archives/cgls-block-right-primary48-463/inputs.tar.gz",
+  "archive_sha256": "4c2251b265d8e63b5c6b79a574496ee61627d88eb380809d03d84d691a502c57",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/cases/cgls-block-right-primary48-463/before-inventory.json",
+  "before_manifest_sha256": "e4494d3034d6d0f3e3f5f1a3b1a3fe3ffd7944a73771066d20b04ed1573bc1d9",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-primary48-463",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-023/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

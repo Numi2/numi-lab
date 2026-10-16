@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15541020,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/budgeted-refined-nx16-first-control-265/inputs.tar.gz",
+  "archive_sha256": "956f217dd822516ee02b1e382bfec501cfec956eaff23c76dfc0295dcf39316e",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/budgeted-refined-nx16-first-control-265/before-inventory.json",
+  "before_manifest_sha256": "d9adc3cec14c9f4ce8e0f3dd7dff54ac173887231713e2ad3c901631a8b5b6a4",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/budgeted-refined-nx16-first-control-265",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

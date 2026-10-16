@@ -1,0 +1,94 @@
+{
+  "schema": "numi.cardboard.cgls_disabled_native_attempted_history_parity.v1",
+  "verdict": "PASS_for_exact_attempted_history_only",
+  "output_files": 35,
+  "byte_exact_output_files": 33,
+  "metadata_differences": [
+    {
+      "path": "manifest.json",
+      "left_bytes": 11713,
+      "right_bytes": 11704,
+      "left_sha256": "ba318fad270cb12994b4614925e9a9613b806f7897e48ddfade50e6c41f6f137",
+      "right_sha256": "6459e2a5cf9db0b8aa21b9d8456fddda5bd2af19c15d3ac60b1fa15f4d3afee5",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/materials/glue_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/starch2007_finite_glue_elastic.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141/matter/materials/starch2007_finite_glue_elastic.nmatter"
+        },
+        {
+          "field": "$/materials/liner_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter"
+        },
+        {
+          "field": "$/materials/medium_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+        }
+      ]
+    },
+    {
+      "path": "rejected-conditioning-000002/manifest.json",
+      "left_bytes": 5545,
+      "right_bytes": 5544,
+      "left_sha256": "9beeccdebf140e57b82be272d56d32a2ab8166a71eb7b0c0cf8e8fc7bdfad4ed",
+      "right_sha256": "2b0aa27c383001caf7014e3dd674149b677af0a4f18d55cf8579dae4c1fe352e",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/device_program_fingerprint",
+          "left": "11696512877127033271",
+          "right": "7578576944482408046"
+        }
+      ]
+    }
+  ],
+  "armijo_records_byte_exact": 64,
+  "true_residual_records_byte_exact": 4096,
+  "stdout_byte_exact": true,
+  "first_status5_payload_byte_exact": true,
+  "all_other_numerical_status_fields_byte_exact": true,
+  "only_notice_difference": "none",
+  "physical_probe_argv_equal_after_path_normalization": true,
+  "environment_difference": "none; all CGLS selectors and capture paths absent",
+  "source_build141_sha256": "8062e56e9478bcfb6729b0d5765f2410ffefea57786656aa40864f275440bd26",
+  "receipts": {
+    "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-441": {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 366.3586659579887,
+      "finished_at_utc": "2026-10-15T21:16:27.635086+00:00"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445": {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 376.1071635829867,
+      "finished_at_utc": "2026-10-15T21:30:43.071945+00:00"
+    }
+  },
+  "run_bindings": {
+    "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-441": {
+      "receipt.json": "cd247099ad0e77ca22827a6adc46588d197b1dbbd6b1730192b94d8c5a3176f6",
+      "stderr.log": "5aa1a9cd97a8e9eec5fe9aaf2db238b73cb8ca0fbe3da36605ebd394821e54c8",
+      "output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445": {
+      "receipt.json": "e076c7e3cc9403043ce47ea2cb73f54e3aa61dd3b8f24b55c0b84ba0960940ae",
+      "stderr.log": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0",
+      "output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    }
+  },
+  "qualification_limit": "Both complete attempted histories reject loading control1 at Newton48 after one accepted control. No complete coupon, convergence or performance qualification. Source141 CGLS helpers remain default-off; enabled native qualification is separate. Timing is one observation per source; no speedup claim."
+}

@@ -1,0 +1,842 @@
+{
+  "capture_latch_and_consumption": {
+    "augmented_view_admissible": false,
+    "capture_generation_matches_source_join": true,
+    "consumer_restart_cycle_recorded": false,
+    "reason": "The selected restart-cycle consumption is not captured; the source151 audit marks the augmented view unadmitted. The 158 code uses base P/AP/RAP and block3 H, not the graph patch map. Clearing completed_tail_latch on a clone does not enter BlockRAP arithmetic; no FGMRES graph callback or actual CGLS-consumed map is replayed.",
+    "same_newton_restart_augmentation_enabled": true,
+    "scope": "unlatched base formula on captured same-generation P/AP/RAP plus reconstructed block3 H only"
+  },
+  "execution": {
+    "attempt_001": {
+      "console_sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a",
+      "exit_code": 1,
+      "reason": "optional threadpoolctl import absent in the qualified Python; no numeric experiment ran",
+      "script_sha256": "3c119c9325ae9401eb2fd8769440968a33b37c023029821d2e3c825d505b46ff",
+      "stage": "import before capture read or recurrence"
+    },
+    "attempt_002": {
+      "argv": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py > /Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt002-console.txt 2>&1",
+      "command_provenance": "Exact shell invocation supplied by the root operator after review; not stored in the original package as an execution receipt.",
+      "console_sha256": "5b16bcc317ff271dafa71cc50fa4c46d585df257fcd4720161b86a384444959b",
+      "cwd": "/Users/home",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "exit_code": 0,
+      "note": "The package attempts.json records attempt001 only. The exact attempt002 invocation is parent-tool-supplied, not independently persisted by the runner.",
+      "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+      "python_version": "3.10.12"
+    }
+  },
+  "independent_source_tests": {
+    "schema": "numi.cardboard.block_rap_review_tests.v1",
+    "tests": [
+      {
+        "cases": [
+          {
+            "ST_max_abs": 5.551115123125783e-17,
+            "S_max_abs": 5.551115123125783e-17,
+            "adjoint_dot_abs": 0.0,
+            "weight": 0.1
+          },
+          {
+            "ST_max_abs": 2.7755575615628914e-17,
+            "S_max_abs": 5.551115123125783e-17,
+            "adjoint_dot_abs": 5.551115123125783e-17,
+            "weight": 1.0
+          }
+        ],
+        "nonsymmetric_R": true,
+        "result": "pass"
+      },
+      {
+        "direct_solve_rejects_invalid_factor": true,
+        "result": "pass",
+        "study_wrapper_rejects_invalid_factor": true,
+        "wrapper_guard_kind": "Python assert (removed by python -O)"
+      }
+    ]
+  },
+  "input_binding_validation": {
+    "all_original_results_bindings_match_on_review": true,
+    "original_result_bindings": [
+      {
+        "actual_sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31",
+        "expected_sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/run_cgls_preconditioners.py"
+      },
+      {
+        "actual_sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524",
+        "expected_sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/manifest.json"
+      },
+      {
+        "actual_sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50",
+        "expected_sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/manifest.json"
+      },
+      {
+        "actual_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+        "expected_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json"
+      },
+      {
+        "actual_sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+        "expected_sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin"
+      },
+      {
+        "actual_sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9",
+        "expected_sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json"
+      },
+      {
+        "actual_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+        "expected_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json"
+      },
+      {
+        "actual_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+        "expected_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz"
+      },
+      {
+        "actual_sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8",
+        "expected_sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json"
+      },
+      {
+        "actual_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+        "expected_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+        "match": true,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin"
+      }
+    ],
+    "referenced_files": [
+      {
+        "bytes": 6842,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "sha256": "076f9eaccad1e02b7eefb150c6b56f5ce16ff0df86d4a0165d255fec4dc7ab40"
+      },
+      {
+        "bytes": 798250,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/results.json",
+        "sha256": "be363f80eb3ff2f9f21754c47997a6ba3a50dad37bc0a6c06080b2c8261b1ab7"
+      },
+      {
+        "bytes": 351,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempts.json",
+        "sha256": "06924d70297f81f86e0dcf82433c7ddbef67f592b3b140b527fda8f2c65a3302"
+      },
+      {
+        "bytes": 6641,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt001-run.py",
+        "sha256": "3c119c9325ae9401eb2fd8769440968a33b37c023029821d2e3c825d505b46ff"
+      },
+      {
+        "bytes": 267,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt001-console.txt",
+        "sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a"
+      },
+      {
+        "bytes": 267,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/console.txt",
+        "sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a"
+      },
+      {
+        "bytes": 1145,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt002-console.txt",
+        "sha256": "5b16bcc317ff271dafa71cc50fa4c46d585df257fcd4720161b86a384444959b"
+      },
+      {
+        "bytes": 4740,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test_review.py",
+        "sha256": "32d1640bb7ad1819ff0796fc9ddf76f79b19c18e02c47f7676fcefc17463a735"
+      },
+      {
+        "bytes": 737,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test-output.txt",
+        "sha256": "7076443fabd0939be8c6c4c9f35bd8f177cb88dc2ffadadaf9e5aabfc9bd7a31"
+      },
+      {
+        "bytes": 2579,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning_probe.py",
+        "sha256": "04fb71eef0103fd27ec926043409ab4e44e4b170eea73a807e7d4e48dd4e917d"
+      },
+      {
+        "bytes": 1025,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning-probe-output.json",
+        "sha256": "b8f584f8a5f4fda9969c4e63b0c3f733302d471089eb9542de46f19fc3046b3c"
+      },
+      {
+        "bytes": 20659,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/run_cgls_preconditioners.py",
+        "sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31"
+      },
+      {
+        "bytes": 8445,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/manifest.json",
+        "sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524"
+      },
+      {
+        "bytes": 41327,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/audit_native464_v4.py",
+        "sha256": "6cf1c4bb95c0631f8c350194603374911b64062ac84efc9aeac7f277303a522e"
+      },
+      {
+        "bytes": 7537,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/manifest.json",
+        "sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50"
+      },
+      {
+        "bytes": 36655,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/native464-audit-v4.json",
+        "sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+      },
+      {
+        "bytes": 3009,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/manifest.json",
+        "sha256": "0d918a2cc5c36b3cf7f91e8d729db1969154ef70b52053869c4767299d4222a7"
+      },
+      {
+        "bytes": 30098,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/selector5_graph_reference.py",
+        "sha256": "6f3176997ae50370e44a80c8ae9032a352f7a2af03dbf228e991d653cf06365d"
+      },
+      {
+        "bytes": 15247,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/regional_rap_reference.py",
+        "sha256": "40ab7f04c5e4fec0c9f574ad533e1d59bbfb3b8037d1815f306c1c14fd292728"
+      },
+      {
+        "bytes": 1905656,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+        "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+      },
+      {
+        "bytes": 7149,
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/metal/base_cgls_runtime.metalinc",
+        "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+      },
+      {
+        "bytes": 31614,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin",
+        "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+      },
+      {
+        "bytes": 17389,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+        "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+      },
+      {
+        "bytes": 306,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/receipt.json",
+        "sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994"
+      },
+      {
+        "bytes": 409368,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin",
+        "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+      },
+      {
+        "bytes": 11320,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+        "sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523"
+      },
+      {
+        "bytes": 77619992,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.bin",
+        "sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873"
+      },
+      {
+        "bytes": 8680,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json",
+        "sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8"
+      },
+      {
+        "bytes": 4327464,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin",
+        "sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+      },
+      {
+        "bytes": 5809,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json",
+        "sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+      },
+      {
+        "bytes": 506678,
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+        "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+      },
+      {
+        "bytes": 38811258,
+        "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+        "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+      }
+    ]
+  },
+  "limitations": [
+    "All six recurrences stop at the 64-iteration cap; this is not convergence.",
+    "w=0.1 provides only a small residual change; w=1.0 worsens the 64-iteration residual in both CPU dtypes.",
+    "No native S/S^T action parity or FGMRES-consumed selector-5 augmented view was captured.",
+    "No physical acceptance, complete-coupon, shipping, or performance conclusion follows.",
+    "NumPy/BLAS matmul warning provenance remains unresolved; warnings are not suppressed.",
+    "The 158 package has no runner receipt for attempt002; its exact invocation is bound to the parent operator message and the output console hash."
+  ],
+  "mathematics": {
+    "H_actual_in_this_cpu_study": "block diagonal inverse of each free-node 3x3 diagonal block of the 419 CSR operator A, computed on CPU. It is not the captured selector-5 graph fine map and is not a native FP32 action.",
+    "cgls_system": "minimize ||A S y - b||_2; x=S y; s=S^T A^T r",
+    "tested_map": "S = H + w (P - H A P) R^{-1} P^T",
+    "transpose": "S^T = H^T + w P R^{-T} (P^T - P^T A^T H^T)",
+    "transpose_review": "The code solves the base RAP transpose system through U^T then L^T and scatters by final row permutation; the block3 transpose applies each inverse block transpose. Q^T is formed as Q.T. A nonsymmetric synthetic action test below confirms the composed implementation."
+  },
+  "review_scope": "Independent CPU-only review of source158 math, input lineage, transpose, latch scope, finite/warning evidence, and a small synthetic consumer test.",
+  "schema": "numi.cardboard.block_rap_reference_158_review.v1",
+  "state_operator_join": {
+    "AP_vs_419_CSR_times_P_relative_l2": 1.0428333470875882e-07,
+    "accepted_history_exact": true,
+    "accepted_nodes_exact": true,
+    "base_factor_pivots_permutation": true,
+    "base_factor_valid_environment0": true,
+    "candidate_accepted_history_tangent_cache_rhs_original_correction_parameters_bound": true,
+    "candidate_and_accepted_nodes_exact": true,
+    "captured_base_LU_vs_419_CSR_PtAP_relative_l2": 1.2272751346105972e-07,
+    "current_projected_material_history": "unavailable_not_persisted; no claim made that the raw candidate material-state scratch is current projected history",
+    "dimensions_generation": {
+      "base_modes": 26,
+      "control_step": 1,
+      "dt_seconds": 9.99999975e-05,
+      "environment": 0,
+      "free_dofs": 2538,
+      "linearization_generation": "0000000200000030",
+      "micro_generation": 2,
+      "microtick": 0,
+      "microtick_count": 1,
+      "newton_iteration": 48,
+      "nodes": 882,
+      "physics_substep": 0,
+      "tets": 1920
+    },
+    "exact_operator_join_admissible": true,
+    "original_newton_correction_exact": true,
+    "rhs_exact": true,
+    "source_report_schema": "numi.cardboard.native464_regional_capture_audit.v4",
+    "tangent_cache_and_valid_exact": true
+  },
+  "study_results": {
+    "adjoint_checks": [
+      {
+        "adjoint_absolute_gap": 1.3642420526593924e-12,
+        "coarse_weight": 0.0,
+        "dtype": "float64",
+        "gate": 1e-12,
+        "norm_scaled_gap": 2.7867407474837734e-18,
+        "pass": true
+      },
+      {
+        "adjoint_absolute_gap": 2.7284841053187847e-12,
+        "coarse_weight": 0.1,
+        "dtype": "float64",
+        "gate": 1e-12,
+        "norm_scaled_gap": 4.568333497817874e-18,
+        "pass": true
+      },
+      {
+        "adjoint_absolute_gap": 1.4551915228366852e-11,
+        "coarse_weight": 1.0,
+        "dtype": "float64",
+        "gate": 1e-12,
+        "norm_scaled_gap": 4.828353359264798e-18,
+        "pass": true
+      },
+      {
+        "adjoint_absolute_gap": 6.1023488342470955e-05,
+        "coarse_weight": 0.0,
+        "dtype": "float32",
+        "gate": 1e-05,
+        "norm_scaled_gap": 1.2465283581657532e-10,
+        "pass": true
+      },
+      {
+        "adjoint_absolute_gap": 0.0009746956166054588,
+        "coarse_weight": 0.1,
+        "dtype": "float32",
+        "gate": 1e-05,
+        "norm_scaled_gap": 1.6319445004488512e-09,
+        "pass": true
+      },
+      {
+        "adjoint_absolute_gap": 0.008561122896935558,
+        "coarse_weight": 1.0,
+        "dtype": "float32",
+        "gate": 1e-05,
+        "norm_scaled_gap": 2.8405970438797157e-09,
+        "pass": true
+      }
+    ],
+    "all_adjoint_checks_pass": true,
+    "all_numeric_json_values_finite": true,
+    "cases": [
+      {
+        "b_dot_Ax": 3.3753231202203145e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.042157525247333e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015518676959192896,
+            "recursive_residual_l2": 5.9982844299286845e-05,
+            "relative_true_residual": 0.3252093210676326,
+            "true_residual_l2": 5.9982844299286845e-05
+          },
+          {
+            "b_dot_Ax": 3.271533741054446e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02102559138921988,
+            "recursive_residual_l2": 3.6113424819052655e-05,
+            "relative_true_residual": 0.19579635650873498,
+            "true_residual_l2": 3.6113424819052655e-05
+          },
+          {
+            "b_dot_Ax": 3.3516400432491756e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.025741851231869946,
+            "recursive_residual_l2": 2.2430257025133595e-05,
+            "relative_true_residual": 0.12161024945932614,
+            "true_residual_l2": 2.243025702513359e-05
+          },
+          {
+            "b_dot_Ax": 3.3753231202203145e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.029416368196416052,
+            "recursive_residual_l2": 1.6314775512216205e-05,
+            "relative_true_residual": 0.088453909274885,
+            "true_residual_l2": 1.631477551221621e-05
+          }
+        ],
+        "coarse_weight": 0.0,
+        "dtype": "float64",
+        "final_normal_residual_l2": 4.5676422852291966e-07,
+        "final_relative_true_residual": 0.088453909274885,
+        "final_true_residual_l2": 1.631477551221621e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.029416368196416052,
+        "status": "iteration_cap"
+      },
+      {
+        "b_dot_Ax": 3.375591878413442e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.043854057445545e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015754913399432594,
+            "recursive_residual_l2": 5.9841259079754996e-05,
+            "relative_true_residual": 0.32444168769420634,
+            "true_residual_l2": 5.984125907975499e-05
+          },
+          {
+            "b_dot_Ax": 3.269760947188549e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02126869972164646,
+            "recursive_residual_l2": 3.6358044375630625e-05,
+            "relative_true_residual": 0.19712261172126969,
+            "true_residual_l2": 3.6358044375630625e-05
+          },
+          {
+            "b_dot_Ax": 3.351643922480081e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.02782252624086009,
+            "recursive_residual_l2": 2.2429392276766644e-05,
+            "relative_true_residual": 0.12160556104828811,
+            "true_residual_l2": 2.2429392276766654e-05
+          },
+          {
+            "b_dot_Ax": 3.375591878413442e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.030560868051332537,
+            "recursive_residual_l2": 1.6232771371708834e-05,
+            "relative_true_residual": 0.08800930696949791,
+            "true_residual_l2": 1.6232771371708834e-05
+          }
+        ],
+        "coarse_weight": 0.1,
+        "dtype": "float64",
+        "final_normal_residual_l2": 4.661004879639435e-07,
+        "final_relative_true_residual": 0.08800930696949791,
+        "final_true_residual_l2": 1.6232771371708834e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.030560868051332537,
+        "status": "iteration_cap"
+      },
+      {
+        "b_dot_Ax": 3.367711208212424e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 2.7757575933276065e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.013423923940782415,
+            "recursive_residual_l2": 7.913242653573245e-05,
+            "relative_true_residual": 0.4290327177503626,
+            "true_residual_l2": 7.913242653573249e-05
+          },
+          {
+            "b_dot_Ax": 3.16457365001517e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.02977377199518596,
+            "recursive_residual_l2": 4.881350287974191e-05,
+            "relative_true_residual": 0.2646524404752601,
+            "true_residual_l2": 4.881350287974194e-05
+          },
+          {
+            "b_dot_Ax": 3.329515760610864e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.02740846332951093,
+            "recursive_residual_l2": 2.6913837409447657e-05,
+            "relative_true_residual": 0.1459189022044293,
+            "true_residual_l2": 2.691383740944772e-05
+          },
+          {
+            "b_dot_Ax": 3.367711208212424e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.029008229868108974,
+            "recursive_residual_l2": 1.8556222061928592e-05,
+            "relative_true_residual": 0.10060637251928022,
+            "true_residual_l2": 1.855622206192863e-05
+          }
+        ],
+        "coarse_weight": 1.0,
+        "dtype": "float64",
+        "final_normal_residual_l2": 7.555833693583216e-07,
+        "final_relative_true_residual": 0.10060637251928022,
+        "final_true_residual_l2": 1.855622206192863e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.029008229868108974,
+        "status": "iteration_cap"
+      },
+      {
+        "b_dot_Ax": 3.3747574754128443e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.042157678784643e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015518680668155928,
+            "recursive_residual_l2": 5.998283712123981e-05,
+            "relative_true_residual": 0.3252092942733742,
+            "true_residual_l2": 5.998283935725189e-05
+          },
+          {
+            "b_dot_Ax": 3.271533035344331e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.021025583932896504,
+            "recursive_residual_l2": 3.611346019723527e-05,
+            "relative_true_residual": 0.1957965428843327,
+            "true_residual_l2": 3.611345919487689e-05
+          },
+          {
+            "b_dot_Ax": 3.351616605363716e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.025741864160969356,
+            "recursive_residual_l2": 2.2430319906511397e-05,
+            "relative_true_residual": 0.12161059375875687,
+            "true_residual_l2": 2.2430320529030334e-05
+          },
+          {
+            "b_dot_Ax": 3.3747574754128443e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.029218534754149872,
+            "recursive_residual_l2": 1.656147018139125e-05,
+            "relative_true_residual": 0.08979141763815049,
+            "true_residual_l2": 1.6561470642722825e-05
+          }
+        ],
+        "coarse_weight": 0.0,
+        "dtype": "float32",
+        "final_normal_residual_l2": 4.805768175138662e-07,
+        "final_relative_true_residual": 0.08979141763815049,
+        "final_true_residual_l2": 1.6561470642722825e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.029218534754149872,
+        "status": "iteration_cap"
+      },
+      {
+        "b_dot_Ax": 3.374693407162409e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 3.043854183432496e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.015754914226615197,
+            "recursive_residual_l2": 5.9841246999425726e-05,
+            "relative_true_residual": 0.3244416170010369,
+            "true_residual_l2": 5.98412460408379e-05
+          },
+          {
+            "b_dot_Ax": 3.269760542644323e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.021268717383864936,
+            "recursive_residual_l2": 3.63580315457156e-05,
+            "relative_true_residual": 0.197122600355367,
+            "true_residual_l2": 3.63580422792603e-05
+          },
+          {
+            "b_dot_Ax": 3.3516382507279174e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.027822609500010656,
+            "recursive_residual_l2": 2.242939253638172e-05,
+            "relative_true_residual": 0.12160555925015788,
+            "true_residual_l2": 2.2429391945112676e-05
+          },
+          {
+            "b_dot_Ax": 3.374693407162409e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.030189441925537075,
+            "recursive_residual_l2": 1.649093401477886e-05,
+            "relative_true_residual": 0.08940898560927898,
+            "true_residual_l2": 1.6490933424516557e-05
+          }
+        ],
+        "coarse_weight": 0.1,
+        "dtype": "float32",
+        "final_normal_residual_l2": 4.998057250051992e-07,
+        "final_relative_true_residual": 0.08940898560927898,
+        "final_true_residual_l2": 1.6490933424516557e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.030189441925537075,
+        "status": "iteration_cap"
+      },
+      {
+        "b_dot_Ax": 3.357837290535408e-08,
+        "b_l2": 0.00018444380407784322,
+        "checkpoints": [
+          {
+            "b_dot_Ax": 2.774523282905675e-08,
+            "iteration": 8,
+            "mapped_direction_l2": 0.018586037195914156,
+            "recursive_residual_l2": 7.925325705344988e-05,
+            "relative_true_residual": 0.4296881441529558,
+            "true_residual_l2": 7.925331587471984e-05
+          },
+          {
+            "b_dot_Ax": 3.100681835889054e-08,
+            "iteration": 16,
+            "mapped_direction_l2": 0.01685546843103636,
+            "recursive_residual_l2": 5.483483108983062e-05,
+            "relative_true_residual": 0.2972988488766004,
+            "true_residual_l2": 5.4834930634764005e-05
+          },
+          {
+            "b_dot_Ax": 3.3072814945501164e-08,
+            "iteration": 32,
+            "mapped_direction_l2": 0.02780468876755339,
+            "recursive_residual_l2": 3.089522452006655e-05,
+            "relative_true_residual": 0.1675049379855853,
+            "true_residual_l2": 3.0895247963884575e-05
+          },
+          {
+            "b_dot_Ax": 3.357837290535408e-08,
+            "iteration": 64,
+            "mapped_direction_l2": 0.027024959686895896,
+            "recursive_residual_l2": 2.0946448869713872e-05,
+            "relative_true_residual": 0.11356556296028701,
+            "true_residual_l2": 2.0946464444637147e-05
+          }
+        ],
+        "coarse_weight": 1.0,
+        "dtype": "float32",
+        "final_normal_residual_l2": 6.361330900227067e-07,
+        "final_relative_true_residual": 0.11356556296028701,
+        "final_true_residual_l2": 2.0946464444637147e-05,
+        "iterations": 64,
+        "mapped_direction_l2": 0.027024959686895896,
+        "status": "iteration_cap"
+      }
+    ],
+    "coarse_modes": 26,
+    "operator_shape": [
+      2538,
+      2538
+    ],
+    "warnings_count": 3300
+  },
+  "verdict": "Formula and transpose check out for the declared unlatched base coarse map; results are a bounded CPU conditioning experiment only. Selector-5 augmented consumption, native arithmetic parity, solver acceptance, and physical qualification remain unproven.",
+  "warning_review": {
+    "grouped_warnings": [
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 45,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 45,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 45,
+        "message": "overflow encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 46,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 46,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 280,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 46,
+        "message": "overflow encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 52,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 52,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 52,
+        "message": "overflow encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 53,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 53,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 264,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 53,
+        "message": "overflow encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 98,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 98,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 98,
+        "message": "overflow encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 99,
+        "message": "divide by zero encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 99,
+        "message": "invalid value encountered in matmul"
+      },
+      {
+        "category": "RuntimeWarning",
+        "count": 6,
+        "file": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+        "line": 99,
+        "message": "overflow encountered in matmul"
+      }
+    ],
+    "independent_one_vector_probe": {
+      "result": [
+        {
+          "apply_finite": true,
+          "apply_linf": 2079.0099180705165,
+          "dtype": "float64",
+          "input_linf": 3.4890921364240954,
+          "transpose_finite": true,
+          "transpose_linf": 2050.389473640463,
+          "warnings": {
+            "divide by zero encountered in matmul": 4,
+            "invalid value encountered in matmul": 4,
+            "overflow encountered in matmul": 4
+          }
+        },
+        {
+          "apply_finite": true,
+          "apply_linf": 2079.009765625,
+          "dtype": "float32",
+          "input_linf": 3.4890921115875244,
+          "transpose_finite": true,
+          "transpose_linf": 2050.3896484375,
+          "warnings": {
+            "divide by zero encountered in matmul": 4,
+            "invalid value encountered in matmul": 4,
+            "overflow encountered in matmul": 4
+          }
+        }
+      ],
+      "schema": "numi.cardboard.block_rap_warning_probe.v1",
+      "seterr_raise_probe": "divide by zero encountered in matmul",
+      "warning_cause": "unresolved; output finiteness does not explain the reported NumPy/BLAS flags"
+    },
+    "raw_warning_total": 3300,
+    "verdict": "Unresolved. Warning messages are preserved. The captured six-case JSON is finite and all cgls loop checks named in source pass on these cases, but an independent single-vector map probe also emits matmul warnings and np.seterr(all=raise) raises at P.T @ x. This prevents calling the CPU arithmetic clean-warning or attributing the flags as benign."
+  }
+}

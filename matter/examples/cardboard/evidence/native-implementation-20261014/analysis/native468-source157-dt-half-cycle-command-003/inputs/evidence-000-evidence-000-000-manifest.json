@@ -1,0 +1,76 @@
+{
+  "final_runtime_binding": {
+    "candidate_runtime_sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+    "current_new_scratch_bound_bytes": 1900624,
+    "old_base_rhs_trace_additional_bound_bytes": 262176,
+    "ordered_generators": [
+      "prepare.py",
+      "extend_capture.py",
+      "fix_abi.py",
+      "fix_quiet.py",
+      "finalize.py"
+    ],
+    "ordered_patches": [
+      "runtime.patch",
+      "capture.patch",
+      "abi-and-allocation-fixes.patch",
+      "quiet-environment-fixes.patch",
+      "final-metadata.patch"
+    ],
+    "physical_steps": 0,
+    "prior_preflight_scope": "Each preflight records its own historical draft stage; final-runtime-binding identifies current bytes. Failed draft ABI and quiet-layout assumptions are preserved in their sequential patches.",
+    "runtime_adapters_sha256": "18ba6a966feddd1b777da184f19df9e8083f1c5b6c5f5d19ee736a0d8d6819eb",
+    "status": "AWAITING_SOURCE141_BUILD_AND_NATIVE_CHECKS"
+  },
+  "notes": [
+    "Potential unused operator-action dispatches after terminal per-environment CGLS status; performance note only.",
+    "No CGLS native-result claim.",
+    "Preflight scratch accounting in final binding: 1900624 bytes new CGLS scratch + 262176 bytes base RHS/trace."
+  ],
+  "result": "source-consistent_bounded_default-off_experimental_path; build-and-native-pending",
+  "review_scope": "read-only source review; no integrated build or physical/native qualification",
+  "reviewed_files": {
+    "base_cgls.metalinc": {
+      "bytes": 23723,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001/core-v1/source/matter/src/metal/base_cgls.metalinc",
+      "sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c"
+    },
+    "candidate_runtime.mm": {
+      "bytes": 1812192,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-overlay-140-001/candidate/matter/src/runtime.mm",
+      "sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb"
+    },
+    "final-runtime-binding.json": {
+      "bytes": 904,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-overlay-140-001/final-runtime-binding.json",
+      "sha256": "5dc9a970e4792bba47432770dfa4c5d6048697d35ec19851be632ae57a040734"
+    },
+    "runtime_adapters.metalinc": {
+      "bytes": 5663,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-overlay-140-001/runtime-adapters.metalinc",
+      "sha256": "18ba6a966feddd1b777da184f19df9e8083f1c5b6c5f5d19ee736a0d8d6819eb"
+    },
+    "source139_fem.metalinc": {
+      "bytes": 251991,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/src/metal/fem.metalinc",
+      "sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    "source139_fgmres.metalinc": {
+      "bytes": 401346,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/src/metal/fgmres.metalinc",
+      "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    }
+  },
+  "schema": "numi.cardboard.native_cgls_source_review.v1",
+  "source_line_references": {
+    "cauchy_dispatch": "candidate/matter/src/runtime.mm:22459-22714",
+    "cgls_dispatch": "candidate/matter/src/runtime.mm:22459-22672",
+    "cgls_recurrence": "base_cgls.metalinc:65-180",
+    "installer": "runtime-adapters.metalinc:34-115",
+    "latch_bypass": "snapshots/source-coupon-cache-admission-139/matter/src/metal/fgmres.metalinc:5064-5100",
+    "layout_adapter": "runtime-adapters.metalinc:3-32",
+    "operator_modes": "snapshots/source-coupon-cache-admission-139/matter/src/metal/fem.metalinc:3238-3275",
+    "rhs_capture": "candidate/matter/src/runtime.mm:19162-19175",
+    "runtime_gate": "candidate/matter/src/runtime.mm:11683-11828"
+  }
+}

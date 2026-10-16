@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15181762,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/selected-newton-regional-rap-and-operator-capture-182/inputs.tar.gz",
+  "archive_sha256": "7d4c2e1ca6c607815b46afcea97d5e2defa36bd17cf930ea5ce49c4e13c46190",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/selected-newton-regional-rap-and-operator-capture-182/before-inventory.json",
+  "before_manifest_sha256": "ec42c27cba89ba63d40aa00dfcabe38c7dd46f199075e9134d192074ddaa91b2",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

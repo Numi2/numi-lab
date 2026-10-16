@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15458766,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-refined-graph-first-control-230/inputs.tar.gz",
+  "archive_sha256": "d4c724f42c6058c965032d2c0ede2c80d66570aa33806cdd4b184c38539355d9",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/sourcefit15-refined-graph-first-control-230/before-inventory.json",
+  "before_manifest_sha256": "e90197e44de6dea6040c612d63e25c743c6a4540b160dbfd1811841c10d96f93",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-refined-graph-first-control-230",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

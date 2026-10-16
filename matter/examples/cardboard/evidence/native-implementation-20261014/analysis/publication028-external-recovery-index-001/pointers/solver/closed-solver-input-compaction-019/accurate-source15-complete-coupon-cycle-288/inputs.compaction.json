@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15827684,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/accurate-source15-complete-coupon-cycle-288/inputs.tar.gz",
+  "archive_sha256": "971ac3b0ceb3d83897cf4df5c97a15d7c04de7cf440b21736ca536a4ac68fb42",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/accurate-source15-complete-coupon-cycle-288/before-inventory.json",
+  "before_manifest_sha256": "28e5a7979b598ad2ba96e0be71d96361df54490388e05d3335e904a0b83475ff",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/accurate-source15-complete-coupon-cycle-288",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

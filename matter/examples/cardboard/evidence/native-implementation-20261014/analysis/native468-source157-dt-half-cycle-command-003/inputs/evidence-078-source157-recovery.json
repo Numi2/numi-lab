@@ -1,0 +1,16 @@
+{
+  "changed_path": "matter/tools/cardboard_probe.mm",
+  "overlay_id": "source157_right_grip_telemetry_fix",
+  "overlay_patch": "/Users/home/cardboard-implementation-20261014/analysis/source157-right-grip-telemetry-fix-001/source157.patch",
+  "overlay_patch_sha256": "575eb0d75717250b77f6c2d63a78df06900a01406c0d22e42f7cc2b8339f18cb",
+  "parent_file_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "parent_frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "parent_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "parent_source_overlay_manifest": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.json",
+  "parent_source_overlay_sha256": "737362aaf49e10cd7d07f0535b11bc3bf9474236c6b8d7432d3dae5b50f6d58f",
+  "recovery_instruction": "Recreate from the parent snapshot with APFS copy-on-write, then apply the recorded patch; verify all inherited source and configure-support hashes before build.",
+  "result_file_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "schema": "numi.cardboard.source-recovery.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157"
+}

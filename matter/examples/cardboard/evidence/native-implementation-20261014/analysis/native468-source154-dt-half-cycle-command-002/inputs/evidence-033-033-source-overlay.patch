@@ -1,0 +1,42 @@
+--- a/frozen-source.json
++++ b/frozen-source.json
+@@ -1,8 +1,8 @@
+ {
+   "schema": "numi.cardboard.frozen-source.v1",
+   "parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+-  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+-  "scope": "Source149 plus exact opt-in all-control selectors. Existing bounded pure-FEM capability checks repeat independently at every selected control; no physical operator, constitutive law, acceptance tolerance, certificate or rollback change.",
++  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
++  "scope": "Source153 plus a probe CLI Newton-iteration admission ceiling of 128 (previously 64). Runtime already consumes the configured nonlinearIterations.x budget without a 64-iteration clamp; CGLS limits, FGMRES restart, operator, tolerances, and acceptance behavior are unchanged.",
+   "source_sha256": {
+     "CMakeLists.txt": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37",
+     "cmake/GenerateVisualKernelHashes.cmake": "08839c542d3fb84ac7ec0f443b064cdea66254860aab233279a9ed3898e953b3",
+@@ -412,7 +412,7 @@
+     "matter/tools/cardboard_pin_adhesion_source_observables.py": "ae4666b900586d5e18dae7d8716bed7f8a8ea640bc446797e7c9b89908dcd530",
+     "matter/tools/cardboard_pin_adhesion_source_observables_test.py": "85e62aa046d67af59084b952d1b162282d6b52093308357a9848a1759ca1c787",
+     "matter/tools/cardboard_prescribed_barrier_scale_check.cpp": "f399113671d8d652fb972f6cae2709aab51b2fd5cb5f9903b7e49a1a52b806ef",
+-    "matter/tools/cardboard_probe.mm": "d2d4812ccbe95e31cb4fd266cfc94a727b74ce12f1830b6fe017460e7e8a37c9",
++    "matter/tools/cardboard_probe.mm": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+     "matter/tools/cardboard_profile.hpp": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+     "matter/tools/cardboard_profile_check.cpp": "91b27b2d430b39ee128947c7998e245dc291d61b20b2e6dc389259b5f6311505",
+     "matter/tools/cardboard_reaction_observables.hpp": "67da323aad811ec7f7168097b032309713ab120cc2ccf1ea3afd8b3f31f4abaf",
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -1261,7 +1261,7 @@
+         << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
+         << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
+         << "  --post-release-relax-steps N  continue free motion after release; separate accepted phase (default 0)\n"
+-        << "  --newton-iterations N  global nonlinear budget (1..64)\n"
++        << "  --newton-iterations N  global nonlinear budget (1..128)\n"
+         << "  --material-iterations N  local constitutive Newton budget (1..32; default16)\n"
+         << "  --fgmres-iterations N  Krylov-column budget (max "
+         << NM_MIXED_FGMRES_MAX_ITERATIONS << ")\n"
+@@ -2001,7 +2001,7 @@
+         require(!arguments.withoutMedium && arguments.glueGapM > 0 && arguments.bondWidthM > 0 &&
+                 arguments.bondWidthM < 0.45 * arguments.pitchM, "finite glue dimensions or medium are invalid");
+     }
+-    require(arguments.newtonIterations > 0 && arguments.newtonIterations <= 64, "global Newton iterations must be 1..64");
++    require(arguments.newtonIterations > 0 && arguments.newtonIterations <= 128, "global Newton iterations must be 1..128");
+     require(arguments.localMaterialIterations >= 1u && arguments.localMaterialIterations <= 32u, "material iterations must be 1..32");
+     require(arguments.preset == "nagasawa2013" || arguments.preset == "literature2009",
+             "unsupported preset");

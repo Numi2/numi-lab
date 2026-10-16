@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.source154_newton_budget_overlay.v1",
+  "overlay_id": "source154_newton_budget_128",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-153",
+  "base_frozen_source_sha256": "fdba689d8390fff2a7e8974cd553de4d61dbab740cfe17ba4fe9cfb1abaf4a89",
+  "result_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "scope": "Raise only the probe CLI global Newton iteration admission/help maximum from 64 to 128. Source153 runtime already dispatches the configured nonlinearIterations.x bound directly. CGLS 32/64 controls, FGMRES restart, operator, constitutive arithmetic, tolerances, Armijo, and certificate logic are unchanged.",
+  "changed_source_paths": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "changed_files": {
+    "matter/tools/cardboard_probe.mm": {
+      "sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+      "bytes": 729209
+    },
+    "frozen-source.json": {
+      "sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+      "bytes": 94012
+    }
+  },
+  "source_hash_entry_count": 787,
+  "all_declared_source_hashes_match": true,
+  "all_other_source_files_byte_identical_to_base": true,
+  "configure_support_entry_count": 1034,
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "configure_support_hashes_preserved": true,
+  "native_or_gpu_execution": "not launched",
+  "invalid_source149_outer128_preflight": {
+    "result": "not executable under source149; source149 help and validation cap at64",
+    "execution": "not launched",
+    "superseded_prep_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-newton128-154-prep-from149-rejected"
+  }
+}

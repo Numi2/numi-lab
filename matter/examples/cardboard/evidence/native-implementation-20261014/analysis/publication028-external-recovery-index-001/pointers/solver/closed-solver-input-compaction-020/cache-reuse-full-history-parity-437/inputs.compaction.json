@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16149988,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/cache-reuse-full-history-parity-437/inputs.tar.gz",
+  "archive_sha256": "3430dff7539ddb2882d2f868753fd649881f342173c4f897370dbdccd9cc4440",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/cases/cache-reuse-full-history-parity-437/before-inventory.json",
+  "before_manifest_sha256": "a672907a743be08fa6874e70a7f1cf1beb88841be448882383c1d9ab26c8d06b",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-437",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

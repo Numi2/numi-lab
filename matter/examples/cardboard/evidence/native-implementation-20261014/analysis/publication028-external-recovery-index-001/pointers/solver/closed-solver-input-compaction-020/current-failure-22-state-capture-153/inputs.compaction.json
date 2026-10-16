@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 14954123,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/current-failure-22-state-capture-153/inputs.tar.gz",
+  "archive_sha256": "d1f8765d16fa396ad74b4b0209d0a414b8dca4b7cb14ecd6b07752c7fdc3235f",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/cases/current-failure-22-state-capture-153/before-inventory.json",
+  "before_manifest_sha256": "15f90d27230984fc8cb92e767bf0448c165ffb69378c39e6e88049743aaff6f4",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/current-failure-22-state-capture-153",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15068765,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/full-native-tangent-cache-diagnostics-off-176/inputs.tar.gz",
+  "archive_sha256": "b43e46b78bf082cf5b9d79674ae4e8f6f0f9326bd732960876f613bb9e7360ff",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/full-native-tangent-cache-diagnostics-off-176/before-inventory.json",
+  "before_manifest_sha256": "7ed9f982af7db7225bbeb4e9ba7d98f505a65f3f689a4187469f97becf6ad32a",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-diagnostics-off-176",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

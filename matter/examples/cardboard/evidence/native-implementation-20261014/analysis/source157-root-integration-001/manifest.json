@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.source157-integration-seal.v1",
+  "files": {
+    "check_compiled_grip_reader.py": "176a6db13fd02f91b5cfb2fb81af907caf90a033da6c1cac7c518d003228d1b6",
+    "compiled-grip-reader-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiled-grip-reader-report.json": "9151737c690426001f044707c4612b4b8b92ef2c41b25fccfca204fe970bf329",
+    "compiled-grip-reader-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiled-grip-reader.cpp": "5be88b6602c48f9e8a09446a9197839e9425f264e11c410c320bacffcaf9581b",
+    "cpu-schedule-report.json": "7ddd630ce42ea9747893ab3a03e93f06bccd1e4cd2d87b036ddcd20c66b84409",
+    "report.json": "3587a5df6f491f8bf33a76988776ca3cbd589ae3d8080d6880cd8465ad7eecd5"
+  },
+  "physical_qualification": false
+}

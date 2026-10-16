@@ -1,0 +1,29 @@
+df -k /Users/home
+Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on
+/dev/disk3s5   482766932 434209164   1035096   100% 4296072 10350960   29%   /System/Volumes/Data
+vm_stat
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                                   337090.
+Pages active:                                 296470.
+Pages inactive:                               288274.
+Pages speculative:                             32631.
+Pages throttled:                                   0.
+Pages wired down:                             276774.
+Pages purgeable:                                4155.
+"Translation faults":                     5929678356.
+Pages copy-on-write:                      1111396539.
+Pages zero filled:                        2190553521.
+Pages reactivated:                          76215652.
+Pages purged:                                4750444.
+File-backed pages:                            261365.
+Anonymous pages:                              356010.
+Pages stored in compressor:                   820194.
+Pages occupied by compressor:                 302013.
+Decompressions:                             43573561.
+Compressions:                               68048848.
+Pageins:                                   108228453.
+Pageouts:                                    1526459.
+Swapins:                                      522783.
+Swapouts:                                    1375315.
+sysctl hw.memsize
+25769803776

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16016259,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/base-cauchy-disabled-parity-434/inputs.tar.gz",
+  "archive_sha256": "cf154671f0f5902b2a1af544747d1810b1c6d017e4c1805ad038838e2cef467b",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/cases/base-cauchy-disabled-parity-434/before-inventory.json",
+  "before_manifest_sha256": "eeecf1d119b027baac9c4dfd363c106955f9ee88ad41c06dcdcab007454f4144",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

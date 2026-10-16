@@ -1246,3 +1246,6 @@ The replay169 layer audit also identifies diagnostic limitations: its residual c
 Source145 milestone: see [exact-state, derivative and full-phase evidence](solver-milestone-source145.md). Default-zero native459 attempted-history parity passes; the complete nonlinear coupon, convergence, released shipping assembly and crush/drop remain unqualified.
 
 Source149 milestone: see [native block scaling and complete disabled-history parity](solver-milestone-source149.md). Native463 ends at `9.4420302e-6 N s`, still fails control1 and rolls back. Native462 preserves the complete disabled-feature attempted history. These bounded conditioning results do not close the complete-coupon or downstream qualification gates.
+# Source157 continuation
+
+The coupon CSV reads the actual right-grip target modes, correcting the post-release-relaxation observation. Four complete CPU schedule cases and ten checks of the compiled production reader pass; the generated physical targets are unchanged. See [the source157 milestone](solver-milestone-source157.md). Native468 runs a separate half-timestep experiment; its active case is not evidence of a complete cycle or convergence.

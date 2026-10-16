@@ -1,0 +1,28 @@
+In file included from /Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3655:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3672:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3655:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-cgls-regional-graph-right-preconditioning-155-001/compile/matter/src/metal/fgmres.metalinc:3535:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.

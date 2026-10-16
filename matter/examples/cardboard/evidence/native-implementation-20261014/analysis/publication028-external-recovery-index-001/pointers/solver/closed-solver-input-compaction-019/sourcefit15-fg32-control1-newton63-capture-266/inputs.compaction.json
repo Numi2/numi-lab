@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15541002,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-fg32-control1-newton63-capture-266/inputs.tar.gz",
+  "archive_sha256": "7273d862f0b5eea0f5a799cc69fc5863fa69ab2d0119d994e98d8b56ce5985e9",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/sourcefit15-fg32-control1-newton63-capture-266/before-inventory.json",
+  "before_manifest_sha256": "6bd06427a2ce08f1440fb512873837774eee773a3ac54250a496767896907b3e",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

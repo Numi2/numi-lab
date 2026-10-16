@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.publication028.case-list.v1",
+  "cases": [
+    "analysis/publication027-independent-byte-audit-001",
+    "analysis/publication027-independent-byte-audit-002",
+    "analysis/publication027-staged-source-check-001",
+    "analysis/publication027-staged-source-check-002",
+    "analysis/publication027-commit-and-push-001",
+    "analysis/source157-right-grip-telemetry-fix-001",
+    "analysis/source157-telemetry-native-build-001",
+    "analysis/source157-root-integration-001",
+    "analysis/retained-source-snapshot157-001",
+    "analysis/native468-source154-dt-half-cycle-command-001",
+    "analysis/native468-source154-dt-half-cycle-command-002",
+    "analysis/native468-source157-dt-half-cycle-command-003",
+    "analysis/native468-source157-dt-half-cycle-command-004",
+    "analysis/native468-executable-preflight-refusal-001",
+    "analysis/native-cgls-regional-graph-right-preconditioning-155-001",
+    "analysis/cgls-node-block-rap-reference-158-001",
+    "analysis/cardboard-provenance-cmakefiles-compaction-001",
+    "analysis/metallib-apfs-clone-evidence-gap-001",
+    "analysis/publication028-external-recovery-index-001",
+    "analysis/publication028-archive-tool-001"
+  ],
+  "excludes": "Active native468 case/launch guard, isolated source159/source160 work, and sole CMakeFiles recovery archives"
+}

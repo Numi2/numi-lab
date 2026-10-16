@@ -1,5 +1,7 @@
 # Cardboard implementation and evidence ledger
 
+Source157 corrects the reported right-grip release mode without changing the generated targets or solver. Four complete CPU schedules and ten checks of the compiled production reader pass; its source-bound native build is admitted. Native468 is a separate half-timestep experiment and remains excluded from this closed milestone while running. See [the source157 milestone](solver-milestone-source157.md).
+
 Source154 adds tested opt-in all-control solver routing and a128-Newton driver ceiling. Native466 preserves the complete prior failed attempt; isolated regional observer464 also preserves production history while retaining a selection-metadata defect. No complete coupon or shipping qualification follows. See [the source154 milestone](solver-milestone-source154.md).
 
 ## Current milestone: source142 bounded native CGLS

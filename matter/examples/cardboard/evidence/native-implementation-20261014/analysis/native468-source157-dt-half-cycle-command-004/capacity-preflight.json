@@ -1,0 +1,7 @@
+{
+  "available_kib_at_prepare": 2615248,
+  "df_line": "/dev/disk3s5   482766932 432629008   2615248   100% 4184162 26152480   14%   /System/Volumes/Data",
+  "native_launch_minimum_bytes": 1610612736,
+  "schema": "numi.cardboard.native468.command004.capacity-preflight.v1",
+  "warning": "This is a preparation-time observation; recheck free storage before dispatch."
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.block_rap_warning_probe.v1",
+  "result": [
+    {
+      "dtype": "float64",
+      "input_linf": 3.4890921364240954,
+      "apply_finite": true,
+      "apply_linf": 2079.0099180705165,
+      "transpose_finite": true,
+      "transpose_linf": 2050.389473640463,
+      "warnings": {
+        "divide by zero encountered in matmul": 4,
+        "overflow encountered in matmul": 4,
+        "invalid value encountered in matmul": 4
+      }
+    },
+    {
+      "dtype": "float32",
+      "input_linf": 3.4890921115875244,
+      "apply_finite": true,
+      "apply_linf": 2079.009765625,
+      "transpose_finite": true,
+      "transpose_linf": 2050.3896484375,
+      "warnings": {
+        "divide by zero encountered in matmul": 4,
+        "overflow encountered in matmul": 4,
+        "invalid value encountered in matmul": 4
+      }
+    }
+  ],
+  "seterr_raise_probe": "divide by zero encountered in matmul",
+  "warning_cause": "unresolved; output finiteness does not explain the reported NumPy/BLAS flags"
+}

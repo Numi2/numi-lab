@@ -1,0 +1,30 @@
+{
+  "all_external_inputs_hash_verified": true,
+  "argv_after_separator_executable": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/numi-matter-cardboard-probe",
+  "argv_separator_index": 244,
+  "changed_argv_tokens": [
+    {
+      "after": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/numi-matter-cardboard-probe",
+      "before": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe",
+      "index": 245
+    }
+  ],
+  "executable_preflight_refusal": "/Users/home/cardboard-implementation-20261014/analysis/native468-executable-preflight-refusal-001/report.json",
+  "external_input_binding_path": "/Users/home/cardboard-implementation-20261014/analysis/native468-source157-dt-half-cycle-command-004/external-input-bindings.json",
+  "external_input_count": 103,
+  "native_execution": false,
+  "parent_command_sha256": "a866723fba64c9e82c027ca017f9e9fd2eaf2e2023e3cd0af10b6d34105572e0",
+  "parent_package": "/Users/home/cardboard-implementation-20261014/analysis/native468-source157-dt-half-cycle-command-003",
+  "refusal_case_created": false,
+  "refusal_native_launched": false,
+  "refusal_sha256": "2759ffeaf645a0a2a3cb4a1723b44d369d76790740db3a2f91da42ca1f4f7ef1",
+  "schema": "numi.cardboard.native468.command004.executable-binding.v1",
+  "source157_executable_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+  "source157_expected_executable_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+  "source_build_package_manifest_sha256": "5d2a07d62a17ad3d48a5f1f44255b539aeed8ce15cf9c74bfbdeffccd5b9e6a6",
+  "source_build_provenance_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/source-build.json",
+  "source_build_provenance_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5",
+  "source_overlay_manifest_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "source_snapshot_manifest_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0"
+}

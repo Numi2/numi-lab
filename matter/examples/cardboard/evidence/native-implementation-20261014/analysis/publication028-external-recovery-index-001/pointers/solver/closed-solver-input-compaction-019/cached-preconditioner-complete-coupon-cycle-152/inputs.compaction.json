@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15003997,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-preconditioner-complete-coupon-cycle-152/inputs.tar.gz",
+  "archive_sha256": "806a147dc440a34a1bce4d635dc5ef915e594db35d72d52bc7f11e217ebbe8b2",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/cached-preconditioner-complete-coupon-cycle-152/before-inventory.json",
+  "before_manifest_sha256": "b0aa49788fb1788146ae9c02da1e7534a7d4f3d51e4248701b75928109762b53",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-preconditioner-complete-coupon-cycle-152",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

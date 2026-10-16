@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.block_rap_review_tests.v1",
+  "tests": [
+    {
+      "result": "pass",
+      "nonsymmetric_R": true,
+      "cases": [
+        {
+          "weight": 0.1,
+          "S_max_abs": 5.551115123125783e-17,
+          "ST_max_abs": 5.551115123125783e-17,
+          "adjoint_dot_abs": 0.0
+        },
+        {
+          "weight": 1.0,
+          "S_max_abs": 5.551115123125783e-17,
+          "ST_max_abs": 2.7755575615628914e-17,
+          "adjoint_dot_abs": 5.551115123125783e-17
+        }
+      ]
+    },
+    {
+      "result": "pass",
+      "direct_solve_rejects_invalid_factor": true,
+      "study_wrapper_rejects_invalid_factor": true,
+      "wrapper_guard_kind": "Python assert (removed by python -O)"
+    }
+  ]
+}

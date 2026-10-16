@@ -1,0 +1,32 @@
+{
+  "all_declared_source_hashes_match": true,
+  "all_other_source_files_byte_identical_to_base": true,
+  "base_frozen_source_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "base_overlay_manifest": "/Users/home/cardboard-implementation-20261014/analysis/source154-newton-budget-integration-001/source-overlay.json",
+  "base_overlay_manifest_sha256": "737362aaf49e10cd7d07f0535b11bc3bf9474236c6b8d7432d3dae5b50f6d58f",
+  "base_probe_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "changed_source_files": {
+    "frozen-source.json": {
+      "bytes": 93999,
+      "sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "base_sha256": "328e237da1f775f8cc04f6893c8e86323b524c7bb1ffe5831276b66c37b56297",
+      "bytes": 730942,
+      "sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd"
+    }
+  },
+  "changed_source_paths": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "configure_support_entry_count": 1034,
+  "configure_support_hashes_preserved": true,
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "native_or_gpu_execution": "not launched",
+  "overlay_id": "source157_right_grip_telemetry_fix",
+  "patch_sha256": "575eb0d75717250b77f6c2d63a78df06900a01406c0d22e42f7cc2b8339f18cb",
+  "result_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "schema": "numi.cardboard.source157_right_grip_telemetry_overlay.v1",
+  "source_hash_entry_count": 787
+}

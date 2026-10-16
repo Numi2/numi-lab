@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16777112,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-augmentation-first-failure-rap-only-361/inputs.tar.gz",
+  "archive_sha256": "3829cc5ac75f83a1723268eb0d11895625a4443a1d6497f98c5b809a9e6b9830",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/reset-augmentation-first-failure-rap-only-361/before-inventory.json",
+  "before_manifest_sha256": "6fa0d71965b6d924c6b066d1903ad66b2bc7626bcc51342a719a2968b87db877",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

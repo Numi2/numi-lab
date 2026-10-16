@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.source157-root-integration.v1",
+  "parent": "2298e1a1d49dd09fa149c57f65ccbfaab3985c29",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "frozen_source_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "selected_source_hashes_verified": 787,
+  "mismatches": [],
+  "changed_source": "matter/tools/cardboard_probe.mm",
+  "scope": "CSV telemetry reads actual right-grip command modes; physical target generation and solver unchanged",
+  "cpu_schedule_report_sha256": "7ddd630ce42ea9747893ab3a03e93f06bccd1e4cd2d87b036ddcd20c66b84409",
+  "source_bound_build_verification_sha256": "a5de04b73b07097c3254c281751ae06aac5b48f40446a117e01d8e0230902bed",
+  "native_trajectory": "not yet run for source157; compile-only and shader identity are not trajectory parity",
+  "utc": "2026-10-16T00:42:24.702827+00:00",
+  "compiled_actual_helper_checks": 10,
+  "compiled_actual_helper_report_sha256": "9151737c690426001f044707c4612b4b8b92ef2c41b25fccfca204fe970bf329",
+  "physical_qualification": false
+}

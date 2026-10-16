@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16987295,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-true-residual-certification-coupon-370/inputs.tar.gz",
+  "archive_sha256": "b6ba40b72a40fdeedb76baa209dc0b57ce136093d98a58eee6729e576cb27731",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/cached-true-residual-certification-coupon-370/before-inventory.json",
+  "before_manifest_sha256": "ebe22eeab3933e4197729878a5e02288e7d6d2011c01b343c00df83221899ed6",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

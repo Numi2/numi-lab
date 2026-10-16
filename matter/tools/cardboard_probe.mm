@@ -6140,6 +6140,33 @@ void writeHeader(std::ofstream& output) {
               "certificate_correction,certificate_volume,certificate_pressure,certificate_raw_accepted_flag,step_accepted,right_grip_constrained,measured_right_grip_angle_deg,current_fixed_nodes,free_force_imbalance_l2_N,free_force_imbalance_max_N\n";
 }
 
+bool commandedRightGripConstrained(const std::vector<nm_float4>& targets,
+                                   const MeshSource& mesh,
+                                   const std::uint32_t environment) {
+    const std::size_t nodeCount = mesh.restNodes.size();
+    require(nodeCount > 0u, "right-grip target telemetry has no FEM nodes");
+    require(environment <= std::numeric_limits<std::size_t>::max() / nodeCount,
+            "right-grip target telemetry environment offset overflows");
+    const std::size_t base = static_cast<std::size_t>(environment) * nodeCount;
+    require(base <= targets.size() && nodeCount <= targets.size() - base,
+            "right-grip target telemetry range is truncated");
+    require(!mesh.rightGripNodes.empty(),
+            "right-grip target telemetry has no commanded grip nodes");
+    const std::uint32_t firstNode = mesh.rightGripNodes.front();
+    require(firstNode < nodeCount,
+            "right-grip target telemetry node is outside the FEM range");
+    const float mode = targets[base + firstNode].w;
+    require(mode == 1.0f || mode == 2.0f,
+            "right-grip target telemetry has an unsupported constraint mode");
+    for (const std::uint32_t node : mesh.rightGripNodes) {
+        require(node < nodeCount,
+                "right-grip target telemetry node is outside the FEM range");
+        require(targets[base + node].w == mode,
+                "right-grip target telemetry cannot encode mixed node modes as one boolean");
+    }
+    return mode == 1.0f;
+}
+
 void writeObservation(std::ofstream& output,
                       const std::uint32_t step,
                       const double timestep,
@@ -6149,7 +6176,7 @@ void writeObservation(std::ofstream& output,
                       const Metrics& metrics,
                       const ReactionMetrics& reaction,
                       const char* phase, const NMSolverCertificateGPU& certificate, const bool stepAccepted,
-                      const double measuredAngle, const bool crease, const double forceL2, const double forceMax) {
+                      const bool rightGripConstrained, const double measuredAngle, const bool crease, const double forceL2, const double forceMax) {
     output << step << ',' << std::setprecision(17)
            << static_cast<double>(step + 1u) * timestep << ','
            << environment << ','
@@ -6182,7 +6209,7 @@ void writeObservation(std::ofstream& output,
            << certificate.nonlinear.x << ',' << certificate.nonlinear.y << ','
            << certificate.nonlinear.z << ',' << certificate.nonlinear.w << ','
            << certificate.validity.w << ',' << (stepAccepted ? 1 : 0) << ','
-           << (std::string_view(phase) == "release" ? 0 : 1) << ',' << measuredAngle << ','
+           << (rightGripConstrained ? 1 : 0) << ',' << measuredAngle << ','
            << metrics.currentFixedNodes << ',' << forceL2 << ',' << forceMax << '\n';
     output.flush();
     require(output.good(), "failed while writing per-step CSV observations");
@@ -12535,10 +12562,14 @@ int execute(Arguments arguments) {
                     (run.runtime().timestepSeconds() * run.runtime().timestepSeconds());
                 forceNorm2 += norm2; forceMax = std::max(forceMax, std::sqrt(norm2));
             }
+            const bool rightGripConstrained =
+                commandedRightGripConstrained(targets, mesh, environment);
             writeObservation(observations, step, run.runtime().timestepSeconds(),
                              environment, environment == 0u ? targetAngle : 0.0,
                              status, metrics, reaction, load.phase,
-                             certificate, accepted, measuredGripAngle(mesh, current.snapshot, environment), arguments.crease, std::sqrt(forceNorm2), forceMax);
+                             certificate, accepted, rightGripConstrained,
+                             measuredGripAngle(mesh, current.snapshot, environment),
+                             arguments.crease, std::sqrt(forceNorm2), forceMax);
             const std::string arm = arguments.crease ? (environment == 0u ? "indented" : "stationary_tool_reference") : (environment == 0u ? "bent" : "held_reference");
             writeObj(arguments.output /
                          (std::string(accepted ? "accepted_step_" :

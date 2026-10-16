@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.compiled-grip-reader-check.v1",
+  "source_sha256": "8bea98e513afca4f283e61a25aed25e8c55f5c8bd628a720654e9253fc10f3cd",
+  "extracted_helper_sha256": "ec1dae67f941a76a68b42f450186266b0042c726c40fa08194ecb840fa68580b",
+  "checks": 10,
+  "build_exit_code": 0,
+  "run_exit_code": 0,
+  "scope": "Actual production helper, two environments plus seven rejection cases; no physical solver trajectory."
+}

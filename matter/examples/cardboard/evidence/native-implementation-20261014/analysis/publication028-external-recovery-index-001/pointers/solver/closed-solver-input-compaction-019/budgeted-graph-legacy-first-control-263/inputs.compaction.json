@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15541003,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/budgeted-graph-legacy-first-control-263/inputs.tar.gz",
+  "archive_sha256": "6e442533c26fe3fdb258ae0b2c18a75bf9bf6b7be1d959d4bd6dea0b427fbe51",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/budgeted-graph-legacy-first-control-263/before-inventory.json",
+  "before_manifest_sha256": "ccf090e50807459a000f150b9f7bee39521bb1082fe117310a7be0897a296061",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/budgeted-graph-legacy-first-control-263",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

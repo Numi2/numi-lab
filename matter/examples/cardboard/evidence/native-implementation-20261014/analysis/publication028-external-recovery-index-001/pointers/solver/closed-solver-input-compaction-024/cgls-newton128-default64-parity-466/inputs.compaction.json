@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 10025535,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-newton128-default64-parity-466/inputs.tar.gz",
+  "archive_sha256": "80434d9a624e2474262310c4306fb7db9bd13f6e46c817f601cb17281ef0113c",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-newton128-default64-parity-466/before-inventory.json",
+  "before_manifest_sha256": "124a15af49be2e63383d13fbe8ca13cf1900b41ac00c8c92f04ef34c3df6b769",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-newton128-default64-parity-466",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

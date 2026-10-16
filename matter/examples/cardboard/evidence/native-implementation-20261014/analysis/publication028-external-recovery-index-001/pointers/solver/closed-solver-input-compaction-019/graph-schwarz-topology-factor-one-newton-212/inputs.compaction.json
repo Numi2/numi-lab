@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15058060,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-topology-factor-one-newton-212/inputs.tar.gz",
+  "archive_sha256": "f5f7eac156c6b6ce3303b77c31bbc6573e03070ea840e52ee120e87f5d6891e9",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/graph-schwarz-topology-factor-one-newton-212/before-inventory.json",
+  "before_manifest_sha256": "afd29fc822d580df5d6aacf5bd016b22ced0202fa708aefa943605d6c06a8e3b",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

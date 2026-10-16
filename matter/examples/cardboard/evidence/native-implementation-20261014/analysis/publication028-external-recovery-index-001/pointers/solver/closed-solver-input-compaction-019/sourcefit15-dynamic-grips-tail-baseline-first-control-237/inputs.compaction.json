@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15483118,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-dynamic-grips-tail-baseline-first-control-237/inputs.tar.gz",
+  "archive_sha256": "936a6d9d8359ac2e3bb34d89146fa616395ea539574f4c00c1ea82c496b61e96",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/sourcefit15-dynamic-grips-tail-baseline-first-control-237/before-inventory.json",
+  "before_manifest_sha256": "d44212cdd662918ad2bbd0fd51fcb5b7a74b15613ea44f9656d0830132339d23",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-dynamic-grips-tail-baseline-first-control-237",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

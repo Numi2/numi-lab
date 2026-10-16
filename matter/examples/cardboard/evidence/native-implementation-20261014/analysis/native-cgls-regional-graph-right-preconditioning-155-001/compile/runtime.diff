@@ -1,0 +1,545 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4393,6 +4393,14 @@
+             "nm_fgmres_base_cgls_finalize",
+             "nm_fgmres_base_cgls_validate_right_scale",
+             "nm_fgmres_base_cgls_apply_right_scale",
++            "nm_fgmres_base_cgls_validate_regional_graph",
++            "nm_fgmres_base_cgls_solve_regional_rap",
++            "nm_fgmres_base_cgls_graph_h_transpose",
++            "nm_fgmres_base_cgls_graph_h_transpose_scatter",
++            "nm_fgmres_base_cgls_regional_transpose_project",
++            "nm_fgmres_base_cgls_regional_solve_rap_transpose",
++            "nm_fgmres_base_cgls_regional_transpose_finish",
++            "nm_fgmres_base_cgls_zero_vector",
+             "nm_fgmres_install_base_cgls_direction",
+             "nm_fgmres_preserve_true_rhs",
+             "nm_fgmres_clear_true_operator",
+@@ -11931,22 +11939,54 @@
+                 femBaseCGLSIterations = std::strcmp(cglsIterations, "32") == 0 ? 32u : 64u;
+             }
+             bool femBaseCGLSRightScaleEnabled = false;
++            bool femBaseCGLSRegionalGraphScaleEnabled = false;
+             if (const char* rightScale = std::getenv(
+                     "NM_FEM_BASE_CGLS_RIGHT_SCALE")) {
+-                if (std::strcmp(rightScale, "block3") != 0 ||
+-                    femBaseCGLSIterations == 0u ||
+-                    !state.femBaseCGLSRightScaleScratchEnabled ||
+-                    state.femBaseCGLSRightScaleRows == nil ||
+-                    state.femBaseCGLSRightScalePhysical == nil) {
++                const bool block3 = std::strcmp(rightScale, "block3") == 0;
++                const bool regional5 = std::strcmp(rightScale, "regional5") == 0;
++                const bool commonScratch =
++                    femBaseCGLSIterations != 0u &&
++                    state.femBaseCGLSRightScaleScratchEnabled &&
++                    state.femBaseCGLSRightScalePhysical != nil;
++                const bool regionalReady = regional5 && commonScratch &&
++                    state.mixedSolverValue.executionBudgets.z == 5u &&
++                    !state.femRegionalRestartAugmentationEnabled &&
++                    state.femRegionalModeCount > 0u &&
++                    state.femRegionalModeCount <= 32u &&
++                    state.femRegionalGraphPatchCount > 0u &&
++                    state.femRegionalEffectiveBasis != nil &&
++                    state.femRegionalAP != nil &&
++                    state.femRegionalCoarseMatrix != nil &&
++                    state.femRegionalCoarsePivots != nil &&
++                    state.femRegionalCoarseValid != nil &&
++                    state.femRegionalGraphPatches != nil &&
++                    state.femRegionalGraphPatchNodes != nil &&
++                    state.femRegionalGraphNodePatchOffsets != nil &&
++                    state.femRegionalGraphNodePatchValues != nil &&
++                    state.femRegionalGraphNodeCoverage != nil &&
++                    state.femRegionalGraphOriginalMatrices != nil &&
++                    state.femRegionalGraphFactors != nil &&
++                    state.femRegionalGraphPivots != nil &&
++                    state.femRegionalGraphFactorValid != nil &&
++                    state.femRegionalGraphPatchCorrections != nil &&
++                    state.femBaseCGLSSelected != nil &&
++                    state.femBaseCGLSErrors != nil &&
++                    state.dispatch.rigidGeneralizedCapacity == 0u;
++                const bool blockReady = block3 && commonScratch &&
++                    state.femBaseCGLSRightScaleRows != nil;
++                if ((!block3 && !regional5) ||
++                    (block3 && !blockReady) ||
++                    (regional5 && !regionalReady)) {
+                     std::fprintf(stderr,
+-                        "fem_base_cgls_right_scale_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_existing_32_or_64_iteration_CGLS_scratch_and_exact_block3_selector\",\"physical_operator_changed\":false}\n",
+-                        request.controlStep);
++                        "fem_base_cgls_right_scale_rejected={\"schema\":2,\"control_step\":%u,\"selector\":%s,\"reason\":\"unsupported_selector_or_missing_exact_bounded_scratch_current_base_graph_or_pure_FEM_scope\",\"physical_operator_changed\":false}\n",
++                        request.controlStep, jsonQuoted(rightScale).c_str());
+                     diagnostics.message =
+-                        "right-scaled CGLS requires its existing bounded CGLS path and exact block3 selector";
++                        "right-scaled CGLS request is outside the exact block3 or base selector-5 graph scope";
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
+-                femBaseCGLSRightScaleEnabled = true;
++                femBaseCGLSRightScaleEnabled = block3;
++                femBaseCGLSRegionalGraphScaleEnabled = regional5;
+             }
+             std::uint32_t femBaseCGLSCaptureIteration = NM_INVALID_INDEX;
+             std::string femBaseCGLSCapturePath;
+@@ -11956,11 +11996,14 @@
+                 char* end = nullptr;
+                 const unsigned long parsed = cglsCaptureNewton == nullptr ? 257ul :
+                     std::strtoul(cglsCaptureNewton, &end, 10);
+-                if (femBaseCGLSIterations == 0u || cglsCapturePath == nullptr ||
++                if (femBaseCGLSRegionalGraphScaleEnabled ||
++                    femBaseCGLSIterations == 0u || cglsCapturePath == nullptr ||
+                     *cglsCapturePath == '\0' || cglsCaptureNewton == nullptr ||
+                     end == cglsCaptureNewton || *end != '\0' || parsed > 256ul ||
+                     std::to_string(parsed) != cglsCaptureNewton) {
+-                    diagnostics.message = "bounded CGLS capture requires path and canonical Newton index0..256";
++                    diagnostics.message = femBaseCGLSRegionalGraphScaleEnabled
++                        ? "bounded CGLS binary capture v1 does not describe the regional5 graph map"
++                        : "bounded CGLS capture requires path and canonical Newton index0..256";
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
+@@ -11981,6 +12024,13 @@
+                 }
+                 femBaseCGLSStateCaptureRequested =
+                     std::strcmp(cglsStateCaptureText, "1") == 0;
++                if (femBaseCGLSStateCaptureRequested &&
++                    femBaseCGLSRegionalGraphScaleEnabled) {
++                    diagnostics.message =
++                        "CGLS binary state capture v1 does not describe the regional5 graph map";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
+                 if (femBaseCGLSStateCaptureRequested &&
+                     (femBaseCGLSIterations == 0u ||
+                      femBaseCGLSCapturePath.empty() ||
+@@ -21274,6 +21324,11 @@
+                             [encoder setBytes:&regionalModeStride
+                                        length:sizeof(regionalModeStride)
+                                       atIndex:21u];
++                            const std::uint32_t cglsMode = 0u;
++                            [encoder setBytes:&cglsMode length:sizeof(cglsMode)
++                                      atIndex:22u];
++                            [encoder setBuffer:state.dummy offset:0u atIndex:23u];
++                            [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                         });
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                         dispatchThreads("nm_fgmres_graph_apply_patches",
+@@ -21310,6 +21365,11 @@
+                             [encoder setBytes:&regionalModeStride
+                                        length:sizeof(regionalModeStride)
+                                       atIndex:13u];
++                            const std::uint32_t cglsMode = 0u;
++                            [encoder setBytes:&cglsMode length:sizeof(cglsMode)
++                                      atIndex:14u];
++                            [encoder setBuffer:state.dummy offset:0u atIndex:15u];
++                            [encoder setBuffer:state.dummy offset:0u atIndex:16u];
+                         });
+                     } else {
+                         dispatchThreads(
+@@ -23033,6 +23093,8 @@
+                 const auto formatFloat = appendTraceFloat;
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
+                 const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
++                const auto capturedCGLSRegionalGraphScale =
++                    femBaseCGLSRegionalGraphScaleEnabled;
+                 const auto capturedPrimaryPolicy = primaryPolicy;
+                 const auto capturedPrimarySelectionOffset = primarySelectionOffset;
+                 const auto capturedPrimaryStartNewton =
+@@ -23070,13 +23132,16 @@
+                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
+                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                              << ",\"direction_kind\":\""
+-                             << (capturedCGLSRightScale
++                             << ((capturedCGLSRightScale ||
++                                  capturedCGLSRegionalGraphScale)
+                                  ? "right_preconditioned_truncated_unregularized_CGLS"
+                                  : "truncated_unregularized_CGLS")
+                              << "\",\"iteration_budget\":"
+                              << capturedCGLSIterations
+                              << ",\"right_scale\":"
+-                             << (capturedCGLSRightScale ? "\"block3\"" : "null")
++                             << (capturedCGLSRightScale ? "\"block3\""
++                                 : (capturedCGLSRegionalGraphScale
++                                     ? "\"regional5_base_graph\"" : "null"))
+                              << ",\"original_newton_certificate_applies_to_direction\":false";
+                         if (capturedPrimaryPolicy) {
+                             line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
+@@ -23221,7 +23286,290 @@
+                     };
+                     const auto barrier = [&]() {
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    };
++                    const std::uint32_t regionalModes =
++                        state.femRegionalModeCount;
++                    const std::uint32_t regionalStride = regionalModes;
++                    const std::uint32_t regionalPatches =
++                        state.femRegionalGraphPatchCount;
++                    const std::uint32_t regionalPatchNodes =
++                        state.femRegionalGraphPatchNodeCount;
++                    const std::uint32_t regionalMatrixFloats =
++                        state.femRegionalGraphMatrixFloatCount;
++                    const std::uint32_t regionalPivots =
++                        state.femRegionalGraphPivotCount;
++                    const std::uint32_t cglsRegionalMode = 1u;
++                    const auto applyRegionalBaseS = [&](id<MTLBuffer> input,
++                        id<MTLBuffer> output) {
++                        // S = P R^-1 P^T + H(I - A P R^-1 P^T).
++                        dispatchGroups32("nm_fgmres_regional_project_rhs",
++                            environments * regionalModes, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:input offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalCoarseRHS
++                                         offset:0u atIndex:3u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:4u];
++                            [encoder setBytes:&regionalStride
++                                       length:sizeof(regionalStride) atIndex:5u];
++                        }); barrier();
++                        dispatchGroups32(
++                            "nm_fgmres_base_cgls_solve_regional_rap",
++                            environments, [&] {
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:0u];
++                            [encoder setBuffer:state.femRegionalCoarseMatrix
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalCoarsePivots
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalCoarseValid
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalCoarseRHS
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:5u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:8u];
++                        }); barrier();
++                        dispatchGroups256("nm_fgmres_graph_solve_patches",
++                            environments * regionalPatches, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatches
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:input offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalAP
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femRegionalGraphFactors
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femRegionalGraphPivots
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femRegionalGraphFactorValid
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:10u];
++                            [encoder setBuffer:state.statuses offset:0u atIndex:11u];
++                            [encoder setBytes:&regionalPatches
++                                       length:sizeof(regionalPatches) atIndex:12u];
++                            [encoder setBytes:&regionalPatchNodes
++                                       length:sizeof(regionalPatchNodes) atIndex:13u];
++                            [encoder setBytes:&regionalMatrixFloats
++                                       length:sizeof(regionalMatrixFloats) atIndex:14u];
++                            [encoder setBytes:&regionalPivots
++                                       length:sizeof(regionalPivots) atIndex:15u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:16u];
++                            [encoder setBuffer:state.fgmresStates
++                                         offset:0u atIndex:17u];
++                            [encoder setBuffer:state.femRegionalGraphOriginalMatrices
++                                         offset:0u atIndex:18u];
++                            const std::uint32_t refinementMode = 1u;
++                            [encoder setBytes:&refinementMode
++                                       length:sizeof(refinementMode) atIndex:19u];
++                            [encoder setBuffer:state.femCandidate
++                                         offset:0u atIndex:20u];
++                            [encoder setBytes:&regionalStride
++                                       length:sizeof(regionalStride) atIndex:21u];
++                            [encoder setBytes:&cglsRegionalMode
++                                       length:sizeof(cglsRegionalMode) atIndex:22u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:23u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:24u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_base_cgls_zero_vector",
++                            cglsUnknowns, [&] {
++                            [encoder setBytes:&cglsUnknowns
++                                       length:sizeof(cglsUnknowns) atIndex:0u];
++                            [encoder setBuffer:output offset:0u atIndex:1u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_graph_apply_patches",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalGraphNodePatchOffsets
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalGraphNodePatchValues
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalGraphNodeCoverage
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:output offset:0u atIndex:8u];
++                            [encoder setBuffer:state.fgmresStates
++                                         offset:0u atIndex:9u];
++                            [encoder setBytes:&regionalPatchNodes
++                                       length:sizeof(regionalPatchNodes) atIndex:10u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:11u];
++                            [encoder setBuffer:state.femCandidate
++                                         offset:0u atIndex:12u];
++                            [encoder setBytes:&regionalStride
++                                       length:sizeof(regionalStride) atIndex:13u];
++                            [encoder setBytes:&cglsRegionalMode
++                                       length:sizeof(cglsRegionalMode) atIndex:14u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:15u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:16u];
++                        }); barrier();
+                     };
++                    const auto applyRegionalBaseST = [&](id<MTLBuffer> input,
++                        id<MTLBuffer> output) {
++                        // Reverse graph gather, local D, and coarse correction.
++                        dispatchGroups256(
++                            "nm_fgmres_base_cgls_graph_h_transpose",
++                            environments * regionalPatches, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatches
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:input offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalGraphOriginalMatrices
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalGraphFactors
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femRegionalGraphPivots
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femRegionalGraphFactorValid
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femRegionalGraphNodeCoverage
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:10u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:11u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:12u];
++                            [encoder setBytes:&regionalPatches
++                                       length:sizeof(regionalPatches) atIndex:13u];
++                            [encoder setBytes:&regionalPatchNodes
++                                       length:sizeof(regionalPatchNodes) atIndex:14u];
++                            [encoder setBytes:&regionalMatrixFloats
++                                       length:sizeof(regionalMatrixFloats) atIndex:15u];
++                            [encoder setBytes:&regionalPivots
++                                       length:sizeof(regionalPivots) atIndex:16u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_base_cgls_zero_vector",
++                            cglsUnknowns, [&] {
++                            [encoder setBytes:&cglsUnknowns
++                                       length:sizeof(cglsUnknowns) atIndex:0u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                         offset:0u atIndex:1u];
++                        }); barrier();
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_graph_h_transpose_scatter",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalGraphPatchNodes
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalGraphNodePatchOffsets
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalGraphNodePatchValues
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalGraphNodeCoverage
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalGraphPatchCorrections
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                         offset:0u atIndex:9u];
++                            [encoder setBytes:&regionalPatchNodes
++                                       length:sizeof(regionalPatchNodes) atIndex:10u];
++                        }); barrier();
++                        dispatchGroups32(
++                            "nm_fgmres_base_cgls_regional_transpose_project",
++                            environments * regionalModes, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalAP
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:input offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femRegionalCoarseRHS
++                                         offset:0u atIndex:7u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:8u];
++                            [encoder setBytes:&regionalStride
++                                       length:sizeof(regionalStride) atIndex:9u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:10u];
++                        }); barrier();
++                        dispatchGroups32(
++                            "nm_fgmres_base_cgls_regional_solve_rap_transpose",
++                            environments, [&] {
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:0u];
++                            [encoder setBuffer:state.femRegionalCoarseMatrix
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalCoarsePivots
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalCoarseValid
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femRegionalCoarseRHS
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:5u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:8u];
++                        }); barrier();
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_regional_transpose_finish",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femRegionalEffectiveBasis
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalCoarseCoefficients
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:output offset:0u atIndex:6u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:7u];
++                            [encoder setBytes:&regionalStride
++                                       length:sizeof(regionalStride) atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:9u];
++                        }); barrier();
++                    };
+                     dispatchThreads("nm_fgmres_prepare_base_cgls_layout", cglsUnknowns, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.femCandidate offset:0u atIndex:1u];
+@@ -23240,6 +23588,30 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:4u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:5u];
+                     }); barrier();
++                    if (femBaseCGLSRegionalGraphScaleEnabled) {
++                        const std::uint32_t regionalModes =
++                            state.femRegionalModeCount;
++                        const std::uint32_t regionalPatches =
++                            state.femRegionalGraphPatchCount;
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_validate_regional_graph",
++                            environments, [&] {
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:0u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femRegionalCoarseValid
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femRegionalGraphFactorValid
++                                         offset:0u atIndex:3u];
++                            [encoder setBytes:&regionalModes
++                                       length:sizeof(regionalModes) atIndex:4u];
++                            [encoder setBytes:&regionalPatches
++                                       length:sizeof(regionalPatches) atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:6u];
++                        }); barrier();
++                    }
+                     if (femBaseCGLSRightScaleEnabled) {
+                         dispatchThreads(
+                             "nm_fgmres_build_tangent_fem_block_preconditioner",
+@@ -23309,6 +23681,9 @@
+                         [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:1u];
+                     }); barrier();
+                     action(3u, state.femBaseCGLSB, state.femBaseCGLSS);
++                    if (femBaseCGLSRegionalGraphScaleEnabled)
++                        applyRegionalBaseST(state.femBaseCGLSS,
++                            state.femBaseCGLSS);
+                     dispatchThreads("nm_fgmres_base_cgls_initialize_vectors", cglsUnknowns, [&] {
+                         rows();
+                         [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:4u];
+@@ -23362,9 +23737,22 @@
+                                          offset:0u atIndex:9u];
+                         }); barrier();
+                     };
+-                    for (std::uint32_t iteration = 0u; iteration < femBaseCGLSIterations; ++iteration) {
++                    const auto applySelectedCGLSRightMap =
++                        [&](id<MTLBuffer> input, id<MTLBuffer> output,
++                            const std::uint32_t transpose) {
+                         if (femBaseCGLSRightScaleEnabled) {
+-                            applyRightScale(state.femBaseCGLSP,
++                            applyRightScale(input, output, transpose);
++                        } else if (femBaseCGLSRegionalGraphScaleEnabled) {
++                            if (transpose == 0u)
++                                applyRegionalBaseS(input, output);
++                            else
++                                applyRegionalBaseST(input, output);
++                        }
++                    };
++                    for (std::uint32_t iteration = 0u; iteration < femBaseCGLSIterations; ++iteration) {
++                        if (femBaseCGLSRightScaleEnabled ||
++                            femBaseCGLSRegionalGraphScaleEnabled) {
++                            applySelectedCGLSRightMap(state.femBaseCGLSP,
+                                 state.femBaseCGLSRightScalePhysical, 0u);
+                             action(4u, state.femBaseCGLSRightScalePhysical,
+                                 state.femBaseCGLSQ);
+@@ -23394,8 +23782,9 @@
+                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
+                         }); barrier();
+                         action(3u, state.femBaseCGLSR, state.femBaseCGLSS);
+-                        if (femBaseCGLSRightScaleEnabled)
+-                            applyRightScale(state.femBaseCGLSS,
++                        if (femBaseCGLSRightScaleEnabled ||
++                            femBaseCGLSRegionalGraphScaleEnabled)
++                            applySelectedCGLSRightMap(state.femBaseCGLSS,
+                                 state.femBaseCGLSS, 1u);
+                         dispatchGroups32("nm_fgmres_base_cgls_form_beta", environments, [&] {
+                             rows();
+@@ -23418,8 +23807,9 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
+                     }); barrier();
+-                    if (femBaseCGLSRightScaleEnabled)
+-                        applyRightScale(state.femBaseCGLSX,
++                    if (femBaseCGLSRightScaleEnabled ||
++                        femBaseCGLSRegionalGraphScaleEnabled)
++                        applySelectedCGLSRightMap(state.femBaseCGLSX,
+                             state.femBaseCGLSX, 0u);
+                     action(4u, state.femBaseCGLSX, state.femBaseCGLSQ);
+                     dispatchThreads("nm_fgmres_install_base_cgls_direction", environments, [&] {

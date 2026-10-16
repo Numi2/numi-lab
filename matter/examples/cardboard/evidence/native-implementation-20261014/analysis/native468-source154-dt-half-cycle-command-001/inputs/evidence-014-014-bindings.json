@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/solver/cgls-primary-after48-control1-453/receipt.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/native453-observer-baseline-receipt.json",
+    "sha256": "6bf62bf387064b81b40bddedb30fe58483950ab4cd1e2b70b5cc46847339cbe7"
+  },
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-capture-overlay-144-001/package-seal.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-state-capture-overlay-seal.json",
+    "sha256": "ec27cdbfa38f62cce25a54ab35c38f0a687a99f4e24f6d74edb84ef662b44c77"
+  },
+  {
+    "source": "/Users/home/cardboard-implementation-20261014/analysis/source144-state-sidecar-integration-001/root-source-review.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/state-sidecar455-inputs-001/source144-root-source-review.json",
+    "sha256": "2319bc01813e4147604c4f21dd194645f6386de086dba97a8f858da006cac4f5"
+  }
+]

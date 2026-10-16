@@ -1,0 +1,3 @@
+exit_code=0
+elapsed_seconds=0.542
+{"schema":"numi.cardboard.probe-result.v1","status":"compile_only","accepted_steps":0,"compiled_world_fingerprint":8485105279886344921,"nodes":882,"tetrahedra":1920,"failure":"","physical_validation":false}

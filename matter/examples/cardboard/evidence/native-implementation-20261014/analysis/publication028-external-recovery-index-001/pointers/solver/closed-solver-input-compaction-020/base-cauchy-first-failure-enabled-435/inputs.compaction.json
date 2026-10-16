@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16022919,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/base-cauchy-first-failure-enabled-435/inputs.tar.gz",
+  "archive_sha256": "8fcc983a9c6352bbd6a7572f005a27955461721fe090808225654febf5cc89f9",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/cases/base-cauchy-first-failure-enabled-435/before-inventory.json",
+  "before_manifest_sha256": "4a0c177bc2411326209451fb57c1868565ccc12bef34efec837732c742e54ddb",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

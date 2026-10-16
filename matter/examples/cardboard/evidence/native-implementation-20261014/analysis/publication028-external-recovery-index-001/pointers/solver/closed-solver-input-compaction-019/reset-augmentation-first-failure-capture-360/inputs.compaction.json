@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16777147,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-augmentation-first-failure-capture-360/inputs.tar.gz",
+  "archive_sha256": "dca4ea66562630be03dc1cf2461289388c2496d4c7af9fa400907e15c6cad834",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/reset-augmentation-first-failure-capture-360/before-inventory.json",
+  "before_manifest_sha256": "10819a386c119f0d7e68ca95cfd0d3a472b340fcb5c6cc7a502fda1b5ea995c9",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

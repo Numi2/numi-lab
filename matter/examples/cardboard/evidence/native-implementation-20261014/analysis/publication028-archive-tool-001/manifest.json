@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.publication028.archive-tool.v1",
+  "cases": 20,
+  "script_sha256": "91bd9f3da6145232aef9c492cc3cca9799240309301023d2bfd66bc7d3ffef12",
+  "case_list_sha256": "f1b3d906572d11a472daa44a9f46782b5834f89a90637a3c99074a7c717b9554",
+  "external_recovery_index_sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25",
+  "active_native468_excluded": true,
+  "physical_qualification": false
+}

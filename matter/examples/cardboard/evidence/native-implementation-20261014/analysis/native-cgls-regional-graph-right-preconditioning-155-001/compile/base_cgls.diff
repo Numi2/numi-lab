@@ -1,0 +1,565 @@
+--- a/matter/src/metal/base_cgls.metalinc
++++ b/matter/src/metal/base_cgls.metalinc
+@@ -738,6 +738,562 @@
+         return;
+     }
+     output[index] = result4;
++}
++
++
++// Experimental selector-5 base-map right scaling. These kernels are private
++// CGLS adapters: they consume only the current Newton base P/AP/RAP and graph
++// factors, never the FGMRES completed-tail latch or restart-augmented view.
++constant uint kBaseCGLSErrorInvalidRegionalMap = 256u;
++
++kernel void nm_fgmres_base_cgls_validate_regional_graph(
++    constant uint& environmentCount [[buffer(0)]],
++    device const uint* selected [[buffer(1)]],
++    device const uint* coarseValid [[buffer(2)]],
++    device const uint* graphValid [[buffer(3)]],
++    constant uint& modeCount [[buffer(4)]],
++    constant uint& patchCount [[buffer(5)]],
++    device atomic_uint* errors [[buffer(6)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= environmentCount) return;
++    if (selected[environment] > 1u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
++        return;
++    }
++    if (selected[environment] == 0u) return;
++    bool valid = modeCount > 0u && modeCount <= 32u && patchCount > 0u &&
++        coarseValid[environment] != 0u;
++    for (uint patch = 0u; patch < patchCount; ++patch)
++        valid = valid && graphValid[environment * patchCount + patch] != 0u;
++    if (!valid)
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorInvalidRegionalMap);
++}
++
++// CGLS cannot use the ordinary FGMRES RAP solve's silent zero-coefficient
++// fallback: an invalid right map would change B=A*S while leaving the
++// recurrence apparently healthy. This selected-only solve mirrors the
++// existing pivoted-LU order and turns every bad pivot, nonfinite intermediate,
++// or unusable diagonal into a private CGLS error before graph application.
++kernel void nm_fgmres_base_cgls_solve_regional_rap(
++    constant uint& environmentCount [[buffer(0)]],
++    device const float* coarseMatrix [[buffer(1)]],
++    device const uint* pivots [[buffer(2)]],
++    device const uint* valid [[buffer(3)]],
++    device const float* coarseRHS [[buffer(4)]],
++    device float* coefficients [[buffer(5)]],
++    constant uint& modeCount [[buffer(6)]],
++    device const uint* selected [[buffer(7)]],
++    device atomic_uint* errors [[buffer(8)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]) {
++    if (lane != 0u || environment >= environmentCount) return;
++    if (modeCount == 0u || modeCount > 32u) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorBadShape | kBaseCGLSErrorInvalidRegionalMap);
++        return;
++    }
++    const uint base = environment * modeCount;
++    if (selected[environment] == 0u) {
++        for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++        return;
++    }
++    if (selected[environment] != 1u || valid[environment] == 0u) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorBadSelection | kBaseCGLSErrorInvalidRegionalMap);
++        for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++        return;
++    }
++    const uint matrixBase = environment * modeCount * modeCount;
++    uint seen = 0u;
++    float values[32];
++    for (uint row = 0u; row < modeCount; ++row) {
++        const uint source = pivots[base + row];
++        if (source >= modeCount || (seen & (1u << source)) != 0u) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++            return;
++        }
++        seen |= 1u << source;
++        float value = coarseRHS[base + source];
++        if (!isfinite(value)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorNonfinite | kBaseCGLSErrorInvalidRegionalMap);
++            for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++            return;
++        }
++        for (uint column = 0u; column < row; ++column) {
++            value -= coarseMatrix[matrixBase + row * modeCount + column] *
++                values[column];
++            if (!isfinite(value)) {
++                baseCGLSMarkError(errors, environment,
++                    kBaseCGLSErrorNonfinite | kBaseCGLSErrorInvalidRegionalMap);
++                for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++                return;
++            }
++        }
++        values[row] = value;
++    }
++    for (int reverse = int(modeCount) - 1; reverse >= 0; --reverse) {
++        const uint row = uint(reverse);
++        float value = values[row];
++        for (uint column = row + 1u; column < modeCount; ++column) {
++            value -= coarseMatrix[matrixBase + row * modeCount + column] *
++                coefficients[base + column];
++            if (!isfinite(value)) {
++                baseCGLSMarkError(errors, environment,
++                    kBaseCGLSErrorNonfinite | kBaseCGLSErrorInvalidRegionalMap);
++                for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++                return;
++            }
++        }
++        const float diagonal = coarseMatrix[matrixBase + row * modeCount + row];
++        if (!isfinite(diagonal) || !(abs(diagonal) > 1.0e-30f) ||
++            !isfinite(value)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap | kBaseCGLSErrorNonfinite);
++            for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++            return;
++        }
++        coefficients[base + row] = value / diagonal;
++        if (!isfinite(coefficients[base + row])) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap | kBaseCGLSErrorNonfinite);
++            for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++            return;
++        }
++    }
++}
++
++inline bool baseCGLSRegionalSolveTranspose(
++    const uint n,
++    const uint matrixBase,
++    const uint pivotBase,
++    device const float* matrices,
++    device const uint* pivots,
++    threadgroup float* rhs,
++    threadgroup float* upperSolve,
++    threadgroup float* lowerSolve) {
++    if (n == 0u || n > 768u) return false;
++    for (uint i = 0u; i < n; ++i) {
++        float2 accumulated = float2(rhs[i], 0.0f);
++        for (uint j = 0u; j < i; ++j)
++            accumulated = fgmresGraphAccumulateProduct(accumulated,
++                matrices[matrixBase + j * n + i], upperSolve[j], -1.0f);
++        const float diagonal = matrices[matrixBase + i * n + i];
++        const float value = accumulated.x + accumulated.y;
++        if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
++            !isfinite(value) || !isfinite(diagonal) ||
++            !(abs(diagonal) > 1.0e-30f)) return false;
++        upperSolve[i] = value / diagonal;
++        if (!isfinite(upperSolve[i])) return false;
++    }
++    for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
++        const uint i = uint(reverse);
++        float2 accumulated = float2(upperSolve[i], 0.0f);
++        for (uint j = i + 1u; j < n; ++j)
++            accumulated = fgmresGraphAccumulateProduct(accumulated,
++                matrices[matrixBase + j * n + i], lowerSolve[j], -1.0f);
++        lowerSolve[i] = accumulated.x + accumulated.y;
++        if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
++            !isfinite(lowerSolve[i])) return false;
++    }
++    for (uint i = 0u; i < n; ++i) {
++        const uint originalRow = pivots[pivotBase + i];
++        if (originalRow >= n) return false;
++        upperSolve[i] = lowerSolve[i];
++    }
++    // Scatter through the final row permutation. Read the complete solved
++    // vector from upperSolve so arbitrary pivot cycles are safe.
++    for (uint i = 0u; i < n; ++i)
++        rhs[pivots[pivotBase + i]] = upperSolve[i];
++    for (uint i = 0u; i < n; ++i)
++        if (!isfinite(rhs[i])) return false;
++    return true;
++}
++
++kernel void nm_fgmres_base_cgls_graph_h_transpose(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint4* patches [[buffer(1)]],
++    device const uint* patchNodes [[buffer(2)]],
++    device const float4* input [[buffer(3)]],
++    device const float* originalMatrices [[buffer(4)]],
++    device const float* factors [[buffer(5)]],
++    device const uint* pivots [[buffer(6)]],
++    device const uint* factorValid [[buffer(7)]],
++    device float4* patchCorrections [[buffer(8)]],
++    device const uint* nodeCoverage [[buffer(9)]],
++    device const float4* rowMask [[buffer(10)]],
++    device const uint* selected [[buffer(11)]],
++    device atomic_uint* errors [[buffer(12)]],
++    constant uint& patchCount [[buffer(13)]],
++    constant uint& patchNodeCount [[buffer(14)]],
++    constant uint& matrixFloatCount [[buffer(15)]],
++    constant uint& pivotCount [[buffer(16)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    const uint groups = dispatch.environmentCount * patchCount;
++    if (group >= groups || patchCount == 0u) return;
++    const uint environment = group / patchCount;
++    const uint patchIndex = group - environment * patchCount;
++    const uint4 patch = patches[patchIndex];
++    const uint n = patch.y * 3u;
++    const uint patchBase = environment * patchNodeCount + patch.x;
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint matrixBase = environment * matrixFloatCount + patch.z;
++    const uint pivotBase = environment * pivotCount + patch.w;
++    const bool descriptorValid = patch.y > 0u && patch.y <= 256u &&
++        patch.x <= patchNodeCount && patch.y <= patchNodeCount - patch.x &&
++        n <= 768u && patch.z <= matrixFloatCount &&
++        n * n <= matrixFloatCount - patch.z &&
++        patch.w <= pivotCount && n <= pivotCount - patch.w;
++    if (!descriptorValid || selected[environment] > 1u) {
++        if (lane == 0u)
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorBadShape | kBaseCGLSErrorInvalidRegionalMap);
++        return;
++    }
++    if (selected[environment] == 0u ||
++        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u ||
++        factorValid[group] == 0u) {
++        if (selected[environment] != 0u && factorValid[group] == 0u &&
++            lane == 0u)
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++        for (uint local = lane; local < patch.y; local += 256u)
++            patchCorrections[patchBase + local] = float4(0.0f);
++        return;
++    }
++
++    threadgroup float rhs[768];
++    threadgroup float upperSolve[768];
++    threadgroup float lowerSolve[768];
++    threadgroup float firstSolve[768];
++    for (uint scalar = lane; scalar < n; scalar += 256u) {
++        const uint localNode = scalar / 3u;
++        const uint axis = scalar % 3u;
++        const uint node = patchNodes[patch.x + localNode];
++        const float4 mask = rowMask[nodeBase + node];
++        float value = 0.0f;
++        if (mask[axis] == 1.0f) {
++            const uint coverage = nodeCoverage[node];
++            if (coverage == 0u) {
++                baseCGLSMarkError(errors, environment,
++                    kBaseCGLSErrorInvalidRegionalMap);
++            } else {
++                value = input[nodeBase + node][axis] / float(coverage);
++            }
++        } else if (mask[axis] != 0.0f) {
++            baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        }
++        rhs[scalar] = value;
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    threadgroup uint solveValid;
++    if (lane == 0u) {
++        solveValid = atomic_load_explicit(&errors[environment],
++                                         memory_order_relaxed) == 0u ? 1u : 0u;
++        if (solveValid != 0u && baseCGLSRegionalSolveTranspose(n, matrixBase,
++                pivotBase, factors, pivots, rhs, upperSolve, lowerSolve)) {
++            for (uint scalar = 0u; scalar < n; ++scalar)
++                firstSolve[scalar] = rhs[scalar];
++        } else {
++            solveValid = 0u;
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++        }
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (lane == 0u && solveValid != 0u) {
++        for (uint row = 0u; row < n; ++row) {
++            float2 accumulated = float2(0.0f);
++            for (uint column = 0u; column < n; ++column)
++                accumulated = fgmresGraphAccumulateProduct(accumulated,
++                    originalMatrices[matrixBase + column * n + row],
++                    firstSolve[column], 1.0f);
++            rhs[row] = accumulated.x + accumulated.y;
++            if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
++                !isfinite(rhs[row])) solveValid = 0u;
++        }
++        if (solveValid != 0u && !baseCGLSRegionalSolveTranspose(n, matrixBase,
++                pivotBase, factors, pivots, rhs, upperSolve, lowerSolve))
++            solveValid = 0u;
++        if (solveValid == 0u)
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap |
++                kBaseCGLSErrorNonfinite);
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    const bool outputValid = solveValid != 0u &&
++        atomic_load_explicit(&errors[environment], memory_order_relaxed) == 0u;
++    for (uint local = lane; local < patch.y; local += 256u) {
++        if (!outputValid) {
++            patchCorrections[patchBase + local] = float4(0.0f);
++        } else {
++            const uint scalar = local * 3u;
++            const float3 value = 2.0f * float3(
++                firstSolve[scalar], firstSolve[scalar + 1u],
++                firstSolve[scalar + 2u]) - float3(
++                rhs[scalar], rhs[scalar + 1u], rhs[scalar + 2u]);
++            if (all(isfinite(value)))
++                patchCorrections[patchBase + local] = float4(value, 0.0f);
++            else {
++                baseCGLSMarkError(errors, environment,
++                    kBaseCGLSErrorNonfinite);
++                patchCorrections[patchBase + local] = float4(0.0f);
++            }
++        }
++    }
+ }
+ 
++kernel void nm_fgmres_base_cgls_graph_h_transpose_scatter(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* patchNodes [[buffer(1)]],
++    device const uint* nodePatchOffsets [[buffer(2)]],
++    device const uint* nodePatchValues [[buffer(3)]],
++    device const uint* nodeCoverage [[buffer(4)]],
++    device const float4* patchCorrections [[buffer(5)]],
++    device const float4* rowMask [[buffer(6)]],
++    device const uint* selected [[buffer(7)]],
++    device atomic_uint* errors [[buffer(8)]],
++    device float4* output [[buffer(9)]],
++    constant uint& patchNodeCount [[buffer(10)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const uint node = global - environment * dispatch.femNodeCount;
++    const float4 mask = rowMask[global];
++    if (selected[environment] == 0u) {
++        output[global] = float4(0.0f);
++        return;
++    }
++    if (selected[environment] != 1u ||
++        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
++        output[global] = float4(0.0f);
++        return;
++    }
++    if (!baseCGLSFinite4(mask) || mask.w != 0.0f ||
++        (any(mask.xyz != float3(1.0f)) &&
++         any(mask.xyz != float3(0.0f)))) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        output[global] = float4(0.0f);
++        return;
++    }
++    if (all(mask.xyz == float3(0.0f))) {
++        output[global] = float4(0.0f);
++        return;
++    }
++    const uint coverage = nodeCoverage[node];
++    if (coverage == 0u) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorInvalidRegionalMap);
++        output[global] = float4(0.0f);
++        return;
++    }
++    float3 sum = float3(0.0f);
++    for (uint item = nodePatchOffsets[node];
++         item < nodePatchOffsets[node + 1u]; ++item) {
++        const uint membership = nodePatchValues[item];
++        if (membership >= patchNodeCount || patchNodes[membership] != node) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            output[global] = float4(0.0f);
++            return;
++        }
++        sum += patchCorrections[
++            environment * patchNodeCount + membership].xyz;
++    }
++    if (!all(isfinite(sum))) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
++        output[global] = float4(0.0f);
++    } else output[global] = float4(sum, 0.0f);
++}
++
++kernel void nm_fgmres_base_cgls_regional_transpose_project(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* regionalBasis [[buffer(1)]],
++    device const float4* regionalAP [[buffer(2)]],
++    device const float4* input [[buffer(3)]],
++    device const float4* graphTranspose [[buffer(4)]],
++    device const float4* rowMask [[buffer(5)]],
++    device const uint* selected [[buffer(6)]],
++    device float* coarseRHS [[buffer(7)]],
++    constant uint& modeCount [[buffer(8)]],
++    constant uint& modeStride [[buffer(9)]],
++    device atomic_uint* errors [[buffer(10)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    if (modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
++        modeStride > 32u || dispatch.femNodeCount == 0u) return;
++    const uint environment = group / modeCount;
++    if (environment >= dispatch.environmentCount) return;
++    const uint mode = group - environment * modeCount;
++    if (selected[environment] == 0u) {
++        if (lane == 0u) coarseRHS[environment * modeCount + mode] = 0.0f;
++        return;
++    }
++    if (atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
++        if (lane == 0u) coarseRHS[environment * modeCount + mode] = 0.0f;
++        return;
++    }
++    float sum = 0.0f;
++    float correction = 0.0f;
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint basisBase =
++        (environment * modeStride + mode) * dispatch.femNodeCount;
++    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
++        const float4 mask = rowMask[nodeBase + node];
++        if (!baseCGLSFinite4(mask) || mask.w != 0.0f ||
++            (any(mask.xyz != float3(1.0f)) &&
++             any(mask.xyz != float3(0.0f)))) {
++            baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        } else if (all(mask.xyz == float3(1.0f))) {
++            const float term = dot(regionalBasis[basisBase + node].xyz,
++                                   input[nodeBase + node].xyz) -
++                dot(regionalAP[basisBase + node].xyz,
++                    graphTranspose[nodeBase + node].xyz);
++            baseCGLSCompensatedAdd(sum, correction, term);
++        }
++    }
++    const float partial = sum + correction;
++    sum = simd_sum(partial);
++    if (lane == 0u)
++        coarseRHS[environment * modeCount + mode] = sum;
++}
++
++kernel void nm_fgmres_base_cgls_regional_solve_rap_transpose(
++    constant uint& environmentCount [[buffer(0)]],
++    device const float* coarseMatrix [[buffer(1)]],
++    device const uint* pivots [[buffer(2)]],
++    device const uint* valid [[buffer(3)]],
++    device const float* coarseRHS [[buffer(4)]],
++    device float* coefficients [[buffer(5)]],
++    constant uint& modeCount [[buffer(6)]],
++    device const uint* selected [[buffer(7)]],
++    device atomic_uint* errors [[buffer(8)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]) {
++    if (lane != 0u || environment >= environmentCount) return;
++    const uint base = environment * modeCount;
++    if (selected[environment] == 0u) {
++        for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++        return;
++    }
++    if (modeCount == 0u || modeCount > 32u || valid[environment] == 0u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorInvalidRegionalMap);
++        for (uint i = 0u; i < modeCount; ++i) coefficients[base + i] = 0.0f;
++        return;
++    }
++    float y[32];
++    float z[32];
++    for (uint i = 0u; i < modeCount; ++i) {
++        const float diagonal = coarseMatrix[environment * modeCount * modeCount +
++            i * modeCount + i];
++        float2 accumulated = float2(coarseRHS[base + i], 0.0f);
++        for (uint j = 0u; j < i; ++j)
++            accumulated = fgmresGraphAccumulateProduct(accumulated,
++                coarseMatrix[environment * modeCount * modeCount +
++                             j * modeCount + i], y[j], -1.0f);
++        const float value = accumulated.x + accumulated.y;
++        if (!isfinite(value) || !isfinite(diagonal) ||
++            !(abs(diagonal) > 1.0e-30f)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            for (uint q = 0u; q < modeCount; ++q) coefficients[base + q] = 0.0f;
++            return;
++        }
++        y[i] = value / diagonal;
++        if (!isfinite(y[i])) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            for (uint q = 0u; q < modeCount; ++q) coefficients[base + q] = 0.0f;
++            return;
++        }
++    }
++    for (int reverse = int(modeCount) - 1; reverse >= 0; --reverse) {
++        const uint i = uint(reverse);
++        float2 accumulated = float2(y[i], 0.0f);
++        for (uint j = i + 1u; j < modeCount; ++j)
++            accumulated = fgmresGraphAccumulateProduct(accumulated,
++                coarseMatrix[environment * modeCount * modeCount +
++                             j * modeCount + i], z[j], -1.0f);
++        z[i] = accumulated.x + accumulated.y;
++        if (!isfinite(z[i])) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            for (uint q = 0u; q < modeCount; ++q) coefficients[base + q] = 0.0f;
++            return;
++        }
++    }
++    for (uint i = 0u; i < modeCount; ++i) {
++        const uint originalRow = pivots[base + i];
++        if (originalRow >= modeCount) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRegionalMap);
++            for (uint q = 0u; q < modeCount; ++q) coefficients[base + q] = 0.0f;
++            return;
++        }
++        coefficients[base + originalRow] = z[i];
++    }
++}
++
++kernel void nm_fgmres_base_cgls_regional_transpose_finish(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* regionalBasis [[buffer(1)]],
++    device const float* coefficients [[buffer(2)]],
++    device const float4* graphTranspose [[buffer(3)]],
++    device const float4* rowMask [[buffer(4)]],
++    device const uint* selected [[buffer(5)]],
++    device float4* output [[buffer(6)]],
++    constant uint& modeCount [[buffer(7)]],
++    constant uint& modeStride [[buffer(8)]],
++    device atomic_uint* errors [[buffer(9)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u ||
++        modeCount == 0u || modeCount > 32u ||
++        modeStride < modeCount || modeStride > 32u) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const uint node = global - environment * dispatch.femNodeCount;
++    if (selected[environment] == 0u ||
++        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
++        output[global] = float4(0.0f);
++        return;
++    }
++    const float4 mask = rowMask[global];
++    if (all(mask.xyz == float3(0.0f))) {
++        output[global] = float4(0.0f);
++        return;
++    }
++    if (any(mask.xyz != float3(1.0f)) || mask.w != 0.0f) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorBadMask);
++        output[global] = float4(0.0f);
++        return;
++    }
++    float3 value = graphTranspose[global].xyz;
++    const uint coefficientBase = environment * modeCount;
++    for (uint mode = 0u; mode < modeCount; ++mode) {
++        const uint modeBase =
++            (environment * modeStride + mode) * dispatch.femNodeCount;
++        value += coefficients[coefficientBase + mode] *
++            regionalBasis[modeBase + node].xyz;
++    }
++    if (all(isfinite(value))) output[global] = float4(value, 0.0f);
++    else {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonfinite);
++        output[global] = float4(0.0f);
++    }
++}
++
++kernel void nm_fgmres_base_cgls_zero_vector(
++    constant uint& unknownCount [[buffer(0)]],
++    device float4* output [[buffer(1)]],
++    uint index [[thread_position_in_grid]]) {
++    if (index < unknownCount) output[index] = float4(0.0f);
++}
++
+ } // namespace numi_matter_metal

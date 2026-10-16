@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16991018,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/explicit32-certified-coupon-380/inputs.tar.gz",
+  "archive_sha256": "ad8ace8bdcdd2f5b0c826897370038121b57c6eceb482571bfda658a5f2f73a8",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/explicit32-certified-coupon-380/before-inventory.json",
+  "before_manifest_sha256": "cc6aa56e9541b629a110768096abc133e247b63304d2fbbe3cf37461c81f1674",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

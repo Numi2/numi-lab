@@ -1,0 +1,20 @@
+{
+  "review": "source/static only",
+  "base_runtime_sha256": "01162665b98a7f88d4d6341e2bc6ea50afb9f5d831b04fe446ce27d34e7ad5ec",
+  "candidate_runtime_sha256": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+  "checks": [
+    "new path absent by default",
+    "bounded checked array extents and buffer lengths",
+    "ordered read-only blits before CGLS construction/install",
+    "accepted/candidate material history roles explicitly distinguished",
+    "no kernel/operator/material/tolerance changes",
+    "exclusive payload then manifest completion",
+    "subsequent CGLS encoding recreates all needed compute bindings"
+  ],
+  "limitations": [
+    "not a compiler or native observation test",
+    "projected current-Newton history is not persisted",
+    "raw cache generation requires independent adjudication"
+  ],
+  "blocking_findings": []
+}

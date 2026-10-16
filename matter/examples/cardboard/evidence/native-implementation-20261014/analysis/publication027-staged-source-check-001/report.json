@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.publication027.staged-scope.v1",
+  "parent": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "source_files_verified": 787,
+  "source154_frozen_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "staged_paths": 473,
+  "staged_pathspec_sha256": "6b29076d64bdb83f548898538a27423207e95c202f83485683be63cffb51151e",
+  "new_evidence_paths": 467,
+  "nonarchive_paths": [
+    "matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-milestone-source154.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "exact_scope": true,
+  "prior_pathspec_prefix_preserved": true,
+  "summary_records": 1457
+}

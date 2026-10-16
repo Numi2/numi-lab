@@ -1,0 +1,6 @@
+Archived CMakeFiles for build-cardboard-provenance-105.
+Archive: /Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/archives/build-cardboard-provenance-105-CMakeFiles.zip
+Archive SHA-256: 56bd337368e0d26bfa59c04cadaa1898b6ec1241caa62a57e38d462023026733
+Inventory: /Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/inventories/build-cardboard-provenance-105-CMakeFiles.json.gz
+Inventory SHA-256: f3d386699d6b5ce9fb3d550b6ed99a9abcf923c2f37070ef5d678282d6626648
+Restore: python3 /Users/home/cardboard-implementation-20261014/analysis/cardboard-provenance-cmakefiles-compaction-001/compact_one.py restore build-cardboard-provenance-105

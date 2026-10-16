@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15052976,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/source15-c1-complete-coupon-cycle-166/inputs.tar.gz",
+  "archive_sha256": "97fc71318a7dae79ba23941915f62d28eb01d1a39de2122a7e7faaa9e43e3564",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/source15-c1-complete-coupon-cycle-166/before-inventory.json",
+  "before_manifest_sha256": "8985d6c8f92f07defaf24d7ddf5cb9ebab48410b30fa9853ddd926ab78aacea4",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/source15-c1-complete-coupon-cycle-166",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

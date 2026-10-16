@@ -1,0 +1,679 @@
+{
+  "archive_count": 128,
+  "command": [
+    "python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/publication028-external-recovery-index-001/build_external_recovery_index.py"
+  ],
+  "created_utc": "2026-10-16T01:06:02.301328+00:00",
+  "exit_code": 0,
+  "files": [
+    {
+      "bytes": 517,
+      "path": "README.md",
+      "sha256": "29e1d5744adbb8eeb4b11eaef56c4e610590a31c427ff7c214b52004f409f107"
+    },
+    {
+      "bytes": 10704,
+      "path": "build_external_recovery_index.py",
+      "sha256": "6fd792010e1c6d89e0451c6e4fa160f2513bd09cfaa811d0615df69805acb706"
+    },
+    {
+      "bytes": 237204,
+      "path": "external-recovery-index.json",
+      "sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25"
+    },
+    {
+      "bytes": 496,
+      "path": "pointers/build-host/overlay-004/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "b656d187a79d1a261b706ec0af3bc65a899d69909eaa793a88db587af0a59a2f"
+    },
+    {
+      "bytes": 496,
+      "path": "pointers/build-host/overlay-005/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "f57c917dd9f9cf855c53fbe3f1f635b0fb5b6e46c4ca9e5f489dd289b3c0a3d6"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-023/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "2b9caacf000938ed9fcc32f55f274d9e0c1e59cbf261b8236151969d3e807089"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-041/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "4ee5e00d5e89aa62cfae6822b47d5b3a105701659bf5cf96a265e482644712ec"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-043/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "c58f8846a44657d7b7daa6140ae4903b11d22d0eb2ba9c5a44fcd53e29402f92"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-070/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "36d32c49ffc673a59936db374d6dddf41fd46b2ace3238eca4c9e286b77e7443"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-078/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "a738d6247aacce57978896a4bb2c63a7c5b775379ae498e53e228d819b972766"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-082/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "1b4d5002cd96d4893ca81e66a3b7fa755980fd3e4247f00cf0ecf595c1fec5fe"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-084/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "e1c00dd8a780bd11d5676101c8eed1130e1fd64b5e7c3df58331c035dc5d6341"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-085/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "d3fd835d49133502010a8e66d0a00b3489bb00abc2e49b40aaca683bad74aa2e"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-086/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "c8e14959a21f3063d76195f1022c0a53db2592b8247a52ddfd1800a17043488e"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-089/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "2b3d60a4cff9be2add85cbd882653616ff2d23b404831b8f604f7e58c7aec08f"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-091/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "fdabae706440d04f0bf3703e08bdd0105501a52c3377f7f67072212e5dd036ef"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-092/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "7cf33dd7507fe5377bcf7266e5e431ba2efaf1cd2bc1d8b8a8dae3b7fab17e75"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-094/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "35a6df09399956647448285c5b93d05a0941316a121a269231ff0cda29555b62"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-095/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "a2d66c2ed4af7d76bd5d1d5173d22e916e9328bf10b4a8618dfdc9fc5c5a9b70"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-096/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "02a6c5794aaeeda9f9681b2cd60909f680ceb12f2c0afd2167fe64b8d3b43d4b"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-097/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "ecd9fdb001239ed582c1480e368e246db262298efb10bf5f0a710b412a3b32fa"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-099/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "ba33bc343280ad50cd553b03c3bbe6195fd5ccd92c69bf4f16f21e997ba52b6c"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-100/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "43eb011f9a38721f88503e1e712393f646e84f85c42d53421cb93575f1be4d53"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-104/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "acb09cd19a933d838a11a430e6724d2c5511463d76e909c260441b154b0769d4"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-105/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "b038cac7f5be66eb3c6e3bebef59a53be21d8b9fee02cee5b32dda0e45a9f6a4"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-106/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "1100565b703346d1af40f78df0c70842de9e1fd15c4d0d2b6c2334fcd986818e"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-108/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "b6264e15dd506250a1e05b694e6902ae0c477028d4093e89a8720e36f505a27b"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-109/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "07fa17a384bb1968bbdbc4b1d7a13d34b5cdee6e023c125d2ba60c982d668133"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-112/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "1945092105ce4866fb7ecc65e1bfe6f6c7c39380e191ad4cf47afaa780bfefea"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-116/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "49d748a3df1621784c6db019d55d47121e5a2057955f319e8fde2b2f7a49d58e"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-117/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "aab28f0163923d103b826bba3d6ea5fc52287c7b0307fa37bef741e5072e22dc"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-118/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "c9bf26027f3a3f44fcc6cc14afb4277c431ab1d4b98653751fd35423bca4f77f"
+    },
+    {
+      "bytes": 756,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-118-full/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "50de5edef21c1144e0d4be7b8a0a70b640c654f4b6255b66e8a090c702f376c2"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-119/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "04999d814fd8703136e94ba34d1561595835250449fac4247f19b03cd8f5b509"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-120/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "5fb1281896431e739e933701f83f32b9cf66b2380593b052f993a1ffac105b72"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-121/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "2f1df978eefb8af6a26dbf8d8e8ea05e612ceb0bc29a9cbdb3af3190fa871386"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-122/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "7706a2226eb0604fce4aefe84040747d45f5eab62b1a9c5d84c1a04d42786de7"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-123/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "207d4985123c2e7c52c5f665c7935a155fc2eb96159432f33b79506be1b4d02d"
+    },
+    {
+      "bytes": 740,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-123a/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "78c43190d3f58a578e21405e7622d73ec06ca2a89bd77ff971a8088e886fcd51"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-124/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "64187a8bfab94df2d80ff4b8b9bcc532d5785fa05f4f5a4766088cdbdb1b74a5"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-125/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "a367f12a4fcccfd9105c9298113a4f5868dac18c9ee3dc2f62b3ab6536aaed98"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-126/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "ca9828373fcaec18fa93b6c54ebe00cb5df773860d4816432e76a5fbb63b5787"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-127/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "0504cf3085cb1b434d42740c451ed44802975eb218ba68a2480a77a362a14c27"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-128/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "e7066086a752150c32290a15e1d694e0693a8f39273d335c5b194145e2d25dca"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-129/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "72ac4f64adfbc9d6eaea40238bd1b46a32658413de5fa2fc81ca256689f57b17"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-130/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "4e9364f18a420e8606f25423b1f88a58f7a96eba35a7c9bd1d4a6855e887f57a"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-131/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "0df5178a585ee94cfac188f64f9579d0cc220ca2d98ff73b953097e00488fbc3"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-132/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "358501ca9c71a829a99f497d103bf474655b924dae9c1c7246aaf9ff442ae85a"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-133/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "308b56b98c2e66a150b1b29c5db603759179ce88e1f517c3de069e5f6bc633bc"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-134/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "3c6ffa0269ace9672b0454592d2c18060be3e22c3a52f7534d825d6ebf568cc2"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-135/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "190cb88596350a955d3aa86ea427f206f0a44dcddc945194e5574a83756d4843"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-136/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "65b27577dfd69308e96b9fe6f403f1952e7cd9de367ccfdaf1cdd1fc65493097"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-137/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "2782b09778bb7258e9bc3658e1d2e0890f3c0a586154e82575ba5d328e0ff6c4"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-139/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "6719fc24be80e44b4e7853cd7ad3ef51069c8c7d1a954ea8edffa14c845e2df9"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-141/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "a14e9fe437416b258c1a4e5b8507abe10d8750c869bcdb7e83c75f2b6293da66"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-142/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "99427452e8ffc613bccbf3f1673ddfc3c93c52f9ce87807cfac8b3e4fe188d58"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-143/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "4f1f122771bb0853d5afbb877726ac838c576dc48f658608a5ed2364aba06105"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-144/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "9c755c3051c43d3b6e63164c76223fd00ca85b86e6616493f6ef2eb9038f2841"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-145/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "765771c51d32107061444eb70c7df8b8a640a544213eb44f0b762164cfd7a892"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-149/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "0d7b85ebe715b5799ba85e67a58fa79bbddb7012625050973e96c1bb52d21995"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-151/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "0283ca74f587e24f3652a1c8fecdc9d17865c12deaf137b939192c05100e0baf"
+    },
+    {
+      "bytes": 736,
+      "path": "pointers/cmakefiles/build-cardboard-provenance-153/RESTORE_FROM_COMPACTION.txt",
+      "sha256": "f1be00186d443700742c7bef230644cfd277bba8f505ec47caab8612432dddd7"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/accepted-correction-recycle-first-control-284/inputs.compaction.json",
+      "sha256": "4414ece7137262b96ffb0a7dfb0fccf5ab7a5446e6d04636cfe171a28a90c642"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/accurate-source15-complete-coupon-cycle-288/inputs.compaction.json",
+      "sha256": "d274e386801b4e2d199bc15b5229403afaa854a535b58d8daea53323d96f1a3a"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/budgeted-graph-legacy-first-control-263/inputs.compaction.json",
+      "sha256": "cb3f13666e1195c9bea9b6f7cc878482065fb143ffc001d94e786a3941051b9f"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/budgeted-refined-nx16-first-control-265/inputs.compaction.json",
+      "sha256": "81678322d4cf00e0017e4da374746101728f6e846095468d7600fd3e48b52a4d"
+    },
+    {
+      "bytes": 983,
+      "path": "pointers/solver/closed-solver-input-compaction-019/cached-coupon-rejection-linear-and-local-capture-160/inputs.compaction.json",
+      "sha256": "16d5b47ccfcfff3b3f2a5259602445b80261a8ae8c1531506bd31bf36da33464"
+    },
+    {
+      "bytes": 968,
+      "path": "pointers/solver/closed-solver-input-compaction-019/cached-preconditioner-complete-coupon-cycle-152/inputs.compaction.json",
+      "sha256": "78935ebfe8fcff10335355d67efcf4ff7066e62c7a475b43a971a21bc3a6bcc6"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/cached-true-residual-certification-coupon-370/inputs.compaction.json",
+      "sha256": "c0f6a19944f916e6a27c75520c5bb4d77b125df675aff2304a828c4a3c3b095a"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-bounded-316/inputs.compaction.json",
+      "sha256": "af0214be12f0070e0dc0713d1f2832f4eecb6b3a8798be1a18e5cfc12ce9e223"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-off-N16-338/inputs.compaction.json",
+      "sha256": "ada86f23d6c819bb00fb17ba857e898e4ce787a13af63a73eee3733a5e52eff6"
+    },
+    {
+      "bytes": 974,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-off-N28-capture27-342/inputs.compaction.json",
+      "sha256": "0d95abdb27319fcda4ff1d0c7e188ee5102c742557f1cfef99c483602c76d76e"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-off-N32-340/inputs.compaction.json",
+      "sha256": "04c64872d6b6b1f70b0aff102145ea3ec05b1ae6a6994b1a4420b3015efa5289"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-off-bounded-317/inputs.compaction.json",
+      "sha256": "013676bfa063b8457e426686b09489f70c3d73b046115be4d3f32e7bdfb6a574"
+    },
+    {
+      "bytes": 941,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-on-N16-337/inputs.compaction.json",
+      "sha256": "39a4651352cccd4c29ce3dda346ed146c393dcfccc21b22d3e931d381965353e"
+    },
+    {
+      "bytes": 971,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-on-N28-capture27-341/inputs.compaction.json",
+      "sha256": "d25021d9514d99d0f2848d3810668d4eab9554a3e7ca87f017cffd0da33ddcc5"
+    },
+    {
+      "bytes": 941,
+      "path": "pointers/solver/closed-solver-input-compaction-019/current-newton-augmentation-on-N32-339/inputs.compaction.json",
+      "sha256": "d2c472be0ea8a70ab5bd2efb9291406ff7a82cbcf32cfbf8fd079e4eb87fe460"
+    },
+    {
+      "bytes": 929,
+      "path": "pointers/solver/closed-solver-input-compaction-019/dimensionless-certified-coupon-392/inputs.compaction.json",
+      "sha256": "0816afa758cb7b71373397356faea2fdc8ea790d46ab74e2b2b077b94c1cd672"
+    },
+    {
+      "bytes": 920,
+      "path": "pointers/solver/closed-solver-input-compaction-019/explicit32-certified-coupon-380/inputs.compaction.json",
+      "sha256": "27a52c7d58c44c5c9434367f9049b78e87bb6bb02fa37d4b840b2a3e0bb364fc"
+    },
+    {
+      "bytes": 974,
+      "path": "pointers/solver/closed-solver-input-compaction-019/full-native-tangent-cache-all-diagnostics-off-181/inputs.compaction.json",
+      "sha256": "c5d45bf3b1dd285e536d26905d400bf4bc698cd1ac3a10e3f471609e88c58cc0"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/full-native-tangent-cache-diagnostics-off-176/inputs.compaction.json",
+      "sha256": "5e11f8a36b61f36877b4ee5046bfa0bde7cfb57f57f3432fc1ccef610def633f"
+    },
+    {
+      "bytes": 983,
+      "path": "pointers/solver/closed-solver-input-compaction-019/full-native-tangent-cache-failing-coupon-capture-175/inputs.compaction.json",
+      "sha256": "b72592c10a14e2e979956712d6acd9ab02a6e3a54cdca695525957e871c51df4"
+    },
+    {
+      "bytes": 968,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-final-newton-fd-scale-1over16-218/inputs.compaction.json",
+      "sha256": "69079746a5a8b28e2d6cbfef80b0a050e374ad2f0c4478247cf36f3032368bc6"
+    },
+    {
+      "bytes": 971,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-final-newton-fd-scale-1over256-220/inputs.compaction.json",
+      "sha256": "ab68bba34261e7e221242da0d8582a60a12710b85af7f539e5bd639186990ce8"
+    },
+    {
+      "bytes": 965,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-first-control-factor-capture-204/inputs.compaction.json",
+      "sha256": "0c36a79ab1478ae5534637957d914b09bab60fd8e3806b8da72dd6d01273459a"
+    },
+    {
+      "bytes": 983,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-first-control-final-newton-capture-216/inputs.compaction.json",
+      "sha256": "fca3d34ae9bcb9f81c7098367fc3625fe03c5cb37262a8ccd09157fd606b3d83"
+    },
+    {
+      "bytes": 968,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-tail-guard-full-first-control-215/inputs.compaction.json",
+      "sha256": "22121bd7d0467d77f0e51083d24036db85f569c6303061af7223c8612c3345cd"
+    },
+    {
+      "bytes": 944,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-tail-guard-one-newton-214/inputs.compaction.json",
+      "sha256": "0ad9d82def14249f1b34eed1d027528c717b4232152f4f1b22824260f382c22b"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/graph-schwarz-topology-factor-one-newton-212/inputs.compaction.json",
+      "sha256": "b5867021e20173e90fd7c22f920e309aef52eea2cfd650cce7615853fb28b049"
+    },
+    {
+      "bytes": 953,
+      "path": "pointers/solver/closed-solver-input-compaction-019/original-19-state-reproduction-capture-141/inputs.compaction.json",
+      "sha256": "a85c1148b40ec262170509679f2a86260dfd598173efd65511fa88b793bf30b4"
+    },
+    {
+      "bytes": 941,
+      "path": "pointers/solver/closed-solver-input-compaction-019/original-19-state-reproduction-off-142/inputs.compaction.json",
+      "sha256": "f2610029e47412d99babc3366285915b5a7f8a084a53e8778dee6c1d3da4e0bd"
+    },
+    {
+      "bytes": 895,
+      "path": "pointers/solver/closed-solver-input-compaction-019/paper-cpu-milestone-003/inputs.compaction.json",
+      "sha256": "146ce1f2ec0f1dd5c2577353064ca4a946707496af178f56bf48f99befef436b"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/parallel-graph-production-first-control-264/inputs.compaction.json",
+      "sha256": "6c4cb5aba8a8c388f2b94ef7d3687a40aa7f3a00f4a7783c027bf7a78c1be252"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/rationalized-paper-complete-coupon-cycle-303/inputs.compaction.json",
+      "sha256": "2a94bdbcf49c99748a6f36b303a1ba02e52c6a745066deb1507d787a75442b13"
+    },
+    {
+      "bytes": 947,
+      "path": "pointers/solver/closed-solver-input-compaction-019/recycle-source-default-first-control-283/inputs.compaction.json",
+      "sha256": "27ee54850ba21197fb8b1854352907441445ebbaa41ae7eb176c34acd87b459a"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-augmentation-first-failure-capture-360/inputs.compaction.json",
+      "sha256": "79f050784431127b9e48ddcca203df6bb8ae4d1e4298e6ecdc9937e6b9128b84"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-augmentation-first-failure-rap-only-361/inputs.compaction.json",
+      "sha256": "89f71e54d706a96640bd011804475396da224f3c379c77dcce44d9fcabb96aa0"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-order-augmentation-complete-coupon-351/inputs.compaction.json",
+      "sha256": "e1e0222700395b51fe73fdc079fdf0791c3f791f388a1eb0941c600e7d82030d"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-order-augmentation-complete-coupon-352/inputs.compaction.json",
+      "sha256": "0557bb7b0ab26a0aa62cb40348c5cd80d7d47729c0d88666810562371b3e5603"
+    },
+    {
+      "bytes": 965,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-order-augmentation-off-N28-capture27-345/inputs.compaction.json",
+      "sha256": "8e883dfaa70e71fb65e447c71d94f7c5711a7d83eab997a7e223f582e0a3f590"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/reset-order-augmentation-on-N28-capture27-344/inputs.compaction.json",
+      "sha256": "af9bb5e0fa210807aed54e4f508ae404aa6d84a9a0d9775620e1fb9921356c85"
+    },
+    {
+      "bytes": 965,
+      "path": "pointers/solver/closed-solver-input-compaction-019/selected-failure-true-residual-replacement-363/inputs.compaction.json",
+      "sha256": "c7082c8135114dd4421d1871913daadbfdc13f4c5d7e2985fa89120cddd7bf32"
+    },
+    {
+      "bytes": 971,
+      "path": "pointers/solver/closed-solver-input-compaction-019/selected-newton-regional-all-diagnostics-off-183/inputs.compaction.json",
+      "sha256": "7db7167a8126a9c00fc7a441d6beb5112f37dca53246ea047ca7d0de70f2ee8d"
+    },
+    {
+      "bytes": 986,
+      "path": "pointers/solver/closed-solver-input-compaction-019/selected-newton-regional-rap-and-operator-capture-182/inputs.compaction.json",
+      "sha256": "8a221e65d7aab3564fef867d6ce636277bd7814c46845d491e21ea08ff9484a7"
+    },
+    {
+      "bytes": 938,
+      "path": "pointers/solver/closed-solver-input-compaction-019/source15-c1-complete-coupon-cycle-166/inputs.compaction.json",
+      "sha256": "b906d2aae30b9c5ae24794748b9a63c9d74746169e8bbce1afcfba371f581521"
+    },
+    {
+      "bytes": 977,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-completed-graph-tail-first-control-238/inputs.compaction.json",
+      "sha256": "576f67c7167676c6231ee0f331ffcfcb216a0b0f53dfa4b0b2a011a170ed4605"
+    },
+    {
+      "bytes": 998,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-dynamic-grips-tail-baseline-first-control-237/inputs.compaction.json",
+      "sha256": "cf530970938a27b7d2a0f89513cdafc6f818558143def2fb44fabd1d91247a71"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-fg32-control1-capture-cycle-258/inputs.compaction.json",
+      "sha256": "95ec7947ee9ae4655b3a3f21d77bdf3eb028378c765e849c96d45e25a0074927"
+    },
+    {
+      "bytes": 965,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-fg32-control1-newton63-capture-266/inputs.compaction.json",
+      "sha256": "b29a74a8123a1c31eef43a0f895720b7f7fdaef2d9824885a337aacb3350f5df"
+    },
+    {
+      "bytes": 929,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-fg32-first-control-257/inputs.compaction.json",
+      "sha256": "a4ae1bbca341a01fbd647db9fa0ede82ce41b90f278d5ab08a90cf7998dab833"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-graph-complete-coupon-cycle-226/inputs.compaction.json",
+      "sha256": "3582a635e9b7f5da1a2399229dc98a53db7c569f6721d7cda71eb1ba53b8d26c"
+    },
+    {
+      "bytes": 932,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-graph-first-control-222/inputs.compaction.json",
+      "sha256": "37de485b3e7e28dcf3b0afbedbf3d3596fd29634c73e34964d64184c86418025"
+    },
+    {
+      "bytes": 962,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-graph-first-control-budget128-224/inputs.compaction.json",
+      "sha256": "72e39057a7c4253284260a89d9a04e25e90e2e930336f19fbd975d23f5214b11"
+    },
+    {
+      "bytes": 959,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-graph-first-control-budget64-225/inputs.compaction.json",
+      "sha256": "97b88d96e4092ccafba1558dec181f3042797cd3980d02c9e26fd0d9bafa01cb"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-refined-graph-first-control-230/inputs.compaction.json",
+      "sha256": "4f1ee54dab4a6333e91033b85185914d5c10b4e57969e0bb6d5c1b45feca54a7"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-refined-graph-first-control-233/inputs.compaction.json",
+      "sha256": "c52d3e3de46f2dfd9ce20369a4b52e775009773377bc7671708b6b92c95fee55"
+    },
+    {
+      "bytes": 980,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-stable-prefix-complete-coupon-cycle-247/inputs.compaction.json",
+      "sha256": "1cfc644df97dd6f4bd5b07776717b6a4f0a5f05e6e87ffc4fc31d56d887d6962"
+    },
+    {
+      "bytes": 956,
+      "path": "pointers/solver/closed-solver-input-compaction-019/sourcefit15-stable-prefix-first-control-246/inputs.compaction.json",
+      "sha256": "437a1c0bbebb7c50a5badbb52a454af1a198397dc1934625a6bb58a9be94cc83"
+    },
+    {
+      "bytes": 968,
+      "path": "pointers/solver/closed-solver-input-compaction-019/two-env-current-newton-augmentation-bounded-322/inputs.compaction.json",
+      "sha256": "b712c36f35221973375191f9fef500d139f2d9f0615d84a57ef865ef886bda64"
+    },
+    {
+      "bytes": 980,
+      "path": "pointers/solver/closed-solver-input-compaction-019/two-env-current-newton-augmentation-off-bounded-323/inputs.compaction.json",
+      "sha256": "3e582578c9687473d98523203076a5e8a1c209cfb1e258ea4cc3007fc1c3a094"
+    },
+    {
+      "bytes": 917,
+      "path": "pointers/solver/closed-solver-input-compaction-019/two-stage-certified-coupon-409/inputs.compaction.json",
+      "sha256": "d911839e34a8a9b948e516e33b6945839e449e2d0f1d932ff651ec4e6af75b8b"
+    },
+    {
+      "bytes": 920,
+      "path": "pointers/solver/closed-solver-input-compaction-020/base-cauchy-disabled-parity-434/inputs.compaction.json",
+      "sha256": "c3737e8c007ff87de92b8aaae00045336bfb7fed6f2971699af8bd50f6f6b796"
+    },
+    {
+      "bytes": 938,
+      "path": "pointers/solver/closed-solver-input-compaction-020/base-cauchy-first-failure-enabled-435/inputs.compaction.json",
+      "sha256": "06754d86f28d7aee3e2021fbaa10462d9bd22d8bd1996ead3410ce539c8461b0"
+    },
+    {
+      "bytes": 932,
+      "path": "pointers/solver/closed-solver-input-compaction-020/cache-reuse-full-history-parity-437/inputs.compaction.json",
+      "sha256": "f258681d47d100c2c0f8608eb4b041989c9864c16e5adfc3a3e1415dde8b6ef9"
+    },
+    {
+      "bytes": 935,
+      "path": "pointers/solver/closed-solver-input-compaction-020/current-failure-22-state-capture-153/inputs.compaction.json",
+      "sha256": "eef9bad57a04ec45d6cf7850e5b1f4541f0fa901af085506c2153504f9d23cf0"
+    },
+    {
+      "bytes": 953,
+      "path": "pointers/solver/closed-solver-input-compaction-020/two-stage-coupon-first-descent-capture-415/inputs.compaction.json",
+      "sha256": "0ef79d4e47e216260c547913177c83812d851499de52a4725a365ffe036ed7a1"
+    },
+    {
+      "bytes": 935,
+      "path": "pointers/solver/closed-solver-input-compaction-023/cgls-block-right-disabled-parity-462/inputs.compaction.json",
+      "sha256": "d3dd794c658e32dfdeba78679d5f630c284d5dc47361e19aaf03a41840ffcc5c"
+    },
+    {
+      "bytes": 917,
+      "path": "pointers/solver/closed-solver-input-compaction-023/cgls-block-right-primary48-463/inputs.compaction.json",
+      "sha256": "51c3219acbe87fddb06c0a4666e1758fcbea5dc59c66d6d36d373bb463ce55f2"
+    },
+    {
+      "bytes": 941,
+      "path": "pointers/solver/closed-solver-input-compaction-024/cgls-complete-outer128-allcontrols-467/inputs.compaction.json",
+      "sha256": "5b0ace1bfaeaabfaab8262b5a710637799d97bcb6409cc912d80dff3e96eafd3"
+    },
+    {
+      "bytes": 932,
+      "path": "pointers/solver/closed-solver-input-compaction-024/cgls-newton128-default64-parity-466/inputs.compaction.json",
+      "sha256": "1aaeeb8306627036471c5e59d4fcb95549608b0d06b2a73037fa8eafecfe0e14"
+    },
+    {
+      "bytes": 920,
+      "path": "pointers/solver/closed-solver-input-compaction-024/cgls-regional-state-capture-464/inputs.compaction.json",
+      "sha256": "61d81edd40a3b92cf68771635be77ce7b0d95bb5deffc91a1558823db153a307"
+    }
+  ],
+  "index_sha256": "ac63ec0a0f4cba8832709024c1d3ecc56dc54e5b97d65e880292b33c77ebca25",
+  "pointer_bytes": 108775,
+  "pointer_copy_count": 128,
+  "prior_attempts": [
+    {
+      "attempt": "001",
+      "corrected_attempt": "002",
+      "error": "TypeError: unsupported operand type(s) for +: PosixPath and str in build-host pointer source path composition",
+      "note": "All source archive/pointer preflight and output generation then completed; exact files are listed above.",
+      "result": "failed before staging or package output writes"
+    }
+  ],
+  "schema": "numi.cardboard.publication028.external_recovery_index_build_receipt.v1"
+}

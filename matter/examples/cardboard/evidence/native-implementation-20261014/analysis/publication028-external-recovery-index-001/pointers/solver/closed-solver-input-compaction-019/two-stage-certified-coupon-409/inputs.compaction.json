@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 20607665,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/two-stage-certified-coupon-409/inputs.tar.gz",
+  "archive_sha256": "3c24dcdb34b7e0f880f4f1b8bf0d8a9699221c1a06129c27087d25737ed5c2ab",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/two-stage-certified-coupon-409/before-inventory.json",
+  "before_manifest_sha256": "37b1779f5e671044515b61e290d7412fe10ef204d3ba7bca02cb9b01cc85fc52",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

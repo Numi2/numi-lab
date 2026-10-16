@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.publication027_commit_push.v1",
+  "parent": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "remote_main": "2298e1a1d49dd09fa149c57f65ccbfaab3985c29",
+  "audit_sha256": "60408130429486d76a6cf4821c977710c88af913d01eb56f9df0eba2e01b5c80",
+  "stage_pathlist_sha256": "3d95a0c12a627e7f1035d1921398e64c9b1025155ce4a8f0464f69ab758158aa",
+  "staged_paths": 511,
+  "utc": "2026-10-16T00:41:13.523441+00:00",
+  "commit": "2298e1a1d49dd09fa149c57f65ccbfaab3985c29",
+  "remote_verified": true,
+  "commit_exit_code": 0,
+  "push_exit_code": 0,
+  "finished_at_utc": "2026-10-16T00:41:24.355954+00:00",
+  "qualification": "Bounded solver-control and failure-preservation milestone; all six physical qualification axes remain open."
+}

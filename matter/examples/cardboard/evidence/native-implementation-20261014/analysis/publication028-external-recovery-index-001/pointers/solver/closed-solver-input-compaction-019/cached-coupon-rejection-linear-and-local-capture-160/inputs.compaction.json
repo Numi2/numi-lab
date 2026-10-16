@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15003963,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-coupon-rejection-linear-and-local-capture-160/inputs.tar.gz",
+  "archive_sha256": "5784ff46e934d414a4b97e859bb9e6f03dc72bb266b51ed8b9cd1255e0b24189",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/cached-coupon-rejection-linear-and-local-capture-160/before-inventory.json",
+  "before_manifest_sha256": "a3075026a76fc29366963424c723c2cfc1ca48636db2f14deaa3fcf90eefe557",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-coupon-rejection-linear-and-local-capture-160",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,272 @@
+{
+  "bundle_files": [
+    {
+      "bytes": 4247,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/README.md",
+      "sha256": "5cf603f2151341d5e0d8fae3477eb0975b0b94510bc4600a63327fc891d58b32"
+    },
+    {
+      "bytes": 37212,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/review.json",
+      "sha256": "c2fc2d400b8c9718db6a90166363daa1f82a62a61e37c935145033875189e5f4"
+    },
+    {
+      "bytes": 1620,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/execution.json",
+      "sha256": "36158304374338660092839acb2b1fc1108aadb78c7b6c24333d6ba2d84fecb9"
+    },
+    {
+      "bytes": 4740,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test_review.py",
+      "sha256": "32d1640bb7ad1819ff0796fc9ddf76f79b19c18e02c47f7676fcefc17463a735"
+    },
+    {
+      "bytes": 737,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test-output.txt",
+      "sha256": "7076443fabd0939be8c6c4c9f35bd8f177cb88dc2ffadadaf9e5aabfc9bd7a31"
+    },
+    {
+      "bytes": 2579,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning_probe.py",
+      "sha256": "04fb71eef0103fd27ec926043409ab4e44e4b170eea73a807e7d4e48dd4e917d"
+    },
+    {
+      "bytes": 1025,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning-probe-output.json",
+      "sha256": "b8f584f8a5f4fda9969c4e63b0c3f733302d471089eb9542de46f19fc3046b3c"
+    }
+  ],
+  "limitations": [
+    "Attempt002 original command receipt absent; exact argv is from parent tool message.",
+    "Original study has 3300 retained matmul warnings; cause unresolved.",
+    "No native execution or production qualification."
+  ],
+  "package_id": "cgls-node-block-rap-reference-158-review",
+  "result_embedded_bindings_verified": [
+    {
+      "actual_sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31",
+      "expected_sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/run_cgls_preconditioners.py"
+    },
+    {
+      "actual_sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524",
+      "expected_sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/manifest.json"
+    },
+    {
+      "actual_sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50",
+      "expected_sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/manifest.json"
+    },
+    {
+      "actual_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+      "expected_sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json"
+    },
+    {
+      "actual_sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+      "expected_sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin"
+    },
+    {
+      "actual_sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9",
+      "expected_sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json"
+    },
+    {
+      "actual_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+      "expected_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json"
+    },
+    {
+      "actual_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+      "expected_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz"
+    },
+    {
+      "actual_sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8",
+      "expected_sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json"
+    },
+    {
+      "actual_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+      "expected_sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6",
+      "match": true,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin"
+    }
+  ],
+  "reviewed_evidence_files": [
+    {
+      "bytes": 6842,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py",
+      "sha256": "076f9eaccad1e02b7eefb150c6b56f5ce16ff0df86d4a0165d255fec4dc7ab40"
+    },
+    {
+      "bytes": 798250,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/results.json",
+      "sha256": "be363f80eb3ff2f9f21754c47997a6ba3a50dad37bc0a6c06080b2c8261b1ab7"
+    },
+    {
+      "bytes": 351,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempts.json",
+      "sha256": "06924d70297f81f86e0dcf82433c7ddbef67f592b3b140b527fda8f2c65a3302"
+    },
+    {
+      "bytes": 6641,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt001-run.py",
+      "sha256": "3c119c9325ae9401eb2fd8769440968a33b37c023029821d2e3c825d505b46ff"
+    },
+    {
+      "bytes": 267,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt001-console.txt",
+      "sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a"
+    },
+    {
+      "bytes": 267,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/console.txt",
+      "sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a"
+    },
+    {
+      "bytes": 1145,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt002-console.txt",
+      "sha256": "5b16bcc317ff271dafa71cc50fa4c46d585df257fcd4720161b86a384444959b"
+    },
+    {
+      "bytes": 4740,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test_review.py",
+      "sha256": "32d1640bb7ad1819ff0796fc9ddf76f79b19c18e02c47f7676fcefc17463a735"
+    },
+    {
+      "bytes": 737,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/test-output.txt",
+      "sha256": "7076443fabd0939be8c6c4c9f35bd8f177cb88dc2ffadadaf9e5aabfc9bd7a31"
+    },
+    {
+      "bytes": 2579,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning_probe.py",
+      "sha256": "04fb71eef0103fd27ec926043409ab4e44e4b170eea73a807e7d4e48dd4e917d"
+    },
+    {
+      "bytes": 1025,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/review/warning-probe-output.json",
+      "sha256": "b8f584f8a5f4fda9969c4e63b0c3f733302d471089eb9542de46f19fc3046b3c"
+    },
+    {
+      "bytes": 20659,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/run_cgls_preconditioners.py",
+      "sha256": "4e3d003f2bd5c9c27b2e28d73e8ca347d3b262cb8eab0748903c310a2574dd31"
+    },
+    {
+      "bytes": 8445,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-cgls-base-preconditioner-audit-002/manifest.json",
+      "sha256": "1aebb73eae0dd66df1b4c65da15cad8dc47d5e75974d0ec9596f0051e9d83524"
+    },
+    {
+      "bytes": 41327,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/audit_native464_v4.py",
+      "sha256": "6cf1c4bb95c0631f8c350194603374911b64062ac84efc9aeac7f277303a522e"
+    },
+    {
+      "bytes": 7537,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/manifest.json",
+      "sha256": "0fd62dd4329e6d8a6a52abf68035e33db832dd6f4d8df09059bd1e61b81a7c50"
+    },
+    {
+      "bytes": 36655,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-audit-003/native464-audit-v4.json",
+      "sha256": "234a5330da46b28791b2be2d7fcd444e6f98d79f70cdd73457c82c9c89042656"
+    },
+    {
+      "bytes": 3009,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/manifest.json",
+      "sha256": "0d918a2cc5c36b3cf7f91e8d729db1969154ef70b52053869c4767299d4222a7"
+    },
+    {
+      "bytes": 30098,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/selector5_graph_reference.py",
+      "sha256": "6f3176997ae50370e44a80c8ae9032a352f7a2af03dbf228e991d653cf06365d"
+    },
+    {
+      "bytes": 15247,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-selector5-reference-151-002/regional_rap_reference.py",
+      "sha256": "40ab7f04c5e4fec0c9f574ad533e1d59bbfb3b8037d1815f306c1c14fd292728"
+    },
+    {
+      "bytes": 1905656,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/runtime.mm",
+      "sha256": "1c0d2fd0d376ecc5e7ea9007ab6cc67a77fbd19bbba9f3b22fcbeca4c5c06a08"
+    },
+    {
+      "bytes": 7149,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-regional-state-capture-151/matter/src/metal/base_cgls_runtime.metalinc",
+      "sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    },
+    {
+      "bytes": 31614,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/preflight/actual-graph-input.bin",
+      "sha256": "950f983c8e8a0303b473fa09fde2ded2a65746e2fa14f50e3a9574f171900cfd"
+    },
+    {
+      "bytes": 17389,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native464-regional-capture-command-001/source151-regional-capture-bindings.json",
+      "sha256": "22ce94f66f2d067840538b30fba13115952da9f3d28a87966586e1c654f7dec9"
+    },
+    {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/receipt.json",
+      "sha256": "b83049818c15e6f5d19f52d1e2af69ac2b1675257ad247d3b639e40e00b0b994"
+    },
+    {
+      "bytes": 409368,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin",
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    {
+      "bytes": 11320,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.json",
+      "sha256": "9a9718888fc5fdc9eed488e258a5c8b188bde96f77c1d8d3c2dc5c3ea0dfe523"
+    },
+    {
+      "bytes": 77619992,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.regional.bin",
+      "sha256": "70b77616dd823adcca6516af248493dfc41dee482b4add7f85665277f1c6c873"
+    },
+    {
+      "bytes": 8680,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.json",
+      "sha256": "16f75668da71ea1a2b64a4137177b82ed07103540c092056caf2861c23c743e8"
+    },
+    {
+      "bytes": 4327464,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/base-cgls.bin.state.bin",
+      "sha256": "1a99fa72a4f45c68c67a53dcace37f0f01df6587d6db1a178606247a9fdef5b6"
+    },
+    {
+      "bytes": 5809,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json",
+      "sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+    },
+    {
+      "bytes": 506678,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    {
+      "bytes": 38811258,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    }
+  ],
+  "schema": "numi.cardboard.cgls158_independent_review_manifest.v1",
+  "source_result_path": "/Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/results.json",
+  "source_result_sha256": "be363f80eb3ff2f9f21754c47997a6ba3a50dad37bc0a6c06080b2c8261b1ab7"
+}

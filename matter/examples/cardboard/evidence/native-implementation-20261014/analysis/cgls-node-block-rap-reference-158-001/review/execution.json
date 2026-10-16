@@ -1,0 +1,26 @@
+{
+  "attempt001": {
+    "console_sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a",
+    "exit_code": 1,
+    "reason": "optional threadpoolctl import absent in the qualified Python; no numeric experiment ran",
+    "script_sha256": "3c119c9325ae9401eb2fd8769440968a33b37c023029821d2e3c825d505b46ff",
+    "stage": "import before capture read or recurrence"
+  },
+  "attempt002": {
+    "argv": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/run.py > /Users/home/cardboard-implementation-20261014/analysis/cgls-node-block-rap-reference-158-001/attempt002-console.txt 2>&1",
+    "command_provenance": "Exact shell invocation supplied by the root operator after review; not stored in the original package as an execution receipt.",
+    "console_sha256": "5b16bcc317ff271dafa71cc50fa4c46d585df257fcd4720161b86a384444959b",
+    "cwd": "/Users/home",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "exit_code": 0,
+    "note": "The package attempts.json records attempt001 only. The exact attempt002 invocation is parent-tool-supplied, not independently persisted by the runner.",
+    "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "python_version": "3.10.12"
+  },
+  "schema": "numi.cardboard.cgls158_execution_binding.v1",
+  "source": "Operator-provided command record; original run directory had no command/receipt file for attempt002."
+}

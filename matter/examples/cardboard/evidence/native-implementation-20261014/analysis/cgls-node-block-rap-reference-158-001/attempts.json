@@ -1,0 +1,10 @@
+[
+  {
+    "attempt": 1,
+    "exit_code": 1,
+    "stage": "import_before_capture_read_or_recurrence",
+    "reason": "optional threadpoolctl absent in qualifiedPython",
+    "script_sha256": "3c119c9325ae9401eb2fd8769440968a33b37c023029821d2e3c825d505b46ff",
+    "console_sha256": "c0591acd66b7fed3499420e1bfabd61b93d4779787f3e2428008c891c97eb15a"
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "command_sha256": "e9d5cc12e8a3a0a766ba157107374933c4075ab33fb1b5fd9d7593dd086a51cf",
+  "executable_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-157/numi-matter-cardboard-probe",
+  "executable_preflight_refusal_report_sha256": "2759ffeaf645a0a2a3cb4a1723b44d369d76790740db3a2f91da42ca1f4f7ef1",
+  "executable_sha256": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0",
+  "external_input_count": 103,
+  "external_inputs_directory": "/Users/home/cardboard-implementation-20261014/analysis/native468-source157-dt-half-cycle-command-003/inputs",
+  "files": {
+    "README.md": {
+      "bytes": 1909,
+      "sha256": "d828729b6b87c9386122eed77d7534849b9379d91c636f1595fca30f604ea636"
+    },
+    "capacity-preflight.json": {
+      "bytes": 368,
+      "sha256": "b201b1ff57f39c10acf5773d92c3d24f4ac54e14700f6474977ea09c6c201025"
+    },
+    "command-binding.json": {
+      "bytes": 2194,
+      "sha256": "ee43ae22b64001b190eae8d4feffd3e97e9070904d409855ce396a77e9a1a329"
+    },
+    "common-clock-target-comparison.csv": {
+      "bytes": 4345,
+      "sha256": "27826bf978e1a305110cdd2005012aed9b3879b20b374a5c3b8591a3c39814e6"
+    },
+    "driver-source-binding.json": {
+      "bytes": 1159,
+      "sha256": "4ca6536b4c44b0ffbde427f6c015f16476f60b255d756c02a8a8eab4231c5b60"
+    },
+    "external-input-bindings.json": {
+      "bytes": 56790,
+      "sha256": "ff8a00be57d8ef50ba7d77666fb7e6c5c2ff0e9223344a64b678912db8ec8fc0"
+    },
+    "fillTargets-source-equivalence.json": {
+      "bytes": 699,
+      "sha256": "bb741263db6e1e070750b536e5d49b91ca689c7f3f04d1565d3514da43b57886"
+    },
+    "native-468-command.json": {
+      "bytes": 22412,
+      "sha256": "e9d5cc12e8a3a0a766ba157107374933c4075ab33fb1b5fd9d7593dd086a51cf"
+    },
+    "protocol-clock.json": {
+      "bytes": 4561,
+      "sha256": "c3bb449315747ca67e070f8a1c46ea515884c936c60e1dbf1d389065c530238e"
+    },
+    "refusal-report.json": {
+      "bytes": 874,
+      "sha256": "2759ffeaf645a0a2a3cb4a1723b44d369d76790740db3a2f91da42ca1f4f7ef1"
+    },
+    "refusal-stderr.log": {
+      "bytes": 272,
+      "sha256": "b325e591d388e23a0e00df5023bf17309835f8ed6eeaa53a24b9f1b793ba5d5d"
+    },
+    "refusal-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "shader-identity.json": {
+      "bytes": 2037,
+      "sha256": "4a84120a8ada6b1cb40a60da32de121e2047411fcebc477d8f0777fd8f861322"
+    },
+    "source-build-bindings.json": {
+      "bytes": 4998,
+      "sha256": "9a27cc3e12d2626139e913ef50f61199388bfd2168137fb78e9556bd39e82d27"
+    },
+    "verify_command004.py": {
+      "bytes": 1652,
+      "sha256": "2cc4e1a67340bebabc8f54913458d4ad5791352a87f2a10c1158e63b475c6dcc"
+    }
+  },
+  "native_launched": false,
+  "package": "native468-source157-dt-half-cycle-command-004",
+  "parent_command_sha256": "a866723fba64c9e82c027ca017f9e9fd2eaf2e2023e3cd0af10b6d34105572e0",
+  "parent_package": "/Users/home/cardboard-implementation-20261014/analysis/native468-source157-dt-half-cycle-command-003",
+  "schema": "numi.cardboard.native468.source157.dt-half-cycle-command.v1",
+  "source_build_provenance_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5"
+}

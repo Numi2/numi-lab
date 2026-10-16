@@ -1,0 +1,88 @@
+{
+  "schema": "numi.cardboard.reference028-publication-binding.v1",
+  "prior_binding_sha256": "e2f1751e204cf108e811cf16b9635e9db706827429d084765e888260f4329f54",
+  "prior_pathspec_sha256": "8d14076a060be308f86e2dca697f975d6ebab5d152ccae6e24f22880693a9f0c",
+  "prior_pathspec_entries": 4849,
+  "historical_prefix": {
+    "path": "summary-reference027.json",
+    "records": 1460,
+    "sha256": "855f5b9c193720744ee0b49cd5d5b7a26be53b21509369da7dc408533ae756c6"
+  },
+  "cases": [
+    "analysis/publication027-independent-byte-audit-001",
+    "analysis/publication027-independent-byte-audit-002",
+    "analysis/publication027-staged-source-check-001",
+    "analysis/publication027-staged-source-check-002",
+    "analysis/publication027-commit-and-push-001",
+    "analysis/source157-right-grip-telemetry-fix-001",
+    "analysis/source157-telemetry-native-build-001",
+    "analysis/source157-root-integration-001",
+    "analysis/retained-source-snapshot157-001",
+    "analysis/native468-source154-dt-half-cycle-command-001",
+    "analysis/native468-source154-dt-half-cycle-command-002",
+    "analysis/native468-source157-dt-half-cycle-command-003",
+    "analysis/native468-source157-dt-half-cycle-command-004",
+    "analysis/native468-executable-preflight-refusal-001",
+    "analysis/native-cgls-regional-graph-right-preconditioning-155-001",
+    "analysis/cgls-node-block-rap-reference-158-001",
+    "analysis/cardboard-provenance-cmakefiles-compaction-001",
+    "analysis/metallib-apfs-clone-evidence-gap-001",
+    "analysis/publication028-external-recovery-index-001",
+    "analysis/publication028-archive-tool-001"
+  ],
+  "summary_sha256": "d025f2ce80dda69efb980ed24a21001cc8e2c6ac41a68299768bb25c26182196",
+  "previous_prefix_records": 1460,
+  "new_case_records": 20,
+  "copied_files": 715,
+  "raw_files": 707,
+  "gzip_files": 8,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Source157 fixes commanded-grip observations only. Four CPU schedules and ten compiled-reader checks pass; targets and solver are unchanged. A source-bound build is admitted. Complete nonlinear solve, native regional-map/transpose qualification and projected-history/noise-floor questions remain open."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "Native468 command004 is prepared and executable/build checked; command003 was refused before native launch. The active native468 case and launch guard are deliberately excluded. No complete coupon mesh/time/slower-loading study or downstream refinement qualification is published here."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Published-data package remains grade-bound. Exact kraft/NSSC progressive failure and local starch strength/GIc/GIIc remain unidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Grade, fixture, conditioning and rate transfer limits remain; no new validation series passed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "No completed 12-score folding, lap/end bonding and released settled 300x200x200mm shipping box. Explicit-flute contact/memory admission remains open."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified compression first peak, capacity-derived masses, gravity crush or 100mm drop; exact bare-box impact validation unavailable."
+    }
+  },
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "candidate",
+    "inputs",
+    "restore-check"
+  ],
+  "excluded_directory_prefixes": [
+    "CMakeFiles",
+    ".air"
+  ],
+  "input_directory_exceptions": [
+    "analysis/native468-source154-dt-half-cycle-command-001",
+    "analysis/native468-source154-dt-half-cycle-command-002",
+    "analysis/native468-source157-dt-half-cycle-command-003"
+  ],
+  "input_exception_reason": "Versioned command packages contain small uniquely renamed byte-identical input aliases required by the wrapper basename contract; their repair manifests bind originals and aliases.",
+  "external_recovery_archives": "Closed-input compaction019/020/023/024, build-host020 and 57 CMakeFiles archives remain external sole recovery archives; preserve them. Restore metadata is published. Metallib historical operation receipts were not recovered: its current-state census is not independent proof of earlier per-path replacement.",
+  "archive_installation": "Complete payload preflight; hash-checked resumable file installation; historical and current summary are installed last."
+}

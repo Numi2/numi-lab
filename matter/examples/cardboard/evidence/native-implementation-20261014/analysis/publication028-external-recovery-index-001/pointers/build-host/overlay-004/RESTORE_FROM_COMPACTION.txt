@@ -1,0 +1,5 @@
+Archived build-host tree 004.
+Archive: /Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/archives/overlay-004-build-host.zip
+Archive SHA-256: e52e1708f53d6f45654e2dfd5b194c56eb7e65b4bce0aa3aaeba95f80748f3cd
+Pre-inventory SHA-256: b265202b417a6068a092cd69eedae35c7697a297372afccd281d4421db45a0bd
+Restore: python3 /Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/restore_build_host.py 004

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 1765596,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/paper-cpu-milestone-003/inputs.tar.gz",
+  "archive_sha256": "65f5497ba1dff4e290dccf53d777f7345c24962fab4df275eb5b215dd6398035",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/paper-cpu-milestone-003/before-inventory.json",
+  "before_manifest_sha256": "e0106b33f7e6df85be0fe3d2462fc1c983fced0fc2a7748fa0afdb053070bf78",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/paper-cpu-milestone-003",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

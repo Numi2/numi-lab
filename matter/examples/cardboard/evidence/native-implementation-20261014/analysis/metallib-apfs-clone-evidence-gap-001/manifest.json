@@ -1,0 +1,24 @@
+{
+  "created_utc": "2026-10-16T00:56:31Z",
+  "evidence_status": "historical operation is not independently reproducible; explicit gap retained",
+  "files": {
+    "README.md": {
+      "bytes": 1845,
+      "sha256": "835d6a683499496806f35402e77d98167b60b3fe4ebc13f34ab4dcfdefcdedc3"
+    },
+    "census.py": {
+      "bytes": 4963,
+      "sha256": "751616651e5beafbabde8f596bd71bfcec8b5aacbbb8e04ed97ff8f1822ece9a"
+    },
+    "current-inventory.json": {
+      "bytes": 475786,
+      "sha256": "44785bcfe60b8b3c443f0099686829f484902afa82a0417a91e21c77bd9f8ba8"
+    },
+    "report.json": {
+      "bytes": 476421,
+      "sha256": "0d8f8c7299c2e9f4025edd1f9761a2943f6e5740af375d51518afc0b2c03be12"
+    }
+  },
+  "package": "metallib-apfs-clone-evidence-gap-001",
+  "schema": 1
+}

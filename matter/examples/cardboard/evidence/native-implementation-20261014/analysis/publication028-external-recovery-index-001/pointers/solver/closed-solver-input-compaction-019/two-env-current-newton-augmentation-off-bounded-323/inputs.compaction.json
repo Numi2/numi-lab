@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15609885,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/two-env-current-newton-augmentation-off-bounded-323/inputs.tar.gz",
+  "archive_sha256": "7c5a70535cb76053b100d4f38c0911b4dfa48a7ffed1b979033eec3a0d9c3875",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/two-env-current-newton-augmentation-off-bounded-323/before-inventory.json",
+  "before_manifest_sha256": "88e56d3dd6e3268a662bb72c0cc502224a9aec0a95ce55a7cae396ddd68602c1",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,201 @@
+{
+  "binding_sha256": "e2f1751e204cf108e811cf16b9635e9db706827429d084765e888260f4329f54",
+  "inputs": [
+    {
+      "bytes": 5818,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference027.json",
+      "sha256": "e2f1751e204cf108e811cf16b9635e9db706827429d084765e888260f4329f54"
+    },
+    {
+      "bytes": 4254,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference026.json",
+      "sha256": "eee5d5ad5c72eaaf0a5ab2a44318da14993ff9778f48727828a5b859a2e39390"
+    },
+    {
+      "bytes": 17798659,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      "sha256": "855f5b9c193720744ee0b49cd5d5b7a26be53b21509369da7dc408533ae756c6"
+    },
+    {
+      "bytes": 17177519,
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference026.json",
+      "sha256": "555ed422bb0e41a7c946c8e327d31bcf94c4955e4318716e508fe99a6404aeed"
+    },
+    {
+      "bytes": 679499,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference026-pathspec.nul",
+      "sha256": "080bf009c9b226bacf5587112a901807b253a351d202de413a6ad23edcf634bf"
+    },
+    {
+      "bytes": 754438,
+      "path": "/Users/home/cardboard-implementation-20261014/publication-reference027-pathspec.nul",
+      "sha256": "8d14076a060be308f86e2dca697f975d6ebab5d152ccae6e24f22880693a9f0c"
+    },
+    {
+      "bytes": 75235,
+      "path": "/Users/home/cardboard-implementation-20261014/publication027-staged-paths-revision002.nul",
+      "sha256": "3d95a0c12a627e7f1035d1921398e64c9b1025155ce4a8f0464f69ab758158aa"
+    },
+    {
+      "bytes": 1944,
+      "path": "/Users/home/cardboard-implementation-20261014/publication027-cases-prepared.json",
+      "sha256": "ed0b97da3b26f4ca64e5994fdb2f3005606ca7ad96476c3052be26ef755bd38a"
+    },
+    {
+      "bytes": 225,
+      "path": "/Users/home/cardboard-implementation-20261014/publication027-addendum-result.json",
+      "sha256": "14074400a6f6b335698caf2ae3c8b368a4422ffdef024c055357aa11d07cd4ba"
+    },
+    {
+      "bytes": 1190,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-postseal-compaction-addendum-001/manifest.json",
+      "sha256": "8f039758f4f0559063a9a7d9c6e568bbcd73151cd28743df3dade3a73636fb60"
+    },
+    {
+      "bytes": 2070,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-postseal-compaction-addendum-001/case-list-revision002.json",
+      "sha256": "419385b1061c441e6d4c057862feb3fe7a9f55916693424fa1e3cc746a06143e"
+    },
+    {
+      "bytes": 5271,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-postseal-compaction-addendum-001/prospective-binding-before-compaction-addendum.json",
+      "sha256": "f4650f209c282f535594200875d0f5f4815a1de3d6053204f1137980b556fe01"
+    },
+    {
+      "bytes": 4401392,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-postseal-compaction-addendum-001/prospective-summary-before-compaction-addendum.json.gz",
+      "sha256": "29af03b3d806243f1396937e41b874787aed63d0976695253441e8bb37f52d1c"
+    },
+    {
+      "bytes": 748573,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-postseal-compaction-addendum-001/prospective-pathspec-before-compaction-addendum.nul",
+      "sha256": "d4fbfe6ddc87c1706b75af86e4ee460cc2d472e99e56db3498b269440fc59856"
+    },
+    {
+      "bytes": 625,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/selected.json",
+      "sha256": "776207702374a848b613d75b47e752f86fa5d79ed365b7c10c4bbfd5693fe125"
+    },
+    {
+      "bytes": 2499,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/archive-manifest.json",
+      "sha256": "72f69498d932e9e45c1daa290fd132ec2485b32194d5dbab84e34cf33e0bb3c5"
+    },
+    {
+      "bytes": 1294,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-root-integration-001/report.json",
+      "sha256": "78779010c9d1ef0b34322d85f93250b28cae3f1f3beb3ee20a7bf672727af8db"
+    },
+    {
+      "bytes": 11802,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source154-default64-native466-parity-001/report.json",
+      "sha256": "a94ba8c9fed80ad86ac87a7be2a0e15b192a959f455976e6c508ecf4084f39fb"
+    },
+    {
+      "bytes": 729,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-launch-guard-001/receipt.json",
+      "sha256": "8167bf47ebeec6eccaf6acc1e720f0cf63b0ced2211c10a09c036544d4f21438"
+    },
+    {
+      "bytes": 10522,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native467-capacity-interruption-audit-001/report.json",
+      "sha256": "721830253cbaf1045dcdc3506f34f9477fc940f86c9bc6bc363ffd19202ca828"
+    },
+    {
+      "bytes": 12151,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/publication027-independent-byte-audit-001/audit.py",
+      "sha256": "ef446276a1dc1d732c7e09c664d33c8544f8091c5408250cfb1726d5771b342c"
+    },
+    {
+      "bytes": 920,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-regional-state-capture-464/inputs.compaction.json",
+      "sha256": "61d81edd40a3b92cf68771635be77ce7b0d95bb5deffc91a1558823db153a307"
+    },
+    {
+      "bytes": 16479561,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-regional-state-capture-464/inputs.tar.gz",
+      "sha256": "3d2f48418766ba3a74f5cde6c2f4c1254d0c8b9b36dc9d2cbb21c15a29396877"
+    },
+    {
+      "bytes": 364030,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-regional-state-capture-464/before-inventory.json",
+      "sha256": "644347e8f31289e0a0842953bda6617ac722b600be2ded8d62a8d12883dd1b87"
+    },
+    {
+      "bytes": 932,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-newton128-default64-parity-466/inputs.compaction.json",
+      "sha256": "1aaeeb8306627036471c5e59d4fcb95549608b0d06b2a73037fa8eafecfe0e14"
+    },
+    {
+      "bytes": 10025535,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-newton128-default64-parity-466/inputs.tar.gz",
+      "sha256": "80434d9a624e2474262310c4306fb7db9bd13f6e46c817f601cb17281ef0113c"
+    },
+    {
+      "bytes": 358809,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-newton128-default64-parity-466/before-inventory.json",
+      "sha256": "124a15af49be2e63383d13fbe8ca13cf1900b41ac00c8c92f04ef34c3df6b769"
+    },
+    {
+      "bytes": 941,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467/inputs.compaction.json",
+      "sha256": "5b0ace1bfaeaabfaab8262b5a710637799d97bcb6409cc912d80dff3e96eafd3"
+    },
+    {
+      "bytes": 10031540,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/archives/cgls-complete-outer128-allcontrols-467/inputs.tar.gz",
+      "sha256": "a150cbddb1fdebb57103d4ff595aa1e398f644f9c3d942d17d53b66c65797eb6"
+    },
+    {
+      "bytes": 361917,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-024/cases/cgls-complete-outer128-allcontrols-467/before-inventory.json",
+      "sha256": "56dc31f6b1bbd003da0da58d3c01895d1e4f13321222a16fe563f0da376b59df"
+    },
+    {
+      "bytes": 35246754,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/archives/overlay-004-build-host.zip",
+      "sha256": "e52e1708f53d6f45654e2dfd5b194c56eb7e65b4bce0aa3aaeba95f80748f3cd"
+    },
+    {
+      "bytes": 35251853,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-buildhost-compaction-020/archives/overlay-005-build-host.zip",
+      "sha256": "bf663ccaf20b09724e010689e22413c8b6a45ef66b76e8259577b77b51fe13ae"
+    }
+  ],
+  "limits": [
+    "Read-only byte, prefix, inventory, and staged-index audit.",
+    "Does not qualify physical assembly, solver convergence, calibration, analogue validation, or impact prediction.",
+    "Revision001 stale-inventory refusal is preserved and explicitly linked."
+  ],
+  "package_files": [
+    {
+      "bytes": 1502,
+      "path": "README.md",
+      "sha256": "335ccc5df5e1ebe5ba75492e6acffc61585824181ed0493233ec4797345d0355"
+    },
+    {
+      "bytes": 24046,
+      "path": "audit.py",
+      "sha256": "7763bde2270aa3fecc4699c6ea604e96a6175c72f7422149b4ce6b1f91399ee0"
+    },
+    {
+      "bytes": 592,
+      "path": "audit.stdout.json",
+      "sha256": "27ab7fe5c0e708e5fdfb545ca151474d746476deb27492829c2973e585bbbac7"
+    },
+    {
+      "bytes": 696,
+      "path": "preliminary-v1-refusal.json",
+      "sha256": "ca877fd8849095f799a68a1f498738e4b520b9545e9d7e2ab51021248653120a"
+    },
+    {
+      "bytes": 39828,
+      "path": "report.json",
+      "sha256": "60408130429486d76a6cf4821c977710c88af913d01eb56f9df0eba2e01b5c80"
+    }
+  ],
+  "repo_head": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "result": "PASS_BYTE_PREFIX_SCOPE_INDEX_AUDIT",
+  "schema": "numi.cardboard.publication027-independent-audit-package.v2",
+  "staged_pathlist_sha256": "3d95a0c12a627e7f1035d1921398e64c9b1025155ce4a8f0464f69ab758158aa"
+}

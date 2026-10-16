@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.native465_preflight.v1",
+  "status": "ready_for_parent_review",
+  "command_sha256": "ce55efbbee9fbeb1736c99907a5fd0af59da36dcfbb210e84554be16d730b5df",
+  "all_input_files_present": true,
+  "input_file_count": 44,
+  "compiled_binary_sha256": "d9d6d24da3467b4616a75a65e6cbbe9c28b1c20bc348576d8e58ae81b3864c65",
+  "compiled_metallib_sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+  "outer_newton_budget": 128,
+  "cgls_iterations": 64,
+  "native_or_gpu_execution": "not launched"
+}

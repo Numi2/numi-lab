@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.native468-executable-preflight-refusal.v1",
+  "utc": "2026-10-16T00:49:46.737079+00:00",
+  "command_sha256": "a866723fba64c9e82c027ca017f9e9fd2eaf2e2023e3cd0af10b6d34105572e0",
+  "runner_sha256": "c4d059ab8d3316292a74a381be8af46968e507abc03bada80825a0f8a4504c7c",
+  "exit_code": 1,
+  "reason": "Source157 command003 retained source154 native executable after --; rejected by immutable build artifact admission before GPU/case/guard creation",
+  "native_executable": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-154/numi-matter-cardboard-probe",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "case_created": false,
+  "launch_guard_created": false,
+  "native_launched": false,
+  "disposition": "Preserve sealed command003 and generate corrected version004"
+}

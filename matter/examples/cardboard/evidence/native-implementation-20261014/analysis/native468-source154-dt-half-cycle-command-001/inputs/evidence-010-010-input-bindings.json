@@ -1,0 +1,27 @@
+[
+  {
+    "original": "/Users/home/cardboard-implementation-20261014/analysis/source143-primary-policy-independent-review-001/report.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-independent-policy-review.json",
+    "sha256": "4b06e22a80bc44910f98c4f82616e4effacf78c1cc1027f2e4d25a0c2d5dea4f"
+  },
+  {
+    "original": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-primary-policy-overlay-143-001/manifest.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-policy-overlay-manifest.json",
+    "sha256": "ea4708b3a079cf4f156665fea7f0815bd2d2a767089ea4a63ea4d3d9da072d21"
+  },
+  {
+    "original": "/Users/home/cardboard-implementation-20261014/analysis/source143-host-policy-parser-check-001/report.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/source143-host-parser-report.json",
+    "sha256": "3151a05e5e862a59eba3ddefbb6efb4b823efc57b78e9ef7c4039ae0294b026d"
+  },
+  {
+    "original": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-adjudication-001/report.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-root-adjudication.json",
+    "sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73"
+  },
+  {
+    "original": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json",
+    "alias": "/Users/home/cardboard-implementation-20261014/analysis/primary-cgls453-inputs-001/native450-baseline-receipt.json",
+    "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c"
+  }
+]

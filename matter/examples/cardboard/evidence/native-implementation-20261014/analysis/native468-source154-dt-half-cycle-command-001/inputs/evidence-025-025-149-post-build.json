@@ -1,0 +1,85 @@
+{
+  "build_command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+    "--build-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "build_command_logs": [
+    {
+      "bytes": 1218,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/provenance-command-0.log",
+      "sha256": "57fa2afcc0662aff47ef74adc8eef5b878aa69b79cb4ec0cce1a879742326a9e"
+    },
+    {
+      "bytes": 17582,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/provenance-command-1.log",
+      "sha256": "5fdadab7a8d87981bc7bba8cf72143b56cc7776b00cd941792276cc8a40404b1"
+    }
+  ],
+  "build_outputs": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/lib/libmetalrobo.dylib": {
+      "bytes": 8505712,
+      "sha256": "895a9c5f8941224a737eb72a1eec295eb1d4f8d6f60419d7abbdbf75693e73e3"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/numi-matter-cardboard-probe": {
+      "bytes": 2677288,
+      "sha256": "d298084d1e527954fcdfab99b5267b17937b6e5f8e9d95ee922d9364ae6f7cea"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/shaders/NumiMatter.metallib": {
+      "bytes": 6976068,
+      "sha256": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+    },
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+    }
+  },
+  "configure_support_entries_verified": 1034,
+  "configure_support_manifest_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "disk_available_bytes_after_build": 1903521792,
+  "expected_delta_paths": [
+    "frozen-source.json",
+    "matter/src/metal/base_cgls.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "native_probe_or_gpu_simulation": "not launched",
+  "schema": "numi.cardboard.source149_right_block_cgls_build_evidence.v1",
+  "source145_inventory_entries": 1859,
+  "source149_inventory_entries": 1859,
+  "source_build_receipt": {
+    "bytes": 96301,
+    "changed_sources": [],
+    "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+    "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210",
+    "success": true,
+    "targets": [
+      "numi-matter-cardboard-probe"
+    ]
+  },
+  "source_hash_entries_verified": 787,
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "source_snapshot_frozen_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "unchanged_file_count": 1855
+}

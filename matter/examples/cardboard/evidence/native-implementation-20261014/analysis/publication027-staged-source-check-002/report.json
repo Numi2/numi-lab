@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.publication027.staged-scope.v2",
+  "parent": "67ba06be7f48981dda142ea35eedd792d7cd2ca5",
+  "source_files_verified": 787,
+  "source154_frozen_sha256": "a365fdf346743d45cd4a7e1c4796e718555709485627784b31d4d0833ba68876",
+  "staged_paths": 511,
+  "staged_pathspec_sha256": "3d95a0c12a627e7f1035d1921398e64c9b1025155ce4a8f0464f69ab758158aa",
+  "new_evidence_paths": 505,
+  "nonarchive_paths": [
+    "matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-milestone-source154.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "exact_scope": true,
+  "prior_pathspec_prefix_preserved": true,
+  "summary_records": 1460,
+  "prospective_binding_sha256": "e2f1751e204cf108e811cf16b9635e9db706827429d084765e888260f4329f54",
+  "postseal_addendum": "analysis/publication027-postseal-compaction-addendum-001",
+  "prior_staged_scope_retained": "/Users/home/cardboard-implementation-20261014/publication027-staged-paths.nul"
+}

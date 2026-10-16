@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15541018,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/parallel-graph-production-first-control-264/inputs.tar.gz",
+  "archive_sha256": "f639133cc86a24e74e002b199902e3181a2c4b45412af049eb1a990ff2668bfe",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/parallel-graph-production-first-control-264/before-inventory.json",
+  "before_manifest_sha256": "797a13aa370989c27bd3d80851819375fbde8d3f6a79497bb4ab4776b831aef3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/parallel-graph-production-first-control-264",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15700461,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/accepted-correction-recycle-first-control-284/inputs.tar.gz",
+  "archive_sha256": "709dcb102a4be7216b53e34156352b248827132a422745f615584de3214c0333",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/accepted-correction-recycle-first-control-284/before-inventory.json",
+  "before_manifest_sha256": "9511caaab7b0b7b9db92871a09ce4aad76630892fdfe81e8896d90ef04291e1a",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

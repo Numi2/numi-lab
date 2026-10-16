@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.native-launch-capacity-guard.v1",
+  "started_at_utc": "2026-10-16T00:04:53.269475+00:00",
+  "command_sha256": "ec6728fbb21e49ddff71fa13a0b47d081c56db8042888413f2cc86dcea4f9d30",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cgls-complete-outer128-allcontrols-467",
+  "available_before_launch": 1518501888,
+  "emergency_reserve_allocated_bytes": 134217728,
+  "abort_floor_bytes": 536870912,
+  "space_abort": true,
+  "native_child_process_groups_signalled": [
+    31314
+  ],
+  "wrapper_exit_code": 143,
+  "minimum_observed_available_bytes": 460279808,
+  "available_after_run": 572215296,
+  "wall_seconds": 703.1963630840182,
+  "finished_at_utc": "2026-10-16T00:16:36.468523+00:00"
+}

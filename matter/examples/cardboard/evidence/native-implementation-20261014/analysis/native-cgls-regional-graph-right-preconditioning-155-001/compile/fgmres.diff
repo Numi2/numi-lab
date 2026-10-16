@@ -1,0 +1,225 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -3446,6 +3446,28 @@
+ // matches the in-place LU swaps. The residual-refinement path preserves the
+ // initial solution in bounded threadgroup memory, recomputes b-A*x from the
+ // original source matrix, solves L/U once more, and publishes x+delta.
++constant uint kFGMRESGraphCGLSError = 0x80000000u;
++
++inline void fgmresGraphPatchFailure(
++    const uint cglsMode,
++    device atomic_uint* cglsErrors,
++    device NMMatterStatusGPU* statuses,
++    const uint environment,
++    const uint statusCode,
++    const uint objectIndex,
++    const uint primitiveIndex,
++    const float4 diagnostic) {
++    if (cglsMode == 0u) {
++        recordFailure(statuses[environment], statusCode, objectIndex,
++            primitiveIndex, diagnostic);
++    } else {
++        // CGLS uses this selector-5 map privately after FGMRES has completed.
++        // A bad map invalidates the private direction, never production status.
++        atomic_fetch_or_explicit(cglsErrors + environment,
++            kFGMRESGraphCGLSError, memory_order_relaxed);
++    }
++}
++
+ kernel void nm_fgmres_graph_solve_patches(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const uint4* patches [[buffer(1)]],
+@@ -3469,6 +3491,9 @@
+     constant uint& refinementMode [[buffer(19)]],
+     device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
+     constant uint& modeStride [[buffer(21)]],
++    constant uint& cglsMode [[buffer(22)]],
++    device const uint* cglsSelected [[buffer(23)]],
++    device atomic_uint* cglsErrors [[buffer(24)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]) {
+     const uint totalGroups = dispatch.environmentCount * patchCount;
+@@ -3483,11 +3508,21 @@
+     const uint matrixBase = environment * matrixFloatCount + patch.z;
+     const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
+     const uint pivotBase = environment * pivotCount + patch.w;
+-    // The completed Krylov-cycle latch is authoritative here: nm_fgmres_begin
+-    // has already run for this restart, while graph build/factorization occurs
+-    // earlier and must remain unconditional. Do not leave a prior Arnoldi
+-    // column's correction live in scratch consumed by the apply kernel.
+-    if (states[environment].diagnostics.z > 0.5f) {
++    // FGMRES graph calls honor the completed-cycle latch. CGLS uses the same
++    // current-Newton base graph factors after FGMRES, so it must instead be
++    // gated by its freshly built selected[] map and private error word.
++    const bool invalidCGLSMode = cglsMode > 1u;
++    const bool unselectedCGLS = cglsMode == 1u &&
++        (cglsSelected[environment] != 1u ||
++         atomic_load_explicit(cglsErrors + environment,
++                              memory_order_relaxed) != 0u);
++    if (invalidCGLSMode && lane == 0u)
++        fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment, NM_STATUS_INVALID_DISPATCH,
++            NM_INVALID_INDEX, NM_INVALID_INDEX,
++            float4(float(patchIndex), float(cglsMode), 0.0f, 17.0f));
++    if (invalidCGLSMode || unselectedCGLS ||
++        (cglsMode == 0u &&
++         states[environment].diagnostics.z > 0.5f)) {
+         for (uint local = lane; local < patch.y; local += 256u)
+             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+         return;
+@@ -3501,7 +3536,7 @@
+     threadgroup uint refinementNeeded;
+     threadgroup uint refinementSolveValid;
+     if (lane == 0u && refinementMode > 1u) {
+-        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++        fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment, NM_STATUS_INVALID_DISPATCH,
+             0u, NM_INVALID_INDEX,
+             float4(float(patchIndex), float(refinementMode), 1.0f, 11.0f));
+     }
+@@ -3512,7 +3547,7 @@
+     }
+     if (factorValid[group] == 0u || n == 0u || n > 768u) {
+         if (lane == 0u)
+-            recordFailure(statuses[environment],
++            fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                 NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                 float4(float(patchIndex), float(n), 0.0f, 8.0f));
+         for (uint local = lane; local < patch.y; local += 256u)
+@@ -3560,14 +3595,14 @@
+             const float diagonal = matrices[matrixBase + row * n + row];
+             if (!isfinite(value) || !isfinite(diagonal) ||
+                 !(abs(diagonal) > 1.0e-30f)) {
+-                recordFailure(statuses[environment],
++                fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                     NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                     float4(float(patchIndex), float(row), diagonal, 9.0f));
+                 values[row] = 0.0f;
+             } else {
+                 values[row] = value / diagonal;
+                 if (!isfinite(values[row])) {
+-                    recordFailure(statuses[environment],
++                    fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                         NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                         NM_INVALID_INDEX,
+                         float4(float(patchIndex), float(row), value, 10.0f));
+@@ -3628,7 +3663,7 @@
+                 if (rhs[scalar] != 0.0f) refinementNeeded = 1u;
+             }
+         } else {
+-            recordFailure(statuses[environment],
++            fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                 NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                 float4(float(patchIndex), float(n), 0.0f, 12.0f));
+         }
+@@ -3657,7 +3692,7 @@
+                 if (!isfinite(accumulated.x) ||
+                     !isfinite(accumulated.y) || !isfinite(value)) {
+                     refinementSolveValid = 0u;
+-                    recordFailure(statuses[environment],
++                    fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                         NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                         NM_INVALID_INDEX,
+                         float4(float(patchIndex), float(row), value, 13.0f));
+@@ -3685,7 +3720,7 @@
+                     !isfinite(numerator) || !isfinite(diagonal) ||
+                     !(abs(diagonal) > 1.0e-30f)) {
+                     refinementSolveValid = 0u;
+-                    recordFailure(statuses[environment],
++                    fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                         NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                         NM_INVALID_INDEX,
+                         float4(float(patchIndex), float(row), diagonal, 14.0f));
+@@ -3694,7 +3729,7 @@
+                     values[row] = numerator / diagonal;
+                     if (!isfinite(values[row])) {
+                         refinementSolveValid = 0u;
+-                        recordFailure(statuses[environment],
++                        fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+                             NM_STATUS_LINEAR_SOLVER_FAILURE, 0u,
+                             NM_INVALID_INDEX,
+                             float4(float(patchIndex), float(row),
+@@ -3724,7 +3759,7 @@
+     if (lane == 0u && atomic_load_explicit(
+             &finalOutputError, memory_order_relaxed) != 0u) {
+         refinementSolveValid = 0u;
+-        recordFailure(statuses[environment],
++        fgmresGraphPatchFailure(cglsMode, cglsErrors, statuses, environment,
+             NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+             float4(float(patchIndex), float(n), 0.0f, 16.0f));
+     }
+@@ -3763,6 +3798,9 @@
+     constant uint& modeCount [[buffer(11)]],
+     device const NMFEMNodeStateGPU* candidate [[buffer(12)]],
+     constant uint& modeStride [[buffer(13)]],
++    constant uint& cglsMode [[buffer(14)]],
++    device const uint* cglsSelected [[buffer(15)]],
++    device atomic_uint* cglsErrors [[buffer(16)]],
+     uint global [[thread_position_in_grid]]) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global >= total || dispatch.femNodeCount == 0u ||
+@@ -3770,14 +3808,33 @@
+         modeStride < modeCount || modeStride > 32u) return;
+     const uint environment = global / dispatch.femNodeCount;
+     const uint node = global - environment * dispatch.femNodeCount;
+-    if (states[environment].diagnostics.z > 0.5f) {
++    if ((cglsMode == 0u &&
++         states[environment].diagnostics.z > 0.5f) ||
++        (cglsMode == 1u &&
++         (cglsSelected[environment] != 1u ||
++          atomic_load_explicit(cglsErrors + environment,
++                               memory_order_relaxed) != 0u))) {
+         preconditioned[global] = float4(0.0f);
+         return;
+     }
+-    if (candidate[global].restAndFixed.w != 0.0f) {
++    if (cglsMode > 1u) {
++        atomic_fetch_or_explicit(cglsErrors + environment,
++            kFGMRESGraphCGLSError, memory_order_relaxed);
++        preconditioned[global] = float4(0.0f);
++        return;
++    }
++    const float tag = candidate[global].restAndFixed.w;
++    if (!isfinite(tag) || (tag != 0.0f && tag != 1.0f && tag != 3.0f)) {
++        if (cglsMode == 1u)
++            atomic_fetch_or_explicit(cglsErrors + environment,
++                kFGMRESGraphCGLSError, memory_order_relaxed);
+         preconditioned[global] = float4(0.0f);
+         return;
+     }
++    if (tag != 0.0f) {
++        preconditioned[global] = float4(0.0f);
++        return;
++    }
+     float3 coarseCorrection = float3(0.0f);
+     const uint coefficientBase = environment * modeCount;
+     for (uint mode = 0u; mode < modeCount; ++mode) {
+@@ -3792,15 +3849,27 @@
+         for (uint item = nodePatchOffsets[node];
+              item < nodePatchOffsets[node + 1u]; ++item) {
+             const uint patchNode = nodePatchValues[item];
+-            if (patchNode >= patchNodeCount || patchNodes[patchNode] != node)
++            if (patchNode >= patchNodeCount || patchNodes[patchNode] != node) {
++                if (cglsMode == 1u)
++                    atomic_fetch_or_explicit(cglsErrors + environment,
++                        kFGMRESGraphCGLSError, memory_order_relaxed);
+                 continue;
++            }
+             graphCorrection += patchCorrections[
+                 environment * patchNodeCount + patchNode].xyz;
+         }
+         graphCorrection /= float(coverage);
++    } else if (cglsMode == 1u) {
++        atomic_fetch_or_explicit(cglsErrors + environment,
++            kFGMRESGraphCGLSError, memory_order_relaxed);
+     }
+-    preconditioned[global] = float4(
+-        coarseCorrection + graphCorrection, 0.0f);
++    const float3 result = coarseCorrection + graphCorrection;
++    if (!all(isfinite(result))) {
++        if (cglsMode == 1u)
++            atomic_fetch_or_explicit(cglsErrors + environment,
++                kFGMRESGraphCGLSError, memory_order_relaxed);
++        preconditioned[global] = float4(0.0f);
++    } else preconditioned[global] = float4(result, 0.0f);
+ }
+ 
+ kernel void nm_fgmres_build_tangent_fem_preconditioner(

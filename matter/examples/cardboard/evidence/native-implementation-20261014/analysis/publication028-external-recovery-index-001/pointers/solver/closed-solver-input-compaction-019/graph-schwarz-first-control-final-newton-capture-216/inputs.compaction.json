@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 15059875,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-first-control-final-newton-capture-216/inputs.tar.gz",
+  "archive_sha256": "b0ced5d1efa74885631edada571fc1f3dfdc1bc434d2bee485a877e24b3f6fb6",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/graph-schwarz-first-control-final-newton-capture-216/before-inventory.json",
+  "before_manifest_sha256": "fc4144aead48ac3911c1f358e2ef49ea0f42400c3fe79c73726884b38a7e72be",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

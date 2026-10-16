@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.publication027.audit-refusal-record.v1",
+  "audit": "publication027-independent-byte-audit-001",
+  "audit_script": "analysis/publication027-independent-byte-audit-001/audit.py",
+  "reason": "The first prospective audit failed closed because postarchive compaction changed the external inventory before publication revision 002 was assembled.",
+  "observed_assertion": "('solver/cgls-regional-state-capture-464', 47, 46, ['inputs.compaction.json'], [])",
+  "interpretation": "The extra input recovery pointer was not silently accepted. Revision 002 binds the pointer and the corresponding compaction evidence.",
+  "revision_002_does_not_rewrite_revision_001": true
+}

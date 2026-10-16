@@ -1,0 +1,19 @@
+{
+  "cases": 36,
+  "gzip": 34,
+  "index_blob_checks": 511,
+  "nonarchive_stage_paths": [
+    "matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-milestone-source154.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "pathspec_entries": 4849,
+  "payloads": 503,
+  "postseal_pointers": 3,
+  "raw": 469,
+  "result": "PASS_BYTE_PREFIX_SCOPE_INDEX_AUDIT",
+  "staged_paths": 511
+}

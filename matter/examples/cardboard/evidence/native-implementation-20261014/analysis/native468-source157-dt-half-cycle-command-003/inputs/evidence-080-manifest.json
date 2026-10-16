@@ -1,0 +1,116 @@
+{
+  "artifact_sha256": {
+    "NumiMatter.metallib": "89f9d756a0298fad44786b5333d67172636a8255e8c4f71b2696e4e5d6271114",
+    "NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "numi-matter-cardboard-probe": "19492c5cff7dd94148335f7ed53a358bbcebcaa163241cfd8012abbac9f765e0"
+  },
+  "build_jobs": 2,
+  "build_target": "numi-matter-cardboard-probe",
+  "changed_source_paths": [
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "cmake_source_relative": "matter",
+  "compile_only_budgets": [
+    64,
+    128
+  ],
+  "configure_support_file_count": 1034,
+  "configure_support_sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1",
+  "files": {
+    "README.md": {
+      "bytes": 2361,
+      "sha256": "80e4b6a9a955ceae1c586ba95c0e7929900d7dd99d9a1a3062973d3a4fb75021"
+    },
+    "build-metadata/CMakeCache.txt": {
+      "bytes": 17833,
+      "sha256": "c1eb143c01191b44269eb76e6e7e79461723d8a51a9bcabf8255d22734aef496"
+    },
+    "build-metadata/compile_commands.json": {
+      "bytes": 109121,
+      "sha256": "2789b25029e0e81b6ac938f0aed53763de29b733dd110f5c6013bfb2990ed53a"
+    },
+    "build-metadata/provenance-command-0.log": {
+      "bytes": 648,
+      "sha256": "ba3163e0466ad515da9bf5e313d8abef7b45cbf1bde28f27e54d5b110ef5529d"
+    },
+    "build-metadata/provenance-command-1.log": {
+      "bytes": 4482,
+      "sha256": "a6b693f7290d28caf192bf7bce5432d96cdbe322d73ad6b40912a9de0f72f234"
+    },
+    "build-metadata/source-build.json": {
+      "bytes": 95577,
+      "sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5"
+    },
+    "compile-only-128-command.json": {
+      "bytes": 1669,
+      "sha256": "01d768115a4502bab9be7c107f9b4055c3eb9de2ec71b16a112e72d2ec90e2bc"
+    },
+    "compile-only-128.log": {
+      "bytes": 242,
+      "sha256": "7f745450eeb8f301cfe8b29b97f9873a73a40c69a08974feba352473128b5067"
+    },
+    "compile-only-128/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "sha256": "494a67ec1e4794e158aaa708e178050f9a1f63fe99189527e7df1f1238e95db6"
+    },
+    "compile-only-128/initial.obj": {
+      "bytes": 56470,
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "compile-only-128/mesh.json": {
+      "bytes": 160425,
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "compile-only-128/result.json": {
+      "bytes": 563,
+      "sha256": "518781ddfef801c7419f4cd11eefd468a3b27b289578647f4cf486a092bcf7ef"
+    },
+    "compile-only-64-command.json": {
+      "bytes": 1667,
+      "sha256": "51a65c39b1fa2c11386bcfd5a7906da13489daddedaa52c32eed24372e7699c0"
+    },
+    "compile-only-64.log": {
+      "bytes": 241,
+      "sha256": "388fbf6ff27a63b73735f3050cf0cac2176415ae5feff1d9c9b1e26b19d6cae2"
+    },
+    "compile-only-64/compiled.nmatterpack": {
+      "bytes": 1984768,
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "compile-only-64/initial.obj": {
+      "bytes": 56470,
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "compile-only-64/mesh.json": {
+      "bytes": 160425,
+      "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "compile-only-64/result.json": {
+      "bytes": 562,
+      "sha256": "c4821c575d261163648cb87f0beb48f793c0bd0839e7400898a328573e826849"
+    },
+    "resource-preflight.txt": {
+      "bytes": 1489,
+      "sha256": "5c3972bfe1d7070a9d94ca8aae324fbb7dda076efeb4588207d58f196d8d5c8e"
+    },
+    "verification-report.json": {
+      "bytes": 6618,
+      "sha256": "a5de04b73b07097c3254c281751ae06aac5b48f40446a117e01d8e0230902bed"
+    },
+    "verify_source157_build.py": {
+      "bytes": 6092,
+      "sha256": "601a953a46ab42692b729693a540b6d76ccc003a0d4b379f51235c442edf26fe"
+    }
+  },
+  "frozen_source_sha256": "2976540a244ba9af686e8033783a3d18da1ac48b030a949b2109fe81108f7cc0",
+  "native_or_gpu_run": false,
+  "package_id": "source157-telemetry-native-build-001",
+  "parent_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-all-controls-newton128-154",
+  "physical_steps": 0,
+  "probe_patch_sha256": "575eb0d75717250b77f6c2d63a78df06900a01406c0d22e42f7cc2b8339f18cb",
+  "schema": "numi.cardboard.source157.native-build-package.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-right-grip-telemetry-157",
+  "source_build_record_sha256": "78cbe2fac180130174e0585ea2398b7c7f07b2b7a5227ed99f1cd8ee9e6581b5",
+  "source_file_count": 787,
+  "source_overlay_manifest_sha256": "1d5393fc37e73fba464463221707ac6ce817a91b482f72e267b25040c192de68"
+}

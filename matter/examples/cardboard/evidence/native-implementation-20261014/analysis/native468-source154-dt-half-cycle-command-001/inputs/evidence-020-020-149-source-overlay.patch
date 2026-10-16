@@ -1,0 +1,569 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1166,6 +1166,7 @@
+     std::uint32_t tangentCacheValidCount = 0u;
+     std::uint32_t mixedSolverPreconditioner = 0u;
+     std::uint32_t cglsIterations = 0u;
++    std::uint32_t cglsRightScale = 0u;
+     std::uint32_t microFlags = 0u;
+     std::uint32_t dispatchABI = 0u;
+     std::uint32_t dispatchFlags = 0u;
+@@ -1216,6 +1217,8 @@
+         << ",\"material_state_stride\":" << metadata.materialStateStride
+         << ",\"unknown_count\":" << metadata.unknownCount
+         << ",\"cgls_iterations\":" << metadata.cglsIterations
++        << ",\"cgls_right_scale\":"
++        << (metadata.cglsRightScale != 0u ? jsonQuoted("block3") : "null")
+         << ",\"mixed_solver_preconditioner\":" << metadata.mixedSolverPreconditioner
+         << ",\"array_count\":" << arrays.size()
+         << ",\"cgls_capture_file\":" << jsonQuoted(metadata.cglsCaptureFile)
+@@ -2474,6 +2477,9 @@
+     id<MTLBuffer> femBaseCGLSScalars = nil;
+     id<MTLBuffer> femBaseCGLSControl = nil;
+     id<MTLBuffer> femBaseCGLSErrors = nil;
++    bool femBaseCGLSRightScaleScratchEnabled = false;
++    id<MTLBuffer> femBaseCGLSRightScaleRows = nil;
++    id<MTLBuffer> femBaseCGLSRightScalePhysical = nil;
+     id<MTLBuffer> femConstraintReactions = nil;
+     id<MTLBuffer> femConstraintContactForces = nil;
+     id<MTLBuffer> femLineSearch = nil;
+@@ -4385,6 +4391,8 @@
+             "nm_fgmres_base_cgls_form_beta",
+             "nm_fgmres_base_cgls_update_p",
+             "nm_fgmres_base_cgls_finalize",
++            "nm_fgmres_base_cgls_validate_right_scale",
++            "nm_fgmres_base_cgls_apply_right_scale",
+             "nm_fgmres_install_base_cgls_direction",
+             "nm_fgmres_preserve_true_rhs",
+             "nm_fgmres_clear_true_operator",
+@@ -6281,6 +6289,9 @@
+             candidate->dispatch.tetrahedronCount <= 32768u &&
+             candidate->fgmresLayout.unknownCount == 2u *
+                 candidate->dispatch.environmentCount * candidate->dispatch.femNodeCount;
++        candidate->femBaseCGLSRightScaleScratchEnabled =
++            std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr &&
++            candidate->femBaseCGLSScratchEnabled;
+         candidate->femResidualArmijoScratchEnabled =
+             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+@@ -6363,6 +6374,17 @@
+                     candidate->device, environments, valid, candidate->residentBytes);
+                 candidate->femBaseCGLSErrors = privateScratch<std::uint32_t>(
+                     candidate->device, environments, valid, candidate->residentBytes);
++                if (candidate->femBaseCGLSRightScaleScratchEnabled) {
++                    candidate->femBaseCGLSRightScaleRows =
++                        privateScratch<nm_float4>(candidate->device,
++                            multiplied(std::size_t{3u} *
++                                world.dispatch.femNodeCount),
++                            valid, candidate->residentBytes);
++                    candidate->femBaseCGLSRightScalePhysical =
++                        privateScratch<nm_float4>(candidate->device,
++                            candidate->fgmresLayout.unknownCount,
++                            valid, candidate->residentBytes);
++                }
+             }
+             if (world.dispatch.rigidGeneralizedCapacity != 0u) {
+                 candidate->femArmijoRigidCandidate =
+@@ -11907,6 +11929,24 @@
+                     return diagnostics;
+                 }
+                 femBaseCGLSIterations = std::strcmp(cglsIterations, "32") == 0 ? 32u : 64u;
++            }
++            bool femBaseCGLSRightScaleEnabled = false;
++            if (const char* rightScale = std::getenv(
++                    "NM_FEM_BASE_CGLS_RIGHT_SCALE")) {
++                if (std::strcmp(rightScale, "block3") != 0 ||
++                    femBaseCGLSIterations == 0u ||
++                    !state.femBaseCGLSRightScaleScratchEnabled ||
++                    state.femBaseCGLSRightScaleRows == nil ||
++                    state.femBaseCGLSRightScalePhysical == nil) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_right_scale_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_existing_32_or_64_iteration_CGLS_scratch_and_exact_block3_selector\",\"physical_operator_changed\":false}\n",
++                        request.controlStep);
++                    diagnostics.message =
++                        "right-scaled CGLS requires its existing bounded CGLS path and exact block3 selector";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSRightScaleEnabled = true;
+             }
+             std::uint32_t femBaseCGLSCaptureIteration = NM_INVALID_INDEX;
+             std::string femBaseCGLSCapturePath;
+@@ -19848,6 +19888,10 @@
+                                 ? 1u : 0u;
+                         [encoder setBytes:&useCache length:sizeof(useCache)
+                                   atIndex:19u];
++                        const std::uint32_t noSelectionFilter = 0u;
++                        [encoder setBuffer:state.dummy offset:0u atIndex:20u];
++                        [encoder setBytes:&noSelectionFilter
++                                   length:sizeof(noSelectionFilter) atIndex:21u];
+                     });
+             }
+             if (usesRegionalGalerkinPreconditioner(
+@@ -22835,6 +22879,8 @@
+                 metadata.mixedSolverPreconditioner =
+                     state.mixedSolverValue.executionBudgets.z;
+                 metadata.cglsIterations = femBaseCGLSIterations;
++                metadata.cglsRightScale =
++                    femBaseCGLSRightScaleEnabled ? 1u : 0u;
+                 metadata.microFlags = micro.flags;
+                 metadata.dispatchABI = state.dispatch.abiVersion;
+                 metadata.dispatchFlags = state.dispatch.flags;
+@@ -22923,7 +22969,8 @@
+                 }
+                 // Optional bounded read-only snapshot of generated scratch.
+                 // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
+-                // Twelve aligned segments: x,r,s,p,Ax,b,mask,envMap,scalars,control,errors,selected.
++                // Version 1 has twelve aligned segments. Version 2 adds the
++                // selected Newton's fresh three-row-per-node inverse blocks.
+                 id<MTLBuffer> cglsSnapshot = nil;
+                 NSUInteger cglsSnapshotBytes = 0u;
+                 const bool captureCGLS = femBaseCGLSIterations != 0u &&
+@@ -22931,23 +22978,30 @@
+                     !femBaseCGLSCapturePath.empty();
+                 if (captureCGLS) {
+                     const std::uint32_t unknowns = state.fgmresLayout.unknownCount;
+-                    const std::array<id<MTLBuffer>, 12> sourceBuffers = {
++                    const std::array<id<MTLBuffer>, 13> sourceBuffers = {
+                         state.femBaseCGLSX, state.femBaseCGLSR, state.femBaseCGLSS,
+                         state.femBaseCGLSP, state.femBaseCGLSQ,
+                         state.femBaseCGLSB, state.femBaseCGLSMask,
+                         state.femBaseCGLSEnvironment, state.femBaseCGLSScalars,
+                         state.femBaseCGLSControl, state.femBaseCGLSErrors,
+-                        state.femBaseCGLSSelected};
++                        state.femBaseCGLSSelected,
++                        femBaseCGLSRightScaleEnabled
++                            ? state.femBaseCGLSRightScaleRows : state.dummy};
+                     const NSUInteger vectorBytes = unknowns * sizeof(nm_float4);
+-                    const std::array<NSUInteger, 12> sizes = {
++                    const std::array<NSUInteger, 13> sizes = {
+                         vectorBytes, vectorBytes, vectorBytes, vectorBytes,
+                         vectorBytes, vectorBytes, vectorBytes,
+                         unknowns * sizeof(std::uint32_t),
+                         environments * sizeof(nm_float4), environments * sizeof(nm_uint4),
+-                        environments * sizeof(std::uint32_t), environments * sizeof(std::uint32_t)};
+-                    std::array<NSUInteger, 12> offsets{};
++                        environments * sizeof(std::uint32_t), environments * sizeof(std::uint32_t),
++                        femBaseCGLSRightScaleEnabled
++                            ? environments * state.dispatch.femNodeCount * 3u * sizeof(nm_float4)
++                            : 0u};
++                    const std::size_t segmentCount =
++                        femBaseCGLSRightScaleEnabled ? 13u : 12u;
++                    std::array<NSUInteger, 13> offsets{};
+                     cglsSnapshotBytes = 8u * sizeof(std::uint32_t);
+-                    for (std::size_t i = 0u; i < sizes.size(); ++i) {
++                    for (std::size_t i = 0u; i < segmentCount; ++i) {
+                         cglsSnapshotBytes = (cglsSnapshotBytes + 15u) & ~NSUInteger(15u);
+                         offsets[i] = cglsSnapshotBytes;
+                         cglsSnapshotBytes += sizes[i];
+@@ -22961,10 +23015,13 @@
+                     }
+                     std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
+                     const std::array<std::uint32_t, 8> header = {
+-                        0x534c4743u, 1u, static_cast<std::uint32_t>(environments),
+-                        state.dispatch.femNodeCount, unknowns, femBaseCGLSIterations, 12u, 0u};
++                        0x534c4743u, femBaseCGLSRightScaleEnabled ? 2u : 1u,
++                        static_cast<std::uint32_t>(environments),
++                        state.dispatch.femNodeCount, unknowns,
++                        femBaseCGLSIterations,
++                        static_cast<std::uint32_t>(segmentCount), 0u};
+                     std::memcpy(cglsSnapshot.contents, header.data(), sizeof(header));
+-                    for (std::size_t i = 0u; i < sizes.size(); ++i)
++                    for (std::size_t i = 0u; i < segmentCount; ++i)
+                         [copy copyFromBuffer:sourceBuffers[i] sourceOffset:0u
+                             toBuffer:cglsSnapshot destinationOffset:offsets[i] size:sizes[i]];
+                 }
+@@ -22975,6 +23032,7 @@
+                 const auto capturedEnvironments = environments;
+                 const auto formatFloat = appendTraceFloat;
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
++                const auto capturedCGLSRightScale = femBaseCGLSRightScaleEnabled;
+                 const auto capturedPrimaryPolicy = primaryPolicy;
+                 const auto capturedPrimarySelectionOffset = primarySelectionOffset;
+                 const auto capturedPrimaryStartNewton =
+@@ -23011,8 +23069,14 @@
+                     if (capturedCGLSIterations != 0u) {
+                         line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
+                              << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+-                             << ",\"direction_kind\":\"truncated_unregularized_CGLS\",\"iteration_budget\":"
++                             << ",\"direction_kind\":\""
++                             << (capturedCGLSRightScale
++                                 ? "right_preconditioned_truncated_unregularized_CGLS"
++                                 : "truncated_unregularized_CGLS")
++                             << "\",\"iteration_budget\":"
+                              << capturedCGLSIterations
++                             << ",\"right_scale\":"
++                             << (capturedCGLSRightScale ? "\"block3\"" : "null")
+                              << ",\"original_newton_certificate_applies_to_direction\":false";
+                         if (capturedPrimaryPolicy) {
+                             line << ",\"selection_policy\":\"base_cgls_primary_policy\",\"start_newton_inclusive\":"
+@@ -23176,6 +23240,70 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:4u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:5u];
+                     }); barrier();
++                    if (femBaseCGLSRightScaleEnabled) {
++                        dispatchThreads(
++                            "nm_fgmres_build_tangent_fem_block_preconditioner",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.mixedSolver
++                                       offset:0u atIndex:1u];
++                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femTetrahedraCandidate
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femNodeIncidence
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femNodeRanges
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
++                            [encoder setBuffer:state.materials offset:0u atIndex:8u];
++                            [encoder setBuffer:state.scalarPrograms
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:state.instructions
++                                         offset:0u atIndex:10u];
++                            [encoder setBuffer:state.environmentParameters
++                                         offset:0u atIndex:11u];
++                            [encoder setBuffer:state.femMaterialStateAccepted
++                                         offset:0u atIndex:12u];
++                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                         offset:0u atIndex:13u];
++                            bindPrimalContactArguments(14u);
++                            [encoder setBuffer:state.statuses offset:0u atIndex:15u];
++                            [encoder setBuffer:state.femBaseCGLSRightScaleRows
++                                         offset:0u atIndex:16u];
++                            [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                                ? state.femAlgorithmicTangentCache : state.dummy
++                                         offset:0u atIndex:17u];
++                            [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                                ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                         offset:0u atIndex:18u];
++                            const std::uint32_t useCache =
++                                state.mixedSolverValue.executionBudgets.w == 1u
++                                    ? 1u : 0u;
++                            [encoder setBytes:&useCache length:sizeof(useCache)
++                                       atIndex:19u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:20u];
++                            const std::uint32_t onlySelected = 1u;
++                            [encoder setBytes:&onlySelected
++                                       length:sizeof(onlySelected) atIndex:21u];
++                        }); barrier();
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_validate_right_scale",
++                            femNodeTotal, [&] {
++                            setDispatch();
++                            [encoder setBuffer:state.femCandidate
++                                         offset:0u atIndex:1u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSRightScaleRows
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:5u];
++                        }); barrier();
++                    }
+                     dispatchThreads("nm_fgmres_clear_true_operator", cglsUnknowns, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:1u];
+@@ -23192,6 +23320,13 @@
+                         [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:10u];
+                         [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:11u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:12u];
++                        const std::uint32_t useRightScale =
++                            femBaseCGLSRightScaleEnabled ? 1u : 0u;
++                        [encoder setBytes:&useRightScale
++                                   length:sizeof(useRightScale) atIndex:13u];
++                        [encoder setBuffer:femBaseCGLSRightScaleEnabled
++                            ? state.femBaseCGLSRightScaleRows : state.dummy
++                                     offset:0u atIndex:14u];
+                     }); barrier();
+                     dispatchGroups32("nm_fgmres_base_cgls_measure_initial", environments, [&] {
+                         rows();
+@@ -23202,8 +23337,40 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:9u];
+                     }); barrier();
++                    const auto applyRightScale = [&](id<MTLBuffer> input,
++                        id<MTLBuffer> output, const std::uint32_t transpose) {
++                        dispatchThreads(
++                            "nm_fgmres_base_cgls_apply_right_scale",
++                            cglsUnknowns, [&] {
++                            [encoder setBytes:&cglsUnknowns
++                                       length:sizeof(cglsUnknowns) atIndex:0u];
++                            [encoder setBytes:&cglsEnvironments
++                                       length:sizeof(cglsEnvironments) atIndex:1u];
++                            [encoder setBytes:&transpose length:sizeof(transpose)
++                                       atIndex:2u];
++                            [encoder setBuffer:state.femBaseCGLSMask
++                                         offset:0u atIndex:3u];
++                            [encoder setBuffer:state.femBaseCGLSEnvironment
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSSelected
++                                         offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSRightScaleRows
++                                         offset:0u atIndex:6u];
++                            [encoder setBuffer:input offset:0u atIndex:7u];
++                            [encoder setBuffer:output offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSErrors
++                                         offset:0u atIndex:9u];
++                        }); barrier();
++                    };
+                     for (std::uint32_t iteration = 0u; iteration < femBaseCGLSIterations; ++iteration) {
+-                        action(4u, state.femBaseCGLSP, state.femBaseCGLSQ);
++                        if (femBaseCGLSRightScaleEnabled) {
++                            applyRightScale(state.femBaseCGLSP,
++                                state.femBaseCGLSRightScalePhysical, 0u);
++                            action(4u, state.femBaseCGLSRightScalePhysical,
++                                state.femBaseCGLSQ);
++                        } else {
++                            action(4u, state.femBaseCGLSP, state.femBaseCGLSQ);
++                        }
+                         dispatchGroups32("nm_fgmres_base_cgls_form_alpha", environments, [&] {
+                             rows();
+                             [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:4u];
+@@ -23227,6 +23394,9 @@
+                             [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
+                         }); barrier();
+                         action(3u, state.femBaseCGLSR, state.femBaseCGLSS);
++                        if (femBaseCGLSRightScaleEnabled)
++                            applyRightScale(state.femBaseCGLSS,
++                                state.femBaseCGLSS, 1u);
+                         dispatchGroups32("nm_fgmres_base_cgls_form_beta", environments, [&] {
+                             rows();
+                             [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:4u];
+@@ -23248,6 +23418,9 @@
+                         [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:2u];
+                     }); barrier();
++                    if (femBaseCGLSRightScaleEnabled)
++                        applyRightScale(state.femBaseCGLSX,
++                            state.femBaseCGLSX, 0u);
+                     action(4u, state.femBaseCGLSX, state.femBaseCGLSQ);
+                     dispatchThreads("nm_fgmres_install_base_cgls_direction", environments, [&] {
+                         setDispatch();
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -4038,16 +4038,21 @@
+     device const float* tangentCache [[buffer(17)]],
+     device const uint* tangentCacheValid [[buffer(18)]],
+     constant uint& useTangentCache [[buffer(19)]],
++    device const uint* selectedEnvironments [[buffer(20)]],
++    constant uint& onlySelectedEnvironments [[buffer(21)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global >= total || dispatch.femNodeCount == 0u) return;
++    const uint environment = global / dispatch.femNodeCount;
+     inverseDiagonal[global] = float4(0.0f);
+     const uint packedBase = global * 3u;
+     inverseBlockRows[packedBase] = float4(0.0f);
+     inverseBlockRows[packedBase + 1u] = float4(0.0f);
+     inverseBlockRows[packedBase + 2u] = float4(0.0f);
+-    const uint environment = global / dispatch.femNodeCount;
++    if (onlySelectedEnvironments != 0u &&
++        (environment >= dispatch.environmentCount ||
++         selectedEnvironments[environment] != 1u)) return;
+     const NMIncidenceRangeGPU range = nodeRanges[global];
+     if (range.objectIndex == NM_INVALID_INDEX ||
+         range.objectIndex >= dispatch.objectCount) return;
+--- a/matter/src/metal/base_cgls.metalinc
++++ b/matter/src/metal/base_cgls.metalinc
+@@ -21,6 +21,8 @@
+ constant uint kBaseCGLSErrorBadMask = 8u;
+ constant uint kBaseCGLSErrorNonzeroConstrainedRow = 16u;
+ constant uint kBaseCGLSErrorBadDenominator = 32u;
++constant uint kBaseCGLSErrorInvalidRightScale = 64u;
++constant uint kBaseCGLSErrorUnsupportedConstraint = 128u;
+ 
+ inline bool baseCGLSFinite4(const float4 value) {
+     return all(isfinite(value));
+@@ -111,6 +113,8 @@
+     device float4* p [[buffer(10)]],
+     device float4* q [[buffer(11)]],
+     device atomic_uint* errors [[buffer(12)]],
++    constant uint& useRightScale [[buffer(13)]],
++    device const float4* rightScaleRows [[buffer(14)]],
+     uint index [[thread_position_in_grid]]) {
+     if (index >= unknownCount) return;
+ 
+@@ -181,7 +185,28 @@
+     }
+ 
+     const float4 maskedB = float4(b.xyz * effectiveMask.xyz, 0.0f);
+-    const float4 maskedATb = float4(atb.xyz * effectiveMask.xyz, 0.0f);
++    float4 maskedATb = float4(atb.xyz * effectiveMask.xyz, 0.0f);
++    if (useRightScale != 0u && !fieldRow &&
++        all(effectiveMask.xyz == float3(1.0f))) {
++        const uint node = index - environment * nodeCount;
++        const uint base = (environment * nodeCount + node) * 3u;
++        const float4 row0 = rightScaleRows[base];
++        const float4 row1 = rightScaleRows[base + 1u];
++        const float4 row2 = rightScaleRows[base + 2u];
++        const float3 value = maskedATb.xyz;
++        maskedATb = float4(
++            dot(float3(row0.x, row1.x, row2.x), value),
++            dot(float3(row0.y, row1.y, row2.y), value),
++            dot(float3(row0.z, row1.z, row2.z), value), 0.0f);
++        if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
++            !baseCGLSFinite4(row2) || row0.w != 1.0f ||
++            row1.w != 0.0f || row2.w != 0.0f ||
++            !baseCGLSFinite4(maskedATb)) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRightScale);
++            maskedATb = float4(0.0f);
++        }
++    }
+     x[index] = float4(0.0f);
+     r[index] = maskedB;
+     s[index] = maskedATb;
+@@ -572,4 +597,147 @@
+     }
+ }
+ 
++// Check the exact candidate constraint tags and the freshly built inverse
++// blocks before right scaling is used. This path admits only free tag 0 and
++// eliminated static/grip tags 1 and 3; Human tag 2 is unsupported.
++kernel void nm_fgmres_base_cgls_validate_right_scale(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
++    device const float4* rowMask [[buffer(2)]],
++    device const uint* selected [[buffer(3)]],
++    device const float4* rightScaleRows [[buffer(4)]],
++    device atomic_uint* errors [[buffer(5)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint environments = dispatch.environmentCount;
++    const uint nodes = dispatch.femNodeCount;
++    const uint total = environments * nodes;
++    if (global >= total || environments == 0u || nodes == 0u) return;
++    const uint environment = global / nodes;
++    if (selected[environment] > 1u) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
++        return;
++    }
++    if (selected[environment] == 0u) return;
++
++    const NMFEMNodeStateGPU node = candidate[global];
++    const float tag = node.restAndFixed.w;
++    const float4 mask = rowMask[global];
++    if (!isfinite(tag) || (tag != 0.0f && tag != 1.0f && tag != 3.0f)) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorUnsupportedConstraint);
++        return;
++    }
++    if (!baseCGLSFinite4(mask) || mask.w != 0.0f) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        return;
++    }
++    const uint base = global * 3u;
++    const float4 row0 = rightScaleRows[base];
++    const float4 row1 = rightScaleRows[base + 1u];
++    const float4 row2 = rightScaleRows[base + 2u];
++    if (tag == 0.0f) {
++        if (!isfinite(node.positionAndMass.w) ||
++            node.positionAndMass.w <= 0.0f ||
++            any(mask.xyz != float3(1.0f)) ||
++            !baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
++            !baseCGLSFinite4(row2) || row0.w != 1.0f ||
++            row1.w != 0.0f || row2.w != 0.0f) {
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorInvalidRightScale | kBaseCGLSErrorBadMask);
++        }
++    } else if (any(mask != float4(0.0f)) ||
++               any(row0 != float4(0.0f)) ||
++               any(row1 != float4(0.0f)) ||
++               any(row2 != float4(0.0f))) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorInvalidRightScale | kBaseCGLSErrorBadMask);
++    }
++}
++
++// Apply S or S^T to a full CGLS vector. The mechanical block is the first
++// E*N float4 rows; the second E*N field backing rows are required to stay
++// zero. The input/output buffers may alias because each thread reads only
++// its own row before writing it.
++kernel void nm_fgmres_base_cgls_apply_right_scale(
++    constant uint& unknownCount [[buffer(0)]],
++    constant uint& environmentCount [[buffer(1)]],
++    constant uint& transpose [[buffer(2)]],
++    device const float4* rowMask [[buffer(3)]],
++    device const uint* rowEnvironment [[buffer(4)]],
++    device const uint* selected [[buffer(5)]],
++    device const float4* rightScaleRows [[buffer(6)]],
++    device const float4* input [[buffer(7)]],
++    device float4* output [[buffer(8)]],
++    device atomic_uint* errors [[buffer(9)]],
++    uint index [[thread_position_in_grid]]) {
++    if (index >= unknownCount) return;
++    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount) ||
++        transpose > 1u) {
++        if (environmentCount > 0u)
++            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
++        output[index] = float4(0.0f);
++        return;
++    }
++    const uint mechanicalRows = unknownCount / 2u;
++    const uint nodeCount = mechanicalRows / environmentCount;
++    const uint localIndex = index < mechanicalRows
++        ? index : index - mechanicalRows;
++    const uint environment = localIndex / nodeCount;
++    if (environment >= environmentCount || selected[environment] > 1u ||
++        rowEnvironment[index] != environment) {
++        if (environment < environmentCount)
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorBadSelection | kBaseCGLSErrorBadShape);
++        output[index] = float4(0.0f);
++        return;
++    }
++    if (atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
++        output[index] = float4(0.0f);
++        return;
++    }
++    const float4 value = input[index];
++    const float4 mask = rowMask[index];
++    if (!baseCGLSFinite4(value) || !baseCGLSFinite4(mask) ||
++        value.w != 0.0f || mask.w != 0.0f) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
++        output[index] = float4(0.0f);
++        return;
++    }
++    if (selected[environment] == 0u || index >= mechanicalRows ||
++        all(mask.xyz == float3(0.0f))) {
++        if (any(value != float4(0.0f)))
++            baseCGLSMarkError(errors, environment,
++                kBaseCGLSErrorNonzeroConstrainedRow);
++        output[index] = float4(0.0f);
++        return;
++    }
++    if (any(mask.xyz != float3(1.0f))) {
++        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
++        output[index] = float4(0.0f);
++        return;
++    }
++    const uint localNode = localIndex - environment * nodeCount;
++    const uint base = (environment * nodeCount + localNode) * 3u;
++    const float4 row0 = rightScaleRows[base];
++    const float4 row1 = rightScaleRows[base + 1u];
++    const float4 row2 = rightScaleRows[base + 2u];
++    const float3 result = transpose == 0u
++        ? float3(dot(row0.xyz, value.xyz), dot(row1.xyz, value.xyz),
++                 dot(row2.xyz, value.xyz))
++        : float3(row0.x * value.x + row1.x * value.y + row2.x * value.z,
++                 row0.y * value.x + row1.y * value.y + row2.y * value.z,
++                 row0.z * value.x + row1.z * value.y + row2.z * value.z);
++    const float4 result4 = float4(result, 0.0f);
++    if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
++        !baseCGLSFinite4(row2) || row0.w != 1.0f || row1.w != 0.0f ||
++        row2.w != 0.0f || !baseCGLSFinite4(result4)) {
++        baseCGLSMarkError(errors, environment,
++            kBaseCGLSErrorInvalidRightScale);
++        output[index] = float4(0.0f);
++        return;
++    }
++    output[index] = result4;
++}
++
+ } // namespace numi_matter_metal

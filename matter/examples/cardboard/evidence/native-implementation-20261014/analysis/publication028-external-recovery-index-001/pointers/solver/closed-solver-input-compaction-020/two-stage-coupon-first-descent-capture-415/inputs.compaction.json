@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 20051908,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/archives/two-stage-coupon-first-descent-capture-415/inputs.tar.gz",
+  "archive_sha256": "53f3ffb96b6647beec7b2d9ec9edceb104258860bd1b8ebfeb2a96101358f0c6",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/cases/two-stage-coupon-first-descent-capture-415/before-inventory.json",
+  "before_manifest_sha256": "428f3f89ab4e19cb6d24a35a1c7bae993f0175697c0b459d393f83332f6c5698",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-020/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

@@ -1,0 +1,11 @@
+{
+  "archive_bytes": 16520810,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/rationalized-paper-complete-coupon-cycle-303/inputs.tar.gz",
+  "archive_sha256": "ecbaa101edd9cf26bba4f6d8b4fe7720f427775b4e4aff83bd82087a42dce66f",
+  "before_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/cases/rationalized-paper-complete-coupon-cycle-303/before-inventory.json",
+  "before_manifest_sha256": "9112d841a1d51068a1286f864649ddd608add1e22c38f57d61e81aba70d3d398",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/rationalized-paper-complete-coupon-cycle-303",
+  "restore_required_to_recreate_prediction_inputs": true,
+  "restore_script": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/restore_inputs.py",
+  "schema": "numi.cardboard.closed-solver-input-compaction.pointer.v1"
+}

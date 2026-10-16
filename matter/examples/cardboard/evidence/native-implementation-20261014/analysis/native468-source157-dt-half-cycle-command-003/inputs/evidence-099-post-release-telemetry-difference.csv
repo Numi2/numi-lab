@@ -1,0 +1,13 @@
+zero_based_step,one_based_step,environment,phase,target_mode_w,source154_logged_right_grip_constrained,source157_logged_right_grip_constrained,expected_observation_difference_source154_minus_source157,target_angle_deg,interpretation
+54,55,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+54,55,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+55,56,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+55,56,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+56,57,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+56,57,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+57,58,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+57,58,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+58,59,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+58,59,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+59,60,0,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
+59,60,1,post_release_relaxation,2,1,0,1,0.0,expected CSV telemetry correction only; not a native result or a physical grip qualification
