@@ -334,17 +334,28 @@ struct NumiHumanRestingAnatomy {
         intercostals.insert(intercostalIDs.begin(),intercostalIDs.end());sternum.insert(sternumIDs.begin(),sternumIDs.end());
         for(unsigned i=0;i<ribIDs.size();++i)ribs.emplace(ribIDs[i],i);
         require(ribs.size()==24,"resting rib bindings contain duplicate IDs");
+        for(id rawKey in bindings)if([rawKey isKindOfClass:NSString.class]&&
+            [(NSString*)rawKey hasPrefix:@"intercostal_"]&&
+            [(NSString*)rawKey hasSuffix:@"_motion_attachment"]) {
+            bool supported=false;
+            for(const unsigned rowId:std::array<unsigned,3>{{313,315,317}})
+                for(unsigned rib=48;rib<=59;++rib)
+                    supported|=[(NSString*)rawKey isEqualToString:
+                        [NSString stringWithFormat:@"intercostal_%u_rib%u_motion_attachment",rowId,rib]];
+            require(supported,"unsupported typed intercostal rib-motion declaration");
+        }
+        for(const unsigned intercostalId:std::array<unsigned,3>{{313,315,317}}) {
         bool hasIntercostalRibAttachment=false;
         for(id rawKey in bindings)if([rawKey isKindOfClass:NSString.class]&&
-            [(NSString*)rawKey hasPrefix:@"intercostal_313_rib"])
+            [(NSString*)rawKey hasPrefix:[NSString stringWithFormat:@"intercostal_%u_rib",intercostalId]])
             hasIntercostalRibAttachment=true;
         if(hasIntercostalRibAttachment) {
-            const auto row313It=std::find_if(anatomy.records.begin(),anatomy.records.end(),
-                [](const auto& record){return record.stableId==313;});
-            const unsigned rowID=row313It==anatomy.records.end()?0:row313It->stableId;
-            const unsigned rowBody=row313It==anatomy.records.end()?0:row313It->bodyIndex;
-            const unsigned rowLayer=row313It==anatomy.records.end()?0:row313It->layer;
-            const unsigned rowVertexCount=row313It==anatomy.records.end()?0:row313It->vertexCount;
+            const auto rowIt=std::find_if(anatomy.records.begin(),anatomy.records.end(),
+                [&](const auto& record){return record.stableId==intercostalId;});
+            const unsigned rowID=rowIt==anatomy.records.end()?0:rowIt->stableId;
+            const unsigned rowBody=rowIt==anatomy.records.end()?0:rowIt->bodyIndex;
+            const unsigned rowLayer=rowIt==anatomy.records.end()?0:rowIt->layer;
+            const unsigned rowVertexCount=rowIt==anatomy.records.end()?0:rowIt->vertexCount;
             std::map<unsigned,unsigned> boneBodyByStableId;
             for(const auto& record:bones.records)
                 require(boneBodyByStableId.emplace(record.stableId,record.bodyIndex).second,
@@ -355,7 +366,8 @@ struct NumiHumanRestingAnatomy {
             auto overrides=numiHumanParseIntercostalRibAttachments(bindings,provenance,
                 hash,boneHash,attachmentContext);
             if(!overrides.empty())
-                intercostalRibVertexChannels.emplace(313,std::move(overrides));
+                intercostalRibVertexChannels.emplace(intercostalId,std::move(overrides));
+        }
         }
         require(lungIDs.size()==5,"resting anatomy requires five lobes");
         lungs.insert(lungIDs.begin(),lungIDs.end());pleura.insert(pleuraIDs.begin(),pleuraIDs.end());

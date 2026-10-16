@@ -1,0 +1,86 @@
+PASS positive 48/49 channels
+PASS opt-in rib50 existing channel14 and source identity
+PASS rejects duplicate slot across rib channels
+PASS rejects rib50 wrong motion channel
+PASS legacy receipt without opt-in
+PASS rejects stale anatomy payload SHA
+PASS rejects duplicate local vertex
+PASS rejects wrong typed bone stable ID
+PASS rejects wrong rib channel
+PASS rejects wrong bone owner
+PASS rejects unverified bone owner map
+PASS rejects wrong typed NHA row body
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 12
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 13
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 14
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 15
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 16
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 17
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 18
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 19
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 20
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 21
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 22
+PASS rejects extended intercostal wrong channel
+PASS intercostal 313 existing rib channel 23
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 12
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 13
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 14
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 15
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 16
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 17
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 18
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 19
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 20
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 21
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 22
+PASS rejects extended intercostal wrong channel
+PASS intercostal 315 existing rib channel 23
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 12
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 13
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 14
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 15
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 16
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 17
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 18
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 19
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 20
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 21
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 22
+PASS rejects extended intercostal wrong channel
+PASS intercostal 317 existing rib channel 23
+PASS rejects unsupported rib60
+All intercostal rib attachment loader tests passed

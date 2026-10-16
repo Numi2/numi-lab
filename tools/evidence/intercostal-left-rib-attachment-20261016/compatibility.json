@@ -1,0 +1,32 @@
+{
+  "status": "PASS_NATIVE_LEGACY_COMPATIBILITY_AND_ALL_SUPPORTED_LOADER_CHANNELS",
+  "device": "Apple M6",
+  "execution_host": "ssh numi",
+  "native_run": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/intercostal-extended-rib-loader-legacy-scene-native-confirmation-1031/native-run",
+  "legacy_run": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/intercostal313-diagonal972-owner973-skin893-native-source-emission-974/native-run",
+  "native_pack_sha256": "464b6aef05034a4a73a699e468ef403fa1c6f0f8140f8bc133a06eb04121172d",
+  "legacy_pack_sha256": "464b6aef05034a4a73a699e468ef403fa1c6f0f8140f8bc133a06eb04121172d",
+  "native_capture_receipt_sha256": "cd84ec5fb5a99b09edc0208042416cb7e8669f1fccf9ffbe1918af465615e684",
+  "legacy_capture_receipt_sha256": "6b9b02c60b2440b0af9c518ed3b5c334a1fa6e5ddf7792d619f02b3060ca8a6f",
+  "equal_state_fields": [
+    "accepted_body_pose_count",
+    "accepted_body_poses",
+    "accepted_body_state_sha256",
+    "accepted_registered_body_poses",
+    "accepted_respiration_state_sha256",
+    "accepted_respiratory_motion",
+    "accepted_step",
+    "accepted_time_s",
+    "initial_anatomical_registration"
+  ],
+  "cardiac_state_comparison": "Old receipt predates accepted cardiac input capture; identical geometry pack does not establish complete cardiac state equivalence.",
+  "binary_sha256": "363a1412932b4a5cb41ae145d0b1f2ffd476b45432a2cefe558f39db0e2baca5",
+  "source_pins_sha256": "634418f0fc73bac20c3dc6be7f5c6eb871f2a51584e2df3896fbf7e62e76e3cf",
+  "loader_positive_cases": 36,
+  "loader_wrong_channel_cases": 36,
+  "anatomical_admission": false,
+  "retained_motion_admission": false,
+  "new_attachment_native_admission": false,
+  "full_qualification": false,
+  "remaining": "Old scene only exercises existing row313 attachments. New row315/317 opt-ins require source construction, native emission and motion/all-near gates. Rejected source1027 retains row313 self883; row317/315 self0 are regional diagnostics only."
+}

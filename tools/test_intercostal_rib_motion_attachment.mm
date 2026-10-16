@@ -16,8 +16,24 @@ static NSString* idsSHA(const std::vector<unsigned>& ids) {
 
 static NSDictionary* attachment(unsigned rib,const std::vector<unsigned>& ids,
     NSString* anatomySHA,NSString* bonesSHA,id channelStable=nil,id channelIndex=nil,
-    id channelBody=nil) {
-    const bool is48=rib==48;
+    id channelBody=nil,unsigned rowId=313) {
+    const std::array<const char*,12> members{{"FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3225","FJ3226","FJ3227"}};
+    const std::array<const char*,12> hashes{{
+        "803a7134c1e69f640b87f9c6c4a846c869379446e771a1a7c9d18914c331a603",
+        "631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58",
+        "8c097e93d79c610bed49d6c027d25c8439447c20bfb94fa64009b9c4db4d8f5b",
+        "c1259fcdaf463bdecfc0868a3acc964edd4901ab03eb539b28e40462671be1fb",
+        "c40bbcd5c2b98bb94161819a2cf824296289ce68eb62b37f3b175af4aadfd351",
+        "8160b28fd649aadd705a05cc3e6e9cfd7035c44d8258b5a50977ec89fe8e7414",
+        "372c650b2b7bc3f6767aa50a0f5b7e5dac6a15a17aeea5f5017166ba5d328757",
+        "7d9525200958a9545391a2e135649580282108d77f7ae88a34003a56f48f4c8b",
+        "ec09e201beaaa70c24a41eedcef4671118b453361f827be02fb73fc361208db8",
+        "40680b5a3556b5984a5006e01649ff20cb4c88d9d3a7fef79cbad0648a972d54",
+        "24a27d42732af55ad1e7142179f2dd4f906de78b701fbe5c459d8884a026f250",
+        "3b7e5d6673a1be5bc14d72a4ea659d361b143f3fda5bca3ec758c176daba16c5"}};
+    NSString* member=[NSString stringWithUTF8String:members.at(rib-48u)];
+    NSString* memberSHA=[NSString stringWithUTF8String:hashes.at(rib-48u)];
+
     const unsigned actualChannel=rib-36u;
     NSMutableArray* idArray=[NSMutableArray array];
     for(unsigned local:ids)[idArray addObject:@(local)];
@@ -27,14 +43,11 @@ static NSDictionary* attachment(unsigned rib,const std::vector<unsigned>& ids,
         @"body_index":(channelBody ? channelBody : @20),
         @"channel_kind":@5,
         @"channel_index":(channelIndex ? channelIndex : @(actualChannel)),
-        @"source_member_id":is48?@"FJ3228":(rib==49?@"FJ3229":@"FJ3230"),
-        @"source_member_sha256":is48?
-            @"803a7134c1e69f640b87f9c6c4a846c869379446e771a1a7c9d18914c331a603":
-            (rib==49?@"631b4f63625fa6cc89ad83961b2156abe5878d1baf4a8cb2b2acbaa06bc97f58":
-            @"8c097e93d79c610bed49d6c027d25c8439447c20bfb94fa64009b9c4db4d8f5b")
+        @"source_member_id":member,
+        @"source_member_sha256":memberSHA
     };
     NSDictionary* surface=@{
-        @"semantic":@51010,@"stable_id":@313,@"layer":@1,@"body_index":@20,
+        @"semantic":@51010,@"stable_id":@(rowId),@"layer":@1,@"body_index":@20,
         @"local_vertex_count":@100,@"interface_local_vertex_ids":idArray,
         @"interface_local_vertex_ids_sha256":idsSHA(ids)
     };
@@ -48,7 +61,7 @@ static NSDictionary* attachment(unsigned rib,const std::vector<unsigned>& ids,
         @"native_admission":@NO,@"retained_motion_admission":@NO
     };
     return @{
-        @"schema":[NSString stringWithFormat:@"numi.human.intercostal313-rib%u-interface-motion-attachment.v1",rib],
+        @"schema":[NSString stringWithFormat:@"numi.human.intercostal%u-rib%u-interface-motion-attachment.v1",rowId,rib],
         @"status":@"inferred_passive_visual_attachment_source_preparation_only",
         @"anatomy_payload_sha256":anatomySHA,@"bones_payload_sha256":bonesSHA,
         @"existing_rib_channel":channel,@"surface":surface,@"source_partition":partition
@@ -60,8 +73,14 @@ static NSDictionary* provenance() {
         @"source_id_map":@{@"313":@{
             @"body_index":@20,@"layer":@1,@"source_member":@"FJ1451M",
             @"source_sha256":@"d4c021ba00dbe2bd3c7e722cb5982df7659d7d68fe6f4ec980588bfd65d31214"
+        },@"315":@{
+            @"body_index":@20,@"layer":@1,@"source_member":@"FJ1455M",
+            @"source_sha256":@"d92760297b5c8ceacf1013460e372abcb05f97192ffc514758d74ac0b73af373"
+        },@"317":@{
+            @"body_index":@20,@"layer":@1,@"source_member":@"FJ1454M",
+            @"source_sha256":@"7458ea18bdf836da68b0220da5421cddb1bb653da909d998dea14db3d5ef00c5"
         }},
-        @"rib_source_member_to_stable_id":@{@"FJ3228":@48,@"FJ3229":@49,@"FJ3230":@50}
+        @"rib_source_member_to_stable_id":@{@"FJ3228":@48,@"FJ3229":@49,@"FJ3230":@50,@"FJ3231":@51,@"FJ3232":@52,@"FJ3233":@53,@"FJ3234":@54,@"FJ3235":@55,@"FJ3236":@56,@"FJ3225":@57,@"FJ3226":@58,@"FJ3227":@59}
     };
 }
 
@@ -90,8 +109,10 @@ int main() {
     @autoreleasepool {
         NSString* anatomySHA=[@"" stringByPaddingToLength:64 withString:@"1" startingAtIndex:0];
         NSString* bonesSHA=[@"" stringByPaddingToLength:64 withString:@"2" startingAtIndex:0];
-        const std::map<unsigned,unsigned> channels{{48,12},{49,13},{50,14}};
-        const std::map<unsigned,unsigned> boneBodies{{48,20},{49,20},{50,20}};
+        std::map<unsigned,unsigned> channels;
+        for(unsigned rib=48;rib<=59;++rib)channels.emplace(rib,rib-36u);
+        std::map<unsigned,unsigned> boneBodies;
+        for(unsigned rib=48;rib<=59;++rib)boneBodies.emplace(rib,20);
         const auto ctx=context(channels,boneBodies);
         NSDictionary* good=@{
             @"intercostal_313_rib48_motion_attachment":attachment(48,{3,9},anatomySHA,bonesSHA),
@@ -148,6 +169,20 @@ int main() {
         expectReject("wrong typed NHA row body",
             @{@"intercostal_313_rib48_motion_attachment":attachment(48,{3},anatomySHA,bonesSHA)},
             anatomySHA,bonesSHA,context(channels,boneBodies,true,313,23,1));
+        for(unsigned muscle:std::array<unsigned,3>{{313,315,317}})for(unsigned rib=48;rib<=59;++rib) {
+            NSString* key=[NSString stringWithFormat:@"intercostal_%u_rib%u_motion_attachment",muscle,rib];
+            NSDictionary* candidate=@{key:attachment(rib,{31,37},anatomySHA,bonesSHA,nil,nil,nil,muscle)};
+            const auto result=numiHumanParseIntercostalRibAttachments(candidate,provenance(),anatomySHA,bonesSHA,
+                context(channels,boneBodies,true,muscle));
+            if(result.size()!=2||result.at(31)!=rib-36u||result.at(37)!=rib-36u)return 1;
+            expectReject("extended intercostal wrong channel",
+                @{key:attachment(rib,{31},anatomySHA,bonesSHA,nil,@((rib-36u+1u)%24u),nil,muscle)},
+                anatomySHA,bonesSHA,context(channels,boneBodies,true,muscle));
+            std::cout<<"PASS intercostal "<<muscle<<" existing rib channel "<<rib-36u<<"\n";
+        }
+        expectReject("unsupported rib60",
+            @{@"intercostal_315_rib60_motion_attachment":attachment(59,{31},anatomySHA,bonesSHA,nil,nil,nil,315)},
+            anatomySHA,bonesSHA,context(channels,boneBodies,true,315));
         std::cout<<"All intercostal rib attachment loader tests passed\n";
     }
     return 0;
