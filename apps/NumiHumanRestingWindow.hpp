@@ -62,7 +62,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
         if(end==period||*end!='\0'||!std::isfinite(_inspectionPeriodSeconds)||_inspectionPeriodSeconds<=0)
             throw std::runtime_error("inspection period must be positive finite seconds");
     }
-    window.title=@"Numi Human — supported resting reference";window.delegate=self;
+    window.title=@"Numi Human — mixed-source resting reference";window.delegate=self;
     window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     window.backgroundColor=[NSColor colorWithCalibratedWhite:0.035 alpha:1];
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();_queue=[device newCommandQueue];
@@ -76,9 +76,24 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
     _measurements.textColor=NSColor.whiteColor;
     _measurements.font=[NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular];
     [window.contentView addSubview:_measurements];
-    _layers=[NSSegmentedControl segmentedControlWithLabels:@[@"Skin",@"Muscles",@"Skeleton",@"Organs",@"Lungs",@"Heart",@"Vessels"]
+    _layers=[NSSegmentedControl segmentedControlWithLabels:@[@"Skin",@"Muscles",@"Skeleton",@"Organs (passive)",@"Lungs",@"Heart",@"Vessels"]
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
     _layers.frame=NSMakeRect(24,140,620,26);_layers.selectedSegment=0;
+    // Reference anatomy combines registered sources; these labels describe
+    // the existing owners, not measured-person or organ-wide physiology.
+    _layers.toolTip=@"Registered reference adult assembled from multiple sources, not measurements of one person. Source identities and repair provenance are retained with the scene.";
+    [(NSSegmentedCell*)_layers.cell setToolTip:
+        @"Passive organ representations; digestion, endocrine function and cellular biology are not simulated."
+        forSegment:3];
+    [(NSSegmentedCell*)_layers.cell setToolTip:
+        @"Lung geometry is bound to respiratory mechanics and compartment gas exchange."
+        forSegment:4];
+    [(NSSegmentedCell*)_layers.cell setToolTip:
+        @"Anatomical cardiac geometry is bound to chamber mechanics and the circulation."
+        forSegment:5];
+    [(NSSegmentedCell*)_layers.cell setToolTip:
+        @"Visible vessel anatomy is bound to the circulation compartments; flow within every vessel lumen is not resolved."
+        forSegment:6];
     [window.contentView addSubview:_layers];
     _cameras=[NSSegmentedControl segmentedControlWithLabels:@[@"Front",@"Side",@"Chest",@"Whole body",@"Heart detail"]
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
