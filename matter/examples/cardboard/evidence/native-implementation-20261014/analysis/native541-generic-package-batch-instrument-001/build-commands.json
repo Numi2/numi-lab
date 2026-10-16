@@ -1,0 +1,59 @@
+{
+  "argv": [
+    [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/matter/include",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/include",
+      "-c",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/matter/tools/cardboard_bilinear15_capture_diagnostic.metal",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/batch.air"
+    ],
+    [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/batch.air",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/batch.metallib"
+    ],
+    [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/matter/include",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/include",
+      "-DNUMI_CARDBOARD_PAPER_METALLIB=\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/batch.metallib\"",
+      "-DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=\"c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2\"",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic_batch.mm",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source209-strict-inner-002/libnumi_matter_compiler.a",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch"
+    ]
+  ],
+  "gpu": false,
+  "source_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "compiler_build_sha256": "3865a89a1b5c35986a01c34010b3c09d037087c115699bdb971caa33123538a8",
+  "compiler_lib_sha256": "873b8ab2a3241b267e0c9a100498fe22a8b388091bc6b86e5e9953dade9aabd1"
+}

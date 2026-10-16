@@ -1,0 +1,80 @@
+{
+  "historical_only": true,
+  "not_source203_evidence": "Native534 is retained only as historical synthetic helper evidence; the separate 537/538 review gate is required before 539.",
+  "qualification_limit": "Synthetic 4-node E2 production-kernel dispatch only; no FEM solve, physical transaction, coupon trajectory, solver parity or performance qualification.",
+  "receipt": {
+    "active_native_workers": [],
+    "binding_check": {
+      "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+      "metal_o0_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc",
+      "metal_o3_sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "output_absent": true,
+      "same_host_binary": true,
+      "source_build_count": 2,
+      "source_count": 817
+    },
+    "disk_guard_minimum_free_bytes": 2147483648,
+    "disk_guard_reserve_satisfied": true,
+    "exact_output_and_exit_parity": true,
+    "free_bytes_after": 101163524096,
+    "free_bytes_before": 101163671552,
+    "launched": true,
+    "output_path_absent": true,
+    "physical_transactions": 0,
+    "post_run_binding_check": {
+      "frozen_source_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789",
+      "metal_o0_sha256": "77d4d17de455d7439bc033a2fc0c2f36ed9b28fe52b349a6306acdab2a6131bc",
+      "metal_o3_sha256": "db4c1dd3a96a633b7b850022744bbdb22386af265b9e8770d07155ace7404739",
+      "output_absent": true,
+      "same_host_binary": true,
+      "source_build_count": 2,
+      "source_count": 817
+    },
+    "qualification_limit": "Synthetic 4-node E2 production-kernel dispatch only; no FEM solve, physical transaction, coupon trajectory, solver parity or performance qualification.",
+    "runs": [
+      {
+        "argv": [
+          "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check",
+          "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-metal-o0/NumiMatter.metallib"
+        ],
+        "exit_code": 0,
+        "finished_unix": 1792141135.1102479,
+        "host_build": "same source-bound Release helper for both arms",
+        "label": "metal-o0",
+        "metal_optimization": "O0",
+        "started_unix": 1792141134.5951738,
+        "status": "completed",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 182,
+        "stdout_sha256": "8bfc3fea81ef1c634542ea4ffbe802de05c41a614952baf7c2c751eaa2910ae0",
+        "timeout_seconds": 119.98376999981701
+      },
+      {
+        "argv": [
+          "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/numi-matter-cardboard-regional-rap-tail-preserve-native-check",
+          "/Users/n/cardboard-implementation-20261014-host-macmini/build-source201-o3-003/shaders/NumiMatter.metallib"
+        ],
+        "exit_code": 0,
+        "finished_unix": 1792141135.2022452,
+        "host_build": "same source-bound Release helper for both arms",
+        "label": "metal-o3",
+        "metal_optimization": "O3",
+        "started_unix": 1792141135.12715,
+        "status": "completed",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 182,
+        "stdout_sha256": "8bfc3fea81ef1c634542ea4ffbe802de05c41a614952baf7c2c751eaa2910ae0",
+        "timeout_seconds": 119.45179675053805
+      }
+    ],
+    "schema": "numi.cardboard.native534.metal-optimization-preflight.v1",
+    "status": "pass",
+    "worker_guard_passed": true
+  },
+  "receipt_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/regional-rap-tail-preserve-534/run-receipt.json",
+  "receipt_sha256": "ddfa2f36f8435a821519042fb95e177d71ce94025e2e52c57b9d4227ca558db7",
+  "schema": "numi.cardboard.native539.historical-source201-helper-binding.v1",
+  "source201_frozen_sha256": "290271b4301f470cc5804f696f61e6e5e89278c138366a93aa32bf0ae7839789"
+}

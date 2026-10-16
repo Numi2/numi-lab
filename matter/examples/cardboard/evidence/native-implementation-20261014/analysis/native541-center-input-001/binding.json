@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-center-input-001/input.json",
+  "input_sha256": "78c5a4d3ffb2336d76019ac5501c42003535f62df89462eb4173b0cd5802d8eb",
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack",
+  "package_sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+  "capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "rows": 3456,
+  "row_semantics": "Center F high/low, Fdot and direction words preserved; accepted history fixed; both environments; no perturbations authored."
+}

@@ -88,9 +88,14 @@ remains inconclusive until those native observables are available, even if
 force/work comparisons can be computed.
 
 For mixed-mode cohesive faces, the newer history export also reports the
-reference area of accepted active faces whose damage state is 1.0, divided by
-the total activated reference area for that interface group. The numerator
-means zero remaining tensile and shear capacity in the constitutive law. It
+reference-area integral of fully failed accepted quadrature points, divided by
+the total activated reference area for that interface group. Each mixed-mode
+face has three equal reference-area weights. The maximum damage stored in
+face.state.x is not an area fraction: one failed point contributes one third
+of that face area, and a fully failed face count requires all three points.
+Legacy exports using the face maximum are retained but cannot satisfy this
+capacity-area comparison. The numerator means zero remaining tensile and shear
+capacity at those quadrature points in the constitutive law. It
 does not mean a visible gap, a geometrically open face, or observed physical
 debonding. Starch and HMA are accounted separately; dormant faces are not in
 the denominator. Reports retain the partial area-weighted degradation index

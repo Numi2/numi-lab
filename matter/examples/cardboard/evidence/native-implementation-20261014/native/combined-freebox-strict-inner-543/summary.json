@@ -1,0 +1,24 @@
+[
+  {
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_s": 0.550943459,
+    "stdout_sha256": "3a4bca2a74b564a2b7e4cd537db7341d071af95f681a66708de34bf10e989608",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_transactions": 0,
+    "source_and_artifacts_unchanged": true,
+    "full_solver_qualified": false,
+    "at_utc": "2026-10-16T10:22:44.700386+00:00"
+  },
+  {
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_s": 0.3905342500000001,
+    "stdout_sha256": "98c33a147ad63c3c5acbda03746dda4b36c4dc0a8b8c6166a37fe9893c8d4052",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physical_transactions": 0,
+    "source_and_artifacts_unchanged": true,
+    "full_solver_qualified": false,
+    "at_utc": "2026-10-16T10:22:45.150873+00:00"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "payloads": {
+    "README.md": "cb61345a92ae9a8a1dd9a12a3fe275b63130d404c269e62bec11890719bbde6e",
+    "add_fd_summary.py": "f0d4fe612e3faafa98725e4594cc1dff6064ec97ffe32e7fc42689587d2b10f9",
+    "adjudicate.py": "dcff9586668182d89b508816cf396bc5d08c11b726e5005bb8305aad43074c08",
+    "report.json": "645028cb32280a3c0e82b5fa53784d61c9de805b20b59c819bc37c75951fdb01"
+  },
+  "qualification_limits": [
+    "CPU-only adjudication; no native run or production edits.",
+    "23 selected tet/basis pairs, 138 native rows, two selected epsilon powers each.",
+    "No full derivative qualification, absolute noise-floor claim, calibration, or coupon qualification."
+  ],
+  "report_sha256": "645028cb32280a3c0e82b5fa53784d61c9de805b20b59c819bc37c75951fdb01",
+  "schema": "numi.cardboard.native541-critical23-branch-adjudication-manifest.v1",
+  "source_bound_inputs": {
+    "analysis/native531-stable-green-strain-reference-017-001/reference/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "analysis/native541-critical23-adjudication-001/report.json": "604e2c01b38fb0ab9b48de56ec84212a0b7fb046fe2fb6e4613c6c3fc70cd14f",
+    "analysis/native541-critical23-input-002/input.json": "e8962b6c08da3a212f7820c355de4c0b650431ee8ff81c4d62db613ce02bd69a",
+    "analysis/native541-critical23-input-002/stable-fp64-reference.jsonl": "0fe4b3eebed1634f40c7ccaa651e25339b1df492382070343cac207ccf494c96",
+    "analysis/native541-generic-package-batch-instrument-001/generic-batch": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5",
+    "native/critical23-material-replay-541/output/paper-points-exact_package_budget32.jsonl": "d9a784e999b24921e868418ef49df03bb90b6a4621e163ba37e2981fd20ee274",
+    "snapshots/source-cohesive-quadrature-area-205/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "snapshots/source-cohesive-quadrature-area-205/matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "snapshots/source-cohesive-quadrature-area-205/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1"
+  }
+}

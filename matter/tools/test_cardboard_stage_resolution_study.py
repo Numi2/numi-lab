@@ -189,7 +189,7 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
              "starch_status": "available_area_weighted_cohesive_degradation_index",
              "starch_area_weighted_cohesive_damage_fraction": 0.2, "starch_active_reference_area_m2": 0.1,
-             "starch_fully_failed_status": "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area",
+             "starch_fully_failed_status": "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area",
              "starch_fully_failed_cohesive_area_m2": 0.1 * fully_failed_fraction,
              "starch_fully_failed_cohesive_area_fraction": fully_failed_fraction,
              "starch_fully_failed_faces": 2,
@@ -323,6 +323,18 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         starch = damage["fully_failed_cohesive_capacity_area"]["starch"]
         self.assertAlmostEqual(starch["absolute_difference"], 0.15)
         self.assertIsNone(damage["geometric_starch_debond_fraction_difference"])
+
+    def test_legacy_face_maximum_area_is_not_admitted_as_quadrature_capacity(self) -> None:
+        run_dir = fake_box_run(self.root, "legacy-face-max")
+        history_path = run_dir / "shipping-history-observables.csv"
+        fields, rows = study._rows(history_path)
+        rows[0]["starch_fully_failed_status"] = "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area"
+        write_csv(history_path, fields, rows)
+        history = study._history_metrics(study.load_run(run_dir))
+        self.assertEqual(history["fully_failed_cohesive_capacity_area"]["starch"]["status"],
+                         "inconclusive_legacy_face_maximum_not_quadrature_area")
+        self.assertEqual(history["fully_failed_cohesive_capacity_area_status"],
+                         "inconclusive_missing_or_invalid_capacity_area")
 
     def test_fully_failed_area_rejects_inconsistent_active_area_denominator(self) -> None:
         run_dir = fake_box_run(self.root, "inconsistent")

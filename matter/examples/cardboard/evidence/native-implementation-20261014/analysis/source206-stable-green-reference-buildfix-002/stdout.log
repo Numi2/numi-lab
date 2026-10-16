@@ -1,0 +1,23 @@
+test_center_and_both_fine_centered_differences_pass_strict_gates (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_center_and_both_fine_centered_differences_pass_strict_gates) ... ok
+test_original_implementation_misses_retained_case (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_original_implementation_misses_retained_case) ... ok
+test_explicit_loader_rejects_missing_source (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests.test_explicit_loader_rejects_missing_source) ... ok
+test_legacy_reference_project_path (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests.test_legacy_reference_project_path) ... /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py:42: RuntimeWarning: divide by zero encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py:42: RuntimeWarning: invalid value encountered in divide
+  r[...,12]=np.where(np.real(den)>1e-14,(p[...,26]**2-2*dl*y)/den,root-dl-y)
+ok
+test_legacy_residual_and_jacobian_entrypoints_retain_mixed_rows (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests.test_legacy_residual_and_jacobian_entrypoints_retain_mixed_rows) ... ok
+test_mixed_fb_scatter_in_both_retained_implementations (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests.test_mixed_fb_scatter_in_both_retained_implementations) ... ok
+test_v2_projection_and_tangent_match_independent_mp_fixture (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests.test_v2_projection_and_tangent_match_independent_mp_fixture) ... ok
+test_empty_branch_side_is_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_empty_branch_side_is_inconclusive) ... ok
+test_epsilon_work_bound_precedes_io (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_epsilon_work_bound_precedes_io) ... ok
+test_identity_rejects_other_environment_hole_and_bad_fingerprint (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_identity_rejects_other_environment_hole_and_bad_fingerprint) ... ok
+test_invalid_reference_row_does_not_disappear_from_gate (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_invalid_reference_row_does_not_disappear_from_gate) ... ok
+test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates) ... ok
+test_uniform_stress_gather_cancels_shared_face (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_uniform_stress_gather_cancels_shared_face) ... ok
+test_zero_reference_stays_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_zero_reference_stays_inconclusive) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.657s
+
+OK

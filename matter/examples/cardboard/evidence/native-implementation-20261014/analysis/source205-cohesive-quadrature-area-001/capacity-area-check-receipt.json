@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source205-area-001/numi-matter-cardboard-cohesive-capacity-area-check"
+  ],
+  "exit_code": 0,
+  "at": "2026-10-16T09:41:14.821098+00:00",
+  "source_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "source_build_sha256": "a7cfeafefff8c76e8b177b2d73e2f9dd055929ae8cf0cc1bc1388554577ac317",
+  "stdout_sha256": "0d1b58beda11b48b3e5535d2e6ff560e4c82e549b8a93b98a2e7b54c8819afe9",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "native_gpu_executed": false,
+  "physical_operator_changed": false
+}

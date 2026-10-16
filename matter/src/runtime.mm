@@ -10609,14 +10609,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femNewtonTraceNoticeLogged = false;
             bool femNewtonTraceSelectorErrorLogged = false;
             bool femNewtonTraceCapturedAny = false;
-            const auto femNewtonTraceScope = [&]() -> const char* {
+            const auto femNewtonTraceScope = [&](const bool allowFreeBox) -> const char* {
                 if (request.physicsSubsteps != 1u ||
                     request.physicsSubstep != 0u)
                     return "requires_one_physics_substep_at_index_zero";
                 if (state.dispatch.maximumRateExponent != 0u)
                     return "requires_maximum_rate_exponent_zero";
-                if (state.dispatch.environmentCount > 4u)
+                if (allowFreeBox) {
+                    if (state.dispatch.environmentCount != 1u)
+                        return "free_box_true_residual_requires_one_environment";
+                } else if (state.dispatch.environmentCount > 4u) {
                     return "environment_cap_4";
+                }
                 if (state.dispatch.femNodeCount == 0u ||
                     state.dispatch.femNodeCount > 4096u)
                     return "fem_node_cap_4096";
@@ -10633,17 +10637,68 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.dispatch.mpmBlockCount != 0u ||
                     state.dispatch.mpmActiveNodeCapacity != 0u)
                     return "requires_static_fem_without_mpm_or_mixed_fields";
-                if (state.dispatch.fieldBoundaryCount != 0u ||
-                    state.dispatch.rigidGeneralizedCapacity != 0u ||
+                const std::uint64_t expectedUnknownCount =
+                    2u * std::uint64_t(state.dispatch.environmentCount) *
+                        state.dispatch.femNodeCount +
+                    (allowFreeBox
+                        ? 6u * std::uint64_t(state.dispatch.environmentCount)
+                        : 0u);
+                if ((allowFreeBox &&
+                     (state.dispatch.rigidGeneralizedCapacity != 6u ||
+                      state.dispatch.rigidQCapacity != 0u ||
+                      state.requiresCoupledCandidate ||
+                      (state.dispatch.flags & NM_MATTER_CONTACT) == 0u)) ||
+                    (!allowFreeBox &&
+                     state.dispatch.rigidGeneralizedCapacity != 0u) ||
+                    state.dispatch.fieldBoundaryCount != 0u ||
                     state.dispatch.femHumanAttachmentCount != 0u ||
                     state.dispatch.learnedMaterialCount != 0u ||
                     state.dispatch.learnedWeightCount != 0u ||
                     state.dispatch.mutationCommandCount != 0u ||
                     state.fgmresLayout.supportContactCount != 0u ||
                     state.fgmresLayout.vascularUnknownCount != 0u ||
-                    state.fgmresLayout.unknownCount !=
-                        2u * environments * state.dispatch.femNodeCount)
-                    return "requires_fem_nodes_as_only_generalized_unknowns";
+                    state.fgmresLayout.unknownCount != expectedUnknownCount)
+                    return allowFreeBox
+                        ? "requires_fem_plus_one_six_dof_free_box_layout"
+                        : "requires_fem_nodes_as_only_generalized_unknowns";
+                if (allowFreeBox) {
+                    if (state.objectLayout.size() != 1u ||
+                        state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
+                        (state.objectLayout[0].flags &
+                            (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                             NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                             NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
+                        return "free_box_true_residual_requires_static_fem_object";
+                    if (state.dispatch.rigidProxyCount != 1u ||
+                        state.rigidProxyLayout.size() != 1u ||
+                        state.dispatch.contactPairCount == 0u ||
+                        state.contactPairLayout.size() !=
+                            state.dispatch.contactPairCount)
+                        return "free_box_true_residual_requires_one_proxy_and_fem_box_pairs";
+                    const NMRigidProxyGPU& proxy = state.rigidProxyLayout[0];
+                    if (proxy.shapeKind != NM_RIGID_BOX ||
+                        proxy.flags != NM_RIGID_DYNAMIC ||
+                        proxy.generalizedFreeBodyIndex != 0u ||
+                        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
+                        proxy.bodyIndex == NM_INVALID_INDEX ||
+                        proxy.bodyIndex >= bridge.currentBodyCount ||
+                        proxy.sceneBodyIndex == NM_INVALID_INDEX ||
+                        proxy.sceneBodyIndex >= bridge.sceneBodyCount ||
+                        !state.requiresSceneBodies ||
+                        bridge.currentBodyCount == 0u ||
+                        bridge.currentBodyStride < bridge.currentBodyCount ||
+                        bridge.sceneBodyCount == 0u ||
+                        bridge.sceneStride < bridge.sceneBodyCount ||
+                        state.primalContactArguments == nil ||
+                        state.coupledGeneralizedCandidate == nil ||
+                        state.coupledPointJacobians == nil)
+                        return "free_box_true_residual_requires_one_nonarticulated_dynamic_box";
+                    for (const NMContactPairGPU& pair : state.contactPairLayout) {
+                        if (pair.objectIndex != 0u || pair.rigidProxy != 0u ||
+                            pair.continuumNode >= state.dispatch.femNodeCount)
+                            return "free_box_true_residual_pair_outside_fem_box_scope";
+                    }
+                }
                 return nullptr;
             };
             const auto femTrueResidualCapabilityFailure = [&]() -> const char* {
@@ -10668,14 +10723,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     (state.femAlgorithmicTangentCache == nil ||
                      state.femAlgorithmicTangentCacheValid == nil))
                     return "configured_tangent_cache_unavailable";
-                return femNewtonTraceScope();
+                return femNewtonTraceScope(
+                    state.dispatch.rigidGeneralizedCapacity == 6u);
             };
             const auto femResidualArmijoScope = [&]() -> const char* {
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope())
+                if (const char* reason = femNewtonTraceScope(false))
                     return reason;
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
@@ -10717,7 +10773,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "private_cohesive_trial_arena_missing_or_over_cap";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope())
+                if (const char* reason = femNewtonTraceScope(false))
                     return reason;
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
@@ -10794,7 +10850,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope())
+                if (const char* reason = femNewtonTraceScope(false))
                     return reason;
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
@@ -12077,6 +12133,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
+            }
+            bool femStrictInnerForcingRequested = false;
+            if (const char* strict = std::getenv("NM_FEM_STRICT_INNER_FORCING")) {
+                if (std::strcmp(strict, "1") == 0) {
+                    femStrictInnerForcingRequested = true;
+                } else if (std::strcmp(strict, "0") != 0) {
+                    diagnostics.message =
+                        "NM_FEM_STRICT_INNER_FORCING must be 0 or 1";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
+            if (femStrictInnerForcingRequested &&
+                !femTrueResidualCertificationRequested) {
+                diagnostics.message =
+                    "strict inner forcing requires true-residual certification";
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
             }
             bool femTrueResidualNoticeLogged = false;
             bool femTrueResidualRootSelected = false;
@@ -14260,7 +14334,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope()) {
+                if (const char* reason = femNewtonTraceScope(false)) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, reason);
                     return true;
@@ -14418,7 +14492,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope()) {
+                if (const char* reason = femNewtonTraceScope(false)) {
                     emitFEMNewtonTraceSkip(root, reason);
                     return true;
                 }
@@ -23131,8 +23205,49 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femTrueResidualStatuses
                                  offset:0u atIndex:10u];
                 });
+                if (state.dispatch.rigidGeneralizedCapacity != 0u) {
+                    const std::uint32_t allowConvergedTrueResidualOperator = 1u;
+                    dispatchThreads("nm_fgmres_apply_free_rigid",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv
+                                   length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTrueResidualOperatorValue
+                                     offset:0u atIndex:3u];
+                        bindPrimalContactArguments(4u);
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.coupledGeneralizedCandidate
+                                     offset:0u atIndex:6u];
+                        [encoder setBytes:&allowConvergedTrueResidualOperator
+                                   length:sizeof(allowConvergedTrueResidualOperator)
+                                  atIndex:7u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv
+                                   length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTrueResidualOperatorValue
+                                     offset:0u atIndex:3u];
+                        bindPrimalContactArguments(4u);
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.coupledPointJacobians
+                                     offset:0u atIndex:6u];
+                        [encoder setBytes:&allowConvergedTrueResidualOperator
+                                   length:sizeof(allowConvergedTrueResidualOperator)
+                                  atIndex:7u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                // Bit0 replaces the residual; bit1 tightens only the inner
+                // completion test for a still-active nonlinear RHS. Neither
+                // bit changes the physical operator or outer certificate.
                 const std::uint32_t replaceTrueResidual =
-                    femTrueResidualRestartEnabled ? 1u : 0u;
+                    femTrueResidualRestartEnabled
+                        ? (femStrictInnerForcingRequested ? 3u : 1u) : 0u;
                 dispatchGroups32("nm_fgmres_measure_true_residual",
                     environments, [&] {
                     setDispatch();

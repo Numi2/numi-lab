@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.source206-stable-green-reference.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002",
+  "frozen_source_sha256": "846aa41eab31797886190cc50df512a6af2d49c981244e1448cc1b024c913340",
+  "source_count": 821,
+  "cpu_exit_code": 0,
+  "cpu_stdout_sha256": "ec91d93397ce91ed4244578999a9c9f87021c4ea2159fe59e259d0b050c9f04c",
+  "native_gpu_executed": false,
+  "native_production_changed": false,
+  "numeric_test_gates_unchanged": true,
+  "independent_MP_fixture_unchanged": true,
+  "failed_attempt_report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source206-stable-green-reference-001/report.json",
+  "failed_attempt_report_sha256": "664e48be90837e17af51d0ceb338ec673f8b5c1a3314ef3f7bcdca27bf3ed5bc"
+}

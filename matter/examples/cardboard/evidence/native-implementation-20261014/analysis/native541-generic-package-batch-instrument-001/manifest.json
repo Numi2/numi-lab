@@ -1,0 +1,62 @@
+{
+  "schema": "numi.cardboard.native541-instrument-seal.v1",
+  "files": {
+    "batch.air": {
+      "bytes": 204768,
+      "sha256": "96acef2a976030dfec4432d7aaf973888a9446483233c94ee322354056c887a5"
+    },
+    "source-dependency-binding.json": {
+      "bytes": 1704,
+      "sha256": "e449063945940ab7f6d59c99244fa89231d1146854bb7173e4faa14cc8a7cfcd"
+    },
+    "generic-batch": {
+      "bytes": 819296,
+      "sha256": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5"
+    },
+    "build-receipt.json": {
+      "bytes": 629,
+      "sha256": "6a5fd689a22a15b74c4ad093236dcd6447ea5ae6816ba4bd6372a8f9c2856dc0"
+    },
+    "batch.metallib": {
+      "bytes": 938974,
+      "sha256": "3996691d7674278d3cfffd4d6444b2412948824b78a28437af2da3c322a4fecd"
+    },
+    "build-1.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-1.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "generic_batch.mm": {
+      "bytes": 5594,
+      "sha256": "622c78ac769490636196b7602dafb31f9432529dc47bf88e284193dbf92c78a0"
+    },
+    "build-2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-0.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-commands.json": {
+      "bytes": 2604,
+      "sha256": "983df4ba1c2ff32f59f1183069211d9097f2a5e0fe723de85effdcf3ed5437ca"
+    },
+    "build-0.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-2.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "center_replay_receipt_sha256": "ce9faa4c8a3ccd321035bee495ecf3fddb535a6b3683ceebeed7872a67a66d0d",
+  "center_parity_report_sha256": "46ed76620aa35f57776cec6b5cac42583dd89979563fba09cde152da76602e13",
+  "rows_bitwise_matched": 3456,
+  "physical_transactions": 0,
+  "at_utc": "2026-10-16T10:09:51.890551+00:00"
+}

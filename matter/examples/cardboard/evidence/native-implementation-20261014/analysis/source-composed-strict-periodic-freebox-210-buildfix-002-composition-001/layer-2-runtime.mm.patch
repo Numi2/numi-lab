@@ -1,0 +1,41 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -12077,6 +12077,24 @@
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
++            }
++            bool femStrictInnerForcingRequested = false;
++            if (const char* strict = std::getenv("NM_FEM_STRICT_INNER_FORCING")) {
++                if (std::strcmp(strict, "1") == 0) {
++                    femStrictInnerForcingRequested = true;
++                } else if (std::strcmp(strict, "0") != 0) {
++                    diagnostics.message =
++                        "NM_FEM_STRICT_INNER_FORCING must be 0 or 1";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++            }
++            if (femStrictInnerForcingRequested &&
++                !femTrueResidualCertificationRequested) {
++                diagnostics.message =
++                    "strict inner forcing requires true-residual certification";
++                ownership->preDynamicsOpen = false;
++                return diagnostics;
+             }
+             bool femTrueResidualNoticeLogged = false;
+             bool femTrueResidualRootSelected = false;
+@@ -23131,8 +23149,12 @@
+                     [encoder setBuffer:state.femTrueResidualStatuses
+                                  offset:0u atIndex:10u];
+                 });
++                // Bit0 replaces the residual; bit1 tightens only the inner
++                // completion test for a still-active nonlinear RHS. Neither
++                // bit changes the physical operator or outer certificate.
+                 const std::uint32_t replaceTrueResidual =
+-                    femTrueResidualRestartEnabled ? 1u : 0u;
++                    femTrueResidualRestartEnabled
++                        ? (femStrictInnerForcingRequested ? 3u : 1u) : 0u;
+                 dispatchGroups32("nm_fgmres_measure_true_residual",
+                     environments, [&] {
+                     setDispatch();

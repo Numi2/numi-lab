@@ -1,0 +1,20 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5630,8 +5630,16 @@
+             const float nonlinearThreshold = max(
+                 solver.regularization.x,
+                 solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
++            // Experimental stricter inexact-Newton solve. A small linear
++            // residual is not an outer equilibrium certificate. Keep a
++            // still-active RHS on its forcing target rather than stopping
++            // solely at the outer tolerance. Already acceptable outer RHS
++            // rows retain the legacy no-op completion behavior.
++            const bool strictActiveRHS = (replaceResidual & 2u) != 0u &&
++                initialNorm > nonlinearThreshold;
+             state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
+-                trueNorm <= nonlinearThreshold ? 1.0f : 0.0f;
++                (!strictActiveRHS && trueNorm <= nonlinearThreshold)
++                    ? 1.0f : 0.0f;
+         }
+         metrics[environment] = float4(
+             trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);

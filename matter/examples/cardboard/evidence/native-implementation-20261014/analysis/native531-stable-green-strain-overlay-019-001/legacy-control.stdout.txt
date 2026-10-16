@@ -1,0 +1,16 @@
+test_center_and_both_fine_centered_differences_pass_strict_gates (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_center_and_both_fine_centered_differences_pass_strict_gates) ... FAIL
+test_original_implementation_misses_retained_case (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_original_implementation_misses_retained_case) ... ok
+
+======================================================================
+FAIL: test_center_and_both_fine_centered_differences_pass_strict_gates (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_center_and_both_fine_centered_differences_pass_strict_gates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-stable-green-strain-overlay-019-001/legacy_control/test_cardboard_stable_green_strain_reference.py", line 71, in test_center_and_both_fine_centered_differences_pass_strict_gates
+    self.assertLessEqual(relative, 1.0e-6)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 4.933922925859774e-06 not less than or equal to 1e-06
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.216s
+
+FAILED (failures=1)

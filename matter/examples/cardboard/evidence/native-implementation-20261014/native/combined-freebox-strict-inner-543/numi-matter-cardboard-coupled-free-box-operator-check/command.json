@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-cardboard-coupled-free-box-operator-check"
+  ],
+  "metallib": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/shaders/NumiMatter.metallib",
+  "frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source_build_sha256": "75f9a256c4413c0a32e877f2dfcc168633c7662b391690dd4b83dbd4819f8e93",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-cardboard-coupled-free-box-operator-check": "25215cc0de051b41359a585af62c3abecca166bfa7c67b80f3c1c2e2a315bd80",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-cardboard-coupon-resume-check": "2b8eafd2805337890d0c866e41dc3deb033e36b2abbae9f76cc5aa18aa4f93c4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-cardboard-probe": "b4606bd319a2891037232497e13a761567d77d480c3630bfd27f886a74243a70",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-cardboard-shipping-snapshot-check": "12786fc0f08e4f1a4422fe89eaa70523b1a8eb4277d1b8961fa5a20783ac979e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/numi-matter-fgmres-true-residual-native-check": "87700faba0b9b1be90d3e923326bd468b00aa1d4954d7970dfa5aee5024b0b70",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/shaders/NumiMatter.metallib": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  }
+}

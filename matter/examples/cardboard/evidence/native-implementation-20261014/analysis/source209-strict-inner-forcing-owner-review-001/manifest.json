@@ -1,0 +1,15 @@
+{
+  "input_bindings": {
+    "build_receipt": "3865a89a1b5c35986a01c34010b3c09d037087c115699bdb971caa33123538a8",
+    "candidate_frozen_source": "2c222738e0b19e76dc039904fc60b650bed3c54ab410133f5597357640111e78",
+    "cpu_suite_receipt": "0a7037e03a0f90573fc5a1649e8e63f05c4305ac96f51767becb13142529c8c7",
+    "final_buildfix_manifest": "26434edad36776f95ee5d676b565af0360f4cf26e92558b7eb5dd2dc0dd18071",
+    "native540_receipt": "ff5678ab9b6b97843a582da9c0fe910e6e7a1fcc35dacaaf3b6d14277c8d3c30",
+    "native540_stdout": "98c33a147ad63c3c5acbda03746dda4b36c4dc0a8b8c6166a37fe9893c8d4052",
+    "parent_base_frozen_source": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+    "parent_overlay_manifest": "a4b6283283ca3b467dfa839b8e69462ac925e3544e012c939f5bf4dcbc0a5971"
+  },
+  "report": "report.json",
+  "report_sha256": "e6bdda0a2748a4bb27e30f1503314f66c59c30b4e34cc9e67f764f58b0514937",
+  "schema": "numi.cardboard.source209-owner-review.manifest.v1"
+}

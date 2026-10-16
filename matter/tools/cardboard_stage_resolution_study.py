@@ -1119,8 +1119,11 @@ def _history_metrics(run: StageRun) -> dict[str, Any]:
         if status == "not_enabled":
             capacities[role] = {"status": "not_enabled"}
             continue
-        if status != "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area":
-            capacities[role] = {"status": status or "inconclusive_missing_status"}
+        if status != "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area":
+            capacities[role] = {"status": (
+                "inconclusive_legacy_face_maximum_not_quadrature_area"
+                if status == "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area"
+                else status or "inconclusive_missing_status")}
             continue
         try:
             denominator, area, fraction = map(float, (denominator_raw, area_raw, fraction_raw))
@@ -1138,7 +1141,7 @@ def _history_metrics(run: StageRun) -> dict[str, Any]:
             "fully_failed_cohesive_area_m2": area,
             "activated_reference_area_denominator_m2": denominator,
             "fully_failed_cohesive_area_fraction": fraction,
-            "definition": "sum of active cohesive reference face areas with accepted damage state >= 1, divided by all activated reference face area for this material group",
+            "definition": "sum of active reference face area times the fraction of the three equal quadrature weights with accepted point damage exactly 1; divided by activated reference area",
         }
     result["fully_failed_cohesive_capacity_area"] = capacities
     active_capacity = [value for value in capacities.values()

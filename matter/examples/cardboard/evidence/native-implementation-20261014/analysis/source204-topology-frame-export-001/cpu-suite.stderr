@@ -1,0 +1,20 @@
+E
+======================================================================
+ERROR: test_cardboard_cached_operator_audit (unittest.loader._FailedTest.test_cardboard_cached_operator_audit)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_cardboard_cached_operator_audit
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source204-topology-frame-export-001/candidate/matter/tools/test_cardboard_cached_operator_audit.py", line 19, in <module>
+    SPEC.loader.exec_module(audit)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source204-topology-frame-export-001/candidate/matter/tools/cardboard_cached_operator_audit.py", line 23, in <module>
+    import cardboard_solver_environment as solver_environment
+ModuleNotFoundError: No module named 'cardboard_solver_environment'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

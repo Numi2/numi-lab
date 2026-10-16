@@ -457,7 +457,7 @@ target_include_directories(numi-matter-cardboard-hill-scalar-return-map-check PR
     "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_options(numi-matter-cardboard-hill-scalar-return-map-check PRIVATE
     -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
-foreach(cardboard_helper shipping-driver shipping-memory shipping-closure-mesh shipping-snapshot coupon-resume inside-clearance shipping-clearance-memory regional-consumer-capture)
+foreach(cardboard_helper cohesive-capacity-area shipping-driver shipping-memory shipping-closure-mesh shipping-snapshot coupon-resume inside-clearance shipping-clearance-memory regional-consumer-capture)
     string(REPLACE "-" "_" cardboard_helper_file "${cardboard_helper}")
     add_executable(numi-matter-cardboard-${cardboard_helper}-check
         tools/cardboard_${cardboard_helper_file}_check.cpp)

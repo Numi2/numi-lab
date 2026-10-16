@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.native541-center-replay-parity.v1",
+  "rows": 3456,
+  "all_native_projections_valid": true,
+  "comparisons": {
+    "tangent_path_stress": {
+      "different_rows": 0,
+      "different_components": 0,
+      "max_absolute_numeric_difference": 0.0,
+      "maximum_relative_l2": 0.0
+    },
+    "direct_stress": {
+      "different_rows": 0,
+      "different_components": 0,
+      "max_absolute_numeric_difference": 0.0,
+      "maximum_relative_l2": 0.0
+    },
+    "projected_state_high": {
+      "different_rows": 0,
+      "different_components": 0,
+      "max_absolute_numeric_difference": 0.0,
+      "maximum_relative_l2": 0.0
+    },
+    "projected_state_low": {
+      "different_rows": 0,
+      "different_components": 0,
+      "max_absolute_numeric_difference": 0.0,
+      "maximum_relative_l2": 0.0
+    }
+  },
+  "limit": "Read-only constitutive replay, no FEM transaction or native finite-difference noise-floor qualification."
+}

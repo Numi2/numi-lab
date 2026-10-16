@@ -1,0 +1,36 @@
+{
+  "source205_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "source198_frozen_sha256": "16474dca955f9a953f78cf211054c10967c8d31cd5daa8bf5d8476741ffe8cfc",
+  "dependencies": {
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+      "same_as_source198": true
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic.metal": {
+      "sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+      "same_as_source198": true
+    },
+    "matter/src/metal/common.metalinc": {
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "same_as_source198": true
+    },
+    "matter/include/numi/matter/paper_compensated_bytecode.h": {
+      "sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "same_as_source198": true
+    },
+    "matter/include/numi/matter/fem_compensated_deformation.h": {
+      "sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+      "same_as_source198": true
+    },
+    "matter/include/numi/matter/hill_scalar_initializer.h": {
+      "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+      "same_as_source198": true
+    },
+    "matter/include/numi/matter/shared.h": {
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "same_as_source198": true
+    }
+  },
+  "whole_source_map_verified_before_build": 819,
+  "wrapper": "Read-only adapter for exact package/input SHA; reuses actual batch production evaluator. No independent material equation implementation."
+}

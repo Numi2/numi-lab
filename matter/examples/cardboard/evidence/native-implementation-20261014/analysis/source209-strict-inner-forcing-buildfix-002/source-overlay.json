@@ -1,0 +1,15 @@
+{
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209",
+  "base_frozen_sha256": "2b822da7c48d0d2eb11e409d7039dfb18c8f1bff2c6d3ad5348fb3a772fd234b",
+  "source_frozen_sha256": "2c222738e0b19e76dc039904fc60b650bed3c54ab410133f5597357640111e78",
+  "changed": [
+    "matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "source_count": 819,
+  "initial_cpu_tests": {
+    "total": 23,
+    "passed": 22,
+    "failure": "Old exact registry length assertion expected52 while newly registered strict control makes53"
+  },
+  "native540_helper_receipt_sha256": "ff5678ab9b6b97843a582da9c0fe910e6e7a1fcc35dacaaf3b6d14277c8d3c30"
+}

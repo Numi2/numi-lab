@@ -14,6 +14,7 @@
 #include "cardboard_shipping_snapshot.hpp"
 #include "cardboard_coupon_resume.hpp"
 #include "cardboard_reaction_observables.hpp"
+#include "cardboard_cohesive_capacity_area.hpp"
 #include "cardboard_shipping_closure_mesh.hpp"
 #include "cardboard_shipping_crush.hpp"
 #include "cardboard_shipping_capacity.hpp"
@@ -148,6 +149,7 @@ struct Arguments {
     bool accurateSourcePaperProjection = false;
     bool cacheFEMAlgorithmicTangent = false;
     std::optional<std::uint32_t> couponCheckpointAfterControl;
+    std::optional<std::uint32_t> couponCheckpointEvery;
     std::filesystem::path couponResumeCheckpoint;
     std::filesystem::path couponResumeMetadata;
     bool couponResumeDiagnosticReplay = false;
@@ -1277,6 +1279,7 @@ void printUsage() {
         << NM_MIXED_FGMRES_DEFAULT_RESTART << ")\n"
         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
         << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
+        << "  --coupon-checkpoint-every N  save bounded periodic accepted two-environment checkpoints and continue the full schedule\n"
         << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
         << "  --coupon-resume-diagnostic-replay  explicitly permit only source-bound read-only diagnostic selector changes during resume\n"
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
@@ -1453,6 +1456,12 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         if (option == "--coupon-checkpoint-after-control") {
             require(index + 1 < argc, "missing value for " + option);
             arguments.couponCheckpointAfterControl = parseUnsigned(
+                argv[++index], option);
+            continue;
+        }
+        if (option == "--coupon-checkpoint-every") {
+            require(index + 1 < argc, "missing value for " + option);
+            arguments.couponCheckpointEvery = parseUnsigned(
                 argv[++index], option);
             continue;
         }
@@ -2062,6 +2071,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.couponCheckpointAfterControl.has_value();
     couponResumeRequest.saveControlIndex =
         arguments.couponCheckpointAfterControl.value_or(0u);
+    couponResumeRequest.periodicCheckpointRequested =
+        arguments.couponCheckpointEvery.has_value();
+    couponResumeRequest.periodicCheckpointEvery =
+        arguments.couponCheckpointEvery.value_or(0u);
     couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
     couponResumeRequest.metadataProvided = hasResumeMetadata;
     couponResumeRequest.diagnosticReplayRequested =
@@ -6858,22 +6871,26 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
             validFaces = false;
             break;
         }
+        const auto capacityArea = numi::cardboard::cohesiveQuadratureCapacityArea(
+            area, {static_cast<double>(face.mixedPointHistory[0].w),
+                   static_cast<double>(face.mixedPointHistory[1].w),
+                   static_cast<double>(face.mixedPointHistory[2].w)});
+        if (!capacityArea.valid) {
+            validFaces = false;
+            break;
+        }
         if (isStarch) {
             starchArea += area;
             starchWeightedDamage += area * damage;
             ++result.starchActiveFaces;
-            if (damage >= 1.0) {
-                result.starchFullyFailedAreaM2 += area;
-                ++result.starchFullyFailedFaces;
-            }
+            result.starchFullyFailedAreaM2 += capacityArea.failedReferenceAreaM2;
+            if (capacityArea.wholeFaceFailed) ++result.starchFullyFailedFaces;
         } else {
             hmaArea += area;
             hmaWeightedDamage += area * damage;
             ++result.hmaActiveFaces;
-            if (damage >= 1.0) {
-                result.hmaFullyFailedAreaM2 += area;
-                ++result.hmaFullyFailedFaces;
-            }
+            result.hmaFullyFailedAreaM2 += capacityArea.failedReferenceAreaM2;
+            if (capacityArea.wholeFaceFailed) ++result.hmaFullyFailedFaces;
         }
     }
     if (!validFaces) {
@@ -6890,7 +6907,7 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
         result.starchFullyFailedAreaFraction =
             result.starchFullyFailedAreaM2 / starchArea;
         result.starchFullyFailedStatus =
-            "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area";
+            "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area";
     }
     if (hmaEnabled && hmaArea > 0.0) {
         result.hmaStatus = "available_area_weighted_cohesive_damage_not_geometric_open_area";
@@ -6898,7 +6915,7 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
         result.hmaReferenceAreaM2 = hmaArea;
         result.hmaFullyFailedAreaFraction = result.hmaFullyFailedAreaM2 / hmaArea;
         result.hmaFullyFailedStatus =
-            "available_zero_tensile_shear_capacity_fraction_not_geometric_open_area";
+            "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area";
     }
     return result;
 }
@@ -11593,6 +11610,7 @@ int executeBoxAssemblyNative(
            << "  \"history_observables_file\": \"shipping-history-observables.csv\",\n"
            << "  \"paper_damage_observable_definition\": \"Each explicit retained-matrix overlay tetrahedron contributes its four authored reference crack-plane cut areas. For each plane, damage is damageCap*(1-survivalNormal*survivalShear), where survival(mode)=onset/(onset+acceptedExcess)*exp(-acceptedExcess/softening); the reported index is reference-area-weighted. This is a constitutive damage index, not a measured or binary geometric crack area.\",\n"
            << "  \"cohesive_degradation_observable_definition\": \"For active accepted mixed-mode starch/HMA faces, the reported fraction is sum(referenceFaceArea*acceptedFaceDamage)/sum(referenceFaceArea). It is an area-weighted cohesive degradation index, not geometric open/debond area; dormant faces are excluded until accepted activation.\",\n"
+           << "  \"cohesive_failed_capacity_area_definition\": \"Reference-area integral of indicator(accepted mixedPointHistory[q].w == 1) with the native three equal quadrature weights; fully_failed_faces counts only faces with all three points failed. Face maximum state.x is not used for this integral. This is lost cohesive capacity, not geometric open area.\",\n"
            << "  \"compression_work_method\": \"trapezoidal integral from a zero-force contact origin through the first accepted contact-crossing increment and subsequent accepted platen stroke\",\n"
            << "  \"compression_kinetic_energy_method\": \"sum 0.5 times accepted FEM nodal mass times squared velocity from RuntimeStateSnapshot\",\n"
            << "  \"drop_mass_basis\": \"nominal 12.5 mm/min measured first-local-peak Fpeak, only after speed sensitivity and separately supplied source-bound mesh/time numerical-capacity evidence pass\",\n"
@@ -12879,10 +12897,18 @@ std::filesystem::path writeCouponAcceptedCheckpoint(
     const RuntimeStateSnapshot& snapshot,
     const CompiledWorld& world,
     const Arguments& arguments,
-    const std::uint32_t controlIndex) {
+    const std::uint32_t controlIndex,
+    const bool periodicPrefixOnly = false) {
     using namespace numi::cardboard::coupon_resume;
-    require(arguments.couponCheckpointAfterControl == controlIndex,
-            "coupon checkpoint cursor differs from the requested boundary");
+    const bool oneShotBoundary =
+        arguments.couponCheckpointAfterControl == controlIndex;
+    const bool periodicBoundary = periodicPrefixOnly &&
+        arguments.couponCheckpointEvery.has_value() &&
+        shouldWritePeriodicCheckpoint(
+            true, *arguments.couponCheckpointEvery, controlIndex,
+            totalSteps(arguments));
+    require(oneShotBoundary || periodicBoundary,
+            "coupon checkpoint cursor is not a requested accepted boundary");
     require(snapshot.controlStep == controlIndex,
             "native snapshot control cursor does not match the accepted boundary");
     require(snapshot.available && snapshot.statuses.size() == kEnvironmentCount &&
@@ -12910,14 +12936,17 @@ std::filesystem::path writeCouponAcceptedCheckpoint(
     const auto checkpointPath = checkpointDirectory / (stem + ".nmcb");
     const auto prefixPath = checkpointDirectory / (stem + ".prefix");
     const auto metadataPath = checkpointDirectory / (stem + ".resume");
-    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
-    const auto checkpointBytes = fileBytesOrThrow(checkpointPath);
     constexpr std::uint64_t kMaximumCouponCheckpointBytes = 2ull * 1024ull * 1024ull * 1024ull;
-    require(checkpointBytes > 0u && checkpointBytes <= kMaximumCouponCheckpointBytes,
+    const std::uint64_t estimatedCheckpointBytes =
+        numi::cardboard::shipping_snapshot_detail::
+            serializedAcceptedSnapshotBytes(snapshot);
+    require(estimatedCheckpointBytes > 0u &&
+                estimatedCheckpointBytes <= kMaximumCouponCheckpointBytes,
             "coupon checkpoint exceeds its 2 GiB bounded snapshot limit");
 
     PrefixManifest prefix;
     prefix.sourceRunDirectory = std::filesystem::weakly_canonical(outputDirectory).string();
+    prefix.allFilesPrefixOnly = periodicPrefixOnly;
     prefix.acceptedControlIndex = controlIndex;
     std::uint64_t totalPrefixBytes = 0u;
     const auto sourceRoot = std::filesystem::weakly_canonical(outputDirectory);
@@ -12947,7 +12976,8 @@ std::filesystem::path writeCouponAcceptedCheckpoint(
         const std::string digest = hexDigest(sha256BoundedFile(
             it->path(), kMaximumCouponCheckpointBytes));
         const bool observations = relativeName == "observations.csv";
-        prefix.files.push_back({relativeName, bytes, digest, observations});
+        const bool prefixOnly = periodicPrefixOnly || observations;
+        prefix.files.push_back({relativeName, bytes, digest, prefixOnly});
         if (observations) {
             prefix.observationsPrefixBytes = bytes;
             prefix.observationsPrefixSha256 = digest;
@@ -12965,13 +12995,46 @@ std::filesystem::path writeCouponAcceptedCheckpoint(
             "coupon checkpoint has no flushed source observations prefix");
     (void)sourceRoot;
     const std::string prefixContents = serializePrefixManifest(prefix);
+    if (periodicPrefixOnly) {
+        constexpr std::uint64_t kObserverMetadataBytes = 64ull * 1024ull;
+        constexpr std::uint64_t kObserverRecordAndSummaryBytes = 12ull * 1024ull;
+        std::uint64_t existingCheckpointBytes = 0u;
+        for (const auto& entry : std::filesystem::directory_iterator(checkpointDirectory)) {
+            const auto entryStatus = entry.symlink_status();
+            require(!std::filesystem::is_symlink(entryStatus) &&
+                        std::filesystem::is_regular_file(entryStatus),
+                    "periodic checkpoint directory contains a non-regular artifact");
+            const std::uint64_t bytes = fileBytesOrThrow(entry.path());
+            require(bytes <= numi::cardboard::coupon_resume::
+                        kMaximumPeriodicCheckpointStorageBytes -
+                        existingCheckpointBytes,
+                    "periodic checkpoint artifacts exceed their aggregate bound");
+            existingCheckpointBytes += bytes;
+        }
+        require(numi::cardboard::coupon_resume::periodicCheckpointAggregateFits(
+                    existingCheckpointBytes, estimatedCheckpointBytes,
+                    static_cast<std::uint64_t>(prefixContents.size()),
+                    kObserverMetadataBytes + kObserverRecordAndSummaryBytes),
+                "periodic coupon checkpoint artifacts exceed the 8 GiB aggregate bound");
+    }
+
+    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
+    const std::uint64_t checkpointBytes = fileBytesOrThrow(checkpointPath);
+    require(checkpointBytes == estimatedCheckpointBytes &&
+                checkpointBytes <= kMaximumCouponCheckpointBytes,
+            "coupon checkpoint serialized size differs from its preflight estimate");
     writeCouponTextAtomically(prefixPath, prefixContents);
 
     const std::string protocolDigest = hexDigest(
         sha256BoundedFile(outputDirectory / "manifest.json",
                           kMaximumCouponCheckpointBytes));
-    const std::uint32_t nextControl = controlIndex + 1u;
-    const LoadPoint nextPoint = loadingPoint(arguments, nextControl);
+    const auto nextBoundary = numi::cardboard::coupon_resume::
+        nextControlBoundary(controlIndex, totalSteps(arguments));
+    const std::uint32_t nextControl = nextBoundary.nextControlIndex;
+    const std::string nextPhase = nextBoundary.terminal
+        ? "completed" : loadingPoint(arguments, nextControl).phase;
+    const double nextTargetAngle = nextBoundary.terminal
+        ? 0.0 : loadingPoint(arguments, nextControl).angleDegrees;
     const float timestepF32 = static_cast<float>(arguments.timestepSeconds);
     Metadata metadata;
     metadata.checkpointSha256 = hexDigest(sha256BoundedFile(
@@ -13011,8 +13074,8 @@ std::filesystem::path writeCouponAcceptedCheckpoint(
     metadata.scheduledElapsedSecondsBits = doubleBits(
         static_cast<double>(nextControl) * arguments.timestepSeconds);
     metadata.phase = loadingPoint(arguments, controlIndex).phase;
-    metadata.nextPhase = nextPoint.phase;
-    metadata.nextTargetAngleBits = doubleBits(nextPoint.angleDegrees);
+    metadata.nextPhase = nextPhase;
+    metadata.nextTargetAngleBits = doubleBits(nextTargetAngle);
     writeCouponTextAtomically(metadataPath, serializeMetadata(metadata));
     return checkpointPath;
 }
@@ -13065,14 +13128,19 @@ void verifyCouponPrefix(const std::filesystem::path& prefixPath,
         const auto relativeCheck = canonicalFile.lexically_relative(canonicalSource);
         require(!relativeCheck.empty() && *relativeCheck.begin() != "..",
                 "coupon source-prefix file resolves outside its original run directory");
-        if (entry.observationsPrefix) {
-            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
-                        hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) == entry.sha256,
-                    "coupon source observations file changed after the saved prefix stopped");
+        const std::uint64_t currentBytes = fileBytesOrThrow(canonicalFile);
+        const bool prefixOnly = prefix.allFilesPrefixOnly || entry.prefixOnly;
+        require(prefixByteCountMatches(prefixOnly, entry.bytes, currentBytes),
+                "coupon source-prefix file was truncated or changed size: " +
+                    entry.relativePath);
+        if (prefixOnly) {
+            require(hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) ==
+                        entry.sha256,
+                    "coupon source-prefix bytes changed after checkpoint creation: " +
+                        entry.relativePath);
         } else {
-            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
-                        hexDigest(sha256BoundedFile(canonicalFile,
-                            kMaximumPrefixBytes)) == entry.sha256,
+            require(hexDigest(sha256BoundedFile(canonicalFile,
+                        kMaximumPrefixBytes)) == entry.sha256,
                     "coupon accepted-prefix artifact changed after checkpoint creation: " +
                         entry.relativePath);
         }
@@ -13900,6 +13968,11 @@ int execute(Arguments arguments) {
     std::string failure;
     std::uint32_t acceptedSteps = 0u;
     bool couponCheckpointWritten = false;
+    bool periodicCheckpointObserverDisabled = false;
+    std::string periodicCheckpointObserverError;
+    std::vector<std::string> periodicCheckpointRecords;
+    periodicCheckpointRecords.reserve(
+        numi::cardboard::coupon_resume::kMaximumPeriodicCheckpointCount);
     const std::uint32_t firstControl = couponResume
         ? couponResume->metadata.nextControlIndex : 0u;
     for (std::uint32_t step = firstControl; step < totalSteps(arguments); ++step) {
@@ -14054,6 +14127,94 @@ int execute(Arguments arguments) {
             if (numi::cardboard::coupon_resume::stopAfterAcceptedCheckpoint(
                     true, *arguments.couponCheckpointAfterControl, step))
                 break;
+        }
+        if (arguments.couponCheckpointEvery &&
+            !periodicCheckpointObserverDisabled &&
+            numi::cardboard::coupon_resume::shouldWritePeriodicCheckpoint(
+                true, *arguments.couponCheckpointEvery, step,
+                totalSteps(arguments))) {
+            try {
+                observations.flush();
+                require(observations.good(),
+                        "cannot flush accepted observations for periodic checkpoint");
+                if (toolObservations.is_open()) {
+                    toolObservations.flush();
+                    require(toolObservations.good(),
+                            "cannot flush accepted tooling observations for periodic checkpoint");
+                }
+                const auto checkpointPath = writeCouponAcceptedCheckpoint(
+                    arguments.output, current.snapshot, compiled.world,
+                    arguments, step, true);
+                const auto checkpointRelative =
+                    std::filesystem::relative(checkpointPath, arguments.output);
+                const auto metadataPath = checkpointPath.parent_path() /
+                    (checkpointPath.stem().string() + ".resume");
+                const auto prefixPath = checkpointPath.parent_path() /
+                    (checkpointPath.stem().string() + ".prefix");
+                const std::string event =
+                    "{\"control_index\":" + std::to_string(step) +
+                    ",\"next_control_index\":" + std::to_string(step + 1u) +
+                    ",\"checkpoint\":\"" +
+                    jsonEscape(checkpointRelative.generic_string()) +
+                    "\",\"checkpoint_sha256\":\"" +
+                    hexDigest(sha256BoundedFile(checkpointPath, 2ull * 1024ull * 1024ull * 1024ull)) +
+                    "\",\"prefix\":\"" +
+                    jsonEscape(std::filesystem::relative(prefixPath, arguments.output).generic_string()) +
+                    "\",\"metadata\":\"" +
+                    jsonEscape(std::filesystem::relative(metadataPath, arguments.output).generic_string()) +
+                    "\"}";
+                writeCouponTextAtomically(
+                    checkpointPath.parent_path() /
+                        (checkpointPath.stem().string() + ".observer.json"),
+                    event + "\n");
+                periodicCheckpointRecords.push_back(event);
+            } catch (const std::exception& error) {
+                periodicCheckpointObserverDisabled = true;
+                periodicCheckpointObserverError = error.what();
+                std::cerr << "coupon-periodic-checkpoint-observer=disabled error=\""
+                          << jsonEscape(periodicCheckpointObserverError)
+                          << "\"\n";
+            }
+        }
+    }
+
+    if (arguments.couponCheckpointEvery) {
+        try {
+            std::ostringstream report;
+            report << "{\n"
+                << "  \"schema\": \"numi.cardboard.periodic-accepted-checkpoint-observer.v1\",\n"
+                << "  \"observer_only\": true,\n"
+                << "  \"full_schedule_stop_requested\": false,\n"
+                << "  \"cadence_controls\": " << *arguments.couponCheckpointEvery << ",\n"
+                << "  \"scheduled_controls\": " << totalSteps(arguments) << ",\n"
+                << "  \"accepted_steps_in_this_run\": " << acceptedSteps << ",\n"
+                << "  \"observer_disabled_after_error\": "
+                << (periodicCheckpointObserverDisabled ? "true" : "false") << ",\n"
+                << "  \"observer_error\": \"" <<
+                    jsonEscape(periodicCheckpointObserverError) << "\",\n"
+                << "  \"checkpoints\": [";
+            for (std::size_t i = 0u; i < periodicCheckpointRecords.size(); ++i) {
+                if (i != 0u) report << ',';
+                report << "\n    " << periodicCheckpointRecords[i];
+            }
+            if (!periodicCheckpointRecords.empty()) report << '\n' << "  ";
+            report << "]\n}\n";
+            const auto directory = arguments.output / "checkpoints";
+            std::error_code error;
+            std::filesystem::create_directories(directory, error);
+            if (!error) {
+                writeCouponTextAtomically(
+                    directory / "coupon-periodic-observer.json", report.str());
+            } else {
+                throw std::filesystem::filesystem_error(
+                    "cannot create periodic checkpoint report directory",
+                    directory, error);
+            }
+        } catch (const std::exception& error) {
+            // Checkpoint observation must not truncate or relabel the physical
+            // run if its final diagnostic index cannot be written.
+            std::cerr << "coupon-periodic-checkpoint-observer=report-write-failed error=\""
+                      << jsonEscape(error.what()) << "\"\n";
         }
     }
 

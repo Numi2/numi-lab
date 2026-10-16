@@ -1,0 +1,686 @@
+--- a/matter/tools/cardboard_coupon_resume.hpp
++++ b/matter/tools/cardboard_coupon_resume.hpp
+@@ -589,9 +589,82 @@
+             "coupon checkpoint runtime source/program fingerprints differ");
+ }
+ 
++inline constexpr std::uint32_t kMaximumPeriodicCheckpointCount = 8u;
++inline constexpr std::uint64_t kMaximumPeriodicCheckpointStorageBytes =
++    8ull * 1024ull * 1024ull * 1024ull;
++inline constexpr std::uint64_t kPeriodicCheckpointMetadataReserveBytes =
++    64ull * 1024ull;
++
++inline std::uint64_t periodicCheckpointCount(
++    const std::uint32_t cadence, const std::uint64_t totalControls) {
++    if (cadence == 0u || totalControls == 0u)
++        throw std::invalid_argument("periodic coupon checkpoint cadence and schedule must be positive");
++    return totalControls / cadence + (totalControls % cadence == 0u ? 0u : 1u);
++}
++
++inline bool shouldWritePeriodicCheckpoint(
++    const bool accepted, const std::uint32_t cadence,
++    const std::uint32_t controlIndex, const std::uint64_t totalControls) {
++    if (!accepted || cadence == 0u || totalControls == 0u ||
++        cadence >= totalControls ||
++        std::uint64_t(controlIndex) >= totalControls)
++        return false;
++    const std::uint64_t acceptedBoundary =
++        std::uint64_t(controlIndex) + 1u;
++    return acceptedBoundary == totalControls ||
++        acceptedBoundary % cadence == 0u;
++}
++
++struct NextControlBoundary {
++    std::uint32_t nextControlIndex = 0u;
++    bool terminal = false;
++};
++
++inline NextControlBoundary nextControlBoundary(
++    const std::uint32_t acceptedControlIndex,
++    const std::uint64_t totalControls) {
++    if (totalControls == 0u || acceptedControlIndex >= totalControls ||
++        acceptedControlIndex == std::numeric_limits<std::uint32_t>::max())
++        throw std::invalid_argument(
++            "accepted checkpoint cursor is outside its scheduled controls");
++    const std::uint64_t next =
++        std::uint64_t(acceptedControlIndex) + 1u;
++    if (next > std::numeric_limits<std::uint32_t>::max())
++        throw std::invalid_argument(
++            "next accepted checkpoint cursor exceeds the metadata ABI");
++    return {static_cast<std::uint32_t>(next), next == totalControls};
++}
++
++inline bool periodicCheckpointAggregateFits(
++    const std::uint64_t existingBytes,
++    const std::uint64_t nextSnapshotBytes,
++    const std::uint64_t nextPrefixBytes,
++    const std::uint64_t metadataReserveBytes =
++        kPeriodicCheckpointMetadataReserveBytes) noexcept {
++    std::uint64_t total = existingBytes;
++    const std::array<std::uint64_t, 3u> amounts{
++        nextSnapshotBytes, nextPrefixBytes, metadataReserveBytes};
++    for (const std::uint64_t amount : amounts) {
++        if (total > kMaximumPeriodicCheckpointStorageBytes ||
++            amount > kMaximumPeriodicCheckpointStorageBytes - total)
++            return false;
++        total += amount;
++    }
++    return true;
++}
++
++inline bool prefixByteCountMatches(const bool prefixOnly,
++                                   const std::uint64_t capturedBytes,
++                                   const std::uint64_t currentBytes) noexcept {
++    return prefixOnly ? currentBytes >= capturedBytes
++                      : currentBytes == capturedBytes;
++}
++
+ struct Request {
+     bool saveControlRequested = false;
+     std::uint32_t saveControlIndex = 0u;
++    bool periodicCheckpointRequested = false;
++    std::uint32_t periodicCheckpointEvery = 0u;
+     bool checkpointProvided = false;
+     bool metadataProvided = false;
+     bool diagnosticReplayRequested = false;
+@@ -610,8 +683,23 @@
+     if (request.checkpointProvided != request.metadataProvided)
+         throw std::invalid_argument(
+             "coupon resume requires both checkpoint and metadata paths");
++    if (request.periodicCheckpointRequested) {
++        if (request.periodicCheckpointEvery == 0u)
++            throw std::invalid_argument(
++                "periodic coupon checkpoint cadence must be positive");
++        if (request.saveControlRequested || request.checkpointProvided ||
++            request.diagnosticReplayRequested)
++            throw std::invalid_argument(
++                "periodic coupon checkpoint capture cannot be combined with one-shot checkpoint or resume");
++        const std::uint64_t count = periodicCheckpointCount(
++            request.periodicCheckpointEvery, request.totalControls);
++        if (request.periodicCheckpointEvery >= request.totalControls ||
++            count == 0u || count > kMaximumPeriodicCheckpointCount)
++            throw std::invalid_argument(
++                "periodic coupon checkpoints require an intermediate boundary and a total count between 2 and 8");
++    }
+     const bool requested = request.saveControlRequested ||
+-        request.checkpointProvided;
++        request.periodicCheckpointRequested || request.checkpointProvided;
+     if (request.diagnosticReplayRequested &&
+         (!request.checkpointProvided || request.saveControlRequested))
+         throw std::invalid_argument(
+@@ -820,11 +908,12 @@
+     std::string relativePath;
+     std::uint64_t bytes = 0u;
+     std::string sha256;
+-    bool observationsPrefix = false;
++    bool prefixOnly = false;
+ };
+ 
+ struct PrefixManifest {
+     std::string sourceRunDirectory;
++    bool allFilesPrefixOnly = false;
+     std::uint32_t acceptedControlIndex = 0u;
+     std::uint64_t observationsPrefixBytes = 0u;
+     std::string observationsPrefixSha256;
+@@ -851,7 +940,8 @@
+         value.sourceRunDirectory.find('\r') != std::string::npos)
+         throw std::invalid_argument("coupon prefix manifest is incomplete");
+     std::ostringstream output;
+-    output << "schema=numi.cardboard.accepted-coupon-prefix.v1\n"
++    output << "schema=numi.cardboard.accepted-coupon-prefix."
++        << (value.allFilesPrefixOnly ? "v2" : "v1") << "\n"
+         << "source_run_directory=" << value.sourceRunDirectory << '\n'
+         << "accepted_control_index=" << value.acceptedControlIndex << '\n'
+         << "observations_prefix_bytes=" << value.observationsPrefixBytes << '\n'
+@@ -866,15 +956,21 @@
+         if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
+             throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");
+         totalBytes += entry.bytes;
+-        if (entry.relativePath == "observations.csv") {
+-            if (!entry.observationsPrefix)
++        if (value.allFilesPrefixOnly) {
++            if (!entry.prefixOnly)
++                throw std::invalid_argument(
++                    "v2 coupon prefix entries must all preserve accepted byte prefixes");
++        } else if (entry.relativePath == "observations.csv") {
++            if (!entry.prefixOnly)
+                 throw std::invalid_argument("observations.csv must be a prefix entry");
++        } else if (entry.prefixOnly) {
++            throw std::invalid_argument(
++                "v1 coupon prefix permits only observations.csv as a prefix entry");
++        }
++        if (entry.relativePath == "observations.csv")
+             observationsEntry = &entry;
+-        } else if (entry.observationsPrefix) {
+-            throw std::invalid_argument("only observations.csv may be a prefix entry");
+-        }
+         output << "file=" << entry.relativePath << '|' << entry.bytes << '|'
+-            << entry.sha256 << '|' << (entry.observationsPrefix ? 1 : 0) << '\n';
++            << entry.sha256 << '|' << (entry.prefixOnly ? 1 : 0) << '\n';
+     }
+     if (observationsEntry == nullptr ||
+         observationsEntry->bytes != value.observationsPrefixBytes ||
+@@ -903,8 +999,12 @@
+         const std::string key = line.substr(0u, separator);
+         const std::string value = line.substr(separator + 1u);
+         if (key == "schema") {
+-            if (schemaSeen || value != "numi.cardboard.accepted-coupon-prefix.v1")
++            if (schemaSeen ||
++                (value != "numi.cardboard.accepted-coupon-prefix.v1" &&
++                 value != "numi.cardboard.accepted-coupon-prefix.v2"))
+                 throw std::invalid_argument("coupon prefix schema is invalid");
++            result.allFilesPrefixOnly =
++                value == "numi.cardboard.accepted-coupon-prefix.v2";
+             schemaSeen = true;
+         } else if (key == "source_run_directory") {
+             if (dirSeen || value.empty() ||
+@@ -947,15 +1047,19 @@
+             if (isPrefix > 1u || !safeRelativePath(entry.relativePath) ||
+                 !isLowerSha256(entry.sha256) || !unique.insert(entry.relativePath).second)
+                 throw std::invalid_argument("coupon prefix file entry is invalid or repeated");
+-            entry.observationsPrefix = isPrefix == 1u;
++            entry.prefixOnly = isPrefix == 1u;
+             if (entry.relativePath == "observations.csv") {
+-                if (!entry.observationsPrefix || observationsSeen ||
++                if (!entry.prefixOnly || observationsSeen ||
+                     entry.bytes != result.observationsPrefixBytes ||
+                     entry.sha256 != result.observationsPrefixSha256)
+                     throw std::invalid_argument("coupon prefix observations entry does not match its prefix digest");
+                 observationsSeen = true;
+-            } else if (entry.observationsPrefix) {
+-                throw std::invalid_argument("only observations.csv may be a prefix entry");
++            } else if (result.allFilesPrefixOnly) {
++                if (!entry.prefixOnly)
++                    throw std::invalid_argument(
++                        "v2 coupon prefix entries must all preserve accepted byte prefixes");
++            } else if (entry.prefixOnly) {
++                throw std::invalid_argument("only observations.csv may be a prefix entry in v1");
+             }
+             if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
+                 throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");
+--- a/matter/tools/cardboard_coupon_resume_check.cpp
++++ b/matter/tools/cardboard_coupon_resume_check.cpp
+@@ -293,7 +293,7 @@
+     const PrefixManifest prefixDecoded = parsePrefixManifest(prefixInput, "prefix-test");
+     assert(prefixDecoded.files.size() == 2u);
+     assert(prefixDecoded.acceptedControlIndex == 19u);
+-    assert(prefixDecoded.files[1].observationsPrefix);
++    assert(prefixDecoded.files[1].prefixOnly);
+     PrefixManifest inconsistentPrefix = prefix;
+     ++inconsistentPrefix.observationsPrefixBytes;
+     mustReject([&] { (void)serializePrefixManifest(inconsistentPrefix); });
+@@ -342,4 +342,113 @@
+     assert(stopAfterAcceptedCheckpoint(true, 19u, 19u));
+     assert(!stopAfterAcceptedCheckpoint(true, 19u, 18u));
+     assert(!stopAfterAcceptedCheckpoint(false, 19u, 19u));
++
++    Request periodic;
++    periodic.periodicCheckpointRequested = true;
++    periodic.periodicCheckpointEvery = 8u;
++    periodic.environmentCount = 2u;
++    periodic.totalControls = 64u;
++    validateRequest(periodic);
++    assert(periodicCheckpointCount(8u, 64u) == 8u);
++    assert(periodicCheckpointCount(8u, 60u) == 8u);
++    const auto continuingBoundary = nextControlBoundary(14u, 60u);
++    assert(continuingBoundary.nextControlIndex == 15u &&
++           !continuingBoundary.terminal);
++    const auto terminalBoundary = nextControlBoundary(59u, 60u);
++    assert(terminalBoundary.nextControlIndex == 60u &&
++           terminalBoundary.terminal);
++    mustReject([&] { (void)nextControlBoundary(60u, 60u); });
++    mustReject([&] { (void)nextControlBoundary(0u, 0u); });
++    for (std::uint32_t control = 0u; control < 64u; ++control) {
++        const bool expected = control == 7u || control == 15u ||
++            control == 23u || control == 31u || control == 39u ||
++            control == 47u || control == 55u || control == 63u;
++        assert(shouldWritePeriodicCheckpoint(
++            true, 8u, control, 64u) == expected);
++        assert(!shouldWritePeriodicCheckpoint(
++            false, 8u, control, 64u));
++    }
++    assert(shouldWritePeriodicCheckpoint(true, 8u, 59u, 60u));
++    assert(periodicCheckpointCount(63u, 64u) == 2u);
++    assert(shouldWritePeriodicCheckpoint(true, 63u, 62u, 64u));
++    assert(shouldWritePeriodicCheckpoint(true, 63u, 63u, 64u));
++    assert(!shouldWritePeriodicCheckpoint(true, 64u, 63u, 64u));
++    mustReject([&] { (void)periodicCheckpointCount(0u, 64u); });
++    mustReject([&] { (void)periodicCheckpointCount(8u, 0u); });
++    Request zeroCadence = periodic;
++    zeroCadence.periodicCheckpointEvery = 0u;
++    mustReject([&] { validateRequest(zeroCadence); });
++    Request finalOnlyCadence = periodic;
++    finalOnlyCadence.periodicCheckpointEvery = 64u;
++    mustReject([&] { validateRequest(finalOnlyCadence); });
++    Request excessiveCadence = periodic;
++    excessiveCadence.periodicCheckpointEvery = 7u;
++    mustReject([&] { validateRequest(excessiveCadence); });
++    Request mixedOneShot = periodic;
++    mixedOneShot.saveControlRequested = true;
++    mixedOneShot.saveControlIndex = 7u;
++    mustReject([&] { validateRequest(mixedOneShot); });
++    Request mixedResume = periodic;
++    mixedResume.checkpointProvided = true;
++    mixedResume.metadataProvided = true;
++    mustReject([&] { validateRequest(mixedResume); });
++    Request wrongScope = periodic;
++    wrongScope.environmentCount = 1u;
++    mustReject([&] { validateRequest(wrongScope); });
++    Request compileOnlyPeriodic = periodic;
++    compileOnlyPeriodic.compileOnly = true;
++    mustReject([&] { validateRequest(compileOnlyPeriodic); });
++
++    assert(periodicCheckpointAggregateFits(0u, 1024u, 2048u, 4096u));
++    assert(!periodicCheckpointAggregateFits(
++        kMaximumPeriodicCheckpointStorageBytes - 4095u, 1u, 1u, 4096u));
++    assert(!periodicCheckpointAggregateFits(
++        std::numeric_limits<std::uint64_t>::max(), 1u, 1u, 1u));
++    assert(prefixByteCountMatches(false, 10u, 10u));
++    assert(!prefixByteCountMatches(false, 10u, 11u));
++    assert(prefixByteCountMatches(true, 10u, 10u));
++    assert(prefixByteCountMatches(true, 10u, 11u));
++    assert(!prefixByteCountMatches(true, 10u, 9u));
++
++    PrefixManifest periodicPrefix;
++    periodicPrefix.sourceRunDirectory = "/tmp/periodic-source";
++    periodicPrefix.allFilesPrefixOnly = true;
++    periodicPrefix.acceptedControlIndex = 7u;
++    periodicPrefix.observationsPrefixBytes = 4u;
++    periodicPrefix.observationsPrefixSha256 = std::string(64u, 'a');
++    periodicPrefix.files = {
++        {"manifest.json", 12u, std::string(64u, 'b'), true},
++        {"observations.csv", 4u, std::string(64u, 'a'), true}};
++    const std::string periodicPrefixBytes =
++        serializePrefixManifest(periodicPrefix);
++    assert(periodicPrefixBytes.find(
++        "schema=numi.cardboard.accepted-coupon-prefix.v2\n") == 0u);
++    std::istringstream periodicPrefixInput(periodicPrefixBytes);
++    const auto parsedPeriodicPrefix = parsePrefixManifest(
++        periodicPrefixInput, "periodic-prefix-test");
++    assert(parsedPeriodicPrefix.allFilesPrefixOnly);
++    assert(parsedPeriodicPrefix.files.size() == 2u);
++    assert(parsedPeriodicPrefix.files[0].prefixOnly &&
++           parsedPeriodicPrefix.files[1].prefixOnly);
++    auto partialPeriodicPrefix = periodicPrefix;
++    partialPeriodicPrefix.files[0].prefixOnly = false;
++    mustReject([&] { (void)serializePrefixManifest(partialPeriodicPrefix); });
++
++    PrefixManifest legacyPrefix;
++    legacyPrefix.sourceRunDirectory = "/tmp/legacy-source";
++    legacyPrefix.acceptedControlIndex = 7u;
++    legacyPrefix.observationsPrefixBytes = 4u;
++    legacyPrefix.observationsPrefixSha256 = std::string(64u, 'a');
++    legacyPrefix.files = {
++        {"manifest.json", 12u, std::string(64u, 'b'), false},
++        {"observations.csv", 4u, std::string(64u, 'a'), true}};
++    const std::string legacyPrefixBytes = serializePrefixManifest(legacyPrefix);
++    assert(legacyPrefixBytes.find(
++        "schema=numi.cardboard.accepted-coupon-prefix.v1\n") == 0u);
++    std::istringstream legacyPrefixInput(legacyPrefixBytes);
++    const auto parsedLegacyPrefix = parsePrefixManifest(
++        legacyPrefixInput, "legacy-prefix-test");
++    assert(!parsedLegacyPrefix.allFilesPrefixOnly);
++    assert(!parsedLegacyPrefix.files[0].prefixOnly &&
++           parsedLegacyPrefix.files[1].prefixOnly);
+ }
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -149,6 +149,7 @@
+     bool accurateSourcePaperProjection = false;
+     bool cacheFEMAlgorithmicTangent = false;
+     std::optional<std::uint32_t> couponCheckpointAfterControl;
++    std::optional<std::uint32_t> couponCheckpointEvery;
+     std::filesystem::path couponResumeCheckpoint;
+     std::filesystem::path couponResumeMetadata;
+     bool couponResumeDiagnosticReplay = false;
+@@ -1278,6 +1279,7 @@
+         << NM_MIXED_FGMRES_DEFAULT_RESTART << ")\n"
+         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
+         << "  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result\n"
++        << "  --coupon-checkpoint-every N  save bounded periodic accepted two-environment checkpoints and continue the full schedule\n"
+         << "  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index\n"
+         << "  --coupon-resume-diagnostic-replay  explicitly permit only source-bound read-only diagnostic selector changes during resume\n"
+         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
+@@ -1454,6 +1456,12 @@
+         if (option == "--coupon-checkpoint-after-control") {
+             require(index + 1 < argc, "missing value for " + option);
+             arguments.couponCheckpointAfterControl = parseUnsigned(
++                argv[++index], option);
++            continue;
++        }
++        if (option == "--coupon-checkpoint-every") {
++            require(index + 1 < argc, "missing value for " + option);
++            arguments.couponCheckpointEvery = parseUnsigned(
+                 argv[++index], option);
+             continue;
+         }
+@@ -2063,6 +2071,10 @@
+         arguments.couponCheckpointAfterControl.has_value();
+     couponResumeRequest.saveControlIndex =
+         arguments.couponCheckpointAfterControl.value_or(0u);
++    couponResumeRequest.periodicCheckpointRequested =
++        arguments.couponCheckpointEvery.has_value();
++    couponResumeRequest.periodicCheckpointEvery =
++        arguments.couponCheckpointEvery.value_or(0u);
+     couponResumeRequest.checkpointProvided = hasResumeCheckpoint;
+     couponResumeRequest.metadataProvided = hasResumeMetadata;
+     couponResumeRequest.diagnosticReplayRequested =
+@@ -12885,10 +12897,18 @@
+     const RuntimeStateSnapshot& snapshot,
+     const CompiledWorld& world,
+     const Arguments& arguments,
+-    const std::uint32_t controlIndex) {
++    const std::uint32_t controlIndex,
++    const bool periodicPrefixOnly = false) {
+     using namespace numi::cardboard::coupon_resume;
+-    require(arguments.couponCheckpointAfterControl == controlIndex,
+-            "coupon checkpoint cursor differs from the requested boundary");
++    const bool oneShotBoundary =
++        arguments.couponCheckpointAfterControl == controlIndex;
++    const bool periodicBoundary = periodicPrefixOnly &&
++        arguments.couponCheckpointEvery.has_value() &&
++        shouldWritePeriodicCheckpoint(
++            true, *arguments.couponCheckpointEvery, controlIndex,
++            totalSteps(arguments));
++    require(oneShotBoundary || periodicBoundary,
++            "coupon checkpoint cursor is not a requested accepted boundary");
+     require(snapshot.controlStep == controlIndex,
+             "native snapshot control cursor does not match the accepted boundary");
+     require(snapshot.available && snapshot.statuses.size() == kEnvironmentCount &&
+@@ -12916,14 +12936,17 @@
+     const auto checkpointPath = checkpointDirectory / (stem + ".nmcb");
+     const auto prefixPath = checkpointDirectory / (stem + ".prefix");
+     const auto metadataPath = checkpointDirectory / (stem + ".resume");
+-    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
+-    const auto checkpointBytes = fileBytesOrThrow(checkpointPath);
+     constexpr std::uint64_t kMaximumCouponCheckpointBytes = 2ull * 1024ull * 1024ull * 1024ull;
+-    require(checkpointBytes > 0u && checkpointBytes <= kMaximumCouponCheckpointBytes,
++    const std::uint64_t estimatedCheckpointBytes =
++        numi::cardboard::shipping_snapshot_detail::
++            serializedAcceptedSnapshotBytes(snapshot);
++    require(estimatedCheckpointBytes > 0u &&
++                estimatedCheckpointBytes <= kMaximumCouponCheckpointBytes,
+             "coupon checkpoint exceeds its 2 GiB bounded snapshot limit");
+ 
+     PrefixManifest prefix;
+     prefix.sourceRunDirectory = std::filesystem::weakly_canonical(outputDirectory).string();
++    prefix.allFilesPrefixOnly = periodicPrefixOnly;
+     prefix.acceptedControlIndex = controlIndex;
+     std::uint64_t totalPrefixBytes = 0u;
+     const auto sourceRoot = std::filesystem::weakly_canonical(outputDirectory);
+@@ -12953,7 +12976,8 @@
+         const std::string digest = hexDigest(sha256BoundedFile(
+             it->path(), kMaximumCouponCheckpointBytes));
+         const bool observations = relativeName == "observations.csv";
+-        prefix.files.push_back({relativeName, bytes, digest, observations});
++        const bool prefixOnly = periodicPrefixOnly || observations;
++        prefix.files.push_back({relativeName, bytes, digest, prefixOnly});
+         if (observations) {
+             prefix.observationsPrefixBytes = bytes;
+             prefix.observationsPrefixSha256 = digest;
+@@ -12971,13 +12995,46 @@
+             "coupon checkpoint has no flushed source observations prefix");
+     (void)sourceRoot;
+     const std::string prefixContents = serializePrefixManifest(prefix);
++    if (periodicPrefixOnly) {
++        constexpr std::uint64_t kObserverMetadataBytes = 64ull * 1024ull;
++        constexpr std::uint64_t kObserverRecordAndSummaryBytes = 12ull * 1024ull;
++        std::uint64_t existingCheckpointBytes = 0u;
++        for (const auto& entry : std::filesystem::directory_iterator(checkpointDirectory)) {
++            const auto entryStatus = entry.symlink_status();
++            require(!std::filesystem::is_symlink(entryStatus) &&
++                        std::filesystem::is_regular_file(entryStatus),
++                    "periodic checkpoint directory contains a non-regular artifact");
++            const std::uint64_t bytes = fileBytesOrThrow(entry.path());
++            require(bytes <= numi::cardboard::coupon_resume::
++                        kMaximumPeriodicCheckpointStorageBytes -
++                        existingCheckpointBytes,
++                    "periodic checkpoint artifacts exceed their aggregate bound");
++            existingCheckpointBytes += bytes;
++        }
++        require(numi::cardboard::coupon_resume::periodicCheckpointAggregateFits(
++                    existingCheckpointBytes, estimatedCheckpointBytes,
++                    static_cast<std::uint64_t>(prefixContents.size()),
++                    kObserverMetadataBytes + kObserverRecordAndSummaryBytes),
++                "periodic coupon checkpoint artifacts exceed the 8 GiB aggregate bound");
++    }
++
++    numi::cardboard::writeShippingAcceptedSnapshot(checkpointPath, snapshot);
++    const std::uint64_t checkpointBytes = fileBytesOrThrow(checkpointPath);
++    require(checkpointBytes == estimatedCheckpointBytes &&
++                checkpointBytes <= kMaximumCouponCheckpointBytes,
++            "coupon checkpoint serialized size differs from its preflight estimate");
+     writeCouponTextAtomically(prefixPath, prefixContents);
+ 
+     const std::string protocolDigest = hexDigest(
+         sha256BoundedFile(outputDirectory / "manifest.json",
+                           kMaximumCouponCheckpointBytes));
+-    const std::uint32_t nextControl = controlIndex + 1u;
+-    const LoadPoint nextPoint = loadingPoint(arguments, nextControl);
++    const auto nextBoundary = numi::cardboard::coupon_resume::
++        nextControlBoundary(controlIndex, totalSteps(arguments));
++    const std::uint32_t nextControl = nextBoundary.nextControlIndex;
++    const std::string nextPhase = nextBoundary.terminal
++        ? "completed" : loadingPoint(arguments, nextControl).phase;
++    const double nextTargetAngle = nextBoundary.terminal
++        ? 0.0 : loadingPoint(arguments, nextControl).angleDegrees;
+     const float timestepF32 = static_cast<float>(arguments.timestepSeconds);
+     Metadata metadata;
+     metadata.checkpointSha256 = hexDigest(sha256BoundedFile(
+@@ -13017,8 +13074,8 @@
+     metadata.scheduledElapsedSecondsBits = doubleBits(
+         static_cast<double>(nextControl) * arguments.timestepSeconds);
+     metadata.phase = loadingPoint(arguments, controlIndex).phase;
+-    metadata.nextPhase = nextPoint.phase;
+-    metadata.nextTargetAngleBits = doubleBits(nextPoint.angleDegrees);
++    metadata.nextPhase = nextPhase;
++    metadata.nextTargetAngleBits = doubleBits(nextTargetAngle);
+     writeCouponTextAtomically(metadataPath, serializeMetadata(metadata));
+     return checkpointPath;
+ }
+@@ -13071,14 +13128,19 @@
+         const auto relativeCheck = canonicalFile.lexically_relative(canonicalSource);
+         require(!relativeCheck.empty() && *relativeCheck.begin() != "..",
+                 "coupon source-prefix file resolves outside its original run directory");
+-        if (entry.observationsPrefix) {
+-            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
+-                        hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) == entry.sha256,
+-                    "coupon source observations file changed after the saved prefix stopped");
++        const std::uint64_t currentBytes = fileBytesOrThrow(canonicalFile);
++        const bool prefixOnly = prefix.allFilesPrefixOnly || entry.prefixOnly;
++        require(prefixByteCountMatches(prefixOnly, entry.bytes, currentBytes),
++                "coupon source-prefix file was truncated or changed size: " +
++                    entry.relativePath);
++        if (prefixOnly) {
++            require(hexDigest(sha256FilePrefix(canonicalFile, entry.bytes)) ==
++                        entry.sha256,
++                    "coupon source-prefix bytes changed after checkpoint creation: " +
++                        entry.relativePath);
+         } else {
+-            require(fileBytesOrThrow(canonicalFile) == entry.bytes &&
+-                        hexDigest(sha256BoundedFile(canonicalFile,
+-                            kMaximumPrefixBytes)) == entry.sha256,
++            require(hexDigest(sha256BoundedFile(canonicalFile,
++                        kMaximumPrefixBytes)) == entry.sha256,
+                     "coupon accepted-prefix artifact changed after checkpoint creation: " +
+                         entry.relativePath);
+         }
+@@ -13906,6 +13968,11 @@
+     std::string failure;
+     std::uint32_t acceptedSteps = 0u;
+     bool couponCheckpointWritten = false;
++    bool periodicCheckpointObserverDisabled = false;
++    std::string periodicCheckpointObserverError;
++    std::vector<std::string> periodicCheckpointRecords;
++    periodicCheckpointRecords.reserve(
++        numi::cardboard::coupon_resume::kMaximumPeriodicCheckpointCount);
+     const std::uint32_t firstControl = couponResume
+         ? couponResume->metadata.nextControlIndex : 0u;
+     for (std::uint32_t step = firstControl; step < totalSteps(arguments); ++step) {
+@@ -14061,6 +14128,94 @@
+                     true, *arguments.couponCheckpointAfterControl, step))
+                 break;
+         }
++        if (arguments.couponCheckpointEvery &&
++            !periodicCheckpointObserverDisabled &&
++            numi::cardboard::coupon_resume::shouldWritePeriodicCheckpoint(
++                true, *arguments.couponCheckpointEvery, step,
++                totalSteps(arguments))) {
++            try {
++                observations.flush();
++                require(observations.good(),
++                        "cannot flush accepted observations for periodic checkpoint");
++                if (toolObservations.is_open()) {
++                    toolObservations.flush();
++                    require(toolObservations.good(),
++                            "cannot flush accepted tooling observations for periodic checkpoint");
++                }
++                const auto checkpointPath = writeCouponAcceptedCheckpoint(
++                    arguments.output, current.snapshot, compiled.world,
++                    arguments, step, true);
++                const auto checkpointRelative =
++                    std::filesystem::relative(checkpointPath, arguments.output);
++                const auto metadataPath = checkpointPath.parent_path() /
++                    (checkpointPath.stem().string() + ".resume");
++                const auto prefixPath = checkpointPath.parent_path() /
++                    (checkpointPath.stem().string() + ".prefix");
++                const std::string event =
++                    "{\"control_index\":" + std::to_string(step) +
++                    ",\"next_control_index\":" + std::to_string(step + 1u) +
++                    ",\"checkpoint\":\"" +
++                    jsonEscape(checkpointRelative.generic_string()) +
++                    "\",\"checkpoint_sha256\":\"" +
++                    hexDigest(sha256BoundedFile(checkpointPath, 2ull * 1024ull * 1024ull * 1024ull)) +
++                    "\",\"prefix\":\"" +
++                    jsonEscape(std::filesystem::relative(prefixPath, arguments.output).generic_string()) +
++                    "\",\"metadata\":\"" +
++                    jsonEscape(std::filesystem::relative(metadataPath, arguments.output).generic_string()) +
++                    "\"}";
++                writeCouponTextAtomically(
++                    checkpointPath.parent_path() /
++                        (checkpointPath.stem().string() + ".observer.json"),
++                    event + "\n");
++                periodicCheckpointRecords.push_back(event);
++            } catch (const std::exception& error) {
++                periodicCheckpointObserverDisabled = true;
++                periodicCheckpointObserverError = error.what();
++                std::cerr << "coupon-periodic-checkpoint-observer=disabled error=\""
++                          << jsonEscape(periodicCheckpointObserverError)
++                          << "\"\n";
++            }
++        }
++    }
++
++    if (arguments.couponCheckpointEvery) {
++        try {
++            std::ostringstream report;
++            report << "{\n"
++                << "  \"schema\": \"numi.cardboard.periodic-accepted-checkpoint-observer.v1\",\n"
++                << "  \"observer_only\": true,\n"
++                << "  \"full_schedule_stop_requested\": false,\n"
++                << "  \"cadence_controls\": " << *arguments.couponCheckpointEvery << ",\n"
++                << "  \"scheduled_controls\": " << totalSteps(arguments) << ",\n"
++                << "  \"accepted_steps_in_this_run\": " << acceptedSteps << ",\n"
++                << "  \"observer_disabled_after_error\": "
++                << (periodicCheckpointObserverDisabled ? "true" : "false") << ",\n"
++                << "  \"observer_error\": \"" <<
++                    jsonEscape(periodicCheckpointObserverError) << "\",\n"
++                << "  \"checkpoints\": [";
++            for (std::size_t i = 0u; i < periodicCheckpointRecords.size(); ++i) {
++                if (i != 0u) report << ',';
++                report << "\n    " << periodicCheckpointRecords[i];
++            }
++            if (!periodicCheckpointRecords.empty()) report << '\n' << "  ";
++            report << "]\n}\n";
++            const auto directory = arguments.output / "checkpoints";
++            std::error_code error;
++            std::filesystem::create_directories(directory, error);
++            if (!error) {
++                writeCouponTextAtomically(
++                    directory / "coupon-periodic-observer.json", report.str());
++            } else {
++                throw std::filesystem::filesystem_error(
++                    "cannot create periodic checkpoint report directory",
++                    directory, error);
++            }
++        } catch (const std::exception& error) {
++            // Checkpoint observation must not truncate or relabel the physical
++            // run if its final diagnostic index cannot be written.
++            std::cerr << "coupon-periodic-checkpoint-observer=report-write-failed error=\""
++                      << jsonEscape(error.what()) << "\"\n";
++        }
+     }
+ 
+     if (arguments.couponCheckpointAfterControl && !couponCheckpointWritten) {
+--- a/matter/tools/cardboard_shipping_snapshot.hpp
++++ b/matter/tools/cardboard_shipping_snapshot.hpp
+@@ -377,6 +377,55 @@
+ #undef WRITE_FIELD
+ }
+ 
++class SnapshotCountingBuffer final : public std::streambuf {
++public:
++    std::uint64_t bytes() const noexcept { return bytes_; }
++    bool overflowed() const noexcept { return overflowed_; }
++
++protected:
++    std::streamsize xsputn(const char*, const std::streamsize count) override {
++        if (count < 0 || !add(static_cast<std::uint64_t>(count))) return 0;
++        return count;
++    }
++
++    int_type overflow(const int_type character) override {
++        if (traits_type::eq_int_type(character, traits_type::eof()))
++            return traits_type::not_eof(character);
++        if (!add(1u)) return traits_type::eof();
++        return character;
++    }
++
++private:
++    bool add(const std::uint64_t count) noexcept {
++        if (count > std::numeric_limits<std::uint64_t>::max() - bytes_) {
++            overflowed_ = true;
++            return false;
++        }
++        bytes_ += count;
++        return true;
++    }
++
++    std::uint64_t bytes_ = 0u;
++    bool overflowed_ = false;
++};
++
++inline std::uint64_t serializedAcceptedSnapshotBytes(
++    const numi::matter::RuntimeStateSnapshot& state) {
++    validateAcceptedSnapshot(state);
++    SnapshotCountingBuffer buffer;
++    std::ostream output(&buffer);
++    output.write(kMagic.data(), static_cast<std::streamsize>(kMagic.size()));
++    writePod(output, kVersion);
++    writePod(output, kEndianMarker);
++    writePod(output, static_cast<std::uint32_t>(
++        sizeof(numi::matter::RuntimeStateSnapshot)));
++    writePod(output, static_cast<std::uint8_t>(state.available));
++    writeSnapshotPayload(output, state);
++    if (!output || buffer.overflowed())
++        throw std::length_error("shipping snapshot serialized size overflow");
++    return buffer.bytes();
++}
++
+ inline void readSnapshotVectors(std::istream& input,
+                                 numi::matter::RuntimeStateSnapshot& state,
+                                 const std::uint64_t maximumBytes) {
+--- a/matter/tools/cardboard_shipping_snapshot_check.cpp
++++ b/matter/tools/cardboard_shipping_snapshot_check.cpp
+@@ -148,7 +148,11 @@
+     const auto path = std::filesystem::temp_directory_path() /
+         "numi-cardboard-shipping-snapshot-check.nmcb";
+     auto state = acceptedState();
++    const std::uint64_t estimatedBytes =
++        shipping_snapshot_detail::serializedAcceptedSnapshotBytes(state);
+     writeShippingAcceptedSnapshot(path, state);
++    check(std::filesystem::file_size(path) == estimatedBytes,
++          "snapshot size preflight differs from actual serialized file");
+     const auto restored = readShippingAcceptedSnapshot(path,
+         state.sourcePhysicsFingerprint, state.deviceProgramFingerprint, 4096u);
+     check(restored.controlStep == state.controlStep &&

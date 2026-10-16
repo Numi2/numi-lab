@@ -1,0 +1,21 @@
+{
+  "acceptance_changed": false,
+  "build_manifest_sha256": "a7cfeafefff8c76e8b177b2d73e2f9dd055929ae8cf0cc1bc1388554577ac317",
+  "files_sha256": {
+    "build-command.json": "cd859cbfd2b1126f9d25e7bb21ff4de984e7ceeddbd26072f1c8ea7a510dee4a",
+    "build-receipt.json": "b65b45835fd4ff61423028987e69f2c24b556224f992548f68169bff00f5ce7b",
+    "build.log": "06cba559b74a744dfcc1b126d0c2be7a5a7c401317ce13205992d57ecdecf8f3",
+    "build.py": "f452149f284d7d6a7ccf1f2febd5a28aaa553a90524f2745a44250d2cfeede26",
+    "capacity-area-check-receipt.json": "2e8a4164771a53fb750baf5576293983e6999151266938620f684a5092b0d0df",
+    "capacity-area-check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "capacity-area-check.stdout": "0d1b58beda11b48b3e5535d2e6ff560e4c82e549b8a93b98a2e7b54c8819afe9",
+    "prepare.py": "c63c9979b5171df93af9ca154f5133078d2859adff54fc3b9eced1844bb44ff6",
+    "source-overlay.json": "1ccbc946e9ecbdd5dcbc7d84d4bf294fd5064a03602fd81d168a2b1d95f3b010",
+    "stage-analyzer-tests-receipt.json": "e1edd66e0aa9463f1039300d7aa70201c3cfb313b60ba3c1d868a42f8d394a8e"
+  },
+  "physical_operator_changed": false,
+  "qualification": "CPU observer correction and compile only; native history not yet sampled",
+  "schema": "numi.cardboard.cohesive-quadrature-capacity-area.v1",
+  "source_files": 819,
+  "source_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2"
+}

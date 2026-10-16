@@ -1,0 +1,113 @@
+{
+  "schema": "numi.cardboard.source210-publication-binding.v1",
+  "source_snapshot": "snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "frozen_source_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source_count": 819,
+  "expected_parent": "76b3fdbd822bd3179c1937c4ebea7a17ce131cb1",
+  "source_delta_count": 20,
+  "source_delta": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "old_sha256": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22",
+      "source210_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "old_sha256": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69",
+      "source210_sha256": "c1c25769c2115cd64ef9dd849cc4a987563f8d51e03638c52a1c7526b2c91c00"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "old_sha256": "e8f2de632ee0006ca8bbc1a828f182332102c56b3684fea2a29548c50a864580",
+      "source210_sha256": "e8a0c78dc812b491781a8f3d72a4a42d1f70e18ab3b37eff6fe157eadb7e75e1"
+    },
+    {
+      "path": "matter/tools/cardboard_cached_operator_audit.py",
+      "old_sha256": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+      "source210_sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    {
+      "path": "matter/tools/cardboard_cohesive_capacity_area.hpp",
+      "old_sha256": null,
+      "source210_sha256": "baa588d46aecf2b1e66d8ddeb1806420038edfc5a2c4ac67c4e499e638d1ce46"
+    },
+    {
+      "path": "matter/tools/cardboard_cohesive_capacity_area_check.cpp",
+      "old_sha256": null,
+      "source210_sha256": "ed8783c5fa393c215e128764e58983564c9a56c4310708a186c729486541a2f6"
+    },
+    {
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "old_sha256": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588",
+      "source210_sha256": "a306b0a0c5e29a3f62c038003fea62326da58f99292ab27ffc42b022238e8080"
+    },
+    {
+      "path": "matter/tools/cardboard_coupon_resume.hpp",
+      "old_sha256": "c9b4a29736367e4afb524c8cbcf6ae304b87b779fdf10a81c519cd1184b436a9",
+      "source210_sha256": "06f67114905367f067f16a64c3209ac3fd11e710ae0a2233dc7fb4c2783f7592"
+    },
+    {
+      "path": "matter/tools/cardboard_coupon_resume_check.cpp",
+      "old_sha256": "c9bf6f0a71b4a4302b4d77f9bfe30fbf6f508a22d70258bd6ca6df1876739ece",
+      "source210_sha256": "a9fa6e2c0b5ab93489677ae4fc7e8d44b723388af8e8b1f98b9b1bc9e0aaa0d8"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "old_sha256": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385",
+      "source210_sha256": "801706c7cd880677e7e5e9ee7e3f9d5b80058d20fff3647dfebf56ad88219d5c"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_snapshot.hpp",
+      "old_sha256": "e1fa29f7f2d7d2c43623880db1934bf3bfae1690e432f8dfca54bcb1b29e71e6",
+      "source210_sha256": "a7f40b0d870e6951bf38c50bfd87e9d1fbd798b4d217ec545fef1c842538c817"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_snapshot_check.cpp",
+      "old_sha256": "8446a6ad4d003ce1434826d7f70b6c52c1706c3f1d3965575a2a71bc6255f155",
+      "source210_sha256": "7abe9c8194a16b379307fe4a9428a440f2b93bb2928331ce79a1becf4fa6db87"
+    },
+    {
+      "path": "matter/tools/cardboard_solver_environment.py",
+      "old_sha256": "e3ef5898174dc2081542d952f0c94ea3f0798510508e2a5672e42d877148d0f7",
+      "source210_sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    {
+      "path": "matter/tools/cardboard_stage_resolution_study.md",
+      "old_sha256": "c68160fa6c38a83166abd73df611bce701d6d1308eed19eba208dd3bb2f08814",
+      "source210_sha256": "d54a8563acd1f0a732bbac1cb01a4ab08911474e0d28f38d1b45085eaeca085d"
+    },
+    {
+      "path": "matter/tools/cardboard_stage_resolution_study.py",
+      "old_sha256": "8fe20bad44a32038d64de0f7c93db85735365ccf03081691e00e3fb21ce2c21f",
+      "source210_sha256": "177741de6e0e43981d1340ae05b45a26bd599a0bb4b624b14b72f9e58c3d91ea"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "old_sha256": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589",
+      "source210_sha256": "facb829802f990eb07695d8c734428ad89656b6dfc9886b4a6721e7a7d443a95"
+    },
+    {
+      "path": "matter/tools/test_cardboard_cached_operator_audit.py",
+      "old_sha256": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16",
+      "source210_sha256": "9e090f31f73c8a986c1d43adf1fa01c1f0ded8d554dcaa0cae15efacfc7489bf"
+    },
+    {
+      "path": "matter/tools/test_cardboard_solver_environment.py",
+      "old_sha256": "b709c0e80249af0f162a16b99436a52ed8e3ee64e1bdf39202eedc6510e0cbc0",
+      "source210_sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    {
+      "path": "matter/tools/test_cardboard_stage_resolution_study.py",
+      "old_sha256": "0610a641b56929a1bd859cfe4b2be0881ff5bd4f6594429d3c9356bb8a9f906b",
+      "source210_sha256": "e2ff71b72ac8dd0bbb070a3bae1bc7dd6639cd3add60ff83622988015ccf94c2"
+    },
+    {
+      "path": "matter/tools/test_true_residual_certification_contract.py",
+      "old_sha256": "b03c7aa4cb8bb275d232a172dab662ef3be61762b31c95f4f1e084d087568b2d",
+      "source210_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402"
+    }
+  ],
+  "build_receipt_sha256": "266faf3c79f1c579fba2cbb22b863b90b5a66d7d41a41597cf1b0bb036f41fcf",
+  "source_build_record_sha256": "75f9a256c4413c0a32e877f2dfcc168633c7662b391690dd4b83dbd4819f8e93",
+  "qualification": "source/build identity and CPU checks only; no full coupon or shipping qualification"
+}

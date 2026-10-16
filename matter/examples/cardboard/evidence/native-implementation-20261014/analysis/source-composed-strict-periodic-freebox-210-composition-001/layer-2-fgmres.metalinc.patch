@@ -1,0 +1,65 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5559,6 +5559,29 @@
+         return;
+     }
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
++    const bool hasFreeRigidTail = dispatch.rigidGeneralizedCapacity != 0u;
++    const uint expectedUnknownCount = 2u * totalNodes +
++        6u * dispatch.environmentCount;
++    if (hasFreeRigidTail &&
++        (dispatch.rigidGeneralizedCapacity != 6u ||
++         dispatch.rigidQCapacity != 0u ||
++         dispatch.mpmActiveNodeCapacity != 0u ||
++         layout.unknownCount != expectedUnknownCount)) {
++        if (lane == 0u) {
++            const float4 failureDiagnostics = float4(
++                float(layout.unknownCount), float(expectedUnknownCount),
++                float(dispatch.rigidGeneralizedCapacity),
++                float(dispatch.mpmActiveNodeCapacity));
++            recordFailure(diagnosticStatuses[environment],
++                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                failureDiagnostics);
++            if (propagateFailure != 0u)
++                recordFailure(productionStatuses[environment],
++                    NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                    failureDiagnostics);
++        }
++        return;
++    }
+     const uint nodeBase = environment * dispatch.femNodeCount;
+     const uint fieldBase = totalNodes + nodeBase;
+     float norm2 = 0.0f;
+@@ -5584,6 +5607,17 @@
+                 max(max(abs(fieldResidual.x), abs(fieldResidual.y)),
+                     max(abs(fieldResidual.z), abs(fieldResidual.w)))));
+     }
++    if (hasFreeRigidTail) {
++        for (uint dof = lane; dof < 6u; dof += 32u) {
++            const uint row = fgmresRigidIndex(dispatch, environment, dof);
++            const float4 rigidResidual =
++                rightHandSide[row] - operatorValue[row];
++            finiteResidual = finiteResidual && all(isfinite(rigidResidual));
++            fgmresCompensatedAdd(
++                norm2, normCorrection, rigidResidual.x * rigidResidual.x);
++            maximumAbsolute = max(maximumAbsolute, abs(rigidResidual.x));
++        }
++    }
+     norm2 = simd_sum(norm2);
+     maximumAbsolute = simd_max(maximumAbsolute);
+     const bool validMetrics = simd_all(finiteResidual) && isfinite(norm2) &&
+@@ -5616,6 +5650,14 @@
+             residual[mechanical] =
+                 rightHandSide[mechanical] - operatorValue[mechanical];
+             residual[field] = rightHandSide[field] - operatorValue[field];
++        }
++        if (hasFreeRigidTail) {
++            for (uint dof = lane; dof < 6u; dof += 32u) {
++                const uint row = fgmresRigidIndex(dispatch, environment, dof);
++                const float value =
++                    rightHandSide[row].x - operatorValue[row].x;
++                residual[row] = float4(value, 0.0f, 0.0f, 0.0f);
++            }
+         }
+     }
+     if (lane == 0u) {

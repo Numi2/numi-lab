@@ -299,6 +299,58 @@ int main() {
             require(accepted[0].diagnostics.z == 1.0f,
                 "resolved zero true residual did not latch completion");
 
+            // Native regression for the actual coupon's inner absolute
+            // shortcut: outer tolerance is not a sufficient inexact solve
+            // when the current nonlinear RHS remains above that tolerance.
+            auto strictTrial = [&](float rhsNorm, float trueNorm,
+                                   std::uint32_t mode, bool expected,
+                                   const char* label) {
+                NMMixedSolverGPU tight = solver;
+                tight.residualTolerances.x = 5.0e-7f;
+                tight.regularization.x = 1.0e-12f;
+                std::memcpy([solverBuffer contents], &tight, sizeof(tight));
+                NMFGMRESStateGPU trial{};
+                trial.nonlinear = {1.0f,1.0f,0.0f,0.0f};
+                trial.diagnostics = {0.0f,rhsNorm,1.0f,0.0f};
+                std::memcpy([stateBuffer contents], &trial, sizeof(trial));
+                std::vector<nm_float4> trhs(2u, {0.0f,0.0f,0.0f,0.0f});
+                std::vector<nm_float4> top(2u, {0.0f,0.0f,0.0f,0.0f});
+                trhs[0].x = rhsNorm;
+                top[0].x = rhsNorm - trueNorm;
+                std::memcpy([rhsBuffer contents], trhs.data(), 2u*sizeof(nm_float4));
+                std::memcpy([operatorBuffer contents], top.data(), 2u*sizeof(nm_float4));
+                std::memcpy([residualBuffer contents], residualValues.data(), 2u*sizeof(nm_float4));
+                std::memcpy([replaceBuffer contents], &mode, sizeof(mode));
+                resetStatuses(diagnosticBuffer,statusBuffer,healthy,healthy);
+                const float tightForcing = 0.015625f;
+                dispatch(device,queue,measure,{
+                    {0u,dispatchBuffer},{30u,layoutBuffer},
+                    {1u,solverBuffer},{2u,rhsBuffer},{3u,operatorBuffer},
+                    {4u,residualBuffer},{5u,stateBuffer},{6u,metricsBuffer},
+                    {7u,makeBuffer(device,std::vector<float>{tightForcing})},
+                    {8u,diagnosticBuffer},{9u,replaceBuffer},
+                    {10u,statusBuffer},{11u,propagateBuffer}},1u,32u);
+                const auto got = readBuffer<NMFGMRESStateGPU>(stateBuffer,1u);
+                const auto rr = readBuffer<nm_float4>(residualBuffer,2u);
+                require((got[0].diagnostics.z==1.0f)==expected,label);
+                require(std::abs(rr[0].x-trueNorm)<=2.0e-13f &&
+                        rr[1].x==0.0f,"strict mode did not replace exact tested residual");
+                const auto st=readBuffer<NMMatterStatusGPU>(statusBuffer,1u);
+                require(st[0].code==NM_STATUS_SUCCESS,"strict forcing poisoned production status");
+            };
+            strictTrial(6.3580319e-7f,4.55182175e-7f,1u,true,
+                        "legacy absolute shortcut control changed");
+            strictTrial(6.3580319e-7f,4.55182175e-7f,3u,false,
+                        "strict forcing accepted active RHS solely at outer tolerance");
+            strictTrial(6.3580319e-7f,8.0e-9f,3u,true,
+                        "strict forcing rejected resolved forcing target");
+            strictTrial(3.39000259e-8f,3.39000259e-8f,3u,true,
+                        "strict forcing reactivated already acceptable held environment");
+            strictTrial(6.3580319e-7f,0.0f,3u,true,
+                        "strict forcing rejected zero residual");
+            std::memcpy([solverBuffer contents], &solver, sizeof(solver));
+            std::memcpy([replaceBuffer contents], &replace, sizeof(replace));
+
             // Nonfinite action is reported and must not publish a partial
             // residual replacement.
             auto nanOperator = operatorValues;

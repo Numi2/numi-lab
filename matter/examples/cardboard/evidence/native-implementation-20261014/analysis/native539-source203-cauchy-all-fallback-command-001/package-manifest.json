@@ -1,0 +1,16 @@
+{
+  "files_sha256": {
+    "README.md": "b8a06e17c3a51a7144c1829d612329beb37fcf7b8eb7ce61e2a5373c18b84797",
+    "baseline-521-binding.json": "17f7105a7de41d5884baf34956903be66ac9a1fcbd521d1d739403df054f76d8",
+    "capacity-helper.py": "8e4a395c27d0dda8f43351760da7d5b6d0c42dbad0d16680777383d94364cc03",
+    "command-spec.json": "306b56827b8756c4daf985fa1343bdf2f08e6691cb0a30672a3a602d8c6f71e5",
+    "compare_prefixes.py": "9131b93b38fdb1a42f1c46f2f28a665f6485ef64a54d6acf5476ffa9217732cf",
+    "host-validation-binding.json": "5d9985687a19cb85c27290e077a91267cb068b0de87fa9ab6de219d348571c8d",
+    "native534-binding.json": "9e7c42041763bcf54038e046c05c95ce9cd3c4ade13cf156090160e8c7fdd702",
+    "predecessor-readiness-requirements.json": "d6be472fa1b8d10f8aa481ad5008aaf5fa7aa45c7f5c56e55f76c4187e1e4922",
+    "runner.py": "140df83e5db3873d6705684c5577f2bc55d1ea59858f6a96f8951ce042b11a51",
+    "source203-build-binding.json": "8eb2feb133e03453ad34a84b942432a458a994a4d250d27f26aa2949867d4be3",
+    "strict199-audit-binding.json": "12a0dc0e87532f27fc6462d62b855c4c4a16729e818d890409c25553f9228c9c"
+  },
+  "schema": "numi.cardboard.native539.command-package.v1"
+}

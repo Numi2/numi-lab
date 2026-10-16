@@ -1,0 +1,12 @@
+{
+  "native_receipt_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-inner-forcing-helper-540/receipt.json",
+  "native_receipt_sha256": "ff5678ab9b6b97843a582da9c0fe910e6e7a1fcc35dacaaf3b6d14277c8d3c30",
+  "original_build_sha256": "499aafc4c26e71f2cc1dafb3db17aa80d21c41436ea3ec082d673f42ae83b3e6",
+  "corrected_build_sha256": "3865a89a1b5c35986a01c34010b3c09d037087c115699bdb971caa33123538a8",
+  "same_native_metallib_sha256": "229a15b8f3d1ec6ccaa9386bddd38570aa8366f57651f926ae4ab909d04c19d6",
+  "host_helper_source_identical": true,
+  "source_only_delta": [
+    "matter/tools/test_cardboard_solver_environment.py"
+  ],
+  "native_scope": "154 actual production finalize/accumulate/true-residual tests using synthetic A=I; no full FEM solve"
+}

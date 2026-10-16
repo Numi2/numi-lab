@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.tool-observation.v1",
+  "command": [
+    "venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_solver_environment",
+    "test_true_residual_certification_contract"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209-buildfix-002/matter/tools",
+  "exit_code": 0,
+  "passed": 23,
+  "stderr": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 0.453s\n\nOK\n",
+  "native_gpu_executed": false
+}

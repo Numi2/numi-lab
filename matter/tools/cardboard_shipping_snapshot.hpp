@@ -377,6 +377,55 @@ inline void writeSnapshotPayload(std::ostream& output,
 #undef WRITE_FIELD
 }
 
+class SnapshotCountingBuffer final : public std::streambuf {
+public:
+    std::uint64_t bytes() const noexcept { return bytes_; }
+    bool overflowed() const noexcept { return overflowed_; }
+
+protected:
+    std::streamsize xsputn(const char*, const std::streamsize count) override {
+        if (count < 0 || !add(static_cast<std::uint64_t>(count))) return 0;
+        return count;
+    }
+
+    int_type overflow(const int_type character) override {
+        if (traits_type::eq_int_type(character, traits_type::eof()))
+            return traits_type::not_eof(character);
+        if (!add(1u)) return traits_type::eof();
+        return character;
+    }
+
+private:
+    bool add(const std::uint64_t count) noexcept {
+        if (count > std::numeric_limits<std::uint64_t>::max() - bytes_) {
+            overflowed_ = true;
+            return false;
+        }
+        bytes_ += count;
+        return true;
+    }
+
+    std::uint64_t bytes_ = 0u;
+    bool overflowed_ = false;
+};
+
+inline std::uint64_t serializedAcceptedSnapshotBytes(
+    const numi::matter::RuntimeStateSnapshot& state) {
+    validateAcceptedSnapshot(state);
+    SnapshotCountingBuffer buffer;
+    std::ostream output(&buffer);
+    output.write(kMagic.data(), static_cast<std::streamsize>(kMagic.size()));
+    writePod(output, kVersion);
+    writePod(output, kEndianMarker);
+    writePod(output, static_cast<std::uint32_t>(
+        sizeof(numi::matter::RuntimeStateSnapshot)));
+    writePod(output, static_cast<std::uint8_t>(state.available));
+    writeSnapshotPayload(output, state);
+    if (!output || buffer.overflowed())
+        throw std::length_error("shipping snapshot serialized size overflow");
+    return buffer.bytes();
+}
+
 inline void readSnapshotVectors(std::istream& input,
                                 numi::matter::RuntimeStateSnapshot& state,
                                 const std::uint64_t maximumBytes) {

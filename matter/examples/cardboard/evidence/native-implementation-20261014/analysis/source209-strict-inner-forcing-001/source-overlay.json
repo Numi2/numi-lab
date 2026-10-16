@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.source209-strict-inner-forcing.v1",
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205",
+  "base_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209",
+  "frozen_sha256": "2b822da7c48d0d2eb11e409d7039dfb18c8f1bff2c6d3ad5348fb3a772fd234b",
+  "changed": [
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/fgmres_true_residual_native_check.mm"
+  ],
+  "source_count": 819,
+  "native_gpu_executed": false,
+  "hypothesis_report_sha256": "5e132a52f273612fbccb12a88a9dddf51ef2b22113602eca1141fa09994c5890",
+  "outer_tolerance_unchanged": true,
+  "flags_default_off": true
+}

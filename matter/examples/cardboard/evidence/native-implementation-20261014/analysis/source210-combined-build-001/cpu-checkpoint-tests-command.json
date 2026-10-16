@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001",
+    "-R",
+    "cardboard-(coupon-resume|shipping-snapshot)-cpu",
+    "--output-on-failure"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "native_gpu": false
+}

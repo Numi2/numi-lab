@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source210-combined-001",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-shipping-snapshot-check"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "native_gpu": false
+}

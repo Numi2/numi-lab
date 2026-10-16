@@ -1,0 +1,76 @@
+{
+  "audit_id": "source205-true-residual-operator-audit-001",
+  "created_utc": "2026-10-16",
+  "verdict": "TRUE_RESIDUAL_GENERALIZED_ROWS_NOT_CURRENTLY_CERTIFIED",
+  "scope": "Read-only audit of source205 true-residual/full-contact scopes plus source176 shipping preflight. No source edits, native run, or GPU dispatch.",
+  "source_bindings": [
+    {
+      "path": "snapshots/source-cohesive-quadrature-area-205/matter/src/runtime.mm",
+      "sha256": "e8f2de632ee0006ca8bbc1a828f182332102c56b3684fea2a29548c50a864580"
+    },
+    {
+      "path": "snapshots/source-cohesive-quadrature-area-205/matter/src/metal/fgmres.metalinc",
+      "sha256": "238a2c5b7cda924d4d28ac716a38dd0c63641eb261464a4620cb5f239b593b69"
+    },
+    {
+      "path": "snapshots/source-cohesive-quadrature-area-205/matter/include/numi/matter/shared.h",
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    {
+      "path": "analysis/shipping-arena-admission-preflight-176-002/source176-allocation-preflight.json",
+      "sha256": "4a969cc7fdf35146161aa9d26b2246c057b7012269a825a4cbd4019aba487275"
+    },
+    {
+      "path": "analysis/source205-cohesive-quadrature-area-001/manifest.json",
+      "sha256": "a1c1ebba89140d998b5668ac3e418e62868007f3e9087dbd26656a2daab84a8d"
+    },
+    {
+      "path": "analysis/source205-independent-owner-review-001/report.json",
+      "sha256": "ae96fee6da70e7d78e5091e7543e21df14f81192fbe4c273cda75ad13762ca6a"
+    }
+  ],
+  "findings": {
+    "scopeGate": "runtime.mm:10612-10671 rejects mixed/multiphysics flags, any rigidGeneralizedCapacity, support/vascular rows, and unknownCount other than 2*E*N; true-residual capability also bounds cohesive faces <=4096 and tetrahedra <=32768.",
+    "rhs": "runtime.mm:19990-20000 preserves the full layout.unknownCount residual, so RHS storage can hold generalized rows.",
+    "certOperator": "runtime.mm:23000-23172 clears operator scratch and dispatches FEM element, cohesive-face, FEM-node gather, and cohesive-node action, then measures. FEM gather includes continuum-side primal contact terms, but no mixed element/node or free-rigid/primal-rigid generalized-row action is dispatched in this certification branch.",
+    "measure": "fgmres.metalinc:5534-5630 loops mechanical and field nodal rows only; layout.unknownCount is not used to include rigid tail. Residual replacement also writes only nodal blocks.",
+    "existingCoupledDiagnostic": "runtime.mm:23200-23350 separately dispatches mixed element/node, free-rigid, and primal-rigid-contact actions with allowConvergedOperatorState=1, but it never feeds that operator into true-residual measurement. This proves those operators exist, not that the cert path is complete.",
+    "fullContactScope": "runtime.mm:10856-11150 is distinct: N<=8192/T<=32768 and permits one six-DOF free rigid body (unknownCount=2*E*N+6*E) under bounded contact conditions. Do not conflate it with true-residual scope N<=4096 and no generalized rows."
+  },
+  "minimumTarget": {
+    "configuration": "E=1; one static explicit FEM object; no MPM, Human/articulated/support/vascular, or mixed multiphysics fields; one non-articulated free BOX; rigidGeneralizedCapacity=6; unknownCount=2*N+6.",
+    "steps": [
+      "Kernel contract with no active contact: include six mass/inertia tail rows in b-Ax norm and residual replacement.",
+      "Kernel contract with one active FEM/BOX primal contact: verify FEM-side gather and generalized rigid reaction action against same-generation independent assembly.",
+      "One native transaction: certify fresh full-row true residual, then use unchanged nonlinear Armijo and commit/rollback rules; compare feature-off production history.",
+      "Only afterward consider mixed FEM field rows, requiring corresponding mixed element/node action and row-aware norm/restart semantics."
+    ],
+    "required": [
+      "Permit only the exact one-free-body row layout.",
+      "Dispatch same-generation nm_fgmres_apply_free_rigid and nm_fgmres_apply_primal_rigid_contacts with true-residual latch bypass.",
+      "Measure/restart all supported scalar tail rows; retain rejection for unsupported row blocks.",
+      "Bind RHS, candidate/history, constraint, contact branch, row map, and operator generation."
+    ],
+    "limits": [
+      "No implementation or native qualification in this audit.",
+      "No full-contact convergence, shipping-scale admission, or physical-assembly claim."
+    ]
+  },
+  "shipping": {
+    "preflight": "source176 CPU allocation model only; not an actual source205 native peak.",
+    "counts": {
+      "prepared_nodes": 528444,
+      "tetrahedra": 1477728,
+      "cohesive_faces": 260835,
+      "exterior_surface_faces": 1054876,
+      "rigid_pair_rows": 6335568
+    },
+    "note": "A D=131072, sparse K=65536, tiled-cohesive model can be estimated below 16 GiB, but current runtime admission remains N<=8192/T<=32768 and true-residual certification N<=4096/no rigid generalized rows. Device maxBufferLength and actual peak are not measured; overflow and admission remain open."
+  },
+  "reproduction": {
+    "method": "Read-only line-bounded source inspection and SHA-256 bindings.",
+    "native_execution": false,
+    "gpu_dispatch": false,
+    "edits": false
+  }
+}

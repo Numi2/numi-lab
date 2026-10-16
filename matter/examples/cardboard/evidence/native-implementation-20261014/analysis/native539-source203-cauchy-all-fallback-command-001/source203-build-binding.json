@@ -1,0 +1,32 @@
+{
+  "build_artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001/numi-matter-cardboard-probe": {
+      "bytes": 3218520,
+      "sha256": "abf09b3ddce9bfb06ec040cefa0f1d8b6efc3a2dfcc2d8ec3d2ea13880ee5c65"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001/shaders/NumiMatter.metallib": {
+      "bytes": 7049131,
+      "sha256": "0a36589cd37428fcfb610d6f290be833b04cec27dfc9635e1160caeb5f1904a7"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "build_success": true,
+  "build_targets": [
+    "numi-matter-cardboard-probe"
+  ],
+  "cgls_recurrence_sources_unchanged_from_source198": {
+    "matter/src/metal/base_cgls.metalinc": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+  },
+  "frozen_source_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "limitation": "Fresh source203 probe/metallib binding only; no solver outcome or full-coupon qualification.",
+  "schema": "numi.cardboard.native539.source203-build-binding.v1",
+  "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source203-fallback-001/source-build.json",
+  "source_build_sha256": "36dd1792858ad6a255e2feb40221fa9884d1f5c31569847999d630f6d8c7c8c5",
+  "source_count": 817,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203",
+  "strict199_checker_sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+}

@@ -1,0 +1,49 @@
+{
+  "attempt_history_sha256": "e1c40bac0372ac0054ce439b9ccd21c6085cbd8b985c76ca97addf0a3ca3c1e3",
+  "base_frozen_source_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205",
+  "build_receipt_path": "source-build.json",
+  "build_receipt_sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c",
+  "candidate_frozen_source_sha256": "435e34b44afb374f68510d784181cf75e1f691ce62bade43039a1f8d9443ffcb",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-periodic-accepted-checkpoint-208",
+  "changed_sources": {
+    "matter/tools/cardboard_coupon_resume.hpp": {
+      "base_sha256": "c9b4a29736367e4afb524c8cbcf6ae304b87b779fdf10a81c519cd1184b436a9",
+      "source208_sha256": "06f67114905367f067f16a64c3209ac3fd11e710ae0a2233dc7fb4c2783f7592"
+    },
+    "matter/tools/cardboard_coupon_resume_check.cpp": {
+      "base_sha256": "c9bf6f0a71b4a4302b4d77f9bfe30fbf6f508a22d70258bd6ca6df1876739ece",
+      "source208_sha256": "a9fa6e2c0b5ab93489677ae4fc7e8d44b723388af8e8b1f98b9b1bc9e0aaa0d8"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "base_sha256": "71893190f2353ba04e752a69b5b87bf7a5304fb3d39148491111a545cc6a177a",
+      "source208_sha256": "801706c7cd880677e7e5e9ee7e3f9d5b80058d20fff3647dfebf56ad88219d5c"
+    },
+    "matter/tools/cardboard_shipping_snapshot.hpp": {
+      "base_sha256": "e1fa29f7f2d7d2c43623880db1934bf3bfae1690e432f8dfca54bcb1b29e71e6",
+      "source208_sha256": "a7f40b0d870e6951bf38c50bfd87e9d1fbd798b4d217ec545fef1c842538c817"
+    },
+    "matter/tools/cardboard_shipping_snapshot_check.cpp": {
+      "base_sha256": "8446a6ad4d003ce1434826d7f70b6c52c1706c3f1d3965575a2a71bc6255f155",
+      "source208_sha256": "7abe9c8194a16b379307fe4a9428a440f2b93bb2928331ce79a1becf4fa6db87"
+    }
+  },
+  "execution_scope": {
+    "full_coupon_run": false,
+    "native_gpu": false,
+    "physical_qualification": false
+  },
+  "overlay_id": "source208-periodic-accepted-checkpoint-001",
+  "package_verifier": "verify_source208_package.py",
+  "package_verifier_sha256": "9eef20effaaa02777897410e2c9866f57704244c28783f7853e1b905bae007d5",
+  "patch_path": "overlay.patch",
+  "patch_sha256": "9cad6656b6bab2d8570c51a35d2f53eb25197c61efe114bc899b200b9a781551",
+  "schema": "numi.cardboard.periodic-accepted-checkpoint-overlay.v1",
+  "selected_source_file_count": 819,
+  "tests": {
+    "ctest_log": "cpu-ctest-lasttest.log",
+    "ctest_log_sha256": "d8b8d7fdbe25302857157da8301d4d3fdf89525ca56baae15f0ac988cbf1a5f4",
+    "failed": 0,
+    "passed": 2
+  }
+}

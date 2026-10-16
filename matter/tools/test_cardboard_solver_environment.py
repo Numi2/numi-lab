@@ -20,7 +20,7 @@ class EffectiveEnvironmentTests(unittest.TestCase):
     def test_registry_matches_checkout_and_detects_unregistered_control(self):
         env.validate_source_registry(SOURCE_ROOT)
         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 52)
+        self.assertEqual(len(env.NATIVE_ENV_KEYS), 53)
         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
         self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
         with tempfile.TemporaryDirectory() as temporary:

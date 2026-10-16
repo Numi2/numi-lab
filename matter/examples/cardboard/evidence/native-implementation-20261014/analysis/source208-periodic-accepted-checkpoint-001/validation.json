@@ -1,0 +1,40 @@
+{
+  "build": {
+    "argv": [
+      "PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "python3",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-periodic-accepted-checkpoint-208/matter/tools/cardboard_source_bound_build.py",
+      "--source-snapshot",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-periodic-accepted-checkpoint-208",
+      "--build-dir",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-006",
+      "--target",
+      "numi-matter-cardboard-probe",
+      "--target",
+      "numi-matter-cardboard-coupon-resume-check",
+      "--target",
+      "numi-matter-cardboard-shipping-snapshot-check",
+      "--jobs",
+      "4"
+    ],
+    "receipt": "source-build.json",
+    "receipt_sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c",
+    "success": true
+  },
+  "cli_help": {
+    "command": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-006/numi-matter-cardboard-probe --help",
+    "native_execution": false,
+    "verified_option": "--coupon-checkpoint-every"
+  },
+  "cpu_tests": {
+    "command": "PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin ctest --test-dir /Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-006 --output-on-failure -R 'matter.compiler.cardboard_(coupon_resume|shipping_snapshot)'",
+    "failed": 0,
+    "log": "cpu-ctest-lasttest.log",
+    "log_sha256": "d8b8d7fdbe25302857157da8301d4d3fdf89525ca56baae15f0ac988cbf1a5f4",
+    "passed": 2,
+    "tests": [
+      "matter.compiler.cardboard_coupon_resume",
+      "matter.compiler.cardboard_shipping_snapshot"
+    ]
+  }
+}

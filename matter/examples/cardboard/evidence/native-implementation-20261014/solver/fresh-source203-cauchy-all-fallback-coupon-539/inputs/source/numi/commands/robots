@@ -1,0 +1,65 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' "List or inspect configurable robot packages and their physical capabilities."
+    exit 0
+fi
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi robots [list | inspect ROBOT_ID]
+
+  list              List the robot IDs available in the live catalog
+  inspect ROBOT_ID  Print one authored robot package and its capabilities
+
+Examples:
+  numi robots list
+  numi robots inspect unitree_g1
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -x "$numi_build/bin/metalrobo_robot_catalog" ]; then
+    numi_catalog=$numi_build/bin/metalrobo_robot_catalog
+else
+    numi_catalog=$numi_root/bin/metalrobo_robot_catalog
+fi
+[ -x "$numi_catalog" ] || {
+    printf 'numi robots: missing robot catalog; run numi doctor\n' >&2
+    exit 1
+}
+
+case "${1:-list}" in
+    list)
+        [ "$#" -le 1 ] || {
+            printf 'numi robots: list does not accept arguments\n' >&2
+            printf 'Run `numi robots --help` for usage.\n' >&2
+            exit 2
+        }
+        exec "$numi_catalog"
+        ;;
+    inspect)
+        [ "$#" -eq 2 ] || {
+            printf '%s\n' "usage: numi robots inspect ROBOT_ID" >&2
+            exit 2
+        }
+        if "$numi_catalog" "$2"; then
+            exit 0
+        else
+            numi_robot_status=$?
+        fi
+        if [ "$numi_robot_status" -eq 2 ]; then
+            printf 'Run `numi robots list` to see available robot IDs.\n' >&2
+        else
+            printf 'The robot catalog failed; run `numi doctor` before retrying.\n' >&2
+        fi
+        exit "$numi_robot_status"
+        ;;
+    *)
+        printf 'numi robots: unknown action %s\n' "$1" >&2
+        printf 'Run `numi robots --help` for usage.\n' >&2
+        exit 2
+        ;;
+esac

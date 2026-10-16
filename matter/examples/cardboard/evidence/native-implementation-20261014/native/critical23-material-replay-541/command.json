@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch",
+    "--native",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack",
+    "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-critical23-input-002/input.json",
+    "e8962b6c08da3a212f7820c355de4c0b650431ee8ff81c4d62db613ce02bd69a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/critical23-material-replay-541/output",
+    "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2"
+  ],
+  "bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-generic-package-batch-instrument-001/generic-batch": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control17-root17-newton34-replay-531/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native541-critical23-input-002/input.json": "e8962b6c08da3a212f7820c355de4c0b650431ee8ff81c4d62db613ce02bd69a"
+  },
+  "source_capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "at_utc": "2026-10-16T10:30:18.014409+00:00"
+}

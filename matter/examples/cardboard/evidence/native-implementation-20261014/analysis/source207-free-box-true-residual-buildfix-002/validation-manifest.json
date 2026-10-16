@@ -1,0 +1,15 @@
+{
+  "files": {
+    "README.md": "a5baaa01ab904d6f6c019d1d4b44556741142053320c756b4a4eaf9e71a057d4",
+    "python-contract-tests.log": "5b0f43f035ae7f02dfdc9e7bc1595d1f213755498e5ccfe13961b4ee80bd8f41",
+    "source-overlay.json": "40929edb3613c01b68274b5451ae9819e20143f2d9357e10f396e9f6741764bc",
+    "source-overlay.patch": "fd999dad4734d80e7e1c9dee09fb3aedb3a78e530703cf71ca19dd676a1b3956",
+    "validation-report.json": "06cf82255a090fc6d462273599711f2b2016378cad936ffc8697e6c11977e0df"
+  },
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source207-free-box-true-residual-buildfix-002",
+  "schema": "numi.cardboard.source207-buildfix.manifest.v1",
+  "source_build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/source-build.json",
+  "source_build_receipt_sha256": "cb5a5dfa5b836bea5ab0bf6e36cdef654c1900965294bfb773ecac8d532090fb",
+  "source_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002"
+}

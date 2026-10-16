@@ -1,0 +1,51 @@
+{
+  "limits": [
+    "No native observer-history run or full-shipping transaction was executed as part of this review.",
+    "The measure is a reference-area quadrature capacity-loss proxy; it does not report actual geometric opening, debond area, or physical qualification."
+  ],
+  "mechanical_review": {
+    "analyzer": "requires quadrature-specific status; old face-maximum status is rejected as inconclusive_legacy_face_maximum_not_quadrature_area",
+    "failed_cell_rule": "point damage exactly 1.0 counts one equal reference-area quadrature cell; no tolerance is added",
+    "force_quadrature": "each of the three quadrature forces uses face.geometry.w / 3.0f",
+    "invalid_input": "nonfinite/out-of-range history or nonpositive/nonfinite reference area fails closed",
+    "native_face_state_x": "maximum of the three point damage values in the mixed cohesive kernel (maximumDamage=max(nextHistory.w), stored in next.state.x)",
+    "probe_input": "the accepted snapshot\u2019s three mixedPointHistory[].w values, not face.state.x",
+    "reported_quantity": "reference cohesive area with zero tensile/shear traction capacity, explicitly not geometric opening/debond area",
+    "whole_face_rule": "all three quadrature point damages must equal 1.0"
+  },
+  "schema": "numi.cardboard.independent-source-review.v1",
+  "scope": "Source205 cohesive quadrature failed-capacity-area observer and analyzer; no solver or physical qualification.",
+  "source": {
+    "all_source_hashes_match": true,
+    "base_frozen_source_sha256": "e132044853c067ce399f465584fb073d956022acd732dd443bdb0b35c0f777df",
+    "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-topology-frame-export-204",
+    "changed_file_count": 7,
+    "changed_hashes_match_parent_and_candidate_maps": true,
+    "changed_paths": [
+      "matter/CMakeLists.txt",
+      "matter/tools/cardboard_cohesive_capacity_area.hpp",
+      "matter/tools/cardboard_cohesive_capacity_area_check.cpp",
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/cardboard_stage_resolution_study.md",
+      "matter/tools/cardboard_stage_resolution_study.py",
+      "matter/tools/test_cardboard_stage_resolution_study.py"
+    ],
+    "frozen_source_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+    "production_runtime_or_metal_changed": false,
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205",
+    "source_file_count": 819
+  },
+  "validation": {
+    "analyzer_tests": 27,
+    "analyzer_tests_exit_code": 0,
+    "analyzer_tests_receipt_sha256": "e1edd66e0aa9463f1039300d7aa70201c3cfb313b60ba3c1d868a42f8d394a8e",
+    "native_gpu_executed": false,
+    "native_helper_exit_code": 0,
+    "native_helper_receipt_sha256": "2e8a4164771a53fb750baf5576293983e6999151266938620f684a5092b0d0df",
+    "sealed_parent_analysis_manifest_sha256": "a1c1ebba89140d998b5668ac3e418e62868007f3e9087dbd26656a2daab84a8d",
+    "source_build_manifest_sha256": "a7cfeafefff8c76e8b177b2d73e2f9dd055929ae8cf0cc1bc1388554577ac317",
+    "source_build_success": true,
+    "source_overlay_sha256": "1ccbc946e9ecbdd5dcbc7d84d4bf294fd5064a03602fd81d168a2b1d95f3b010"
+  },
+  "verdict": "PASS_OBSERVER_DEFINITION_REVIEW_ONLY"
+}

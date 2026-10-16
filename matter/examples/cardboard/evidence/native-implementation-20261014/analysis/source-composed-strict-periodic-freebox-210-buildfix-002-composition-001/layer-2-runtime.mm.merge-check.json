@@ -1,0 +1,6 @@
+{
+  "patch_check_exit": 1,
+  "patch_check_stderr": "error: patch failed: matter/src/runtime.mm:23131\nerror: matter/src/runtime.mm: patch does not apply\n",
+  "three_way_exit": 1,
+  "three_way_stderr": ""
+}

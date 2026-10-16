@@ -1,0 +1,17 @@
+test_capability_failure_is_fail_closed (__main__.TrueResidualCertificationContract.test_capability_failure_is_fail_closed) ... ok
+test_cycle_cap_rejects_certification_not_silent_skips (__main__.TrueResidualCertificationContract.test_cycle_cap_rejects_certification_not_silent_skips) ... ok
+test_explicit_opt_in_is_separate_from_observer_selectors (__main__.TrueResidualCertificationContract.test_explicit_opt_in_is_separate_from_observer_selectors) ... ok
+test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used (__main__.TrueResidualCertificationContract.test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used) ... ok
+test_free_box_true_residual_admission_is_exact_and_separate (__main__.TrueResidualCertificationContract.test_free_box_true_residual_admission_is_exact_and_separate) ... ok
+test_native_box_fixture_uses_both_contact_blocks_and_tail_controls (__main__.TrueResidualCertificationContract.test_native_box_fixture_uses_both_contact_blocks_and_tail_controls) ... ok
+test_native_kernel_fixture_covers_state_machine_and_failure_rollback (__main__.TrueResidualCertificationContract.test_native_kernel_fixture_covers_state_machine_and_failure_rollback) ... ok
+test_nonfinite_residual_is_not_certified (__main__.TrueResidualCertificationContract.test_nonfinite_residual_is_not_certified) ... ok
+test_same_operator_action_precedes_true_residual_decision (__main__.TrueResidualCertificationContract.test_same_operator_action_precedes_true_residual_decision) ... ok
+test_true_absolute_gate_and_unresolved_finite_floor (__main__.TrueResidualCertificationContract.test_true_absolute_gate_and_unresolved_finite_floor) ... ok
+test_true_residual_controls_latch_and_preserves_unmodified_thresholds (__main__.TrueResidualCertificationContract.test_true_residual_controls_latch_and_preserves_unmodified_thresholds) ... ok
+test_unhealthy_diagnostic_status_has_single_lane_writer (__main__.TrueResidualCertificationContract.test_unhealthy_diagnostic_status_has_single_lane_writer) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.004s
+
+OK

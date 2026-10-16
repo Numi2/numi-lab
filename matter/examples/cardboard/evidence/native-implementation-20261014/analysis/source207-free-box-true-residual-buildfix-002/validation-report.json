@@ -1,0 +1,50 @@
+{
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-coupled-free-box-operator-check": "d93a33e696d8069a4fcd8630d3c5b70ff391f2658f03d603a9654d563a3fb2b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-full-contact-armijo-check": "6bdedcf2cf7a5e5faba059dce8c2bb6e70b3332e6cd4410991845545f476df58",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-probe": "a34b012971fb714b30b009b257259ee9d0241566c05f1cc30ffca880eeb5963f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-fgmres-true-residual-native-check": "75990a6ba2696e1c3cab1916c8eb8ce998bde294e4d5af2aa9cba1ba323cd743",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatter.metallib": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001",
+  "build_metadata": {
+    "CMakeCache.txt": "a03f687125111e6f1a7e1a339d24d93d5184086ecf0b60422e027291c7f33f8b",
+    "compile_commands.json": "5adbf35f09b4242d20a855e36050ac6bd2191106834535e8e1db964f253dd755"
+  },
+  "candidate_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+  "created_at_utc": "2026-10-16T10:11:10.747254+00:00",
+  "gpu_execution": false,
+  "limitations": [
+    "No GPU/native helper execution was performed.",
+    "No physical FEM transaction or full contact/box solver qualification.",
+    "The helper prints wrong_sign_control_norm for a b+Ax control; the exact restart-vector assertions verify b-Ax sign directly.",
+    "Metal compiler emitted pre-existing warnings at fgmres.metalinc sharedValid/refinementValid sites."
+  ],
+  "native_command": "env NUMI_MATTER_METALLIB=/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatter.metallib /Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-coupled-free-box-operator-check",
+  "parent_frozen_source_sha256": "e4a35178751c7a972bb884bf6b4a1290de149795e8d0e4253f8a255c2aa841ca",
+  "parent_overlay_manifest_sha256": "585056d566d2586cfe21cebae40b25f8405596012ef728d430732ecbfd5c0bd0",
+  "parent_overlay_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source207-free-box-true-residual-001",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-true-residual-207",
+  "previous_failed_builds": [
+    {
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-001",
+      "reason": "source-bound runner had no cmake in inherited PATH; preserved."
+    },
+    {
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-002",
+      "reason": "helper string literal contained a raw newline; compile rejected, preserved."
+    }
+  ],
+  "python_contract_test_log": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source207-free-box-true-residual-buildfix-002/python-contract-tests.log",
+  "python_contract_test_log_sha256": "5b0f43f035ae7f02dfdc9e7bc1595d1f213755498e5ccfe13961b4ee80bd8f41",
+  "python_contract_tests": "12 passed",
+  "schema": "numi.cardboard.source207-buildfix.validation.v1",
+  "secondary_native_command": "env NUMI_MATTER_METALLIB=/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatter.metallib /Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-fgmres-true-residual-native-check",
+  "source_build_receipt_sha256": "cb5a5dfa5b836bea5ab0bf6e36cdef654c1900965294bfb773ecac8d532090fb",
+  "source_build_success": true,
+  "source_file_count": 819,
+  "source_overlay_manifest_sha256": "40929edb3613c01b68274b5451ae9819e20143f2d9357e10f396e9f6741764bc",
+  "source_overlay_patch_sha256": "fd999dad4734d80e7e1c9dee09fb3aedb3a78e530703cf71ca19dd676a1b3956"
+}

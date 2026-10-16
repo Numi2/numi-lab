@@ -1,0 +1,43 @@
+{
+  "artifacts": {
+    "README.md": {
+      "bytes": 698,
+      "sha256": "24db13de5db9e4ac808944eaafc82f8c5054d59eef912f82daf5cc2dddcf95b4"
+    },
+    "cpu-suite.stderr": {
+      "bytes": 128,
+      "sha256": "f6f1c8d52f3df171ccf509a841aa91c0a6b93b0cc5a750cd9587476e09c0c342"
+    },
+    "cpu-suite.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source-overlay.json": {
+      "bytes": 4217,
+      "sha256": "96496d325850873ff4809bebdc30dc86e45f1a520abdbb71f1abfac2765e1d01"
+    },
+    "source204.patch": {
+      "bytes": 6395,
+      "sha256": "fd0d91653ba35b11e2c2b6dfa076a957b6db008275e93e933d11971790f55e58"
+    }
+  },
+  "base_frozen_source_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "changed_sources": {
+    "matter/tools/cardboard_cached_operator_audit.py": {
+      "after": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+      "before": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+      "bytes": 53660
+    },
+    "matter/tools/test_cardboard_cached_operator_audit.py": {
+      "after": "9e090f31f73c8a986c1d43adf1fa01c1f0ded8d554dcaa0cae15efacfc7489bf",
+      "before": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16",
+      "bytes": 31744
+    }
+  },
+  "created_at_utc": "2026-10-16T09:36:37.333131+00:00",
+  "native_execution": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source204-topology-frame-export-004",
+  "physical_operator_changed": false,
+  "schema": "numi.cardboard.source204-seal.v1",
+  "test_status": "PASS_29_OF_30_WITH_LOCKED_TEST_PENDING"
+}

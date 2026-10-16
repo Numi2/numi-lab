@@ -871,6 +871,38 @@ def run(args: argparse.Namespace) -> dict:
     return report
 
 
+
+def write_topology_archive(path: Path, payload: dict[str, Any]) -> None:
+    """Write topology plus captured material-frame provenance for replay."""
+    nodes = np.asarray(payload["nodes"], dtype=np.int64)
+    rows = np.asarray(payload["material_frame_rows"], dtype=np.float64)
+    direct = np.asarray(payload["material_frame_rows_directly_captured"], dtype=np.uint8)
+    active = np.asarray(payload["material_frame_active"], dtype=np.uint8)
+    quaternions = np.asarray(payload["material_frame_quaternion_xyzw"], dtype=np.float64)
+    count = len(nodes)
+    if (nodes.shape != (count, 4) or rows.shape != (count, 3, 3) or
+            direct.shape != (count,) or active.shape != (count,) or
+            quaternions.shape != (count, 4)):
+        raise ValueError("topology/frame arrays have inconsistent tetrahedron counts")
+    if (not np.isfinite(rows).all() or not np.isfinite(quaternions).all() or
+            not np.isin(direct, (0, 1)).all() or not np.isin(active, (0, 1)).all()):
+        raise ValueError("topology/frame provenance contains invalid values")
+    if direct.any() and not np.array_equal(
+            rows[direct.astype(bool)].astype(np.float32).astype(np.float64),
+            rows[direct.astype(bool)]):
+        raise ValueError("directly captured frame rows are not exact FP32 values")
+    np.savez_compressed(path, nodes=nodes,
+        material_indices=np.asarray(payload["material_indices"], dtype=np.int64),
+        rest_volumes_m3=np.asarray(payload["rest_volumes_m3"], dtype=np.float64),
+        inverse_rest_rows_per_m=np.asarray(payload["inverse_rest_rows_per_m"], dtype=np.float64),
+        node_count=np.asarray(payload["node_count"], dtype=np.int64),
+        material_frame_rows=rows,
+        material_frame_rows_directly_captured=direct,
+        material_frame_active=active,
+        material_frame_quaternion_xyzw=quaternions,
+        material_frame_row_semantics=np.asarray(
+            "rows are exact native FP32 values iff directly_captured=1; otherwise legacy interpreted frame"))
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--capture", required=True)
@@ -916,11 +948,9 @@ def main() -> int:
             captured_node_state_f32=payload["captured_node_state_f32"])
         matrix_hashes[vectors_path.name] = sha256(vectors_path)
         topology_path = output.with_name(output.stem + ".topology.npz")
-        np.savez_compressed(topology_path, nodes=payload["nodes"],
-            material_indices=payload["material_indices"],
-            rest_volumes_m3=payload["rest_volumes_m3"],
-            inverse_rest_rows_per_m=payload["inverse_rest_rows_per_m"],
-            node_count=np.asarray(payload["captured_node_state_f32"].shape[0], dtype=np.int64))
+        topology_payload = dict(payload)
+        topology_payload["node_count"] = payload["captured_node_state_f32"].shape[0]
+        write_topology_archive(topology_path, topology_payload)
         matrix_hashes[topology_path.name] = sha256(topology_path)
         report["matrix_artifacts"] = {
             "files_sha256": matrix_hashes,

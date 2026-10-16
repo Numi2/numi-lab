@@ -1,0 +1,39 @@
+{
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-topology-frame-export-204",
+  "base_frozen_sha256": "e132044853c067ce399f465584fb073d956022acd732dd443bdb0b35c0f777df",
+  "changed_sources": {
+    "matter/CMakeLists.txt": {
+      "after": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "before": "834628140bfcd3a9c8a0f4aa2aa4c4ae7ff1c18d1c5bf34790fe13fe1fdf8f22"
+    },
+    "matter/tools/cardboard_cohesive_capacity_area.hpp": {
+      "after": "baa588d46aecf2b1e66d8ddeb1806420038edfc5a2c4ac67c4e499e638d1ce46",
+      "before": null
+    },
+    "matter/tools/cardboard_cohesive_capacity_area_check.cpp": {
+      "after": "ed8783c5fa393c215e128764e58983564c9a56c4310708a186c729486541a2f6",
+      "before": null
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "after": "71893190f2353ba04e752a69b5b87bf7a5304fb3d39148491111a545cc6a177a",
+      "before": "c3e14bc267883e53fa67797a9661796e8e221202e6d5c3c4ac846f6862163385"
+    },
+    "matter/tools/cardboard_stage_resolution_study.md": {
+      "after": "d54a8563acd1f0a732bbac1cb01a4ab08911474e0d28f38d1b45085eaeca085d",
+      "before": "c68160fa6c38a83166abd73df611bce701d6d1308eed19eba208dd3bb2f08814"
+    },
+    "matter/tools/cardboard_stage_resolution_study.py": {
+      "after": "177741de6e0e43981d1340ae05b45a26bd599a0bb4b624b14b72f9e58c3d91ea",
+      "before": "8fe20bad44a32038d64de0f7c93db85735365ccf03081691e00e3fb21ce2c21f"
+    },
+    "matter/tools/test_cardboard_stage_resolution_study.py": {
+      "after": "e2ff71b72ac8dd0bbb070a3bae1bc7dd6639cd3add60ff83622988015ccf94c2",
+      "before": "0610a641b56929a1bd859cfe4b2be0881ff5bd4f6594429d3c9356bb8a9f906b"
+    }
+  },
+  "frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "historical_max_face_reports_are_not_retroactively_relabelled": true,
+  "native_check_pending": true,
+  "physical_operator_changed": false,
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205"
+}

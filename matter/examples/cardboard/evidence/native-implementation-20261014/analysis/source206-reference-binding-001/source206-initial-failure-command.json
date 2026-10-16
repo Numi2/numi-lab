@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_cardboard_stable_green_strain_reference",
+    "test_cardboard_compensated_fp64_reference",
+    "test_cardboard_bilinear_capture_layers"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206/matter/tools",
+  "gpu": false
+}

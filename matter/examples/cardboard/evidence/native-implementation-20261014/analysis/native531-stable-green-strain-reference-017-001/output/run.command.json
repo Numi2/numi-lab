@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native531-ninebasis-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-stable-green-strain-reference-017-001/output/audit9basis.py"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini",
+  "environment": {
+    "PYTHONPATH": "snapshots/source-contact-damped-memory-198-001/matter/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "execution": "CPU-only, no native transactions",
+  "wall_seconds": 127.81847662478685
+}

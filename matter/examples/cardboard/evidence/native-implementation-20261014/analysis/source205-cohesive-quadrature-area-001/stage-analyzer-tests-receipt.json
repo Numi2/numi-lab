@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.cpu-test-tool-receipt.v1",
+  "source_frozen_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_stage_resolution_study"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-cohesive-quadrature-area-205/matter/tools",
+  "tool_exit_code": 0,
+  "tests": 27,
+  "seconds": 0.196,
+  "captured_output": "...........................\n----------------------------------------------------------------------\nRan 27 tests in 0.196s\n\nOK\n",
+  "evidence_scope": "tool output receipt, not a second execution; synthetic analyzer tests, no GPU or physics qualification"
+}

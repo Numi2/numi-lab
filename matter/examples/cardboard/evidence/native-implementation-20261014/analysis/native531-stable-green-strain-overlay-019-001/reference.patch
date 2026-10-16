@@ -1,0 +1,13 @@
+--- a/matter/tools/cardboard_bilinear_fp64_reference.py
++++ b/matter/tools/cardboard_bilinear_fp64_reference.py
+@@ -12,7 +12,9 @@
+     return c/p[...,10,None,None]
+ 
+ def strain(f):
+-    e=(np.einsum('...ki,...kj->...ij',f,f)-np.eye(3))/2
++    # Algebraically identical Green strain, avoiding a near-unit F.T@F-I subtraction.
++    d = f - np.eye(3, dtype=f.dtype)
++    e = (d + np.swapaxes(d, -1, -2) + np.einsum('...ki,...kj->...ij', d, d)) / 2
+     return e[...,(0,1,2,1,0,0),(0,1,2,2,2,1)]
+ 
+ def hill(p,s):

@@ -1,0 +1,9 @@
+{
+  "status": "failed_three_way_context_merge",
+  "path": "matter/src/runtime.mm",
+  "layer": 2,
+  "retained_conflict": "layer-2-runtime.mm.conflict",
+  "explanation": "Adjacent source207 operator insertion and source209 comment insertion require explicit reviewed ordering; source210 attempt002 stops without choosing either side.",
+  "script_sha256": "b56fd6e06b071477e403f19cf8dfad6b249ad1fc23ede75aaa5caf0f5aa074b0",
+  "at_utc": "2026-10-16T10:21:38.290297+00:00"
+}

@@ -516,5 +516,53 @@ class AssemblyAdmissionTests(unittest.TestCase):
                 audit.bind_inputs(capture, prediction, receipt, stderr, 0)
 
 
+class TopologyFrameExportTests(unittest.TestCase):
+    def test_topology_archive_preserves_exact_and_legacy_frame_provenance(self):
+        q_native = quat_axis_angle([1.0, -2.0, 0.4], 0.71)
+        q_legacy = quat_axis_angle([-0.2, 0.7, 1.1], 0.39)
+        exact_native = audit.rotation_from_xyzw(q_native).astype(np.float32).astype(np.float64)
+        legacy_interpreted = audit.rotation_from_xyzw(q_legacy)
+        payload = {
+            "nodes": np.asarray([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64),
+            "material_indices": np.asarray([2, 3], dtype=np.int64),
+            "rest_volumes_m3": np.asarray([1.0/6.0, 0.25]),
+            "inverse_rest_rows_per_m": np.stack((np.eye(3), np.eye(3))),
+            "node_count": 8,
+            "material_frame_rows": np.stack((exact_native, legacy_interpreted)),
+            "material_frame_rows_directly_captured": np.asarray([1, 0], dtype=np.uint8),
+            "material_frame_active": np.asarray([1, 1], dtype=np.uint8),
+            "material_frame_quaternion_xyzw": np.asarray((q_native, q_legacy)),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "topology.npz"
+            audit.write_topology_archive(path, payload)
+            with np.load(path, allow_pickle=False) as saved:
+                np.testing.assert_array_equal(saved["material_frame_rows"],
+                                              payload["material_frame_rows"])
+                np.testing.assert_array_equal(saved["material_frame_rows_directly_captured"],
+                                              [1, 0])
+                np.testing.assert_array_equal(saved["material_frame_active"], [1, 1])
+                np.testing.assert_array_equal(saved["material_frame_quaternion_xyzw"],
+                                              payload["material_frame_quaternion_xyzw"])
+                self.assertIn("directly_captured=1",
+                              str(saved["material_frame_row_semantics"].item()))
+
+    def test_topology_archive_rejects_misaligned_frame_arrays(self):
+        payload = {
+            "nodes": np.zeros((1, 4), dtype=np.int64),
+            "material_indices": np.zeros(1, dtype=np.int64),
+            "rest_volumes_m3": np.ones(1),
+            "inverse_rest_rows_per_m": np.eye(3)[None],
+            "node_count": 4,
+            "material_frame_rows": np.eye(3)[None],
+            "material_frame_rows_directly_captured": np.zeros(1, dtype=np.uint8),
+            "material_frame_active": np.zeros(1, dtype=np.uint8),
+            "material_frame_quaternion_xyzw": np.zeros((2, 4)),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ValueError, "inconsistent tetrahedron counts"):
+                audit.write_topology_archive(Path(tmp) / "bad.npz", payload)
+
+
 if __name__ == "__main__":
     unittest.main()

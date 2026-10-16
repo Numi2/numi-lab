@@ -68,7 +68,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
         for guard in (
             "microtick != 0u", "state.enableVascularDense45",
             "cohesiveFaceCount > 4096u", "tetrahedronCount > 32768u",
-            "femNewtonTraceScope()", "femTrueResidualElementOperator == nil",
+            "femNewtonTraceScope(", "femTrueResidualElementOperator == nil",
             "femTrueResidualRightHandSide == nil",
             "femTrueResidualMetrics == nil", "femTrueResidualStatuses == nil",
             "femAlgorithmicTangentCache == nil",
@@ -109,8 +109,14 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn('"nm_fem_cohesive_face_operator"', cycle)
         self.assertIn('"nm_fgmres_add_cohesive_operator"', cycle)
         self.assertIn("bindPrimalContactArguments(12u)", cycle)
-        # The admitted scope excludes MPM, articulated/support/vascular rows;
-        # the gathered mechanical action still contains contact and cohesive.
+        self.assertLess(cycle.rindex('"nm_fgmres_apply_free_rigid"'),
+                        cycle.index('"nm_fgmres_measure_true_residual"'))
+        self.assertLess(cycle.rindex('"nm_fgmres_apply_primal_rigid_contacts"'),
+                        cycle.index('"nm_fgmres_measure_true_residual"'))
+        self.assertIn("allowConvergedTrueResidualOperator = 1u", cycle)
+        self.assertIn("[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers]", cycle)
+        # The admitted free-BOX path uses the same candidate, contact argument
+        # buffer, point Jacobians, and six-row operator arena as production.
 
     def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
         finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
@@ -126,6 +132,11 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||", measure)
         self.assertIn("trueNorm <= nonlinearThreshold", measure)
         self.assertIn("productionStatuses[environment] = diagnosticStatuses[environment]", measure)
+        self.assertIn("dispatch.rigidGeneralizedCapacity != 6u", measure)
+        self.assertIn("layout.unknownCount != expectedUnknownCount", measure)
+        self.assertIn("fgmresRigidIndex(dispatch, environment, dof)", measure)
+        self.assertIn("rigidResidual.x * rigidResidual.x", measure)
+        self.assertIn("residual[row] = float4(value, 0.0f, 0.0f, 0.0f)", measure)
 
     def test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used(self):
         estimate = 9.7661823e-6
@@ -203,6 +214,51 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("overwrote an existing production failure", NATIVE_CHECK)
         self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
 
+
+    def test_free_box_true_residual_admission_is_exact_and_separate(self):
+        scope = section(RUNTIME, "const auto femNewtonTraceScope =",
+                       "const auto femTrueResidualCapabilityFailure =")
+        for guard in (
+            "state.dispatch.environmentCount != 1u",
+            "state.dispatch.rigidGeneralizedCapacity != 6u",
+            "state.dispatch.rigidQCapacity != 0u",
+            "state.requiresCoupledCandidate",
+            "NM_RIGID_BOX",
+            "proxy.flags != NM_RIGID_DYNAMIC",
+            "proxy.generalizedFreeBodyIndex != 0u",
+            "NM_MATTER_CONTACT",
+            "state.dispatch.mpmActiveNodeCapacity != 0u",
+            "state.fgmresLayout.supportContactCount != 0u",
+            "state.fgmresLayout.vascularUnknownCount != 0u",
+            "state.dispatch.fieldBoundaryCount != 0u",
+            "state.fgmresLayout.unknownCount != expectedUnknownCount",
+        ):
+            self.assertIn(guard, scope)
+        capability = section(
+            RUNTIME, "const auto femTrueResidualCapabilityFailure =",
+            "const auto femResidualArmijoScope =")
+        self.assertIn(
+            "femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
+            capability)
+        self.assertIn("femNewtonTraceScope(false)", RUNTIME)
+
+    def test_native_box_fixture_uses_both_contact_blocks_and_tail_controls(self):
+        coupled = (HERE / "cardboard_coupled_free_box_operator_check.mm").read_text()
+        for required in (
+            "nm_fgmres_measure_true_residual",
+            "fixture.nativeAction(center, mixedDirection)",
+            "active BOX contact did not apply the rigid-side direction to FEM rows",
+            "active BOX contact did not apply the FEM-side direction to rigid rows",
+            "rigidGeneralizedCapacity == 6u",
+            "layout.unknownCount = 2u * dispatch.environmentCount * dispatch.femNodeCount + 6u",
+            "omittedTailNorm2",
+            "wrongSignNorm2",
+            "six scalar BOX rows",
+            "restart_tail_replaced=true",
+            "zero full-layout residual did not meet the unchanged gate",
+            "physical_transactions=0",
+        ):
+            self.assertIn(required, coupled)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

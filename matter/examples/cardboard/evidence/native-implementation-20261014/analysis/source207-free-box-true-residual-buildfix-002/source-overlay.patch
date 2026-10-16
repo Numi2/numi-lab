@@ -1,0 +1,12 @@
+--- a/matter/tools/cardboard_coupled_free_box_operator_check.mm
++++ b/matter/tools/cardboard_coupled_free_box_operator_check.mm
+@@ -922,8 +922,7 @@
+         << " omitted_tail_norm=" << std::sqrt(omittedTailNorm2)
+         << " wrong_sign_control_norm=" << std::sqrt(wrongSignNorm2)
+         << " restart_tail_replaced=true completed=false"
+-        << " physical_transactions=0
+-";
++        << " physical_transactions=0\n";
+ 
+     // A zero residual still passes the same unchanged threshold and resets all
+     // six scalar restart rows to zero.

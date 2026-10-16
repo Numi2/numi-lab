@@ -1,0 +1,26 @@
+............................F.
+======================================================================
+FAIL: test_source_bound_runner_materializes_and_validates_case_local_capture (test_cardboard_solver_environment.EffectiveEnvironmentTests.test_source_bound_runner_materializes_and_validates_case_local_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/matter/tools/test_cardboard_solver_environment.py", line 264, in test_source_bound_runner_materializes_and_validates_case_local_capture
+    self.assertEqual(completed.returncode, 0, completed.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/matter/tools/cardboard_source_bound_run.py", line 52, in <module>
+    fcntl.flock(worker_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BlockingIOError: [Errno 35] Resource temporarily unavailable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203/matter/tools/cardboard_source_bound_run.py", line 54, in <module>
+    raise RuntimeError('another source-bound native worker owns this checkout')
+RuntimeError: another source-bound native worker owns this checkout
+
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.132s
+
+FAILED (failures=1)

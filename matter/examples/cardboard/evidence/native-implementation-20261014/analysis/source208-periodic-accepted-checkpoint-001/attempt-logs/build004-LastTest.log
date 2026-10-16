@@ -1,0 +1,43 @@
+Start testing: Oct 16 12:16 CEST
+----------------------------------------------------------
+58/133 Testing: matter.compiler.cardboard_shipping_snapshot
+58/133 Test: matter.compiler.cardboard_shipping_snapshot
+Command: "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-004/numi-matter-cardboard-shipping-snapshot-check"
+Directory: /Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-004
+"matter.compiler.cardboard_shipping_snapshot" start time: Oct 16 12:16 CEST
+Output:
+----------------------------------------------------------
+shipping snapshot/provenance checks passed: 6
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_shipping_snapshot" end time: Oct 16 12:16 CEST
+"matter.compiler.cardboard_shipping_snapshot" time elapsed: 00:00:00
+----------------------------------------------------------
+
+59/133 Testing: matter.compiler.cardboard_coupon_resume
+59/133 Test: matter.compiler.cardboard_coupon_resume
+Command: "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-004/numi-matter-cardboard-coupon-resume-check"
+Directory: /Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-004
+"matter.compiler.cardboard_coupon_resume" start time: Oct 16 12:16 CEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_coupon_resume" end time: Oct 16 12:16 CEST
+"matter.compiler.cardboard_coupon_resume" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 12:16 CEST
+
+cardboard =   0.52 sec*proc
+
+cpu =   0.52 sec*proc
+
+matter =   0.52 sec*proc
+
+shipping =   0.52 sec*proc
+

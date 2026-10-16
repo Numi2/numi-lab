@@ -1,0 +1,80 @@
+{
+  "schema": "numi.cardboard.publication-reference-package.v1",
+  "files": [
+    {
+      "path": "binding.json",
+      "bytes": 1179,
+      "sha256": "0b6f802b8c83dccf0afa40425ada9b8cdfb441aea9d487da56d3c3a9b18e9db5"
+    },
+    {
+      "path": "reference-artifacts/cardboard_bilinear_fp64_reference.py",
+      "bytes": 17768,
+      "sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f"
+    },
+    {
+      "path": "reference-artifacts/cardboard_stable_green_strain_tet222_col6.json",
+      "bytes": 5064,
+      "sha256": "50100efa47827a67388ef337dd91378a154af5797a0a9d8968bd0f0a839f45e2"
+    },
+    {
+      "path": "reference-artifacts/stable-green-overlay-README.md",
+      "bytes": 3334,
+      "sha256": "15de0083566d70d0b0756fe9fb1cb5857b2b69fdf358a46d413882b5dfd23cd1"
+    },
+    {
+      "path": "reference-artifacts/stable-green-reference.patch",
+      "bytes": 511,
+      "sha256": "91ee822db742642b2c55c7b7dce5726d46e188e9f3630759c92264757577a95f"
+    },
+    {
+      "path": "reference-artifacts/test_cardboard_stable_green_strain_reference.py",
+      "bytes": 3792,
+      "sha256": "5ca65538aef0fb3395df96c0a63cc2fccf95a9e55f1e491fa2a1b1f342186efa"
+    },
+    {
+      "path": "source206-buildfix-command.json",
+      "bytes": 471,
+      "sha256": "8dd583340a2e5f2fad4d17c8392d4eecaf5c5e21b12ea485c71ef6061398c5b0"
+    },
+    {
+      "path": "source206-buildfix-manifest.json",
+      "bytes": 288,
+      "sha256": "8a5d587e83692ae583707a666cb49448193afecd44618646bf45ac50c7a0b6d1"
+    },
+    {
+      "path": "source206-buildfix-report.json",
+      "bytes": 836,
+      "sha256": "60e911d0a24fd92bce62e5546e28e58d76fe41113c8428d0af9f9f9cb8a1f0fe"
+    },
+    {
+      "path": "source206-buildfix-stdout.log",
+      "bytes": 3239,
+      "sha256": "ec91d93397ce91ed4244578999a9c9f87021c4ea2159fe59e259d0b050c9f04c"
+    },
+    {
+      "path": "source206-frozen-source.json",
+      "bytes": 105047,
+      "sha256": "846aa41eab31797886190cc50df512a6af2d49c981244e1448cc1b024c913340"
+    },
+    {
+      "path": "source206-initial-failure-command.json",
+      "bytes": 458,
+      "sha256": "ad6e22643925044ea8898765519b8291b540029e0d20312192083928700fbdb1"
+    },
+    {
+      "path": "source206-initial-failure-manifest.json",
+      "bytes": 288,
+      "sha256": "1c521f10f462c9a11dfeb2d0ec8c279d42246eaa089e877de24f98d89b94fd67"
+    },
+    {
+      "path": "source206-initial-failure-report.json",
+      "bytes": 1357,
+      "sha256": "664e48be90837e17af51d0ceb338ec673f8b5c1a3314ef3f7bcdca27bf3ed5bc"
+    },
+    {
+      "path": "source206-initial-failure-stdout.log",
+      "bytes": 2483,
+      "sha256": "380dd71328c2c98ee51e98c8e19673b9bd66c315843ef21fa06962f965ad6b96"
+    }
+  ]
+}

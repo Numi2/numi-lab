@@ -1,0 +1,67 @@
+{
+  "schema": "numi.cardboard.source210-runtime-fgmres-review.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "source_frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "review_report_sha256": "d07e202e0a3decb8a083ad5e445640dcd272736d40fa297ca6c134b2838cd185",
+  "bound_inputs": {
+    "frozen_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/frozen-source.json",
+      "sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931"
+    },
+    "runtime": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/src/runtime.mm",
+      "sha256": "e8a0c78dc812b491781a8f3d72a4a42d1f70e18ab3b37eff6fe157eadb7e75e1"
+    },
+    "fgmres": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/src/metal/fgmres.metalinc",
+      "sha256": "c1c25769c2115cd64ef9dd849cc4a987563f8d51e03638c52a1c7526b2c91c00"
+    },
+    "environment_registry": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/tools/cardboard_solver_environment.py",
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "composition": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-composed-strict-periodic-freebox-210-buildfix-003-composition-001/composition.json",
+      "sha256": "69aa0e749fe6dce96e7798a0c5721b9115c0c54c2083a7b99cfe786173908124"
+    },
+    "conflict_resolution": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-composed-strict-periodic-freebox-210-buildfix-003-composition-001/reviewed-runtime-conflict-resolution.json",
+      "sha256": "c78ed3ce459acd42a653ca9a67f14fe60e69c0dde0b19173a06b5e351aff7ee4"
+    },
+    "merge_check": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-composed-strict-periodic-freebox-210-buildfix-003-composition-001/layer-2-runtime.mm.merge-check.json",
+      "sha256": "22526a817bffc7e52dbc1d69d8e95735857e8c437090523c867f26e9e63cfe5a"
+    },
+    "runtime_patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-composed-strict-periodic-freebox-210-buildfix-003-composition-001/layer-2-runtime.mm.patch",
+      "sha256": "4d6ca84315b88a47e818f51c0453a2f941751be7fa159a8c5d6f713e538cb083"
+    },
+    "fgmres_patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-composed-strict-periodic-freebox-210-buildfix-003-composition-001/layer-2-fgmres.metalinc.patch",
+      "sha256": "fe01c488266dba2011667eed0e5dc560d0fe4bff9961d0f55f24ab6d63f782ea"
+    },
+    "build_receipt": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source210-combined-build-001/receipt.json",
+      "sha256": "266faf3c79f1c579fba2cbb22b863b90b5a66d7d41a41597cf1b0bb036f41fcf"
+    },
+    "native543_summary": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/combined-freebox-strict-inner-543/summary.json",
+      "sha256": "d58f9002a1dfffc70da4c73f5ab33dc2102082c645244cfb3c26ac77c3dae798"
+    }
+  },
+  "line_anchors": {
+    "strict_admission_runtime": "matter/src/runtime.mm:12137-12153",
+    "free_rigid_and_contact_residual_dispatch": "matter/src/runtime.mm:23208-23243",
+    "replacement_bitmask_runtime": "matter/src/runtime.mm:23245-23251",
+    "strict_completion_predicate": "matter/src/metal/fgmres.metalinc:5680-5684",
+    "environment_key": "matter/tools/cardboard_solver_environment.py:76"
+  },
+  "findings": {
+    "blocking_source_composition_defect": false,
+    "source207_rigid_dispatch_block_exact_in_source210": true,
+    "source209_strict_admission_exact_in_source210": true,
+    "source209_completion_predicate_exact_in_source210": true,
+    "automated_runtime_patch_merge_check": "failed context; final manual resolution separately reviewed",
+    "full_coupon_qualification": false
+  }
+}

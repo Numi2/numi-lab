@@ -1,0 +1,198 @@
+// Build the compact physical signature used by event-synchronised phase
+// alignment. Joint state comes from the task's authored action bindings,
+// root motion comes from the accepted solver q/v, and contact bits come from
+// solved compact contact loads. Generated ARDY contact channels are never read
+// here as measured truth.
+namespace {
+
+inline float4 hyperQuaternionMultiply(const float4 left, const float4 right) {
+    return float4(
+        left.w * right.x + left.x * right.w
+            + left.y * right.z - left.z * right.y,
+        left.w * right.y - left.x * right.z
+            + left.y * right.w + left.z * right.x,
+        left.w * right.z + left.x * right.y
+            - left.y * right.x + left.z * right.w,
+        left.w * right.w - dot(left.xyz, right.xyz)
+    );
+}
+
+inline float3 hyperQuaternionRotate(const float4 quaternion, const float3 value) {
+    const float3 t = 2.0f * cross(quaternion.xyz, value);
+    return value + quaternion.w * t + cross(quaternion.xyz, t);
+}
+
+inline float3 hyperQuaternionLog(float4 quaternion) {
+    quaternion *= rsqrt(max(dot(quaternion, quaternion), 1.0e-20f));
+    if (quaternion.w < 0.0f) {
+        quaternion = -quaternion;
+    }
+    const float vectorLength = length(quaternion.xyz);
+    if (vectorLength < 1.0e-7f) {
+        return 2.0f * quaternion.xyz;
+    }
+    const float angle = 2.0f * atan2(
+        vectorLength, clamp(quaternion.w, -1.0f, 1.0f)
+    );
+    return quaternion.xyz * (angle / vectorLength);
+}
+
+inline float4 hyperWorldToHeadingFrame(const float4 rootQuaternion) {
+    const float yaw = atan2(
+        2.0f * (rootQuaternion.w * rootQuaternion.z
+            + rootQuaternion.x * rootQuaternion.y),
+        1.0f - 2.0f * (
+            rootQuaternion.y * rootQuaternion.y
+            + rootQuaternion.z * rootQuaternion.z
+        )
+    );
+    const float halfAngle = -0.5f * yaw;
+    return float4(0.0f, 0.0f, sin(halfAngle), cos(halfAngle));
+}
+
+} // namespace
+
+kernel void mr_hyper_policy_build_signature(
+    device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
+    device const uchar* hyperArena [[buffer(1)]],
+    device const MRTaskProgramHeaderGPU& task [[buffer(2)]],
+    device const uchar* taskArena [[buffer(3)]],
+    constant MRHyperPolicySignatureDispatchGPU& dispatch [[buffer(4)]],
+    device const float* q [[buffer(5)]],
+    device const float* v [[buffer(6)]],
+    device const float* compactContact [[buffer(7)]],
+    device const uint* resetMasks [[buffer(8)]],
+    device MRHyperPolicyPhaseStateGPU* phaseStates [[buffer(9)]],
+    device float* signatures [[buffer(10)]],
+    device uint* measuredContactMasks [[buffer(11)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x
+        || dispatch.counts.y != program.counts0.z
+        || dispatch.counts.z != program.counts1.z
+        || dispatch.counts.w != program.counts2.y
+        || dispatch.counts.z != 2u * dispatch.counts.y + 9u + dispatch.counts.w
+        || task.taskFingerprint != program.taskFingerprint
+        || !hyperProgramValid(
+            program,
+            dispatch.policyFingerprint,
+            dispatch.taskFingerprint
+        )) {
+        return;
+    }
+
+    device const MRTaskActionBindingGPU* actionBindings =
+        reinterpret_cast<device const MRTaskActionBindingGPU*>(
+            taskArena + task.offsets0.x
+        );
+    device const MRTaskContactGroupGPU* contactGroups =
+        reinterpret_cast<device const MRTaskContactGroupGPU*>(
+            taskArena + task.offsets0.w
+        );
+    device const uint* contactGroupIndices = hyperTable<uint>(
+        hyperArena, program.offsets5.x
+    );
+
+    const uint qBase = dispatch.offsets.x + environment * dispatch.strides.x;
+    const uint vBase = dispatch.offsets.y + environment * dispatch.strides.y;
+    const uint compactBase = dispatch.offsets.z
+        + environment * dispatch.strides.z;
+    const uint resetIndex = dispatch.offsets.w
+        + environment * dispatch.strides.w;
+    const bool reset = resetMasks[resetIndex] != 0u;
+    const uint signatureBase = environment * dispatch.counts.z;
+
+    MRHyperPolicyPhaseStateGPU state = phaseStates[environment];
+    const bool initialized =
+        (state.state.w & MR_HYPER_POLICY_PHASE_INITIALIZED) != 0u;
+
+    float4 rootQuaternion = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float3 rootLinearVelocity = float3(0.0f);
+    float3 rootAngularVelocity = float3(0.0f);
+    const bool fixedRoot =
+        (task.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) != 0u;
+    if (!fixedRoot) {
+        const uint rootQ = task.root.z;
+        const uint rootV = task.root.w;
+        rootQuaternion = float4(
+            q[qBase + rootQ + 3u],
+            q[qBase + rootQ + 4u],
+            q[qBase + rootQ + 5u],
+            q[qBase + rootQ + 6u]
+        );
+        rootQuaternion *= rsqrt(max(dot(rootQuaternion, rootQuaternion), 1.0e-20f));
+        rootLinearVelocity = float3(
+            v[vBase + rootV + 0u],
+            v[vBase + rootV + 1u],
+            v[vBase + rootV + 2u]
+        );
+        rootAngularVelocity = float3(
+            v[vBase + rootV + 3u],
+            v[vBase + rootV + 4u],
+            v[vBase + rootV + 5u]
+        );
+        const float3 rootReferenceWorld = hyperQuaternionRotate(
+            rootQuaternion, task.rootReference.xyz
+        );
+        rootLinearVelocity += cross(rootAngularVelocity, rootReferenceWorld);
+    }
+
+    if (reset || !initialized) {
+        state.phase = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        state.state = uint4(
+            0u,
+            0u,
+            0u,
+            MR_HYPER_POLICY_PHASE_INITIALIZED
+        );
+        state.rootFrame = hyperWorldToHeadingFrame(rootQuaternion);
+    }
+
+    uint cursor = signatureBase;
+    for (uint action = 0u; action < dispatch.counts.y; ++action) {
+        const MRTaskActionBindingGPU binding = actionBindings[action];
+        signatures[cursor++] = q[qBase + binding.indices.z];
+    }
+    for (uint action = 0u; action < dispatch.counts.y; ++action) {
+        const MRTaskActionBindingGPU binding = actionBindings[action];
+        signatures[cursor++] = v[vBase + binding.indices.w];
+    }
+
+    const float4 canonicalRoot = hyperQuaternionMultiply(
+        state.rootFrame, rootQuaternion
+    );
+    const float3 rootLog = hyperQuaternionLog(canonicalRoot);
+    signatures[cursor++] = rootLog.x;
+    signatures[cursor++] = rootLog.y;
+    signatures[cursor++] = rootLog.z;
+
+    rootLinearVelocity = hyperQuaternionRotate(
+        state.rootFrame, rootLinearVelocity
+    );
+    rootAngularVelocity = hyperQuaternionRotate(
+        state.rootFrame, rootAngularVelocity
+    );
+    signatures[cursor++] = rootLinearVelocity.x;
+    signatures[cursor++] = rootLinearVelocity.y;
+    signatures[cursor++] = rootLinearVelocity.z;
+    signatures[cursor++] = rootAngularVelocity.x;
+    signatures[cursor++] = rootAngularVelocity.y;
+    signatures[cursor++] = rootAngularVelocity.z;
+
+    uint measuredMask = 0u;
+    for (uint contact = 0u; contact < dispatch.counts.w; ++contact) {
+        const uint groupIndex = contactGroupIndices[contact];
+        if (groupIndex >= task.counts0.w) {
+            return;
+        }
+        const MRTaskContactGroupGPU group = contactGroups[groupIndex];
+        const uint metric = group.members.w;
+        const bool active = metric < task.layout.z
+            && compactContact[compactBase + metric] > task.dynamics.y;
+        measuredMask |= active ? (1u << contact) : 0u;
+        signatures[cursor++] = active ? 1.0f : 0.0f;
+    }
+
+    measuredContactMasks[environment] = measuredMask;
+    phaseStates[environment] = state;
+}

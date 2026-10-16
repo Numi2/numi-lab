@@ -1,0 +1,15 @@
+{
+  "decision_required": "approve_for_539",
+  "execution_guard": "runner.py --execute refuses to run until a separate readiness.json binds both reviewed evidence files by full SHA-256 and explicitly sets admit_539=true for each.",
+  "predecessors": [
+    {
+      "id": "native537",
+      "required_evidence": "completed helper fixture and owner review receipt"
+    },
+    {
+      "id": "native538",
+      "required_evidence": "completed source203 frame observer pair and independent review receipt"
+    }
+  ],
+  "schema": "numi.cardboard.native539.predecessor-requirements.v1"
+}

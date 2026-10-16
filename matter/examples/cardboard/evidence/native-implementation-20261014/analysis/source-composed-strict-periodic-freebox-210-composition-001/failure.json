@@ -1,0 +1,9 @@
+{
+  "status": "failed_context_merge",
+  "path": "matter/src/runtime.mm",
+  "layer": 2,
+  "retained_partial_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210",
+  "script_sha256": "218b4585f7c096ab3f626b8559ae5ffb9d27a5038d5755c2db7377ac46b08ab1",
+  "explanation": "Source207 insertion shares context with source209 strict-mode assignment. git apply --check rejected; no failed patch was applied. Retain this attempt and use an explicit three-way content merge in a new snapshot.",
+  "at_utc": "2026-10-16T10:21:07.523061+00:00"
+}

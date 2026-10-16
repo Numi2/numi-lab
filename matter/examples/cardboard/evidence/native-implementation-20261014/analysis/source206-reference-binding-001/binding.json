@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source206-reference-only-binding.v1",
+  "source_snapshot": "snapshots/source-stable-green-reference-206-buildfix-002",
+  "frozen_source_sha256": "846aa41eab31797886190cc50df512a6af2d49c981244e1448cc1b024c913340",
+  "source_count": 821,
+  "reference_source_files": {
+    "matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "matter/tools/cardboard_stable_green_strain_tet222_col6.json": "50100efa47827a67388ef337dd91378a154af5797a0a9d8968bd0f0a839f45e2",
+    "matter/tools/test_cardboard_stable_green_strain_reference.py": "5ca65538aef0fb3395df96c0a63cc2fccf95a9e55f1e491fa2a1b1f342186efa"
+  },
+  "source206_report_sha256": "60e911d0a24fd92bce62e5546e28e58d76fe41113c8428d0af9f9f9cb8a1f0fe",
+  "stable_green_base_sha256": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+  "stable_green_candidate_sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+  "classification": "reference-only CPU arithmetic overlay; not part of canonical source210 and does not qualify native frames, material calibration, trajectory, or physical assembly"
+}

@@ -1,0 +1,61 @@
+{
+  "base_frozen_source_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203",
+  "change": "Topology NPZ export now preserves exact native frame rows and row provenance with fail-closed extent/value checks.",
+  "changed_sources": {
+    "matter/tools/cardboard_cached_operator_audit.py": {
+      "after": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+      "before": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+      "bytes": 53660
+    },
+    "matter/tools/test_cardboard_cached_operator_audit.py": {
+      "after": "9e090f31f73c8a986c1d43adf1fa01c1f0ded8d554dcaa0cae15efacfc7489bf",
+      "before": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16",
+      "bytes": 31744
+    }
+  },
+  "cpu_verification": {
+    "argv": [
+      "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "test_cardboard_cached_operator_audit",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_registry_matches_checkout_and_detects_unregistered_control",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_contact_control_binding_and_inherited_scrubbing",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_damped_cgls_is_a_physical_source_bound_setting",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_absent_empty_and_explicit_values_are_distinct",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_inherited_controls_are_scrubbed_but_unrelated_environment_is_kept",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_rejects_malformed_duplicate_unknown_and_capture_paths",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_trace_root_is_numeric_control_selector_not_output_path",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_diagnostic_paths_reject_traversal_symlinks_and_reuse",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_diagnostic_records_are_not_qualification_records",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_rejects_tampered_or_ambiguous_contract_and_run_record",
+      "test_cardboard_solver_environment.EffectiveEnvironmentTests.test_environment_sidecar_creation_is_exclusive"
+    ],
+    "excluded_test": "test_source_bound_runner_materializes_and_validates_case_local_capture",
+    "exclusion_reason": "The full 30-test run in retained package003 reached 29 passing tests, then this test collided with the active source-bound native worker flock. No test behavior was modified or bypassed; rerun the full suite after the worker exits.",
+    "executed_tests": 29,
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 29,
+    "stderr_sha256": "f6f1c8d52f3df171ccf509a841aa91c0a6b93b0cc5a750cd9587476e09c0c342",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_execution": false,
+  "patch_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source204-topology-frame-export-003/source204.patch",
+  "patch_sha256": "fd0d91653ba35b11e2c2b6dfa076a957b6db008275e93e933d11971790f55e58",
+  "physical_operator_changed": false,
+  "qualification": "diagnostic export CPU tests only",
+  "retained_prior_attempts": {
+    "001": "Import preflight failed because candidate-only copy omitted source helper module; retained at source204-topology-frame-export-001.",
+    "002": "Cached-audit module alone ran 17 tests; expectation of 30 was incorrect; retained at source204-topology-frame-export-002.",
+    "003": {
+      "full_suite_exit": 1,
+      "reason": "29 of 30 passed; source-bound-runner test encountered active worker flock.",
+      "stderr_sha256": "17b91de2dd0cd799a9aaa5f4e37ec58bd875f404bd3dbbe99d3fef9b5d4cf9b3"
+    }
+  },
+  "schema": "numi.cardboard.source204-export-overlay.v1"
+}

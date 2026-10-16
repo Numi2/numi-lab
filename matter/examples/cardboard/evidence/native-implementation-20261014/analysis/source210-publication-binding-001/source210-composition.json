@@ -1,0 +1,63 @@
+{
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "frozen_source_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source_count": 819,
+  "layers": [
+    {
+      "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-periodic-accepted-checkpoint-208",
+      "frozen_sha256": "435e34b44afb374f68510d784181cf75e1f691ce62bade43039a1f8d9443ffcb",
+      "changed_from_base": [
+        "matter/tools/cardboard_coupon_resume.hpp",
+        "matter/tools/cardboard_coupon_resume_check.cpp",
+        "matter/tools/cardboard_probe.mm",
+        "matter/tools/cardboard_shipping_snapshot.hpp",
+        "matter/tools/cardboard_shipping_snapshot_check.cpp"
+      ],
+      "merged_with_prior_overlay": [],
+      "new": []
+    },
+    {
+      "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+      "frozen_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+      "changed_from_base": [
+        "matter/src/metal/fgmres.metalinc",
+        "matter/src/runtime.mm",
+        "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+        "matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "merged_with_prior_overlay": [],
+      "new": []
+    },
+    {
+      "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-inner-forcing-209-buildfix-002",
+      "frozen_sha256": "2c222738e0b19e76dc039904fc60b650bed3c54ab410133f5597357640111e78",
+      "changed_from_base": [
+        "matter/src/metal/fgmres.metalinc",
+        "matter/src/runtime.mm",
+        "matter/tools/cardboard_solver_environment.py",
+        "matter/tools/fgmres_true_residual_native_check.mm",
+        "matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "merged_with_prior_overlay": [
+        "matter/src/metal/fgmres.metalinc",
+        "matter/src/runtime.mm"
+      ],
+      "new": []
+    }
+  ],
+  "changed_from_base": [
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_snapshot.hpp",
+    "matter/tools/cardboard_shipping_snapshot_check.cpp",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/fgmres_true_residual_native_check.mm",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/test_true_residual_certification_contract.py"
+  ],
+  "gpu_executed": false
+}

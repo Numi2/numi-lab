@@ -293,7 +293,7 @@ int main() {
     const PrefixManifest prefixDecoded = parsePrefixManifest(prefixInput, "prefix-test");
     assert(prefixDecoded.files.size() == 2u);
     assert(prefixDecoded.acceptedControlIndex == 19u);
-    assert(prefixDecoded.files[1].observationsPrefix);
+    assert(prefixDecoded.files[1].prefixOnly);
     PrefixManifest inconsistentPrefix = prefix;
     ++inconsistentPrefix.observationsPrefixBytes;
     mustReject([&] { (void)serializePrefixManifest(inconsistentPrefix); });
@@ -342,4 +342,113 @@ int main() {
     assert(stopAfterAcceptedCheckpoint(true, 19u, 19u));
     assert(!stopAfterAcceptedCheckpoint(true, 19u, 18u));
     assert(!stopAfterAcceptedCheckpoint(false, 19u, 19u));
+
+    Request periodic;
+    periodic.periodicCheckpointRequested = true;
+    periodic.periodicCheckpointEvery = 8u;
+    periodic.environmentCount = 2u;
+    periodic.totalControls = 64u;
+    validateRequest(periodic);
+    assert(periodicCheckpointCount(8u, 64u) == 8u);
+    assert(periodicCheckpointCount(8u, 60u) == 8u);
+    const auto continuingBoundary = nextControlBoundary(14u, 60u);
+    assert(continuingBoundary.nextControlIndex == 15u &&
+           !continuingBoundary.terminal);
+    const auto terminalBoundary = nextControlBoundary(59u, 60u);
+    assert(terminalBoundary.nextControlIndex == 60u &&
+           terminalBoundary.terminal);
+    mustReject([&] { (void)nextControlBoundary(60u, 60u); });
+    mustReject([&] { (void)nextControlBoundary(0u, 0u); });
+    for (std::uint32_t control = 0u; control < 64u; ++control) {
+        const bool expected = control == 7u || control == 15u ||
+            control == 23u || control == 31u || control == 39u ||
+            control == 47u || control == 55u || control == 63u;
+        assert(shouldWritePeriodicCheckpoint(
+            true, 8u, control, 64u) == expected);
+        assert(!shouldWritePeriodicCheckpoint(
+            false, 8u, control, 64u));
+    }
+    assert(shouldWritePeriodicCheckpoint(true, 8u, 59u, 60u));
+    assert(periodicCheckpointCount(63u, 64u) == 2u);
+    assert(shouldWritePeriodicCheckpoint(true, 63u, 62u, 64u));
+    assert(shouldWritePeriodicCheckpoint(true, 63u, 63u, 64u));
+    assert(!shouldWritePeriodicCheckpoint(true, 64u, 63u, 64u));
+    mustReject([&] { (void)periodicCheckpointCount(0u, 64u); });
+    mustReject([&] { (void)periodicCheckpointCount(8u, 0u); });
+    Request zeroCadence = periodic;
+    zeroCadence.periodicCheckpointEvery = 0u;
+    mustReject([&] { validateRequest(zeroCadence); });
+    Request finalOnlyCadence = periodic;
+    finalOnlyCadence.periodicCheckpointEvery = 64u;
+    mustReject([&] { validateRequest(finalOnlyCadence); });
+    Request excessiveCadence = periodic;
+    excessiveCadence.periodicCheckpointEvery = 7u;
+    mustReject([&] { validateRequest(excessiveCadence); });
+    Request mixedOneShot = periodic;
+    mixedOneShot.saveControlRequested = true;
+    mixedOneShot.saveControlIndex = 7u;
+    mustReject([&] { validateRequest(mixedOneShot); });
+    Request mixedResume = periodic;
+    mixedResume.checkpointProvided = true;
+    mixedResume.metadataProvided = true;
+    mustReject([&] { validateRequest(mixedResume); });
+    Request wrongScope = periodic;
+    wrongScope.environmentCount = 1u;
+    mustReject([&] { validateRequest(wrongScope); });
+    Request compileOnlyPeriodic = periodic;
+    compileOnlyPeriodic.compileOnly = true;
+    mustReject([&] { validateRequest(compileOnlyPeriodic); });
+
+    assert(periodicCheckpointAggregateFits(0u, 1024u, 2048u, 4096u));
+    assert(!periodicCheckpointAggregateFits(
+        kMaximumPeriodicCheckpointStorageBytes - 4095u, 1u, 1u, 4096u));
+    assert(!periodicCheckpointAggregateFits(
+        std::numeric_limits<std::uint64_t>::max(), 1u, 1u, 1u));
+    assert(prefixByteCountMatches(false, 10u, 10u));
+    assert(!prefixByteCountMatches(false, 10u, 11u));
+    assert(prefixByteCountMatches(true, 10u, 10u));
+    assert(prefixByteCountMatches(true, 10u, 11u));
+    assert(!prefixByteCountMatches(true, 10u, 9u));
+
+    PrefixManifest periodicPrefix;
+    periodicPrefix.sourceRunDirectory = "/tmp/periodic-source";
+    periodicPrefix.allFilesPrefixOnly = true;
+    periodicPrefix.acceptedControlIndex = 7u;
+    periodicPrefix.observationsPrefixBytes = 4u;
+    periodicPrefix.observationsPrefixSha256 = std::string(64u, 'a');
+    periodicPrefix.files = {
+        {"manifest.json", 12u, std::string(64u, 'b'), true},
+        {"observations.csv", 4u, std::string(64u, 'a'), true}};
+    const std::string periodicPrefixBytes =
+        serializePrefixManifest(periodicPrefix);
+    assert(periodicPrefixBytes.find(
+        "schema=numi.cardboard.accepted-coupon-prefix.v2\n") == 0u);
+    std::istringstream periodicPrefixInput(periodicPrefixBytes);
+    const auto parsedPeriodicPrefix = parsePrefixManifest(
+        periodicPrefixInput, "periodic-prefix-test");
+    assert(parsedPeriodicPrefix.allFilesPrefixOnly);
+    assert(parsedPeriodicPrefix.files.size() == 2u);
+    assert(parsedPeriodicPrefix.files[0].prefixOnly &&
+           parsedPeriodicPrefix.files[1].prefixOnly);
+    auto partialPeriodicPrefix = periodicPrefix;
+    partialPeriodicPrefix.files[0].prefixOnly = false;
+    mustReject([&] { (void)serializePrefixManifest(partialPeriodicPrefix); });
+
+    PrefixManifest legacyPrefix;
+    legacyPrefix.sourceRunDirectory = "/tmp/legacy-source";
+    legacyPrefix.acceptedControlIndex = 7u;
+    legacyPrefix.observationsPrefixBytes = 4u;
+    legacyPrefix.observationsPrefixSha256 = std::string(64u, 'a');
+    legacyPrefix.files = {
+        {"manifest.json", 12u, std::string(64u, 'b'), false},
+        {"observations.csv", 4u, std::string(64u, 'a'), true}};
+    const std::string legacyPrefixBytes = serializePrefixManifest(legacyPrefix);
+    assert(legacyPrefixBytes.find(
+        "schema=numi.cardboard.accepted-coupon-prefix.v1\n") == 0u);
+    std::istringstream legacyPrefixInput(legacyPrefixBytes);
+    const auto parsedLegacyPrefix = parsePrefixManifest(
+        legacyPrefixInput, "legacy-prefix-test");
+    assert(!parsedLegacyPrefix.allFilesPrefixOnly);
+    assert(!parsedLegacyPrefix.files[0].prefixOnly &&
+           parsedLegacyPrefix.files[1].prefixOnly);
 }

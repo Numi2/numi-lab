@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_s": 0.502162459,
+  "stdout_sha256": "3a4bca2a74b564a2b7e4cd537db7341d071af95f681a66708de34bf10e989608",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_unchanged": true,
+  "artifacts_unchanged": true,
+  "full_solver_qualified": false,
+  "at_utc": "2026-10-16T10:14:43.230957+00:00"
+}

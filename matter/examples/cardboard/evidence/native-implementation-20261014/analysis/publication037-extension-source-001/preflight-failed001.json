@@ -1,0 +1,9 @@
+{
+  "command": "python3 /Users/n/cardboard-implementation-20261014-host-macmini/analysis/publication037-extension-source-001/archive_extension037.py",
+  "exit_code": 1,
+  "error": "AssertionError at line 67: expected prior binding SHA did not match; no checkout payload or summary mutation occurred before the assertion.",
+  "failed_script_sha256": "e0ee9a8c0f74c25179c4283e27d4ada7bbc3fcb4f172ffcc123309c4773dbd9c",
+  "actual_prior_binding_sha256": "7f0d93661aa8785073a7b6de1a2dbb721eae65a288b39389976b0495656913d4",
+  "incorrect_expected_binding_sha256": "7f0d93661aa8785073a7b6de1a2dbb721eae65a288b39376b0495656913d4",
+  "recorded_at_utc": "2026-10-16T10:45:00Z"
+}

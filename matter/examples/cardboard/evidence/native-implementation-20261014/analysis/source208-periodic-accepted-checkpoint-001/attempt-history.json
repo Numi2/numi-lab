@@ -1,0 +1,86 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-001",
+      "build_error": "build command 1 failed (2)",
+      "build_success": false,
+      "logs": [
+        "failed-attempts/build001/provenance-command-0.log",
+        "failed-attempts/build001/provenance-command-1.log"
+      ],
+      "source_build_receipt_copy": "attempt-logs/build001-source-build.json",
+      "source_build_receipt_copy_sha256": "ae77a8f2f79ae60c753409f0800ecc1537e1b568974b0fc5f8bdd918eb51165d",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "ae77a8f2f79ae60c753409f0800ecc1537e1b568974b0fc5f8bdd918eb51165d",
+      "source_sha256_count": 819
+    },
+    {
+      "attempt": 2,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-002",
+      "build_success": true,
+      "ctest_log": "attempt-logs/build002-LastTest.log",
+      "ctest_log_sha256": "ae9452b5cdc1c46d3b00f11c6ba87c0adb6ea35c993373ff409b27797e4634ab",
+      "ctest_outcome": "failed",
+      "source_build_receipt_copy": "attempt-logs/build002-source-build.json",
+      "source_build_receipt_copy_sha256": "3579cbebd0ee5ecbdba150e618518dfaef38b91aed6507ff8642863b0fe926fe",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "3579cbebd0ee5ecbdba150e618518dfaef38b91aed6507ff8642863b0fe926fe",
+      "source_sha256_count": 819
+    },
+    {
+      "attempt": 3,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-003",
+      "build_success": true,
+      "ctest_log": "attempt-logs/build003-LastTest.log",
+      "ctest_log_sha256": "e17132b2659384d644cb45a7a0663180b8bcc0631e1cfe663512df41174ff60c",
+      "ctest_outcome": "failed",
+      "source_build_receipt_copy": "attempt-logs/build003-source-build.json",
+      "source_build_receipt_copy_sha256": "f8c7f561eaa1165a453bd8582153440989ff4874ec7b10a5bd40632504f2f94f",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "f8c7f561eaa1165a453bd8582153440989ff4874ec7b10a5bd40632504f2f94f",
+      "source_sha256_count": 819
+    },
+    {
+      "attempt": 4,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-004",
+      "build_success": true,
+      "ctest_log": "attempt-logs/build004-LastTest.log",
+      "ctest_log_sha256": "ba84de7374d994eeaf1ae7bd4e11ea04f0641b58c1b9417f443a40b8a80f1283",
+      "ctest_outcome": "failed",
+      "source_build_receipt_copy": "attempt-logs/build004-source-build.json",
+      "source_build_receipt_copy_sha256": "88119c450ea865a771430310e7ff576f88bc3c30f7844adb47081449809a7aee",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "88119c450ea865a771430310e7ff576f88bc3c30f7844adb47081449809a7aee",
+      "source_sha256_count": 819
+    },
+    {
+      "attempt": 5,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-005",
+      "build_success": true,
+      "ctest_log": "attempt-logs/build005-LastTest.log",
+      "ctest_log_sha256": "7659c6953dfa71bfaf226252010137315c6c7c42a654e80573ec3fb9e41b4eac",
+      "ctest_outcome": "failed",
+      "source_build_receipt_copy": "attempt-logs/build005-source-build.json",
+      "source_build_receipt_copy_sha256": "f634f701a82c94381db35ca1addba311f3fa9fefde2bafdfe24657be4662b941",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "f634f701a82c94381db35ca1addba311f3fa9fefde2bafdfe24657be4662b941",
+      "source_sha256_count": 819
+    },
+    {
+      "attempt": 6,
+      "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source208-periodic-006",
+      "build_success": true,
+      "ctest_log": "attempt-logs/build006-LastTest.log",
+      "ctest_log_sha256": "d8b8d7fdbe25302857157da8301d4d3fdf89525ca56baae15f0ac988cbf1a5f4",
+      "ctest_outcome": "failed",
+      "source_build_receipt_copy": "attempt-logs/build006-source-build.json",
+      "source_build_receipt_copy_sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c",
+      "source_build_receipt_present": true,
+      "source_build_receipt_sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c",
+      "source_sha256_count": 819
+    }
+  ],
+  "note": "Failed and superseded compile/test attempts are retained by receipt or log. Final source is build-006.",
+  "schema": "numi.cardboard.source208-build-attempt-history.v1"
+}

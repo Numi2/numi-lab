@@ -27,11 +27,14 @@ struct CoupledDevice {
     Device base;
     id<MTLComputePipelineState> femOperator = nil;
     id<MTLComputePipelineState> gatherNodes = nil;
+    id<MTLComputePipelineState> measureTrueResidual = nil;
     explicit CoupledDevice() {
         femOperator = base.makePipeline(
             @"numi_matter_metal::nm_fem_apply_operator_elements");
         gatherNodes = base.makePipeline(
             @"numi_matter_metal::nm_fgmres_gather_nodes");
+        measureTrueResidual = base.makePipeline(
+            @"numi_matter_metal::nm_fgmres_measure_true_residual");
     }
 };
 
@@ -754,6 +757,213 @@ R18 nativeDirection(CoupledFixture& fixture, const R18& center, const R18& direc
     return raw;
 }
 
+void checkFreeBoxTrueResidualTail(
+    CoupledDevice& device, CoupledFixture& fixture,
+    const R18& center, const R18& mixedDirection) {
+    // The same production element/gather/free-rigid/contact kernels used by
+    // this checker produce A*d. The measurement kernel then receives the full
+    // two-block FEM layout plus the six scalar generalized BOX rows.
+    const R18 action = fixture.nativeAction(center, mixedDirection);
+    R18 rigidOnly{};
+    rigidOnly[12] = 0.15; rigidOnly[13] = -0.07; rigidOnly[14] = 0.04;
+    rigidOnly[15] = 0.35; rigidOnly[16] = -0.25; rigidOnly[17] = 0.2;
+    const R18 rigidAction = fixture.nativeAction(center, rigidOnly);
+    need(blockNorm(rigidAction, 0u, 12u) > 1.0e-8,
+        "active BOX contact did not apply the rigid-side direction to FEM rows");
+    need(blockNorm(rigidAction, 12u, 18u) > 1.0e-8,
+        "free-BOX translation/inertia tail action is zero");
+    R18 femOnly{};
+    femOnly[0] = 0.2; femOnly[1] = -0.1; femOnly[3] = 0.1;
+    femOnly[6] = -0.08; femOnly[8] = 0.05; femOnly[11] = 0.07;
+    const R18 femAction = fixture.nativeAction(center, femOnly);
+    need(blockNorm(femAction, 12u, 18u) > 1.0e-8,
+        "active BOX contact did not apply the FEM-side direction to rigid rows");
+
+    NMMatterDispatchGPU dispatch = fixture.dispatch;
+    need(dispatch.environmentCount == 1u && dispatch.femNodeCount == 4u &&
+         dispatch.rigidGeneralizedCapacity == 6u &&
+         dispatch.rigidQCapacity == 0u && dispatch.mpmActiveNodeCapacity == 0u,
+        "free-BOX residual fixture does not have one six-DOF free-body tail");
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 2u * dispatch.environmentCount * dispatch.femNodeCount + 6u;
+    NMFGMRESStateGPU state{};
+    state.diagnostics = {0.0f, 1.0e-3f, 0.0f, 0.0f};
+    state.nonlinear = {0.0f, 0.0f, 0.0f, 0.0f};
+    NMMixedSolverGPU solver{};
+    solver.residualTolerances.x = 1.0e-7f;
+    solver.regularization.x = 1.0e-9f;
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    std::vector<nm_float4> op(layout.unknownCount, nm_float4{});
+    std::vector<nm_float4> rhs(layout.unknownCount, nm_float4{});
+    std::vector<nm_float4> residual(layout.unknownCount,
+                                    nm_float4{-7.0f, -7.0f, -7.0f, -7.0f});
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        op[node] = {float(action[3u * node]), float(action[3u * node + 1u]),
+                    float(action[3u * node + 2u]), 0.0f};
+    }
+    const uint rigidBase = 2u * dispatch.environmentCount * dispatch.femNodeCount;
+    for (uint dof = 0u; dof < 6u; ++dof)
+        op[rigidBase + dof] = {float(action[12u + dof]), 0.0f, 0.0f, 0.0f};
+    rhs = op;
+    // Nonzero errors in both the FEM block and every rigid scalar row make
+    // omission of either block observable without manufacturing a solver state.
+    rhs[0].x += 5.0e-4f;
+    const std::array<float, 6> rigidResidual{
+        1.0e-3f, -2.0e-3f, 3.0e-3f, -4.0e-3f, 5.0e-3f, -6.0e-3f};
+    for (uint dof = 0u; dof < 6u; ++dof)
+        rhs[rigidBase + dof].x += rigidResidual[dof];
+
+    double expectedNorm2 = 0.0;
+    double omittedTailNorm2 = 0.0;
+    double wrongSignNorm2 = 0.0;
+    for (uint row = 0u; row < layout.unknownCount; ++row) {
+        const nm_float4 delta = {
+            rhs[row].x - op[row].x, rhs[row].y - op[row].y,
+            rhs[row].z - op[row].z, rhs[row].w - op[row].w};
+        expectedNorm2 += double(delta.x) * delta.x +
+            double(delta.y) * delta.y + double(delta.z) * delta.z +
+            double(delta.w) * delta.w;
+        if (row < rigidBase)
+            omittedTailNorm2 += double(delta.x) * delta.x +
+                double(delta.y) * delta.y + double(delta.z) * delta.z +
+                double(delta.w) * delta.w;
+        wrongSignNorm2 +=
+            double(rhs[row].x + op[row].x) * (rhs[row].x + op[row].x) +
+            double(rhs[row].y + op[row].y) * (rhs[row].y + op[row].y) +
+            double(rhs[row].z + op[row].z) * (rhs[row].z + op[row].z) +
+            double(rhs[row].w + op[row].w) * (rhs[row].w + op[row].w);
+    }
+    const double expectedNorm = std::sqrt(expectedNorm2);
+    need(expectedNorm > std::sqrt(omittedTailNorm2) * 5.0,
+        "omitting the six rigid rows would not fail this residual fixture");
+    need(std::sqrt(wrongSignNorm2) > expectedNorm * 1.5,
+        "reversing the residual sign would not fail this fixture");
+
+    auto dispatchB = makeBuffer(device.base.gpu,
+        std::vector<NMMatterDispatchGPU>{dispatch});
+    auto layoutB = makeBuffer(device.base.gpu,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    auto solverB = makeBuffer(device.base.gpu,
+        std::vector<NMMixedSolverGPU>{solver});
+    auto rhsB = makeBuffer(device.base.gpu, rhs);
+    auto opB = makeBuffer(device.base.gpu, op);
+    auto residualB = makeBuffer(device.base.gpu, residual);
+    auto stateB = makeBuffer(device.base.gpu,
+        std::vector<NMFGMRESStateGPU>{state});
+    auto metricsB = makeBuffer(device.base.gpu,
+        std::vector<nm_float4>{nm_float4{-1.0f, -1.0f, -1.0f, -1.0f}});
+    auto diagnosticB = makeBuffer(device.base.gpu,
+        std::vector<NMMatterStatusGPU>{healthy});
+    auto productionB = makeBuffer(device.base.gpu,
+        std::vector<NMMatterStatusGPU>{healthy});
+    const float forcing = 0.01f;
+    const uint replaceResidual = 1u;
+    const uint propagateFailure = 1u;
+    auto forcingB = makeBuffer(device.base.gpu, std::vector<float>{forcing});
+    auto replaceB = makeBuffer(device.base.gpu, std::vector<uint>{replaceResidual});
+    auto propagateB = makeBuffer(device.base.gpu, std::vector<uint>{propagateFailure});
+    id<MTLCommandBuffer> command = [device.base.queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        command != nil ? [command computeCommandEncoder] : nil;
+    need(command != nil && encoder != nil,
+        "free-BOX true-residual measurement encoder unavailable");
+    [encoder setComputePipelineState:device.measureTrueResidual];
+    [encoder setBuffer:dispatchB offset:0u atIndex:0u];
+    [encoder setBuffer:solverB offset:0u atIndex:1u];
+    [encoder setBuffer:rhsB offset:0u atIndex:2u];
+    [encoder setBuffer:opB offset:0u atIndex:3u];
+    [encoder setBuffer:residualB offset:0u atIndex:4u];
+    [encoder setBuffer:stateB offset:0u atIndex:5u];
+    [encoder setBuffer:metricsB offset:0u atIndex:6u];
+    [encoder setBuffer:forcingB offset:0u atIndex:7u];
+    [encoder setBuffer:diagnosticB offset:0u atIndex:8u];
+    [encoder setBuffer:replaceB offset:0u atIndex:9u];
+    [encoder setBuffer:productionB offset:0u atIndex:10u];
+    [encoder setBuffer:propagateB offset:0u atIndex:11u];
+    [encoder setBuffer:layoutB offset:0u atIndex:30u];
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil ? [[command.error localizedDescription] UTF8String]
+                             : "free-BOX true-residual measurement did not complete");
+    const auto* measured = static_cast<const nm_float4*>([metricsB contents]);
+    const auto* states = static_cast<const NMFGMRESStateGPU*>([stateB contents]);
+    const auto* diagnostic = static_cast<const NMMatterStatusGPU*>([diagnosticB contents]);
+    const auto* production = static_cast<const NMMatterStatusGPU*>([productionB contents]);
+    const auto* replaced = static_cast<const nm_float4*>([residualB contents]);
+    need(diagnostic->code == NM_STATUS_SUCCESS &&
+         production->code == NM_STATUS_SUCCESS,
+        "free-BOX true-residual operator or measurement reported failure");
+    need(std::abs(double(measured[0].x) - expectedNorm) <=
+             2.0e-6 * expectedNorm + 1.0e-9,
+        "true-residual norm omitted or mis-signed the six scalar BOX rows");
+    need(states[0].diagnostics.z == 0.0f,
+        "residual above the unchanged forcing/absolute thresholds was certified");
+    need(std::abs(double(replaced[0].x) -
+                  double(rhs[0].x - op[0].x)) <= 1.0e-8,
+        "FEM restart residual was not replaced with b-Ax");
+    for (uint dof = 0u; dof < 6u; ++dof) {
+        const nm_float4 row = replaced[rigidBase + dof];
+        need(std::abs(double(row.x) -
+                      double(rhs[rigidBase + dof].x - op[rigidBase + dof].x)) <= 1.0e-8 &&
+             row.y == 0.0f && row.z == 0.0f && row.w == 0.0f,
+            "six-row rigid restart residual was omitted, mis-signed, or not scalar");
+    }
+    std::cout << std::setprecision(10)
+        << "free_box_true_residual rows=" << layout.unknownCount
+        << " fem_rows=" << rigidBase
+        << " rigid_tail=6 active_box_contact=true"
+        << " true_norm=" << measured[0].x
+        << " expected_b_minus_Ax=" << expectedNorm
+        << " omitted_tail_norm=" << std::sqrt(omittedTailNorm2)
+        << " wrong_sign_control_norm=" << std::sqrt(wrongSignNorm2)
+        << " restart_tail_replaced=true completed=false"
+        << " physical_transactions=0\n";
+
+    // A zero residual still passes the same unchanged threshold and resets all
+    // six scalar restart rows to zero.
+    rhs = op;
+    std::memcpy([rhsB contents], rhs.data(), rhs.size() * sizeof(nm_float4));
+    std::memcpy([residualB contents], residual.data(),
+                residual.size() * sizeof(nm_float4));
+    state.diagnostics = {0.0f, 1.0e-3f, 0.0f, 0.0f};
+    std::memcpy([stateB contents], &state, sizeof(state));
+    std::memcpy([diagnosticB contents], &healthy, sizeof(healthy));
+    std::memcpy([productionB contents], &healthy, sizeof(healthy));
+    command = [device.base.queue commandBuffer];
+    encoder = command != nil ? [command computeCommandEncoder] : nil;
+    need(command != nil && encoder != nil,
+        "zero-residual certification encoder unavailable");
+    [encoder setComputePipelineState:device.measureTrueResidual];
+    [encoder setBuffer:dispatchB offset:0u atIndex:0u];
+    [encoder setBuffer:solverB offset:0u atIndex:1u];
+    [encoder setBuffer:rhsB offset:0u atIndex:2u];
+    [encoder setBuffer:opB offset:0u atIndex:3u];
+    [encoder setBuffer:residualB offset:0u atIndex:4u];
+    [encoder setBuffer:stateB offset:0u atIndex:5u];
+    [encoder setBuffer:metricsB offset:0u atIndex:6u];
+    [encoder setBuffer:forcingB offset:0u atIndex:7u];
+    [encoder setBuffer:diagnosticB offset:0u atIndex:8u];
+    [encoder setBuffer:replaceB offset:0u atIndex:9u];
+    [encoder setBuffer:productionB offset:0u atIndex:10u];
+    [encoder setBuffer:propagateB offset:0u atIndex:11u];
+    [encoder setBuffer:layoutB offset:0u atIndex:30u];
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+        "zero-residual free-BOX certification dispatch failed");
+    need(static_cast<const NMFGMRESStateGPU*>([stateB contents])->diagnostics.z == 1.0f,
+        "zero full-layout residual did not meet the unchanged gate");
+    for (uint dof = 0u; dof < 6u; ++dof)
+        need(static_cast<const nm_float4*>([residualB contents])[rigidBase+dof].x == 0.0f,
+            "zero-residual restart left a stale rigid-tail row");
+}
+
 void runCoupledCheck(CoupledDevice& device) {
     CoupledFixture fixture(device);
     R18 center{};
@@ -832,6 +1042,7 @@ void runCoupledCheck(CoupledDevice& device) {
             <<" rigid_contact_torque="<<nativeSample.angularImpulseAndTangent.x<<","<<nativeSample.angularImpulseAndTangent.y<<","<<nativeSample.angularImpulseAndTangent.z
             <<" outcome="<<(pass?"PASS":(fp64Resolved?"FAIL":"INCONCLUSIVE"))<<"\n";
     }
+    checkFreeBoxTrueResidualTail(device, fixture, center, mixed);
     std::cout<<"coupled_fem_free_box_operator directions="<<tests.size()
         <<" worst_scaled_relative="<<worstRelative
         <<" worst_scaled_abs="<<worstAbsolute

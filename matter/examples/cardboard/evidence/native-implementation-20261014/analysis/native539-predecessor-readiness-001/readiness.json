@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.native539.predecessor-readiness.v1",
+  "decision": "approve_for_539",
+  "created_at_utc": "2026-10-16T09:34:20.061000+00:00",
+  "predecessors": [
+    {
+      "id": "native537",
+      "reviewed": true,
+      "admit_539": true,
+      "evidence_path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/armijo-cgls-fallback-537/run-receipt.json",
+      "evidence_sha256": "51f900b46f84747a0ffb686098c69d228187f1bb4e4e1158351126caf88731f6",
+      "review_scope": "Actual O0/O3 helper; fallback eligibility/layout/initializers/recurrence; 0 physical transactions; synthetic only."
+    },
+    {
+      "id": "native538",
+      "reviewed": true,
+      "admit_539": true,
+      "evidence_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native538-frame-and-prefix-verification-001/manifest.json",
+      "evidence_sha256": "8e190ccd86a8a037985f65c4b7bc02979f412ccb9abe769c6fb9bf38aed1157f",
+      "report_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native538-frame-and-prefix-verification-001/report.json",
+      "report_sha256": "15f1010585c89965dd1632ad3655aef198799c9d38c2d68bc8d22f8e767fd963",
+      "review_scope": "Source203 frame/one-control observer parity; exact frame reconstruction; not full trajectory."
+    }
+  ]
+}

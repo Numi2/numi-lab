@@ -148,7 +148,11 @@ void testAcceptedRoundTripAndRejectedState() {
     const auto path = std::filesystem::temp_directory_path() /
         "numi-cardboard-shipping-snapshot-check.nmcb";
     auto state = acceptedState();
+    const std::uint64_t estimatedBytes =
+        shipping_snapshot_detail::serializedAcceptedSnapshotBytes(state);
     writeShippingAcceptedSnapshot(path, state);
+    check(std::filesystem::file_size(path) == estimatedBytes,
+          "snapshot size preflight differs from actual serialized file");
     const auto restored = readShippingAcceptedSnapshot(path,
         state.sourcePhysicsFingerprint, state.deviceProgramFingerprint, 4096u);
     check(restored.controlStep == state.controlStep &&

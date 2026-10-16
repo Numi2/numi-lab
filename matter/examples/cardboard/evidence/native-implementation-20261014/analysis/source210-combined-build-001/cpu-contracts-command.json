@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_cardboard_cached_operator_audit",
+    "test_cardboard_solver_environment",
+    "test_true_residual_certification_contract"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003/matter/tools",
+  "native_gpu": false
+}

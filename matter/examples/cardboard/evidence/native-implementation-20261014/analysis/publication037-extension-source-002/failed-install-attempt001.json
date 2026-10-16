@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.publication037-extension-failed-attempt.v1",
+  "command": "python3 /Users/n/cardboard-implementation-20261014-host-macmini/analysis/publication037-extension-source-001/archive_extension037.py",
+  "exit_code": 1,
+  "failure": "AssertionError while validating final path allowlist. The archive paths were compared as if repository paths began at checkout root; the correct git path prefixes each path with matter/examples/cardboard/evidence/native-implementation-20261014/.",
+  "script_sha256": "6d92ba3ceb70778971ce2ffbca6f58f90057fea407d0e9eb774abd4e3dc8afa6",
+  "partial_state": "All five extension case records and payloads had already been hash-restored; summary, binding, and selection were updated. The failed attempt did not stage or commit.",
+  "preserved_pre_extension_summary": "analysis/publication037-extension-output-001/summary037-pre541.json",
+  "preserved_pre_extension_binding": "analysis/publication037-extension-output-001/binding037-pre541.json",
+  "preserved_pre_extension_selection": "analysis/publication037-extension-output-001/selection037-pre541.json"
+}

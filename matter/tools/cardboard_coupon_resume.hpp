@@ -589,9 +589,82 @@ inline void validateRuntimeFingerprints(const Metadata& metadata,
             "coupon checkpoint runtime source/program fingerprints differ");
 }
 
+inline constexpr std::uint32_t kMaximumPeriodicCheckpointCount = 8u;
+inline constexpr std::uint64_t kMaximumPeriodicCheckpointStorageBytes =
+    8ull * 1024ull * 1024ull * 1024ull;
+inline constexpr std::uint64_t kPeriodicCheckpointMetadataReserveBytes =
+    64ull * 1024ull;
+
+inline std::uint64_t periodicCheckpointCount(
+    const std::uint32_t cadence, const std::uint64_t totalControls) {
+    if (cadence == 0u || totalControls == 0u)
+        throw std::invalid_argument("periodic coupon checkpoint cadence and schedule must be positive");
+    return totalControls / cadence + (totalControls % cadence == 0u ? 0u : 1u);
+}
+
+inline bool shouldWritePeriodicCheckpoint(
+    const bool accepted, const std::uint32_t cadence,
+    const std::uint32_t controlIndex, const std::uint64_t totalControls) {
+    if (!accepted || cadence == 0u || totalControls == 0u ||
+        cadence >= totalControls ||
+        std::uint64_t(controlIndex) >= totalControls)
+        return false;
+    const std::uint64_t acceptedBoundary =
+        std::uint64_t(controlIndex) + 1u;
+    return acceptedBoundary == totalControls ||
+        acceptedBoundary % cadence == 0u;
+}
+
+struct NextControlBoundary {
+    std::uint32_t nextControlIndex = 0u;
+    bool terminal = false;
+};
+
+inline NextControlBoundary nextControlBoundary(
+    const std::uint32_t acceptedControlIndex,
+    const std::uint64_t totalControls) {
+    if (totalControls == 0u || acceptedControlIndex >= totalControls ||
+        acceptedControlIndex == std::numeric_limits<std::uint32_t>::max())
+        throw std::invalid_argument(
+            "accepted checkpoint cursor is outside its scheduled controls");
+    const std::uint64_t next =
+        std::uint64_t(acceptedControlIndex) + 1u;
+    if (next > std::numeric_limits<std::uint32_t>::max())
+        throw std::invalid_argument(
+            "next accepted checkpoint cursor exceeds the metadata ABI");
+    return {static_cast<std::uint32_t>(next), next == totalControls};
+}
+
+inline bool periodicCheckpointAggregateFits(
+    const std::uint64_t existingBytes,
+    const std::uint64_t nextSnapshotBytes,
+    const std::uint64_t nextPrefixBytes,
+    const std::uint64_t metadataReserveBytes =
+        kPeriodicCheckpointMetadataReserveBytes) noexcept {
+    std::uint64_t total = existingBytes;
+    const std::array<std::uint64_t, 3u> amounts{
+        nextSnapshotBytes, nextPrefixBytes, metadataReserveBytes};
+    for (const std::uint64_t amount : amounts) {
+        if (total > kMaximumPeriodicCheckpointStorageBytes ||
+            amount > kMaximumPeriodicCheckpointStorageBytes - total)
+            return false;
+        total += amount;
+    }
+    return true;
+}
+
+inline bool prefixByteCountMatches(const bool prefixOnly,
+                                   const std::uint64_t capturedBytes,
+                                   const std::uint64_t currentBytes) noexcept {
+    return prefixOnly ? currentBytes >= capturedBytes
+                      : currentBytes == capturedBytes;
+}
+
 struct Request {
     bool saveControlRequested = false;
     std::uint32_t saveControlIndex = 0u;
+    bool periodicCheckpointRequested = false;
+    std::uint32_t periodicCheckpointEvery = 0u;
     bool checkpointProvided = false;
     bool metadataProvided = false;
     bool diagnosticReplayRequested = false;
@@ -610,8 +683,23 @@ inline void validateRequest(const Request& request) {
     if (request.checkpointProvided != request.metadataProvided)
         throw std::invalid_argument(
             "coupon resume requires both checkpoint and metadata paths");
+    if (request.periodicCheckpointRequested) {
+        if (request.periodicCheckpointEvery == 0u)
+            throw std::invalid_argument(
+                "periodic coupon checkpoint cadence must be positive");
+        if (request.saveControlRequested || request.checkpointProvided ||
+            request.diagnosticReplayRequested)
+            throw std::invalid_argument(
+                "periodic coupon checkpoint capture cannot be combined with one-shot checkpoint or resume");
+        const std::uint64_t count = periodicCheckpointCount(
+            request.periodicCheckpointEvery, request.totalControls);
+        if (request.periodicCheckpointEvery >= request.totalControls ||
+            count == 0u || count > kMaximumPeriodicCheckpointCount)
+            throw std::invalid_argument(
+                "periodic coupon checkpoints require an intermediate boundary and a total count between 2 and 8");
+    }
     const bool requested = request.saveControlRequested ||
-        request.checkpointProvided;
+        request.periodicCheckpointRequested || request.checkpointProvided;
     if (request.diagnosticReplayRequested &&
         (!request.checkpointProvided || request.saveControlRequested))
         throw std::invalid_argument(
@@ -820,11 +908,12 @@ struct PrefixEntry {
     std::string relativePath;
     std::uint64_t bytes = 0u;
     std::string sha256;
-    bool observationsPrefix = false;
+    bool prefixOnly = false;
 };
 
 struct PrefixManifest {
     std::string sourceRunDirectory;
+    bool allFilesPrefixOnly = false;
     std::uint32_t acceptedControlIndex = 0u;
     std::uint64_t observationsPrefixBytes = 0u;
     std::string observationsPrefixSha256;
@@ -851,7 +940,8 @@ inline std::string serializePrefixManifest(const PrefixManifest& value) {
         value.sourceRunDirectory.find('\r') != std::string::npos)
         throw std::invalid_argument("coupon prefix manifest is incomplete");
     std::ostringstream output;
-    output << "schema=numi.cardboard.accepted-coupon-prefix.v1\n"
+    output << "schema=numi.cardboard.accepted-coupon-prefix."
+        << (value.allFilesPrefixOnly ? "v2" : "v1") << "\n"
         << "source_run_directory=" << value.sourceRunDirectory << '\n'
         << "accepted_control_index=" << value.acceptedControlIndex << '\n'
         << "observations_prefix_bytes=" << value.observationsPrefixBytes << '\n'
@@ -866,15 +956,21 @@ inline std::string serializePrefixManifest(const PrefixManifest& value) {
         if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
             throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");
         totalBytes += entry.bytes;
-        if (entry.relativePath == "observations.csv") {
-            if (!entry.observationsPrefix)
+        if (value.allFilesPrefixOnly) {
+            if (!entry.prefixOnly)
+                throw std::invalid_argument(
+                    "v2 coupon prefix entries must all preserve accepted byte prefixes");
+        } else if (entry.relativePath == "observations.csv") {
+            if (!entry.prefixOnly)
                 throw std::invalid_argument("observations.csv must be a prefix entry");
-            observationsEntry = &entry;
-        } else if (entry.observationsPrefix) {
-            throw std::invalid_argument("only observations.csv may be a prefix entry");
+        } else if (entry.prefixOnly) {
+            throw std::invalid_argument(
+                "v1 coupon prefix permits only observations.csv as a prefix entry");
         }
+        if (entry.relativePath == "observations.csv")
+            observationsEntry = &entry;
         output << "file=" << entry.relativePath << '|' << entry.bytes << '|'
-            << entry.sha256 << '|' << (entry.observationsPrefix ? 1 : 0) << '\n';
+            << entry.sha256 << '|' << (entry.prefixOnly ? 1 : 0) << '\n';
     }
     if (observationsEntry == nullptr ||
         observationsEntry->bytes != value.observationsPrefixBytes ||
@@ -903,8 +999,12 @@ inline PrefixManifest parsePrefixManifest(std::istream& input,
         const std::string key = line.substr(0u, separator);
         const std::string value = line.substr(separator + 1u);
         if (key == "schema") {
-            if (schemaSeen || value != "numi.cardboard.accepted-coupon-prefix.v1")
+            if (schemaSeen ||
+                (value != "numi.cardboard.accepted-coupon-prefix.v1" &&
+                 value != "numi.cardboard.accepted-coupon-prefix.v2"))
                 throw std::invalid_argument("coupon prefix schema is invalid");
+            result.allFilesPrefixOnly =
+                value == "numi.cardboard.accepted-coupon-prefix.v2";
             schemaSeen = true;
         } else if (key == "source_run_directory") {
             if (dirSeen || value.empty() ||
@@ -947,15 +1047,19 @@ inline PrefixManifest parsePrefixManifest(std::istream& input,
             if (isPrefix > 1u || !safeRelativePath(entry.relativePath) ||
                 !isLowerSha256(entry.sha256) || !unique.insert(entry.relativePath).second)
                 throw std::invalid_argument("coupon prefix file entry is invalid or repeated");
-            entry.observationsPrefix = isPrefix == 1u;
+            entry.prefixOnly = isPrefix == 1u;
             if (entry.relativePath == "observations.csv") {
-                if (!entry.observationsPrefix || observationsSeen ||
+                if (!entry.prefixOnly || observationsSeen ||
                     entry.bytes != result.observationsPrefixBytes ||
                     entry.sha256 != result.observationsPrefixSha256)
                     throw std::invalid_argument("coupon prefix observations entry does not match its prefix digest");
                 observationsSeen = true;
-            } else if (entry.observationsPrefix) {
-                throw std::invalid_argument("only observations.csv may be a prefix entry");
+            } else if (result.allFilesPrefixOnly) {
+                if (!entry.prefixOnly)
+                    throw std::invalid_argument(
+                        "v2 coupon prefix entries must all preserve accepted byte prefixes");
+            } else if (entry.prefixOnly) {
+                throw std::invalid_argument("only observations.csv may be a prefix entry in v1");
             }
             if (entry.bytes > 2ull * 1024ull * 1024ull * 1024ull - totalBytes)
                 throw std::invalid_argument("coupon prefix manifest exceeds its byte bound");

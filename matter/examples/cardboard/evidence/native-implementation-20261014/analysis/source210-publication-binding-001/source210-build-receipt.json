@@ -1,0 +1,23 @@
+{
+  "at_utc": "2026-10-16T10:22:25.140831+00:00",
+  "source_frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source_build_sha256": "75f9a256c4413c0a32e877f2dfcc168633c7662b391690dd4b83dbd4819f8e93",
+  "commands": [
+    {
+      "stage": "build",
+      "exit_code": 0,
+      "log_sha256": "a9da0ab36c63175d2b441ab1c7a64904054995fcea3ff45ac09aa33e11d25a96"
+    },
+    {
+      "stage": "cpu-contracts",
+      "exit_code": 0,
+      "log_sha256": "67301e9014e8d44d05ec7a59f14d092d1cf8508fc5daa0dd5ffe7fbb78eab55a"
+    },
+    {
+      "stage": "cpu-checkpoint-tests",
+      "exit_code": 0,
+      "log_sha256": "5a441b4b87ef5f961ab816f2271316312f2e729ac048c5e62acee3c4dc6a1db8"
+    }
+  ],
+  "native_gpu_executed": false
+}

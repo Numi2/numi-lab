@@ -1,0 +1,376 @@
+{
+  "schema": "numi.cardboard.native539-first-failure-adjudication.v1",
+  "verdict": "FAILED_CONTROL19_NONLINEAR_BUDGET_EXHAUSTION",
+  "run": {
+    "source_frozen_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+    "source_build_sha256": "36dd1792858ad6a255e2feb40221fa9884d1f5c31569847999d630f6d8c7c8c5",
+    "exit_code": 2,
+    "timed_out": false,
+    "fresh_from_zero": true,
+    "protocol_controls": 60,
+    "accepted_controls": 19,
+    "accepted_zero_based_controls": [
+      0,
+      18
+    ],
+    "failed_zero_based_control": 19,
+    "physical_validation": false,
+    "wall_seconds": 1318.3515542084351
+  },
+  "failure": {
+    "csv": {
+      "step": "19",
+      "time_s": "0.00099999997473787516",
+      "environment": "0",
+      "arm": "bent",
+      "target_angle_deg": "0.3125",
+      "status_code": "10",
+      "object_index": "0",
+      "failing_index": "4294967295",
+      "completed_microsteps": "0",
+      "fgmres_iterations": "48",
+      "status_diagnostic_x": "6.3575384956493508e-07",
+      "status_diagnostic_y": "2.6385711748844187e-07",
+      "status_diagnostic_z": "0",
+      "status_diagnostic_w": "0",
+      "min_J": "0.98962264540582179",
+      "max_J": "1.0057692203221846",
+      "max_node_displacement_m": "4.1133112643853542e-05",
+      "reaction_x_N": "",
+      "reaction_y_N": "",
+      "reaction_z_N": "",
+      "reaction_moment_y_Nm": "",
+      "mechanical_constraint_reaction_x_N": "",
+      "mechanical_constraint_reaction_y_N": "",
+      "mechanical_constraint_reaction_z_N": "",
+      "contact_reaction_x_N": "",
+      "contact_reaction_y_N": "",
+      "contact_reaction_z_N": "",
+      "mechanical_constraint_moment_y_Nm": "",
+      "contact_moment_y_Nm": "",
+      "phase": "loading",
+      "max_free_displacement_m": "4.1133112643853542e-05",
+      "max_free_speed_m_s": "0.039853500477442801",
+      "kinetic_energy_J": "5.9099192759790321e-08",
+      "max_material_state_change": "0.11256304383277893",
+      "certificate_residual": "6.3575384956493508e-07",
+      "certificate_correction": "2.6385711748844187e-07",
+      "certificate_volume": "0",
+      "certificate_pressure": "0",
+      "certificate_raw_accepted_flag": "0",
+      "step_accepted": "0",
+      "right_grip_constrained": "1",
+      "measured_right_grip_angle_deg": "0.29685778716764633",
+      "current_fixed_nodes": "36",
+      "free_force_imbalance_l2_N": "0.012715077336672287",
+      "free_force_imbalance_max_N": "0.0072293281044355584"
+    },
+    "all_81920_true_residual_callbacks_healthy": true,
+    "early_latched_failure_observed": false,
+    "final_linear_certificate": {
+      "true_l2": 4.55182175e-07,
+      "arnoldi_estimate": 4.55182175e-07,
+      "true_max_abs": 1.8519836e-07,
+      "rhs_l2": 6.3580319e-07,
+      "diagnostics": [
+        4.55182175e-07,
+        6.3580319e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    "forcing_at_N63": 0.015625,
+    "forcing_target_from_reported_rhs": 9.93442484375e-09,
+    "last_linear_relative_residual": 0.7159167839343492,
+    "full_outer_residual": 6.357538495649351e-07,
+    "unchanged_outer_tolerance": 5e-07,
+    "nonzero_CGLS_directions": [
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 13,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 0.000172228567,
+            "linear_residual_l2": 1.02058925e-06,
+            "b_dot_Ax": 2.77180189e-12,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 28,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 0.000170675528,
+            "linear_residual_l2": 8.81682126e-07,
+            "b_dot_Ax": 2.26734145e-13,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 33,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 8.90665615e-05,
+            "linear_residual_l2": 8.19091497e-07,
+            "b_dot_Ax": 9.66334285e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 37,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 8.58196145e-05,
+            "linear_residual_l2": 7.72214491e-07,
+            "b_dot_Ax": 6.60735775e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 43,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 7.03075348e-05,
+            "linear_residual_l2": 7.34512923e-07,
+            "b_dot_Ax": 5.12474008e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 47,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 6.34714452e-05,
+            "linear_residual_l2": 7.04728109e-07,
+            "b_dot_Ax": 3.91814334e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 52,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 5.74056176e-05,
+            "linear_residual_l2": 6.78786364e-07,
+            "b_dot_Ax": 3.20830026e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 55,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 5.40051915e-05,
+            "linear_residual_l2": 6.5604786e-07,
+            "b_dot_Ax": 2.72101643e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "root": 19,
+        "newton_iteration": 60,
+        "direction_kind": "full_zero_damped_CGLS",
+        "iteration_budget": 64,
+        "right_scale": null,
+        "regularization_kg": 0.00100000005,
+        "objective": "||A*x-b||_2^2+mu_kg^2*||x||_2^2",
+        "initial_guess": "zero_full_total_step",
+        "original_newton_certificate_applies_to_direction": false,
+        "environments": [
+          {
+            "environment": 0,
+            "candidate_l2": 4.92075596e-05,
+            "linear_residual_l2": 6.35763399e-07,
+            "b_dot_Ax": 2.34978781e-14,
+            "original_newton_converged": true
+          },
+          {
+            "environment": 1,
+            "candidate_l2": 0,
+            "linear_residual_l2": 0,
+            "b_dot_Ax": 0,
+            "original_newton_converged": false
+          }
+        ]
+      }
+    ],
+    "newton63_linear_absolute_shortcut_in_source": {
+      "measure_absolute_completion": 5634,
+      "finalize_absolute_exception": 6118
+    }
+  },
+  "prefix": {
+    "vs535_identical_common_accepted_observation_rows": 34,
+    "vs535_identical_common_accepted_geometry_files": 34,
+    "old_control17_failure_bypassed": true,
+    "control17_residual": 4.7161353222691105e-07,
+    "control18_residual": 4.780687277161633e-07
+  },
+  "hypothesis": "The absolute inner completion shortcut accepts a linear residual up to the outer nonlinear tolerance even when the current nonlinear RHS remains above that tolerance. This can produce weak inexact Newton corrections near equilibrium. A stricter inner forcing experiment is warranted; causality and full-protocol completion remain unproved.",
+  "limits": [
+    "No complete coupon, mesh/time convergence or assembly/crush qualification.",
+    "Per-trial Armijo histories and exact Newton63 correction were not captured.",
+    "Rejected conditioning snapshot retains final linearization F and accepted history, not an accepted physical checkpoint.",
+    "The failed path and all accepted geometry are retained."
+  ],
+  "raw_bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native539-source203-cauchy-all-fallback-command-001/command-spec.json": "306b56827b8756c4daf985fa1343bdf2f08e6691cb0a30672a3a602d8c6f71e5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native539-source203-cauchy-all-fallback-command-001/package-manifest.json": "2a4bb870cda7cd219713bcdc9e2604170f1eb0b3d580f1b332e36446cc6b2e9b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native539-source203-cauchy-all-fallback-command-001/execution-539/receipt.json": "f5a50e0d53692295c5dccbbcaaa55ccacbcf1d59e5aa6b20d88c2ff7425ad895",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/receipt.json": "8bc41442cf10a129eee81299a8d56d95ecaf792ed48abc32ddcbc705290a5a4e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/stderr.log": "8a6f0ba7b5be82f7a112a15d6578833185d606acbc998d65cb2277dd107316cb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/stdout.log": "87145840858e749e0d7805f4261fe32ef7378fcbc1a70eaf5346510831455782",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/output/result.json": "2dbb3d712dfd38c675c11dcbf05e2b3cd499b52505df1c24fc252cd4410a36f9",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/output/observations.csv": "2b36f81008a4e09b725d84691fac729afc8d1b34fccdd711cc4a65b5a862c917",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/output/manifest.json": "2e24ea413fc539cdc69641855b165b595729f5b90322248ec1a4f2cb8a1bed64",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/output/rejected-conditioning-000020/manifest.json": "07c5c72e503027045f55130f0e8e36abce52708d876c4137f8d115e5fd2f671f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source203-cauchy-all-fallback-coupon-539/output/rejected-conditioning-000020/candidate_nodes.bin": "cf30c83861fd4db699751fa4d911de56529fe10e3187f5b1a42dd3fe2f272d17"
+  },
+  "created_at_utc": "2026-10-16T10:00:28.145234+00:00"
+}

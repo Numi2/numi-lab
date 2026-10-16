@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-stable-green-strain-reference-017-001/audit_extended23_v2.py"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini",
+  "cpu_only": true,
+  "powers": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "gate": 1e-06
+}

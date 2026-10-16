@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-coupled-free-box-operator-check"
+  ],
+  "environment": {
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatter.metallib"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002",
+  "frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-cardboard-coupled-free-box-operator-check": "d93a33e696d8069a4fcd8630d3c5b70ff391f2658f03d603a9654d563a3fb2b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/numi-matter-fgmres-true-residual-native-check": "75990a6ba2696e1c3cab1916c8eb8ce998bde294e4d5af2aa9cba1ba323cd743",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source207-free-box-true-residual-fix002-001/shaders/NumiMatter.metallib": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb"
+  },
+  "started_utc": "2026-10-16T10:14:42.724216+00:00"
+}

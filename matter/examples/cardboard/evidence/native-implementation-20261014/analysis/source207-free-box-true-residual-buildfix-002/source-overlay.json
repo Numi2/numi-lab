@@ -1,0 +1,17 @@
+{
+  "base_frozen_source_sha256": "e4a35178751c7a972bb884bf6b4a1290de149795e8d0e4253f8a255c2aa841ca",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-true-residual-207",
+  "changed_sources": {
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": {
+      "base_sha256": "c8609cb2358b577d0e75d1c143b6f2862455e4570c1b62dd995b074c35b6cafb",
+      "candidate_sha256": "a306b0a0c5e29a3f62c038003fea62326da58f99292ab27ffc42b022238e8080"
+    }
+  },
+  "gpu_executed": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source207-free-box-true-residual-buildfix-002",
+  "reason": "One-character checker string-literal repair after source207 compile exposed a literal newline; production and physics files are unchanged.",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "source_file_count": 819,
+  "source_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source207-buildfix-002"
+}

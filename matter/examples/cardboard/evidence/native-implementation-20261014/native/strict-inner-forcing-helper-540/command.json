@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source209-strict-inner-001/numi-matter-fgmres-true-residual-native-check"
+  ],
+  "source_frozen_sha256": "2b822da7c48d0d2eb11e409d7039dfb18c8f1bff2c6d3ad5348fb3a772fd234b",
+  "build_manifest_sha256": "499aafc4c26e71f2cc1dafb3db17aa80d21c41436ea3ec082d673f42ae83b3e6",
+  "gpu_workers_before": [],
+  "physical_transactions": 0,
+  "synthetic_action": "A=I; actual production accumulation/finalize/true-residual measure kernels",
+  "cpu_test_issue": "22/23 pass; only old exact environment-registry count assertion expects52 rather than53. Physical source unchanged by pending test correction."
+}

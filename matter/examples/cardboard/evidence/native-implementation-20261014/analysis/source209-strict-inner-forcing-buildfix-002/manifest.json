@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.source209-strict-inner-seal.v1",
+  "files": {
+    "source-overlay.json": "b5c6e58a493fd0c869df47979df9a85701d791d03cef91bbc420d5b46e14be82",
+    "build-receipt.json": "ab0be9e59b4016391507f77fe69fb03d13e201ab56b7e0b06e51c47efa9718dd",
+    "build-command.json": "80643f38219ec9cff23152c4bb5214dfe3c1f82db57f59d7be5640cae0ecb964",
+    "native540-kernel-reuse-binding.json": "e6738669f2b6c6c38223ff817c6f77e1c97cb0d232c0256500ec48d0454e05e9",
+    "cpu-suite-tool-receipt.json": "0a7037e03a0f90573fc5a1649e8e63f05c4305ac96f51767becb13142529c8c7",
+    "build.log": "fa8bef54f4b820055108e0830f9a03d7d9e0a0e6a94cd09d4486bb2f4e67f1de"
+  },
+  "frozen_source_sha256": "2c222738e0b19e76dc039904fc60b650bed3c54ab410133f5597357640111e78",
+  "source_build_sha256": "3865a89a1b5c35986a01c34010b3c09d037087c115699bdb971caa33123538a8",
+  "cpu_tests": 23,
+  "native540_helper_checks": 154,
+  "physical_operator_unchanged": true,
+  "outer_acceptance_unchanged": true,
+  "default_off": true,
+  "full_coupon_qualified": false,
+  "created_at_utc": "2026-10-16T10:06:59.550211+00:00"
+}

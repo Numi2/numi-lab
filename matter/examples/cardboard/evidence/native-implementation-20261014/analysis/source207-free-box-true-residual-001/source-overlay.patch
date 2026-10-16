@@ -1,0 +1,591 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -10609,14 +10609,18 @@
+             bool femNewtonTraceNoticeLogged = false;
+             bool femNewtonTraceSelectorErrorLogged = false;
+             bool femNewtonTraceCapturedAny = false;
+-            const auto femNewtonTraceScope = [&]() -> const char* {
++            const auto femNewtonTraceScope = [&](const bool allowFreeBox) -> const char* {
+                 if (request.physicsSubsteps != 1u ||
+                     request.physicsSubstep != 0u)
+                     return "requires_one_physics_substep_at_index_zero";
+                 if (state.dispatch.maximumRateExponent != 0u)
+                     return "requires_maximum_rate_exponent_zero";
+-                if (state.dispatch.environmentCount > 4u)
++                if (allowFreeBox) {
++                    if (state.dispatch.environmentCount != 1u)
++                        return "free_box_true_residual_requires_one_environment";
++                } else if (state.dispatch.environmentCount > 4u) {
+                     return "environment_cap_4";
++                }
+                 if (state.dispatch.femNodeCount == 0u ||
+                     state.dispatch.femNodeCount > 4096u)
+                     return "fem_node_cap_4096";
+@@ -10633,17 +10637,68 @@
+                     state.dispatch.mpmBlockCount != 0u ||
+                     state.dispatch.mpmActiveNodeCapacity != 0u)
+                     return "requires_static_fem_without_mpm_or_mixed_fields";
+-                if (state.dispatch.fieldBoundaryCount != 0u ||
+-                    state.dispatch.rigidGeneralizedCapacity != 0u ||
++                const std::uint64_t expectedUnknownCount =
++                    2u * std::uint64_t(state.dispatch.environmentCount) *
++                        state.dispatch.femNodeCount +
++                    (allowFreeBox
++                        ? 6u * std::uint64_t(state.dispatch.environmentCount)
++                        : 0u);
++                if ((allowFreeBox &&
++                     (state.dispatch.rigidGeneralizedCapacity != 6u ||
++                      state.dispatch.rigidQCapacity != 0u ||
++                      state.requiresCoupledCandidate ||
++                      (state.dispatch.flags & NM_MATTER_CONTACT) == 0u)) ||
++                    (!allowFreeBox &&
++                     state.dispatch.rigidGeneralizedCapacity != 0u) ||
++                    state.dispatch.fieldBoundaryCount != 0u ||
+                     state.dispatch.femHumanAttachmentCount != 0u ||
+                     state.dispatch.learnedMaterialCount != 0u ||
+                     state.dispatch.learnedWeightCount != 0u ||
+                     state.dispatch.mutationCommandCount != 0u ||
+                     state.fgmresLayout.supportContactCount != 0u ||
+                     state.fgmresLayout.vascularUnknownCount != 0u ||
+-                    state.fgmresLayout.unknownCount !=
+-                        2u * environments * state.dispatch.femNodeCount)
+-                    return "requires_fem_nodes_as_only_generalized_unknowns";
++                    state.fgmresLayout.unknownCount != expectedUnknownCount)
++                    return allowFreeBox
++                        ? "requires_fem_plus_one_six_dof_free_box_layout"
++                        : "requires_fem_nodes_as_only_generalized_unknowns";
++                if (allowFreeBox) {
++                    if (state.objectLayout.size() != 1u ||
++                        state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
++                        (state.objectLayout[0].flags &
++                            (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
++                             NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
++                             NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
++                        return "free_box_true_residual_requires_static_fem_object";
++                    if (state.dispatch.rigidProxyCount != 1u ||
++                        state.rigidProxyLayout.size() != 1u ||
++                        state.dispatch.contactPairCount == 0u ||
++                        state.contactPairLayout.size() !=
++                            state.dispatch.contactPairCount)
++                        return "free_box_true_residual_requires_one_proxy_and_fem_box_pairs";
++                    const NMRigidProxyGPU& proxy = state.rigidProxyLayout[0];
++                    if (proxy.shapeKind != NM_RIGID_BOX ||
++                        proxy.flags != NM_RIGID_DYNAMIC ||
++                        proxy.generalizedFreeBodyIndex != 0u ||
++                        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
++                        proxy.bodyIndex == NM_INVALID_INDEX ||
++                        proxy.bodyIndex >= bridge.currentBodyCount ||
++                        proxy.sceneBodyIndex == NM_INVALID_INDEX ||
++                        proxy.sceneBodyIndex >= bridge.sceneBodyCount ||
++                        !state.requiresSceneBodies ||
++                        bridge.currentBodyCount == 0u ||
++                        bridge.currentBodyStride < bridge.currentBodyCount ||
++                        bridge.sceneBodyCount == 0u ||
++                        bridge.sceneStride < bridge.sceneBodyCount ||
++                        state.primalContactArguments == nil ||
++                        state.coupledGeneralizedCandidate == nil ||
++                        state.coupledPointJacobians == nil)
++                        return "free_box_true_residual_requires_one_nonarticulated_dynamic_box";
++                    for (const NMContactPairGPU& pair : state.contactPairLayout) {
++                        if (pair.objectIndex != 0u || pair.rigidProxy != 0u ||
++                            pair.continuumNode >= state.dispatch.femNodeCount)
++                            return "free_box_true_residual_pair_outside_fem_box_scope";
++                    }
++                }
+                 return nullptr;
+             };
+             const auto femTrueResidualCapabilityFailure = [&]() -> const char* {
+@@ -10668,14 +10723,15 @@
+                     (state.femAlgorithmicTangentCache == nil ||
+                      state.femAlgorithmicTangentCacheValid == nil))
+                     return "configured_tangent_cache_unavailable";
+-                return femNewtonTraceScope();
++                return femNewtonTraceScope(
++                    state.dispatch.rigidGeneralizedCapacity == 6u);
+             };
+             const auto femResidualArmijoScope = [&]() -> const char* {
+                 if (!state.femResidualArmijoScratchEnabled)
+                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                 if (microtick != 0u)
+                     return "requires_microtick_zero";
+-                if (const char* reason = femNewtonTraceScope())
++                if (const char* reason = femNewtonTraceScope(false))
+                     return reason;
+                 constexpr std::uint32_t unsupportedMatterFlags =
+                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
+@@ -10717,7 +10773,7 @@
+                     return "private_cohesive_trial_arena_missing_or_over_cap";
+                 if (microtick != 0u)
+                     return "requires_microtick_zero";
+-                if (const char* reason = femNewtonTraceScope())
++                if (const char* reason = femNewtonTraceScope(false))
+                     return reason;
+                 constexpr std::uint32_t unsupportedMatterFlags =
+                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
+@@ -10794,7 +10850,7 @@
+                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                 if (microtick != 0u)
+                     return "requires_microtick_zero";
+-                if (const char* reason = femNewtonTraceScope())
++                if (const char* reason = femNewtonTraceScope(false))
+                     return reason;
+                 constexpr std::uint32_t unsupportedMatterFlags =
+                     NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
+@@ -14260,7 +14316,7 @@
+                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
+                     return true;
+                 }
+-                if (const char* reason = femNewtonTraceScope()) {
++                if (const char* reason = femNewtonTraceScope(false)) {
+                     if (std::strcmp(stage, "before_contact_limits") == 0)
+                         emitFEMNewtonTraceSkip(root, reason);
+                     return true;
+@@ -14418,7 +14474,7 @@
+                     emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
+                     return true;
+                 }
+-                if (const char* reason = femNewtonTraceScope()) {
++                if (const char* reason = femNewtonTraceScope(false)) {
+                     emitFEMNewtonTraceSkip(root, reason);
+                     return true;
+                 }
+@@ -23131,6 +23187,43 @@
+                     [encoder setBuffer:state.femTrueResidualStatuses
+                                  offset:0u atIndex:10u];
+                 });
++                if (state.dispatch.rigidGeneralizedCapacity != 0u) {
++                    const std::uint32_t allowConvergedTrueResidualOperator = 1u;
++                    dispatchThreads("nm_fgmres_apply_free_rigid",
++                        rigidGeneralizedTotal, [&] {
++                        setDispatch();
++                        [encoder setBytes:&coupledArticulatedNv
++                                   length:sizeof(coupledArticulatedNv) atIndex:1u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femTrueResidualOperatorValue
++                                     offset:0u atIndex:3u];
++                        bindPrimalContactArguments(4u);
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                        [encoder setBuffer:state.coupledGeneralizedCandidate
++                                     offset:0u atIndex:6u];
++                        [encoder setBytes:&allowConvergedTrueResidualOperator
++                                   length:sizeof(allowConvergedTrueResidualOperator)
++                                  atIndex:7u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
++                        rigidGeneralizedTotal, [&] {
++                        setDispatch();
++                        [encoder setBytes:&coupledArticulatedNv
++                                   length:sizeof(coupledArticulatedNv) atIndex:1u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femTrueResidualOperatorValue
++                                     offset:0u atIndex:3u];
++                        bindPrimalContactArguments(4u);
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                        [encoder setBuffer:state.coupledPointJacobians
++                                     offset:0u atIndex:6u];
++                        [encoder setBytes:&allowConvergedTrueResidualOperator
++                                   length:sizeof(allowConvergedTrueResidualOperator)
++                                  atIndex:7u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
+                 const std::uint32_t replaceTrueResidual =
+                     femTrueResidualRestartEnabled ? 1u : 0u;
+                 dispatchGroups32("nm_fgmres_measure_true_residual",
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5559,6 +5559,29 @@
+         return;
+     }
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
++    const bool hasFreeRigidTail = dispatch.rigidGeneralizedCapacity != 0u;
++    const uint expectedUnknownCount = 2u * totalNodes +
++        6u * dispatch.environmentCount;
++    if (hasFreeRigidTail &&
++        (dispatch.rigidGeneralizedCapacity != 6u ||
++         dispatch.rigidQCapacity != 0u ||
++         dispatch.mpmActiveNodeCapacity != 0u ||
++         layout.unknownCount != expectedUnknownCount)) {
++        if (lane == 0u) {
++            const float4 failureDiagnostics = float4(
++                float(layout.unknownCount), float(expectedUnknownCount),
++                float(dispatch.rigidGeneralizedCapacity),
++                float(dispatch.mpmActiveNodeCapacity));
++            recordFailure(diagnosticStatuses[environment],
++                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                failureDiagnostics);
++            if (propagateFailure != 0u)
++                recordFailure(productionStatuses[environment],
++                    NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                    failureDiagnostics);
++        }
++        return;
++    }
+     const uint nodeBase = environment * dispatch.femNodeCount;
+     const uint fieldBase = totalNodes + nodeBase;
+     float norm2 = 0.0f;
+@@ -5584,6 +5607,17 @@
+                 max(max(abs(fieldResidual.x), abs(fieldResidual.y)),
+                     max(abs(fieldResidual.z), abs(fieldResidual.w)))));
+     }
++    if (hasFreeRigidTail) {
++        for (uint dof = lane; dof < 6u; dof += 32u) {
++            const uint row = fgmresRigidIndex(dispatch, environment, dof);
++            const float4 rigidResidual =
++                rightHandSide[row] - operatorValue[row];
++            finiteResidual = finiteResidual && all(isfinite(rigidResidual));
++            fgmresCompensatedAdd(
++                norm2, normCorrection, rigidResidual.x * rigidResidual.x);
++            maximumAbsolute = max(maximumAbsolute, abs(rigidResidual.x));
++        }
++    }
+     norm2 = simd_sum(norm2);
+     maximumAbsolute = simd_max(maximumAbsolute);
+     const bool validMetrics = simd_all(finiteResidual) && isfinite(norm2) &&
+@@ -5616,6 +5650,14 @@
+             residual[mechanical] =
+                 rightHandSide[mechanical] - operatorValue[mechanical];
+             residual[field] = rightHandSide[field] - operatorValue[field];
++        }
++        if (hasFreeRigidTail) {
++            for (uint dof = lane; dof < 6u; dof += 32u) {
++                const uint row = fgmresRigidIndex(dispatch, environment, dof);
++                const float value =
++                    rightHandSide[row].x - operatorValue[row].x;
++                residual[row] = float4(value, 0.0f, 0.0f, 0.0f);
++            }
+         }
+     }
+     if (lane == 0u) {
+--- a/matter/tools/cardboard_coupled_free_box_operator_check.mm
++++ b/matter/tools/cardboard_coupled_free_box_operator_check.mm
+@@ -27,11 +27,14 @@
+     Device base;
+     id<MTLComputePipelineState> femOperator = nil;
+     id<MTLComputePipelineState> gatherNodes = nil;
++    id<MTLComputePipelineState> measureTrueResidual = nil;
+     explicit CoupledDevice() {
+         femOperator = base.makePipeline(
+             @"numi_matter_metal::nm_fem_apply_operator_elements");
+         gatherNodes = base.makePipeline(
+             @"numi_matter_metal::nm_fgmres_gather_nodes");
++        measureTrueResidual = base.makePipeline(
++            @"numi_matter_metal::nm_fgmres_measure_true_residual");
+     }
+ };
+ 
+@@ -754,6 +757,214 @@
+     return raw;
+ }
+ 
++void checkFreeBoxTrueResidualTail(
++    CoupledDevice& device, CoupledFixture& fixture,
++    const R18& center, const R18& mixedDirection) {
++    // The same production element/gather/free-rigid/contact kernels used by
++    // this checker produce A*d. The measurement kernel then receives the full
++    // two-block FEM layout plus the six scalar generalized BOX rows.
++    const R18 action = fixture.nativeAction(center, mixedDirection);
++    R18 rigidOnly{};
++    rigidOnly[12] = 0.15; rigidOnly[13] = -0.07; rigidOnly[14] = 0.04;
++    rigidOnly[15] = 0.35; rigidOnly[16] = -0.25; rigidOnly[17] = 0.2;
++    const R18 rigidAction = fixture.nativeAction(center, rigidOnly);
++    need(blockNorm(rigidAction, 0u, 12u) > 1.0e-8,
++        "active BOX contact did not apply the rigid-side direction to FEM rows");
++    need(blockNorm(rigidAction, 12u, 18u) > 1.0e-8,
++        "free-BOX translation/inertia tail action is zero");
++    R18 femOnly{};
++    femOnly[0] = 0.2; femOnly[1] = -0.1; femOnly[3] = 0.1;
++    femOnly[6] = -0.08; femOnly[8] = 0.05; femOnly[11] = 0.07;
++    const R18 femAction = fixture.nativeAction(center, femOnly);
++    need(blockNorm(femAction, 12u, 18u) > 1.0e-8,
++        "active BOX contact did not apply the FEM-side direction to rigid rows");
++
++    NMMatterDispatchGPU dispatch = fixture.dispatch;
++    need(dispatch.environmentCount == 1u && dispatch.femNodeCount == 4u &&
++         dispatch.rigidGeneralizedCapacity == 6u &&
++         dispatch.rigidQCapacity == 0u && dispatch.mpmActiveNodeCapacity == 0u,
++        "free-BOX residual fixture does not have one six-DOF free-body tail");
++    NMFGMRESLayoutGPU layout{};
++    layout.unknownCount = 2u * dispatch.environmentCount * dispatch.femNodeCount + 6u;
++    NMFGMRESStateGPU state{};
++    state.diagnostics = {0.0f, 1.0e-3f, 0.0f, 0.0f};
++    state.nonlinear = {0.0f, 0.0f, 0.0f, 0.0f};
++    NMMixedSolverGPU solver{};
++    solver.residualTolerances.x = 1.0e-7f;
++    solver.regularization.x = 1.0e-9f;
++    NMMatterStatusGPU healthy{};
++    healthy.code = NM_STATUS_SUCCESS;
++    std::vector<nm_float4> op(layout.unknownCount, nm_float4{});
++    std::vector<nm_float4> rhs(layout.unknownCount, nm_float4{});
++    std::vector<nm_float4> residual(layout.unknownCount,
++                                    nm_float4{-7.0f, -7.0f, -7.0f, -7.0f});
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        op[node] = {float(action[3u * node]), float(action[3u * node + 1u]),
++                    float(action[3u * node + 2u]), 0.0f};
++    }
++    const uint rigidBase = 2u * dispatch.environmentCount * dispatch.femNodeCount;
++    for (uint dof = 0u; dof < 6u; ++dof)
++        op[rigidBase + dof] = {float(action[12u + dof]), 0.0f, 0.0f, 0.0f};
++    rhs = op;
++    // Nonzero errors in both the FEM block and every rigid scalar row make
++    // omission of either block observable without manufacturing a solver state.
++    rhs[0].x += 5.0e-4f;
++    const std::array<float, 6> rigidResidual{
++        1.0e-3f, -2.0e-3f, 3.0e-3f, -4.0e-3f, 5.0e-3f, -6.0e-3f};
++    for (uint dof = 0u; dof < 6u; ++dof)
++        rhs[rigidBase + dof].x += rigidResidual[dof];
++
++    double expectedNorm2 = 0.0;
++    double omittedTailNorm2 = 0.0;
++    double wrongSignNorm2 = 0.0;
++    for (uint row = 0u; row < layout.unknownCount; ++row) {
++        const nm_float4 delta = {
++            rhs[row].x - op[row].x, rhs[row].y - op[row].y,
++            rhs[row].z - op[row].z, rhs[row].w - op[row].w};
++        expectedNorm2 += double(delta.x) * delta.x +
++            double(delta.y) * delta.y + double(delta.z) * delta.z +
++            double(delta.w) * delta.w;
++        if (row < rigidBase)
++            omittedTailNorm2 += double(delta.x) * delta.x +
++                double(delta.y) * delta.y + double(delta.z) * delta.z +
++                double(delta.w) * delta.w;
++        wrongSignNorm2 +=
++            double(rhs[row].x + op[row].x) * (rhs[row].x + op[row].x) +
++            double(rhs[row].y + op[row].y) * (rhs[row].y + op[row].y) +
++            double(rhs[row].z + op[row].z) * (rhs[row].z + op[row].z) +
++            double(rhs[row].w + op[row].w) * (rhs[row].w + op[row].w);
++    }
++    const double expectedNorm = std::sqrt(expectedNorm2);
++    need(expectedNorm > std::sqrt(omittedTailNorm2) * 5.0,
++        "omitting the six rigid rows would not fail this residual fixture");
++    need(std::sqrt(wrongSignNorm2) > expectedNorm * 1.5,
++        "reversing the residual sign would not fail this fixture");
++
++    auto dispatchB = makeBuffer(device.base.gpu,
++        std::vector<NMMatterDispatchGPU>{dispatch});
++    auto layoutB = makeBuffer(device.base.gpu,
++        std::vector<NMFGMRESLayoutGPU>{layout});
++    auto solverB = makeBuffer(device.base.gpu,
++        std::vector<NMMixedSolverGPU>{solver});
++    auto rhsB = makeBuffer(device.base.gpu, rhs);
++    auto opB = makeBuffer(device.base.gpu, op);
++    auto residualB = makeBuffer(device.base.gpu, residual);
++    auto stateB = makeBuffer(device.base.gpu,
++        std::vector<NMFGMRESStateGPU>{state});
++    auto metricsB = makeBuffer(device.base.gpu,
++        std::vector<nm_float4>{nm_float4{-1.0f, -1.0f, -1.0f, -1.0f}});
++    auto diagnosticB = makeBuffer(device.base.gpu,
++        std::vector<NMMatterStatusGPU>{healthy});
++    auto productionB = makeBuffer(device.base.gpu,
++        std::vector<NMMatterStatusGPU>{healthy});
++    const float forcing = 0.01f;
++    const uint replaceResidual = 1u;
++    const uint propagateFailure = 1u;
++    auto forcingB = makeBuffer(device.base.gpu, std::vector<float>{forcing});
++    auto replaceB = makeBuffer(device.base.gpu, std::vector<uint>{replaceResidual});
++    auto propagateB = makeBuffer(device.base.gpu, std::vector<uint>{propagateFailure});
++    id<MTLCommandBuffer> command = [device.base.queue commandBuffer];
++    id<MTLComputeCommandEncoder> encoder =
++        command != nil ? [command computeCommandEncoder] : nil;
++    need(command != nil && encoder != nil,
++        "free-BOX true-residual measurement encoder unavailable");
++    [encoder setComputePipelineState:device.measureTrueResidual];
++    [encoder setBuffer:dispatchB offset:0u atIndex:0u];
++    [encoder setBuffer:solverB offset:0u atIndex:1u];
++    [encoder setBuffer:rhsB offset:0u atIndex:2u];
++    [encoder setBuffer:opB offset:0u atIndex:3u];
++    [encoder setBuffer:residualB offset:0u atIndex:4u];
++    [encoder setBuffer:stateB offset:0u atIndex:5u];
++    [encoder setBuffer:metricsB offset:0u atIndex:6u];
++    [encoder setBuffer:forcingB offset:0u atIndex:7u];
++    [encoder setBuffer:diagnosticB offset:0u atIndex:8u];
++    [encoder setBuffer:replaceB offset:0u atIndex:9u];
++    [encoder setBuffer:productionB offset:0u atIndex:10u];
++    [encoder setBuffer:propagateB offset:0u atIndex:11u];
++    [encoder setBuffer:layoutB offset:0u atIndex:30u];
++    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
++          threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    need(command.status == MTLCommandBufferStatusCompleted,
++        command.error != nil ? [[command.error localizedDescription] UTF8String]
++                             : "free-BOX true-residual measurement did not complete");
++    const auto* measured = static_cast<const nm_float4*>([metricsB contents]);
++    const auto* states = static_cast<const NMFGMRESStateGPU*>([stateB contents]);
++    const auto* diagnostic = static_cast<const NMMatterStatusGPU*>([diagnosticB contents]);
++    const auto* production = static_cast<const NMMatterStatusGPU*>([productionB contents]);
++    const auto* replaced = static_cast<const nm_float4*>([residualB contents]);
++    need(diagnostic->code == NM_STATUS_SUCCESS &&
++         production->code == NM_STATUS_SUCCESS,
++        "free-BOX true-residual operator or measurement reported failure");
++    need(std::abs(double(measured[0].x) - expectedNorm) <=
++             2.0e-6 * expectedNorm + 1.0e-9,
++        "true-residual norm omitted or mis-signed the six scalar BOX rows");
++    need(states[0].diagnostics.z == 0.0f,
++        "residual above the unchanged forcing/absolute thresholds was certified");
++    need(std::abs(double(replaced[0].x) -
++                  double(rhs[0].x - op[0].x)) <= 1.0e-8,
++        "FEM restart residual was not replaced with b-Ax");
++    for (uint dof = 0u; dof < 6u; ++dof) {
++        const nm_float4 row = replaced[rigidBase + dof];
++        need(std::abs(double(row.x) -
++                      double(rhs[rigidBase + dof].x - op[rigidBase + dof].x)) <= 1.0e-8 &&
++             row.y == 0.0f && row.z == 0.0f && row.w == 0.0f,
++            "six-row rigid restart residual was omitted, mis-signed, or not scalar");
++    }
++    std::cout << std::setprecision(10)
++        << "free_box_true_residual rows=" << layout.unknownCount
++        << " fem_rows=" << rigidBase
++        << " rigid_tail=6 active_box_contact=true"
++        << " true_norm=" << measured[0].x
++        << " expected_b_minus_Ax=" << expectedNorm
++        << " omitted_tail_norm=" << std::sqrt(omittedTailNorm2)
++        << " wrong_sign_control_norm=" << std::sqrt(wrongSignNorm2)
++        << " restart_tail_replaced=true completed=false"
++        << " physical_transactions=0
++";
++
++    // A zero residual still passes the same unchanged threshold and resets all
++    // six scalar restart rows to zero.
++    rhs = op;
++    std::memcpy([rhsB contents], rhs.data(), rhs.size() * sizeof(nm_float4));
++    std::memcpy([residualB contents], residual.data(),
++                residual.size() * sizeof(nm_float4));
++    state.diagnostics = {0.0f, 1.0e-3f, 0.0f, 0.0f};
++    std::memcpy([stateB contents], &state, sizeof(state));
++    std::memcpy([diagnosticB contents], &healthy, sizeof(healthy));
++    std::memcpy([productionB contents], &healthy, sizeof(healthy));
++    command = [device.base.queue commandBuffer];
++    encoder = command != nil ? [command computeCommandEncoder] : nil;
++    need(command != nil && encoder != nil,
++        "zero-residual certification encoder unavailable");
++    [encoder setComputePipelineState:device.measureTrueResidual];
++    [encoder setBuffer:dispatchB offset:0u atIndex:0u];
++    [encoder setBuffer:solverB offset:0u atIndex:1u];
++    [encoder setBuffer:rhsB offset:0u atIndex:2u];
++    [encoder setBuffer:opB offset:0u atIndex:3u];
++    [encoder setBuffer:residualB offset:0u atIndex:4u];
++    [encoder setBuffer:stateB offset:0u atIndex:5u];
++    [encoder setBuffer:metricsB offset:0u atIndex:6u];
++    [encoder setBuffer:forcingB offset:0u atIndex:7u];
++    [encoder setBuffer:diagnosticB offset:0u atIndex:8u];
++    [encoder setBuffer:replaceB offset:0u atIndex:9u];
++    [encoder setBuffer:productionB offset:0u atIndex:10u];
++    [encoder setBuffer:propagateB offset:0u atIndex:11u];
++    [encoder setBuffer:layoutB offset:0u atIndex:30u];
++    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
++          threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
++    [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
++    need(command.status == MTLCommandBufferStatusCompleted,
++        "zero-residual free-BOX certification dispatch failed");
++    need(static_cast<const NMFGMRESStateGPU*>([stateB contents])->diagnostics.z == 1.0f,
++        "zero full-layout residual did not meet the unchanged gate");
++    for (uint dof = 0u; dof < 6u; ++dof)
++        need(static_cast<const nm_float4*>([residualB contents])[rigidBase+dof].x == 0.0f,
++            "zero-residual restart left a stale rigid-tail row");
++}
++
+ void runCoupledCheck(CoupledDevice& device) {
+     CoupledFixture fixture(device);
+     R18 center{};
+@@ -832,6 +1043,7 @@
+             <<" rigid_contact_torque="<<nativeSample.angularImpulseAndTangent.x<<","<<nativeSample.angularImpulseAndTangent.y<<","<<nativeSample.angularImpulseAndTangent.z
+             <<" outcome="<<(pass?"PASS":(fp64Resolved?"FAIL":"INCONCLUSIVE"))<<"\n";
+     }
++    checkFreeBoxTrueResidualTail(device, fixture, center, mixed);
+     std::cout<<"coupled_fem_free_box_operator directions="<<tests.size()
+         <<" worst_scaled_relative="<<worstRelative
+         <<" worst_scaled_abs="<<worstAbsolute
+--- a/matter/tools/test_true_residual_certification_contract.py
++++ b/matter/tools/test_true_residual_certification_contract.py
+@@ -68,7 +68,7 @@
+         for guard in (
+             "microtick != 0u", "state.enableVascularDense45",
+             "cohesiveFaceCount > 4096u", "tetrahedronCount > 32768u",
+-            "femNewtonTraceScope()", "femTrueResidualElementOperator == nil",
++            "femNewtonTraceScope(", "femTrueResidualElementOperator == nil",
+             "femTrueResidualRightHandSide == nil",
+             "femTrueResidualMetrics == nil", "femTrueResidualStatuses == nil",
+             "femAlgorithmicTangentCache == nil",
+@@ -109,8 +109,14 @@
+         self.assertIn('"nm_fem_cohesive_face_operator"', cycle)
+         self.assertIn('"nm_fgmres_add_cohesive_operator"', cycle)
+         self.assertIn("bindPrimalContactArguments(12u)", cycle)
+-        # The admitted scope excludes MPM, articulated/support/vascular rows;
+-        # the gathered mechanical action still contains contact and cohesive.
++        self.assertLess(cycle.rindex('"nm_fgmres_apply_free_rigid"'),
++                        cycle.index('"nm_fgmres_measure_true_residual"'))
++        self.assertLess(cycle.rindex('"nm_fgmres_apply_primal_rigid_contacts"'),
++                        cycle.index('"nm_fgmres_measure_true_residual"'))
++        self.assertIn("allowConvergedTrueResidualOperator = 1u", cycle)
++        self.assertIn("[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers]", cycle)
++        # The admitted free-BOX path uses the same candidate, contact argument
++        # buffer, point Jacobians, and six-row operator arena as production.
+ 
+     def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
+         finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
+@@ -126,6 +132,11 @@
+         self.assertIn("state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||", measure)
+         self.assertIn("trueNorm <= nonlinearThreshold", measure)
+         self.assertIn("productionStatuses[environment] = diagnosticStatuses[environment]", measure)
++        self.assertIn("dispatch.rigidGeneralizedCapacity != 6u", measure)
++        self.assertIn("layout.unknownCount != expectedUnknownCount", measure)
++        self.assertIn("fgmresRigidIndex(dispatch, environment, dof)", measure)
++        self.assertIn("rigidResidual.x * rigidResidual.x", measure)
++        self.assertIn("residual[row] = float4(value, 0.0f, 0.0f, 0.0f)", measure)
+ 
+     def test_false_arnoldi_convergence_is_rejected_and_true_restart_is_used(self):
+         estimate = 9.7661823e-6
+@@ -204,5 +215,50 @@
+         self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
+ 
+ 
++    def test_free_box_true_residual_admission_is_exact_and_separate(self):
++        scope = section(RUNTIME, "const auto femNewtonTraceScope =",
++                       "const auto femTrueResidualCapabilityFailure =")
++        for guard in (
++            "state.dispatch.environmentCount != 1u",
++            "state.dispatch.rigidGeneralizedCapacity != 6u",
++            "state.dispatch.rigidQCapacity != 0u",
++            "state.requiresCoupledCandidate",
++            "NM_RIGID_BOX",
++            "proxy.flags != NM_RIGID_DYNAMIC",
++            "proxy.generalizedFreeBodyIndex != 0u",
++            "NM_MATTER_CONTACT",
++            "state.dispatch.mpmActiveNodeCapacity != 0u",
++            "state.fgmresLayout.supportContactCount != 0u",
++            "state.fgmresLayout.vascularUnknownCount != 0u",
++            "state.dispatch.fieldBoundaryCount != 0u",
++            "state.fgmresLayout.unknownCount != expectedUnknownCount",
++        ):
++            self.assertIn(guard, scope)
++        capability = section(
++            RUNTIME, "const auto femTrueResidualCapabilityFailure =",
++            "const auto femResidualArmijoScope =")
++        self.assertIn(
++            "femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
++            capability)
++        self.assertIn("femNewtonTraceScope(false)", RUNTIME)
++
++    def test_native_box_fixture_uses_both_contact_blocks_and_tail_controls(self):
++        coupled = (HERE / "cardboard_coupled_free_box_operator_check.mm").read_text()
++        for required in (
++            "nm_fgmres_measure_true_residual",
++            "fixture.nativeAction(center, mixedDirection)",
++            "active BOX contact did not apply the rigid-side direction to FEM rows",
++            "active BOX contact did not apply the FEM-side direction to rigid rows",
++            "rigidGeneralizedCapacity == 6u",
++            "layout.unknownCount = 2u * dispatch.environmentCount * dispatch.femNodeCount + 6u",
++            "omittedTailNorm2",
++            "wrongSignNorm2",
++            "six scalar BOX rows",
++            "restart_tail_replaced=true",
++            "zero full-layout residual did not meet the unchanged gate",
++            "physical_transactions=0",
++        ):
++            self.assertIn(required, coupled)
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

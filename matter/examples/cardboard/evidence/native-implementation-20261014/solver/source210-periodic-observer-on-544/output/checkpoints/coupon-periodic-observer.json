@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.periodic-accepted-checkpoint-observer.v1",
+  "observer_only": true,
+  "full_schedule_stop_requested": false,
+  "cadence_controls": 2,
+  "scheduled_controls": 7,
+  "accepted_steps_in_this_run": 7,
+  "observer_disabled_after_error": false,
+  "observer_error": "",
+  "checkpoints": [
+    {"control_index":1,"next_control_index":2,"checkpoint":"checkpoints/coupon-control-000001.nmcb","checkpoint_sha256":"3cb96615b06d03cbd27369e489bbd31bcb4f4894462e22b85ea2b4a0242ffe2e","prefix":"checkpoints/coupon-control-000001.prefix","metadata":"checkpoints/coupon-control-000001.resume"},
+    {"control_index":3,"next_control_index":4,"checkpoint":"checkpoints/coupon-control-000003.nmcb","checkpoint_sha256":"78c6ca289554bff651f11b04477a89ec114456ee2c1bb1acd53868c83c1162c1","prefix":"checkpoints/coupon-control-000003.prefix","metadata":"checkpoints/coupon-control-000003.resume"},
+    {"control_index":5,"next_control_index":6,"checkpoint":"checkpoints/coupon-control-000005.nmcb","checkpoint_sha256":"2b1c07a30163831c604cdb499a007899b5d27e565001971f70905a02fa17b66f","prefix":"checkpoints/coupon-control-000005.prefix","metadata":"checkpoints/coupon-control-000005.resume"},
+    {"control_index":6,"next_control_index":7,"checkpoint":"checkpoints/coupon-control-000006.nmcb","checkpoint_sha256":"474dd47ebe4aeaa26f79482b2158ccbc6d3429051ac34618cf73004b56623693","prefix":"checkpoints/coupon-control-000006.prefix","metadata":"checkpoints/coupon-control-000006.resume"}
+  ]
+}

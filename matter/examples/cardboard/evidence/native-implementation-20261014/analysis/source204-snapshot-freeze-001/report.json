@@ -1,0 +1,24 @@
+{
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-topology-frame-export-204",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-repeated-damped-fallback-203",
+  "base_frozen_sha256": "ec7af9ddb1fc7e424afdaaf270125ec4870bc34c1a807b732fbdf4aa2bdf64bd",
+  "overlay_manifest_sha256": "0ac026c0f6df5ddae7fdb2510db93964fac316ffef81794ce63be82b2487a690",
+  "overlay_sha256": "96496d325850873ff4809bebdc30dc86e45f1a520abdbb71f1abfac2765e1d01",
+  "patch_sha256": "fd0d91653ba35b11e2c2b6dfa076a957b6db008275e93e933d11971790f55e58",
+  "frozen_source_sha256": "e132044853c067ce399f465584fb073d956022acd732dd443bdb0b35c0f777df",
+  "source_file_count": 817,
+  "changed_sources": {
+    "matter/tools/cardboard_cached_operator_audit.py": {
+      "before": "939ab667f6be3a2cee678523899d4919710f763f5a058b1918783ebe2b61507e",
+      "after": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "matter/tools/test_cardboard_cached_operator_audit.py": {
+      "before": "df56a5dd5536e0c858776ce0a7a3813dcf7a377ef947f9e4072b9da1e9c24e16",
+      "after": "9e090f31f73c8a986c1d43adf1fa01c1f0ded8d554dcaa0cae15efacfc7489bf"
+    }
+  },
+  "configure_support_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "patch_apply_log_sha256": "a8bd34f4bd2320e007b7b090ee995bcc4740c05597c0fe091862e1d32dced347",
+  "native_execution": false,
+  "cpu_status": "PASS_29_OF_30_WITH_LOCKED_TEST_PENDING"
+}

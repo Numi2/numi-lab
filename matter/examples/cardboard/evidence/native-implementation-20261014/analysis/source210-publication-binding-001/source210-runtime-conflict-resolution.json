@@ -1,0 +1,6 @@
+{
+  "resolution": "Retain source207 free-rigid and contact operator dispatches, followed by the source209 explanatory comment and already merged strict-mode assignment. Exact inserted bytes verified against both source snapshots.",
+  "source207_block_sha256": "5f4d2bee88cfc4c1f38054951d6b57fb8ad4f98030ebabc5d2d496460d0c2700",
+  "source209_comment_sha256": "64d510eea986bedd2ab39de50cf23ad717a87b2f7ba830e222267584de4e15fe",
+  "physical_operator_modification_beyond_source207": false
+}

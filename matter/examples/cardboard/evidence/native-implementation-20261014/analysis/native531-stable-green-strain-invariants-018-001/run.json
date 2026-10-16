@@ -1,0 +1,7 @@
+{
+  "cpu_only": true,
+  "near_identity_samples": 200,
+  "rotation_objectivity_samples": 64,
+  "energy_samples": 64,
+  "captured_frames": 1728
+}

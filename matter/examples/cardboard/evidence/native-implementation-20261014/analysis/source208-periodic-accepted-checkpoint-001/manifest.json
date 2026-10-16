@@ -1,0 +1,143 @@
+{
+  "base_frozen_source_sha256": "c77675e7aedc7f14c93c8bd7ea9e0a1e18bf162a68cf7e4022c43c34c6d141f2",
+  "candidate_frozen_source_sha256": "435e34b44afb374f68510d784181cf75e1f691ce62bade43039a1f8d9443ffcb",
+  "overlay_manifest_sha256": "872a33ac4865905df4aba0ca160553cfbc4eb95535a9be9f0b0fbdb7e02d389a",
+  "package_files": [
+    {
+      "bytes": 2563,
+      "path": "README.md",
+      "sha256": "745427f7446f96fbdd019572bdc402407656565a4a9a847189272090c73ed3b2"
+    },
+    {
+      "bytes": 4556,
+      "path": "attempt-history.json",
+      "sha256": "e1c40bac0372ac0054ce439b9ccd21c6085cbd8b985c76ca97addf0a3ca3c1e3"
+    },
+    {
+      "bytes": 99251,
+      "path": "attempt-logs/build001-source-build.json",
+      "sha256": "ae77a8f2f79ae60c753409f0800ecc1537e1b568974b0fc5f8bdd918eb51165d"
+    },
+    {
+      "bytes": 2012,
+      "path": "attempt-logs/build002-LastTest.log",
+      "sha256": "ae9452b5cdc1c46d3b00f11c6ba87c0adb6ea35c993373ff409b27797e4634ab"
+    },
+    {
+      "bytes": 100473,
+      "path": "attempt-logs/build002-source-build.json",
+      "sha256": "3579cbebd0ee5ecbdba150e618518dfaef38b91aed6507ff8642863b0fe926fe"
+    },
+    {
+      "bytes": 2029,
+      "path": "attempt-logs/build003-LastTest.log",
+      "sha256": "e17132b2659384d644cb45a7a0663180b8bcc0631e1cfe663512df41174ff60c"
+    },
+    {
+      "bytes": 100473,
+      "path": "attempt-logs/build003-source-build.json",
+      "sha256": "f8c7f561eaa1165a453bd8582153440989ff4874ec7b10a5bd40632504f2f94f"
+    },
+    {
+      "bytes": 1876,
+      "path": "attempt-logs/build004-LastTest.log",
+      "sha256": "ba84de7374d994eeaf1ae7bd4e11ea04f0641b58c1b9417f443a40b8a80f1283"
+    },
+    {
+      "bytes": 100473,
+      "path": "attempt-logs/build004-source-build.json",
+      "sha256": "88119c450ea865a771430310e7ff576f88bc3c30f7844adb47081449809a7aee"
+    },
+    {
+      "bytes": 1876,
+      "path": "attempt-logs/build005-LastTest.log",
+      "sha256": "7659c6953dfa71bfaf226252010137315c6c7c42a654e80573ec3fb9e41b4eac"
+    },
+    {
+      "bytes": 100473,
+      "path": "attempt-logs/build005-source-build.json",
+      "sha256": "f634f701a82c94381db35ca1addba311f3fa9fefde2bafdfe24657be4662b941"
+    },
+    {
+      "bytes": 1876,
+      "path": "attempt-logs/build006-LastTest.log",
+      "sha256": "d8b8d7fdbe25302857157da8301d4d3fdf89525ca56baae15f0ac988cbf1a5f4"
+    },
+    {
+      "bytes": 100473,
+      "path": "attempt-logs/build006-source-build.json",
+      "sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c"
+    },
+    {
+      "bytes": 121,
+      "path": "cli-help-option.txt",
+      "sha256": "e617f6ec539557f12408b958176ff12c5938a6b0ffaa6a7b6904b91dc970e32b"
+    },
+    {
+      "bytes": 1876,
+      "path": "cpu-ctest-lasttest.log",
+      "sha256": "d8b8d7fdbe25302857157da8301d4d3fdf89525ca56baae15f0ac988cbf1a5f4"
+    },
+    {
+      "bytes": 666,
+      "path": "failed-attempts/build001/provenance-command-0.log",
+      "sha256": "80bc3f97098438fd7dfbdadb971e513e55b4ef897ad90e57cc6baadc3f2c8a45"
+    },
+    {
+      "bytes": 5829,
+      "path": "failed-attempts/build001/provenance-command-1.log",
+      "sha256": "6b39692d0918823b6f9ff8bcc5eaa2bbdf4358a3b25f8df64488b8cb82571df0"
+    },
+    {
+      "bytes": 52283,
+      "path": "overlay-files/matter/tools/cardboard_coupon_resume.hpp",
+      "sha256": "06f67114905367f067f16a64c3209ac3fd11e710ae0a2233dc7fb4c2783f7592"
+    },
+    {
+      "bytes": 23201,
+      "path": "overlay-files/matter/tools/cardboard_coupon_resume_check.cpp",
+      "sha256": "a9fa6e2c0b5ab93489677ae4fc7e8d44b723388af8e8b1f98b9b1bc9e0aaa0d8"
+    },
+    {
+      "bytes": 823190,
+      "path": "overlay-files/matter/tools/cardboard_probe.mm",
+      "sha256": "801706c7cd880677e7e5e9ee7e3f9d5b80058d20fff3647dfebf56ad88219d5c"
+    },
+    {
+      "bytes": 26235,
+      "path": "overlay-files/matter/tools/cardboard_shipping_snapshot.hpp",
+      "sha256": "a7f40b0d870e6951bf38c50bfd87e9d1fbd798b4d217ec545fef1c842538c817"
+    },
+    {
+      "bytes": 15005,
+      "path": "overlay-files/matter/tools/cardboard_shipping_snapshot_check.cpp",
+      "sha256": "7abe9c8194a16b379307fe4a9428a440f2b93bb2928331ce79a1becf4fa6db87"
+    },
+    {
+      "bytes": 35745,
+      "path": "overlay.patch",
+      "sha256": "9cad6656b6bab2d8570c51a35d2f53eb25197c61efe114bc899b200b9a781551"
+    },
+    {
+      "bytes": 100473,
+      "path": "source-build.json",
+      "sha256": "7661c39db729349b57c59f22ff29de3bd529c9782d2195db5d125d294230218c"
+    },
+    {
+      "bytes": 2674,
+      "path": "source-overlay.json",
+      "sha256": "872a33ac4865905df4aba0ca160553cfbc4eb95535a9be9f0b0fbdb7e02d389a"
+    },
+    {
+      "bytes": 1707,
+      "path": "validation.json",
+      "sha256": "a4b6bab4a4c691ef58bf000cf020c091d98a846d2017f8185c733c8534aced44"
+    },
+    {
+      "bytes": 2800,
+      "path": "verify_source208_package.py",
+      "sha256": "9eef20effaaa02777897410e2c9866f57704244c28783f7853e1b905bae007d5"
+    }
+  ],
+  "schema": "numi.cardboard.source208-periodic-checkpoint-package.v1"
+}

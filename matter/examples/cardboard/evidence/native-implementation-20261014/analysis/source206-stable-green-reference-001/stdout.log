@@ -1,0 +1,23 @@
+test_center_and_both_fine_centered_differences_pass_strict_gates (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_center_and_both_fine_centered_differences_pass_strict_gates) ... ok
+test_original_implementation_misses_retained_case (test_cardboard_stable_green_strain_reference.StableGreenStrainRegression.test_original_implementation_misses_retained_case) ... ok
+setUpClass (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests) ... ERROR
+test_empty_branch_side_is_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_empty_branch_side_is_inconclusive) ... ok
+test_epsilon_work_bound_precedes_io (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_epsilon_work_bound_precedes_io) ... ok
+test_identity_rejects_other_environment_hole_and_bad_fingerprint (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_identity_rejects_other_environment_hole_and_bad_fingerprint) ... ok
+test_invalid_reference_row_does_not_disappear_from_gate (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_invalid_reference_row_does_not_disappear_from_gate) ... ok
+test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_nonfinite_report_fields_retain_explicit_locations_and_do_not_change_gates) ... ok
+test_uniform_stress_gather_cancels_shared_face (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_uniform_stress_gather_cancels_shared_face) ... ok
+test_zero_reference_stays_inconclusive (test_cardboard_bilinear_capture_layers.CaptureLayerContracts.test_zero_reference_stays_inconclusive) ... ok
+
+======================================================================
+ERROR: setUpClass (test_cardboard_compensated_fp64_reference.CompensatedReferencePortableTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206/matter/tools/test_cardboard_compensated_fp64_reference.py", line 46, in setUpClass
+    raise RuntimeError("sibling equation source is absent or does not match this source173 test fixture")
+RuntimeError: sibling equation source is absent or does not match this source173 test fixture
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.333s
+
+FAILED (errors=1)

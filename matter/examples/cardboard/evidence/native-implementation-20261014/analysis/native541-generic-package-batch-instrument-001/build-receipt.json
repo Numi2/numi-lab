@@ -1,0 +1,24 @@
+{
+  "commands": [
+    {
+      "index": 0,
+      "exit_code": 0
+    },
+    {
+      "index": 1,
+      "exit_code": 0
+    },
+    {
+      "index": 2,
+      "exit_code": 0
+    }
+  ],
+  "gpu_executed": false,
+  "artifacts": {
+    "generic_batch.mm": "622c78ac769490636196b7602dafb31f9432529dc47bf88e284193dbf92c78a0",
+    "batch.air": "96acef2a976030dfec4432d7aaf973888a9446483233c94ee322354056c887a5",
+    "batch.metallib": "3996691d7674278d3cfffd4d6444b2412948824b78a28437af2da3c322a4fecd",
+    "generic-batch": "7764e4c20c2393d5ebfc3f100f29e851b9090e1999418aad86cbcaf69fb7e3c5"
+  },
+  "at_utc": "2026-10-16T10:05:46.310113+00:00"
+}
