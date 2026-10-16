@@ -1,0 +1,81 @@
+{
+  "artifacts": [
+    {
+      "bytes": 907448,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-projection-policy-check",
+      "sha256": "e2f77417f6c583b9ed3160a97ffe5e98349ee2f1d736702139374d9160ddcadc"
+    },
+    {
+      "bytes": 835128,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+      "sha256": "d1f44619e445e19ee3c63d8d553f84f9ca2026b8cd7cdbb79f3c8399d75eb670"
+    },
+    {
+      "bytes": 3241320,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-probe",
+      "sha256": "6d20ff651d49f5e5609144c29e72cab4db4bdd345425298fc65a261c696fd16c"
+    },
+    {
+      "bytes": 874336,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/libnumi_matter_compiler.a",
+      "sha256": "793ea6169b2dffc6feab58a7534ef6396c1d5bf00cdaa0e7de2cd7d00632da00"
+    },
+    {
+      "bytes": 2000432,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/libnumi_matter_runtime.a",
+      "sha256": "8d59fd29ff795c397d74d77f7f37c50164b73ca1ecbfcbd61feffc6f0d1b07fc"
+    },
+    {
+      "bytes": 7050955,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/NumiMatter.metallib",
+      "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+    },
+    {
+      "bytes": 939118,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+      "sha256": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+    }
+  ],
+  "build_directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001",
+  "clean_build_argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001",
+    "--clean-first",
+    "--target",
+    "numi-matter-cardboard-bilinear15-projection-policy-check",
+    "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "numi-matter-cardboard-probe",
+    "-j2"
+  ],
+  "clean_build_exit_code": 0,
+  "clean_build_log": {
+    "bytes": 5745,
+    "path": "clean-build.log",
+    "sha256": "72fbd220bea283ef67d1551adcd17728fe962f91a3790bb7f0395261e3b5fdca"
+  },
+  "configure_argv": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_OSX_SYSROOT=/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-G",
+    "Unix Makefiles"
+  ],
+  "cpu_validation_path": "cpu-validation.json",
+  "frozen_source_entries_verified": 819,
+  "native_dispatch_performed": false,
+  "schema": "numi.cardboard.source220-build-validation.v1",
+  "source_frozen_json_sha256": "7c3793e3513d4eec1971256f43f8528867ebcf7ee1064ad598f51e4e8a9e43f4",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001",
+  "toolchain": {
+    "build_type": "Release",
+    "cmake": "/opt/homebrew/bin/cmake",
+    "generator": "Unix Makefiles",
+    "objcxx_compiler": "AppleClang 21.0.0.21000101",
+    "sdk": "Xcode 26.6 MacOSX.sdk"
+  }
+}

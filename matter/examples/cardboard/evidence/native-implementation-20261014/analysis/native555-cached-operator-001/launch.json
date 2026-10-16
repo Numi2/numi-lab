@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_cached_operator_audit.py",
+    "--capture",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture",
+    "--prediction",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/prediction.json",
+    "--receipt",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/receipt.json",
+    "--stderr",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/stderr.log",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003",
+    "--environment",
+    "0",
+    "--output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-operator-001/operator"
+  ],
+  "tool_sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+  "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+  "native_transactions": 0
+}

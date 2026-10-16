@@ -1,0 +1,7 @@
+source_id,grade,box_dimensions_mm,box_condition,offset_mm,BCT_N,source_location,observation_class,split_role,notes
+mrowczynski_2021,BC-780,300x200x200,without_offset,,4995,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; raw curve is plotted in Fig. 10; no transferable material strength claim
+mrowczynski_2021,BC-780,300x200x200,offset_first_peak,,2989,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; source describes offset geometry; value is experiment
+mrowczynski_2021,BC-780,300x200x200,offset_second_peak,,3817,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; value is experiment
+mrowczynski_2021,EB-965,300x200x200,without_offset,,4445,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; value is experiment
+mrowczynski_2021,EB-965,300x200x200,offset_first_peak,,3124,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; value is experiment
+mrowczynski_2021,EB-965,300x200x200,offset_second_peak,,3830,Table 3,reported_box_test_result,geometry_loadpath_holdout,Separate double-wall commercial board grade; value is experiment

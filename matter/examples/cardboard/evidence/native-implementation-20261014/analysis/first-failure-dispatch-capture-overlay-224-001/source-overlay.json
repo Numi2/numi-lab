@@ -1,0 +1,31 @@
+{
+  "base_file_sha256": {
+    "matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "matter/src/metal/fgmres.metalinc": "b3065425603a04aa2470fa14a67ddf402abf794943d60e2b1075320e7d99e922",
+    "matter/src/runtime.mm": "f96f151cccaaa9798ff08efb81b65e4b7fcecbc4b87dcbbbef628d19e6e2a89b",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+  },
+  "base_frozen_sha256": "8874cc2b52e6d2a0125b2cb91ee31566b1d81d0dd10481d1ac85a5cae30e39f3",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001",
+  "candidate_file_sha256": {
+    "matter/include/numi/matter/shared.h": "51573db81b32ec00c63bb49c4eda6adcd8650c45c829a831e4426f5cef65a12e",
+    "matter/src/metal/fgmres.metalinc": "5b5ec27d295ff1e918415b60d676452c1f0d4a4420906d62d20fbd8c0582af5e",
+    "matter/src/runtime.mm": "673e843c8e125c05a623c79c1a8713c8201190ad4d674d757c1ea4d75696ae8e",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+  },
+  "candidate_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-224-001",
+  "changed_paths": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "limitations": [
+    "Private transient failures are out of scope.",
+    "No native execution.",
+    "No physical qualification."
+  ],
+  "schema": "numi.matter.source_overlay.v1",
+  "scope": "Read-only per-dispatch capture of first global nonzero status, bound to exact accepted before-snapshot."
+}

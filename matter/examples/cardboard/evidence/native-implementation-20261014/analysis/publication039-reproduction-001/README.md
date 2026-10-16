@@ -1,0 +1,7 @@
+Reference039 executable reproduction
+
+Canonical source231 composes source230 checked pure-FEM8192 workspaces, exact prescribed-BOX/capsule/free-BOX admission and bounded diagnostic epsilon replay controls with the three disjoint Human files already on main. Source230 completed the tiny seven-control all-phase regression with all32production files exactly matching source210; source231 has a separate fresh build and regression. These are bounded component/regression results, not full coupon or shipping-box convergence.
+
+Original545 and actual diagnostic555/565 retain the same control19 failure; complete resumed histories and rejected state compare exactly. Fine native finite differences and tighter FP64 endpoint targets remain inconclusive. Strict local-state candidate220 fixes ten targeted material tangent rows in563, while its full native coupon remains a separate future experiment. Source224's567 recorder failed to produce a usable sidecar; terminal status does not attribute a kernel.
+
+Shipping ordinal pages225 are a planner/component check only. Full cohesive production paging227 and contact paging, full-box arena admission, physical scoring/assembly, capacity and impact qualification remain open. Retain all failed attempts and bind every result to its own source map, binary and input package. Reproductions under different absolute paths require new source-bound commands and receipts.

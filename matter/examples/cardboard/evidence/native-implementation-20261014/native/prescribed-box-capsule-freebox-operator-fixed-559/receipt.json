@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native-component-receipt.v2",
+  "case": "prescribed-box-capsule-freebox-operator-fixed-559",
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.555970084,
+  "all_inputs_unchanged": true,
+  "stdout_sha256": "48277367327b388db41e81c93cb3e6c51a86b7f2f5f4be2a46805b9b4b4e3758",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_transactions": 0,
+  "full_solver_or_shipping_qualification": false,
+  "at_utc": "2026-10-16T11:42:07.334436+00:00"
+}

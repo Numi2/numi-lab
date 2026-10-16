@@ -1,0 +1,41 @@
+{
+  "actual_source_assets": {
+    "liner": {
+      "bytes": 15887,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    "medium": {
+      "bytes": 15906,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    }
+  },
+  "base_source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+  "base_source_sha256": "7214678479c508aee77ef9c719895fb37c1386b0281d3f20a38f9c4cf65abdfd",
+  "build_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003",
+  "corrected_cpu_admission_passed": true,
+  "fixed_file_sha256": "dd017475bcbc7df047d3a8ac66d9729c3ac0d85552532c23ba85e908c5750971",
+  "fresh_build_status_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-local-projection-state-certification-220-003/build-status.json",
+  "native_gpu_execution": false,
+  "patch_sha256": "42a9cae0b6c94fe416b6c6ffc083c61fff203facde2f1689f7fb45d4619ad7ac",
+  "patched_snapshot_frozen_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+  "patched_snapshot_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+  "production_equations_or_solver_policy_changed": false,
+  "python_contract_tests_passed": 21,
+  "retained_native558_failure": {
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-local-projection-critical23-558",
+    "failure": "FAIL source-bound bilinear15 capture diagnostic: source547 selected p23 endpoint row identity changed",
+    "receipt_sha256": "0e3a3dd2869ea69f786937c499fe09499e9b77771666031998cda4bc8d165ec9"
+  },
+  "schema": "numi.cardboard.source220-endpoint-identity-fix-bindings.v1",
+  "scope": [
+    "CPU source547 admission checks exact basis-2 F high/low and Fdot words from declared epsilon/sign/dt for all eight selected endpoints",
+    "all other packed input words must match the center row bit-for-bit",
+    "the native p23+ guard tests F[2] and Fdot[2], replacing the erroneous F[0] inequality"
+  ],
+  "source220_frozen_manifest_sha256": "7c3793e3513d4eec1971256f43f8528867ebcf7ee1064ad598f51e4e8a9e43f4",
+  "source547_input_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+  "source547_input_row_count": 1472,
+  "source547_input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e"
+}

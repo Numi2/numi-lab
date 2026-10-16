@@ -1,0 +1,504 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -160,6 +160,59 @@
+             COMMAND numi-matter-true-residual-arena-plan-check)
+         set_tests_properties(matter.analysis.true_residual_arena_plan
+             PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;true-residual;cpu;admission")
++        add_executable(numi-matter-pure-fem-armijo-cgls-arena-plan-check
++            tools/pure_fem_armijo_cgls_arena_plan_check.cpp)
++        target_include_directories(numi-matter-pure-fem-armijo-cgls-arena-plan-check PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/include")
++        target_compile_options(numi-matter-pure-fem-armijo-cgls-arena-plan-check PRIVATE
++            -Wall -Wextra -Wpedantic -Werror)
++        add_test(NAME matter.analysis.pure_fem_armijo_cgls_arena_plan
++            COMMAND numi-matter-pure-fem-armijo-cgls-arena-plan-check)
++        set_tests_properties(matter.analysis.pure_fem_armijo_cgls_arena_plan
++            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;armijo;cgls;cpu;admission")
++        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
++        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.air")
++        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.metallib")
++        add_custom_command(
++            OUTPUT "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}"
++            COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}"
++            COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
++                -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
++                -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
++                -I "${CMAKE_CURRENT_SOURCE_DIR}/src"
++                -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
++                -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/pure_fem_cgls_arena_8192_check.metal"
++                -o "${NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR}"
++            COMMAND xcrun -sdk macosx metallib "${NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR}"
++                -o "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}"
++            DEPENDS tools/pure_fem_cgls_arena_8192_check.metal
++                src/metal/common.metalinc src/metal/fem.metalinc
++                src/metal/base_cgls.metalinc src/metal/base_cgls_runtime.metalinc
++                src/metal/fgmres.metalinc include/numi/matter/shared.h
++            VERBATIM)
++        add_custom_target(numi_fem_cgls_arena_8192_check_shaders
++            DEPENDS "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
++        add_executable(numi-matter-fem-cgls-arena-8192-check
++            tools/pure_fem_cgls_arena_8192_check.mm)
++        add_dependencies(numi-matter-fem-cgls-arena-8192-check
++            numi_fem_cgls_arena_8192_check_shaders)
++        target_include_directories(numi-matter-fem-cgls-arena-8192-check PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/include")
++        find_library(NUMI_FEM_CGLS_CHECK_FOUNDATION Foundation REQUIRED)
++        find_library(NUMI_FEM_CGLS_CHECK_METAL Metal REQUIRED)
++        target_link_libraries(numi-matter-fem-cgls-arena-8192-check PRIVATE
++            "${NUMI_FEM_CGLS_CHECK_FOUNDATION}" "${NUMI_FEM_CGLS_CHECK_METAL}")
++        target_compile_definitions(numi-matter-fem-cgls-arena-8192-check PRIVATE
++            NUMI_FEM_CGLS_ARENA_METALLIB="${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
++        target_compile_options(numi-matter-fem-cgls-arena-8192-check PRIVATE
++            -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++        if(BUILD_TESTING)
++            add_test(NAME matter.metal.fem_cgls_arena_8192_native_check
++                COMMAND numi-matter-fem-cgls-arena-8192-check)
++            set_tests_properties(matter.metal.fem_cgls_arena_8192_native_check
++                PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
++                    LABELS "matter;fgmres;cgls;metal;synthetic;arena")
++        endif()
+         add_test(NAME matter.analysis.cardboard_source_data
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
+         add_test(NAME matter.analysis.cardboard_pin_source_observables
+--- a/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp
++++ b/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp
+@@ -0,0 +1,123 @@
++#pragma once
++#include "numi/matter/shared.h"
++#include <array>
++#include <cstddef>
++#include <cstdint>
++#include <limits>
++
++namespace numi::matter::detail {
++inline constexpr std::uint64_t kFEMPureArmijoMaximumScratchBytes=16ull*1024ull*1024ull;
++inline constexpr std::uint64_t kFEMPureArmijoAccountedResidentCeiling=16ull*1024ull*1024ull*1024ull;
++inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=25u;
++struct FEMPureArmijoArenaShape {
++ std::uint64_t environmentCount=0,femNodeCount=0,tetrahedronCount=0,unknownCount=0;
++ std::uint64_t contactPairCount=0,cohesiveFaceCount=0,rigidGeneralizedCapacity=0,rigidQCapacity=0;
++ std::uint64_t fieldBoundaryCount=0,punctureChannelCount=0,mpmActiveNodeCapacity=0;
++ std::uint64_t particleCount=0,mpmGridCount=0,mpmBlockCount=0;
++ std::uint64_t maxBufferLength=0,accountedResidentBytes=0;
++ bool oneStaticExplicitFEM=false,unsupportedMatterFlags=false,includeCauchy=false,includeCGLS=false,includeRightScale=false;
++};
++struct FEMPureArmijoArenaBuffer {const char* name=nullptr;std::uint64_t logicalCount=0,elementBytes=0,allocatedBytes=0;};
++enum class FEMPureArmijoArenaFailure : std::uint32_t {
++ none=0,environment_count,fem_node_count,tetrahedron_count,unsupported_world,unknown_count,cgls_layout,
++ right_scale_layout,arithmetic_overflow,dispatch_index_overflow,per_buffer_limit,scratch_limit,accounted_resident_limit
++};
++struct FEMPureArmijoArenaPlan {
++ FEMPureArmijoArenaFailure failure=FEMPureArmijoArenaFailure::none;
++ std::array<FEMPureArmijoArenaBuffer,kFEMPureArmijoMaximumArenaBuffers> buffers{};
++ std::size_t bufferCount=0;
++ std::uint64_t unknownCount=0,scratchBytes=0,maximumScratchBytes=kFEMPureArmijoMaximumScratchBytes;
++ std::uint64_t accountedResidentPlusScratchBytes=0,accountedResidentCeiling=kFEMPureArmijoAccountedResidentCeiling;
++ bool includeCGLS=false;
++ [[nodiscard]] bool admitted() const noexcept{return failure==FEMPureArmijoArenaFailure::none;}
++};
++[[nodiscard]] inline bool femPureArmijoCheckedMultiply(std::uint64_t a,std::uint64_t b,std::uint64_t& r) noexcept {
++ if(a&&b>std::numeric_limits<std::uint64_t>::max()/a)return false;r=a*b;return true;
++}
++[[nodiscard]] inline bool femPureArmijoCheckedAdd(std::uint64_t a,std::uint64_t b,std::uint64_t& r) noexcept {
++ if(b>std::numeric_limits<std::uint64_t>::max()-a)return false;r=a+b;return true;
++}
++[[nodiscard]] inline bool femPureArmijoAppendBuffer(FEMPureArmijoArenaPlan& p,const char* name,
++ std::uint64_t n,std::uint64_t elem,std::uint64_t maxBuffer) noexcept {
++ if(!name||!elem||p.bufferCount>=p.buffers.size())return false;
++ std::uint64_t bytes=0;if(!femPureArmijoCheckedMultiply(n,elem,bytes))return false;
++ const std::uint64_t allocated=bytes<16u?16u:bytes;
++ if(allocated>maxBuffer){p.failure=FEMPureArmijoArenaFailure::per_buffer_limit;return false;}
++ std::uint64_t next=0;if(!femPureArmijoCheckedAdd(p.scratchBytes,allocated,next))return false;
++ p.scratchBytes=next;p.buffers[p.bufferCount++]={name,n,elem,allocated};return true;
++}
++[[nodiscard]] inline FEMPureArmijoArenaPlan planFEMPureArmijoCGLSArena(const FEMPureArmijoArenaShape& s) noexcept {
++ FEMPureArmijoArenaPlan p{};
++ if(!s.environmentCount||s.environmentCount>4u){p.failure=FEMPureArmijoArenaFailure::environment_count;return p;}
++ if(!s.femNodeCount||s.femNodeCount>8192u){p.failure=FEMPureArmijoArenaFailure::fem_node_count;return p;}
++ if(!s.tetrahedronCount||s.tetrahedronCount>32768u){p.failure=FEMPureArmijoArenaFailure::tetrahedron_count;return p;}
++ if(!s.oneStaticExplicitFEM||s.unsupportedMatterFlags||s.contactPairCount||s.cohesiveFaceCount||
++    s.rigidGeneralizedCapacity||s.rigidQCapacity||s.fieldBoundaryCount||s.punctureChannelCount||s.mpmActiveNodeCapacity||s.particleCount||s.mpmGridCount||s.mpmBlockCount){
++  p.failure=FEMPureArmijoArenaFailure::unsupported_world;return p;}
++ p.includeCGLS=s.includeCGLS;
++ if(s.includeCGLS&&(!s.includeCauchy||s.environmentCount>2u)){p.failure=FEMPureArmijoArenaFailure::cgls_layout;return p;}
++ if(s.includeRightScale&&!s.includeCGLS){p.failure=FEMPureArmijoArenaFailure::right_scale_layout;return p;}
++ std::uint64_t en=0,et=0,un=0,n3=0;
++ if(!femPureArmijoCheckedMultiply(s.environmentCount,s.femNodeCount,en)||
++    !femPureArmijoCheckedMultiply(s.environmentCount,s.tetrahedronCount,et)||
++    !femPureArmijoCheckedMultiply(en,2u,un)||
++    !femPureArmijoCheckedMultiply(en,3u,n3)){p.failure=FEMPureArmijoArenaFailure::arithmetic_overflow;return p;}
++ p.unknownCount=un;
++ if(s.unknownCount!=un||un>UINT32_MAX){p.failure=FEMPureArmijoArenaFailure::unknown_count;return p;}
++ if(en>UINT32_MAX||et>UINT32_MAX||(s.includeRightScale&&n3>UINT32_MAX)){
++  p.failure=FEMPureArmijoArenaFailure::dispatch_index_overflow;return p;}
++ if(s.maxBufferLength<16u){p.failure=FEMPureArmijoArenaFailure::per_buffer_limit;return p;}
++ const auto add=[&](const char* name,std::uint64_t n,std::uint64_t b) noexcept {
++  if(p.failure!=FEMPureArmijoArenaFailure::none)return false;
++  bool ok=femPureArmijoAppendBuffer(p,name,n,b,s.maxBufferLength);
++  if(!ok&&p.failure==FEMPureArmijoArenaFailure::none)p.failure=FEMPureArmijoArenaFailure::arithmetic_overflow;
++  return ok;
++ };
++ const auto e=s.environmentCount;
++ if(!add("armijo_candidate_nodes",en,sizeof(NMFEMNodeStateGPU))||
++    !add("armijo_element_forces",et,sizeof(NMFEMElementVectorGPU))||
++    !add("armijo_residual",un,sizeof(nm_float4))||
++    !add("armijo_preconditioned",en,sizeof(nm_float4))||
++    !add("armijo_direction",en,sizeof(nm_float4))||
++    !add("armijo_operator",en,sizeof(nm_float4))||
++    !add("armijo_reactions",en,sizeof(nm_float4))||
++    !add("armijo_metrics",e,sizeof(nm_float4))||
++    !add("armijo_statuses",e,sizeof(NMMatterStatusGPU)))return p;
++ if(s.includeCauchy&&(!add("cauchy_rhs",un,sizeof(nm_float4))||!add("cauchy_trace",e,sizeof(nm_float4))))return p;
++ if(s.includeCGLS){
++  const char* names[]={"cgls_b","cgls_x","cgls_r","cgls_s","cgls_p","cgls_q","cgls_mask"};
++  for(const char* name:names)if(!add(name,un,sizeof(nm_float4)))return p;
++  if(!add("cgls_environment_map",un,sizeof(std::uint32_t))||
++     !add("cgls_selected",e,sizeof(std::uint32_t))||
++     !add("cgls_scalars",e,sizeof(nm_float4))||
++     !add("cgls_control",e,sizeof(nm_uint4))||
++     !add("cgls_errors",e,sizeof(std::uint32_t)))return p;
++ }
++ if(s.includeRightScale&&(!add("cgls_right_scale_rows",n3,sizeof(nm_float4))||
++                           !add("cgls_right_scale_physical",un,sizeof(nm_float4))))return p;
++ if(p.scratchBytes>p.maximumScratchBytes){p.failure=FEMPureArmijoArenaFailure::scratch_limit;return p;}
++ if(!femPureArmijoCheckedAdd(s.accountedResidentBytes,p.scratchBytes,p.accountedResidentPlusScratchBytes)){
++  p.failure=FEMPureArmijoArenaFailure::arithmetic_overflow;return p;}
++ if(p.accountedResidentPlusScratchBytes>p.accountedResidentCeiling){
++  p.failure=FEMPureArmijoArenaFailure::accounted_resident_limit;return p;}
++ return p;
++}
++[[nodiscard]] inline const char* femPureArmijoCGLSArenaFailureReason(FEMPureArmijoArenaFailure f) noexcept {
++ switch(f){
++ case FEMPureArmijoArenaFailure::none:return nullptr;
++ case FEMPureArmijoArenaFailure::environment_count:return "pure_fem_armijo_environment_cap_4";
++ case FEMPureArmijoArenaFailure::fem_node_count:return "pure_fem_armijo_node_cap_8192";
++ case FEMPureArmijoArenaFailure::tetrahedron_count:return "pure_fem_armijo_tetrahedron_cap_32768";
++ case FEMPureArmijoArenaFailure::unsupported_world:return "pure_fem_armijo_requires_contact_free_static_explicit_fem";
++ case FEMPureArmijoArenaFailure::unknown_count:return "pure_fem_armijo_unknown_count_mismatch_or_uint32_overflow";
++ case FEMPureArmijoArenaFailure::cgls_layout:return "pure_fem_armijo_cgls_requires_cauchy_and_at_most_two_environments";
++ case FEMPureArmijoArenaFailure::right_scale_layout:return "pure_fem_armijo_right_scale_requires_cgls";
++ case FEMPureArmijoArenaFailure::arithmetic_overflow:return "pure_fem_armijo_arena_checked_arithmetic_overflow";
++ case FEMPureArmijoArenaFailure::dispatch_index_overflow:return "pure_fem_armijo_arena_exceeds_uint32_dispatch_range";
++ case FEMPureArmijoArenaFailure::per_buffer_limit:return "pure_fem_armijo_arena_exceeds_device_max_buffer_length";
++ case FEMPureArmijoArenaFailure::scratch_limit:return "pure_fem_armijo_cgls_scratch_exceeds_16_mib_cap";
++ case FEMPureArmijoArenaFailure::accounted_resident_limit:return "pure_fem_armijo_accounted_runtime_resident_exceeds_16_gib";
++ }
++ return "pure_fem_armijo_unknown_arena_failure";
++}
++} // namespace numi::matter::detail
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -10,6 +10,7 @@
+ #include "numi/matter/full_contact_armijo_admission.hpp"
+ #include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
+ #include "numi/matter/detail/true_residual_arena_plan.hpp"
++#include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+ #include "regional_graph_schwarz.hpp"
+ #include "fem_reference_geometry.hpp"
+@@ -2165,6 +2166,8 @@
+     bool femResidualArmijoScratchEnabled = false;
+     bool femBaseCauchyScratchEnabled = false;
+     bool femBaseCGLSScratchEnabled = false;
++    bool femPureFEMArmijo8192ArenaAdmitted = false;
++    std::uint64_t femPureFEMArmijo8192ScratchBytes = 0u;
+     bool femArmijoMixedCohesiveSupported = false;
+     std::size_t acceptedStateProofResidentByteCount = 0u;
+     std::size_t residentBytes = 0u;
+@@ -6516,13 +6519,15 @@
+             operatorFDRichCaptureRequested;
+         candidate->femBaseCauchyScratchEnabled =
+             std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
++        const bool baseCGLSRequested =
++            std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr;
+         candidate->femBaseCGLSScratchEnabled =
+-            std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr &&
++            baseCGLSRequested &&
+             candidate->femBaseCauchyScratchEnabled &&
+             candidate->dispatch.environmentCount >= 1u &&
+             candidate->dispatch.environmentCount <= 2u &&
+             candidate->dispatch.femNodeCount >= 1u &&
+-            candidate->dispatch.femNodeCount <= 4096u &&
++            candidate->dispatch.femNodeCount <= 8192u &&
+             candidate->dispatch.tetrahedronCount <= 32768u &&
+             candidate->fgmresLayout.unknownCount == 2u *
+                 candidate->dispatch.environmentCount * candidate->dispatch.femNodeCount;
+@@ -6537,6 +6542,71 @@
+             std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             candidate->femBaseCauchyScratchEnabled ||
+             candidate->femOperatorFDScratchEnabled;
++        const bool pureArmijoArenaRequested =
++            std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
++            baseCGLSRequested;
++        if (pureArmijoArenaRequested) {
++            constexpr std::uint32_t unsupportedPureArenaFlags =
++                NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
++                NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
++                NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
++                NM_MATTER_LEARNED_MATERIAL;
++            const bool oneStaticExplicitFEM =
++                candidate->objectLayout.size() == 1u &&
++                candidate->objectLayout[0].representation == NM_REPRESENTATION_FEM &&
++                (candidate->objectLayout[0].flags &
++                    (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
++                     NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
++                     NM_OBJECT_MUTABLE_TOPOLOGY)) == 0u &&
++                (candidate->objectLayout[0].flags &
++                    (NM_OBJECT_DISABLE_SELF_CONTACT |
++                     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) ==
++                    (NM_OBJECT_DISABLE_SELF_CONTACT |
++                     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT);
++            const auto plan = detail::planFEMPureArmijoCGLSArena({
++                .environmentCount = candidate->dispatch.environmentCount,
++                .femNodeCount = candidate->dispatch.femNodeCount,
++                .tetrahedronCount = candidate->dispatch.tetrahedronCount,
++                .unknownCount = candidate->fgmresLayout.unknownCount,
++                .contactPairCount = candidate->dispatch.contactPairCount,
++                .cohesiveFaceCount = candidate->dispatch.cohesiveFaceCount,
++                .rigidGeneralizedCapacity = candidate->dispatch.rigidGeneralizedCapacity,
++                .rigidQCapacity = candidate->dispatch.rigidQCapacity,
++                .fieldBoundaryCount = candidate->dispatch.fieldBoundaryCount,
++                .punctureChannelCount = candidate->dispatch.punctureChannelCount,
++                .mpmActiveNodeCapacity = candidate->dispatch.mpmActiveNodeCapacity,
++                .particleCount = candidate->dispatch.particleCount,
++                .mpmGridCount = candidate->dispatch.mpmGridCount,
++                .mpmBlockCount = candidate->dispatch.mpmBlockCount,
++                .maxBufferLength = candidate->device.maxBufferLength,
++                .accountedResidentBytes = candidate->residentBytes,
++                .oneStaticExplicitFEM = oneStaticExplicitFEM,
++                .unsupportedMatterFlags =
++                    (candidate->dispatch.flags & unsupportedPureArenaFlags) != 0u,
++                .includeCauchy = candidate->femBaseCauchyScratchEnabled,
++                .includeCGLS = baseCGLSRequested,
++                .includeRightScale =
++                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr});
++            if (!plan.admitted()) {
++                diagnostics.message =
++                    detail::femPureArmijoCGLSArenaFailureReason(plan.failure);
++                return diagnostics;
++            }
++            candidate->femPureFEMArmijo8192ArenaAdmitted = true;
++            candidate->femPureFEMArmijo8192ScratchBytes = plan.scratchBytes;
++            if (candidate->dispatch.femNodeCount > 4096u) {
++                std::fprintf(stderr,
++                    "pure_fem_armijo_cgls_arena={\"schema\":1,\"node_count\":%u,\"environment_count\":%u,\"scratch_bytes\":%llu,\"scratch_cap_bytes\":%llu,\"accounted_resident_plus_scratch_bytes\":%llu,\"whole_process_peak_measured\":false}\n",
++                    candidate->dispatch.femNodeCount,
++                    candidate->dispatch.environmentCount,
++                    static_cast<unsigned long long>(plan.scratchBytes),
++                    static_cast<unsigned long long>(plan.maximumScratchBytes),
++                    static_cast<unsigned long long>(
++                        candidate->residentBytes + plan.scratchBytes));
++            }
++            candidate->femBaseCGLSScratchEnabled =
++                baseCGLSRequested && plan.includeCGLS;
++        }
+         if (candidate->femResidualArmijoScratchEnabled) {
+             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
+                 candidate->device, multiplied(world.dispatch.femNodeCount),
+@@ -10770,8 +10840,11 @@
+                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                 if (microtick != 0u)
+                     return "requires_microtick_zero";
+-                if (const char* reason = femNewtonTraceScope(false, 4096u))
++                if (const char* reason = femNewtonTraceScope(false, 8192u))
+                     return reason;
++                if (state.dispatch.femNodeCount > 4096u &&
++                    !state.femPureFEMArmijo8192ArenaAdmitted)
++                    return "pure_fem_armijo_8192_checked_arena_not_admitted";
+                 constexpr std::uint32_t unsupportedMatterFlags =
+                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
+                     NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
+--- a/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp
++++ b/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp
+@@ -0,0 +1,51 @@
++#include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
++#include <stdexcept>
++#include <cstdint>
++#include <iostream>
++#include <limits>
++using namespace numi::matter::detail;
++static void require(bool value) { if(!value) throw std::runtime_error("arena contract failed"); }
++static FEMPureArmijoArenaShape shape(){
++ FEMPureArmijoArenaShape s{};s.environmentCount=2;s.femNodeCount=8192;s.tetrahedronCount=32768;
++ s.unknownCount=2*s.environmentCount*s.femNodeCount;s.maxBufferLength=512ull*1024ull*1024ull;
++ s.accountedResidentBytes=6ull*1024ull*1024ull*1024ull;s.oneStaticExplicitFEM=true;return s;
++}
++int main(){
++ auto s=shape();auto a=planFEMPureArmijoCGLSArena(s);
++ require(a.admitted()&&a.bufferCount==9&&a.scratchBytes<kFEMPureArmijoMaximumScratchBytes);
++ auto e4=shape();e4.environmentCount=4;e4.unknownCount=65536u;
++ require(planFEMPureArmijoCGLSArena(e4).admitted());
++ auto oneByteShort=shape();oneByteShort.maxBufferLength=a.buffers[0].allocatedBytes-1u;
++ require(planFEMPureArmijoCGLSArena(oneByteShort).failure==
++         FEMPureArmijoArenaFailure::per_buffer_limit);
++ s.includeCauchy=true;s.includeCGLS=true;s.includeRightScale=true;
++ auto b=planFEMPureArmijoCGLSArena(s);require(b.admitted()&&b.bufferCount==25);
++ require(b.accountedResidentPlusScratchBytes==s.accountedResidentBytes+b.scratchBytes);
++ require(b.buffers[b.bufferCount-2].logicalCount==49152u);
++ s=shape();s.includeCauchy=true;s.includeCGLS=true;s.environmentCount=3;s.unknownCount=49152;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::cgls_layout);
++ s=shape();s.includeRightScale=true;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::right_scale_layout);
++ s=shape();s.femNodeCount=8193;s.unknownCount=32772;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::fem_node_count);
++ s=shape();s.tetrahedronCount=32769;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::tetrahedron_count);
++ s=shape();s.environmentCount=5;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::environment_count);
++ s=shape();s.unknownCount++;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::unknown_count);
++ s=shape();s.contactPairCount=1;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::unsupported_world);
++ s=shape();s.oneStaticExplicitFEM=false;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::unsupported_world);
++ s=shape();s.maxBufferLength=16;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::per_buffer_limit);
++ s=shape();s.accountedResidentBytes=UINT64_MAX;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::arithmetic_overflow);
++ s=shape();s.accountedResidentBytes=16ull*1024ull*1024ull*1024ull;
++ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::accounted_resident_limit);
++ s=shape();s.maxBufferLength=512ull*1024ull*1024ull;s.environmentCount=2;s.femNodeCount=8192;
++ std::uint64_t out=0;require(!femPureArmijoCheckedMultiply(UINT64_MAX,2,out));
++ require(!femPureArmijoCheckedAdd(UINT64_MAX,1,out));
++ std::cout<<"pure_fem_armijo_cgls_arena_plan=PASS scratch="<<b.scratchBytes<<" buffers="<<b.bufferCount<<'\n';
++}
+--- a/matter/tools/pure_fem_cgls_arena_8192_check.metal
++++ b/matter/tools/pure_fem_cgls_arena_8192_check.metal
+@@ -0,0 +1,16 @@
++#include "metal/common.metalinc"
++#include "metal/fem.metalinc"
++#include "base_cgls.metalinc"
++inline void fgmresCompensatedAdd(thread float& sum,thread float& correction,const float value){
++ const float adjusted=value-correction;const float next=sum+adjusted;
++ correction=(next-sum)-adjusted;sum=next;
++}
++#include "base_cgls_runtime.metalinc"
++using namespace metal;
++namespace numi_matter_metal {
++kernel void nm_cgls_arena_8192_identity_action(constant uint& count [[buffer(0)]],
++ device const float4* input [[buffer(1)]],device float4* output [[buffer(2)]],
++ uint i [[thread_position_in_grid]]) {
++ if(i>=count)return;output[i]=i<count/2u?float4(input[i].xyz,0.0f):float4(0.0f);
++}
++}
+--- a/matter/tools/pure_fem_cgls_arena_8192_check.mm
++++ b/matter/tools/pure_fem_cgls_arena_8192_check.mm
+@@ -0,0 +1,118 @@
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++#include "numi/matter/shared.h"
++#include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <cstring>
++#include <functional>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <unordered_map>
++#ifndef NUMI_FEM_CGLS_ARENA_METALLIB
++#error "Build must define NUMI_FEM_CGLS_ARENA_METALLIB"
++#endif
++namespace {
++using U=std::uint32_t;
++struct alignas(16) F4{float x,y,z,w;};
++struct alignas(16) U4{U x,y,z,w;};
++unsigned checks=0;
++void need(bool ok,const std::string& s){++checks;if(!ok)throw std::runtime_error(s);}
++id<MTLComputePipelineState> pipe(id<MTLDevice>d,id<MTLLibrary>l,const char*n){
++ NSString*name=[NSString stringWithFormat:@"numi_matter_metal::%s",n];id<MTLFunction>f=[l newFunctionWithName:name];
++ need(f!=nil,std::string("missing production kernel ")+n);NSError*e=nil;
++ id<MTLComputePipelineState>p=[d newComputePipelineStateWithFunction:f error:&e];need(p!=nil,std::string("pipeline ")+n);return p;
++}
++template<class T>void bytes(id<MTLComputeCommandEncoder>e,const T&v,NSUInteger slot){[e setBytes:&v length:sizeof(T) atIndex:slot];}
++id<MTLBuffer> hostbuf(id<MTLDevice>d,const void*p,std::size_t n,const char*label){
++ need(p&&n,std::string("bad input buffer ")+label);id<MTLBuffer>b=[d newBufferWithBytes:p length:n options:MTLResourceStorageModeShared];
++ need(b!=nil,std::string("allocation failed ")+label);return b;
++}
++template<class T> id<MTLBuffer> hostbuf(id<MTLDevice>d,const T&v,const char*label){return hostbuf(d,&v,sizeof(v),label);}
++using Bind=std::function<void(id<MTLComputeCommandEncoder>)>;
++void threads(id<MTLCommandQueue>q,id<MTLComputePipelineState>p,U n,const Bind&f){
++ id<MTLCommandBuffer>c=[q commandBuffer];id<MTLComputeCommandEncoder>e=[c computeCommandEncoder];
++ need(c&&e,"no compute encoder");[e setComputePipelineState:p];f(e);
++ NSUInteger w=std::max<NSUInteger>(1,std::min<NSUInteger>(256,p.maxTotalThreadsPerThreadgroup));
++ [e dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:MTLSizeMake(w,1,1)];
++ [e endEncoding];[c commit];[c waitUntilCompleted];need(c.status==MTLCommandBufferStatusCompleted,"Metal command failed");
++}
++void groups(id<MTLCommandQueue>q,id<MTLComputePipelineState>p,U n,const Bind&f){
++ id<MTLCommandBuffer>c=[q commandBuffer];id<MTLComputeCommandEncoder>e=[c computeCommandEncoder];
++ need(c&&e,"no group encoder");[e setComputePipelineState:p];f(e);
++ [e dispatchThreadgroups:MTLSizeMake(n,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
++ [e endEncoding];[c commit];[c waitUntilCompleted];need(c.status==MTLCommandBufferStatusCompleted,"Metal group command failed");
++}
++}
++int main(){@autoreleasepool{try{
++ using namespace numi::matter::detail;
++ constexpr U E=2,N=8192,T=32768,UCount=2*E*N;
++ FEMPureArmijoArenaShape shape{};shape.environmentCount=E;shape.femNodeCount=N;shape.tetrahedronCount=T;
++ shape.unknownCount=UCount;shape.maxBufferLength=512ull*1024ull*1024ull;shape.oneStaticExplicitFEM=true;
++ shape.includeCauchy=true;shape.includeCGLS=true;shape.includeRightScale=true;
++ auto plan=planFEMPureArmijoCGLSArena(shape);
++ need(plan.admitted()&&plan.bufferCount==25,"N8192 two-env right-scaled CGLS plan rejected");
++ need(plan.scratchBytes<kFEMPureArmijoMaximumScratchBytes,"N8192 arena cap");
++ id<MTLDevice>d=MTLCreateSystemDefaultDevice();need(d!=nil,"no Metal device");id<MTLCommandQueue>q=[d newCommandQueue];need(q!=nil,"no queue");
++ NSError*err=nil;id<MTLLibrary>lib=[d newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_FEM_CGLS_ARENA_METALLIB]] error:&err];
++ need(lib!=nil,std::string("load metallib: ")+(err.localizedDescription.UTF8String?err.localizedDescription.UTF8String:"unknown"));
++ std::unordered_map<std::string,id<MTLBuffer>> a;
++ for(std::size_t i=0;i<plan.bufferCount;++i){const auto&b=plan.buffers[i];id<MTLBuffer>m=[d newBufferWithLength:static_cast<NSUInteger>(b.allocatedBytes) options:MTLResourceStorageModeShared];need(m!=nil,std::string("planned allocation ")+b.name);std::memset(m.contents,0,b.allocatedBytes);a.emplace(b.name,m);}
++ auto get=[&](const char*n){auto i=a.find(n);need(i!=a.end(),std::string("missing arena buffer ")+n);return i->second;};
++ NMMatterDispatchGPU dispatch{};dispatch.environmentCount=E;dispatch.objectCount=1;dispatch.femNodeCount=N;
++ NMFGMRESLayoutGPU layout{};layout.unknownCount=UCount;
++ auto dispatchB=hostbuf(d,dispatch,"dispatch");auto layoutB=hostbuf(d,layout,"layout");(void)layoutB;
++ auto nodes=get("armijo_candidate_nodes"),mask=get("cgls_mask"),rowEnv=get("cgls_environment_map");
++ auto selected=get("cgls_selected"),rhs=get("cauchy_rhs"),b=get("cgls_b"),x=get("cgls_x"),r=get("cgls_r");
++ auto s=get("cgls_s"),p=get("cgls_p"),qv=get("cgls_q"),scalars=get("cgls_scalars"),control=get("cgls_control");
++ auto errors=get("cgls_errors"),scaleRows=get("cgls_right_scale_rows"),physical=get("cgls_right_scale_physical");
++ auto*sel=static_cast<U*>(selected.contents);sel[0]=1;sel[1]=0;
++ auto*masks=static_cast<F4*>(mask.contents);auto*env=static_cast<U*>(rowEnv.contents);
++ auto*node=static_cast<NMFEMNodeStateGPU*>(nodes.contents);auto*rhsData=static_cast<F4*>(rhs.contents);
++ auto*bData=static_cast<F4*>(b.contents);auto*atb=static_cast<F4*>(s.contents);auto*sr=static_cast<F4*>(scaleRows.contents);
++ for(U e=0;e<E;++e)for(U n=0;n<N;++n){
++  U mi=e*N+n,fi=E*N+e*N+n;env[mi]=e;env[fi]=e;
++  if(e==0){masks[mi]={1,1,1,0};node[mi].positionAndMass={0,0,0,1};node[mi].restAndFixed={0,0,0,0};
++   U k=mi*3;sr[k]={1,0,0,1};sr[k+1]={0,1,0,0};sr[k+2]={0,0,1,0};
++   rhsData[mi]={float(n%13+1)*.01f,float(n%17+1)*-.02f,float(n%19+1)*.015f,0};bData[mi]=rhsData[mi];atb[mi]=rhsData[mi];
++  }
++ }
++ auto state=pipe(d,lib,"nm_fgmres_base_cgls_initialize_state"),validate=pipe(d,lib,"nm_fgmres_base_cgls_validate_right_scale");
++ auto init=pipe(d,lib,"nm_fgmres_base_cgls_initialize_vectors"),measure=pipe(d,lib,"nm_fgmres_base_cgls_measure_initial");
++ auto applyS=pipe(d,lib,"nm_fgmres_base_cgls_apply_right_scale"),alpha=pipe(d,lib,"nm_fgmres_base_cgls_form_alpha");
++ auto updateXR=pipe(d,lib,"nm_fgmres_base_cgls_update_xr"),complete=pipe(d,lib,"nm_fgmres_base_cgls_complete_iteration");
++ auto beta=pipe(d,lib,"nm_fgmres_base_cgls_form_beta"),finalize=pipe(d,lib,"nm_fgmres_base_cgls_finalize");
++ auto identity=pipe(d,lib,"nm_cgls_arena_8192_identity_action");
++ const U cap=64;
++ threads(q,state,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,E,0);bytes(e,cap,1);[e setBuffer:selected offset:0 atIndex:2];[e setBuffer:scalars offset:0 atIndex:3];[e setBuffer:control offset:0 atIndex:4];[e setBuffer:errors offset:0 atIndex:5];});
++ threads(q,validate,E*N,[&](id<MTLComputeCommandEncoder>e){[e setBuffer:dispatchB offset:0 atIndex:0];[e setBuffer:nodes offset:0 atIndex:1];[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:selected offset:0 atIndex:3];[e setBuffer:scaleRows offset:0 atIndex:4];[e setBuffer:errors offset:0 atIndex:5];});
++ const U useScale=1;
++ threads(q,init,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:rowEnv offset:0 atIndex:3];[e setBuffer:selected offset:0 atIndex:4];[e setBuffer:rhs offset:0 atIndex:5];[e setBuffer:s offset:0 atIndex:6];[e setBuffer:x offset:0 atIndex:7];[e setBuffer:r offset:0 atIndex:8];[e setBuffer:s offset:0 atIndex:9];[e setBuffer:p offset:0 atIndex:10];[e setBuffer:qv offset:0 atIndex:11];[e setBuffer:errors offset:0 atIndex:12];bytes(e,useScale,13);[e setBuffer:scaleRows offset:0 atIndex:14];});
++ groups(q,measure,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:rowEnv offset:0 atIndex:3];[e setBuffer:rhs offset:0 atIndex:4];[e setBuffer:r offset:0 atIndex:5];[e setBuffer:s offset:0 atIndex:6];[e setBuffer:scalars offset:0 atIndex:7];[e setBuffer:control offset:0 atIndex:8];[e setBuffer:errors offset:0 atIndex:9];});
++ threads(q,identity,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);[e setBuffer:p offset:0 atIndex:1];[e setBuffer:qv offset:0 atIndex:2];});
++ const auto*pv=static_cast<const F4*>(p.contents);const auto*qdata=static_cast<const F4*>(qv.contents);
++ for(U i=0;i<UCount;++i)need(std::memcmp(pv+i,qdata+i,sizeof(F4))==0,"production N8192 CGLS A*p action mismatch");
++ const float damping=0;
++ groups(q,alpha,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:rowEnv offset:0 atIndex:3];[e setBuffer:qv offset:0 atIndex:4];[e setBuffer:scalars offset:0 atIndex:5];[e setBuffer:control offset:0 atIndex:6];[e setBuffer:errors offset:0 atIndex:7];[e setBuffer:p offset:0 atIndex:8];bytes(e,damping,9);});
++ need(std::abs(static_cast<const F4*>(scalars.contents)[0].y-1.0f)<2e-6f,"identity CGLS alpha should be one");
++ threads(q,updateXR,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:rowEnv offset:0 atIndex:3];[e setBuffer:scalars offset:0 atIndex:4];[e setBuffer:control offset:0 atIndex:5];[e setBuffer:p offset:0 atIndex:6];[e setBuffer:qv offset:0 atIndex:7];[e setBuffer:x offset:0 atIndex:8];[e setBuffer:r offset:0 atIndex:9];[e setBuffer:errors offset:0 atIndex:10];});
++ threads(q,complete,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,E,0);[e setBuffer:control offset:0 atIndex:1];[e setBuffer:errors offset:0 atIndex:2];});
++ threads(q,identity,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);[e setBuffer:r offset:0 atIndex:1];[e setBuffer:s offset:0 atIndex:2];});
++ const U trans=1;
++ threads(q,applyS,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);bytes(e,trans,2);[e setBuffer:mask offset:0 atIndex:3];[e setBuffer:rowEnv offset:0 atIndex:4];[e setBuffer:selected offset:0 atIndex:5];[e setBuffer:scaleRows offset:0 atIndex:6];[e setBuffer:s offset:0 atIndex:7];[e setBuffer:s offset:0 atIndex:8];[e setBuffer:errors offset:0 atIndex:9];});
++ groups(q,beta,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);[e setBuffer:mask offset:0 atIndex:2];[e setBuffer:rowEnv offset:0 atIndex:3];[e setBuffer:s offset:0 atIndex:4];[e setBuffer:scalars offset:0 atIndex:5];[e setBuffer:control offset:0 atIndex:6];[e setBuffer:errors offset:0 atIndex:7];[e setBuffer:x offset:0 atIndex:8];bytes(e,damping,9);});
++ threads(q,finalize,E,[&](id<MTLComputeCommandEncoder>e){bytes(e,E,0);[e setBuffer:control offset:0 atIndex:1];[e setBuffer:errors offset:0 atIndex:2];});
++ const U trans0=0;
++ threads(q,applyS,UCount,[&](id<MTLComputeCommandEncoder>e){bytes(e,UCount,0);bytes(e,E,1);bytes(e,trans0,2);[e setBuffer:mask offset:0 atIndex:3];[e setBuffer:rowEnv offset:0 atIndex:4];[e setBuffer:selected offset:0 atIndex:5];[e setBuffer:scaleRows offset:0 atIndex:6];[e setBuffer:x offset:0 atIndex:7];[e setBuffer:physical offset:0 atIndex:8];[e setBuffer:errors offset:0 atIndex:9];});
++ auto*ctrl=static_cast<const U4*>(control.contents);auto*errBits=static_cast<const U*>(errors.contents);
++ need(errBits[0]==0&&errBits[1]==0,"CGLS reported an error");
++ need(ctrl[0].x==3&&ctrl[0].y==1,"active N8192 CGLS identity action did not solve in one iteration");
++ need(ctrl[1].x==0&&ctrl[1].y==0,"quiet environment changed its solver state");
++ auto*sol=static_cast<const F4*>(physical.contents);auto*rhsPtr=static_cast<const F4*>(rhs.contents);
++ for(U i=0;i<UCount;++i){if(i<E*N)need(std::memcmp(sol+i,rhsPtr+i,sizeof(F4))==0,"identity correction differs from b");
++  else need(sol[i].x==0&&sol[i].y==0&&sol[i].z==0,"field/quiet output is nonzero");}
++ std::cout<<"pure_fem_cgls_arena_8192_native_check=PASS checks="<<checks<<" planned_bytes="<<plan.scratchBytes<<" buffers="<<plan.bufferCount<<" active_environments=1 quiet_environments=1 physical_transactions=0\n";
++ return 0;
++ }catch(const std::exception&e){std::cerr<<"pure_fem_cgls_arena_8192_native_check=FAIL reason="<<e.what()<<'\n';return 1;}}}

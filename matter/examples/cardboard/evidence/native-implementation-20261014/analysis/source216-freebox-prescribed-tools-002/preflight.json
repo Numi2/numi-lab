@@ -1,0 +1,42 @@
+{
+  "all_selected_and_support_inputs_verified": true,
+  "base_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+  "changed_source_files": [
+    {
+      "base_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "candidate_sha256": "2753be18970357125d8e0cd8da028bc9d177e1825022cfc6d09b4536f9b63523",
+      "path": "matter/CMakeLists.txt"
+    },
+    {
+      "base_sha256": "657c6f9aac9e27f1254d32e60f3248688281ad82b753bb67bbe8165177e1715d",
+      "candidate_sha256": "cce79f4954bb6865b7ef239399ce95d64d2c7162fba5987bc00373e222b034ba",
+      "path": "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
+    },
+    {
+      "base_sha256": "a306b0a0c5e29a3f62c038003fea62326da58f99292ab27ffc42b022238e8080",
+      "candidate_sha256": "8a2ccf38fd395386ace8cfb9cb9f6d14835dfe89046c6091f5cd588c8df77597",
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm"
+    },
+    {
+      "base_sha256": "9bf8be6dee07e2563195a7ab0074b682386223b98c30755722b4c68534300f16",
+      "candidate_sha256": "48daea839b5024fc278399d7e21384f82d6642b12965d065645e776b6e248482",
+      "path": "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp"
+    },
+    {
+      "base_sha256": "a6f5a38430568acedf29fed0686948a86bd390f0f2b78b7da58e987fa395ad67",
+      "candidate_sha256": "e9a7767e1b53cc0f9d0fc1dadd077466fb6d7c14b145fd81928f456a671653c9",
+      "path": "matter/tools/test_true_residual_certification_contract.py"
+    }
+  ],
+  "configure_support_file_count": 1034,
+  "configure_support_manifest_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "draft_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "draft_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-freebox-prescribed-tools-002",
+  "gpu_execution": false,
+  "integrated_frozen_sha256": "f5fd0fb6722f0fd70d56aac879b29c8c7a31305767c07abea2a33e781865fec2",
+  "integrated_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002",
+  "physical_transaction_claim": false,
+  "schema": "numi.cardboard.source216-integrated-preflight.v1",
+  "selected_file_count": 821
+}

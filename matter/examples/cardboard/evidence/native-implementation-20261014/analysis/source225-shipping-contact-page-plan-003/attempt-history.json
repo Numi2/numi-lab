@@ -1,0 +1,19 @@
+{
+  "package-attempt-001": {
+    "issue": "diff generator assumed newly added page planner header existed in source210 base"
+  },
+  "package-attempt-002": {
+    "issue": "frozen metadata parse failed on the literal escaped newline"
+  },
+  "source-build-003": {
+    "status": "passed against page-source bytes in snapshot225-001; superseded because frozen metadata was invalid"
+  },
+  "source-build-004": {
+    "status": "final successful build against corrected snapshot225-002"
+  },
+  "source225-001": {
+    "issue": "frozen-source.json was rewritten with literal backslash-n suffix; metadata parse failed",
+    "snapshot": "preserved",
+    "source_files_changed_after_build": false
+  }
+}

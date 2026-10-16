@@ -1,0 +1,31 @@
+// Dried starch-film modulus E=400 MPa used by Popil et al. (2007),
+// "Adhesive level effect on corrugated board strength", and Haj-Ali et al.
+// (2009), Composite Structures 87:321-333, DOI 10.1016/j.compstruct.2008.02.001.
+// Poisson ratio 0.30 is an assumed isotropic value, not a measured glue input.
+// Density 1500 kg/m^3 is an explicit NUMERICAL ASSUMPTION: neither cited source
+// supplies cured glue density. It is not derived from wet adhesive grammage.
+// This elastic continuum resolves finite glue geometry and compliance. It has
+// no debonding, cure, moisture dependence or calibrated fracture law. Neo-Hookean
+// finite-rotation extension is an implementation choice; only small-strain E
+// is source bound. It must not be described as validated cured starch.
+material starch2007_finite_glue_elastic {
+    parameter density : kg/m^3 = 1500;
+    parameter mu : MPa = 153.84615384615384;
+    parameter lambda : MPa = 230.76923076923077;
+    model neo_hookean;
+    energy = neo_hookean(mu, lambda);
+    valid = J() - 0.2;
+    supports fem;
+    interface {
+        static_friction = 0;
+        dynamic_friction = 0;
+        restitution = 0;
+        adhesion = 0;
+    }
+    limits {
+        minimum_J = 0.2;
+        maximum_J = 2.5;
+        maximum_stress = 1e9;
+        maximum_energy_density = 1e9;
+    }
+}

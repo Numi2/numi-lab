@@ -13294,7 +13294,7 @@ LoadedCouponResume loadCouponResume(
                     couponDiagnosticReplaySettingsMatch(
                         sourceProof.effectiveNativeSettings,
                         currentProof.effectiveNativeSettings),
-                "diagnostic replay may change only the five registered observer selectors and seven output paths");
+                "diagnostic replay may change only the six registered observer controls and seven output paths");
     }
     const bool outputPathMapRelocated = validateCouponOutputPathMapTransition(
         sourceOutputPaths, currentOutputPaths, sourceRunnerValidated,

@@ -1,0 +1,13 @@
+PASS positive 48/49 channels
+PASS opt-in rib50 existing channel14 and source identity
+PASS rejects duplicate slot across rib channels
+PASS rejects rib50 wrong motion channel
+PASS legacy receipt without opt-in
+PASS rejects stale anatomy payload SHA
+PASS rejects duplicate local vertex
+PASS rejects wrong typed bone stable ID
+PASS rejects wrong rib channel
+PASS rejects wrong bone owner
+PASS rejects unverified bone owner map
+PASS rejects wrong typed NHA row body
+All intercostal rib attachment loader tests passed

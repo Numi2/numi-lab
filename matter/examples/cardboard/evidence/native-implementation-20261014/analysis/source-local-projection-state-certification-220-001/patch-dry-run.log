@@ -1,0 +1,8 @@
+patching file 'matter/tools/cardboard_probe.mm'
+patching file 'matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm'
+patching file 'matter/tools/cardboard_bilinear15_projection_policy_check.cpp'
+patching file 'matter/include/numi/matter/shared.h'
+patching file 'matter/include/numi/matter/matter.hpp'
+patching file 'matter/src/constitutive_impl.cpp'
+patching file 'matter/src/validation_impl.cpp'
+patching file 'matter/src/metal/common.metalinc'

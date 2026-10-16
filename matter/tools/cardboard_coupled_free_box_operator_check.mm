@@ -964,6 +964,264 @@ void checkFreeBoxTrueResidualTail(
             "zero-residual restart left a stale rigid-tail row");
 }
 
+void checkPrescribedProxyRows(
+    CoupledDevice& device, CoupledFixture& fixture,
+    const R18& center) {
+    NMMatterDispatchGPU dispatch = fixture.dispatch;
+    dispatch.rigidProxyCount = 3u;
+    dispatch.contactPairCount = 3u;
+    dispatch.reservedMixed1 = 3u;
+    dispatch.rigidGeneralizedCapacity = kRigidDofs;
+    dispatch.rigidQCapacity = 0u;
+    dispatch.deformableContactCapacity = 0u;
+    dispatch.gridNodeCount = 0u;
+
+    NMRigidProxyGPU freeBox = fixture.proxy;
+    freeBox.bodyIndex = 0u;
+    freeBox.sceneBodyIndex = 0u;
+    NMRigidProxyGPU prescribedBox{};
+    prescribedBox.shapeKind = NM_RIGID_BOX;
+    prescribedBox.bodyIndex = 1u;
+    prescribedBox.sceneBodyIndex = NM_INVALID_INDEX;
+    prescribedBox.flags = NM_RIGID_PRESCRIBED_TRANSLATION;
+    prescribedBox.adaptiveObjectIndex = NM_INVALID_INDEX;
+    prescribedBox.generalizedFreeBodyIndex = NM_INVALID_INDEX;
+    prescribedBox.localExtent = {0.02f, 0.03f, 0.04f, 0.0f};
+    prescribedBox.localOrientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    NMRigidProxyGPU prescribedCapsule{};
+    prescribedCapsule.shapeKind = NM_RIGID_CAPSULE;
+    prescribedCapsule.bodyIndex = 2u;
+    prescribedCapsule.sceneBodyIndex = NM_INVALID_INDEX;
+    prescribedCapsule.flags = NM_RIGID_PRESCRIBED_TRANSLATION;
+    prescribedCapsule.adaptiveObjectIndex = NM_INVALID_INDEX;
+    prescribedCapsule.generalizedFreeBodyIndex = NM_INVALID_INDEX;
+    prescribedCapsule.localCenterAndRadius = {0.0f, 0.0f, 0.0f, 0.002f};
+    prescribedCapsule.localExtent = {0.0f, 0.0f, 0.02f, 0.0f};
+    prescribedCapsule.localOrientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    const std::vector<NMRigidProxyGPU> proxies{
+        freeBox, prescribedBox, prescribedCapsule};
+    const auto makeContactPair = [](const uint node, const uint proxy) {
+        return NMContactPairGPU{node, proxy, 0u, 0u};
+    };
+    const std::vector<NMContactPairGPU> pairs{
+        makeContactPair(0u, 0u), makeContactPair(1u, 1u),
+        makeContactPair(2u, 2u)};
+
+    // Synthetic, finite contact Hessians isolate the production pair-to-node
+    // and dynamic-versus-prescribed generalized-row mapping. This is a kernel
+    // component fixture; it does not evaluate a physical contact transaction.
+    auto evaluated = fixture.evaluateSample(center, fixture.nodesFor(center));
+    const NMRigidStateGPU freeRigid =
+        *static_cast<const NMRigidStateGPU*>(evaluated.rigid.contents);
+    std::vector<NMRigidStateGPU> rigidStates(3u);
+    rigidStates[0] = freeRigid;
+    std::vector<NMContactSampleGPU> samples(3u);
+    const std::array<float, 3> stiffness{2.0f, 3.0f, 4.0f};
+    for (uint i = 0u; i < 3u; ++i) {
+        auto& sample = samples[i];
+        sample.identity = {pairs[i].continuumNode, pairs[i].rigidProxy,
+                           0u, NM_CONTACT_VALID};
+        const std::array<float, 3> point = i == 0u
+            ? std::array<float, 3>{freeRigid.bodyCenter.x,
+                                   freeRigid.bodyCenter.y,
+                                   freeRigid.bodyCenter.z}
+            : std::array<float, 3>{0.01f * float(i), 0.0f, 0.0f};
+        sample.pointAndSeparation = {point[0], point[1], point[2], 0.01f};
+        sample.normalAndVelocity = {1.0f, 0.0f, 0.0f, 0.0f};
+        sample.barrierHessianRow0 = {stiffness[i], 0.0f, 0.0f, 0.0f};
+        sample.barrierHessianRow1 = {0.0f, stiffness[i], 0.0f, 0.0f};
+        sample.barrierHessianRow2 = {0.0f, 0.0f, stiffness[i], 0.0f};
+    }
+
+    std::vector<uint> contactIncidence{0u, 1u, 2u};
+    std::vector<NMIncidenceRangeGPU> contactRanges(
+        dispatch.gridNodeCount + dispatch.femNodeCount);
+    for (uint node = 0u; node < 3u; ++node)
+        contactRanges[node] = {node, 1u, 0u, 0u};
+    std::vector<uint> activePairs{0u, 1u, 2u};
+    std::vector<uint> activeSlots{0u, 1u, 2u};
+    std::vector<uint> activeCounts{3u};
+    std::vector<NMDeformableContactGPU> deformable(1u);
+    std::vector<uint> deformableIncidence{0u};
+    std::vector<NMIncidenceRangeGPU> deformableRanges(
+        dispatch.gridNodeCount + dispatch.femNodeCount);
+    std::vector<uint> mpmToActive{NM_INVALID_INDEX};
+    std::vector<uint> mpmCounts{0u};
+    std::vector<uint> deformableCounts{0u};
+
+    id<MTLBuffer> argumentBuffer = [device.base.gpu
+        newBufferWithLength:fixture.contactEncoder.encodedLength
+                    options:MTLResourceStorageModeShared];
+    need(argumentBuffer != nil, "multi-proxy contact argument buffer allocation failed");
+    [fixture.contactEncoder setArgumentBuffer:argumentBuffer offset:0u];
+    id<MTLBuffer> contactArgs[15] = {
+        makeBuffer(device.base.gpu, pairs),
+        makeBuffer(device.base.gpu, samples),
+        makeBuffer(device.base.gpu, contactIncidence),
+        makeBuffer(device.base.gpu, contactRanges),
+        makeBuffer(device.base.gpu, activePairs),
+        makeBuffer(device.base.gpu, activeSlots),
+        makeBuffer(device.base.gpu, activeCounts),
+        makeBuffer(device.base.gpu, deformable),
+        makeBuffer(device.base.gpu, deformableIncidence),
+        makeBuffer(device.base.gpu, deformableRanges),
+        makeBuffer(device.base.gpu, mpmToActive),
+        makeBuffer(device.base.gpu, mpmCounts),
+        makeBuffer(device.base.gpu, proxies),
+        makeBuffer(device.base.gpu, rigidStates),
+        makeBuffer(device.base.gpu, deformableCounts),
+    };
+    for (NSUInteger i = 0u; i < 15u; ++i)
+        [fixture.contactEncoder setBuffer:contactArgs[i]
+                                    offset:0u atIndex:i];
+
+    const uint rigidBase = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount;
+    const uint vectorCount = rigidBase + dispatch.rigidGeneralizedCapacity;
+    std::vector<nm_float4> direction(vectorCount, nm_float4{});
+    std::vector<nm_float4> work(vectorCount, nm_float4{});
+    const std::array<std::array<float, 3>, 3> nodeDirections{{
+        {{0.4f, -0.2f, 0.1f}},
+        {{-0.1f, 0.6f, 0.2f}},
+        {{0.7f, 0.1f, -0.3f}},
+    }};
+    for (uint node = 0u; node < 3u; ++node) {
+        const auto& d = nodeDirections[node];
+        direction[node] = {d[0], d[1], d[2], 0.0f};
+    }
+    direction[rigidBase + 0u] = {0.05f, 0.0f, 0.0f, 0.0f};
+    direction[rigidBase + 1u] = {-0.04f, 0.0f, 0.0f, 0.0f};
+    direction[rigidBase + 2u] = {0.02f, 0.0f, 0.0f, 0.0f};
+    direction[rigidBase + 3u] = {0.1f, 0.0f, 0.0f, 0.0f};
+    direction[rigidBase + 4u] = {-0.1f, 0.0f, 0.0f, 0.0f};
+    direction[rigidBase + 5u] = {0.05f, 0.0f, 0.0f, 0.0f};
+
+    auto objectsB = makeBuffer(device.base.gpu, fixture.world.objects);
+    auto nodesB = makeBuffer(device.base.gpu, fixture.world.fem.nodes);
+    auto tetraB = makeBuffer(device.base.gpu, fixture.world.fem.tetrahedra);
+    auto elementsB = makeBuffer(device.base.gpu,
+        std::vector<NMFEMElementVectorGPU>(fixture.world.fem.tetrahedra.size()));
+    auto femIncidenceB = makeBuffer(device.base.gpu,
+        fixture.world.fem.nodeIncidence);
+    auto femRangesB = makeBuffer(device.base.gpu,
+        fixture.world.fem.nodeRanges);
+    auto schedulersB = makeBuffer(device.base.gpu, fixture.world.schedulers);
+    auto adaptiveB = makeBuffer(device.base.gpu, fixture.world.adaptive);
+    auto directionB = makeBuffer(device.base.gpu, direction);
+    auto workB = makeBuffer(device.base.gpu, work);
+    auto statesB = makeBuffer(device.base.gpu,
+        std::vector<NMFGMRESStateGPU>(dispatch.environmentCount));
+    std::vector<float> coupledJacobian(
+        dispatch.environmentCount * dispatch.reservedMixed1 * 3u *
+        dispatch.rigidGeneralizedCapacity, 0.0f);
+    auto jacobianB = makeBuffer(device.base.gpu, coupledJacobian);
+    const uint articulatedNv = 0u;
+    auto command = [device.base.queue commandBuffer];
+    auto encoder = command != nil ? [command computeCommandEncoder] : nil;
+    need(command != nil && encoder != nil,
+         "prescribed-proxy gather encoder unavailable");
+    [encoder setComputePipelineState:device.gatherNodes];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    [encoder setBytes:&fixture.microstep length:sizeof(fixture.microstep) atIndex:1u];
+    [encoder setBuffer:objectsB offset:0u atIndex:2u];
+    [encoder setBuffer:nodesB offset:0u atIndex:3u];
+    [encoder setBuffer:tetraB offset:0u atIndex:4u];
+    [encoder setBuffer:elementsB offset:0u atIndex:5u];
+    [encoder setBuffer:femIncidenceB offset:0u atIndex:6u];
+    [encoder setBuffer:femRangesB offset:0u atIndex:7u];
+    [encoder setBuffer:schedulersB offset:0u atIndex:8u];
+    [encoder setBuffer:adaptiveB offset:0u atIndex:9u];
+    [encoder setBuffer:directionB offset:0u atIndex:10u];
+    [encoder setBuffer:workB offset:0u atIndex:11u];
+    [encoder setBuffer:argumentBuffer offset:0u atIndex:12u];
+    [encoder setBuffer:statesB offset:0u atIndex:13u];
+    [encoder setBytes:&articulatedNv length:sizeof(articulatedNv) atIndex:14u];
+    [encoder setBuffer:jacobianB offset:0u atIndex:15u];
+    [encoder dispatchThreads:MTLSizeMake(dispatch.femNodeCount, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(4u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+         "prescribed-proxy production FEM gather failed");
+
+    const uint allowConvergedState = 0u;
+    command = [device.base.queue commandBuffer];
+    encoder = command != nil ? [command computeCommandEncoder] : nil;
+    need(command != nil && encoder != nil,
+         "prescribed-proxy rigid reaction encoder unavailable");
+    [encoder setComputePipelineState:device.base.apply];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    [encoder setBytes:&articulatedNv length:sizeof(articulatedNv) atIndex:1u];
+    [encoder setBuffer:directionB offset:0u atIndex:2u];
+    [encoder setBuffer:workB offset:0u atIndex:3u];
+    [encoder setBuffer:argumentBuffer offset:0u atIndex:4u];
+    [encoder setBuffer:statesB offset:0u atIndex:5u];
+    [encoder setBuffer:jacobianB offset:0u atIndex:6u];
+    [encoder setBytes:&allowConvergedState length:sizeof(allowConvergedState)
+               atIndex:7u];
+    [encoder dispatchThreads:MTLSizeMake(kRigidDofs, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(kRigidDofs, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+         "prescribed-proxy generalized reaction kernel failed");
+
+    const auto* rows = static_cast<const nm_float4*>(workB.contents);
+    for (uint node = 0u; node < 3u; ++node) {
+        const float k = stiffness[node];
+        std::array<float, 3> expected{
+            k * nodeDirections[node][0],
+            k * nodeDirections[node][1],
+            k * nodeDirections[node][2]};
+        // The production gather includes the existing nodal mass action
+        // M*d before adding this prescribed/free contact block. This fixture
+        // deliberately binds a zero FEM element operator, but it still uses
+        // the compiled positive nodal masses.
+        const NMFEMNodeStateGPU& mappedNode =
+            fixture.world.fem.nodes.at(node);
+        need(mappedNode.restAndFixed.w == 0.0f &&
+                 std::isfinite(mappedNode.positionAndMass.w) &&
+                 mappedNode.positionAndMass.w > 0.0f,
+             "prescribed-proxy fixture requires positive-mass free FEM rows");
+        for (uint component = 0u; component < 3u; ++component)
+            expected[component] += mappedNode.positionAndMass.w *
+                nodeDirections[node][component];
+        if (node == 0u) {
+            expected[0] -= k * direction[rigidBase].x;
+            expected[1] -= k * direction[rigidBase + 1u].x;
+            expected[2] -= k * direction[rigidBase + 2u].x;
+        }
+        const std::array<float, 3> actual{
+            rows[node].x, rows[node].y, rows[node].z};
+        const float error = std::sqrt(
+            (actual[0] - expected[0]) * (actual[0] - expected[0]) +
+            (actual[1] - expected[1]) * (actual[1] - expected[1]) +
+            (actual[2] - expected[2]) * (actual[2] - expected[2]));
+        need(error < 2.0e-5f,
+             node == 0u ? "free-BOX pair-to-node block mapped incorrectly"
+                        : (node == 1u
+                            ? "prescribed BOX pair-to-node block mapped incorrectly"
+                            : "prescribed capsule pair-to-node block mapped incorrectly"));
+    }
+    const std::array<float, 3> freeForce{
+        stiffness[0] * (nodeDirections[0][0] - direction[rigidBase].x),
+        stiffness[0] * (nodeDirections[0][1] - direction[rigidBase + 1u].x),
+        stiffness[0] * (nodeDirections[0][2] - direction[rigidBase + 2u].x)};
+    for (uint dof = 0u; dof < 3u; ++dof) {
+        const float expected = -freeForce[dof];
+        need(std::abs(rows[rigidBase + dof].x - expected) < 2.0e-5f,
+             "free-BOX contact reaction omitted from generalized translation rows");
+        need(rows[rigidBase + 3u + dof].x == 0.0f,
+             "zero-lever fixture produced an unexpected generalized torque");
+    }
+    std::cout << "shipping_proxy_role_fixture=one_dynamic_BOX+one_prescribed_BOX+one_prescribed_capsule"
+              << " FEM_contact_pairs=3 dynamic_generalized_reaction=true"
+              << " prescribed_contact_blocks=2 prescribed_contact_blocks_altered_generalized_rows=false"
+              << " physical_transactions=0\n";
+}
+
 void runCoupledCheck(CoupledDevice& device) {
     CoupledFixture fixture(device);
     R18 center{};
@@ -1043,6 +1301,7 @@ void runCoupledCheck(CoupledDevice& device) {
             <<" outcome="<<(pass?"PASS":(fp64Resolved?"FAIL":"INCONCLUSIVE"))<<"\n";
     }
     checkFreeBoxTrueResidualTail(device, fixture, center, mixed);
+    checkPrescribedProxyRows(device, fixture, center);
     std::cout<<"coupled_fem_free_box_operator directions="<<tests.size()
         <<" worst_scaled_relative="<<worstRelative
         <<" worst_scaled_abs="<<worstAbsolute

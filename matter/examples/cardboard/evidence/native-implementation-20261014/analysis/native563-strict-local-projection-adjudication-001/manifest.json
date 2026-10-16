@@ -1,0 +1,13 @@
+{
+  "files": {
+    "README.md": "3b0ada1d7dc3a99e9abbe1c89c75b0675e3afcc9ab91b68650ce80c945522236",
+    "adjudicate.py": "e3f20cbd826e4b5a238db77601f0ab4249b101cc1c6fb44bcf845fe0aeff8463",
+    "report.json": "c17b4bee59a8c063a7e7ed49d8d6a39ff720861ae2b68247ab7724a013af833b"
+  },
+  "native_receipt_sha256": "64ba5c482236ab467e4aaaae0f8418d979edc0996b3fb3dbe8df0a2bea18bb7a",
+  "package": "analysis/native563-strict-local-projection-adjudication-001",
+  "schema": "numi.cardboard.native563-strict-local-projection-adjudication-manifest.v1",
+  "source_capture_sha256": "c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2",
+  "source_frozen_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+  "verdict": "SELECTED_STRICT_STATE_CERTIFICATION_ROWS_PASS_NATIVE_TANGENT_1E-3_GATE"
+}

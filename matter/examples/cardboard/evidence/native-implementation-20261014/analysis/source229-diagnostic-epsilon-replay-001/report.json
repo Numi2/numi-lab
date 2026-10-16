@@ -1,0 +1,55 @@
+{
+  "schema": "numi.cardboard.source229-epsilon-replay.v1",
+  "build_exit_code": 0,
+  "tests": [
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-diagnostic-epsilon-replay-229-001/matter/tools/cardboard_coupon_resume_check.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source229-diagnostic-epsilon-replay-001/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source229-diagnostic-epsilon-replay-001/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/numi-matter-cardboard-probe",
+        "--verify-coupon-source-runner",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source210-strict-inner-full-coupon-545"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "02f28926035262809b2f968c2be1377dcc3977f05d595ed921dd6f092f53ce2f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_pass": true,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-diagnostic-epsilon-replay-229-001",
+  "source_frozen_sha256": "6cf5be6795c1d77c8a3aa5a87665bd98d53ba21363abe893a4604e44273e2cd6",
+  "source_build_sha256": "3360da8377005a045524f9386dcdb91be7cb3d97ac3df076ad519ccf12d92a0a",
+  "source_patch_sha256": "feff9dafb4e5847d1d19b6a3f499b55575201b06e4f39becfaa2d5fcdccb94ce",
+  "changed": [
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "physical_operator_or_material_law_changed": false,
+  "all_source_inputs_unchanged": true,
+  "gpu_execution": false,
+  "physical_transactions": 0,
+  "at_utc": "2026-10-16T11:46:28.104480+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.native-component-command.v2",
+  "case": "composed226-true-residual-8192-560",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-fgmres-true-residual-native-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/shaders/NumiMatter.metallib"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-8192-on222-226-001",
+  "source_frozen_sha256": "313f5a81883162bb5917773b3b3f576cf8991932ff4eed2e8af11e36cb13cba8",
+  "source_build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/source-build.json",
+  "source_build_sha256": "b177434e32ebbcf4e1f0fd5199a0d715ae5a0e9efe8061ef3bd893e575384c73",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-cardboard-coupon-resume-check": "2b8eafd2805337890d0c866e41dc3deb033e36b2abbae9f76cc5aa18aa4f93c4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-cardboard-probe": "3c759d1431e54d3e78aa8a7000e3c6e0e0902e0adb4efb79e5d5abdac2bec58f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-fem-cgls-arena-8192-check": "da3a98668b95a993c53479bbc57b2276fd9a0cf33a02a7244ce942b3a8e5796f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-fgmres-true-residual-native-check": "b03d151c7143a55adc1a99f9f6c8fd2fb690f737ecb53044e8ce52dae95948d8",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-pure-fem-armijo-cgls-arena-plan-check": "8a351472f75f76d649be6a42e6c03d8480e710454300bb6b5a9a187ca9ce4107",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/numi-matter-true-residual-arena-plan-check": "bb1a61c154bac977318834151b8f81b5dd72e61183a6cc34b3d96d0065bbbb64",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/shaders/FEMPureCGLSArena8192Check.metallib": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/shaders/NumiMatter.metallib": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "all_inputs_verified": true,
+  "workers": [],
+  "physical_transactions": 0,
+  "prediction": "No pass assumed; manufactured operator or kernel contract only; no full nonlinear trajectory or shipping qualification."
+}

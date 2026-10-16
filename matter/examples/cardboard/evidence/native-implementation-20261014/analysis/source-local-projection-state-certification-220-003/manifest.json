@@ -1,0 +1,30 @@
+{
+  "created_at_utc": "2026-10-16T11:57:04.453740+00:00",
+  "files": {
+    "README.md": "2d14f919eaef7d56b630ff109f860917ae13c7d35706b01649c6976ceb89c2e9",
+    "bindings.json": "7e2c297345021a9f97bcb929efab9773cc808e09f399edf80821af8f29e437b4",
+    "build-artifacts.json": "bc7d82deab8bb3b85ac672c19f90684886e8ccf49ecaa2855cb69a157b108e06",
+    "build-status.json": "ea3abdb696ffdf6902003a74943ba73e58fbe8712bde95eaee88ae7ada8a5d53",
+    "build.stderr.log": "768dabdb9bcb12d69a2f41f1e8ffd8e4316e7fe5be1b1c05d7e2f751d710b763",
+    "build.stdout.log": "3dc9881e471b9dc9749e594c444af321fd775dc88215cc7b514c275e97a04688",
+    "cardboard_bilinear15_capture_diagnostic_check.mm": "dd017475bcbc7df047d3a8ac66d9729c3ac0d85552532c23ba85e908c5750971",
+    "checker.patch": "42a9cae0b6c94fe416b6c6ffc083c61fff203facde2f1689f7fb45d4619ad7ac",
+    "compile-command.json": "0243349a769612a87e78cc43e455372089b9a0899653298f1b1ae0c677af7b0c",
+    "configure.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "configure.stdout.log": "995e4a571c7c6c6bbf3aac000aa4ab35e91adcfd0a7dde8e296d067499169966",
+    "cpu-admission-002.stderr.log": "dd27e72bde59c9e0ea9ee0e9b62bf3fa788061b513925cab6e95256238bc5957",
+    "cpu-admission-002.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-admission-003.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-admission-003.stdout.log": "569c2b560bc9b6b822eba2aba79aa5b7fb8c1e84299b94b76a3ec0b163e8e2f0",
+    "cpu-admission.stderr.log": "2451d6729d8df3f30508ae0539929f2719b1b3dc52785c04e1d89fbbf51dd3f5",
+    "cpu-admission.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-contract-rerun.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-contract-rerun.stdout.log": "e88c7487f38e47cca4235af957027dabd16a9df46ec7256ced965459464af07a",
+    "cpu-test.json": "7ee9e8eff6d0dbefc35e0aa90bb8d247982457080d2969b0d870d8531b1cb4e5",
+    "report.json": "0be4d27a2da960ceed785da2d98c0e13a62207d1ee0c58ff9e4b819c2038fc15",
+    "test_endpoint_binding.py": "b8decf3bd42c5ecfcf24606776d8ceefecba18e5b11c1c00cd1ae9ddb1dd565b"
+  },
+  "schema": "numi.cardboard.source220-checker-repair-package.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+  "snapshot_frozen_source_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639"
+}

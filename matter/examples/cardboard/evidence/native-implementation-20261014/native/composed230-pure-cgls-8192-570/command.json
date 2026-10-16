@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.native-component-command.v2",
+  "case": "composed230-pure-cgls-8192-570",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-fem-cgls-arena-8192-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/shaders/NumiMatter.metallib"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-replay-230-001",
+  "source_frozen_sha256": "f0800b754a820f791c7d97c1126e2e653f1b2f7064bd2b9d5ca443cf102ac682",
+  "source_build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/source-build.json",
+  "source_build_sha256": "8da7edadd170c15597718fb11b4398f103c9d9de0d25c29d7fe6990d6071a7e8",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/lib/libmetalrobo.dylib": "93bd0c8de69377662923f00406958a8c391b91b6758f284e2991e2224a34b653",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-cardboard-coupled-free-box-operator-check": "e77032fb6c1e939b8e78d21495d00d2a6f75871b415ba9d88cd5afc8379d7b1c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-cardboard-coupon-resume-check": "84dee8031c188e5d0d0fc8973c35af06c67d88790dc699bc21c6a9063f8f641e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-cardboard-free-box-proxy-admission-check": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-cardboard-full-contact-armijo-check": "7c1691e49537a38856e6942226f01d944e088b60560680ffb33ee89afc304dd3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-cardboard-probe": "7cde579602a1a2c8a784412126195fc7418184e76ef928748b7b6407f2256a3d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-fem-cgls-arena-8192-check": "32e3988c655aa8609df76d83aa8ff5e4e64dd934cde95da76ab1e9ca394bd355",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/numi-matter-fgmres-true-residual-native-check": "7b1fd651f3626e4f56f0791e373f943d9f79f0578e70d23c86a0627fba6b6c55",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/shaders/FEMPureCGLSArena8192Check.metallib": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/shaders/NumiMatter.metallib": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "all_inputs_verified": true,
+  "workers": [],
+  "physical_transactions": 0,
+  "prediction": "No pass assumed; manufactured operator or kernel contract only; no full nonlinear trajectory or shipping qualification."
+}

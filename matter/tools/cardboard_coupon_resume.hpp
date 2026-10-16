@@ -7,6 +7,8 @@
 #include <charconv>
 #include <array>
 #include <cstdint>
+#include <cmath>
+#include <cstdlib>
 #include <istream>
 #include <limits>
 #include <map>
@@ -36,11 +38,12 @@ inline constexpr std::array<std::string_view, 7u> kRegisteredOutputPathKeys{
 
 // These selectors only request bounded, read-only diagnostics.  They remain
 // strict in ordinary resume mode; the explicit diagnostic-replay mode may
-// change only these five selectors in addition to the seven path bindings.
-inline constexpr std::array<std::string_view, 5u>
+// change only these six observer controls in addition to the seven path bindings.
+inline constexpr std::array<std::string_view, 6u>
     kRegisteredDiagnosticReplaySelectorKeys{
         "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
         "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+        "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
         "NM_FEM_OPERATOR_FD_SELECTOR",
         "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
         "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
@@ -322,6 +325,30 @@ inline void validateDiagnosticReplaySelectors(
                 "NM_FEM_OPERATOR_FD_SELECTOR");
     requirePair("NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
                 "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR");
+
+    if (const std::string* scale = find("NM_FEM_OPERATOR_FD_EPSILON_SCALE")) {
+        if (find("NM_FEM_OPERATOR_FD_SELECTOR") == nullptr ||
+            find("NM_FEM_OPERATOR_FD_CAPTURE_PATH") == nullptr)
+            throw std::invalid_argument(
+                "operator-FD epsilon scale requires its paired capture path and selector");
+        char* end = nullptr;
+        const float parsed = std::strtof(scale->c_str(), &end);
+        bool allowed = !scale->empty() &&
+            scale->find_first_of(" \t\r\n") == std::string::npos &&
+            end == scale->c_str() + scale->size() &&
+            std::isfinite(parsed);
+        if (allowed) {
+            allowed = false;
+            for (int exponent = -10; exponent <= 4; ++exponent)
+                if (parsed == std::ldexp(1.0f, exponent)) {
+                    allowed = true;
+                    break;
+                }
+        }
+        if (!allowed)
+            throw std::invalid_argument(
+                "operator-FD epsilon scale must be a finite power of two in [1/1024,16]");
+    }
 
     if (const std::string* state = find("NM_FEM_BASE_CGLS_STATE_CAPTURE")) {
         if (*state != "0" && *state != "1")

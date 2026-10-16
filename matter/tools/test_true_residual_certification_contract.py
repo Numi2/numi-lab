@@ -215,32 +215,92 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
 
 
-    def test_free_box_true_residual_admission_is_exact_and_separate(self):
-        scope = section(RUNTIME, "const auto femNewtonTraceScope =",
-                       "const auto femTrueResidualCapabilityFailure =")
-        for guard in (
-            "state.dispatch.environmentCount != 1u",
-            "state.dispatch.rigidGeneralizedCapacity != 6u",
-            "state.dispatch.rigidQCapacity != 0u",
-            "state.requiresCoupledCandidate",
-            "NM_RIGID_BOX",
-            "proxy.flags != NM_RIGID_DYNAMIC",
-            "proxy.generalizedFreeBodyIndex != 0u",
-            "NM_MATTER_CONTACT",
-            "state.dispatch.mpmActiveNodeCapacity != 0u",
-            "state.fgmresLayout.supportContactCount != 0u",
-            "state.fgmresLayout.vascularUnknownCount != 0u",
-            "state.dispatch.fieldBoundaryCount != 0u",
-            "state.fgmresLayout.unknownCount != expectedUnknownCount",
-        ):
-            self.assertIn(guard, scope)
-        capability = section(
-            RUNTIME, "const auto femTrueResidualCapabilityFailure =",
-            "const auto femResidualArmijoScope =")
-        self.assertIn(
-            "femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u)",
-            capability)
-        self.assertIn("femNewtonTraceScope(false)", RUNTIME)
+    def test_true_residual_8192_arena_is_checked_and_scoped(self):
+        arena = (HERE.parent / "include" / "numi" / "matter" / "detail" /
+                 "true_residual_arena_plan.hpp").read_text()
+        for token in ("n>8192u", "t>32768u",
+                      "c>4096u", "e>4u",
+                      "sizeof(NMMatterStatusGPU)",
+                      "sizeof(NMFEMElementVectorGPU)",
+                      "sizeof(NMCohesiveFaceVectorGPU)",
+                      "maximumAggregateBytes", "maxBufferLength",
+                      "femTrueResidualCheckedMultiply",
+                      "femTrueResidualCheckedAdd"):
+            self.assertIn(token.replace(" ", ""), arena.replace(" ", ""))
+        runtime = RUNTIME
+        self.assertIn("femNewtonTraceScope(false, 4096u)", runtime)
+        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u)", runtime)
+        allocations = section(runtime, "const detail::FEMTrueResidualArenaShape trueResidualArenaShape{",
+                             "candidate->femConstraintReactions =")
+        for name in ("femTrueResidualRightHandSide", "femTrueResidualMetrics",
+                     "femTrueResidualStatuses", "femTrueResidualElementOperator",
+                     "femTrueResidualCohesiveOperator", "femTrueResidualOperatorValue"):
+            self.assertIn(name, allocations)
+        self.assertIn("trueResidualResidentAdditionFits", allocations)
+        self.assertIn("aggregateBytes", allocations)
+
+    def test_free_box_true_residual_proxy_scope_keeps_bounds_and_composition_exact(self):
+        runtime = RUNTIME
+        scope = section(runtime, "const auto femNewtonTraceScope =",
+                        "const auto femTrueResidualCapabilityFailure =")
+        for token in ("state.dispatch.environmentCount != 1u",
+                      "state.dispatch.rigidGeneralizedCapacity != 6u",
+                      "state.dispatch.rigidQCapacity != 0u",
+                      "state.requiresCoupledCandidate",
+                      "NM_MATTER_CONTACT",
+                      "state.dispatch.femNodeCount > 4096u",
+                      "state.fgmresLayout.supportContactCount != 0u",
+                      "state.fgmresLayout.vascularUnknownCount != 0u",
+                      "state.dispatch.fieldBoundaryCount != 0u",
+                      "state.fgmresLayout.unknownCount != expectedUnknownCount",
+                      "state.dispatch.rigidProxyCount !=",
+                      "state.rigidProxyLayout.size()",
+                      "state.dispatch.contactPairCount !=",
+                      "state.contactPairLayout.size()",
+                      "validateFreeBoxCapsuleProxyScope(proxyScope)"):
+            self.assertIn(token, scope if token in scope else runtime)
+        capability = section(runtime, "const auto femTrueResidualCapabilityFailure =",
+                             "const auto femResidualArmijoScope =")
+        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u)",
+                      capability)
+        helper = (MATTER / "include" / "numi" / "matter" / "detail" /
+                  "free_box_true_residual_proxy_admission.hpp").read_text()
+        for token in ("in.proxyCount==0u||in.proxyCount>16u",
+                      "p.flags==NM_RIGID_PRESCRIBED_TRANSLATION",
+                      "p.shapeKind==NM_RIGID_CAPSULE",
+                      "p.shapeKind==NM_RIGID_BOX&&prescribed",
+                      "p.flags==NM_RIGID_DYNAMIC",
+                      "p.generalizedFreeBodyIndex!=0u",
+                      "freeBoxes!=1u",
+                      "kFreeBoxTrueResidualMaxPrescribedBodies=8u",
+                      "prescribedBoxes!=0u&&!prescribedBoxPair",
+                      "p.objectIndex!=0u",
+                      "p.continuumNode>=in.femNodeCount",
+                      "p.rigidProxy>=in.proxyCount",
+                      "!freeBoxPair||(capsules!=0u&&!capsulePair)"):
+            self.assertIn(token, "".join(helper.split()))
+        self.assertIn("NM_RIGID_CAPSULE", helper)
+        self.assertNotIn("NM_RIGID_ARTICULATED", helper)
+
+    def test_proxy_admission_checker_has_supported_and_fail_closed_cases(self):
+        checker = (HERE / "cardboard_free_box_true_residual_proxy_admission_check.cpp").read_text()
+        for token in ("legacy single dynamic BOX must admit without capsule endpoint state",
+                      "single BOX still requires current body state",
+                      "single BOX pairs alone must admit",
+                      "capsule without BOX must reject",
+                      "valid capsule plus one free box must admit",
+                      "authored 12-proxy eight-prescribed-body shipping role map must admit",
+                      "missing prescribed BOX pair class must reject",
+                      "prescribed shipping boxes require endpoint state",
+                      "unmapped shipping proxy index must reject",
+                      "ninth distinct prescribed tool body must reject",
+                      "more than one dynamic free BOX must reject",
+                      "box-only pairs must reject", "capsule-only pairs must reject",
+                      "dynamic capsule must reject", "articulated BOX must reject",
+                      "adaptive capsule must reject", "second BOX must reject",
+                      "sphere proxy must reject",
+                      "proxy count above full-contact bound must reject"):
+            self.assertIn(token, checker)
 
     def test_native_box_fixture_uses_both_contact_blocks_and_tail_controls(self):
         coupled = (HERE / "cardboard_coupled_free_box_operator_check.mm").read_text()
@@ -258,6 +318,12 @@ class TrueResidualCertificationContract(unittest.TestCase):
             "zero full-layout residual did not meet the unchanged gate",
             "physical_transactions=0",
         ):
+            self.assertIn(required, coupled)
+        for required in ("checkPrescribedProxyRows",
+                         "prescribed BOX",
+                         "prescribed capsule",
+                         "shipping_proxy_role_fixture",
+                         "prescribed_contact_blocks_altered_generalized_rows=false"):
             self.assertIn(required, coupled)
 
 if __name__ == "__main__":

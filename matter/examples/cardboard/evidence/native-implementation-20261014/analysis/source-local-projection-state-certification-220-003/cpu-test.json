@@ -1,0 +1,93 @@
+{
+  "schema": "numi.cardboard.source220-endpoint-identity-cpu-test.v1",
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "tests": [
+    {
+      "name": "actual row 282 p22 sign1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 282",
+      "pass": true
+    },
+    {
+      "name": "actual row 283 p22 sign-1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 283",
+      "pass": true
+    },
+    {
+      "name": "actual row 284 p23 sign1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 284",
+      "pass": true
+    },
+    {
+      "name": "actual row 285 p23 sign-1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 285",
+      "pass": true
+    },
+    {
+      "name": "actual row 286 p24 sign1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 286",
+      "pass": true
+    },
+    {
+      "name": "actual row 287 p24 sign-1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 287",
+      "pass": true
+    },
+    {
+      "name": "actual row 288 p25 sign1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 288",
+      "pass": true
+    },
+    {
+      "name": "actual row 289 p25 sign-1",
+      "pass": true
+    },
+    {
+      "name": "wrong sign rejected row 289",
+      "pass": true
+    },
+    {
+      "name": "legacy wrong F[0] perturbation rejected",
+      "pass": true
+    },
+    {
+      "name": "missing declared F[2] change rejected",
+      "pass": true
+    },
+    {
+      "name": "incorrect Fdot[2] rejected",
+      "pass": true
+    },
+    {
+      "name": "unrelated packed input mutation rejected",
+      "pass": true
+    },
+    {
+      "name": "C++ source contains CPU admission and corrected p23 identity predicate",
+      "pass": true
+    }
+  ],
+  "passed": 21,
+  "failed": 0,
+  "note": "Python contract mirror over exact source547 input; compiled C++ CPU admission still required before native dispatch."
+}

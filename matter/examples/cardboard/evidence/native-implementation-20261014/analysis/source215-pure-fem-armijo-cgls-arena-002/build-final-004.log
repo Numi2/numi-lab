@@ -1,0 +1,58 @@
+Building CXX object CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/tools/pure_fem_armijo_cgls_arena_plan_check.cpp.o
+Linking CXX executable numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Built target numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[  0%] Generating shaders/FEMPureCGLSArena8192Check.metallib
+[  0%] Built target numi_fem_cgls_arena_8192_check_shaders
+[  0%] Building OBJCXX object CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/tools/pure_fem_cgls_arena_8192_check.mm.o
+[100%] Linking OBJCXX executable numi-matter-fem-cgls-arena-8192-check
+[100%] Built target numi-matter-fem-cgls-arena-8192-check
+[  0%] Generating shaders/NumiMatter.metallib
+[ 14%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3290:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3299:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3290:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3280:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3736:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3753:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3736:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/src/metal/fgmres.metalinc:3616:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+[ 14%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 14%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+2 warnings generated.
+[ 28%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 42%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 42%] Built target numi_matter_shaders
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 57%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 71%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 71%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 71%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 85%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 85%] Built target numi_matter_compiler_objects
+[ 85%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 85%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[100%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[100%] Linking CXX static library libnumi_matter_compiler.a
+[100%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Linking CXX static library libnumi_matter_runtime.a
+[100%] Built target numi_matter_runtime

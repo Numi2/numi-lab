@@ -1,0 +1,85 @@
+{
+  "attempts": {
+    "corrected_cpu_admission": "pass on exact Haj-Ali liner and medium assets",
+    "cpu_admission_001": "failed before data read: nonexistent material path; retained in cpu-admission.stderr.log",
+    "cpu_admission_002": "failed material asset SHA: wrong asset names; retained in cpu-admission-002.stderr.log"
+  },
+  "build": {
+    "all_three_targets_built": true,
+    "artifacts": {
+      "numi-matter-cardboard-bilinear15-capture-diagnostic-check": {
+        "bytes": 835128,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "sha256": "412b901a568c5a5de176fb01668a9d5575be938af243e921cbed79b43e752e12"
+      },
+      "numi-matter-cardboard-bilinear15-projection-policy-check": {
+        "bytes": 907448,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-projection-policy-check",
+        "sha256": "b9a07f6beb4a34fea78d03e70edee86f95be38b602be209565f8b4e0a50046ee"
+      },
+      "numi-matter-cardboard-probe": {
+        "bytes": 3241320,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-probe",
+        "sha256": "eda39e412e58a60ce4f063ebec7b841571f76806a388c1c02339982c4895eb7b"
+      },
+      "shader:NumiMatter.metallib": {
+        "bytes": 7050955,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib",
+        "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+      },
+      "shader:NumiMatterPhysicalStateDigest.metallib": {
+        "bytes": 80076,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatterPhysicalStateDigest.metallib",
+        "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+      },
+      "shader:cardboard_bilinear15_capture_diagnostic.metallib": {
+        "bytes": 939118,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+        "sha256": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+      }
+    },
+    "cpu_admission": {
+      "input": {
+        "bytes": 1701351,
+        "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+        "sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e"
+      },
+      "physical_gpu_execution": false,
+      "rows_in_input": 1472,
+      "selected_rows_checked": 10,
+      "status": "pass",
+      "strict_iteration_budget": 32,
+      "strict_scaled_correction_tolerance": 2e-10
+    },
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003"
+  },
+  "contract_tests": {
+    "failed": 0,
+    "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "passed": 21
+  },
+  "limitations": [
+    "No Metal/native diagnostic was run; the prior native558 failure is retained.",
+    "The ten checked rows cover selected p22-p25 high/low endpoint relations against a full 1472-row source-bound input; this is checker admission, not a physical qualification."
+  ],
+  "retained558_failure": {
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-local-projection-critical23-558",
+    "failure": "FAIL source-bound bilinear15 capture diagnostic: source547 selected p23 endpoint row identity changed",
+    "receipt_sha256": "0e3a3dd2869ea69f786937c499fe09499e9b77771666031998cda4bc8d165ec9"
+  },
+  "schema": "numi.cardboard.source220-repaired-checker-report.v1",
+  "scope": "Only the diagnostic p23 endpoint identity check changes; no solver/material equations, policies, tolerances, or physical run.",
+  "source": {
+    "base_cpp_sha256": "7214678479c508aee77ef9c719895fb37c1386b0281d3f20a38f9c4cf65abdfd",
+    "changed_cpp_file": {
+      "bytes": 89692,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "sha256": "dd017475bcbc7df047d3a8ac66d9729c3ac0d85552532c23ba85e908c5750971"
+    },
+    "frozen_source_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+    "patch_sha256": "42a9cae0b6c94fe416b6c6ffc083c61fff203facde2f1689f7fb45d4619ad7ac",
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+    "source_file_count": 819
+  },
+  "verdict": "CHECKER_FIX_CPU_ADMITTED_AND_FRESH_BUILD_PASSED"
+}

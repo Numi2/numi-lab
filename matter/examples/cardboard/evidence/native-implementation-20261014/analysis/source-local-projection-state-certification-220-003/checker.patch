@@ -1,0 +1,67 @@
+--- a/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
++++ b/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
+@@ -937,6 +937,41 @@
+ }
+ 
+ 
++void verifySource547EndpointInput(const Record& center,const Record& endpoint,
++                                  const int epsilonPower,const int sign) {
++    constexpr std::size_t basis=2u;
++    need(epsilonPower>=0&&(sign==1||sign==-1),
++         "source547 endpoint power/sign is invalid");
++    const double epsilon=std::ldexp(1.0,-epsilonPower);
++    const double dt=static_cast<double>(center.input[45u]);
++    need(std::isfinite(dt)&&dt>0.0,
++         "source547 center dt is nonfinite or nonpositive");
++    const double targetF=static_cast<double>(center.input[basis])+
++        static_cast<double>(center.input[9u+basis])+
++        static_cast<double>(sign)*epsilon;
++    const float expectedHigh=static_cast<float>(targetF);
++    const double residualF=
++        (static_cast<double>(center.input[basis])-
++         static_cast<double>(expectedHigh))+
++        static_cast<double>(center.input[9u+basis])+
++        static_cast<double>(sign)*epsilon;
++    const float expectedLow=static_cast<float>(residualF);
++    const float expectedRate=static_cast<float>(
++        static_cast<double>(center.input[18u+basis])+
++        static_cast<double>(sign)*epsilon/dt);
++    auto bits=[](const float value) {
++        return std::bit_cast<std::uint32_t>(value);
++    };
++    need(bits(endpoint.input[basis])==bits(expectedHigh)&&
++         bits(endpoint.input[9u+basis])==bits(expectedLow)&&
++         bits(endpoint.input[18u+basis])==bits(expectedRate),
++         "source547 endpoint F-high/F-low/Fdot words do not match its declared basis, sign, and epsilon");
++    for(std::size_t i=0u;i<kInputStride;++i) {
++        if(i==basis||i==9u+basis||i==18u+basis) continue;
++        need(bits(endpoint.input[i])==bits(center.input[i]),
++             "source547 endpoint changed an undeclared packed input component");
++    }
++}
+ struct Bound547Input {
+     Capture selected;
+     std::string sourceCaptureSHA;
+@@ -1011,6 +1046,11 @@
+     }
+     need(out.selected.parameterRow.size()==56u,
+          "source547 parameter binding has wrong total length");
++    need(out.selected.rows.size()==expected.size(),
++         "source547 selected row count changed");
++    for(std::size_t i=2u;i<expected.size();++i)
++        verifySource547EndpointInput(out.selected.rows[0],out.selected.rows[i],
++                                     expected[i].power,expected[i].sign);
+     return out;
+ }
+ void runSource547StrictStateCertification(
+@@ -1076,7 +1116,9 @@
+     need(centerIt!=input.selected.rows.end(),"source547 tet222 center row missing");
+     need(endpointIt!=input.selected.rows.end()&&endpointIt->tet==222u&&
+          endpointIt->input[27u]==0.0f&&endpointIt->input[28u]==0.0f&&
+-         endpointIt->input[29u]==1.0f&&endpointIt->input[0u]!=centerIt->input[0u],
++         endpointIt->input[29u]==1.0f&&
++         endpointIt->input[2u]!=centerIt->input[2u]&&
++         endpointIt->input[20u]!=centerIt->input[20u],
+          "source547 selected p23 endpoint row identity changed");
+     const auto baselineCenterTrace=runTrace(
+         metal,baseline,"accurate32_center",*centerIt,outdir,inputSHA,true);

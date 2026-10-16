@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.native575-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/numi-matter-cardboard-cohesive-page-runtime-kernel-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/shaders/NumiMatter.metallib"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n"
+  },
+  "source_frozen_sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1",
+  "build_record_sha256": "49ab08292ba1238a47ba5862d4faa7d9684ff80dbf3d6f2bba0dc19232bba510",
+  "artifacts": {
+    "libnumi_matter_compiler.a": {
+      "bytes": 874056,
+      "sha256": "0cacb0603f025c43b660aa060a6462ef69a73b2c59e45509be25af6cd17828ea"
+    },
+    "libnumi_matter_runtime.a": {
+      "bytes": 1995992,
+      "sha256": "686b2ad8b01b718fa5aa25fa607be5587be4168102f17e2d1c7d83feec6074ef"
+    },
+    "numi-matter-cardboard-cohesive-page-runtime-kernel-check": {
+      "bytes": 73576,
+      "sha256": "f01f6c2c4dfd0c51d7289837c399e56dad46d8f00acb591b0b24341b1aa161bc"
+    },
+    "numi-matter-cardboard-shipping-contact-page-native-check": {
+      "bytes": 71800,
+      "sha256": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4"
+    },
+    "numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "bytes": 36792,
+      "sha256": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29"
+    },
+    "shaders/NumiMatter.metallib": {
+      "bytes": 7066078,
+      "sha256": "a9830969c35183b2ec9129a27a87c850cd429fe0c46c0fe8f7df3c6068750928"
+    },
+    "shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "physical_transactions": 0,
+  "prediction": "No pass assumed. Test actual production cohesive page accumulation/apply kernels only, not complete nonlinear residual/force/operator trajectory or shipping admission."
+}

@@ -4,6 +4,7 @@
 #include "numi/matter/shared.h"
 
 #include <cmath>
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -100,6 +101,94 @@ void resetStatuses(
 bool close(float a, float b, float tolerance = 1.0e-6f) {
     return std::isfinite(a) && std::isfinite(b) &&
         std::abs(a - b) <= tolerance;
+}
+
+void checkLargeNodeResidualMeasurement(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> measure, const std::uint32_t nodeCount) {
+    const std::size_t unknownCount = 2u * std::size_t(nodeCount);
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    dispatchData.objectCount = 1u;
+    dispatchData.femNodeCount = nodeCount;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = static_cast<std::uint32_t>(unknownCount);
+    NMMixedSolverGPU solver{};
+    solver.residualTolerances.x = 1.0e-8f;
+    solver.regularization.x = 1.0e-12f;
+    NMFGMRESStateGPU state{};
+    state.diagnostics = {0.0f, 1.0f, 0.0f, 0.0f};
+    state.nonlinear = {0.0f, 0.0f, 0.0f, 0.0f};
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    healthy.environment = 0u;
+    std::vector<nm_float4> rhs(unknownCount, nm_float4{0.0f,0.0f,0.0f,0.0f});
+    std::vector<nm_float4> action(unknownCount, nm_float4{0.0f,0.0f,0.0f,0.0f});
+    std::vector<nm_float4> expectedResidual(unknownCount, nm_float4{0.0f,0.0f,0.0f,0.0f});
+    double expectedNormSquared = 0.0;
+    float expectedMaximum = 0.0f;
+    std::uint32_t fixedMechanical = 0u, fixedField = 0u;
+    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+        const bool fixedMechanicalRow = node % 257u == 0u;
+        const bool fixedFieldRow = node % 263u == 0u;
+        fixedMechanical += fixedMechanicalRow ? 1u : 0u;
+        fixedField += fixedFieldRow ? 1u : 0u;
+        const nm_float4 mechanicalRHS{
+            0.001f + float(node % 11u) * 0.00001f,
+            -0.0003f - float(node % 5u) * 0.00001f,
+            0.0002f + float(node % 7u) * 0.00001f, 0.0f};
+        const nm_float4 fieldRHS{-0.0004f - float(node % 13u) * 0.00001f,0.0f,0.0f,0.0f};
+        const std::size_t mechanical=node, field=std::size_t(nodeCount)+node;
+        rhs[mechanical]=mechanicalRHS; rhs[field]=fieldRHS;
+        action[mechanical]=fixedMechanicalRow?mechanicalRHS:
+            nm_float4{0.25f*mechanicalRHS.x,0.25f*mechanicalRHS.y,0.25f*mechanicalRHS.z,0.0f};
+        action[field]=fixedFieldRow?fieldRHS:nm_float4{-0.5f*fieldRHS.x,0.0f,0.0f,0.0f};
+        expectedResidual[mechanical]={mechanicalRHS.x-action[mechanical].x,
+            mechanicalRHS.y-action[mechanical].y,mechanicalRHS.z-action[mechanical].z,0.0f};
+        expectedResidual[field]={fieldRHS.x-action[field].x,0.0f,0.0f,0.0f};
+        for(const auto& r:{expectedResidual[mechanical],expectedResidual[field]}){
+            expectedNormSquared+=double(r.x)*r.x+double(r.y)*r.y+double(r.z)*r.z+double(r.w)*r.w;
+            expectedMaximum=std::max(expectedMaximum,std::max(std::max(std::abs(r.x),std::abs(r.y)),std::max(std::abs(r.z),std::abs(r.w))));
+        }
+    }
+    require(fixedMechanical>0u&&fixedField>0u,"large-row fixture lacks constrained identity rows");
+    auto dispatchBuffer=makeBuffer(device,std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto layoutBuffer=makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout});
+    auto solverBuffer=makeBuffer(device,std::vector<NMMixedSolverGPU>{solver});
+    auto rhsBuffer=makeBuffer(device,rhs), actionBuffer=makeBuffer(device,action);
+    auto residualBuffer=makeBuffer(device,std::vector<nm_float4>(unknownCount,nm_float4{-9.0f,-9.0f,-9.0f,-9.0f}));
+    auto stateBuffer=makeBuffer(device,std::vector<NMFGMRESStateGPU>{state});
+    auto metricsBuffer=makeBuffer(device,std::vector<nm_float4>{nm_float4{-1.0f,-1.0f,-1.0f,-1.0f}});
+    auto diagnosticBuffer=makeBuffer(device,std::vector<NMMatterStatusGPU>{healthy});
+    auto productionBuffer=makeBuffer(device,std::vector<NMMatterStatusGPU>{healthy});
+    auto forcingBuffer=makeBuffer(device,std::vector<float>{1.0e-5f});
+    auto replaceBuffer=makeBuffer(device,std::vector<std::uint32_t>{1u});
+    auto propagateBuffer=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    dispatch(device,queue,measure,{{0u,dispatchBuffer},{30u,layoutBuffer},{1u,solverBuffer},
+        {2u,rhsBuffer},{3u,actionBuffer},{4u,residualBuffer},{5u,stateBuffer},
+        {6u,metricsBuffer},{7u,forcingBuffer},{8u,diagnosticBuffer},{9u,replaceBuffer},
+        {10u,productionBuffer},{11u,propagateBuffer}},1u,32u);
+    const auto actualResidual=readBuffer<nm_float4>(residualBuffer,unknownCount);
+    const auto actualMetrics=readBuffer<nm_float4>(metricsBuffer,1u)[0];
+    const auto actualState=readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
+    const auto diagnostic=readBuffer<NMMatterStatusGPU>(diagnosticBuffer,1u)[0];
+    const auto production=readBuffer<NMMatterStatusGPU>(productionBuffer,1u)[0];
+    const double expectedNorm=std::sqrt(expectedNormSquared);
+    const double normTolerance=std::max(1.0e-7,expectedNorm*3.0e-5);
+    require(diagnostic.code==NM_STATUS_SUCCESS&&production.code==NM_STATUS_SUCCESS,
+        "large-row residual measurement changed healthy status");
+    require(std::abs(double(actualMetrics.x)-expectedNorm)<=normTolerance,
+        "large-row full mechanical+field residual norm mismatch");
+    require(std::abs(actualMetrics.z-expectedMaximum)<=1.0e-7f,
+        "large-row residual maximum mismatch");
+    require(actualState.diagnostics.z==0.0f,
+        "large-row residual unexpectedly passed its intentionally tighter gate");
+    for(std::size_t row=0u;row<unknownCount;++row){
+        const auto&a=actualResidual[row];const auto&e=expectedResidual[row];
+        require(a.x==e.x&&a.y==e.y&&a.z==e.z&&a.w==e.w,
+            "large-row same-operator residual replacement mismatch");
+    }
 }
 
 } // namespace
@@ -424,6 +513,9 @@ int main() {
                     preserved[0].failingIndex == 4u,
                 "diagnostic status overwrote an existing production failure");
 
+            checkLargeNodeResidualMeasurement(device,queue,measure,4096u);
+            checkLargeNodeResidualMeasurement(device,queue,measure,8192u);
+            std::cout << "large_row_fixture=4096,8192 measurement_only=true full_FEM_operator_at_N8192=false\\n";
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

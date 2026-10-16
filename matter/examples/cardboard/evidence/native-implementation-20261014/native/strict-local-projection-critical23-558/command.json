@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.native558-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "--native-source547-strict-projection",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+    "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-local-projection-critical23-558/output"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/NumiMatter.metallib"
+  },
+  "source_frozen_sha256": "7c3793e3513d4eec1971256f43f8528867ebcf7ee1064ad598f51e4e8a9e43f4",
+  "build_validation_sha256": "80e9d5cb5606dc4b27cdeee09f6c02b9a8c73dd0b17a6443edccce110c6a9de0",
+  "artifact_bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-projection-policy-check": "e2f77417f6c583b9ed3160a97ffe5e98349ee2f1d736702139374d9160ddcadc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-capture-diagnostic-check": "d1f44619e445e19ee3c63d8d553f84f9ca2026b8cd7cdbb79f3c8399d75eb670",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-probe": "6d20ff651d49f5e5609144c29e72cab4db4bdd345425298fc65a261c696fd16c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/libnumi_matter_compiler.a": "793ea6169b2dffc6feab58a7534ef6396c1d5bf00cdaa0e7de2cd7d00632da00",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/libnumi_matter_runtime.a": "8d59fd29ff795c397d74d77f7f37c50164b73ca1ecbfcbd61feffc6f0d1b07fc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/NumiMatter.metallib": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+  },
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "all_inputs_verified": true,
+  "physical_transactions": 0,
+  "question": "Does the tighter local projection state certificate preserve validity and improve the captured critical material tangent endpoints?",
+  "prediction": "No result assumed; native rows require independent FP64 adjudication; no global coupon qualification."
+}

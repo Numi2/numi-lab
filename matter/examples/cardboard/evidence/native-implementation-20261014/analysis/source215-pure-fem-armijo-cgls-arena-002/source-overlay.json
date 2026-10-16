@@ -1,0 +1,192 @@
+{
+  "base": {
+    "ancestry_note": "Direct base is source213; this candidate does not descend from source210.",
+    "frozen_source_sha256": "70976d03d6b096d6d40cf44b853d7f2118b44f74aa4a23c72a0c6b5a0b5225fa",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-8192-213-001"
+  },
+  "build": {
+    "artifacts": {
+      "libnumi_matter_runtime.a": {
+        "bytes": 2008712,
+        "sha256": "cbf8192af530f6befc34f67b77277f1c61042cf7ea0fc033572915e684a3852f"
+      },
+      "numi-matter-fem-cgls-arena-8192-check": {
+        "bytes": 115880,
+        "sha256": "07a667518c2adcb45a8c4c432b66f0035803269f5f8e0ed8b867b63f967be790"
+      },
+      "numi-matter-pure-fem-armijo-cgls-arena-plan-check": {
+        "bytes": 37296,
+        "sha256": "8a351472f75f76d649be6a42e6c03d8480e710454300bb6b5a9a187ca9ce4107"
+      },
+      "shaders/FEMPureCGLSArena8192Check.metallib": {
+        "bytes": 1974025,
+        "sha256": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec"
+      },
+      "shaders/NumiMatter.metallib": {
+        "bytes": 7050491,
+        "sha256": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb"
+      }
+    },
+    "commands_file": "build-commands-final-004.json",
+    "directory": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-buildfix004",
+    "source_map_sha256": "9c94ee26141a1dec60bb133bc8588a8934013786e09ee2a60551f17610e08658"
+  },
+  "candidate": {
+    "frozen_source_sha256": "9c94ee26141a1dec60bb133bc8588a8934013786e09ee2a60551f17610e08658",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002",
+    "source_file_count": 825,
+    "source_map_entries_verified": true
+  },
+  "candidate_metadata_correction": {
+    "corrected_base_frozen_source_sha256": "70976d03d6b096d6d40cf44b853d7f2118b44f74aa4a23c72a0c6b5a0b5225fa",
+    "initial_attempt_file": "frozen-source-attempt001-stale-parent-hash.json",
+    "initial_attempt_sha256": "e93734a402f180a62dffdf71b2901e990c8cfba0430a3c8e4da8cd2e29c1f2af",
+    "initial_base_frozen_source_sha256": "5f7d27b1c56784559b444434c90e96668dd5e04caabf87688590420c7fc954fd"
+  },
+  "change": {
+    "accounted_resident_ceiling_bytes": 17179869184,
+    "accounting_limit": "allocator-reported resident bytes plus planned candidate private scratch; not measured whole-process peak",
+    "cgls_max_environments": 2,
+    "max_environments": 4,
+    "max_nodes": 8192,
+    "max_tetrahedra": 32768,
+    "new_environment_keys": [],
+    "purpose": "N8192 pure static explicit FEM residual-Armijo arena and optional base CGLS/right-scale scratch admission. Physical operator, material equations, tolerances, accepted-state update and solver iteration ceilings are unchanged.",
+    "scratch_cap_bytes": 16777216
+  },
+  "changed_source_files": [
+    {
+      "change": "modified",
+      "path": "matter/CMakeLists.txt",
+      "sha256": "2878fb9d7e6517867fbc9273f36e7f6e422751de5a27b19198c2a89657ebd5d3"
+    },
+    {
+      "change": "added",
+      "path": "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    {
+      "change": "modified",
+      "path": "matter/src/runtime.mm",
+      "sha256": "0f5bb2f871672d6f7f75c6bba34d10b95b8dd81374bd664b6fc3d9821a4bd55c"
+    },
+    {
+      "change": "added",
+      "path": "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    {
+      "change": "added",
+      "path": "matter/tools/pure_fem_cgls_arena_8192_check.metal",
+      "sha256": "35dc2270a53145c0105d7296b036195781ce5bd9dffdbadda5061e98f03a4e15"
+    },
+    {
+      "change": "added",
+      "path": "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "id": "initial_release_assert_check",
+      "log": "build-attempt001-assert-disabled.log",
+      "meaning": "CPU check used assert expressions removed by Release/NDEBUG; replaced with explicit throwing checks."
+    },
+    {
+      "id": "initial_native_helper_shader_output",
+      "log": "build-native-helper.log",
+      "meaning": "undefined NUMI_MATTER_SHADER_DIR in the early testing block; fixed to build-local shader directory."
+    },
+    {
+      "id": "corrected_map_build003_link",
+      "log": "build-corrected-map-003.log",
+      "meaning": "Find-library variables were declared later in CMake, so helper target linked without Foundation/Metal; preserved; current target declares its own find_library bindings."
+    }
+  ],
+  "overlay_id": "source-pure-fem-armijo-cgls-arena-215-002",
+  "patch_sha256": "6480e000df7eff564f650147d3011c41451c63e112a1705b9c6bd1d9ac6bc4ce",
+  "receipt_hashes": {
+    "build-attempt001-assert-disabled.log": {
+      "bytes": 1213,
+      "sha256": "30b00f2f724cf25e6cfe2420283c84f5b240c1babaa1c0bd330930d2eafe64f1"
+    },
+    "build-corrected-map-003.log": {
+      "bytes": 9912,
+      "sha256": "67b9f637fe35bb41551e6999c4102f61ee9d19aedd7f08d0e28948e7030dd896"
+    },
+    "build-final-004.log": {
+      "bytes": 4762,
+      "sha256": "ba527d5c449975575b84982101ff5a926abb36f64edd4f8090f0d94952829cef"
+    },
+    "build-native-helper-002.log": {
+      "bytes": 655,
+      "sha256": "f74ce47734ddf7015165b53bc038aca4e0d0632f9365cf0e6ba5351270791df0"
+    },
+    "build-native-helper.log": {
+      "bytes": 442,
+      "sha256": "aed989ef1f3362e62c0a9532bfeaa2a21d8a4a23c194ad970ab0eeea8dc4cbd6"
+    },
+    "configure-corrected-map-003.log": {
+      "bytes": 693,
+      "sha256": "7b0423fd459526e7f0cbc3337fae8bdd4dd60e0dd05ac2df7b44506481bd252e"
+    },
+    "configure-final-004.log": {
+      "bytes": 693,
+      "sha256": "e6a21a891f683645c6f5de5f86c3f91976ccbdf994956aa3251297754fdde3e1"
+    },
+    "configure-native-helper-002.log": {
+      "bytes": 194,
+      "sha256": "679e45c583209a3f3d7033ead49f6943d26df7abfcf9765549edfdce43cad968"
+    },
+    "cpu-planner-final-004.log": {
+      "bytes": 65,
+      "sha256": "564c1438c6a25a9f720376c759754d00c13a05e0ff8f6ee87febd4b936f0582a"
+    },
+    "cpu-planner-output.log": {
+      "bytes": 65,
+      "sha256": "564c1438c6a25a9f720376c759754d00c13a05e0ff8f6ee87febd4b936f0582a"
+    },
+    "ctest-final-004.log": {
+      "bytes": 600,
+      "sha256": "b97fe4e2d98c33613dc5de4635f30f31f8c7d2a4f85a8b2b23b5011b84a6ab5e"
+    },
+    "ctest-final.log": {
+      "bytes": 592,
+      "sha256": "5857055e14b8a99753c367a387fef8fb524a0b480c9f644a84dd55c15ff2ab91"
+    },
+    "native-helper-build-receipt.json": {
+      "bytes": 877,
+      "sha256": "0159c650527de01571d49a5d393a0394feeeb2b7f6d231c3fd759f849fa7b6d1"
+    }
+  },
+  "schema": "numi.matter.source_overlay_validation.v1",
+  "validation": {
+    "build_exit": 0,
+    "compiler_warnings": "Two inherited warnings in source fgmres.metalinc about potentially uninitialized sharedValid/refinementValid were emitted; no warning points to changed C++/Metal helper sources.",
+    "configure_exit": 0,
+    "cpu_ctest": {
+      "exit": 0,
+      "result": "PASS",
+      "test": "matter.analysis.pure_fem_armijo_cgls_arena_plan"
+    },
+    "cpu_planner_direct": {
+      "buffer_count": 25,
+      "planned_scratch_bytes": 12714240,
+      "result": "PASS",
+      "shape": {
+        "CGLS": true,
+        "E": 2,
+        "N": 8192,
+        "T": 32768,
+        "right_scale": true
+      }
+    },
+    "native_helper": "compiled only; no runtime execution and no GPU dispatch",
+    "source_map_entries_verified": true,
+    "targets": [
+      "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+      "numi-matter-fem-cgls-arena-8192-check",
+      "numi_matter_runtime"
+    ]
+  }
+}

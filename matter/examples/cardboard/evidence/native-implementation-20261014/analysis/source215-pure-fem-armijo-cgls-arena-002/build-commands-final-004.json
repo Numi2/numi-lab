@@ -1,0 +1,33 @@
+{
+  "build": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-buildfix004",
+    "--target",
+    "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "numi_matter_runtime",
+    "-j2"
+  ],
+  "configure": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-buildfix004",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DBUILD_TESTING=ON",
+    "-DNUMI_BRAIN_ROOT=/Users/n/cardboard-implementation-20261014-host-macmini/numi-brain"
+  ],
+  "ctest": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-buildfix004",
+    "--output-on-failure",
+    "-R",
+    "^matter.analysis.pure_fem_armijo_cgls_arena_plan$"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  }
+}

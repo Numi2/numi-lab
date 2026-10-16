@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "numi-matter-cardboard-bilinear15-capture-diagnostic-check": {
+      "bytes": 835128,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+      "sha256": "412b901a568c5a5de176fb01668a9d5575be938af243e921cbed79b43e752e12"
+    },
+    "numi-matter-cardboard-bilinear15-projection-policy-check": {
+      "bytes": 907448,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-projection-policy-check",
+      "sha256": "b9a07f6beb4a34fea78d03e70edee86f95be38b602be209565f8b4e0a50046ee"
+    },
+    "numi-matter-cardboard-probe": {
+      "bytes": 3241320,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-probe",
+      "sha256": "eda39e412e58a60ce4f063ebec7b841571f76806a388c1c02339982c4895eb7b"
+    },
+    "shader:NumiMatter.metallib": {
+      "bytes": 7050955,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib",
+      "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+    },
+    "shader:NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "shader:cardboard_bilinear15_capture_diagnostic.metallib": {
+      "bytes": 939118,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+      "sha256": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+    }
+  },
+  "materials": {
+    "liner": {
+      "bytes": 15887,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+      "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+    },
+    "medium": {
+      "bytes": 15906,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+      "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+    }
+  },
+  "schema": "numi.cardboard.source220-build-artifacts.v1"
+}

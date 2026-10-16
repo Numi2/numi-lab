@@ -1,0 +1,7 @@
+Built target numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[  0%] Generating /FEMPureCGLSArena8192Check.metallib
+Error creating directory "": Invalid argument
+make[3]: *** [/FEMPureCGLSArena8192Check.metallib] Error 1
+make[2]: *** [CMakeFiles/numi_fem_cgls_arena_8192_check_shaders.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/rule] Error 2
+make: *** [numi-matter-fem-cgls-arena-8192-check] Error 2

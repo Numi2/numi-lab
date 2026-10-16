@@ -1,0 +1,1 @@
+diagnostic replay may change only the five registered observer selectors and seven output paths

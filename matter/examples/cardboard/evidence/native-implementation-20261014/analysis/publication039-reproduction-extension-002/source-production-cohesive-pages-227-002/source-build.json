@@ -1,0 +1,70 @@
+{
+  "artifacts": {
+    "libnumi_matter_compiler.a": {
+      "bytes": 874056,
+      "sha256": "0cacb0603f025c43b660aa060a6462ef69a73b2c59e45509be25af6cd17828ea"
+    },
+    "libnumi_matter_runtime.a": {
+      "bytes": 1995992,
+      "sha256": "686b2ad8b01b718fa5aa25fa607be5587be4168102f17e2d1c7d83feec6074ef"
+    },
+    "numi-matter-cardboard-cohesive-page-runtime-kernel-check": {
+      "bytes": 73576,
+      "sha256": "f01f6c2c4dfd0c51d7289837c399e56dad46d8f00acb591b0b24341b1aa161bc"
+    },
+    "numi-matter-cardboard-shipping-contact-page-native-check": {
+      "bytes": 71800,
+      "sha256": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4"
+    },
+    "numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "bytes": 36792,
+      "sha256": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29"
+    },
+    "shaders/NumiMatter.metallib": {
+      "bytes": 7066078,
+      "sha256": "a9830969c35183b2ec9129a27a87c850cd429fe0c46c0fe8f7df3c6068750928"
+    },
+    "shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "build_command": "cmake --build /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002 --target numi_matter_runtime numi-matter-cardboard-shipping-contact-page-plan-check numi-matter-cardboard-shipping-contact-page-native-check numi-matter-cardboard-cohesive-page-runtime-kernel-check --parallel 4",
+  "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002",
+  "build_log": {
+    "exit_code": 0,
+    "path": "build.log",
+    "sha256": "a0d478eb942bbfeea15a2f179ea0a0b99faf5ec05e70abe5b215938185b23b8e"
+  },
+  "built_at_utc": "2026-10-16T12:14:49.858862+00:00",
+  "configure_command": "cmake -S /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-002/matter -B /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002 -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release",
+  "cpu_plan_check": {
+    "exit_code": 0,
+    "path": "cpu-plan-check.log",
+    "sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f",
+    "stdout": "shipping_contact_page_plan_checks=30 pairs=6335568 pair_pages=97 pair_last=44112 cohesive_faces=260835 cohesive_pages=3 cohesive_last=86073 contact_page_bytes=11010064 cohesive_pages_bytes=25232256 persistent_subset_bytes=1381065984 serialized_peak_bytes=1406298240 conservative_overlap_peak_bytes=1417308304 full_pair_history_bytes=405476352 whole_process_admission=false production_paging_enabled=false physical_transactions=0"
+  },
+  "environment": {
+    "architecture": "arm64",
+    "configuration": "Release",
+    "gpu_dispatch": false,
+    "host": "macmini",
+    "path": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "frozen_source_sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1",
+  "generator": "Unix Makefiles",
+  "prior_native_failure": {
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/production-cohesive-page-kernels-574",
+    "exit_code": 1,
+    "preserved": true,
+    "stderr_sha256": "0c490d326701ea72ab0124398dd68ee24e423dab218782c58a2360ad493d8ffb"
+  },
+  "schema": "numi.cardboard.source-build.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-002",
+  "targets": [
+    "numi_matter_runtime",
+    "numi-matter-cardboard-shipping-contact-page-plan-check",
+    "numi-matter-cardboard-shipping-contact-page-native-check",
+    "numi-matter-cardboard-cohesive-page-runtime-kernel-check"
+  ]
+}

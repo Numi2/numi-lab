@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "--target",
+    "numi-matter-cardboard-free-box-proxy-admission-check",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check"
+  ],
+  "upstream": [
+    {
+      "path": "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+      "sha256": "1a4dad038fff26465690a1bb304e1e70d18746fc746e3681105537b133046a44"
+    },
+    {
+      "path": "tools/test_intercostal_rib_motion_attachment.mm",
+      "sha256": "23e723469c2507db30852e4f3691de7141f4822fb1dd4970f6ed34f87135073b"
+    }
+  ],
+  "gpu_execution": false
+}

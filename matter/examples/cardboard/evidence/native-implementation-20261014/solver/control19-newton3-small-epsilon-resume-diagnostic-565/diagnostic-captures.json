@@ -1,0 +1,18 @@
+{
+  "aggregate_cap_bytes": 134217728,
+  "environment_contract_sha256": "492e03d0dc4f281df3d90b4724e1af73afc446bca8812c466eb114d55749a618",
+  "file_count": 1,
+  "files": [
+    {
+      "bytes": 39198987,
+      "key": "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "path": "diagnostics/capture-operator-fd-capture/capture",
+      "sha256": "49f4d50893faeefe1d6b4ee3d781fee939c47af920ea7a7881d6a62b408d8f4f"
+    }
+  ],
+  "pending_captures": [],
+  "per_file_cap_bytes": 67108864,
+  "schema": "numi.cardboard.diagnostic-capture-files.v1",
+  "status": "validated",
+  "total_bytes": 39198987
+}

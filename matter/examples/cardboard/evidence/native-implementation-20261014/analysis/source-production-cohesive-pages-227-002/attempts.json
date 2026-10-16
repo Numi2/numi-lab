@@ -1,0 +1,11 @@
+{
+  "attempts": [
+    {
+      "attempt": "verify_bundle_initial",
+      "corrective_action": "Fixed verifier key and reran bundle check.",
+      "reason": "Verifier assertion used key build.log instead of build_log in source-build.json; no source, build artifact, or test input changed.",
+      "result": "FAIL"
+    }
+  ],
+  "schema": "numi.cardboard.source227-attempts.v1"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.reference039-publication-binding.v1",
+  "parent": "938e30343dd1cc313e222c8d2e8c11f5d486754d",
+  "source234": {
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001",
+    "frozen_source_sha256": "f1acaea6d4838d3036f8f29d7217f935d7fa560eaecb16ec9fcb157a082ce896",
+    "source_files": 832,
+    "source_build_sha256": "b14a6d1591ed94fb43722fc7c5b8f3e12800978418a8076cd463d7e2149960c2",
+    "changed_sources": [
+      "matter/CMakeLists.txt",
+      "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp",
+      "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+      "matter/include/numi/matter/detail/true_residual_arena_plan.hpp",
+      "matter/src/runtime.mm",
+      "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "matter/tools/cardboard_coupon_resume.hpp",
+      "matter/tools/cardboard_coupon_resume_check.cpp",
+      "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp",
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/fgmres_true_residual_native_check.mm",
+      "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+      "matter/tools/pure_fem_cgls_arena_8192_check.metal",
+      "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+      "matter/tools/test_true_residual_certification_contract.py",
+      "matter/tools/true_residual_arena_plan_check.cpp"
+    ],
+    "runtime_admission_and_workspace_changed": true,
+    "physical_operator_equations_changed": false,
+    "upstream_human_files_preserved": true
+  },
+  "historical_records_preserved": 2002,
+  "new_records": 60,
+  "summary_sha256": "d5ccc0230d846d70ac889ac82f9bbc1435b47967355286fdcd7ef7be816cfac5",
+  "case_selection_sha256": "9e6af206e518e9dcd295850e949fcbd4cff2e22b407d1a8a48892449725efe0b",
+  "all_six_full_sequence_axes_open": true,
+  "complete_tiny_regression_reports": {
+    "source230": "387cb41eee92f3ef529e72c3db6f43b29505e287f87d5d8edd17ac81fca10dc5",
+    "source231": "aced7f90a46ba73e84e71303271d4fb6a5122d28dc0baa2f48300041862b7872"
+  },
+  "diagnostic_suffix_parity_reports": {
+    "native555": "9e6d9f202daa7e7bea76cde01d2f8c40693d09750a1831b78f7eb090e940f417",
+    "native565": "393b79379353e07b423f1a2f36840cf8565ce4f7610f4a5f594c960d13e15528"
+  },
+  "strict_local_candidate_only_report": "c17b4bee59a8c063a7e7ed49d8d6a39ff720861ae2b68247ab7724a013af833b"
+}

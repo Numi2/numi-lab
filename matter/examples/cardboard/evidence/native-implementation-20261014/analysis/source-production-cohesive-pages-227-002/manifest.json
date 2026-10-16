@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "bytes": 1173,
+      "path": "README.md",
+      "sha256": "1ce7fe256a8b545212e37e2a902602e36c33f7b17e6aaf86b743ef3ed2f73ebd"
+    },
+    {
+      "bytes": 376,
+      "path": "attempts.json",
+      "sha256": "f098861fdf25524310d1ab319a26e1f3b266d37bfb906c1fc6061d082e3ba75e"
+    },
+    {
+      "bytes": 440,
+      "path": "build.log",
+      "sha256": "a0d478eb942bbfeea15a2f179ea0a0b99faf5ec05e70abe5b215938185b23b8e"
+    },
+    {
+      "bytes": 429,
+      "path": "cpu-plan-check.log",
+      "sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f"
+    },
+    {
+      "bytes": 21452,
+      "path": "overlay.patch",
+      "sha256": "8a2477e807ba4ab5c59e58b9c840637b0b35806f9370b8f8507f2845094e1641"
+    },
+    {
+      "bytes": 77,
+      "path": "patch-dry-run.log",
+      "sha256": "e2906ef034fe9e6d041fc7c0c19fd94679247aac1693acb30c5db8ca159adf4b"
+    },
+    {
+      "bytes": 3769,
+      "path": "source-build.json",
+      "sha256": "49ab08292ba1238a47ba5862d4faa7d9684ff80dbf3d6f2bba0dc19232bba510"
+    },
+    {
+      "bytes": 2632,
+      "path": "source-overlay.json",
+      "sha256": "a288b3d6bf992564baab9b20a25242bba05033fe154edcb17e7cefb9e7f54739"
+    },
+    {
+      "bytes": 1338,
+      "path": "verification.json",
+      "sha256": "629b4e32483968b4a2b27b261421dba746fa8edc9f8095cebe23cdaae2f452e7"
+    },
+    {
+      "bytes": 2334,
+      "path": "verify_bundle.py",
+      "sha256": "1a069297a194be8322070c56e88926ace15021f0ba0b918a305915093f8b42b8"
+    }
+  ],
+  "package_id": "source-production-cohesive-pages-227-002",
+  "schema": "numi.cardboard.source-package-manifest.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-002",
+  "snapshot_frozen_source_sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1"
+}

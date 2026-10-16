@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.native563-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "--native-source547-strict-projection",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+    "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/strict-local-projection-critical23-fixed-563/output"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+  "source_frozen_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+  "build_artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check": "412b901a568c5a5de176fb01668a9d5575be938af243e921cbed79b43e752e12",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-projection-policy-check": "b9a07f6beb4a34fea78d03e70edee86f95be38b602be209565f8b4e0a50046ee",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-probe": "eda39e412e58a60ce4f063ebec7b841571f76806a388c1c02339982c4895eb7b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/cardboard_bilinear15_capture_diagnostic.metallib": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+  },
+  "package_manifest_sha256": "9433667e5bc44cda47e5dd07140525c14c2e27a431896fea6e8d596423ee9e51",
+  "input_sha256": "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+  "physical_transactions": 0,
+  "question": "Retest strict local projected-state certification after repairing only the endpoint identity checker that rejected native558.",
+  "prediction": "Native rows require independent FP64 adjudication; no global coupon qualification. Native558 checker failure retained."
+}

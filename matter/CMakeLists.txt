@@ -150,6 +150,69 @@ if(BUILD_TESTING)
                 "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_true_residual_certification_contract.py")
         set_tests_properties(matter.analysis.fgmres_true_residual_contract
             PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;true-residual;cpu;contract")
+        add_executable(numi-matter-true-residual-arena-plan-check
+            tools/true_residual_arena_plan_check.cpp)
+        target_include_directories(numi-matter-true-residual-arena-plan-check PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        target_compile_options(numi-matter-true-residual-arena-plan-check PRIVATE
+            -Wall -Wextra -Wpedantic -Werror)
+        add_test(NAME matter.analysis.true_residual_arena_plan
+            COMMAND numi-matter-true-residual-arena-plan-check)
+        set_tests_properties(matter.analysis.true_residual_arena_plan
+            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;true-residual;cpu;admission")
+        add_executable(numi-matter-pure-fem-armijo-cgls-arena-plan-check
+            tools/pure_fem_armijo_cgls_arena_plan_check.cpp)
+        target_include_directories(numi-matter-pure-fem-armijo-cgls-arena-plan-check PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        target_compile_options(numi-matter-pure-fem-armijo-cgls-arena-plan-check PRIVATE
+            -Wall -Wextra -Wpedantic -Werror)
+        add_test(NAME matter.analysis.pure_fem_armijo_cgls_arena_plan
+            COMMAND numi-matter-pure-fem-armijo-cgls-arena-plan-check)
+        set_tests_properties(matter.analysis.pure_fem_armijo_cgls_arena_plan
+            PROPERTIES TIMEOUT 30 LABELS "matter;fgmres;armijo;cgls;cpu;admission")
+        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.air")
+        set(NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}/FEMPureCGLSArena8192Check.metallib")
+        add_custom_command(
+            OUTPUT "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}"
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_FEM_CGLS_ARENA_8192_CHECK_DIR}"
+            COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+                -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+                -I "${CMAKE_CURRENT_SOURCE_DIR}/src"
+                -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+                -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/pure_fem_cgls_arena_8192_check.metal"
+                -o "${NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR}"
+            COMMAND xcrun -sdk macosx metallib "${NUMI_FEM_CGLS_ARENA_8192_CHECK_AIR}"
+                -o "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}"
+            DEPENDS tools/pure_fem_cgls_arena_8192_check.metal
+                src/metal/common.metalinc src/metal/fem.metalinc
+                src/metal/base_cgls.metalinc src/metal/base_cgls_runtime.metalinc
+                src/metal/fgmres.metalinc include/numi/matter/shared.h
+            VERBATIM)
+        add_custom_target(numi_fem_cgls_arena_8192_check_shaders
+            DEPENDS "${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
+        add_executable(numi-matter-fem-cgls-arena-8192-check
+            tools/pure_fem_cgls_arena_8192_check.mm)
+        add_dependencies(numi-matter-fem-cgls-arena-8192-check
+            numi_fem_cgls_arena_8192_check_shaders)
+        target_include_directories(numi-matter-fem-cgls-arena-8192-check PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        find_library(NUMI_FEM_CGLS_CHECK_FOUNDATION Foundation REQUIRED)
+        find_library(NUMI_FEM_CGLS_CHECK_METAL Metal REQUIRED)
+        target_link_libraries(numi-matter-fem-cgls-arena-8192-check PRIVATE
+            "${NUMI_FEM_CGLS_CHECK_FOUNDATION}" "${NUMI_FEM_CGLS_CHECK_METAL}")
+        target_compile_definitions(numi-matter-fem-cgls-arena-8192-check PRIVATE
+            NUMI_FEM_CGLS_ARENA_METALLIB="${NUMI_FEM_CGLS_ARENA_8192_CHECK_METALLIB}")
+        target_compile_options(numi-matter-fem-cgls-arena-8192-check PRIVATE
+            -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+        if(BUILD_TESTING)
+            add_test(NAME matter.metal.fem_cgls_arena_8192_native_check
+                COMMAND numi-matter-fem-cgls-arena-8192-check)
+            set_tests_properties(matter.metal.fem_cgls_arena_8192_native_check
+                PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
+                    LABELS "matter;fgmres;cgls;metal;synthetic;arena")
+        endif()
         add_test(NAME matter.analysis.cardboard_source_data
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
         add_test(NAME matter.analysis.cardboard_pin_source_observables
@@ -891,6 +954,18 @@ if(APPLE)
             COMMAND numi-matter-cardboard-coupled-free-box-operator-check)
         set_tests_properties(matter.metal.cardboard_coupled_free_box_operator PROPERTIES
             TIMEOUT 180 LABELS "matter;cardboard;contact;native-kernel;synthetic")
+    endif()
+    add_executable(numi-matter-cardboard-free-box-proxy-admission-check
+        tools/cardboard_free_box_true_residual_proxy_admission_check.cpp)
+    target_include_directories(numi-matter-cardboard-free-box-proxy-admission-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numi-matter-cardboard-free-box-proxy-admission-check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_free_box_proxy_admission
+            COMMAND numi-matter-cardboard-free-box-proxy-admission-check)
+        set_tests_properties(matter.compiler.cardboard_free_box_proxy_admission PROPERTIES
+            LABELS "matter;cardboard;contact;admission;cpu")
     endif()
     add_executable(numi-matter-cardboard-contact-node-incidence-sort-native-check
         tools/cardboard_contact_node_incidence_sort_native_check.mm)

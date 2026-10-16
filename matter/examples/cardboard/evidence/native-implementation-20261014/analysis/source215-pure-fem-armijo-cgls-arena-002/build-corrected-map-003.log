@@ -1,0 +1,176 @@
+Building CXX object CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/tools/pure_fem_armijo_cgls_arena_plan_check.cpp.o
+Linking CXX executable numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Built target numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[  0%] Generating shaders/FEMPureCGLSArena8192Check.metallib
+[  0%] Built target numi_fem_cgls_arena_8192_check_shaders
+[  0%] Building OBJCXX object CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/tools/pure_fem_cgls_arena_8192_check.mm.o
+[100%] Linking OBJCXX executable numi-matter-fem-cgls-arena-8192-check
+Undefined symbols for architecture arm64:
+  "_MTLCreateSystemDefaultDevice", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+  "_OBJC_CLASS_$_NSString", referenced from:
+       in pure_fem_cgls_arena_8192_check.mm.o
+  "_OBJC_CLASS_$_NSURL", referenced from:
+       in pure_fem_cgls_arena_8192_check.mm.o
+  "___CFConstantStringClassReference", referenced from:
+       in pure_fem_cgls_arena_8192_check.mm.o
+  "_objc_autoreleasePoolPop", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+  "_objc_autoreleasePoolPush", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+  "_objc_autoreleaseReturnValue", referenced from:
+      main::$_13::operator()(char const*) const in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::pipe(id<MTLDevice>, id<MTLLibrary>, char const*) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::hostbuf(id<MTLDevice>, void const*, unsigned long, char const*) in pure_fem_cgls_arena_8192_check.mm.o
+  "_objc_msgSend", referenced from:
+       in objc-stubs-file
+  "_objc_release", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      ...
+  "_objc_retain", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      main::$_13::operator()(char const*) const in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::pipe(id<MTLDevice>, id<MTLLibrary>, char const*) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::pipe(id<MTLDevice>, id<MTLLibrary>, char const*) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::pipe(id<MTLDevice>, id<MTLLibrary>, char const*) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::threads(id<MTLCommandQueue>, id<MTLComputePipelineState>, unsigned int, std::__1::function<void (id<MTLComputeCommandEncoder>)> const&) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::threads(id<MTLCommandQueue>, id<MTLComputePipelineState>, unsigned int, std::__1::function<void (id<MTLComputeCommandEncoder>)> const&) in pure_fem_cgls_arena_8192_check.mm.o
+      (anonymous namespace)::threads(id<MTLCommandQueue>, id<MTLComputePipelineState>, unsigned int, std::__1::function<void (id<MTLComputeCommandEncoder>)> const&) in pure_fem_cgls_arena_8192_check.mm.o
+      ...
+  "_objc_retainAutorelease", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      ...
+  "_objc_retainAutoreleasedReturnValue", referenced from:
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      _main in pure_fem_cgls_arena_8192_check.mm.o
+      ...
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [numi-matter-fem-cgls-arena-8192-check] Error 1
+make[2]: *** [CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/rule] Error 2
+make: *** [numi-matter-fem-cgls-arena-8192-check] Error 2

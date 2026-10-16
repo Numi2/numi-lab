@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.native-component-command.v2",
+  "case": "shipping-page-ordinal-coverage-562",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-native-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n"
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-pages-225-002",
+  "source_frozen_sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26",
+  "source_build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/source-build.json",
+  "source_build_sha256": "1d9405960e92a0afaf257c9430f74e704902463eba8351efecf05875a3954fed",
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-native-check": "07e0d855ed470ad0e294dd122f36e2c0aecc6a0d5b802b7db4e90f04495534ea",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-plan-check": "8ccfef20f9388387a7dcf5177c902a098a187d05350dcf095a1c861f8887af38"
+  },
+  "all_inputs_verified": true,
+  "workers": [],
+  "physical_transactions": 0,
+  "prediction": "No pass assumed; manufactured operator or kernel contract only; no full nonlinear trajectory or shipping qualification."
+}

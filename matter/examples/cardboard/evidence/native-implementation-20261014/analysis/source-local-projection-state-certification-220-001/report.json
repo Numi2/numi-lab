@@ -1,0 +1,38 @@
+{
+  "build_validation_sha256": "80e9d5cb5606dc4b27cdeee09f6c02b9a8c73dd0b17a6443edccce110c6a9de0",
+  "changed_source_count": 8,
+  "clean_build_exit": 0,
+  "cpu_commands": [
+    {
+      "exit_code": 0,
+      "name": "projection_policy",
+      "stdout_sha256": "e73eb21a679aaaeaa6de3d31418dd45ea0bd093f594775912e20b74bd7993459"
+    },
+    {
+      "exit_code": 0,
+      "name": "source547_cpu_admission",
+      "stdout_sha256": "569c2b560bc9b6b822eba2aba79aa5b7fb8c1e84299b94b76a3ec0b163e8e2f0"
+    }
+  ],
+  "cpu_validation_sha256": "ae940bbcbffd84c0662f8fb9c92adb6d2734325dcc51a0e8ae4d068b4da9830f",
+  "interpretation": "Only the local projection correction certificate is tightened from 2e-8 to 2e-10 under an explicit default-off policy. Residual threshold, iteration count, material equations, physical operator, and outer criteria remain unchanged. Native material accuracy and physical qualification remain untested.",
+  "native_command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "--native-source547-strict-projection",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+    "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "<fresh-output-directory>"
+  ],
+  "native_dispatch_performed": false,
+  "patch_dry_run_exit_code": 0,
+  "patch_dry_run_log_sha256": "59247b0b311f67cc22c2dced03390ac747149d2b86828b3979f0e425dae93850",
+  "physical_transactions": 0,
+  "schema": "numi.cardboard.source220-report.v1",
+  "snapshot_frozen_source_json_sha256": "7c3793e3513d4eec1971256f43f8528867ebcf7ee1064ad598f51e4e8a9e43f4",
+  "source_overlay_manifest_sha256": "ca43e78bcb2f4f66c6766c50f26be2117626de13531ab78db8f6e798dc12103c",
+  "source_patch_sha256": "ab10937930d10aa32b42bc9bcd3063786a44141a182532707fbaad6f985f0606",
+  "verdict": "CPU_BUILD_AND_ADMISSION_PASS_NATIVE_PENDING",
+  "verified_source_map_entries": 819
+}

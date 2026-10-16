@@ -1,0 +1,25 @@
+{
+  "files": {
+    "cpu-ctest.log": {
+      "bytes": 543,
+      "sha256": "b9e2a20d4a2de594e2f9a87a7129ffc8470dbc6f640ca33076166d2a413e96e1"
+    },
+    "lineage.json": {
+      "bytes": 973,
+      "sha256": "d53c324caaf3295d7f53181a28e98ece220db60e79102f728524d117e3c5be7f"
+    },
+    "report.json": {
+      "bytes": 6759,
+      "sha256": "76428440faf11e1e451df0e136f6fce6ffc870865da500aa38562115c0829767"
+    },
+    "source216.patch": {
+      "bytes": 1227,
+      "sha256": "c07107e8c8c973fa15a28d3a18ba0cbd7c711b19f47977d112e41a14bd266943"
+    }
+  },
+  "report": {
+    "path": "report.json",
+    "sha256": "76428440faf11e1e451df0e136f6fce6ffc870865da500aa38562115c0829767"
+  },
+  "schema": "numi.cardboard.source216-prescribed-proxy-row-mass-fix-seal.v1"
+}

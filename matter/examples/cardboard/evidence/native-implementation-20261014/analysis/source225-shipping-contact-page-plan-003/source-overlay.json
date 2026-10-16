@@ -1,0 +1,30 @@
+{
+  "base_frozen_source_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "build_record_sha256": "1d9405960e92a0afaf257c9430f74e704902463eba8351efecf05875a3954fed",
+  "candidate_frozen_source_sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-pages-225-002",
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "base_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "sha256": "f5210c46118d0eac79dff11c006be885ba5b6f6692e66c06e662cce0695ad78a"
+    },
+    "matter/include/numi/matter/detail/shipping_contact_page_plan.hpp": {
+      "base_sha256": null,
+      "sha256": "33d725d566c3c22359c08e5c9d2d0887ec3c8e350e303133e4b71e1bdedfcf5c"
+    },
+    "matter/tools/cardboard_shipping_contact_page_native_check.mm": {
+      "base_sha256": null,
+      "sha256": "656ebc6da01bc63184bc1c6671bd718933f82517946fa81557660552592f972b"
+    },
+    "matter/tools/cardboard_shipping_contact_page_plan_check.cpp": {
+      "base_sha256": null,
+      "sha256": "2295c8567084e6906f0184eaf271ea7716ef5fd65708e2606e9a515222a025b1"
+    }
+  },
+  "contact_pair_capacity_or_node_tet_admission_changed": false,
+  "native_checker_dispatch": "compiled only; root-owned dispatch pending",
+  "overlay_id": "source-shipping-contact-pages-225-002",
+  "production_runtime_changed": false,
+  "schema": "numi.cardboard.source_overlay.v1"
+}

@@ -1,0 +1,67 @@
+{
+  "inputs": {
+    "build_provenance": {
+      "bytes": 100645,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/source-build.json",
+      "sha256": "5eff6f77c79bcb88ba55519bb2f3128667768b124b50782c6f84333f4b613727"
+    },
+    "native_command": {
+      "bytes": 2100,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-fixed-559/command.json",
+      "sha256": "4e8c8a85e1c339a93bd52853ddccfad2c46e1d96875c0abd060fa5318ba09dbd"
+    },
+    "native_receipt": {
+      "bytes": 529,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-fixed-559/receipt.json",
+      "sha256": "0d3940355807abeee2299c48132c5d208103a43c862c86cf61d5a0245fd5d969"
+    },
+    "native_stderr": {
+      "bytes": 0,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-fixed-559/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_stdout": {
+      "bytes": 2885,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-fixed-559/stdout.log",
+      "sha256": "48277367327b388db41e81c93cb3e6c51a86b7f2f5f4be2a46805b9b4b4e3758"
+    },
+    "prior_source_and_cpu_seal": {
+      "bytes": 758,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-007/manifest.json",
+      "sha256": "098dd4fefa522105079dab5c8e094b1884de800c1b4ebaefd687df29db67f944"
+    },
+    "source_snapshot_manifest": {
+      "bytes": 108546,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006/frozen-source.json",
+      "sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e"
+    }
+  },
+  "lineage": {
+    "candidate_frozen_source_sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e",
+    "candidate_snapshot": "source216-integrated-configure-support-006",
+    "only_changed_source": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+    "patch_sha256": "c07107e8c8c973fa15a28d3a18ba0cbd7c711b19f47977d112e41a14bd266943",
+    "pre-run_cpu_seal_manifest_sha256": "098dd4fefa522105079dab5c8e094b1884de800c1b4ebaefd687df29db67f944",
+    "selected_source_count": 821
+  },
+  "native": {
+    "all_inputs_unchanged": true,
+    "case": "prescribed-box-capsule-freebox-operator-fixed-559",
+    "exit_code": 0,
+    "full_solver_or_shipping_qualification": false,
+    "output_contains_all_three_proxy_mappings": false,
+    "physical_transactions": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "48277367327b388db41e81c93cb3e6c51a86b7f2f5f4be2a46805b9b4b4e3758",
+    "timed_out": false,
+    "wall_seconds": 0.555970084
+  },
+  "result": "The corrected source216-006 checker passed the prescribed BOX/capsule/free-BOX manufactured operator cases. The correction is checker-only: expected free FEM rows now include the production nodal mass action in addition to the mapped contact response.",
+  "schema": "numi.cardboard.source216-prescribed-proxy-row-mass-fix-native-adjudication.v1",
+  "scope": [
+    "This is a manufactured component-level operator check, not an accepted physical transaction or full-contact/solver/shipping qualification.",
+    "The original native556 failure remains preserved; 559 is the corrected-checker retest.",
+    "No production kernel, contact map, tolerance, constitutive law, or physical input changed."
+  ],
+  "verdict": "CORRECTED_NATIVE_COMPONENT_PASS"
+}

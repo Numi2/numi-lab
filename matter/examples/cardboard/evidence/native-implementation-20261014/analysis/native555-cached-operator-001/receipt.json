@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.native555-operator-cpu-receipt.v1",
+  "exit_code": 0,
+  "timed_out": false,
+  "error": null,
+  "wall_seconds": 1.289741875,
+  "native_transactions": 0,
+  "qualification": false,
+  "utc": "2026-10-16T11:36:59.981796+00:00"
+}

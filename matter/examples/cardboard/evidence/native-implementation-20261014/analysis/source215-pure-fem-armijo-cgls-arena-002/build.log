@@ -1,0 +1,10 @@
+[  0%] Building CXX object CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/tools/pure_fem_armijo_cgls_arena_plan_check.cpp.o
+[100%] Linking CXX executable numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[100%] Built target numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[ 14%] Built target numi_matter_shaders
+[ 71%] Built target numi_matter_compiler_objects
+[ 85%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 85%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime_objects
+[100%] Linking CXX static library libnumi_matter_runtime.a
+[100%] Built target numi_matter_runtime

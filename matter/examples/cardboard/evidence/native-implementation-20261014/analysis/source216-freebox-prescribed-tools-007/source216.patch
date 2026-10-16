@@ -1,0 +1,22 @@
+--- a/matter/tools/cardboard_coupled_free_box_operator_check.mm
++++ b/matter/tools/cardboard_coupled_free_box_operator_check.mm
+@@ -1175,6 +1175,19 @@
+             k * nodeDirections[node][0],
+             k * nodeDirections[node][1],
+             k * nodeDirections[node][2]};
++        // The production gather includes the existing nodal mass action
++        // M*d before adding this prescribed/free contact block. This fixture
++        // deliberately binds a zero FEM element operator, but it still uses
++        // the compiled positive nodal masses.
++        const NMFEMNodeStateGPU& mappedNode =
++            fixture.world.fem.nodes.at(node);
++        need(mappedNode.restAndFixed.w == 0.0f &&
++                 std::isfinite(mappedNode.positionAndMass.w) &&
++                 mappedNode.positionAndMass.w > 0.0f,
++             "prescribed-proxy fixture requires positive-mass free FEM rows");
++        for (uint component = 0u; component < 3u; ++component)
++            expected[component] += mappedNode.positionAndMass.w *
++                nodeDirections[node][component];
+         if (node == 0u) {
+             expected[0] -= k * direction[rigidBase].x;
+             expected[1] -= k * direction[rigidBase + 1u].x;

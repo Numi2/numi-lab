@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.source220-checker-syntax-command.v1",
+  "host": "macmini",
+  "argv": [
+    "/usr/bin/clang++",
+    "-x",
+    "objective-c++",
+    "-std=c++23",
+    "-fsyntax-only",
+    "-arch",
+    "arm64",
+    "-isysroot",
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+    "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-001/matter/include",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-DNUMI_CARDBOARD_BASE_SNAPSHOT_SHA256=769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+    "-DNUMI_CARDBOARD_PAPER_METALLIB=/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-local-projection-cert-001/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-local-projection-state-certification-220-003/cardboard_bilinear15_capture_diagnostic_check.mm"
+  ],
+  "exit_code": 0,
+  "native_dispatch": false
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "numi.cardboard.source220-repaired-checker-build.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+  "frozen_source_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+  "source_map_files": 819,
+  "all_source_map_hashes_verified": true,
+  "commands": [
+    {
+      "name": "configure",
+      "argv": [
+        "/opt/homebrew/bin/cmake",
+        "-S",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003",
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "995e4a571c7c6c6bbf3aac000aa4ab35e91adcfd0a7dde8e296d067499169966",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "build",
+      "argv": [
+        "/opt/homebrew/bin/cmake",
+        "--build",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003",
+        "-j2",
+        "--target",
+        "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "numi-matter-cardboard-bilinear15-projection-policy-check",
+        "numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3dc9881e471b9dc9749e594c444af321fd775dc88215cc7b514c275e97a04688",
+      "stderr_sha256": "768dabdb9bcb12d69a2f41f1e8ffd8e4316e7fe5be1b1c05d7e2f751d710b763"
+    },
+    {
+      "name": "cpu_source547_strict_projection_admission",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "--cpu-source547-strict-projection",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+        "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/materials/nagasawa2013_bilinear15_liner.nmatter",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/materials/nagasawa2013_bilinear15_medium.nmatter"
+      ],
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2451d6729d8df3f30508ae0539929f2719b1b3dc52785c04e1d89fbbf51dd3f5"
+    },
+    {
+      "name": "cpu_source547_strict_projection_admission_correct_material_paths",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "--cpu-source547-strict-projection",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+        "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/nagasawa2013_liner_orthotropic.nmatter",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+      ],
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "dd27e72bde59c9e0ea9ee0e9b62bf3fa788061b513925cab6e95256238bc5957"
+    },
+    {
+      "name": "cpu_source547_strict_projection_admission_correct_source_materials",
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "--cpu-source547-strict-projection",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+        "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "569c2b560bc9b6b822eba2aba79aa5b7fb8c1e84299b94b76a3ec0b163e8e2f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "corrected_cpu_admission_exit_code": 0,
+  "cpu_admission_failure_001_retained": true
+}

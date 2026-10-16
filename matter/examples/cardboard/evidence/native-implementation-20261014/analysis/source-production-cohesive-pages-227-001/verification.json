@@ -1,0 +1,21 @@
+{
+  "artifact_check": "PASS: seven compiled artifacts match source-build.json",
+  "build_exit_code": 0,
+  "build_log_sha256": "8a4181f18e2df8c69830db2cb38a8b1ae6f9cfd086be74cb70916b1576f8e0f7",
+  "cpu_plan_exit_code": 0,
+  "cpu_plan_log_sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f",
+  "delta_check": "PASS: exactly seven changed files, all before/after hashes match",
+  "native_kernel_helper": "compiled, not run; root may run exact command in source-overlay.json",
+  "parent_frozen_source_sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26",
+  "patch_apply_check": "PASS: patch -p1 --dry-run on source225-002",
+  "patch_dry_run_log_sha256": "ba9685b499f99ff047b9804d0ee70deb25958068d09bf16ed8947f9274969003",
+  "patch_sha256": "05cbabe384737d922165796bced7e8ed342d73a6009a1416f91f5b3b36f8ba18",
+  "physical_transactions": 0,
+  "schema": "numi.cardboard.source227-verification.v1",
+  "snapshot_frozen_source_sha256": "f880325285a44d854253eb5b71be40f57f08800576734324b6233efbfde94260",
+  "source_build_record_sha256": "9a5552c9d60ac26ca11f2a40d3f9b3e4ba97c83198460b45e9fa174a1537e216",
+  "source_map_check": "PASS: 823/823 final source entries; 822/822 parent entries",
+  "source_overlay_sha256": "63a46d0d0657003543f58421ae75dca7f6a133fc571c16fd9349a404d76aa82c",
+  "verification_script_sha256": "7dd5f808134a2655c2f5a246558c68d1bd32449af5031a8182c006f3a936aff6",
+  "verified_at_utc": "2026-10-16T12:11:12.208839+00:00"
+}

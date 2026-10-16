@@ -1,0 +1,960 @@
+#include <metal_stdlib>
+
+using namespace metal;
+
+// Private, bounded CGLS vector recurrences for the existing matrix-free FEM
+// operator.  These kernels never write production FGMRES state, histories,
+// acceptance metrics, or certificates.  The host must gate this path to the
+// exact two-block FEM layout U = 2 * environmentCount * femNodeCount, with
+// field rows present only as zero-valued backing rows.
+namespace numi_matter_metal {
+
+constant uint kBaseCGLSRunning = 1u;
+constant uint kBaseCGLSExhausted = 2u;
+constant uint kBaseCGLSZeroNormalResidual = 3u;
+constant uint kBaseCGLSBreakdown = 4u;
+constant uint kBaseCGLSInvalidInput = 5u;
+
+constant uint kBaseCGLSErrorBadShape = 1u;
+constant uint kBaseCGLSErrorBadSelection = 2u;
+constant uint kBaseCGLSErrorNonfinite = 4u;
+constant uint kBaseCGLSErrorBadMask = 8u;
+constant uint kBaseCGLSErrorNonzeroConstrainedRow = 16u;
+constant uint kBaseCGLSErrorBadDenominator = 32u;
+constant uint kBaseCGLSErrorInvalidRightScale = 64u;
+constant uint kBaseCGLSErrorUnsupportedConstraint = 128u;
+
+inline bool baseCGLSFinite4(const float4 value) {
+    return all(isfinite(value));
+}
+
+inline bool baseCGLSZero4(const float4 value) {
+    return all(value == float4(0.0f));
+}
+
+inline bool baseCGLSMaskComponent(const float value) {
+    return value == 0.0f || value == 1.0f;
+}
+
+inline bool baseCGLSVectorLayoutValid(const uint unknownCount,
+                                      const uint environmentCount) {
+    return environmentCount > 0u && unknownCount > 0u &&
+        environmentCount <= 0x7fffffffu &&
+        unknownCount % (2u * environmentCount) == 0u &&
+        unknownCount / (2u * environmentCount) > 0u;
+}
+
+inline void baseCGLSMarkError(
+    device atomic_uint* errors,
+    const uint environment,
+    const uint errorBits
+) {
+    atomic_fetch_or_explicit(&errors[environment], errorBits,
+        memory_order_relaxed);
+}
+
+inline void baseCGLSCompensatedAdd(
+    thread float& sum,
+    thread float& correction,
+    const float value
+) {
+    const float adjusted = value - correction;
+    const float next = sum + adjusted;
+    correction = (next - sum) - adjusted;
+    sum = next;
+}
+
+// Replace the private CGLS right-hand side with the fresh residual of the
+// retained Newton solution. The production solution itself is read-only here
+// and remains available as x0 until the final strict residual comparison.
+kernel void nm_fgmres_base_cgls_seed_residual(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const uint* selected [[buffer(4)]],
+    device const float4* baseRHS [[buffer(5)]],
+    device const float4* initialSolution [[buffer(6)]],
+    device const float4* initialAction [[buffer(7)]],
+    device float4* residualRHS [[buffer(8)]],
+    device atomic_uint* errors [[buffer(9)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const bool fieldRow = index >= mechanicalRows;
+    const uint local = fieldRow ? index - mechanicalRows : index;
+    const uint environment = local / nodeCount;
+    if (environment >= environmentCount ||
+        rowEnvironment[index] != environment) {
+        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
+            kBaseCGLSErrorBadShape);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const uint selectedValue = selected[environment];
+    if (selectedValue > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const float4 mask = rowMask[index];
+    const float4 b = baseRHS[index];
+    const float4 x0 = initialSolution[index];
+    const float4 ax0 = initialAction[index];
+    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
+        baseCGLSFinite4(b) && baseCGLSFinite4(x0) &&
+        baseCGLSFinite4(ax0) && mask.w == 0.0f && b.w == 0.0f &&
+        x0.w == 0.0f && ax0.w == 0.0f;
+    if (!valid) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (fieldRow) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (selectedValue == 0u) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+            !baseCGLSZero4(x0) || !baseCGLSZero4(ax0)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (!baseCGLSMaskComponent(mask.x) ||
+        !baseCGLSMaskComponent(mask.y) ||
+        !baseCGLSMaskComponent(mask.z)) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    if (any((mask.xyz == float3(0.0f)) &
+            ((b.xyz != float3(0.0f)) | (x0.xyz != float3(0.0f))))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    const float3 residual = (b.xyz - ax0.xyz) * mask.xyz;
+    if (!all(isfinite(residual))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        residualRHS[index] = float4(0.0f);
+        return;
+    }
+    residualRHS[index] = float4(residual, 0.0f);
+}
+
+// Convert the converged correction y into the total candidate x0+S*y in
+// private CGLS scratch. This never writes the production solution buffer.
+kernel void nm_fgmres_base_cgls_add_initial_solution(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const uint* selected [[buffer(4)]],
+    device const float4* initialSolution [[buffer(5)]],
+    device float4* candidateSolution [[buffer(6)]],
+    device atomic_uint* errors [[buffer(7)]],
+    device const float4* metrics [[buffer(8)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const bool fieldRow = index >= mechanicalRows;
+    const uint local = fieldRow ? index - mechanicalRows : index;
+    const uint environment = local / nodeCount;
+    if (environment >= environmentCount ||
+        rowEnvironment[index] != environment) {
+        baseCGLSMarkError(errors, environment < environmentCount ? environment : 0u,
+            kBaseCGLSErrorBadShape);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    // Preserve the unfinished private correction on the exact warm-only
+    // finite-breakdown decline; x0 remains the production solution.
+    if (metrics[environment].w == 5.0f) return;
+    const uint selectedValue = selected[environment];
+    if (selectedValue > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const float4 mask = rowMask[index];
+    const float4 initial = initialSolution[index];
+    const float4 correction = candidateSolution[index];
+    bool valid = selectedValue <= 1u && baseCGLSFinite4(mask) &&
+        baseCGLSFinite4(initial) && baseCGLSFinite4(correction) &&
+        mask.w == 0.0f && initial.w == 0.0f && correction.w == 0.0f;
+    if (!valid) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    if (fieldRow || selectedValue == 0u) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(initial) ||
+            !baseCGLSZero4(correction)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    if (!baseCGLSMaskComponent(mask.x) ||
+        !baseCGLSMaskComponent(mask.y) ||
+        !baseCGLSMaskComponent(mask.z) ||
+        any((mask.xyz == float3(0.0f)) &
+            ((initial.xyz != float3(0.0f)) |
+             (correction.xyz != float3(0.0f))))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow | kBaseCGLSErrorBadMask);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    const float3 total = initial.xyz + correction.xyz;
+    if (!all(isfinite(total))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        candidateSolution[index] = float4(0.0f);
+        return;
+    }
+    candidateSolution[index] = float4(total * mask.xyz, 0.0f);
+}
+
+// Per-environment state layout:
+//   scalars = (gamma, alpha, beta, ||b||^2)
+//   control = (status, completed_iterations, iteration_cap, selected)
+// errors is a uint32 bitmask per environment and must be zeroed here.
+kernel void nm_fgmres_base_cgls_initialize_state(
+    constant uint& environmentCount [[buffer(0)]],
+    constant uint& iterationCap [[buffer(1)]],
+    device const uint* selected [[buffer(2)]],
+    device float4* scalars [[buffer(3)]],
+    device uint4* control [[buffer(4)]],
+    device atomic_uint* errors [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= environmentCount) return;
+
+    const uint selectedValue = selected[environment];
+    const bool shapeValid = environmentCount > 0u &&
+        (iterationCap == 32u || iterationCap == 64u);
+    const bool selectionValid = selectedValue <= 1u;
+    const uint status = !shapeValid || !selectionValid
+        ? kBaseCGLSInvalidInput
+        : (selectedValue != 0u ? kBaseCGLSRunning : 0u);
+    scalars[environment] = float4(0.0f);
+    control[environment] = uint4(status, 0u, iterationCap,
+        selectionValid ? selectedValue : 0u);
+    atomic_store_explicit(&errors[environment],
+        !shapeValid ? kBaseCGLSErrorBadShape :
+        (!selectionValid ? kBaseCGLSErrorBadSelection : 0u),
+        memory_order_relaxed);
+}
+
+// Input vectors b and A^T b are full float4 row arrays.  ATb and s may be the
+// same buffer (the runtime contract uses that alias); the kernel masks s in
+// place and initializes private x/r/p/q.  In this strict layout, the first
+// E*N rows are mechanics and the second E*N rows are field backing.  Each
+// environment's mechanical node rows are contiguous within the first block.
+kernel void nm_fgmres_base_cgls_initialize_vectors(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const uint* selected [[buffer(4)]],
+    device const float4* rhs [[buffer(5)]],
+    device const float4* ATb [[buffer(6)]],
+    device float4* x [[buffer(7)]],
+    device float4* r [[buffer(8)]],
+    device float4* s [[buffer(9)]],
+    device float4* p [[buffer(10)]],
+    device float4* q [[buffer(11)]],
+    device atomic_uint* errors [[buffer(12)]],
+    constant uint& useRightScale [[buffer(13)]],
+    device const float4* rightScaleRows [[buffer(14)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+
+    const uint mechanicalRows = unknownCount / 2u;
+    const bool shapeValid = baseCGLSVectorLayoutValid(unknownCount,
+                                                       environmentCount);
+    if (!shapeValid) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        x[index] = r[index] = s[index] = p[index] = q[index] = float4(0.0f);
+        return;
+    }
+
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const uint localIndex = index < mechanicalRows ? index : index - mechanicalRows;
+    const uint expectedEnvironment = localIndex / nodeCount;
+    const uint environment = rowEnvironment[index];
+    if (environment >= environmentCount) {
+        baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        x[index] = r[index] = s[index] = p[index] = q[index] = float4(0.0f);
+        return;
+    }
+    if (environment != expectedEnvironment) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+    }
+    const uint selectedValue = selected[environment];
+    if (selectedValue > 1u)
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+
+    const float4 mask = rowMask[index];
+    const float4 b = rhs[index];
+    const float4 atb = ATb[index];
+    bool valid = baseCGLSFinite4(mask) && baseCGLSFinite4(b) &&
+        baseCGLSFinite4(atb) && mask.w == 0.0f && b.w == 0.0f &&
+        atb.w == 0.0f && baseCGLSMaskComponent(mask.x) &&
+        baseCGLSMaskComponent(mask.y) && baseCGLSMaskComponent(mask.z);
+    if (!valid) baseCGLSMarkError(errors, environment,
+        kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+
+    // The unselected quiet environment is part of this strict two-environment
+    // layout, not an ignored tail. Reject any stale mechanical or field data
+    // before clearing its private vectors.
+    if (selectedValue == 0u) {
+        if (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+            !baseCGLSZero4(atb)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        }
+        x[index] = r[index] = s[index] = p[index] = q[index] = float4(0.0f);
+        return;
+    }
+
+    const bool fieldRow = index >= mechanicalRows;
+    float4 effectiveMask = float4(0.0f);
+    if (!fieldRow) effectiveMask = float4(mask.xyz, 0.0f);
+    if (fieldRow && (!baseCGLSZero4(mask) || !baseCGLSZero4(b) ||
+                     !baseCGLSZero4(atb))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow);
+    }
+    const float4 constrained = float4(1.0f) - effectiveMask;
+    const bool hasConstrainedInput = any(
+        (constrained.xyz != float3(0.0f)) &
+        ((b.xyz != float3(0.0f)) | (atb.xyz != float3(0.0f))));
+    if (!fieldRow && hasConstrainedInput) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonzeroConstrainedRow);
+    }
+
+    const float4 maskedB = float4(b.xyz * effectiveMask.xyz, 0.0f);
+    float4 maskedATb = float4(atb.xyz * effectiveMask.xyz, 0.0f);
+    if (useRightScale != 0u && !fieldRow &&
+        all(effectiveMask.xyz == float3(1.0f))) {
+        const uint node = index - environment * nodeCount;
+        const uint base = (environment * nodeCount + node) * 3u;
+        const float4 row0 = rightScaleRows[base];
+        const float4 row1 = rightScaleRows[base + 1u];
+        const float4 row2 = rightScaleRows[base + 2u];
+        const float3 value = maskedATb.xyz;
+        maskedATb = float4(
+            dot(float3(row0.x, row1.x, row2.x), value),
+            dot(float3(row0.y, row1.y, row2.y), value),
+            dot(float3(row0.z, row1.z, row2.z), value), 0.0f);
+        if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
+            !baseCGLSFinite4(row2) || row0.w != 1.0f ||
+            row1.w != 0.0f || row2.w != 0.0f ||
+            !baseCGLSFinite4(maskedATb)) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorInvalidRightScale);
+            maskedATb = float4(0.0f);
+        }
+    }
+    x[index] = float4(0.0f);
+    r[index] = maskedB;
+    s[index] = maskedATb;
+    p[index] = maskedATb;
+    q[index] = float4(0.0f);
+}
+
+// One 32-lane SIMD group per environment. Host dispatch contract is exactly
+// (environmentCount,1,1) threadgroups with (32,1,1) threads per group.
+kernel void nm_fgmres_base_cgls_measure_initial(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const float4* rhs [[buffer(4)]],
+    device const float4* r [[buffer(5)]],
+    device const float4* s [[buffer(6)]],
+    device float4* scalars [[buffer(7)]],
+    device uint4* control [[buffer(8)]],
+    device atomic_uint* errors [[buffer(9)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= environmentCount) return;
+    if (control[environment].x != kBaseCGLSRunning) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (lane == 0u) {
+            baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+            control[environment].x = kBaseCGLSInvalidInput;
+        }
+        return;
+    }
+
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    float gamma = 0.0f, gammaCorrection = 0.0f;
+    float bNorm2 = 0.0f, bCorrection = 0.0f;
+    uint errorBits = 0u;
+    for (uint local = lane; local < 2u * nodeCount; local += 32u) {
+        const uint index = local < nodeCount
+            ? environment * nodeCount + local
+            : mechanicalRows + environment * nodeCount + (local - nodeCount);
+        if (rowEnvironment[index] != environment) {
+            errorBits |= kBaseCGLSErrorBadShape;
+            continue;
+        }
+        const float4 mask = rowMask[index];
+        const float4 ri = r[index];
+        const float4 si = s[index];
+        const float4 bi = rhs[index];
+        if (!baseCGLSFinite4(ri) || !baseCGLSFinite4(si) ||
+            !baseCGLSFinite4(bi)) {
+            errorBits |= kBaseCGLSErrorNonfinite;
+            continue;
+        }
+        if (local >= nodeCount) {
+            if (!baseCGLSZero4(ri) || !baseCGLSZero4(si) ||
+                !baseCGLSZero4(bi))
+                errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+            continue;
+        }
+        if (mask.w != 0.0f || any((mask.xyz == float3(0.0f)) &
+            ((ri.xyz != float3(0.0f)) | (si.xyz != float3(0.0f))))) {
+            errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+        }
+        const float3 mr = ri.xyz * mask.xyz;
+        const float3 ms = si.xyz * mask.xyz;
+        baseCGLSCompensatedAdd(gamma, gammaCorrection, dot(ms, ms));
+        baseCGLSCompensatedAdd(bNorm2, bCorrection, dot(mr, mr));
+    }
+    gamma = simd_sum(gamma);
+    bNorm2 = simd_sum(bNorm2);
+    const uint errorsFound = simd_or(errorBits);
+    if (lane != 0u) return;
+    if (errorsFound != 0u ||
+        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        baseCGLSMarkError(errors, environment, errorsFound);
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    if (!isfinite(gamma) || !isfinite(bNorm2) || gamma < 0.0f ||
+        bNorm2 < 0.0f) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    scalars[environment] = float4(gamma, 0.0f, 0.0f, bNorm2);
+    if (gamma == 0.0f || bNorm2 == 0.0f) {
+        control[environment].x = kBaseCGLSZeroNormalResidual;
+        return;
+    }
+}
+
+kernel void nm_fgmres_base_cgls_form_alpha(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const float4* q [[buffer(4)]],
+    device float4* scalars [[buffer(5)]],
+    device uint4* control [[buffer(6)]],
+    device atomic_uint* errors [[buffer(7)]],
+    device const float4* p [[buffer(8)]],
+    constant float& dampingSquared [[buffer(9)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= environmentCount) return;
+    if (control[environment].x != kBaseCGLSRunning) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (lane == 0u) {
+            baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+            control[environment].x = kBaseCGLSInvalidInput;
+        }
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    float qNorm2 = 0.0f, correction = 0.0f;
+    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
+        ? kBaseCGLSErrorNonfinite : 0u;
+    for (uint local = lane; local < 2u * nodeCount; local += 32u) {
+        const uint index = local < nodeCount
+            ? environment * nodeCount + local
+            : mechanicalRows + environment * nodeCount + (local - nodeCount);
+        const float4 value = q[index];
+        if (rowEnvironment[index] != environment || !baseCGLSFinite4(value)) {
+            errorBits |= rowEnvironment[index] != environment
+                ? kBaseCGLSErrorBadShape : kBaseCGLSErrorNonfinite;
+            continue;
+        }
+        const float4 mask = rowMask[index];
+        if (mask.w != 0.0f) errorBits |= kBaseCGLSErrorBadMask;
+        if (local >= nodeCount) {
+            if (!baseCGLSZero4(value)) errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+            continue;
+        }
+        if (any((mask.xyz == float3(0.0f)) &
+                (value.xyz != float3(0.0f))))
+            errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+        const float3 active = value.xyz * mask.xyz;
+        baseCGLSCompensatedAdd(qNorm2, correction, dot(active, active));
+        if (dampingSquared > 0.0f) {
+            const float4 pi = p[index];
+            if (!baseCGLSFinite4(pi)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            const float3 activeP = pi.xyz * mask.xyz;
+            if (!all(isfinite(activeP))) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            baseCGLSCompensatedAdd(qNorm2, correction,
+                dampingSquared * dot(activeP, activeP));
+        }
+    }
+    qNorm2 = simd_sum(qNorm2);
+    errorBits = simd_or(errorBits);
+    if (lane != 0u) return;
+    if (errorBits != 0u ||
+        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        baseCGLSMarkError(errors, environment, errorBits);
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    const float gamma = scalars[environment].x;
+    const float alpha = gamma / qNorm2;
+    if (!isfinite(gamma) || gamma <= 0.0f || !isfinite(qNorm2) ||
+        qNorm2 <= 0.0f || !isfinite(alpha) || alpha <= 0.0f) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadDenominator);
+        control[environment].x = kBaseCGLSBreakdown;
+        return;
+    }
+    scalars[environment].y = alpha;
+}
+
+kernel void nm_fgmres_base_cgls_update_xr(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const float4* scalars [[buffer(4)]],
+    device const uint4* control [[buffer(5)]],
+    device const float4* p [[buffer(6)]],
+    device const float4* q [[buffer(7)]],
+    device float4* x [[buffer(8)]],
+    device float4* r [[buffer(9)]],
+    device atomic_uint* errors [[buffer(10)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount || environmentCount == 0u) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint localIndex = index < mechanicalRows ? index : index - mechanicalRows;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const uint expectedEnvironment = localIndex / nodeCount;
+    const uint environment = rowEnvironment[index];
+    if (environment >= environmentCount) {
+        baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        return;
+    }
+    if (environment != expectedEnvironment) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+        return;
+    }
+    if (control[environment].x != kBaseCGLSRunning) return;
+    const float4 mask = rowMask[index];
+    const float4 pi = p[index];
+    const float4 qi = q[index];
+    const float4 xi = x[index];
+    const float4 ri = r[index];
+    const float alpha = scalars[environment].y;
+    if (!isfinite(alpha) || alpha <= 0.0f || !baseCGLSFinite4(pi) ||
+        !baseCGLSFinite4(qi) || !baseCGLSFinite4(xi) ||
+        !baseCGLSFinite4(ri) || !baseCGLSFinite4(mask)) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        return;
+    }
+    const bool fieldRow = index >= mechanicalRows;
+    if (fieldRow) {
+        x[index] = r[index] = float4(0.0f);
+        return;
+    }
+    const float3 active = mask.xyz;
+    const float3 nextX = (xi.xyz + alpha * pi.xyz) * active;
+    const float3 nextR = (ri.xyz - alpha * qi.xyz) * active;
+    if (!all(isfinite(nextX)) || !all(isfinite(nextR))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        return;
+    }
+    x[index] = float4(nextX, 0.0f);
+    r[index] = float4(nextR, 0.0f);
+}
+
+// Separate E-thread boundary after U-thread x/r updates avoids racing a
+// per-environment iteration counter against vector workers.
+kernel void nm_fgmres_base_cgls_complete_iteration(
+    constant uint& environmentCount [[buffer(0)]],
+    device uint4* control [[buffer(1)]],
+    device atomic_uint* errors [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= environmentCount ||
+        control[environment].x != kBaseCGLSRunning) return;
+    if (atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    const uint next = control[environment].y + 1u;
+    if (next == 0u || next > control[environment].z) {
+        control[environment].x = kBaseCGLSBreakdown;
+        atomic_store_explicit(&errors[environment],
+            kBaseCGLSErrorBadShape, memory_order_relaxed);
+        return;
+    }
+    control[environment].y = next;
+}
+
+kernel void nm_fgmres_base_cgls_form_beta(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device float4* s [[buffer(4)]],
+    device float4* scalars [[buffer(5)]],
+    device uint4* control [[buffer(6)]],
+    device atomic_uint* errors [[buffer(7)]],
+    device const float4* x [[buffer(8)]],
+    constant float& dampingSquared [[buffer(9)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= environmentCount) return;
+    if (control[environment].x != kBaseCGLSRunning) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        if (lane == 0u) {
+            baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+            control[environment].x = kBaseCGLSInvalidInput;
+        }
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    float nextGamma = 0.0f, correction = 0.0f;
+    uint errorBits = (!isfinite(dampingSquared) || dampingSquared < 0.0f)
+        ? kBaseCGLSErrorNonfinite : 0u;
+    for (uint local = lane; local < 2u * nodeCount; local += 32u) {
+        const uint index = local < nodeCount
+            ? environment * nodeCount + local
+            : mechanicalRows + environment * nodeCount + (local - nodeCount);
+        const float4 value = s[index];
+        if (rowEnvironment[index] != environment || !baseCGLSFinite4(value)) {
+            errorBits |= rowEnvironment[index] != environment
+                ? kBaseCGLSErrorBadShape : kBaseCGLSErrorNonfinite;
+            continue;
+        }
+        const float4 mask = rowMask[index];
+        if (mask.w != 0.0f) errorBits |= kBaseCGLSErrorBadMask;
+        if (local >= nodeCount) {
+            if (!baseCGLSZero4(value)) errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+            continue;
+        }
+        if (any((mask.xyz == float3(0.0f)) &
+                (value.xyz != float3(0.0f))))
+            errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+        float4 gradient = value;
+        if (dampingSquared > 0.0f) {
+            const float4 xi = x[index];
+            if (!baseCGLSFinite4(xi)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            if (any((mask.xyz == float3(0.0f)) &
+                    (xi.xyz != float3(0.0f)))) {
+                errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+                continue;
+            }
+            gradient = float4(value.xyz - dampingSquared * xi.xyz, 0.0f);
+            if (!baseCGLSFinite4(gradient)) {
+                errorBits |= kBaseCGLSErrorNonfinite;
+                continue;
+            }
+            s[index] = gradient;
+        }
+        const float3 active = gradient.xyz * mask.xyz;
+        baseCGLSCompensatedAdd(nextGamma, correction, dot(active, active));
+    }
+    nextGamma = simd_sum(nextGamma);
+    errorBits = simd_or(errorBits);
+    if (lane != 0u) return;
+    if (errorBits != 0u ||
+        atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        baseCGLSMarkError(errors, environment, errorBits);
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    if (!isfinite(nextGamma) || nextGamma < 0.0f) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        control[environment].x = kBaseCGLSBreakdown;
+        return;
+    }
+    if (nextGamma == 0.0f) {
+        scalars[environment].x = 0.0f;
+        scalars[environment].z = 0.0f;
+        control[environment].x = kBaseCGLSZeroNormalResidual;
+        return;
+    }
+    const float oldGamma = scalars[environment].x;
+    const float beta = nextGamma / oldGamma;
+    if (!isfinite(oldGamma) || oldGamma <= 0.0f ||
+        !isfinite(beta) || beta <= 0.0f) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadDenominator);
+        control[environment].x = kBaseCGLSBreakdown;
+        return;
+    }
+    scalars[environment].x = nextGamma;
+    scalars[environment].z = beta;
+    if (control[environment].y >= control[environment].z) {
+        // A completed cap is terminal unless exact A^T r == 0 above.
+        control[environment].x = kBaseCGLSExhausted;
+    }
+}
+
+kernel void nm_fgmres_base_cgls_update_p(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* rowEnvironment [[buffer(3)]],
+    device const float4* scalars [[buffer(4)]],
+    device const uint4* control [[buffer(5)]],
+    device const float4* s [[buffer(6)]],
+    device float4* p [[buffer(7)]],
+    device atomic_uint* errors [[buffer(8)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount || environmentCount == 0u) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount)) {
+        baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint localIndex = index < mechanicalRows ? index : index - mechanicalRows;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const uint expectedEnvironment = localIndex / nodeCount;
+    const uint environment = rowEnvironment[index];
+    if (environment >= environmentCount) {
+        baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        return;
+    }
+    if (environment != expectedEnvironment) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadShape);
+        return;
+    }
+    if (control[environment].x != kBaseCGLSRunning) return;
+    const float4 mask = rowMask[index];
+    const float4 si = s[index];
+    const float4 pi = p[index];
+    const float beta = scalars[environment].z;
+    if (!isfinite(beta) || beta <= 0.0f || !baseCGLSFinite4(mask) ||
+        !baseCGLSFinite4(si) || !baseCGLSFinite4(pi)) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        return;
+    }
+    if (index >= mechanicalRows) {
+        p[index] = float4(0.0f);
+        return;
+    }
+    const float3 nextP = (si.xyz + beta * pi.xyz) * mask.xyz;
+    if (!all(isfinite(nextP))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorNonfinite);
+        return;
+    }
+    p[index] = float4(nextP, 0.0f);
+}
+
+kernel void nm_fgmres_base_cgls_finalize(
+    constant uint& environmentCount [[buffer(0)]],
+    device uint4* control [[buffer(1)]],
+    device atomic_uint* errors [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= environmentCount) return;
+    if (atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        control[environment].x = kBaseCGLSInvalidInput;
+        return;
+    }
+    if (control[environment].x == kBaseCGLSRunning) {
+        control[environment].x = control[environment].y >= control[environment].z
+            ? kBaseCGLSExhausted : kBaseCGLSBreakdown;
+    }
+}
+
+// Check the exact candidate constraint tags and the freshly built inverse
+// blocks before right scaling is used. This path admits only free tag 0 and
+// eliminated static/grip tags 1 and 3; Human tag 2 is unsupported.
+kernel void nm_fgmres_base_cgls_validate_right_scale(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* rowMask [[buffer(2)]],
+    device const uint* selected [[buffer(3)]],
+    device const float4* rightScaleRows [[buffer(4)]],
+    device atomic_uint* errors [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint environments = dispatch.environmentCount;
+    const uint nodes = dispatch.femNodeCount;
+    const uint total = environments * nodes;
+    if (global >= total || environments == 0u || nodes == 0u) return;
+    const uint environment = global / nodes;
+    if (selected[environment] > 1u) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadSelection);
+        return;
+    }
+    if (selected[environment] == 0u) return;
+
+    const NMFEMNodeStateGPU node = candidate[global];
+    const float tag = node.restAndFixed.w;
+    const float4 mask = rowMask[global];
+    if (!isfinite(tag) || (tag != 0.0f && tag != 1.0f && tag != 3.0f)) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorUnsupportedConstraint);
+        return;
+    }
+    if (!baseCGLSFinite4(mask) || mask.w != 0.0f) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
+        return;
+    }
+    const uint base = global * 3u;
+    const float4 row0 = rightScaleRows[base];
+    const float4 row1 = rightScaleRows[base + 1u];
+    const float4 row2 = rightScaleRows[base + 2u];
+    if (tag == 0.0f) {
+        if (!isfinite(node.positionAndMass.w) ||
+            node.positionAndMass.w <= 0.0f ||
+            any(mask.xyz != float3(1.0f)) ||
+            !baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
+            !baseCGLSFinite4(row2) || row0.w != 1.0f ||
+            row1.w != 0.0f || row2.w != 0.0f) {
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorInvalidRightScale | kBaseCGLSErrorBadMask);
+        }
+    } else if (any(mask != float4(0.0f)) ||
+               any(row0 != float4(0.0f)) ||
+               any(row1 != float4(0.0f)) ||
+               any(row2 != float4(0.0f))) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorInvalidRightScale | kBaseCGLSErrorBadMask);
+    }
+}
+
+// Apply S or S^T to a full CGLS vector. The mechanical block is the first
+// E*N float4 rows; the second E*N field backing rows are required to stay
+// zero. The input/output buffers may alias because each thread reads only
+// its own row before writing it.
+kernel void nm_fgmres_base_cgls_apply_right_scale(
+    constant uint& unknownCount [[buffer(0)]],
+    constant uint& environmentCount [[buffer(1)]],
+    constant uint& transpose [[buffer(2)]],
+    device const float4* rowMask [[buffer(3)]],
+    device const uint* rowEnvironment [[buffer(4)]],
+    device const uint* selected [[buffer(5)]],
+    device const float4* rightScaleRows [[buffer(6)]],
+    device const float4* input [[buffer(7)]],
+    device float4* output [[buffer(8)]],
+    device atomic_uint* errors [[buffer(9)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= unknownCount) return;
+    if (!baseCGLSVectorLayoutValid(unknownCount, environmentCount) ||
+        transpose > 1u) {
+        if (environmentCount > 0u)
+            baseCGLSMarkError(errors, 0u, kBaseCGLSErrorBadShape);
+        output[index] = float4(0.0f);
+        return;
+    }
+    const uint mechanicalRows = unknownCount / 2u;
+    const uint nodeCount = mechanicalRows / environmentCount;
+    const uint localIndex = index < mechanicalRows
+        ? index : index - mechanicalRows;
+    const uint environment = localIndex / nodeCount;
+    if (environment >= environmentCount || selected[environment] > 1u ||
+        rowEnvironment[index] != environment) {
+        if (environment < environmentCount)
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorBadSelection | kBaseCGLSErrorBadShape);
+        output[index] = float4(0.0f);
+        return;
+    }
+    if (atomic_load_explicit(&errors[environment], memory_order_relaxed) != 0u) {
+        output[index] = float4(0.0f);
+        return;
+    }
+    const float4 value = input[index];
+    const float4 mask = rowMask[index];
+    if (!baseCGLSFinite4(value) || !baseCGLSFinite4(mask) ||
+        value.w != 0.0f || mask.w != 0.0f) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorNonfinite | kBaseCGLSErrorBadMask);
+        output[index] = float4(0.0f);
+        return;
+    }
+    if (selected[environment] == 0u || index >= mechanicalRows ||
+        all(mask.xyz == float3(0.0f))) {
+        if (any(value != float4(0.0f)))
+            baseCGLSMarkError(errors, environment,
+                kBaseCGLSErrorNonzeroConstrainedRow);
+        output[index] = float4(0.0f);
+        return;
+    }
+    if (any(mask.xyz != float3(1.0f))) {
+        baseCGLSMarkError(errors, environment, kBaseCGLSErrorBadMask);
+        output[index] = float4(0.0f);
+        return;
+    }
+    const uint localNode = localIndex - environment * nodeCount;
+    const uint base = (environment * nodeCount + localNode) * 3u;
+    const float4 row0 = rightScaleRows[base];
+    const float4 row1 = rightScaleRows[base + 1u];
+    const float4 row2 = rightScaleRows[base + 2u];
+    const float3 result = transpose == 0u
+        ? float3(dot(row0.xyz, value.xyz), dot(row1.xyz, value.xyz),
+                 dot(row2.xyz, value.xyz))
+        : float3(row0.x * value.x + row1.x * value.y + row2.x * value.z,
+                 row0.y * value.x + row1.y * value.y + row2.y * value.z,
+                 row0.z * value.x + row1.z * value.y + row2.z * value.z);
+    const float4 result4 = float4(result, 0.0f);
+    if (!baseCGLSFinite4(row0) || !baseCGLSFinite4(row1) ||
+        !baseCGLSFinite4(row2) || row0.w != 1.0f || row1.w != 0.0f ||
+        row2.w != 0.0f || !baseCGLSFinite4(result4)) {
+        baseCGLSMarkError(errors, environment,
+            kBaseCGLSErrorInvalidRightScale);
+        output[index] = float4(0.0f);
+        return;
+    }
+    output[index] = result4;
+}
+
+} // namespace numi_matter_metal

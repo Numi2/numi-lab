@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.native574-receipt.v1",
+  "exit_code": 1,
+  "timed_out": false,
+  "wall_seconds": 0.442456416785717,
+  "all_inputs_unchanged": true,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "0c490d326701ea72ab0124398dd68ee24e423dab218782c58a2360ad493d8ffb",
+  "physical_transactions": 0,
+  "shipping_or_full_solver_qualification": false,
+  "at_utc": "2026-10-16T12:12:13.037515+00:00"
+}

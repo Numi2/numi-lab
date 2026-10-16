@@ -1,0 +1,112 @@
+{
+  "schema": "numi.cardboard.source228-composition-build.v1",
+  "build_exit_code": 0,
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "3723a5538417ef6802077dfaba69bbcd33693b6b7de67f5d6594098e61b49ab0"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "3d4f5262c3f0b4e6e09f5340fada6076cd4475a1c6f57e248cb5658228af5407"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d930c41d5ab81f1392bec9e27b12196812873743f69bad2f8ef37062fe5b478d"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source228-integrated-004/matter/numi-matter-cardboard-free-box-proxy-admission-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "41bbfc569ea5ed104dd494aaf44a6c60b7504c3fd36837e02cd27968eaae0507",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source228-integrated-004/matter/numi-matter-cardboard-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_pass": true,
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004",
+  "source_count": 827,
+  "source_frozen_sha256": "7e749050f8092408bb7d341be1dbf99a1d76324a96121c1e9ecf79b4c3fcca08",
+  "source_build_sha256": "fbd32948ae6a2101f5e12e329c3994d3570fc397a01c329f067ea80c63e63f58",
+  "source_patch_sha256": "d13e1548a0f29ed6dc36803abbc6ecb93e1279a497d117135573f254c6fe60d0",
+  "files": [
+    {
+      "file": "matter/CMakeLists.txt",
+      "mode": "three_way_clean",
+      "ancestor_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "base226_sha256": "2878fb9d7e6517867fbc9273f36e7f6e422751de5a27b19198c2a89657ebd5d3",
+      "donor216_sha256": "d788ed62203257eb4fa3c9662fa372e01d06be2d09c496728bda33cd349e4674",
+      "merged_sha256": "160796971b6edd05a5af9c92cccb0e8c64f7ba2ddd61c0c19032d24996620a85"
+    },
+    {
+      "file": "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base226_sha256": null,
+      "donor216_sha256": "cce79f4954bb6865b7ef239399ce95d64d2c7162fba5987bc00373e222b034ba",
+      "merged_sha256": "cce79f4954bb6865b7ef239399ce95d64d2c7162fba5987bc00373e222b034ba"
+    },
+    {
+      "file": "matter/src/runtime.mm",
+      "mode": "manual_union_three_disjoint_include_lines;preserve216_freebox4096_scope_while_pure8192_uses_parameter",
+      "ancestor_sha256": "586f979a13a5628a8c82e925a50d7337ba4a9e91faf9d6e6df2f5dd3d856848e",
+      "base226_sha256": "008c53a2ae94f7f55f5bda729a888457b2e7bf17bbc1907fa13ea94df1bc6c04",
+      "donor216_sha256": "f96f151cccaaa9798ff08efb81b65e4b7fcecbc4b87dcbbbef628d19e6e2a89b",
+      "merged_sha256": "1bbdbfd99fa660e561be4f3e2dfe6fa6eead6ce3021fafb8067a228268835f46"
+    },
+    {
+      "file": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "mode": "direct",
+      "ancestor_sha256": "a306b0a0c5e29a3f62c038003fea62326da58f99292ab27ffc42b022238e8080",
+      "base226_sha256": "a306b0a0c5e29a3f62c038003fea62326da58f99292ab27ffc42b022238e8080",
+      "donor216_sha256": "8191ecab72be4b16a90436e36b45070c6e63b558dc07b15258ca4ec585a91c1e",
+      "merged_sha256": "8191ecab72be4b16a90436e36b45070c6e63b558dc07b15258ca4ec585a91c1e"
+    },
+    {
+      "file": "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base226_sha256": null,
+      "donor216_sha256": "48daea839b5024fc278399d7e21384f82d6642b12965d065645e776b6e248482",
+      "merged_sha256": "48daea839b5024fc278399d7e21384f82d6642b12965d065645e776b6e248482"
+    },
+    {
+      "file": "matter/tools/test_true_residual_certification_contract.py",
+      "mode": "manual_keep8192_arena_test_and_replace_legacy_proxy_test_with216_contract",
+      "ancestor_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402",
+      "base226_sha256": "d95e217b3db18c5ed0880e85364ff6cd6688f44484d46ffc58cf3388dbf0eb66",
+      "donor216_sha256": "e9a7767e1b53cc0f9d0fc1dadd077466fb6d7c14b145fd81928f456a671653c9",
+      "merged_sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    }
+  ],
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "physical_transactions": 0,
+  "at_utc": "2026-10-16T11:51:23.459609+00:00"
+}

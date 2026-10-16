@@ -1,0 +1,24 @@
+{
+  "schema": "numi.cardboard.native-component-command.v1",
+  "variant": "215",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/numi-matter-fem-cgls-arena-8192-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n"
+  },
+  "source_frozen_sha256": "9c94ee26141a1dec60bb133bc8588a8934013786e09ee2a60551f17610e08658",
+  "report_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/source-build.json",
+  "report_sha256": "c19e514e2aef2e34c8bb84ddaacc898331a192e8b25db6bf83980f549692853e",
+  "artifact_bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/numi-matter-fem-cgls-arena-8192-check": "eebba85edfaba1fb3bff72753a791bff2bbdab3924a6b4ce551c1a702be3d5e5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/numi-matter-pure-fem-armijo-cgls-arena-plan-check": "8a351472f75f76d649be6a42e6c03d8480e710454300bb6b5a9a187ca9ce4107",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/shaders/FEMPureCGLSArena8192Check.metallib": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec"
+  },
+  "all_inputs_verified": true,
+  "workers": [],
+  "physical_transactions": 0,
+  "question": "Does the bounded production-kernel component checker pass at its compiled shape?",
+  "prediction": "No result assumed. This does not test the full contact trajectory or carton assembly."
+}

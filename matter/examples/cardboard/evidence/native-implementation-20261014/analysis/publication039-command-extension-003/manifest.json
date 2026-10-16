@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.publication039-command-extension.v1",
+  "files": {
+    "prepare_publication039_extension_002.py": "249ee5e89880fba1a5ff76bc641c7bce7827b558ba87c05e10406bfceb7b18df",
+    "prepare_publication039_reproduction_001.py": "cfb601f5aefde3da44b272ee83a82f690fc797182cf8695f0b7da25a4480e27c",
+    "archive_publication039_002.py": "72f59be5a829fb090723db901fbc4be386498fba29ff7e5098ab0ba601f918cb"
+  },
+  "scope": "Actual archive002 adds corrected227 helper575 result and immutable command reproduction after original planned001. No earlier payload mutated.",
+  "at_utc": "2026-10-16T12:17:07.482618+00:00"
+}

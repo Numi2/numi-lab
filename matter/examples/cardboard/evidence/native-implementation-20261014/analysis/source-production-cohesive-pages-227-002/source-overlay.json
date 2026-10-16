@@ -1,0 +1,45 @@
+{
+  "changed_file_count": 1,
+  "changed_files": {
+    "matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm": {
+      "after_bytes": 13240,
+      "after_sha256": "9de014b2698c984d7c41187786a6e1518e8992e585b2b076779f7fb37c4666f9",
+      "before_bytes": 8161,
+      "before_sha256": "6c124022c8daf416ce3cd815d9510c46f119f2d650b735ccd5b0cfe29ec4a10e"
+    }
+  },
+  "correction": [
+    "Bind all resources before each production-kernel dispatch.",
+    "Use a distinct immutable fixture buffer per page during the queued command buffer."
+  ],
+  "failure_diagnosis": [
+    "The 227-001 helper encoded dispatches before setting their buffer/byte bindings.",
+    "It rewrote a single shared page fixture buffer for all pages before command-buffer execution, so earlier page dispatches could observe the final page contents."
+  ],
+  "frozen_source_sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1",
+  "native_helper_command": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/numi-matter-cardboard-cohesive-page-runtime-kernel-check /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/shaders/NumiMatter.metallib",
+  "overlay_id": "source-production-cohesive-pages-227-002",
+  "parent_frozen_source_sha256": "f880325285a44d854253eb5b71be40f57f08800576734324b6233efbfde94260",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001",
+  "patch_dry_run_log": {
+    "exit_code": 0,
+    "path": "patch-dry-run.log",
+    "sha256": "e2906ef034fe9e6d041fc7c0c19fd94679247aac1693acb30c5db8ca159adf4b"
+  },
+  "patch_path": "overlay.patch",
+  "patch_sha256": "8a2477e807ba4ab5c59e58b9c840637b0b35806f9370b8f8507f2845094e1641",
+  "preserves_immutable_candidate": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001",
+  "preserves_native_failure_case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/production-cohesive-page-kernels-574",
+  "production_runtime_or_kernels_changed": false,
+  "schema": "numi.cardboard.source-overlay.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-002",
+  "source_build_record_sha256": "49ab08292ba1238a47ba5862d4faa7d9684ff80dbf3d6f2bba0dc19232bba510",
+  "source_file_count": 823,
+  "validation": {
+    "build": "PASS",
+    "configure": "PASS",
+    "cpu_plan_check": "PASS 30 assertions",
+    "native_execution": "NOT RUN",
+    "physical_transactions": 0
+  }
+}

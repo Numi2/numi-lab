@@ -1,0 +1,6 @@
+[  0%] Building CXX object CMakeFiles/numi-matter-cardboard-shipping-contact-page-plan-check.dir/tools/cardboard_shipping_contact_page_plan_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-shipping-contact-page-plan-check
+[100%] Built target numi-matter-cardboard-shipping-contact-page-plan-check
+[  0%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-shipping-contact-page-native-check.dir/tools/cardboard_shipping_contact_page_native_check.mm.o
+[100%] Linking OBJCXX executable numi-matter-cardboard-shipping-contact-page-native-check
+[100%] Built target numi-matter-cardboard-shipping-contact-page-native-check

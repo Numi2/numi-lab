@@ -1,0 +1,633 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -147,6 +147,7 @@
+     bool compensatedImplicitProjection = false;
+     bool compensatedSourcePaperProjection = false;
+     bool accurateSourcePaperProjection = false;
++    bool strictSourcePaperStateCertification = false;
+     bool cacheFEMAlgorithmicTangent = false;
+     std::optional<std::uint32_t> couponCheckpointAfterControl;
+     std::optional<std::uint32_t> couponCheckpointEvery;
+@@ -1286,6 +1287,7 @@
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+         << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget defaults to 16 and may be overridden by --material-iterations [1,32]\n"
++        << "  --strict-source-paper-state-certification  use a 2e-10 dimensionless local Newton-correction certificate for accurate bilinear15 projection; requires --accurate-source-paper-projection; residual/iteration/outer gates and equations stay unchanged\n"
+         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
+         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
+         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
+@@ -1438,6 +1440,10 @@
+         }
+         if (option == "--accurate-source-paper-projection") {
+             arguments.accurateSourcePaperProjection = true;
++            continue;
++        }
++        if (option == "--strict-source-paper-state-certification") {
++            arguments.strictSourcePaperStateCertification = true;
+             continue;
+         }
+         if (option == "--compensated-source-paper-projection") {
+@@ -1711,6 +1717,9 @@
+                  arguments.preset == "literature2009" &&
+                  !arguments.withoutMedium),
+             "compensated implicit projection requires explicit retained-matrix damage sets for both literature2009 constituents");
++    require(!arguments.strictSourcePaperStateCertification ||
++                arguments.accurateSourcePaperProjection,
++            "strict source-paper state certification requires --accurate-source-paper-projection");
+     require(!arguments.accurateSourcePaperProjection ||
+                 arguments.compensatedSourcePaperProjection,
+             "accurate source-paper projection requires --compensated-source-paper-projection");
+@@ -2822,6 +2831,8 @@
+             mapSource << "generic_compensated_source_paper_projection=1\n";
+         if (arguments.accurateSourcePaperProjection)
+             mapSource << "generic_bilinear15_accurate_projection=1\n";
++        if (arguments.strictSourcePaperStateCertification)
++            mapSource << "generic_bilinear15_strict_state_certification=1\n";
+         for (std::size_t index = 0u; index < result.materialIndices.size(); ++index)
+             mapSource << index << ':' << result.materialIndices[index] << '\n';
+         const Digest mapDigest = sha256(mapSource.str());
+@@ -3948,6 +3959,10 @@
+            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
+            << ", \"accurate_bilinear15_projection\": "
+            << (arguments.accurateSourcePaperProjection ? "true" : "false")
++           << ", \"strict_state_certification\": "
++           << (arguments.strictSourcePaperStateCertification ? "true" : "false")
++           << ", \"strict_scaled_correction_threshold\": "
++           << (arguments.strictSourcePaperStateCertification ? "2e-10" : "null")
+            << ", \"requested_local_newton_iterations\": "
+            << arguments.localMaterialIterations
+            << ", \"local_newton_iterations_explicit\": "
+@@ -13541,6 +13556,10 @@
+                     "accurate source-paper projection requires the bilinear15 liner/medium pair");
+             liner.genericBilinear15AccurateProjection = true;
+             medium.genericBilinear15AccurateProjection = true;
++            if (arguments.strictSourcePaperStateCertification) {
++                liner.genericBilinear15StrictStateCertification = true;
++                medium.genericBilinear15StrictStateCertification = true;
++            }
+         }
+     }
+     if (arguments.linerDamageSet && arguments.mediumDamageSet) {
+@@ -13630,12 +13649,17 @@
+                 "compiled liner/medium descriptors did not preserve the requested compensated 15-state source policy");
+     }
+     if (arguments.accurateSourcePaperProjection) {
+-        for (std::uint32_t index = 0u; index < 2u; ++index)
++        for (std::uint32_t index = 0u; index < 2u; ++index) {
+             require((compiled.world.materials[index].flags &
+                         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
+                         compiled.world.materials[index].localNewtonIterations ==
+                             arguments.localMaterialIterations,
+                     "compiled source-paper material omitted scaled-correction policy or the requested effective local budget");
++            if (arguments.strictSourcePaperStateCertification)
++                require((compiled.world.materials[index].flags &
++                            NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u,
++                        "compiled source-paper material omitted strict state certification");
++        }
+     }
+     if (arguments.shippingBox) {
+         require(mesh.shippingImpactorProxyIndex <
+--- a/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
++++ b/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm
+@@ -360,7 +360,13 @@
+          "point temperature does not match the exact compiled material bulk.y word");
+ }
+ 
+-CompiledWorld compileSources(const std::filesystem::path& linerPath,const std::filesystem::path& mediumPath,const bool accurate){
++CompiledWorld compileSources(const std::filesystem::path& linerPath,
++                             const std::filesystem::path& mediumPath,
++                             const bool accurate,
++                             const bool strictStateCertification = false,
++                             const std::optional<std::uint32_t> requestedIterations = std::nullopt){
++    need(!strictStateCertification || (accurate && requestedIterations.has_value()),
++         "strict state certification requires accurate policy and explicit bounded budget");
+     auto l=parseMatterFile(linerPath.string()),m=parseMatterFile(mediumPath.string());
+     need(l.succeeded()&&m.succeeded(),"paper source material parse failed");
+     need(l.material.name==kLinerName&&m.material.name==kMediumName,"paper material source identity mismatch");
+@@ -371,6 +377,7 @@
+         material->paperCompensatedArithmetic=true;
+         material->genericCompensatedImplicitProjection=true;
+         material->genericBilinear15AccurateProjection=accurate;
++        material->genericBilinear15StrictStateCertification=strictStateCertification;
+     }
+     WorldSource source;source.materials={l.material,m.material};source.gravity={0.0,0.0,0.0};
+     source.environmentCount=1u;source.frameTimestep=1.0e-4;
+@@ -382,20 +389,25 @@
+     source.objects={object};
+     CompileOptions options;options.maximumRateExponent=0u;options.emitSpecializedMetal=false;
+     options.localMaterialNewtonIterations=32u;
++    if(accurate&&requestedIterations.has_value())
++        options.accurateBilinear15LocalNewtonIterations=requestedIterations;
+     auto compiled=compileWorld(source,options);
+     need(compiled.succeeded(),"two-material captured world failed CPU compilation");
+     need(compiled.world.materials.size()==2u&&compiled.world.parameters.size()==56u,
+          "compiled paper world has unexpected material/parameter layout");
+     const std::uint32_t required=NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|
+         NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
++    const auto expectedIterations=requestedIterations.value_or(accurate?16u:32u);
+     for(std::size_t i=0;i<2u;++i){
+         const auto& gpu=compiled.world.materials[i];
+         need(gpu.stateCount==15u&&(gpu.flags&required)==required,
+              "compiled paper material omitted state count or actual source flags");
+         need(((gpu.flags&NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u)==accurate,
+              "compiled accurate projection selector differs from requested policy");
+-        need(gpu.localNewtonIterations==(accurate?16u:32u),
+-             "compiled local iteration budget differs from actual source policy");
++        need(((gpu.flags&NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)!=0u)==strictStateCertification,
++             "compiled strict state-certification selector differs from requested policy");
++        need(gpu.localNewtonIterations==expectedIterations,
++             "compiled local Newton budget differs from requested exact budget");
+     }
+     return compiled.world;
+ }
+@@ -924,9 +936,237 @@
+     return 0;
+ }
+ 
++
++struct Bound547Input {
++    Capture selected;
++    std::string sourceCaptureSHA;
++};
++Bound547Input readBound547Input(const std::filesystem::path& path) {
++    NSDictionary* root=readJSONDocument(path);
++    need(stringValue(field(root,"schema"),"source547 batch schema")==
++         "numi.cardboard.source-bound-native-batch.v1",
++         "unexpected source547 input schema");
++    const std::string sourceCaptureSHA=
++        stringValue(field(root,"source_capture_sha256"),"source capture SHA");
++    need(sourceCaptureSHA.size()==64u&&
++         std::all_of(sourceCaptureSHA.begin(),sourceCaptureSHA.end(),
++             [](unsigned char c){return std::isxdigit(c)!=0;}),
++         "source capture SHA must be 64 hexadecimal characters");
++    NSArray* parameterRows=(NSArray*)field(root,"parameters_by_material");
++    need([parameterRows isKindOfClass:[NSArray class]]&&parameterRows.count==2u,
++         "source547 parameter rows must bind liner and medium");
++    Bound547Input out;
++    out.sourceCaptureSHA=sourceCaptureSHA;
++    for(std::size_t material=0;material<2u;++material) {
++        const auto values=flatVector(parameterRows[material],28u,
++            "source547 material parameters");
++        out.selected.parameterRow.insert(out.selected.parameterRow.end(),
++            values.begin(),values.end());
++    }
++    NSArray* rows=(NSArray*)field(root,"rows");
++    need([rows isKindOfClass:[NSArray class]]&&rows.count==1472u,
++         "source547 input must preserve all 1,472 selected native rows");
++    struct ExpectedRow {
++        std::size_t index;
++        const char* label;
++        int power;
++        int sign;
++    };
++    constexpr std::array<ExpectedRow,10> expected{{
++        {256u,"center",-1,0},{257u,"center_repeat",-1,0},
++        {282u,"endpoint",22,1},{283u,"endpoint",22,-1},
++        {284u,"endpoint",23,1},{285u,"endpoint",23,-1},
++        {286u,"endpoint",24,1},{287u,"endpoint",24,-1},
++        {288u,"endpoint",25,1},{289u,"endpoint",25,-1}
++    }};
++    std::array<float,kStateCount> acceptedCenter{};
++    bool haveAccepted=false;
++    for(const auto& expectedRow:expected) {
++        NSDictionary* item=(NSDictionary*)rows[expectedRow.index];
++        need(number(field(item,"environment"),"source547 environment")==0.0&&
++             number(field(item,"tet_id"),"source547 tet id")==222.0&&
++             number(field(item,"material_index"),"source547 material index")==0.0,
++             "source547 selected row no longer binds env0/tet222/liner");
++        need(stringValue(field(item,"label"),"source547 label")==expectedRow.label&&
++             number(field(item,"basis_column"),"source547 basis column")==2.0&&
++             number(field(item,"sign"),"source547 endpoint sign")==expectedRow.sign,
++             "source547 selected row label/basis/sign changed");
++        if(expectedRow.power>=0)
++            need(number(field(item,"epsilon_power"),"source547 epsilon power")==
++                 double(expectedRow.power),
++                 "source547 selected endpoint epsilon power changed");
++        Record row;
++        row.env=0u;row.tet=222u;row.material=0u;row.materialName=kLinerName;
++        const auto input=flatArray<kInputStride>(
++            field(item,"packed_input_f32"),"source547 packed input");
++        const auto accepted=flatArray<kStateCount>(
++            field(item,"accepted_state_f32"),"source547 accepted history");
++        row.input=input;row.accepted=accepted;
++        if(!haveAccepted) { acceptedCenter=accepted;haveAccepted=true; }
++        else for(std::size_t i=0;i<kStateCount;++i)
++            need(std::bit_cast<std::uint32_t>(accepted[i])==
++                 std::bit_cast<std::uint32_t>(acceptedCenter[i]),
++                 "source547 rows do not share the exact accepted history");
++        out.selected.rows.push_back(row);
++    }
++    need(out.selected.parameterRow.size()==56u,
++         "source547 parameter binding has wrong total length");
++    return out;
++}
++void runSource547StrictStateCertification(
++    const std::filesystem::path& inputPath,const std::string& expectedInputSHA,
++    const std::filesystem::path& linerPath,const std::filesystem::path& mediumPath,
++    const std::filesystem::path& outdir,const bool native) {
++    need(expectedInputSHA.size()==64u&&
++         std::all_of(expectedInputSHA.begin(),expectedInputSHA.end(),
++             [](unsigned char c){return std::isxdigit(c)!=0;}),
++         "expected source547 input SHA must be 64 hexadecimal characters");
++    const std::string inputSHA=sha256(inputPath);
++    need(inputSHA==expectedInputSHA,
++         "source547 input SHA differs from explicit command binding");
++    need(sha256(linerPath)==kLinerSHA&&sha256(mediumPath)==kMediumSHA,
++         "source paper source asset SHA differs from the fixed material binding");
++    const Bound547Input input=readBound547Input(inputPath);
++    const auto baseline=compileSources(linerPath,mediumPath,true,false,32u);
++    const auto strict=compileSources(linerPath,mediumPath,true,true,32u);
++    verifyParameters(baseline,input.selected);
++    verifyParameters(strict,input.selected);
++    const std::uint32_t accurateFlag=
++        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++    const std::uint32_t strictFlag=
++        NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
++    for(std::size_t i=0;i<2u;++i) {
++        need(baseline.materials[i].localNewtonIterations==32u&&
++             (baseline.materials[i].flags&accurateFlag)!=0u&&
++             (baseline.materials[i].flags&strictFlag)==0u,
++             "source547 baseline is not accurate bilinear15 with explicit32 and no strict certificate");
++        need(strict.materials[i].localNewtonIterations==32u&&
++             (strict.materials[i].flags&accurateFlag)!=0u&&
++             (strict.materials[i].flags&strictFlag)!=0u,
++             "source547 strict build omitted policy or changed the local iteration budget");
++    }
++    need(baseline.fingerprint!=strict.fingerprint,
++         "source547 strict policy did not change the compiled-world fingerprint");
++    if(!native) {
++        std::cout<<"{\"record\":\"source547_strict_state_cpu_admission\","
++                 "\"status\":\"pass\",\"input_sha256\":\""<<inputSHA
++                 <<"\",\"source_capture_sha256\":\""<<input.sourceCaptureSHA
++                 <<"\",\"selected_rows\":10,\"baseline_iterations\":32,"
++                 "\"strict_iterations\":32,\"strict_scaled_correction_tolerance\":2e-10,"
++                 "\"physical_gpu_execution\":false}\n";
++        return;
++    }
++    need(!std::filesystem::exists(outdir),
++         "source547 output directory already exists; refusing evidence overwrite");
++    need(std::filesystem::create_directories(outdir),
++         "could not create source547 native diagnostic output directory");
++    Metal metal;
++    const auto baselineBatch=runBatch(
++        metal,baseline,"accurate32",input.selected.rows,outdir,inputSHA,true);
++    const auto strictBatch=runBatch(
++        metal,strict,"strict_state_2e-10_budget32",input.selected.rows,outdir,inputSHA,true);
++    const auto centerIt=std::find_if(input.selected.rows.begin(),input.selected.rows.end(),
++        [](const Record& row) {
++            return row.env==0u&&row.tet==222u&&row.material==0u&&
++                row.input[27u]==0.0f&&row.input[28u]==0.0f&&
++                row.input[29u]==1.0f&&row.input[30u]==0.0f;
++        });
++    const auto endpointIt=input.selected.rows.size()>4u
++        ? input.selected.rows.begin()+4u : input.selected.rows.end();
++    need(centerIt!=input.selected.rows.end(),"source547 tet222 center row missing");
++    need(endpointIt!=input.selected.rows.end()&&endpointIt->tet==222u&&
++         endpointIt->input[27u]==0.0f&&endpointIt->input[28u]==0.0f&&
++         endpointIt->input[29u]==1.0f&&endpointIt->input[0u]!=centerIt->input[0u],
++         "source547 selected p23 endpoint row identity changed");
++    const auto baselineCenterTrace=runTrace(
++        metal,baseline,"accurate32_center",*centerIt,outdir,inputSHA,true);
++    const auto strictCenterTrace=runTrace(
++        metal,strict,"strict_state_2e-10_budget32_center",*centerIt,outdir,inputSHA,true);
++    const auto baselineTrace=runTrace(
++        metal,baseline,"accurate32_p23plus",*endpointIt,outdir,inputSHA,true);
++    const auto strictTrace=runTrace(
++        metal,strict,"strict_state_2e-10_budget32_p23plus",*endpointIt,outdir,inputSHA,true);
++    const std::array<std::pair<unsigned,unsigned>,5> spans={{{14u,8u},{23u,17u},
++        {32u,26u},{41u,35u},{56u,50u}}};
++    const std::array<unsigned,5> lengths={9u,9u,9u,15u,15u};
++    auto mismatchCounts=[&](const std::vector<float>& trace,
++                            const std::vector<float>& batch) {
++        std::array<unsigned,5> mismatch{};
++        for(std::size_t span=0;span<spans.size();++span)
++            for(unsigned j=0;j<lengths[span];++j)
++                mismatch[span]+=std::bit_cast<std::uint32_t>(
++                    trace[spans[span].first+j])!=
++                    std::bit_cast<std::uint32_t>(
++                    batch[spans[span].second+j]);
++        return mismatch;
++    };
++    const auto baselineMismatch=mismatchCounts(
++        baselineTrace,baselineBatch);
++    const auto strictMismatch=mismatchCounts(strictTrace,strictBatch);
++    const auto traceStatus=static_cast<int>(strictTrace[
++        kTraceSummarySlots+kTraceHeaderFailureSlot]);
++    std::ofstream f(outdir/"source547-strict-state-certification.json");
++    need(f.good(),"could not write source547 strict-state summary");
++    f<<"{\"schema\":\"numi.cardboard.source547-strict-state-certification.v1\","
++     <<"\"input_sha256\":\""<<inputSHA<<"\","
++     <<"\"source_capture_sha256\":\""<<input.sourceCaptureSHA<<"\","
++     <<"\"liner_sha256\":\""<<sha256(linerPath)<<"\","
++     <<"\"medium_sha256\":\""<<sha256(mediumPath)<<"\","
++     <<"\"baseline_world_fingerprint\":"<<baseline.fingerprint<<","
++     <<"\"strict_world_fingerprint\":"<<strict.fingerprint<<","
++     <<"\"baseline_flags_liner\":"<<baseline.materials[0].flags<<","
++     <<"\"strict_flags_liner\":"<<strict.materials[0].flags<<","
++     <<"\"baseline_local_iterations\":32,\"strict_local_iterations\":32,"
++     <<"\"baseline_scaled_correction_tolerance\":2e-8,"
++     <<"\"strict_scaled_correction_tolerance\":2e-10,"
++     <<"\"projection_residual_tolerance_unchanged\":2e-8,"
++     <<"\"outer_residual_and_correction_gates_changed\":false,"
++     <<"\"rows\":10,\"selected_point\":\"env0/tet222/liner/basis2\","
++     <<"\"center_trace_iterations_baseline\":";
++    numberJSON(f,baselineCenterTrace[3]);
++    f<<",\"center_trace_iterations_strict\":";
++    numberJSON(f,strictCenterTrace[3]);
++    f<<",\"center_strict_project_valid\":"
++     <<(strictCenterTrace[0]==1.0f?"true":"false")
++     <<",\"p23plus_trace_iterations_baseline\":";
++    numberJSON(f,baselineTrace[3]);
++    f<<",\"p23plus_trace_iterations_strict\":";
++    numberJSON(f,strictTrace[3]);
++    f<<",\"p23plus_strict_project_valid\":"
++     <<(strictTrace[0]==1.0f?"true":"false")
++      <<",\"p23plus_strict_projection_residual\":";
++    numberJSON(f,strictTrace[1]);
++    f<<",\"p23plus_strict_projection_failure\":";
++    numberJSON(f,strictTrace[5]);
++    f<<",\"trace_status_code\":"<<traceStatus
++      <<",\"trace_off_parity_mismatch_counts\":{"
++      <<"\"baseline\":["<<baselineMismatch[0]<<","<<baselineMismatch[1]<<","
++      <<baselineMismatch[2]<<","<<baselineMismatch[3]<<","<<baselineMismatch[4]<<"],"
++      <<"\"strict\":["<<strictMismatch[0]<<","<<strictMismatch[1]<<","
++      <<strictMismatch[2]<<","<<strictMismatch[3]<<","<<strictMismatch[4]<<"]},"
++      <<"\"physical_transactions\":0,\"physical_qualification\":false,"
++      <<"\"interpretation\":\"bounded native local-projection comparison only; strict policy enforces a smaller dimensionless Newton-correction certificate without changing the residual gate, iteration budget, equations, or outer criteria\"}\n";
++    need(f.good(),"source547 strict-state summary write failed");
++    std::cout<<"{\"record\":\"source547_strict_state_native_observation\","
++             "\"status\":\"diagnostic_complete\",\"input_sha256\":\""<<inputSHA
++             <<"\",\"source_capture_sha256\":\""<<input.sourceCaptureSHA
++             <<"\",\"strict_projection_valid\":"<<(strictTrace[0]==1.0f?"true":"false")
++             <<",\"strict_projection_iterations\":";numberJSON(std::cout,strictTrace[3]);
++    std::cout<<",\"physical_transactions\":0,\"physical_qualification\":false}\n";
++}
++
+ }
+ 
+ int main(int argc,char** argv){@autoreleasepool{try{
++    const bool source547CPU=argc==6&&std::string(argv[1])=="--cpu-source547-strict-projection";
++    const bool source547Native=argc==7&&std::string(argv[1])=="--native-source547-strict-projection";
++    if(source547CPU||source547Native) {
++        runSource547StrictStateCertification(
++            argv[2],argv[3],argv[4],argv[5],
++            source547Native?std::filesystem::path(argv[6]):std::filesystem::path{},
++            source547Native);
++        return 0;
++    }
+     const bool native392Trace=argc==6&&std::string(argv[1])=="--native-source392-tet858-trace";
+     if(native392Trace)
+         return runExactSource392Tet858Trace(argv[2],argv[3],argv[4],argv[5]);
+@@ -941,7 +1181,7 @@
+     const bool nativeAll=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--all-points"&&std::string(argv[3])=="--expected-capture-sha256";
+     const bool nativeSweep=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--derivative-sweep"&&std::string(argv[3])=="--expected-capture-sha256";
+     const bool native=nativeSelected||nativeAll||nativeSweep;
+-    need(cpu||native||nativeExactPoint||native392Trace,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR | --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR");
++    need(source547CPU||source547Native||cpu||native||nativeExactPoint||native392Trace,"usage: capture-diagnostic --cpu-source547-strict-projection INPUT.json SHA LINER.nmatter MEDIUM.nmatter | --native-source547-strict-projection INPUT.json SHA LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR | --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR");
+     const std::string expectedCaptureSHA=argv[cpu?3:4];
+     need(expectedCaptureSHA.size()==64u&&std::all_of(expectedCaptureSHA.begin(),expectedCaptureSHA.end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
+          "expected capture SHA must be exactly 64 hexadecimal characters");
+--- a/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
++++ b/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
+@@ -82,6 +82,22 @@
+          "the standalone constitutive compiler default for this policy changed");
+     need(compiled.program.fingerprint != legacy.program.fingerprint,
+          "material fingerprint did not bind the scaled-correction policy");
++    MaterialProgram strictCandidate = candidate;
++    strictCandidate.genericBilinear15StrictStateCertification = true;
++    const auto strictCompiled = numi::matter::detail::compileConstitutive(
++        strictCandidate, NM_EXPRESSION_STACK_CAPACITY);
++    need(strictCompiled.succeeded() &&
++         (strictCompiled.program.gpu.flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u &&
++         strictCompiled.program.gpu.localNewtonIterations == 16u,
++         "strict state certificate was not compiled with unchanged accurate-policy default budget");
++    need(strictCompiled.program.fingerprint != compiled.program.fingerprint,
++         "material fingerprint did not bind strict state certification");
++    auto strictWithoutAccurate = compensatedDefault;
++    strictWithoutAccurate.genericBilinear15StrictStateCertification = true;
++    need(!numi::matter::detail::compileConstitutive(
++             strictWithoutAccurate, NM_EXPRESSION_STACK_CAPACITY).succeeded(),
++         "strict certificate was admitted without accurate bilinear15 projection");
+     need(compiled.program.implicitResiduals.size() == 15u &&
+          compiled.program.implicitJacobians.size() == 225u &&
+          compiled.program.implicitDeformationDirections.size() == 15u &&
+@@ -113,14 +129,23 @@
+     const auto world = compileOneMaterial(candidate);
+     const std::string worldFailure = world.diagnostics.empty() ? "no compiler diagnostic" : world.diagnostics.front().message;
+     need(world.succeeded(), "scoped projection world failed compilation: " + worldFailure);
+-    need(world.world.materials[0].localNewtonIterations == 16u,
+-         "accurate bilinear-15 world default must remain 16 when no override is supplied");
++    need(world.world.materials[0].localNewtonIterations == 16u &&
++         (world.world.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) == 0u,
++         "accurate bilinear-15 world default must remain 16 and strict certification default-off");
+     const auto explicit16 = compileOneMaterial(candidate, 32u, 16u);
+     const auto explicit32 = compileOneMaterial(candidate, 32u, 32u);
+     need(explicit16.succeeded() && explicit32.succeeded() &&
+          explicit16.world.materials[0].localNewtonIterations == 16u &&
+          explicit32.world.materials[0].localNewtonIterations == 32u,
+          "explicit accurate bilinear-15 budgets 16 and 32 were not preserved by compilation");
++    const auto strict32 = compileOneMaterial(strictCandidate, 32u, 32u);
++    need(strict32.succeeded() &&
++         strict32.world.materials[0].localNewtonIterations == 32u &&
++         (strict32.world.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u &&
++         strict32.world.fingerprint != explicit32.world.fingerprint,
++         "strict state certification changed the budget or failed to bind the world fingerprint");
+     need(explicit16.world.fingerprint != explicit32.world.fingerprint,
+          "compiled-world fingerprint did not bind the effective local projection budget");
+     const auto explicit8 = compileOneMaterial(candidate, 32u, 8u);
+@@ -136,9 +161,21 @@
+     need(legacyWorld.succeeded() &&
+          legacyWorld.world.materials[0].localNewtonIterations == 8u &&
+          (legacyWorld.world.materials[0].flags &
+-          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u,
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u &&
++         (legacyWorld.world.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) == 0u,
+          "the opt-in policy changed the production default world material budget or flags");
+     std::string error;
++    need(validateCompiledWorldLayout(strict32.world, &error),
++         "validator rejected strict state certification: " + error);
++    auto strictWithoutAccurateWorld = strict32.world;
++    strictWithoutAccurateWorld.materials[0].flags &=
++        ~NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++    strictWithoutAccurateWorld.fingerprint =
++        compiledWorldFingerprint(strictWithoutAccurateWorld);
++    error.clear();
++    need(!validateCompiledWorldLayout(strictWithoutAccurateWorld, &error),
++         "validator admitted strict state certification without accurate projection");
+     need(validateCompiledWorldLayout(world.world, &error),
+          "scoped projection world failed package validation: " + error);
+     need(validateCompiledWorldLayout(explicit32.world, &error),
+@@ -162,22 +199,24 @@
+         "numi-cardboard-bilinear15-scaled-correction-policy.nmatterpkg";
+     std::filesystem::remove(packagePath);
+     CompileResult package;
+-    package.world = explicit32.world;
++    package.world = strict32.world;
+     need(writePackage(package, packagePath, &error),
+-         "could not serialize the explicit-32 scoped policy package: " + error);
++         "could not serialize the explicit-32 strict policy package: " + error);
+     CompiledWorld restored;
+     need(readPackage(packagePath, restored, nullptr, &error),
+          "could not restore the explicit-32 scoped policy package: " + error);
+     std::filesystem::remove(packagePath);
+     need(validateCompiledWorldLayout(restored, &error) &&
+-         restored.fingerprint == explicit32.world.fingerprint &&
++         restored.fingerprint == strict32.world.fingerprint &&
+          restored.materials[0].localNewtonIterations == 32u &&
+          (restored.materials[0].flags &
+-          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u,
+-         "package roundtrip lost the local projection policy or iteration budget");
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
++         (restored.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u,
++         "package roundtrip lost strict local projection policy or iteration budget");
+     std::cout << "bilinear15_scaled_correction_policy_cpu_check_passed"
+               << " state_count=15 parameter_count=28 default_iterations=16 explicit_iterations=8,16,32"
+-              << " package_roundtrip=pass native_metal_execution=not_run"
++              << " strict_scaled_correction_threshold=2e-10 package_roundtrip=pass native_metal_execution=not_run"
+               << " physical_validation=false\n";
+ }
+ 
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -165,6 +165,7 @@
+     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION = 1u << 5u,
+     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION = 1u << 6u,
+     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION = 1u << 7u,
++    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION = 1u << 8u,
+ };
+ 
+ enum NMMaterialProjectionKind : nm_u32 {
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -246,6 +246,8 @@
+     // bilinear Hill bytecode law. Requires genericCompensatedImplicitProjection;
+     // it changes only the local projection solve policy and iteration budget.
+     bool genericBilinear15AccurateProjection = false;
++    // Opt-in stricter dimensionless Newton-correction certificate for accurate bilinear15 state projection.
++    bool genericBilinear15StrictStateCertification = false;
+     std::vector<Parameter> parameters;
+     std::vector<InternalState> internalState;
+     ExpressionGraph expressions;
+--- a/matter/src/constitutive_impl.cpp
++++ b/matter/src/constitutive_impl.cpp
+@@ -1145,7 +1145,8 @@
+     if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
+         material.paperHillAccurateProjection ||
+         material.genericCompensatedImplicitProjection ||
+-        material.genericBilinear15AccurateProjection) {
++        material.genericBilinear15AccurateProjection ||
++        material.genericBilinear15StrictStateCertification) {
+         const std::array<std::string_view,20> parameters{"density","c11","c22","c33",
+             "c12","c13","c23","g12","g13","g23","sigma_ref","hill_F","hill_G",
+             "hill_H","hill_L","hill_M","hill_N","q_floor","fb_epsilon","residual_scale"};
+@@ -1249,6 +1250,8 @@
+         if((material.genericCompensatedImplicitProjection &&
+                 !genericProjectionLayout) ||
+            (material.genericBilinear15AccurateProjection && !bilinear15AccurateLayout) ||
++           (material.genericBilinear15StrictStateCertification &&
++            (!material.genericBilinear15AccurateProjection || !bilinear15AccurateLayout)) ||
+            ((material.paperHillScalarInitializer ||
+              material.paperCompensatedArithmetic ||
+              material.paperHillAccurateProjection) &&
+@@ -1527,7 +1530,9 @@
+         (material.genericCompensatedImplicitProjection
+             ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u) |
+         (material.genericBilinear15AccurateProjection
+-            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u);
++            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u) |
++        (material.genericBilinear15StrictStateCertification
++            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u);
+     gpu.stateInitialOffset = NM_INVALID_INDEX;
+     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
+     gpu.dissipationProgram = NM_INVALID_INDEX;
+@@ -1690,6 +1695,10 @@
+         const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+     }
++    if(material.genericBilinear15StrictStateCertification) {
++        const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
++        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
++    }
+     if (result.program.dissipation.has_value()) {
+         fingerprint = hashBytes(
+             result.program.dissipation->instructions.data(),
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -40,7 +40,8 @@
+     NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+-    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
++    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
+ constexpr std::uint32_t kKnownObjectFlags =
+     NM_OBJECT_ACTIVE |
+     NM_OBJECT_TWO_WAY_COUPLED |
+@@ -1094,6 +1095,8 @@
+                 (material.flags & NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)!=0u;
+             const bool genericBilinear15AccurateProjection =
+                 (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u;
++            const bool genericBilinear15StrictStateCertification =
++                (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)!=0u;
+             const bool finiteElasticStarchArithmetic =
+                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
+                 (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
+@@ -1130,6 +1133,11 @@
+                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
+                 return failIndexed("material",index,
+                     "generic compensated projection requires a generic implicit bytecode layout and cannot use Hill-only policies");
++            }
++            if (genericBilinear15StrictStateCertification &&
++                !genericBilinear15AccurateProjection) {
++                return failIndexed("material",index,
++                    "strict bilinear-15 state certification requires accurate bilinear-15 projection");
+             }
+             if (genericBilinear15AccurateProjection &&
+                 (!genericCompensatedProjection || material.stateCount!=15u ||
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -1334,6 +1334,12 @@
+         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u;
+ }
+ 
++inline bool usesStrictBilinear15StateCertification(
++    const NMMaterialGPU material) {
++    return (material.flags &
++        NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u;
++}
++
+ inline bool projectMaterialState(
+     const NMMaterialGPU material,
+     device const NMScalarProgramGPU* programs,
+@@ -1390,6 +1396,8 @@
+         *stageFlagsOutput |= kMaterialDiagProjectionEntered;
+     const bool accurateCandidate = usesCompensatedImplicitCandidate(material);
+     const bool scaledCorrectionPolicy = usesScaledCorrectionProjection(material);
++    const float scaledCorrectionTolerance =
++        usesStrictBilinear15StateCertification(material) ? 2.0e-10f : 2.0e-8f;
+     float localCandidateLow[NM_MAX_MATERIAL_STATE];
+     thread float* candidateLow = projectedLowOutput != nullptr
+         ? projectedLowOutput : localCandidateLow;
+@@ -1601,7 +1609,7 @@
+             }
+         }
+         if (residualConverged && scaledCorrectionPolicy &&
+-            scaledCorrectionNorm <= 2.0e-8f) {
++            scaledCorrectionNorm <= scaledCorrectionTolerance) {
+             if (traceProjection) {
+                 projectionIterationTrace[traceRecord+0u]=9.0f;
+                 projectionIterationTrace[3]=1.0f;
+@@ -1799,7 +1807,7 @@
+         }
+         if (stageFlagsOutput != nullptr)
+             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
+-        converged = finalScaledCorrectionNorm <= 2.0e-8f;
++        converged = finalScaledCorrectionNorm <= scaledCorrectionTolerance;
+     }
+     if (traceProjection) {
+         if (converged) projectionIterationTrace[3]=1.0f;

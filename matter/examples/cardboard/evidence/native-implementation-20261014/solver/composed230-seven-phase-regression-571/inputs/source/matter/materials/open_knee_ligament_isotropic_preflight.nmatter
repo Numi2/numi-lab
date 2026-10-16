@@ -1,0 +1,40 @@
+// Mechanics preflight for the exact Open Knee(s) oks003 ligament meshes.
+// The probe replaces these defaults per region with the source c1 and k
+// values: shear = 2*c1 and bulk = k.  That is the infinitesimal isotropic
+// equivalence of the source Mooney-Rivlin matrix, not the source transverse-
+// isotropic fibre law.  It qualifies exact topology, multi-body attachment,
+// reaction ownership and the Apple FEM transaction while the per-tetrahedron
+// fibre-direction ABI is developed.
+material open_knee_ligament_isotropic_preflight {
+    parameter density : kg/m^3 = 1000 in [900, 1200];
+    parameter shear : MPa = 3.9 in [0.1, 20] log identifiable;
+    parameter bulk : MPa = 146.41 in [20, 1200] log identifiable;
+    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}

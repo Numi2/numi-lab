@@ -1,0 +1,68 @@
+{
+  "artifacts_sha256": {
+    "numi-matter-cardboard-shipping-contact-page-native-check": "07e0d855ed470ad0e294dd122f36e2c0aecc6a0d5b802b7db4e90f04495534ea",
+    "numi-matter-cardboard-shipping-contact-page-plan-check": "8ccfef20f9388387a7dcf5177c902a098a187d05350dcf095a1c861f8887af38"
+  },
+  "base_frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "build_metadata_sha256": {
+    "CMakeCache.txt": "3be1841fe9e99e74f8df1e64626c93be2ea6cc78ae29ad848a004eec258e2a37",
+    "compile_commands.json": "aad6431155d7475dc2787bdda5ef7026199b295b936e88442b293c41796af9bf"
+  },
+  "changed_source_hashes": {
+    "matter/CMakeLists.txt": "f5210c46118d0eac79dff11c006be885ba5b6f6692e66c06e662cce0695ad78a",
+    "matter/include/numi/matter/detail/shipping_contact_page_plan.hpp": "33d725d566c3c22359c08e5c9d2d0887ec3c8e350e303133e4b71e1bdedfcf5c",
+    "matter/tools/cardboard_shipping_contact_page_native_check.mm": "656ebc6da01bc63184bc1c6671bd718933f82517946fa81557660552592f972b",
+    "matter/tools/cardboard_shipping_contact_page_plan_check.cpp": "2295c8567084e6906f0184eaf271ea7716ef5fd65708e2606e9a515222a025b1"
+  },
+  "cpu_test": {
+    "checks": 24,
+    "ctest": "matter.compiler.cardboard_shipping_contact_page_plan",
+    "status": "passed",
+    "stdout": "shipping_contact_page_plan_checks=24 pairs=6335568 pair_pages=97 pair_last=44112 cohesive_faces=260835 cohesive_pages=3 cohesive_last=86073 contact_page_bytes=11010064 cohesive_pages_bytes=16777152 persistent_subset_bytes=1381065984 serialized_peak_bytes=1397843136 conservative_overlap_peak_bytes=1408853200 full_pair_history_bytes=405476352 whole_process_admission=false production_paging_enabled=false physical_transactions=0"
+  },
+  "frozen_source_sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26",
+  "limits": [
+    "These are planner calculations for named buffers only, not a measured whole-process peak or <16GiB shipping admission.",
+    "No production runtime/operator path consumes these pages yet.",
+    "Contact helper verifies contiguous canonical row-ordinal coverage, not that production pair tuples were streamed or preserved across paged kernels.",
+    "Production N/T/C and native full-contact admission gates remain unchanged; no truncation or cap increase."
+  ],
+  "native_helper": {
+    "status": "compiled-only; root-owned native dispatch pending",
+    "target": "numi-matter-cardboard-shipping-contact-page-native-check"
+  },
+  "page_plan": {
+    "cohesive_faces_per_page": 87381,
+    "cohesive_last_page_faces": 86073,
+    "cohesive_page_buffers_bytes": 16777152,
+    "cohesive_pages": 3,
+    "conservative_overlap_named_subset_bytes": 1408853200,
+    "contact_history_bytes": 405476352,
+    "contact_last_page_rows": 44112,
+    "contact_pages": 97,
+    "contact_rows_per_page": 65536,
+    "contact_scratch_bytes": 11010064,
+    "persistent_named_subset_bytes": 1381065984,
+    "serialized_peak_named_subset_bytes": 1397843136
+  },
+  "schema": "numi.cardboard.shipping_contact_page_plan_result.v1",
+  "shipping_counts": {
+    "cohesive_faces": 260835,
+    "contact_pair_rows": 6335568,
+    "environments": 1,
+    "global_unknowns": 528444,
+    "surface_faces": 1054876
+  },
+  "source_base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/source-build.json",
+  "source_build_sha256": "1d9405960e92a0afaf257c9430f74e704902463eba8351efecf05875a3954fed",
+  "source_build_success": true,
+  "source_file_count": 822,
+  "source_file_drift_during_build": [],
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-pages-225-002",
+  "status": "CPU-plan-and-build-pass; native-page-kernel-compiled-not-dispatched",
+  "targets": [
+    "numi-matter-cardboard-shipping-contact-page-plan-check",
+    "numi-matter-cardboard-shipping-contact-page-native-check"
+  ]
+}

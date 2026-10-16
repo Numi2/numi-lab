@@ -1,0 +1,338 @@
+{
+  "schema": "numi.cardboard.native565-fine-perturbation-descriptive.v1",
+  "capture_sha256": "49f4d50893faeefe1d6b4ee3d781fee939c47af920ea7a7881d6a62b408d8f4f",
+  "coarse_capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+  "native_centers_corrections_cached_tangents_identical_to555": true,
+  "reports": [
+    {
+      "environment": 0,
+      "free_nodes": 846,
+      "action_l2_Ns": 2.7292681903094692e-05,
+      "epsilon_pairs": [
+        {
+          "epsilon": 0.000122070312,
+          "central_action": {
+            "absolute_l2": 0.00949769364068074,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.009487648970640817,
+            "relative_l2": 347.9941500217245
+          },
+          "plus_action": {
+            "absolute_l2": 0.015136484173760388,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.015136578295721384,
+            "relative_l2": 554.5986366420104
+          },
+          "minus_action": {
+            "absolute_l2": 0.011520550352767415,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.011503861441550533,
+            "relative_l2": 422.1113334948996
+          },
+          "native_residual_pair_delta_l2_Ns": 2.3163205399852067e-06,
+          "realized_nodal_relationships": [
+            {
+              "side": "plus",
+              "velocity": {
+                "absolute_l2": 1.2618310582175147e-08,
+                "reference_l2": 0.004068651808496609,
+                "observed_l2": 0.0040686523031899634,
+                "relative_l2": 3.101349335380382e-06
+              },
+              "reference_displacement": {
+                "absolute_l2": 1.8254467422096717e-11,
+                "reference_l2": 2.0343258513558305e-07,
+                "observed_l2": 2.0343187403802798e-07,
+                "relative_l2": 8.973226884931213e-05
+              },
+              "world_position": {
+                "absolute_l2": 1.5925483007916334e-08,
+                "reference_l2": 2.0343258513558305e-07,
+                "observed_l2": 2.0416114705031167e-07,
+                "relative_l2": 0.07828383539098406
+              },
+              "nonzero_velocity_components": 2538,
+              "nonzero_u_components": 2535,
+              "nonzero_x_components": 1233
+            },
+            {
+              "side": "minus",
+              "velocity": {
+                "absolute_l2": 1.265664721771892e-08,
+                "reference_l2": 0.004068651808496609,
+                "observed_l2": 0.004068652370886961,
+                "relative_l2": 3.1107717773459773e-06
+              },
+              "reference_displacement": {
+                "absolute_l2": 1.8873239293459468e-11,
+                "reference_l2": 2.0343258513558305e-07,
+                "observed_l2": 2.0343214314788034e-07,
+                "relative_l2": 9.27739244963185e-05
+              },
+              "world_position": {
+                "absolute_l2": 1.5047164198901397e-08,
+                "reference_l2": 2.0343258513558305e-07,
+                "observed_l2": 2.0412367500739592e-07,
+                "relative_l2": 0.07396634216132492
+              },
+              "nonzero_velocity_components": 2538,
+              "nonzero_u_components": 2534,
+              "nonzero_x_components": 1211
+            }
+          ],
+          "realized_local_F_direction": {
+            "absolute_l2": 27.9204784400623,
+            "reference_l2": 118466.2640951706,
+            "observed_l2": 118466.49851049068,
+            "relative_l2": 0.00023568294867163376
+          }
+        },
+        {
+          "epsilon": 6.10351562e-05,
+          "central_action": {
+            "absolute_l2": 0.0051260390040472744,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.005124322838550476,
+            "relative_l2": 187.8173432075225
+          },
+          "plus_action": {
+            "absolute_l2": 0.009926376954635456,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.009926450923000096,
+            "relative_l2": 363.7010459389817
+          },
+          "minus_action": {
+            "absolute_l2": 0.0026517855094739203,
+            "reference_l2": 2.7292681903094692e-05,
+            "observed_l2": 0.0026448658325889354,
+            "relative_l2": 97.16104554654399
+          },
+          "native_residual_pair_delta_l2_Ns": 6.255276897403114e-07,
+          "realized_nodal_relationships": [
+            {
+              "side": "plus",
+              "velocity": {
+                "absolute_l2": 1.3074251131937307e-08,
+                "reference_l2": 0.002034325910914383,
+                "observed_l2": 0.0020343262508200548,
+                "relative_l2": 6.426822301083866e-06
+              },
+              "reference_displacement": {
+                "absolute_l2": 1.7984259907992557e-11,
+                "reference_l2": 1.0171629290109547e-07,
+                "observed_l2": 1.0171663290127966e-07,
+                "relative_l2": 0.00017680805498367577
+              },
+              "world_position": {
+                "absolute_l2": 1.3840857548980976e-08,
+                "reference_l2": 1.0171629290109547e-07,
+                "observed_l2": 1.0256588133897941e-07,
+                "relative_l2": 0.13607316147904866
+              },
+              "nonzero_velocity_components": 2538,
+              "nonzero_u_components": 2534,
+              "nonzero_x_components": 1082
+            },
+            {
+              "side": "minus",
+              "velocity": {
+                "absolute_l2": 1.3106517582942685e-08,
+                "reference_l2": 0.002034325910914383,
+                "observed_l2": 0.0020343262494539245,
+                "relative_l2": 6.442683304884813e-06
+              },
+              "reference_displacement": {
+                "absolute_l2": 1.873226379621989e-11,
+                "reference_l2": 1.0171629290109547e-07,
+                "observed_l2": 1.017167244558014e-07,
+                "relative_l2": 0.00018416188067760524
+              },
+              "world_position": {
+                "absolute_l2": 1.230874648903805e-08,
+                "reference_l2": 1.0171629290109547e-07,
+                "observed_l2": 1.0232376126609444e-07,
+                "relative_l2": 0.12101056908362305
+              },
+              "nonzero_velocity_components": 2538,
+              "nonzero_u_components": 2534,
+              "nonzero_x_components": 1083
+            }
+          ],
+          "realized_local_F_direction": {
+            "absolute_l2": 49.80735714236209,
+            "reference_l2": 118466.2640951706,
+            "observed_l2": 118465.86036837359,
+            "relative_l2": 0.00042043494426691
+          }
+        }
+      ]
+    },
+    {
+      "environment": 1,
+      "free_nodes": 846,
+      "action_l2_Ns": 0.0,
+      "epsilon_pairs": [
+        {
+          "epsilon": 0.000122070312,
+          "central_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "plus_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "minus_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "native_residual_pair_delta_l2_Ns": 0.0,
+          "realized_nodal_relationships": [
+            {
+              "side": "plus",
+              "velocity": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "reference_displacement": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "world_position": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "nonzero_velocity_components": 0,
+              "nonzero_u_components": 0,
+              "nonzero_x_components": 0
+            },
+            {
+              "side": "minus",
+              "velocity": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "reference_displacement": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "world_position": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "nonzero_velocity_components": 0,
+              "nonzero_u_components": 0,
+              "nonzero_x_components": 0
+            }
+          ],
+          "realized_local_F_direction": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          }
+        },
+        {
+          "epsilon": 6.10351562e-05,
+          "central_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "plus_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "minus_action": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          },
+          "native_residual_pair_delta_l2_Ns": 0.0,
+          "realized_nodal_relationships": [
+            {
+              "side": "plus",
+              "velocity": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "reference_displacement": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "world_position": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "nonzero_velocity_components": 0,
+              "nonzero_u_components": 0,
+              "nonzero_x_components": 0
+            },
+            {
+              "side": "minus",
+              "velocity": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "reference_displacement": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "world_position": {
+                "absolute_l2": 0.0,
+                "reference_l2": 0.0,
+                "observed_l2": 0.0,
+                "relative_l2": null
+              },
+              "nonzero_velocity_components": 0,
+              "nonzero_u_components": 0,
+              "nonzero_x_components": 0
+            }
+          ],
+          "realized_local_F_direction": {
+            "absolute_l2": 0.0,
+            "reference_l2": 0.0,
+            "observed_l2": 0.0,
+            "relative_l2": null
+          }
+        }
+      ]
+    }
+  ],
+  "qualification": "INCONCLUSIVE_NO_EMPIRICAL_NOISE_FLOOR",
+  "limits": "Descriptive native finite differences and representability only. No independent projection reference or smooth-branch gate, no empirical absolute noise floor and no derivative pass; quiet zero-action environment remains nonqualifying.",
+  "physical_transactions_added": 0,
+  "at_utc": "2026-10-16T12:03:11.010755+00:00"
+}

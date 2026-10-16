@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source216-prescribed-proxy-row-mass-fix.v1",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005",
+  "base_frozen_source_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006",
+  "candidate_frozen_source_sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e",
+  "selected_source_count": 821,
+  "changed_files": [
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm"
+  ],
+  "candidate_file_sha256": "8191ecab72be4b16a90436e36b45070c6e63b558dc07b15258ca4ec585a91c1e",
+  "patch_sha256": "c07107e8c8c973fa15a28d3a18ba0cbd7c711b19f47977d112e41a14bd266943",
+  "native556_receipt_sha256": "dfe34b3f17328924d0bcf03c1d3df170b7c2fa4123bef8bc2450678bc1fe5892",
+  "gpu_execution": false
+}

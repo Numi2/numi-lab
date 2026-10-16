@@ -1,0 +1,20 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "cause": "The declared SHA was the center-input hash, not the full 1,472-row input.json hash.",
+      "command": "numi-matter-cardboard-bilinear15-capture-diagnostic-check --cpu-source547-strict-projection <input.json> 86af711670124c5549303d030fa46e41726ffc6a4dac6ce2947003765a3d0bf8 <Haj-Ali liner> <Nagasawa medium>",
+      "exit_code": 1,
+      "stderr": "source547 input SHA differs from explicit command binding"
+    },
+    {
+      "attempt": 2,
+      "cause": "This checker is bound to the Haj-Ali medium Hill material, not the unrelated Nagasawa medium.",
+      "command": "numi-matter-cardboard-bilinear15-capture-diagnostic-check --cpu-source547-strict-projection <input.json> a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e <Haj-Ali liner> <Nagasawa medium>",
+      "exit_code": 1,
+      "stderr": "source paper source asset SHA differs from the fixed material binding"
+    }
+  ],
+  "recovered_from_tool_transcript": true,
+  "schema": "numi.cardboard.source220-retained-preflights.v1"
+}

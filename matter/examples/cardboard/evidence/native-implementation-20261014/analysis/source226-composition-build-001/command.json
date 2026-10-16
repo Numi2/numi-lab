@@ -1,0 +1,109 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-8192-on222-226-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-8192-on222-226-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-true-residual-arena-plan-check",
+    "--target",
+    "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check"
+  ],
+  "source_frozen_sha256": "313f5a81883162bb5917773b3b3f576cf8991932ff4eed2e8af11e36cb13cba8",
+  "files": [
+    {
+      "file": "matter/CMakeLists.txt",
+      "mode": "direct",
+      "ancestor_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "base222_sha256": "315d8532ec1f2fc729783bcaed27c376cbdf48a240e6906c593c17091508b220",
+      "donor215_sha256": "2878fb9d7e6517867fbc9273f36e7f6e422751de5a27b19198c2a89657ebd5d3",
+      "merged_sha256": "2878fb9d7e6517867fbc9273f36e7f6e422751de5a27b19198c2a89657ebd5d3"
+    },
+    {
+      "file": "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a",
+      "merged_sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    {
+      "file": "matter/include/numi/matter/detail/true_residual_arena_plan.hpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3",
+      "merged_sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    {
+      "file": "matter/src/runtime.mm",
+      "mode": "three_way_clean",
+      "ancestor_sha256": "586f979a13a5628a8c82e925a50d7337ba4a9e91faf9d6e6df2f5dd3d856848e",
+      "base222_sha256": "e8a0c78dc812b491781a8f3d72a4a42d1f70e18ab3b37eff6fe157eadb7e75e1",
+      "donor215_sha256": "0f5bb2f871672d6f7f75c6bba34d10b95b8dd81374bd664b6fc3d9821a4bd55c",
+      "merged_sha256": "008c53a2ae94f7f55f5bda729a888457b2e7bf17bbc1907fa13ea94df1bc6c04"
+    },
+    {
+      "file": "matter/tools/fgmres_true_residual_native_check.mm",
+      "mode": "three_way_clean",
+      "ancestor_sha256": "b854f1a83d3851e99f5648478e208e7236751d1728a51286bcecfa8d5466b589",
+      "base222_sha256": "facb829802f990eb07695d8c734428ad89656b6dfc9886b4a6721e7a7d443a95",
+      "donor215_sha256": "0fb26ea053b31dfb22e85d67b8895a5a16e63465d924017a60e8c2796713857e",
+      "merged_sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    {
+      "file": "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2",
+      "merged_sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    {
+      "file": "matter/tools/pure_fem_cgls_arena_8192_check.metal",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "35dc2270a53145c0105d7296b036195781ce5bd9dffdbadda5061e98f03a4e15",
+      "merged_sha256": "35dc2270a53145c0105d7296b036195781ce5bd9dffdbadda5061e98f03a4e15"
+    },
+    {
+      "file": "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753",
+      "merged_sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    {
+      "file": "matter/tools/test_true_residual_certification_contract.py",
+      "mode": "direct",
+      "ancestor_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402",
+      "base222_sha256": "f40b5c45490d06705b59d504a8cc77d677fa610c7e43ea18d79f7b65fb850402",
+      "donor215_sha256": "d95e217b3db18c5ed0880e85364ff6cd6688f44484d46ffc58cf3388dbf0eb66",
+      "merged_sha256": "d95e217b3db18c5ed0880e85364ff6cd6688f44484d46ffc58cf3388dbf0eb66"
+    },
+    {
+      "file": "matter/tools/true_residual_arena_plan_check.cpp",
+      "mode": "new",
+      "ancestor_sha256": null,
+      "base222_sha256": null,
+      "donor215_sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c",
+      "merged_sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    }
+  ],
+  "gpu_execution": false
+}

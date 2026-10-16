@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "build_id": "002",
+      "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-002/source-build.json",
+      "build_receipt_sha256": "a26b4be84f3aa0b0522c9be53a908a2ad2008d9aeedc4fb41e480fcda71a6c87",
+      "command0_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command1_log_sha256": null,
+      "diagnostics": [],
+      "error": "[Errno 2] No such file or directory: 'cmake'",
+      "snapshot_frozen_sha256": "f5fd0fb6722f0fd70d56aac879b29c8c7a31305767c07abea2a33e781865fec2",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002",
+      "success": false
+    },
+    {
+      "build_id": "002b",
+      "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-002b/source-build.json",
+      "build_receipt_sha256": "1539293d0cf66280a31f27fa0cce57fbf51fce54057c73c3c10560fb8b6ee2f4",
+      "command0_log_sha256": "302c94fb344b094529d439486886f1f03c16fb118147f41920f1da6e250694ff",
+      "command1_log_sha256": "b5c4ee8eadbb53891a9b8525ef47c453f473ffd63d73eab194dedb55e7132ee5",
+      "diagnostics": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:870:24: error: use of undeclared identifier 'dispatchB'; did you mean 'dispatch'?",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:870:24: error: no viable conversion from 'NMMatterDispatchGPU' to 'id<MTLBuffer> _Nullable'",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:940:24: error: use of undeclared identifier 'dispatchB'; did you mean 'dispatch'?",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:940:24: error: no viable conversion from 'NMMatterDispatchGPU' to 'id<MTLBuffer> _Nullable'",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:1002:9: error: use of undeclared identifier 'pair'",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:1002:23: error: use of undeclared identifier 'pair'",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002/matter/tools/cardboard_coupled_free_box_operator_check.mm:1002:37: error: use of undeclared identifier 'pair'"
+      ],
+      "error": "build command 1 failed (2)",
+      "snapshot_frozen_sha256": "f5fd0fb6722f0fd70d56aac879b29c8c7a31305767c07abea2a33e781865fec2",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-002",
+      "success": false
+    },
+    {
+      "build_id": "003",
+      "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-003/source-build.json",
+      "build_receipt_sha256": "8331b27970b24366797835ee070de42b78079c245287a0659f8bfd1fd97cdd6c",
+      "command0_log_sha256": "29e202ed4663a2560e8ebe7ee01e8a29c03c022df5bc64f0db6fd636c898246e",
+      "command1_log_sha256": "0614f3823ec023aef2e5047ea40240afc7a69a06b9ad9dae717d9cf3968b8fa9",
+      "diagnostics": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-003/matter/tools/cardboard_coupled_free_box_operator_check.mm:1099:10: error: unused variable 'microB' [-Werror,-Wunused-variable]"
+      ],
+      "error": "build command 1 failed (2)",
+      "snapshot_frozen_sha256": "3bcf430b58166d8cf6795294f228cfcb938359a238a250b41f775b0ec56e1289",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-003",
+      "success": false
+    },
+    {
+      "build_id": "004",
+      "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-004/source-build.json",
+      "build_receipt_sha256": "d6217bc623acd01d08840cb9b5c7d9202edcf9d4c0233577e15f963617dfee14",
+      "command0_log_sha256": "dae67b26666e3d0641a47b0056c1a93d20d0f48b826f956384779b3cbc7f0bfa",
+      "command1_log_sha256": "590646b05479761227c24a101755c9923e72ef058473243beccb0e0e912f29fe",
+      "diagnostics": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-004/matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp:1:10: fatal error: 'numi/matter/detail/free_box_true_residual_proxy_admission.hpp' file not found"
+      ],
+      "error": "build command 1 failed (2)",
+      "snapshot_frozen_sha256": "4013ad8853b32754099a7750b539ab9ffd61ee0e74a6f344e0ca18d5a6d82280",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-004",
+      "success": false
+    },
+    {
+      "build_id": "005",
+      "build_receipt": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/source-build.json",
+      "build_receipt_sha256": "80052d7c19ce3a37debde4df9bb89134944c7459de44d3e9004ccaf77923cee7",
+      "command0_log_sha256": "170d2149d83c19de0b0f432349b084c8326730b535e7245f9ec8b467ad00cab7",
+      "command1_log_sha256": "b6855496b7dd7d6c5d2da307fbae0557d6d14407dff482eb86398e84259afb06",
+      "diagnostics": [],
+      "error": null,
+      "snapshot_frozen_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+      "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005",
+      "success": true
+    }
+  ],
+  "created_at_utc": "2026-10-16T11:23:18.656250+00:00",
+  "final_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-006",
+  "final_package_manifest_sha256": "0cb11abc1089e74ccb4bead964e4c1ee439fdab9fb13fc4b478f9b168f07bdb9",
+  "interpretation": "Attempts 002 through 004 are preserved failures; 005 is the successful CPU/full-target build. No failed receipt or source snapshot was rewritten.",
+  "schema": "numi.cardboard.source216-build-history.v1"
+}

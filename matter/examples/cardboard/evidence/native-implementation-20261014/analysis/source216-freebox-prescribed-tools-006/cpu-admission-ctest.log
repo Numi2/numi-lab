@@ -1,0 +1,14 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005
+    Start 238: matter.compiler.cardboard_free_box_proxy_admission
+1/1 Test #238: matter.compiler.cardboard_free_box_proxy_admission ...   Passed    0.00 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+admission    =   0.00 sec*proc (1 test)
+cardboard    =   0.00 sec*proc (1 test)
+contact      =   0.00 sec*proc (1 test)
+cpu          =   0.00 sec*proc (1 test)
+matter       =   0.00 sec*proc (1 test)
+
+Total Test time (real) =   0.01 sec

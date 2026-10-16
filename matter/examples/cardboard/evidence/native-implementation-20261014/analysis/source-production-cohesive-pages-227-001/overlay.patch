@@ -1,0 +1,1281 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -850,6 +850,22 @@
+         set_tests_properties(matter.compiler.cardboard_shipping_contact_page_plan
+             PROPERTIES TIMEOUT 20 LABELS "matter;cardboard;contact;pages;cpu")
+     endif()
++    add_executable(numi-matter-cardboard-cohesive-page-runtime-kernel-check
++        tools/cardboard_cohesive_page_runtime_kernel_check.mm)
++    target_include_directories(numi-matter-cardboard-cohesive-page-runtime-kernel-check
++        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../include")
++    target_link_libraries(numi-matter-cardboard-cohesive-page-runtime-kernel-check
++        PRIVATE "-framework Foundation" "-framework Metal")
++    target_compile_options(numi-matter-cardboard-cohesive-page-runtime-kernel-check
++        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.compiler.cardboard_cohesive_page_runtime_kernels
++            COMMAND numi-matter-cardboard-cohesive-page-runtime-kernel-check
++                "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumiMatter.metallib")
++        set_tests_properties(matter.compiler.cardboard_cohesive_page_runtime_kernels
++            PROPERTIES TIMEOUT 30 LABELS "matter;cardboard;cohesive;pages;metal")
++    endif()
++
+     add_executable(numi-matter-cardboard-shipping-contact-page-native-check
+         tools/cardboard_shipping_contact_page_native_check.mm)
+     target_include_directories(numi-matter-cardboard-shipping-contact-page-native-check
+--- a/matter/include/numi/matter/detail/shipping_contact_page_plan.hpp
++++ b/matter/include/numi/matter/detail/shipping_contact_page_plan.hpp
+@@ -25,6 +25,7 @@
+     zero_environment_count,
+     unsupported_environment_count,
+     zero_contact_domain,
++    zero_cohesive_accumulator_node_domain,
+     page_capacity_zero,
+     contact_page_capacity_exceeds_authored_limit,
+     cohesive_page_capacity_exceeds_byte_limit,
+@@ -41,6 +42,7 @@
+     std::uint64_t environmentCount = 1u;
+     std::uint64_t contactPairCount = 0u;
+     std::uint64_t cohesiveFaceCount = 0u;
++    std::uint64_t femNodeCount = 0u;
+     std::uint64_t contactPageRows = kShippingContactSamplePageRows;
+     // Zero selects the maximum face count bounded by the existing 8 MiB
+     // single-buffer rule. Nonzero is an explicit smaller authored limit.
+@@ -69,6 +71,7 @@
+     std::uint64_t cohesiveDefaultFaceBytes = 0u;
+     std::uint64_t cohesiveCandidateFaceBytes = 0u;
+     std::uint64_t cohesiveCheckpointFaceBytes = 0u;
++    std::uint64_t cohesiveAccumulatorBytes = 0u;
+     std::uint64_t retainedGlobalUnknownBytes = 0u;
+     std::uint64_t otherResidentBytes = 0u;
+     std::uint64_t persistentBytes = 0u;
+@@ -139,6 +142,141 @@
+ // A checked range is a half-open interval in the canonical, immutable row
+ // domain. It carries the original global row indices; pages never renumber
+ // rows and never alter accepted history or the global unknown vectors.
++
++// Checked sizing for the production cohesive-face force/operator tile. The
++// face domain remains canonical and global; only the transient six-node
++// vector output is paged. Nodal accumulation remains a separate global arena.
++enum class ShippingCohesivePageError : std::uint8_t {
++    none, zero_environment_count, zero_face_domain, zero_node_domain,
++    face_domain_exceeds_u32, node_domain_exceeds_u32, page_capacity_zero,
++    arithmetic_overflow, page_exceeds_metal_limit,
++    accumulator_exceeds_metal_limit
++};
++struct ShippingCohesivePagePlanInput {
++    std::uint64_t environmentCount = 1u;
++    std::uint64_t cohesiveFaceCount = 0u;
++    std::uint64_t femNodeCount = 0u;
++    std::uint64_t pageBufferBudgetBytes = kShippingCohesiveForcePageBufferBytes;
++    std::uint64_t maxBufferLength = std::numeric_limits<std::uint64_t>::max();
++};
++struct ShippingCohesivePagePlan {
++    ShippingCohesivePageError error = ShippingCohesivePageError::none;
++    std::uint32_t facesPerPage = 0u;
++    std::uint32_t pageCount = 0u;
++    std::uint32_t lastPageFaces = 0u;
++    bool paged = false;
++    std::uint64_t fullFaceBytes = 0u;
++    std::uint64_t facePageBytes = 0u;
++    std::uint64_t accumulatorBytes = 0u;
++    std::uint64_t totalScratchBytes = 0u;
++    [[nodiscard]] constexpr bool admitted() const noexcept {
++        return error == ShippingCohesivePageError::none;
++    }
++};
++[[nodiscard]] constexpr ShippingCohesivePagePlan makeShippingCohesivePagePlan(
++    const ShippingCohesivePagePlanInput& in
++) noexcept {
++    using namespace shipping_contact_page_detail;
++    ShippingCohesivePagePlan out;
++    if (in.environmentCount == 0u) {
++        out.error = ShippingCohesivePageError::zero_environment_count;
++        return out;
++    }
++    if (in.cohesiveFaceCount == 0u) {
++        out.error = ShippingCohesivePageError::zero_face_domain;
++        return out;
++    }
++    if (in.femNodeCount == 0u) {
++        out.error = ShippingCohesivePageError::zero_node_domain;
++        return out;
++    }
++    if (in.environmentCount >
++            std::numeric_limits<std::uint32_t>::max() ||
++        in.cohesiveFaceCount >
++            std::numeric_limits<std::uint32_t>::max() / in.environmentCount) {
++        out.error = ShippingCohesivePageError::face_domain_exceeds_u32;
++        return out;
++    }
++    if (in.femNodeCount >
++            std::numeric_limits<std::uint32_t>::max() / in.environmentCount) {
++        out.error = ShippingCohesivePageError::node_domain_exceeds_u32;
++        return out;
++    }
++    std::uint64_t perFace = 0u;
++    if (!multiply(in.environmentCount,
++                  sizeof(NMCohesiveFaceVectorGPU), perFace) ||
++        perFace == 0u) {
++        out.error = ShippingCohesivePageError::arithmetic_overflow;
++        return out;
++    }
++    const std::uint64_t pageBudget =
++        std::min(in.pageBufferBudgetBytes, in.maxBufferLength);
++    const std::uint64_t maxFaces = pageBudget / perFace;
++    if (maxFaces == 0u) {
++        out.error = ShippingCohesivePageError::page_capacity_zero;
++        return out;
++    }
++    const std::uint64_t capacity =
++        std::min(in.cohesiveFaceCount, maxFaces);
++    out.paged = in.cohesiveFaceCount > capacity;
++    std::uint64_t pages = 0u;
++    if (!ceilPages(in.cohesiveFaceCount, capacity, pages) ||
++        pages > std::numeric_limits<std::uint32_t>::max() ||
++        capacity > std::numeric_limits<std::uint32_t>::max()) {
++        out.error = ShippingCohesivePageError::arithmetic_overflow;
++        return out;
++    }
++    std::uint64_t fullElements = 0u;
++    std::uint64_t pageElements = 0u;
++    std::uint64_t nodeElements = 0u;
++    if (!multiply(in.environmentCount, in.cohesiveFaceCount, fullElements) ||
++        !multiply(fullElements, sizeof(NMCohesiveFaceVectorGPU),
++                  out.fullFaceBytes) ||
++        !multiply(in.environmentCount, capacity, pageElements) ||
++        !multiply(pageElements, sizeof(NMCohesiveFaceVectorGPU),
++                  out.facePageBytes) ||
++        !multiply(in.environmentCount, in.femNodeCount, nodeElements) ||
++        !multiply(nodeElements, sizeof(nm_float4), out.accumulatorBytes)) {
++        out.error = ShippingCohesivePageError::arithmetic_overflow;
++        return out;
++    }
++    if (out.facePageBytes > in.maxBufferLength ||
++        out.facePageBytes > in.pageBufferBudgetBytes) {
++        out.error = ShippingCohesivePageError::page_exceeds_metal_limit;
++        return out;
++    }
++    std::uint64_t twoPages = 0u;
++    if (!multiply(out.facePageBytes, 2u, twoPages)) {
++        out.error = ShippingCohesivePageError::arithmetic_overflow;
++        return out;
++    }
++    if (out.paged) {
++        if (out.accumulatorBytes > in.maxBufferLength) {
++            out.error = ShippingCohesivePageError::accumulator_exceeds_metal_limit;
++            return out;
++        }
++        if (!add(twoPages, out.accumulatorBytes, out.totalScratchBytes)) {
++            out.error = ShippingCohesivePageError::arithmetic_overflow;
++            return out;
++        }
++    } else {
++        if (out.fullFaceBytes > in.maxBufferLength) {
++            out.error = ShippingCohesivePageError::page_exceeds_metal_limit;
++            return out;
++        }
++        out.totalScratchBytes = twoPages;
++    }
++    if (out.totalScratchBytes > std::numeric_limits<std::size_t>::max()) {
++        out.error = ShippingCohesivePageError::arithmetic_overflow;
++        return out;
++    }
++    out.facesPerPage = static_cast<std::uint32_t>(capacity);
++    out.pageCount = static_cast<std::uint32_t>(pages);
++    out.lastPageFaces = static_cast<std::uint32_t>(
++        in.cohesiveFaceCount - (pages - 1u) * capacity);
++    return out;
++}
++
+ struct ShippingContactPageRange {
+     std::uint32_t firstRow = 0u;
+     std::uint32_t rowCount = 0u;
+@@ -201,6 +339,15 @@
+         out.error = ShippingContactPagePlanError::contact_domain_exceeds_u32;
+         return out;
+     }
++    if (in.cohesiveFaceCount != 0u && in.femNodeCount == 0u) {
++        out.error = ShippingContactPagePlanError::zero_cohesive_accumulator_node_domain;
++        return out;
++    }
++    if (in.femNodeCount >
++            std::numeric_limits<std::uint32_t>::max() / in.environmentCount) {
++        out.error = ShippingContactPagePlanError::cohesive_domain_exceeds_u32;
++        return out;
++    }
+     if (in.cohesiveFaceCount >
+             std::numeric_limits<std::uint32_t>::max() / 6u ||
+         in.cohesiveFaceCount >
+@@ -299,6 +446,8 @@
+                out.cohesiveCandidateFaceBytes) ||
+         !bytes(e, in.cohesiveFaceCount, sizeof(NMCohesiveFaceGPU),
+                out.cohesiveCheckpointFaceBytes) ||
++        !bytes(e, in.cohesiveFaceCount == 0u ? 0u : in.femNodeCount,
++               sizeof(nm_float4), out.cohesiveAccumulatorBytes) ||
+         !multiply(e, in.retainedGlobalUnknownBufferCount,
+                   out.retainedGlobalUnknownBytes) ||
+         !multiply(out.retainedGlobalUnknownBytes,
+@@ -336,7 +485,8 @@
+         !addTo(out.contactSlotPageBytes, out.contactPageScratchBytes) ||
+         !addTo(out.contactPageCountsBytes, out.contactPageScratchBytes) ||
+         !addTo(out.cohesiveForcePageBytes, out.cohesivePageScratchBytes) ||
+-        !addTo(out.cohesiveOperatorPageBytes, out.cohesivePageScratchBytes)) {
++        !addTo(out.cohesiveOperatorPageBytes, out.cohesivePageScratchBytes) ||
++        !addTo(out.cohesiveAccumulatorBytes, out.cohesivePageScratchBytes)) {
+         out.error = ShippingContactPagePlanError::arithmetic_overflow;
+         return out;
+     }
+@@ -354,7 +504,8 @@
+         out.contactSlotPageBytes > in.maxBufferLength ||
+         out.contactPageCountsBytes > in.maxBufferLength ||
+         out.cohesiveForcePageBytes > in.maxBufferLength ||
+-        out.cohesiveOperatorPageBytes > in.maxBufferLength) {
++        out.cohesiveOperatorPageBytes > in.maxBufferLength ||
++        out.cohesiveAccumulatorBytes > in.maxBufferLength) {
+         out.error = ShippingContactPagePlanError::buffer_exceeds_metal_limit;
+         return out;
+     }
+@@ -405,6 +556,7 @@
+         case ShippingContactPagePlanError::zero_environment_count: return "environment count is zero";
+         case ShippingContactPagePlanError::unsupported_environment_count: return "environment count exceeds the authored limit";
+         case ShippingContactPagePlanError::zero_contact_domain: return "contact pair domain is zero";
++        case ShippingContactPagePlanError::zero_cohesive_accumulator_node_domain: return "cohesive accumulator node domain is zero";
+         case ShippingContactPagePlanError::page_capacity_zero: return "page capacity is zero";
+         case ShippingContactPagePlanError::contact_page_capacity_exceeds_authored_limit: return "contact sample page exceeds the authored row cap";
+         case ShippingContactPagePlanError::cohesive_page_capacity_exceeds_byte_limit: return "cohesive force page exceeds the existing per-buffer byte cap";
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -2130,6 +2130,52 @@
+     direction[global].xyz += correction;
+ }
+ 
++
++// Zero the global node accumulator before a sequence of ordered cohesive
++// pages. This is separate from the existing trial accumulator lifecycle.
++kernel void nm_fem_clear_cohesive_force_accumulator(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float4* forceAccumulator [[buffer(1)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global < total) forceAccumulator[global] = float4(0.0f);
++}
++
++// Apply the completed ordered cohesive operator gather once, at the same
++// point as nm_fgmres_add_cohesive_operator. This keeps the original dt^2
++// scale and final subtraction outside the per-page accumulation.
++kernel void nm_fem_apply_cohesive_operator_accumulator(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMicrostepGPU& microstep [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
++    device const NMIncidenceRangeGPU* ranges [[buffer(4)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
++    device const float4* forceAccumulator [[buffer(7)]],
++    device float4* work [[buffer(8)]],
++    device NMMatterStatusGPU* statuses [[buffer(9)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u) return;
++    const uint environment = global / dispatch.femNodeCount;
++    if (!environmentHealthy(statuses, environment)) return;
++    const NMIncidenceRangeGPU range = ranges[global];
++    if (range.objectIndex == NM_INVALID_INDEX ||
++        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
++    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
++    const NMContinuumObjectGPU object = objects[range.objectIndex];
++    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
++    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep) ||
++        femStaticConstraint(candidateNodes[global].restAndFixed.w) ||
++        candidateNodes[global].positionAndMass.w <= 0.0f) return;
++    const float3 derivativeForce = forceAccumulator[global].xyz;
++    const float dt = objectTimestep(dispatch, scheduler);
++    work[global].xyz -= dt * dt * derivativeForce;
++}
++
+ kernel void nm_fem_add_cohesive_residual(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+@@ -2203,19 +2249,26 @@
+     device NMMatterStatusGPU* statuses [[buffer(14)]],
+     device const NMCohesiveMaterialGPU* cohesiveMaterials [[buffer(15)]],
+     device const NMCohesiveFaceGPU* candidateFaces [[buffer(16)]],
++    constant uint& pageFaceStart [[buffer(17)]],
++    constant uint& pageFaceCount [[buffer(18)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+-    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
+-    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
++    if (pageFaceCount == 0u || dispatch.cohesiveFaceCount == 0u ||
++        pageFaceStart > dispatch.cohesiveFaceCount ||
++        pageFaceCount > dispatch.cohesiveFaceCount - pageFaceStart) return;
++    const uint total = dispatch.environmentCount * pageFaceCount;
++    if (global >= total) return;
+     faceOperator[global] = {};
+-    const uint environment = global / dispatch.cohesiveFaceCount;
+-    const uint localFace = global - environment * dispatch.cohesiveFaceCount;
++    const uint environment = global / pageFaceCount;
++    const uint pageLocalFace = global - environment * pageFaceCount;
++    const uint localFace = pageFaceStart + pageLocalFace;
++    const uint faceGlobal = environment * dispatch.cohesiveFaceCount + localFace;
+     if (!environmentHealthy(statuses, environment)) return;
+-    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[global];
++    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[faceGlobal];
+     const bool mixedMode =
+         (acceptedFace.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u;
+     const NMCohesiveFaceGPU face = mixedMode
+-        ? candidateFaces[global] : acceptedFace;
++        ? candidateFaces[faceGlobal] : acceptedFace;
+     if ((face.adjacency.w & (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) !=
+         (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) return;
+     const uint objectIndex = face.adjacency.y;
+@@ -2449,7 +2502,7 @@
+     float3x3 tangent;
+     evaluateAlgorithmicStressTangent(material, programs, instructions,
+         materialParameters,
+-        reinterpret_cast<device const float*>(&acceptedFaces[global].state), deformation,
++        reinterpret_cast<device const float*>(&acceptedFaces[faceGlobal].state), deformation,
+         deformationDirection, deformationRate, float3x3(0.0f),
+         objectTimestep(dispatch, scheduler), material.bulk.y,
+         stress, tangent, valid);
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2,6 +2,7 @@
+ #import <Metal/Metal.h>
+ #import <CommonCrypto/CommonDigest.h>
+ 
++#include "numi/matter/detail/shipping_contact_page_plan.hpp"
+ #include "numi/matter/matter.hpp"
+ #include "numi/matter/detail.hpp"
+ #include "numi/matter/regional_restart_augmentation_admission.hpp"
+@@ -2666,6 +2667,9 @@
+     id<MTLBuffer> elementOperator = nil;
+     id<MTLBuffer> cohesiveFaceForces = nil;
+     id<MTLBuffer> cohesiveFaceOperator = nil;
++    id<MTLBuffer> cohesiveForceAccumulator = nil;
++    bool cohesiveFacesPaged = false;
++    std::uint32_t cohesiveFacePageCapacity = 0u;
+     id<MTLBuffer> femSolution = nil;
+     id<MTLBuffer> femResidual = nil;
+     id<MTLBuffer> femPreconditioned = nil;
+@@ -4559,7 +4563,9 @@
+             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
+             "nm_fem_cohesive_face_forces",
+             "nm_fem_accumulate_cohesive_page_forces",
++            "nm_fem_clear_cohesive_force_accumulator",
+             "nm_fem_apply_cohesive_force_accumulator",
++            "nm_fem_apply_cohesive_operator_accumulator",
+             "nm_fem_add_cohesive_residual",
+             "nm_fem_cohesive_face_operator",
+             "nm_fem_prepare_cohesive_activation",
+@@ -6288,12 +6294,57 @@
+         candidate->elementOperator = privateScratch<NMFEMElementVectorGPU>(
+             candidate->device, multiplied(world.dispatch.tetrahedronCount),
+             valid, candidate->residentBytes);
+-        candidate->cohesiveFaceForces = privateScratch<NMCohesiveFaceVectorGPU>(
+-            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
+-            valid, candidate->residentBytes);
+-        candidate->cohesiveFaceOperator = privateScratch<NMCohesiveFaceVectorGPU>(
+-            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
+-            valid, candidate->residentBytes);
++        if (world.dispatch.cohesiveFaceCount != 0u) {
++            detail::ShippingCohesivePagePlanInput pageInput{};
++            pageInput.environmentCount = world.dispatch.environmentCount;
++            pageInput.cohesiveFaceCount = world.dispatch.cohesiveFaceCount;
++            pageInput.femNodeCount = world.dispatch.femNodeCount;
++            pageInput.maxBufferLength =
++                static_cast<std::uint64_t>(candidate->device.maxBufferLength);
++            if (candidate->captureDiagnostics)
++                pageInput.pageBufferBudgetBytes = pageInput.maxBufferLength;
++            const auto pagePlan = detail::makeShippingCohesivePagePlan(pageInput);
++            if (!pagePlan.admitted()) {
++                diagnostics.message =
++                    "cohesive face scratch exceeds checked Metal buffer limits";
++                return diagnostics;
++            }
++            candidate->cohesiveFacesPaged =
++                !candidate->captureDiagnostics && pagePlan.paged;
++            candidate->cohesiveFacePageCapacity =
++                candidate->cohesiveFacesPaged
++                    ? pagePlan.facesPerPage
++                    : world.dispatch.cohesiveFaceCount;
++            const std::size_t faceElements = candidate->cohesiveFacesPaged
++                ? static_cast<std::size_t>(world.dispatch.environmentCount) *
++                    candidate->cohesiveFacePageCapacity
++                : multiplied(world.dispatch.cohesiveFaceCount);
++            candidate->cohesiveFaceForces =
++                privateScratch<NMCohesiveFaceVectorGPU>(
++                    candidate->device, faceElements, valid,
++                    candidate->residentBytes);
++            candidate->cohesiveFaceOperator =
++                privateScratch<NMCohesiveFaceVectorGPU>(
++                    candidate->device, faceElements, valid,
++                    candidate->residentBytes);
++            if (candidate->cohesiveFacesPaged) {
++                candidate->cohesiveForceAccumulator = privateScratch<nm_float4>(
++                    candidate->device,
++                    multiplied(world.dispatch.femNodeCount),
++                    valid, candidate->residentBytes);
++                if (candidate->cohesiveForceAccumulator == nil) {
++                    diagnostics.message =
++                        "failed to allocate bounded cohesive nodal accumulator";
++                    return diagnostics;
++                }
++            }
++            if (candidate->cohesiveFaceForces == nil ||
++                candidate->cohesiveFaceOperator == nil) {
++                diagnostics.message =
++                    "failed to allocate cohesive face workspace";
++                return diagnostics;
++            }
++        }
+         const std::size_t mixedUnknownWidth =
+             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
+             world.dispatch.mpmActiveNodeCapacity +
+@@ -9356,6 +9407,256 @@
+             static_cast<NSUInteger>(state.dispatch.objectCount),
+             static_cast<NSUInteger>(state.dispatch.tetrahedronCount) * 4u
+         });
++
++
++        const auto clearCohesiveAccumulator = [&]() {
++            if (!state.cohesiveFacesPaged ||
++                state.cohesiveForceAccumulator == nil) return;
++            dispatchThreads("nm_fem_clear_cohesive_force_accumulator",
++                femNodeTotal, [&] {
++                setDispatch();
++                [encoder setBuffer:state.cohesiveForceAccumulator
++                             offset:0u atIndex:1u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        };
++        const auto accumulateCohesivePage = [&](
++            const NMMicrostepGPU& pageMicro,
++            id<MTLBuffer> pageBuffer,
++            id<MTLBuffer> pageStatuses,
++            const std::uint32_t pageStart,
++            const std::uint32_t pageCount
++        ) {
++            dispatchThreads("nm_fem_accumulate_cohesive_page_forces",
++                femNodeTotal, [&] {
++                setDispatch();
++                [encoder setBytes:&pageMicro length:sizeof(pageMicro) atIndex:1u];
++                [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                [encoder setBuffer:state.femCohesiveNodeIncidence
++                             offset:0u atIndex:3u];
++                [encoder setBuffer:state.femCohesiveNodeRanges
++                             offset:0u atIndex:4u];
++                [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
++                [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
++                [encoder setBuffer:pageBuffer offset:0u atIndex:7u];
++                [encoder setBuffer:state.cohesiveForceAccumulator
++                             offset:0u atIndex:8u];
++                [encoder setBuffer:pageStatuses offset:0u atIndex:9u];
++                [encoder setBytes:&pageStart
++                           length:sizeof(pageStart) atIndex:10u];
++                [encoder setBytes:&pageCount
++                           length:sizeof(pageCount) atIndex:11u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        };
++        const auto encodeCohesiveFaceForces = [&](
++            const NMMicrostepGPU& forceMicro
++        ) {
++            if (state.dispatch.cohesiveFaceCount == 0u) return;
++            const bool paged = state.cohesiveFacesPaged;
++            const std::uint32_t capacity = paged
++                ? state.cohesiveFacePageCapacity
++                : state.dispatch.cohesiveFaceCount;
++            if (paged) clearCohesiveAccumulator();
++            for (std::uint32_t start = 0u;
++                 start < state.dispatch.cohesiveFaceCount;) {
++                const std::uint32_t count = std::min(
++                    capacity, state.dispatch.cohesiveFaceCount - start);
++                const NSUInteger threads =
++                    static_cast<NSUInteger>(environments) * count;
++                dispatchThreads("nm_fem_cohesive_face_forces",
++                    threads, [&] {
++                    setDispatch();
++                    [encoder setBytes:&forceMicro
++                               length:sizeof(forceMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
++                    [encoder setBuffer:state.scalarPrograms
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
++                    [encoder setBuffer:state.environmentParameters
++                                 offset:0u atIndex:6u];
++                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
++                    [encoder setBuffer:state.cohesiveFacesAccepted
++                                 offset:0u atIndex:9u];
++                    [encoder setBuffer:state.cohesiveFacesCandidate
++                                 offset:0u atIndex:10u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
++                    [encoder setBuffer:state.cohesiveFaceForces
++                                 offset:0u atIndex:13u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
++                    [encoder setBuffer:state.cohesiveMaterials
++                                 offset:0u atIndex:15u];
++                    [encoder setBytes:&start length:sizeof(start) atIndex:16u];
++                    [encoder setBytes:&count length:sizeof(count) atIndex:17u];
++                    const std::uint32_t writeHistory = 1u;
++                    [encoder setBytes:&writeHistory
++                               length:sizeof(writeHistory) atIndex:18u];
++                });
++                if (paged) {
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    accumulateCohesivePage(forceMicro,
++                        state.cohesiveFaceForces, state.statuses, start, count);
++                }
++                start += count;
++            }
++        };
++        const auto encodeAddCohesiveResidual = [&](
++            const NMMicrostepGPU& forceMicro
++        ) {
++            if (state.cohesiveFacesPaged) {
++                dispatchThreads("nm_fem_apply_cohesive_force_accumulator",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&forceMicro
++                               length:sizeof(forceMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femCohesiveNodeRanges
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
++                    [encoder setBuffer:state.cohesiveForceAccumulator
++                                 offset:0u atIndex:7u];
++                    [encoder setBuffer:state.femResidual offset:0u atIndex:8u];
++                    [encoder setBuffer:state.femPreconditioned
++                                 offset:0u atIndex:9u];
++                    [encoder setBuffer:state.femDirection offset:0u atIndex:10u];
++                    [encoder setBuffer:state.femConstraintReactions
++                                 offset:0u atIndex:11u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:12u];
++                });
++            } else {
++                dispatchThreads("nm_fem_add_cohesive_residual",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&forceMicro
++                               length:sizeof(forceMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femCohesiveNodeIncidence
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.femCohesiveNodeRanges
++                                 offset:0u atIndex:5u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
++                    [encoder setBuffer:state.cohesiveFaceForces
++                                 offset:0u atIndex:8u];
++                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
++                    [encoder setBuffer:state.femPreconditioned
++                                 offset:0u atIndex:10u];
++                    [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
++                    [encoder setBuffer:state.femConstraintReactions
++                                 offset:0u atIndex:12u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:13u];
++                });
++            }
++        };
++        const auto encodeCohesiveFaceOperator = [&](
++            const NMMicrostepGPU& operatorMicro,
++            id<MTLBuffer> directionBuffer,
++            const NSUInteger directionOffset,
++            id<MTLBuffer> faceOutput,
++            id<MTLBuffer> operatorStatuses
++        ) {
++            if (state.dispatch.cohesiveFaceCount == 0u) return;
++            const bool paged = state.cohesiveFacesPaged;
++            const std::uint32_t capacity = paged
++                ? state.cohesiveFacePageCapacity
++                : state.dispatch.cohesiveFaceCount;
++            if (paged) clearCohesiveAccumulator();
++            for (std::uint32_t start = 0u;
++                 start < state.dispatch.cohesiveFaceCount;) {
++                const std::uint32_t count = std::min(
++                    capacity, state.dispatch.cohesiveFaceCount - start);
++                const NSUInteger threads =
++                    static_cast<NSUInteger>(environments) * count;
++                dispatchThreads("nm_fem_cohesive_face_operator",
++                    threads, [&] {
++                    setDispatch();
++                    [encoder setBytes:&operatorMicro
++                               length:sizeof(operatorMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
++                    [encoder setBuffer:state.scalarPrograms
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
++                    [encoder setBuffer:state.environmentParameters
++                                 offset:0u atIndex:6u];
++                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
++                    [encoder setBuffer:state.cohesiveFacesAccepted
++                                 offset:0u atIndex:9u];
++                    [encoder setBuffer:directionBuffer
++                                 offset:directionOffset atIndex:10u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
++                    [encoder setBuffer:faceOutput
++                                 offset:0u atIndex:13u];
++                    [encoder setBuffer:operatorStatuses offset:0u atIndex:14u];
++                    [encoder setBuffer:state.cohesiveMaterials
++                                 offset:0u atIndex:15u];
++                    [encoder setBuffer:state.cohesiveFacesCandidate
++                                 offset:0u atIndex:16u];
++                    [encoder setBytes:&start length:sizeof(start) atIndex:17u];
++                    [encoder setBytes:&count length:sizeof(count) atIndex:18u];
++                });
++                if (paged) {
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    accumulateCohesivePage(operatorMicro,
++                        faceOutput, operatorStatuses, start, count);
++                }
++                start += count;
++            }
++        };
++        const auto encodeAddCohesiveOperator = [&](
++            const NMMicrostepGPU& operatorMicro,
++            id<MTLBuffer> faceInput,
++            id<MTLBuffer> workOutput,
++            id<MTLBuffer> operatorStatuses
++        ) {
++            if (state.cohesiveFacesPaged) {
++                dispatchThreads("nm_fem_apply_cohesive_operator_accumulator",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&operatorMicro
++                               length:sizeof(operatorMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femCohesiveNodeRanges
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
++                    [encoder setBuffer:state.cohesiveForceAccumulator
++                                 offset:0u atIndex:7u];
++                    [encoder setBuffer:workOutput
++                                 offset:0u atIndex:8u];
++                    [encoder setBuffer:operatorStatuses offset:0u atIndex:9u];
++                });
++            } else {
++                dispatchThreads("nm_fgmres_add_cohesive_operator",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&operatorMicro
++                               length:sizeof(operatorMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femCohesiveNodeIncidence
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.femCohesiveNodeRanges
++                                 offset:0u atIndex:5u];
++                    [encoder setBuffer:faceInput
++                                 offset:0u atIndex:6u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
++                    [encoder setBuffer:workOutput
++                                 offset:0u atIndex:9u];
++                    [encoder setBuffer:operatorStatuses offset:0u atIndex:10u];
++                });
++            }
++        };
+ 
+         const auto encodeFEMHumanAttachmentKinematics = [&]() -> bool {
+             if (state.dispatch.femHumanAttachmentCount == 0u) return true;
+@@ -19634,31 +19935,7 @@
+             captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                 state.statuses, state.femCandidate, nil);
+-            dispatchThreads("nm_fem_cohesive_face_forces",
+-                cohesiveFaceTotal, [&] {
+-                setDispatch();
+-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+-                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+-                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+-                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+-                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+-                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+-                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
+-                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+-                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
+-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+-                [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+-                const std::uint32_t pageStart = 0u;
+-                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
+-                const std::uint32_t writeHistory = 1u;
+-                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+-                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+-                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
+-            });
++                        encodeCohesiveFaceForces(micro);
+             encodeCavityForces();
+             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+                 const std::uint32_t preserveSolution = 0u;
+@@ -19690,22 +19967,7 @@
+                 [encoder setBuffer:state.femConstraintReactions
+                             offset:0u atIndex:23u];
+             });
+-            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
+-                setDispatch();
+-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+-                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+-                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+-                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
+-                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+-                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+-                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
+-                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
+-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+-            });
++                        encodeAddCohesiveResidual(micro);
+             dispatchThreads("nm_fgmres_clear_rigid_residual",
+                 rigidGeneralizedTotalForResidual, [&] {
+                 setDispatch();
+@@ -20439,43 +20701,7 @@
+                         state.mixedSolverValue.executionBudgets.z == 4u &&
+                         cohesiveFaceTotal != 0u;
+                     if (includeCohesiveRAP) {
+-                        dispatchThreads("nm_fem_cohesive_face_operator",
+-                            cohesiveFaceTotal, [&] {
+-                            setDispatch();
+-                            [encoder setBytes:&trueResidualOperatorMicro
+-                                       length:sizeof(trueResidualOperatorMicro)
+-                                      atIndex:1u];
+-                            [encoder setBuffer:state.objects
+-                                         offset:0u atIndex:2u];
+-                            [encoder setBuffer:state.materials
+-                                         offset:0u atIndex:3u];
+-                            [encoder setBuffer:state.scalarPrograms
+-                                         offset:0u atIndex:4u];
+-                            [encoder setBuffer:state.instructions
+-                                         offset:0u atIndex:5u];
+-                            [encoder setBuffer:state.environmentParameters
+-                                         offset:0u atIndex:6u];
+-                            [encoder setBuffer:state.femAccepted
+-                                         offset:0u atIndex:7u];
+-                            [encoder setBuffer:state.femCandidate
+-                                         offset:0u atIndex:8u];
+-                            [encoder setBuffer:state.cohesiveFacesAccepted
+-                                         offset:0u atIndex:9u];
+-                            [encoder setBuffer:state.femDirection
+-                                         offset:0u atIndex:10u];
+-                            [encoder setBuffer:state.schedulers
+-                                         offset:0u atIndex:11u];
+-                            [encoder setBuffer:state.adaptive
+-                                         offset:0u atIndex:12u];
+-                            [encoder setBuffer:state.cohesiveFaceOperator
+-                                         offset:0u atIndex:13u];
+-                            [encoder setBuffer:state.statuses
+-                                         offset:0u atIndex:14u];
+-                            [encoder setBuffer:state.cohesiveMaterials
+-                                         offset:0u atIndex:15u];
+-                            [encoder setBuffer:state.cohesiveFacesCandidate
+-                                         offset:0u atIndex:16u];
+-                        });
++                                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femDirection, 0u, state.cohesiveFaceOperator, state.statuses);
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     }
+                     dispatchThreads("nm_fgmres_gather_nodes",
+@@ -20513,31 +20739,7 @@
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (includeCohesiveRAP) {
+-                        dispatchThreads("nm_fgmres_add_cohesive_operator",
+-                            femNodeTotal, [&] {
+-                            setDispatch();
+-                            [encoder setBytes:&trueResidualOperatorMicro
+-                                       length:sizeof(trueResidualOperatorMicro)
+-                                      atIndex:1u];
+-                            [encoder setBuffer:state.objects
+-                                         offset:0u atIndex:2u];
+-                            [encoder setBuffer:state.femCandidate
+-                                         offset:0u atIndex:3u];
+-                            [encoder setBuffer:state.femCohesiveNodeIncidence
+-                                         offset:0u atIndex:4u];
+-                            [encoder setBuffer:state.femCohesiveNodeRanges
+-                                         offset:0u atIndex:5u];
+-                            [encoder setBuffer:state.cohesiveFaceOperator
+-                                         offset:0u atIndex:6u];
+-                            [encoder setBuffer:state.schedulers
+-                                         offset:0u atIndex:7u];
+-                            [encoder setBuffer:state.adaptive
+-                                         offset:0u atIndex:8u];
+-                            [encoder setBuffer:state.femOperatorValue
+-                                         offset:0u atIndex:9u];
+-                            [encoder setBuffer:state.statuses
+-                                         offset:0u atIndex:10u];
+-                        });
++                                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     }
+                     dispatchThreads("nm_fgmres_regional_store_ap",
+@@ -22322,29 +22524,7 @@
+                         ? state.femArmijoMetrics : state.dummy
+                                  offset:0u atIndex:26u];
+                 });
+-                dispatchThreads("nm_fem_cohesive_face_operator",
+-                    cohesiveFaceTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&operatorMicro
+-                               length:sizeof(operatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:10u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+-                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:13u];
+-                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+-                    [encoder setBuffer:state.cohesiveFacesCandidate
+-                                 offset:0u atIndex:16u];
+-                });
++                                encodeCohesiveFaceOperator(operatorMicro, state.fgmresPreconditionedBasis, columnOffset, state.cohesiveFaceOperator, state.statuses);
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+@@ -22366,21 +22546,7 @@
+                     [encoder setBuffer:state.coupledPointJacobians
+                                  offset:0u atIndex:15u];
+                 });
+-                dispatchThreads("nm_fgmres_add_cohesive_operator",
+-                    femNodeTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&operatorMicro
+-                               length:sizeof(operatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+-                });
++                                encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
+                 // Include cavity traction before attachment capture, so the
+                 // existing scatter applies its single work-conjugate J^T.
+                 if (hasVascularMechanicalForces) {
+@@ -23140,30 +23306,7 @@
+                         ? state.femArmijoMetrics : state.dummy
+                                  offset:0u atIndex:26u];
+                 });
+-                dispatchThreads("nm_fem_cohesive_face_operator",
+-                    cohesiveFaceTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&trueResidualOperatorMicro
+-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator
+-                                 offset:0u atIndex:13u];
+-                    [encoder setBuffer:state.femTrueResidualStatuses
+-                                 offset:0u atIndex:14u];
+-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+-                    [encoder setBuffer:state.cohesiveFacesCandidate
+-                                 offset:0u atIndex:16u];
+-                });
++                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&trueResidualOperatorMicro
+@@ -23187,24 +23330,7 @@
+                     [encoder setBuffer:state.coupledPointJacobians
+                                  offset:0u atIndex:15u];
+                 });
+-                dispatchThreads("nm_fgmres_add_cohesive_operator",
+-                    femNodeTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&trueResidualOperatorMicro
+-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
+-                            ? state.femTrueResidualCohesiveOperator : state.dummy
+-                                 offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.femTrueResidualOperatorValue offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femTrueResidualStatuses
+-                                 offset:0u atIndex:10u];
+-                });
++                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
+                 if (state.dispatch.rigidGeneralizedCapacity != 0u) {
+                     const std::uint32_t allowConvergedTrueResidualOperator = 1u;
+                     dispatchThreads("nm_fgmres_apply_free_rigid",
+@@ -23344,29 +23470,7 @@
+                     femNodeTotal * sizeof(nm_float4);
+                 const NSUInteger actionFieldWorkOffset =
+                     femNodeTotal * sizeof(nm_float4);
+-                dispatchThreads("nm_fem_cohesive_face_operator",
+-                    cohesiveFaceTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&trueResidualOperatorMicro
+-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
+-                            ? state.femTrueResidualCohesiveOperator : state.dummy
+-                                 offset:0u atIndex:13u];
+-                    [encoder setBuffer:state.femTrueResidualStatuses offset:0u atIndex:14u];
+-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+-                    [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:16u];
+-                });
++                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&trueResidualOperatorMicro
+@@ -23387,23 +23491,7 @@
+                                length:sizeof(coupledArticulatedNv) atIndex:14u];
+                     [encoder setBuffer:state.coupledPointJacobians offset:0u atIndex:15u];
+                 });
+-                dispatchThreads("nm_fgmres_add_cohesive_operator",
+-                    femNodeTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBytes:&trueResidualOperatorMicro
+-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
+-                            ? state.femTrueResidualCohesiveOperator : state.dummy
+-                                 offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
+-                    [encoder setBuffer:state.femTrueResidualOperatorValue offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femTrueResidualStatuses offset:0u atIndex:10u];
+-                });
++                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
+                 const std::uint32_t allowConvergedOperatorState = 1u;
+                 dispatchThreads("nm_mixed_apply_operator_elements",
+                     tetrahedronTotal, [&] {
+@@ -26296,31 +26384,7 @@
+             captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                 state.statuses, state.femCandidate, nil);
+-            dispatchThreads("nm_fem_cohesive_face_forces",
+-                cohesiveFaceTotal, [&] {
+-                setDispatch();
+-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+-                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+-                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+-                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+-                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+-                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+-                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
+-                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+-                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
+-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+-                [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+-                const std::uint32_t pageStart = 0u;
+-                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
+-                const std::uint32_t writeHistory = 1u;
+-                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+-                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+-                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
+-            });
++                        encodeCohesiveFaceForces(micro);
+             encodeCavityForces();
+             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+                 const std::uint32_t preserveSolution = 1u;
+@@ -26352,22 +26416,7 @@
+                 [encoder setBuffer:state.femConstraintReactions
+                             offset:0u atIndex:23u];
+             });
+-            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
+-                setDispatch();
+-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+-                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+-                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+-                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
+-                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+-                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+-                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
+-                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
+-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+-            });
++                        encodeAddCohesiveResidual(micro);
+             if (!encodeCoupledPrimalContact(
+                     true,
+                     state.contactHistoriesCandidate,
+--- a/matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm
++++ b/matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm
+@@ -0,0 +1,114 @@
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++#include "numi/matter/detail/shipping_contact_page_plan.hpp"
++#include <algorithm>
++#include <cstdint>
++#include <cstring>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++using namespace numi::matter::detail;
++static void req(bool b,const char*m){if(!b)throw std::runtime_error(m);}
++template<class T> static id<MTLBuffer> mkbuf(id<MTLDevice>d,const std::vector<T>&v){
++ NSUInteger n=std::max<NSUInteger>(sizeof(T),v.size()*sizeof(T));
++ id<MTLBuffer>b=[d newBufferWithLength:n options:MTLResourceStorageModeShared];
++ req(b!=nil,"buffer allocation failed"); std::memset(b.contents,0,b.length);
++ if(!v.empty())std::memcpy(b.contents,v.data(),v.size()*sizeof(T)); return b;
++}
++static id<MTLComputePipelineState> pipe(id<MTLDevice>d,id<MTLLibrary>l,const char*n){
++ std::string q=std::string("numi_matter_metal::")+n;
++ auto f=[l newFunctionWithName:[NSString stringWithUTF8String:q.c_str()]];
++ req(f!=nil,"missing production cohesive page kernel"); NSError*e=nil;
++ auto p=[d newComputePipelineStateWithFunction:f error:&e]; req(p!=nil,"pipeline failure"); return p;
++}
++static void launch(id<MTLComputeCommandEncoder>e,id<MTLComputePipelineState>p,NSUInteger n){
++ if(!n)return; [e setComputePipelineState:p];
++ [e dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:
++   MTLSizeMake(std::min<NSUInteger>(128,p.maxTotalThreadsPerThreadgroup),1,1)];
++}
++static void run(id<MTLDevice>d,id<MTLLibrary>l){
++ constexpr uint32_t E=2,N=7,C=5,cap=2;
++ ShippingCohesivePagePlanInput pi{}; pi.environmentCount=E;pi.femNodeCount=N;
++ pi.cohesiveFaceCount=C;pi.pageBufferBudgetBytes=E*cap*sizeof(NMCohesiveFaceVectorGPU);
++ pi.maxBufferLength=1u<<20; auto plan=makeShippingCohesivePagePlan(pi);
++ req(plan.admitted()&&plan.paged&&plan.facesPerPage==cap&&plan.pageCount==3&&
++     plan.lastPageFaces==1,"bounded test plan mismatch");
++ NMMatterDispatchGPU dd{};dd.environmentCount=E;dd.objectCount=1;dd.femNodeCount=N;
++ dd.cohesiveFaceCount=C;dd.gravityAndTimestep.w=.25f;
++ NMMicrostepGPU ms{};ms.microtickCount=1;ms.time={.25f,4,0,.25f};
++ NMContinuumObjectGPU ob{};ob.representation=NM_REPRESENTATION_FEM;
++ ob.flags=NM_OBJECT_ACTIVE;ob.schedulerIndex=0;
++ std::vector<NMSchedulerStateGPU> sched(E);std::vector<NMAdaptiveStateGPU> adapt(E);
++ for(uint32_t e=0;e<E;e++){sched[e].numerical.w=1;adapt[e].activeRepresentation=NM_REPRESENTATION_FEM;}
++ std::vector<std::vector<uint32_t>> entries(N);
++ for(uint32_t f=0;f<C;f++)for(uint32_t s=0;s<6;s++)entries[(f+s)%N].push_back(f*6+s);
++ std::vector<uint32_t> incidence;std::vector<NMIncidenceRangeGPU> ranges(E*N);
++ for(uint32_t n=0;n<N;n++){uint32_t first=incidence.size();incidence.insert(incidence.end(),entries[n].begin(),entries[n].end());
++  NMIncidenceRangeGPU r{first,uint32_t(entries[n].size()),0,0};for(uint32_t e=0;e<E;e++)ranges[e*N+n]=r;}
++ std::vector<NMFEMNodeStateGPU> nodes(E*N);for(auto&n:nodes){n.positionAndMass.w=1;n.velocityAndInverseMass.w=.5f;}
++ std::vector<NMMatterStatusGPU> status(E);
++ auto db=mkbuf(d,std::vector<NMMatterDispatchGPU>{dd});auto mb=mkbuf(d,std::vector<NMMicrostepGPU>{ms});
++ auto obb=mkbuf(d,std::vector<NMContinuumObjectGPU>{ob});auto sb=mkbuf(d,sched);auto ab=mkbuf(d,adapt);
++ auto ib=mkbuf(d,incidence);auto rb=mkbuf(d,ranges);auto nb=mkbuf(d,nodes);auto stb=mkbuf(d,status);
++ auto page=[d newBufferWithLength:plan.facePageBytes options:MTLResourceStorageModeShared];
++ auto acc=[d newBufferWithLength:plan.accumulatorBytes options:MTLResourceStorageModeShared];
++ auto residual=mkbuf(d,std::vector<nm_float4>(E*N));auto pre=mkbuf(d,std::vector<nm_float4>(E*N));
++ auto direction=mkbuf(d,std::vector<nm_float4>(E*N));auto reactions=mkbuf(d,std::vector<nm_float4>(E*N));
++ auto work=mkbuf(d,std::vector<nm_float4>(E*N));req(page&&acc,"page buffer allocation failed");
++ auto clear=pipe(d,l,"nm_fem_clear_cohesive_force_accumulator");
++ auto add=pipe(d,l,"nm_fem_accumulate_cohesive_page_forces");
++ auto apply=pipe(d,l,"nm_fem_apply_cohesive_force_accumulator");
++ auto applyOp=pipe(d,l,"nm_fem_apply_cohesive_operator_accumulator");
++ auto q=[d newCommandQueue];auto cb=[q commandBuffer];auto e=[cb computeCommandEncoder];
++ req(q&&cb&&e,"command setup failed");
++ auto fillAndAccumulate=[&](){
++  for(uint32_t start=0;start<C;){uint32_t count=std::min(cap,C-start);
++   auto*v=static_cast<NMCohesiveFaceVectorGPU*>(page.contents);std::memset(v,0,page.length);
++   for(uint32_t env=0;env<E;env++)for(uint32_t local=0;local<count;local++)for(uint32_t slot=0;slot<6;slot++){
++    uint32_t face=start+local;float x=float(1+env*100+face*10+slot);
++    v[env*count+local].node[slot]={x,2*x,-x,0};
++   }
++   launch(e,add,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
++   [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:ib offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
++   [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:page offset:0 atIndex:7];
++   [e setBuffer:acc offset:0 atIndex:8];[e setBuffer:stb offset:0 atIndex:9];
++   [e setBytes:&start length:sizeof(start) atIndex:10];[e setBytes:&count length:sizeof(count) atIndex:11];
++   [e memoryBarrierWithScope:MTLBarrierScopeBuffers];start+=count;
++  }
++ };
++ launch(e,clear,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:acc offset:0 atIndex:1];
++ [e memoryBarrierWithScope:MTLBarrierScopeBuffers];fillAndAccumulate();
++ launch(e,apply,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
++ [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:nb offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
++ [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:acc offset:0 atIndex:7];
++ [e setBuffer:residual offset:0 atIndex:8];[e setBuffer:pre offset:0 atIndex:9];[e setBuffer:direction offset:0 atIndex:10];
++ [e setBuffer:reactions offset:0 atIndex:11];[e setBuffer:stb offset:0 atIndex:12];
++ launch(e,clear,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:acc offset:0 atIndex:1];
++ [e memoryBarrierWithScope:MTLBarrierScopeBuffers];fillAndAccumulate();
++ launch(e,applyOp,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
++ [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:nb offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
++ [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:acc offset:0 atIndex:7];
++ [e setBuffer:work offset:0 atIndex:8];[e setBuffer:stb offset:0 atIndex:9];
++ [e endEncoding];[cb commit];[cb waitUntilCompleted];req(cb.status==MTLCommandBufferStatusCompleted,"page consumer dispatch failed");
++ auto*f=static_cast<const nm_float4*>(acc.contents);auto*r=static_cast<const nm_float4*>(residual.contents);
++ auto*p=static_cast<const nm_float4*>(pre.contents);auto*dv=static_cast<const nm_float4*>(direction.contents);
++ auto*w=static_cast<const nm_float4*>(work.contents);
++ for(uint32_t env=0;env<E;env++)for(uint32_t n=0;n<N;n++){
++  float x=0,y=0,z=0;for(uint32_t face=0;face<C;face++)for(uint32_t slot=0;slot<6;slot++)if((face+slot)%N==n){
++   float v=float(1+env*100+face*10+slot);x+=v;y+=2*v;z-=v;}
++  uint32_t i=env*N+n;req(f[i].x==x&&f[i].y==y&&f[i].z==z,"ordered page accumulation mismatch");
++  req(r[i].x==.25f*x&&r[i].y==.25f*y&&r[i].z==.25f*z,"force apply scale mismatch");
++  req(p[i].x==(.5f*.25f)*x&&dv[i].y==(.5f*.25f)*y,"force correction mismatch");
++  req(w[i].x==-(.25f*.25f)*x&&w[i].z==-(.25f*.25f)*z,"operator apply scale mismatch");
++ }
++ std::cout<<"production_cohesive_page_consumers=PASS E="<<E<<" N="<<N<<" C="<<C
++ <<" page_capacity="<<cap<<" pages="<<plan.pageCount<<" acc_bytes="<<plan.accumulatorBytes
++ <<" physical_transactions=0\n";
++}
++int main(int argc,char**argv){@autoreleasepool{try{req(argc==2,"usage: checker <NumiMatter.metallib>");
++ id<MTLDevice>d=MTLCreateSystemDefaultDevice();req(d!=nil,"no Metal device");NSError*err=nil;
++ NSString*p=[NSString stringWithUTF8String:argv[1]];
++ id<MTLLibrary>l=[d newLibraryWithURL:[NSURL fileURLWithPath:p] error:&err];
++ req(l!=nil,"cannot load source-bound NumiMatter.metallib");run(d,l);return 0;
++ }catch(const std::exception&e){std::cerr<<"cohesive page checker failed: "<<e.what()<<'\n';return 1;}}}
+--- a/matter/tools/cardboard_shipping_contact_page_native_check.mm
++++ b/matter/tools/cardboard_shipping_contact_page_native_check.mm
+@@ -148,6 +148,7 @@
+             input.environmentCount = 1u;
+             input.contactPairCount = 6335568u;
+             input.cohesiveFaceCount = 260835u;
++            input.femNodeCount = 528444u;
+             input.retainedGlobalUnknownBufferCount = 2u;
+             input.retainedGlobalUnknownBytesPerBuffer = 287473536u;
+             input.maxBufferLength = device.maxBufferLength;
+@@ -172,16 +173,20 @@
+             id<MTLBuffer> cohesiveOperatorPage = [device newBufferWithLength:
+                 static_cast<NSUInteger>(plan.cohesiveOperatorPageBytes)
+                 options:MTLResourceStorageModeShared];
++            id<MTLBuffer> cohesiveAccumulator = [device newBufferWithLength:
++                static_cast<NSUInteger>(plan.cohesiveAccumulatorBytes)
++                options:MTLResourceStorageModeShared];
+             require(samplePage != nil && candidateIds != nil && slots != nil &&
+                     pageCounts != nil && cohesiveForcePage != nil &&
+-                    cohesiveOperatorPage != nil,
++                    cohesiveOperatorPage != nil && cohesiveAccumulator != nil,
+                     "bounded page workspaces failed native allocation");
+             require(samplePage.length == plan.contactSamplePageBytes &&
+                     candidateIds.length == plan.contactCandidateIdPageBytes &&
+                     slots.length == plan.contactSlotPageBytes &&
+                     pageCounts.length == plan.contactPageCountsBytes &&
+                     cohesiveForcePage.length == plan.cohesiveForcePageBytes &&
+-                    cohesiveOperatorPage.length == plan.cohesiveOperatorPageBytes,
++                    cohesiveOperatorPage.length == plan.cohesiveOperatorPageBytes &&
++                    cohesiveAccumulator.length == plan.cohesiveAccumulatorBytes,
+                     "native page allocations disagree with the checked plan");
+ 
+             const DomainResult pairs = checkDomain(device, queue, pipeline,
+--- a/matter/tools/cardboard_shipping_contact_page_plan_check.cpp
++++ b/matter/tools/cardboard_shipping_contact_page_plan_check.cpp
+@@ -47,6 +47,7 @@
+         shipping.environmentCount = 1u;
+         shipping.contactPairCount = 6335568u;
+         shipping.cohesiveFaceCount = 260835u;
++        shipping.femNodeCount = 528444u;
+         shipping.retainedGlobalUnknownBufferCount = 2u;
+         shipping.retainedGlobalUnknownBytesPerBuffer = 287473536u;
+         shipping.maxBufferLength = 1ull * 1024ull * 1024ull * 1024ull;
+@@ -115,6 +116,66 @@
+                 noCohesivePlan.cohesivePageCount == 0u &&
+                 noCohesivePlan.cohesivePageScratchBytes == 0u,
+                 "an empty cohesive domain must not allocate or invent a page");
++
++        ShippingCohesivePagePlanInput smallCohesive{};
++        smallCohesive.environmentCount = 1u;
++        smallCohesive.cohesiveFaceCount = 32u;
++        smallCohesive.femNodeCount = 8u;
++        const auto smallCohesivePlan =
++            makeShippingCohesivePagePlan(smallCohesive);
++        require(smallCohesivePlan.admitted() &&
++                !smallCohesivePlan.paged &&
++                smallCohesivePlan.totalScratchBytes ==
++                    2u * 32u * sizeof(NMCohesiveFaceVectorGPU),
++                "small cohesive worlds retain the legacy full-output path");
++
++        ShippingCohesivePagePlanInput shippingCohesive{};
++        shippingCohesive.environmentCount = 1u;
++        shippingCohesive.cohesiveFaceCount = 260835u;
++        shippingCohesive.femNodeCount = 528444u;
++        shippingCohesive.maxBufferLength = 1ull << 30;
++        const auto shippingCohesivePlan =
++            makeShippingCohesivePagePlan(shippingCohesive);
++        require(shippingCohesivePlan.admitted() &&
++                shippingCohesivePlan.paged &&
++                shippingCohesivePlan.facesPerPage == 87381u &&
++                shippingCohesivePlan.pageCount == 3u &&
++                shippingCohesivePlan.lastPageFaces == 86073u &&
++                shippingCohesivePlan.totalScratchBytes ==
++                    2u * 8388576u +
++                    static_cast<std::uint64_t>(528444u) * sizeof(nm_float4),
++                "shipping cohesive path must page all faces and account the global node accumulator");
++        shippingCohesive.environmentCount = 2u;
++        const auto twoEnvironmentCohesive =
++            makeShippingCohesivePagePlan(shippingCohesive);
++        require(twoEnvironmentCohesive.admitted() &&
++                twoEnvironmentCohesive.paged &&
++                twoEnvironmentCohesive.facePageBytes <=
++                    kShippingCohesiveForcePageBufferBytes &&
++                twoEnvironmentCohesive.accumulatorBytes ==
++                    2u * 528444u * sizeof(nm_float4),
++                "multi-environment face pages and accumulator scale with E");
++
++        ShippingCohesivePagePlanInput missingCohesiveNodes{};
++        missingCohesiveNodes.cohesiveFaceCount = 1u;
++        require(makeShippingCohesivePagePlan(missingCohesiveNodes).error ==
++                    ShippingCohesivePageError::zero_node_domain,
++                "paged cohesive admission cannot omit its global accumulator extent");
++
++        ShippingCohesivePagePlanInput tinyMetalLimit = shippingCohesive;
++        tinyMetalLimit.environmentCount = 1u;
++        tinyMetalLimit.maxBufferLength = sizeof(NMCohesiveFaceVectorGPU) - 1u;
++        require(makeShippingCohesivePagePlan(tinyMetalLimit).error ==
++                    ShippingCohesivePageError::page_capacity_zero,
++                "a Metal limit smaller than one face must fail before allocation");
++
++        ShippingCohesivePagePlanInput accumulatorLimit = shippingCohesive;
++        accumulatorLimit.environmentCount = 2u;
++        accumulatorLimit.maxBufferLength =
++            2u * kShippingCohesiveForcePageBufferBytes;
++        require(makeShippingCohesivePagePlan(accumulatorLimit).error ==
++                    ShippingCohesivePageError::accumulator_exceeds_metal_limit,
++                "the per-environment global accumulator must fit Metal maxBufferLength");
+ 
+         ShippingContactPagePlanInput aggregateBoundary = shipping;
+         aggregateBoundary.otherResidentBytes =

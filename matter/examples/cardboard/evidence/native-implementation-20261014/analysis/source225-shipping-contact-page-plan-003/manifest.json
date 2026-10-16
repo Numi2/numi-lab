@@ -1,0 +1,55 @@
+{
+  "created_at_utc": "2026-10-16T11:42:40.111893+00:00",
+  "files": {
+    "README.md": {
+      "bytes": 1604,
+      "sha256": "a49adbf47d3ff3c73330d22c44b9406c350ef594201cc2624339b45537a8f0d2"
+    },
+    "attempt-history.json": {
+      "bytes": 690,
+      "sha256": "4c73cae5316789964a64df3810070c82726f430416a94b1f153c76beaacc4a3e"
+    },
+    "candidate-files/matter/CMakeLists.txt": {
+      "bytes": 122306,
+      "sha256": "f5210c46118d0eac79dff11c006be885ba5b6f6692e66c06e662cce0695ad78a"
+    },
+    "candidate-files/matter/include/numi/matter/detail/shipping_contact_page_plan.hpp": {
+      "bytes": 19744,
+      "sha256": "33d725d566c3c22359c08e5c9d2d0887ec3c8e350e303133e4b71e1bdedfcf5c"
+    },
+    "candidate-files/matter/tools/cardboard_shipping_contact_page_native_check.mm": {
+      "bytes": 10448,
+      "sha256": "656ebc6da01bc63184bc1c6671bd718933f82517946fa81557660552592f972b"
+    },
+    "candidate-files/matter/tools/cardboard_shipping_contact_page_plan_check.cpp": {
+      "bytes": 11885,
+      "sha256": "2295c8567084e6906f0184eaf271ea7716ef5fd65708e2606e9a515222a025b1"
+    },
+    "cpu-plan-check.stdout": {
+      "bytes": 429,
+      "sha256": "1c1205d37a568bef206d8c4bc4a53e6f39127a9f1ca1229316e72a9c8538bf6e"
+    },
+    "ctest.txt": {
+      "bytes": 315,
+      "sha256": "1529d8868794175cdd56bcae6d36e1b6e8606482d766245fc1ecb7fedd7fd9a0"
+    },
+    "patch.diff": {
+      "bytes": 45788,
+      "sha256": "396bc64ce64db82174e4551d8838a8f79d51a92341468310043b38281f42ff52"
+    },
+    "report.json": {
+      "bytes": 4051,
+      "sha256": "ab4de409dff9356be1c44cfd880787bdbda7702b7016cdd7e3c7b8a2c023ee51"
+    },
+    "source-build.json": {
+      "bytes": 100370,
+      "sha256": "1d9405960e92a0afaf257c9430f74e704902463eba8351efecf05875a3954fed"
+    },
+    "source-overlay.json": {
+      "bytes": 1657,
+      "sha256": "1140178ddffaf7e76b030ecda99fe185257c96f6b387607ccee1a4409fcde7d4"
+    }
+  },
+  "package_id": "source225-shipping-contact-page-plan-003",
+  "schema": "numi.cardboard.analysis_package_manifest.v1"
+}

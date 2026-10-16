@@ -1,0 +1,517 @@
+{
+  "schema": "numi.cardboard.publication039-reproduction.v1",
+  "files": {
+    "commands/compose_build_source226_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source226_001.py",
+      "bytes": 5600,
+      "sha256": "9713979030558e660b041d395de7f8065d67b9bdd07f1423067ddf41f448c8b7"
+    },
+    "commands/compose_build_source228_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source228_001.py",
+      "bytes": 6211,
+      "sha256": "5b6d49a701c408908750d310df7c2a07cf9a91967da767bea3ae09e02d05d0f3"
+    },
+    "commands/compose_build_source228_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source228_002.py",
+      "bytes": 7094,
+      "sha256": "6fac3673c514131c66e35e13c75f708f29624f550351dbd2cf1d59fe5f699404"
+    },
+    "commands/compose_build_source228_003.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source228_003.py",
+      "bytes": 7118,
+      "sha256": "225b483bd95b4207bacfd89630517edfdb58139c9c73d769e8b8cae09ff96347"
+    },
+    "commands/compose_build_source228_004.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source228_004.py",
+      "bytes": 8693,
+      "sha256": "5198979abaf15070bb004b24b1749e43ad25c7fee45b9bfd0ccc8e6fa263ea3a"
+    },
+    "commands/prepare_build_source229_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_build_source229_001.py",
+      "bytes": 8204,
+      "sha256": "9201837d919a79ffe5212cc8e61d42caab7b6d196fb1fc7946544e23507ca1f8"
+    },
+    "commands/compose_build_source230_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/compose_build_source230_001.py",
+      "bytes": 5342,
+      "sha256": "8819e1c13315219cb9b4d796312e53073f5d9422cdeafc71e35d397a12bd9dd1"
+    },
+    "commands/build_source231_upstream_compatibility_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source231_upstream_compatibility_001.py",
+      "bytes": 5164,
+      "sha256": "fda0b515515ae2d75e6073ddab58e917207295afc84fa1913107b840a189506a"
+    },
+    "commands/run_native555_control19_capture_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native555_control19_capture_001.py",
+      "bytes": 5019,
+      "sha256": "55095e370f3d6d4e6313e8a4ef2ce73de61c6df5674e4e7ebcc3cafafe698c76"
+    },
+    "commands/run_native558_strict_projection_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native558_strict_projection_001.py",
+      "bytes": 3053,
+      "sha256": "ceeaaea11262968c783ad4073108db9483847f57633849695635509169749593"
+    },
+    "commands/run_native559_562_components_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native559_562_components_002.py",
+      "bytes": 4168,
+      "sha256": "659e72e13b515009624420cc9f9cf97330fad273d4bc944d656ccbffeada8073"
+    },
+    "commands/run_native563_strict_projection_fixed_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native563_strict_projection_fixed_001.py",
+      "bytes": 3424,
+      "sha256": "419c20c2096fba1ce8ec3221dc462fd4fe4f0c866eeb6e7e7552de40f073bb81"
+    },
+    "commands/run_native564_control19_small_epsilon_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native564_control19_small_epsilon_001.py",
+      "bytes": 5159,
+      "sha256": "e2894ca220f3539e4d3c74e9733582c5592af40a24093944b85c4df63d24dfc4"
+    },
+    "commands/run_native565_control19_small_epsilon_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native565_control19_small_epsilon_001.py",
+      "bytes": 5214,
+      "sha256": "7b8aaabe5a78c13261b2f4994d3ca7773df20428995c68d1668bd08f84f66c6f"
+    },
+    "commands/run_native566_first_failure_off_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native566_first_failure_off_001.py",
+      "bytes": 3463,
+      "sha256": "09341d86288314646ccaa8cc8ec873007b34dac85c19299982c5b846ad7c1abe"
+    },
+    "commands/run_native567_first_failure_on_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native567_first_failure_on_001.py",
+      "bytes": 3508,
+      "sha256": "9100f3bb25236fe88217dcc940b33fa15a230c034908b6bd7cafa3697ad213f7"
+    },
+    "commands/run_native568_570_composed230_components_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native568_570_composed230_components_001.py",
+      "bytes": 4823,
+      "sha256": "be904fbe9ed3ed9470fd020177e4632aa4717a0bcbdb493abf9536aad015c3f9"
+    },
+    "commands/run_native571_composed230_regression_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native571_composed230_regression_001.py",
+      "bytes": 3796,
+      "sha256": "9aae616e7735be05df3ec4c8ff892c20aa14a3f378ecb0c4b60329fab8c64db2"
+    },
+    "commands/run_native573_composed231_regression_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native573_composed231_regression_001.py",
+      "bytes": 3823,
+      "sha256": "ca7b12aee96243efdcc89567de7e6022782cce50a2ffa5b3b816f78db44ff451"
+    },
+    "commands/adjudicate_native555_parity_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native555_parity_001.py",
+      "bytes": 2742,
+      "sha256": "20db17dd917248276d29abfa39d2da1293c633f0da6b9205fd728d4c6e996c88"
+    },
+    "commands/run_native555_cached_operator_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native555_cached_operator_001.py",
+      "bytes": 1802,
+      "sha256": "5b203c31c671cd2ee447e9198bd2f4c3e0048751e06c0c5c78c10881f876567f"
+    },
+    "commands/adjudicate_native565_parity_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native565_parity_001.py",
+      "bytes": 2770,
+      "sha256": "bc402172ff6b06fdc5b948240d514cbf26fec61832f591984b3b708f3a6828aa"
+    },
+    "commands/adjudicate_native565_fine_descriptive_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native565_fine_descriptive_001.py",
+      "bytes": 4532,
+      "sha256": "e84326c0d42600a79e979322f0d42296d3803fda83d405adab6fb3d86899cb43"
+    },
+    "commands/adjudicate_native571_parity_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native571_parity_001.py",
+      "bytes": 1838,
+      "sha256": "069b6ed0ca80fd50cf3eb4ce823be443618c46502e85833f283466e8c349b764"
+    },
+    "source-maps/source-pure-fem-armijo-cgls-arena-215-002.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/frozen-source.json",
+      "bytes": 107709,
+      "sha256": "9c94ee26141a1dec60bb133bc8588a8934013786e09ee2a60551f17610e08658"
+    },
+    "source-maps/source-pure-fem-armijo-cgls-arena-215-002-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17"
+    },
+    "source-maps/source216-integrated-configure-support-006.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006/frozen-source.json",
+      "bytes": 108546,
+      "sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e"
+    },
+    "source-maps/source216-integrated-configure-support-006-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17"
+    },
+    "source-maps/source-local-projection-state-certification-220-endpoint-identity-repair-003.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003/frozen-source.json",
+      "bytes": 109309,
+      "sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639"
+    },
+    "source-maps/source-first-failure-dispatch-224-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-224-001/frozen-source.json",
+      "bytes": 107569,
+      "sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356"
+    },
+    "source-maps/source-first-failure-dispatch-224-001-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-224-001/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17"
+    },
+    "source-maps/source-shipping-contact-pages-225-002.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-pages-225-002/frozen-source.json",
+      "bytes": 107142,
+      "sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26"
+    },
+    "source-maps/source-composed-pure-8192-on222-226-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-8192-on222-226-001/frozen-source.json",
+      "bytes": 113023,
+      "sha256": "313f5a81883162bb5917773b3b3f576cf8991932ff4eed2e8af11e36cb13cba8"
+    },
+    "source-maps/source-composed-pure-proxy-228-004.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004/frozen-source.json",
+      "bytes": 117275,
+      "sha256": "7e749050f8092408bb7d341be1dbf99a1d76324a96121c1e9ecf79b4c3fcca08"
+    },
+    "source-maps/source-composed-pure-proxy-228-004-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-228-004/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17"
+    },
+    "source-maps/source-diagnostic-epsilon-replay-229-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-diagnostic-epsilon-replay-229-001/frozen-source.json",
+      "bytes": 107174,
+      "sha256": "6cf5be6795c1d77c8a3aa5a87665bd98d53ba21363abe893a4604e44273e2cd6"
+    },
+    "source-maps/source-composed-pure-proxy-replay-230-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-replay-230-001/frozen-source.json",
+      "bytes": 119157,
+      "sha256": "f0800b754a820f791c7d97c1126e2e653f1b2f7064bd2b9d5ca443cf102ac682"
+    },
+    "source-maps/source-composed-pure-proxy-replay-230-001-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-replay-230-001/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17"
+    },
+    "source-maps/source230-upstream-compatibility-231-001.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source230-upstream-compatibility-231-001/frozen-source.json",
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-maps/source230-upstream-compatibility-231-001-configure-support.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source230-upstream-compatibility-231-001/configure-support-source.json",
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "builds/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/source-build.json",
+      "bytes": 101148,
+      "sha256": "c19e514e2aef2e34c8bb84ddaacc898331a192e8b25db6bf83980f549692853e"
+    },
+    "builds/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/provenance-command-1.log",
+      "bytes": 645,
+      "sha256": "7a01dd0456e990ab893039fcfc22061f22a10f009c943f0393ba51072e83b6c0"
+    },
+    "builds/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-provenance-002/provenance-command-0.log",
+      "bytes": 696,
+      "sha256": "704bfda415326de708421c740b1bd18ada1310f5c57ac2bab8bc75df2dd77f98"
+    },
+    "builds/build-source216-integrated-006/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/source-build.json",
+      "bytes": 100645,
+      "sha256": "5eff6f77c79bcb88ba55519bb2f3128667768b124b50782c6f84333f4b613727"
+    },
+    "builds/build-source216-integrated-006/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/provenance-command-1.log",
+      "bytes": 4859,
+      "sha256": "c62ec0b41c62f74cdfc44385413ee8decf68d076b822d9c595e68bbf29640118"
+    },
+    "builds/build-source216-integrated-006/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/provenance-command-0.log",
+      "bytes": 1335,
+      "sha256": "a99342c22d1bd82c5dee91b592c6d50c6663de6da2e71642f13ef782dcc0028c"
+    },
+    "builds/build-source224-first-failure-002/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/source-build.json",
+      "bytes": 101334,
+      "sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42"
+    },
+    "builds/build-source224-first-failure-002/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/provenance-command-1.log",
+      "bytes": 18396,
+      "sha256": "d74937e85acefafd766159c8cd2574b42f23ce02e6e8d8e17a7d060d616eebdb"
+    },
+    "builds/build-source224-first-failure-002/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/provenance-command-0.log",
+      "bytes": 1338,
+      "sha256": "f40c6bbc812f743df7295e01cfe0ce16c05b2cabd9cac479c6ad9fc2b5619e47"
+    },
+    "builds/build-source224-first-failure-002/lib/libmetalrobo.dylib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/lib/libmetalrobo.dylib",
+      "bytes": 8559456,
+      "sha256": "8df3562442bc9c512dcca92646d04cd6333aa9a8442bf5f3ab6a033c0b98d222"
+    },
+    "builds/build-source224-first-failure-002/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "bytes": 2002432,
+      "sha256": "616cc335c0273fccd3289bdf8226c0faed4f82ecdd3011d7abb65c97badf50a9"
+    },
+    "builds/build-source224-first-failure-002/matter/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/numi-matter-cardboard-probe",
+      "bytes": 3077032,
+      "sha256": "f2a0e44529b8316e539086593b500e26d5e89a8a6ec6ae277342245b43344f20"
+    },
+    "builds/build-source224-first-failure-002/matter/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/shaders/NumiMatter.metallib",
+      "bytes": 7055987,
+      "sha256": "8e765cd7bf4299ac808332463dfb43ea4fc5a44bb545926ab226d5a34078c3e7"
+    },
+    "builds/build-source224-first-failure-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source224-first-failure-002/shaders/MetalRobo.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/shaders/MetalRobo.metallib",
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source224-first-failure-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/shaders/MetalRoboHyperPolicy.metallib",
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source224-first-failure-002/shaders/NumiNeuron.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/shaders/NumiNeuron.metallib",
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source-shipping-contact-pages-225-004/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/source-build.json",
+      "bytes": 100370,
+      "sha256": "1d9405960e92a0afaf257c9430f74e704902463eba8351efecf05875a3954fed"
+    },
+    "builds/build-source-shipping-contact-pages-225-004/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/provenance-command-1.log",
+      "bytes": 637,
+      "sha256": "acff3d12414c5a9dfd2a8056874126fa8d4c6eec72b31f235184c7bb8211cedf"
+    },
+    "builds/build-source-shipping-contact-pages-225-004/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/provenance-command-0.log",
+      "bytes": 681,
+      "sha256": "8e44fff9e0f0b7535d4bece9a3a2299b7819edf012f9728d70913c6076dcc518"
+    },
+    "builds/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-native-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-native-check",
+      "bytes": 71800,
+      "sha256": "07e0d855ed470ad0e294dd122f36e2c0aecc6a0d5b802b7db4e90f04495534ea"
+    },
+    "builds/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-shipping-contact-pages-225-004/numi-matter-cardboard-shipping-contact-page-plan-check",
+      "bytes": 36792,
+      "sha256": "8ccfef20f9388387a7dcf5177c902a098a187d05350dcf095a1c861f8887af38"
+    },
+    "builds/build-source226-pure-arenas-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/source-build.json",
+      "bytes": 102455,
+      "sha256": "b177434e32ebbcf4e1f0fd5199a0d715ae5a0e9efe8061ef3bd893e575384c73"
+    },
+    "builds/build-source226-pure-arenas-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/provenance-command-1.log",
+      "bytes": 6239,
+      "sha256": "f73379c3095b396b993baf74e4d9580e9764ac9020aacac6730cc95e96b2bd61"
+    },
+    "builds/build-source226-pure-arenas-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source226-pure-arenas-001/provenance-command-0.log",
+      "bytes": 669,
+      "sha256": "b0c121fd1a4ca89925a7ee741cf8b736ac05cd2903cf7d8ef8e1c6d6cb9666cf"
+    },
+    "builds/build-source228-integrated-004/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source228-integrated-004/source-build.json",
+      "bytes": 103911,
+      "sha256": "fbd32948ae6a2101f5e12e329c3994d3570fc397a01c329f067ea80c63e63f58"
+    },
+    "builds/build-source228-integrated-004/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source228-integrated-004/provenance-command-1.log",
+      "bytes": 20194,
+      "sha256": "111872e9ed10220e560d5593c5444ef226d667ad46448bf30793164706edf7b5"
+    },
+    "builds/build-source228-integrated-004/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source228-integrated-004/provenance-command-0.log",
+      "bytes": 1335,
+      "sha256": "f04963364daf243d5755af1b589b16ee986ba06d7b5e783bd76fcaf4232baf65"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/source-build.json",
+      "bytes": 100271,
+      "sha256": "3360da8377005a045524f9386dcdb91be7cb3d97ac3df076ad519ccf12d92a0a"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/provenance-command-1.log",
+      "bytes": 4932,
+      "sha256": "63f9b46e67e00862fc63e4bb18f7dcbb6906358ff943e1649489cbc460110c2f"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/provenance-command-0.log",
+      "bytes": 676,
+      "sha256": "c59cfab7fb387c9b2d3b217f8477ee6e269126db3309071fec9cb614f6652a82"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/numi-matter-cardboard-coupon-resume-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/numi-matter-cardboard-coupon-resume-check",
+      "bytes": 224952,
+      "sha256": "84dee8031c188e5d0d0fc8973c35af06c67d88790dc699bc21c6a9063f8f641e"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/numi-matter-cardboard-probe",
+      "bytes": 3241656,
+      "sha256": "0308af7810f305f29609c5ba647abaa027f8f1487e56d4ed4628784671d91f9d"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/shaders/NumiMatter.metallib",
+      "bytes": 7050507,
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b"
+    },
+    "builds/build-source229-diagnostic-epsilon-001/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source230-integrated-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/source-build.json",
+      "bytes": 103932,
+      "sha256": "8da7edadd170c15597718fb11b4398f103c9d9de0d25c29d7fe6990d6071a7e8"
+    },
+    "builds/build-source230-integrated-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/provenance-command-1.log",
+      "bytes": 20306,
+      "sha256": "d9e579f04f20d3f9148691d0960f80870d0fd9d54ee8b5929ab2c186202cf056"
+    },
+    "builds/build-source230-integrated-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001/provenance-command-0.log",
+      "bytes": 1335,
+      "sha256": "0b4587559f2f30a7f9635b2030f41b53424d0f532554ff7041fa95b66e85ba7b"
+    },
+    "builds/build-source231-upstream-compatibility-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/source-build.json",
+      "bytes": 104133,
+      "sha256": "b2d4254586cfc30927e508aada75b9a3ffba895c58bfb133915ae9158321c2bf"
+    },
+    "builds/build-source231-upstream-compatibility-001/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/provenance-command-1.log",
+      "bytes": 20290,
+      "sha256": "1a6eb943ef1a9edfee5a6f366f294050112ee96718ca4b22d2f839ef01205a49"
+    },
+    "builds/build-source231-upstream-compatibility-001/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/provenance-command-0.log",
+      "bytes": 1347,
+      "sha256": "67af0f4c23ca48ab271fabc956a2491c5a087533e946092b08236f202278a147"
+    },
+    "builds/build-source231-upstream-compatibility-001/lib/libmetalrobo.dylib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/lib/libmetalrobo.dylib",
+      "bytes": 8541600,
+      "sha256": "a57331f72734c29c7ecadfabf34ad070eb3d4128591fb496dc33b19ce3c655eb"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-coupled-free-box-operator-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-coupled-free-box-operator-check",
+      "bytes": 702936,
+      "sha256": "57e9c3c78ed86796658b47a6c74dfce7923e9a6bdeceb18096efaefdd096d1b6"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-coupon-resume-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-coupon-resume-check",
+      "bytes": 224952,
+      "sha256": "84dee8031c188e5d0d0fc8973c35af06c67d88790dc699bc21c6a9063f8f641e"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-free-box-proxy-admission-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-free-box-proxy-admission-check",
+      "bytes": 54248,
+      "sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "bytes": 1967392,
+      "sha256": "4150bd437961961fcb42f7879ed36650437379434eb5b1d4fff1c8614ab0546c"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-cardboard-probe",
+      "bytes": 3082040,
+      "sha256": "2d9086bcc4418c758de4dc81ed11348ece2d1582de5667c5622835eb7d8a12ae"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-fem-cgls-arena-8192-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-fem-cgls-arena-8192-check",
+      "bytes": 115880,
+      "sha256": "40aa82d137e7dd053bca539453efb06ecf7d545d2d3275dc5c1ad4041dcbbbff"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/numi-matter-fgmres-true-residual-native-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/numi-matter-fgmres-true-residual-native-check",
+      "bytes": 92352,
+      "sha256": "e520a5d6c86f3184353c79747520bf4c04fe998c0ae87c8562bf4f63fd0d8e2c"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/shaders/FEMPureCGLSArena8192Check.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/shaders/FEMPureCGLSArena8192Check.metallib",
+      "bytes": 1974025,
+      "sha256": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/shaders/NumiMatter.metallib",
+      "bytes": 7050507,
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b"
+    },
+    "builds/build-source231-upstream-compatibility-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source231-upstream-compatibility-001/shaders/MetalRobo.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/shaders/MetalRobo.metallib",
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source231-upstream-compatibility-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/shaders/MetalRoboHyperPolicy.metallib",
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source231-upstream-compatibility-001/shaders/NumiNeuron.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001/shaders/NumiNeuron.metallib",
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+      "bytes": 835128,
+      "sha256": "412b901a568c5a5de176fb01668a9d5575be938af243e921cbed79b43e752e12"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-projection-policy-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-bilinear15-projection-policy-check",
+      "bytes": 907448,
+      "sha256": "b9a07f6beb4a34fea78d03e70edee86f95be38b602be209565f8b4e0a50046ee"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/numi-matter-cardboard-probe",
+      "bytes": 3241320,
+      "sha256": "eda39e412e58a60ce4f063ebec7b841571f76806a388c1c02339982c4895eb7b"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatter.metallib",
+      "bytes": 7050955,
+      "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source220-endpoint-identity-repair-003/shaders/cardboard_bilinear15_capture_diagnostic.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source220-endpoint-identity-repair-003/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+      "bytes": 939118,
+      "sha256": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+    }
+  },
+  "canonical_source": "source231",
+  "unqualified_excluded": [
+    "source227 active production paging",
+    "source232 active strict-policy integration",
+    "source233 active recorder repair"
+  ],
+  "at_utc": "2026-10-16T12:10:26.645117+00:00"
+}

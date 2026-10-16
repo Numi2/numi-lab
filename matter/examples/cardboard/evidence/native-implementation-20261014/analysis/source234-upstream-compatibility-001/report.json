@@ -1,0 +1,120 @@
+{
+  "schema": "numi.cardboard.source234-upstream-compatibility.v1",
+  "parent": "938e30343dd1cc313e222c8d2e8c11f5d486754d",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001",
+  "source_frozen_sha256": "f1acaea6d4838d3036f8f29d7217f935d7fa560eaecb16ec9fcb157a082ce896",
+  "source_build_sha256": "b14a6d1591ed94fb43722fc7c5b8f3e12800978418a8076cd463d7e2149960c2",
+  "build_exit_code": 0,
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "3723a5538417ef6802077dfaba69bbcd33693b6b7de67f5d6594098e61b49ab0"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2d9c660020b124f15a2ada32fa1c12d17ef583afc1884e4e1f3338e191825329"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d930c41d5ab81f1392bec9e27b12196812873743f69bad2f8ef37062fe5b478d"
+    },
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/matter/tools/cardboard_coupon_resume_check.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/apps",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/tools/test_resting_referenced_source_attachments.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/assert-enabled-upstream-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/assert-enabled-upstream-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "a6d8a462b0802276e600d8bd8ab2e24bb25c088a57944f32a82a08fc3e4fb93f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-x",
+        "objective-c++",
+        "-std=c++20",
+        "-O2",
+        "-fobjc-arc",
+        "-framework",
+        "Foundation",
+        "-I",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/apps",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/tools/test_intercostal_rib_motion_attachment.mm",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/upstream-intercostal-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source234-upstream-compatibility-001/upstream-intercostal-attachments-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "b21292fc090d35b48a118ac89d9d5cc2e705b08b5f6dd6eb3fa21970fb2c0d91",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_pass": true,
+  "all_source231_cardboard_bytes_unchanged": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T12:14:39.517764+00:00"
+}

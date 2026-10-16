@@ -1,0 +1,11 @@
+Built target numi-matter-pure-fem-armijo-cgls-arena-plan-check
+[  0%] Generating shaders/FEMPureCGLSArena8192Check.metallib
+[  0%] Built target numi_fem_cgls_arena_8192_check_shaders
+[  0%] Building OBJCXX object CMakeFiles/numi-matter-fem-cgls-arena-8192-check.dir/tools/pure_fem_cgls_arena_8192_check.mm.o
+[100%] Linking OBJCXX executable numi-matter-fem-cgls-arena-8192-check
+[100%] Built target numi-matter-fem-cgls-arena-8192-check
+[ 14%] Built target numi_matter_shaders
+[ 71%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_runtime_objects
+[100%] Built target numi_matter_compiler
+[100%] Built target numi_matter_runtime

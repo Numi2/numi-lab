@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-diagnostic-epsilon-replay-229-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-diagnostic-epsilon-replay-229-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source229-diagnostic-epsilon-001",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check"
+  ],
+  "source_frozen_sha256": "6cf5be6795c1d77c8a3aa5a87665bd98d53ba21363abe893a4604e44273e2cd6",
+  "changed": [
+    "matter/tools/cardboard_coupon_resume.hpp",
+    "matter/tools/cardboard_coupon_resume_check.cpp",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "physical_operator_or_material_law_changed": false,
+  "gpu_execution": false
+}

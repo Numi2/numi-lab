@@ -1,0 +1,1 @@
+{"record":"source547_strict_state_cpu_admission","status":"pass","input_sha256":"a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e","source_capture_sha256":"c9a538bd6357136130fc3d971c7d2f1e61fc52bdef2a0737ba00790bd34d8ec2","selected_rows":10,"baseline_iterations":32,"strict_iterations":32,"strict_scaled_correction_tolerance":2e-10,"physical_gpu_execution":false}

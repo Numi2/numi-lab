@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source230-upstream-compatibility-231-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source230-upstream-compatibility-231-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source231-upstream-compatibility-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "--target",
+    "numi-matter-cardboard-free-box-proxy-admission-check",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check"
+  ],
+  "upstream": [
+    {
+      "path": "apps/NumiHumanRestingSourceAllocation.hpp",
+      "sha256": "b2e759745d6ff1badb63a1d7baa61f13970314a2407be3e2f3cc12c25889673c"
+    },
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    {
+      "path": "tools/test_resting_referenced_source_attachments.cpp",
+      "sha256": "bca20c795dab8be0aec3b3783a8555f130c5a69554976ab4b715d74c406f693e"
+    }
+  ],
+  "gpu_execution": false
+}

@@ -1,0 +1,21 @@
+{
+  "build_argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-002",
+    "--target",
+    "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+    "numi_matter_runtime",
+    "-j2"
+  ],
+  "build_exit": 0,
+  "ctest_argv": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-002",
+    "-R",
+    "matter.analysis.pure_fem_armijo_cgls_arena_plan",
+    "--output-on-failure"
+  ],
+  "ctest_exit": 0
+}

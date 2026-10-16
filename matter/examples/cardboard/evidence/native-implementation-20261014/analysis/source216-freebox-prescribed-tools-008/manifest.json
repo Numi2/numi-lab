@@ -1,0 +1,13 @@
+{
+  "files": {
+    "report.json": {
+      "bytes": 3745,
+      "sha256": "6402df4044903ec46b45991efa04cf1b1d885e4201981fe34e7d0c772c8ffa75"
+    }
+  },
+  "report": {
+    "path": "report.json",
+    "sha256": "6402df4044903ec46b45991efa04cf1b1d885e4201981fe34e7d0c772c8ffa75"
+  },
+  "schema": "numi.cardboard.source216-prescribed-proxy-row-mass-fix-native-adjudication-seal.v1"
+}

@@ -9,6 +9,9 @@
 #include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/full_contact_armijo_admission.hpp"
 #include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
+#include "numi/matter/detail/true_residual_arena_plan.hpp"
+#include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
+#include "numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "regional_graph_schwarz.hpp"
 #include "fem_reference_geometry.hpp"
@@ -2164,6 +2167,8 @@ struct Runtime::State {
     bool femResidualArmijoScratchEnabled = false;
     bool femBaseCauchyScratchEnabled = false;
     bool femBaseCGLSScratchEnabled = false;
+    bool femPureFEMArmijo8192ArenaAdmitted = false;
+    std::uint64_t femPureFEMArmijo8192ScratchBytes = 0u;
     bool femArmijoMixedCohesiveSupported = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
@@ -6372,33 +6377,46 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femOperatorValue = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
-        candidate->femTrueResidualRightHandSide =
-            privateScratch<nm_float4>(candidate->device, mixedUnknownTotal,
-                valid, candidate->residentBytes);
-        candidate->femTrueResidualMetrics =
-            privateScratch<nm_float4>(candidate->device, multiplied(1u),
-                valid, candidate->residentBytes);
-        candidate->femTrueResidualStatuses =
-            privateScratch<NMMatterStatusGPU>(candidate->device, multiplied(1u),
-                valid, candidate->residentBytes);
-        // This read-only instrument is bounded independently of production
-        // contact/face arenas. Its matvec never overwrites the production
-        // cohesive operator used by the Arnoldi path.
-        if (world.dispatch.environmentCount <= 4u &&
-            world.dispatch.femNodeCount <= 4096u &&
-            world.dispatch.tetrahedronCount <= 32768u &&
-            world.dispatch.cohesiveFaceCount <= 4096u) {
-            candidate->femTrueResidualCohesiveOperator =
-                privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
-                    multiplied(world.dispatch.cohesiveFaceCount),
+        const detail::FEMTrueResidualArenaShape trueResidualArenaShape{
+            world.dispatch.environmentCount, world.dispatch.femNodeCount,
+            world.dispatch.tetrahedronCount, world.dispatch.cohesiveFaceCount,
+            world.dispatch.rigidGeneralizedCapacity,
+            static_cast<std::uint64_t>(candidate->device.maxBufferLength)};
+        const auto trueResidualArenaPlan =
+            detail::planFEMTrueResidualArena(trueResidualArenaShape);
+        const bool trueResidualResidentAdditionFits =
+            trueResidualArenaPlan.admitted() &&
+            trueResidualArenaPlan.aggregateBytes <=
+                std::numeric_limits<std::size_t>::max() -
+                    candidate->residentBytes;
+        // Optional read-only arena: checked as a complete set, including typed
+        // zero-count sentinels, per-buffer device limits, aggregate scope bound,
+        // and overflow-safe addition to already-resident runtime allocations.
+        if (trueResidualResidentAdditionFits) {
+            candidate->femTrueResidualRightHandSide =
+                privateScratch<nm_float4>(candidate->device,
+                    trueResidualArenaPlan.rightHandSide.logicalCount,
+                    valid, candidate->residentBytes);
+            candidate->femTrueResidualMetrics =
+                privateScratch<nm_float4>(candidate->device,
+                    trueResidualArenaPlan.metrics.logicalCount,
+                    valid, candidate->residentBytes);
+            candidate->femTrueResidualStatuses =
+                privateScratch<NMMatterStatusGPU>(candidate->device,
+                    trueResidualArenaPlan.statuses.logicalCount,
                     valid, candidate->residentBytes);
             candidate->femTrueResidualElementOperator =
                 privateScratch<NMFEMElementVectorGPU>(candidate->device,
-                    multiplied(world.dispatch.tetrahedronCount),
+                    trueResidualArenaPlan.elementOperator.logicalCount,
+                    valid, candidate->residentBytes);
+            candidate->femTrueResidualCohesiveOperator =
+                privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
+                    trueResidualArenaPlan.cohesiveOperator.logicalCount,
                     valid, candidate->residentBytes);
             candidate->femTrueResidualOperatorValue =
                 privateScratch<nm_float4>(candidate->device,
-                    mixedUnknownTotal, valid, candidate->residentBytes);
+                    trueResidualArenaPlan.operatorValue.logicalCount,
+                    valid, candidate->residentBytes);
         }
         candidate->femConstraintReactions = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.femNodeCount),
@@ -6502,13 +6520,15 @@ RuntimeDiagnostics Runtime::initialize(
             operatorFDRichCaptureRequested;
         candidate->femBaseCauchyScratchEnabled =
             std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
+        const bool baseCGLSRequested =
+            std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr;
         candidate->femBaseCGLSScratchEnabled =
-            std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr &&
+            baseCGLSRequested &&
             candidate->femBaseCauchyScratchEnabled &&
             candidate->dispatch.environmentCount >= 1u &&
             candidate->dispatch.environmentCount <= 2u &&
             candidate->dispatch.femNodeCount >= 1u &&
-            candidate->dispatch.femNodeCount <= 4096u &&
+            candidate->dispatch.femNodeCount <= 8192u &&
             candidate->dispatch.tetrahedronCount <= 32768u &&
             candidate->fgmresLayout.unknownCount == 2u *
                 candidate->dispatch.environmentCount * candidate->dispatch.femNodeCount;
@@ -6523,6 +6543,71 @@ RuntimeDiagnostics Runtime::initialize(
             std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             candidate->femBaseCauchyScratchEnabled ||
             candidate->femOperatorFDScratchEnabled;
+        const bool pureArmijoArenaRequested =
+            std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+            baseCGLSRequested;
+        if (pureArmijoArenaRequested) {
+            constexpr std::uint32_t unsupportedPureArenaFlags =
+                NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
+                NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
+                NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+                NM_MATTER_LEARNED_MATERIAL;
+            const bool oneStaticExplicitFEM =
+                candidate->objectLayout.size() == 1u &&
+                candidate->objectLayout[0].representation == NM_REPRESENTATION_FEM &&
+                (candidate->objectLayout[0].flags &
+                    (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                     NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                     NM_OBJECT_MUTABLE_TOPOLOGY)) == 0u &&
+                (candidate->objectLayout[0].flags &
+                    (NM_OBJECT_DISABLE_SELF_CONTACT |
+                     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) ==
+                    (NM_OBJECT_DISABLE_SELF_CONTACT |
+                     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT);
+            const auto plan = detail::planFEMPureArmijoCGLSArena({
+                .environmentCount = candidate->dispatch.environmentCount,
+                .femNodeCount = candidate->dispatch.femNodeCount,
+                .tetrahedronCount = candidate->dispatch.tetrahedronCount,
+                .unknownCount = candidate->fgmresLayout.unknownCount,
+                .contactPairCount = candidate->dispatch.contactPairCount,
+                .cohesiveFaceCount = candidate->dispatch.cohesiveFaceCount,
+                .rigidGeneralizedCapacity = candidate->dispatch.rigidGeneralizedCapacity,
+                .rigidQCapacity = candidate->dispatch.rigidQCapacity,
+                .fieldBoundaryCount = candidate->dispatch.fieldBoundaryCount,
+                .punctureChannelCount = candidate->dispatch.punctureChannelCount,
+                .mpmActiveNodeCapacity = candidate->dispatch.mpmActiveNodeCapacity,
+                .particleCount = candidate->dispatch.particleCount,
+                .mpmGridCount = candidate->dispatch.mpmGridCount,
+                .mpmBlockCount = candidate->dispatch.mpmBlockCount,
+                .maxBufferLength = candidate->device.maxBufferLength,
+                .accountedResidentBytes = candidate->residentBytes,
+                .oneStaticExplicitFEM = oneStaticExplicitFEM,
+                .unsupportedMatterFlags =
+                    (candidate->dispatch.flags & unsupportedPureArenaFlags) != 0u,
+                .includeCauchy = candidate->femBaseCauchyScratchEnabled,
+                .includeCGLS = baseCGLSRequested,
+                .includeRightScale =
+                    std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr});
+            if (!plan.admitted()) {
+                diagnostics.message =
+                    detail::femPureArmijoCGLSArenaFailureReason(plan.failure);
+                return diagnostics;
+            }
+            candidate->femPureFEMArmijo8192ArenaAdmitted = true;
+            candidate->femPureFEMArmijo8192ScratchBytes = plan.scratchBytes;
+            if (candidate->dispatch.femNodeCount > 4096u) {
+                std::fprintf(stderr,
+                    "pure_fem_armijo_cgls_arena={\"schema\":1,\"node_count\":%u,\"environment_count\":%u,\"scratch_bytes\":%llu,\"scratch_cap_bytes\":%llu,\"accounted_resident_plus_scratch_bytes\":%llu,\"whole_process_peak_measured\":false}\n",
+                    candidate->dispatch.femNodeCount,
+                    candidate->dispatch.environmentCount,
+                    static_cast<unsigned long long>(plan.scratchBytes),
+                    static_cast<unsigned long long>(plan.maximumScratchBytes),
+                    static_cast<unsigned long long>(
+                        candidate->residentBytes + plan.scratchBytes));
+            }
+            candidate->femBaseCGLSScratchEnabled =
+                baseCGLSRequested && plan.includeCGLS;
+        }
         if (candidate->femResidualArmijoScratchEnabled) {
             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
                 candidate->device, multiplied(world.dispatch.femNodeCount),
@@ -10609,21 +10694,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femNewtonTraceNoticeLogged = false;
             bool femNewtonTraceSelectorErrorLogged = false;
             bool femNewtonTraceCapturedAny = false;
-            const auto femNewtonTraceScope = [&](const bool allowFreeBox) -> const char* {
+            const auto femNewtonTraceScope = [&](
+                const bool allowFreeBox,
+                const std::uint32_t maximumFEMNodeCount) -> const char* {
                 if (request.physicsSubsteps != 1u ||
                     request.physicsSubstep != 0u)
                     return "requires_one_physics_substep_at_index_zero";
                 if (state.dispatch.maximumRateExponent != 0u)
                     return "requires_maximum_rate_exponent_zero";
                 if (allowFreeBox) {
+                    if (state.dispatch.femNodeCount > 4096u)
+                        return "free_box_fem_node_cap_4096";
                     if (state.dispatch.environmentCount != 1u)
                         return "free_box_true_residual_requires_one_environment";
                 } else if (state.dispatch.environmentCount > 4u) {
                     return "environment_cap_4";
                 }
                 if (state.dispatch.femNodeCount == 0u ||
-                    state.dispatch.femNodeCount > 4096u)
-                    return "fem_node_cap_4096";
+                    state.dispatch.femNodeCount > maximumFEMNodeCount)
+                    return maximumFEMNodeCount > 4096u
+                        ? "fem_node_cap_8192"
+                        : "fem_node_cap_4096";
                 if (state.dispatch.objectCount != 1u ||
                     state.dispatch.tetrahedronCount == 0u)
                     return "requires_one_explicit_fem_object";
@@ -10669,35 +10760,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
                              NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
                         return "free_box_true_residual_requires_static_fem_object";
-                    if (state.dispatch.rigidProxyCount != 1u ||
-                        state.rigidProxyLayout.size() != 1u ||
-                        state.dispatch.contactPairCount == 0u ||
-                        state.contactPairLayout.size() !=
-                            state.dispatch.contactPairCount)
-                        return "free_box_true_residual_requires_one_proxy_and_fem_box_pairs";
-                    const NMRigidProxyGPU& proxy = state.rigidProxyLayout[0];
-                    if (proxy.shapeKind != NM_RIGID_BOX ||
-                        proxy.flags != NM_RIGID_DYNAMIC ||
-                        proxy.generalizedFreeBodyIndex != 0u ||
-                        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
-                        proxy.bodyIndex == NM_INVALID_INDEX ||
-                        proxy.bodyIndex >= bridge.currentBodyCount ||
-                        proxy.sceneBodyIndex == NM_INVALID_INDEX ||
-                        proxy.sceneBodyIndex >= bridge.sceneBodyCount ||
-                        !state.requiresSceneBodies ||
-                        bridge.currentBodyCount == 0u ||
-                        bridge.currentBodyStride < bridge.currentBodyCount ||
-                        bridge.sceneBodyCount == 0u ||
-                        bridge.sceneStride < bridge.sceneBodyCount ||
-                        state.primalContactArguments == nil ||
-                        state.coupledGeneralizedCandidate == nil ||
-                        state.coupledPointJacobians == nil)
-                        return "free_box_true_residual_requires_one_nonarticulated_dynamic_box";
-                    for (const NMContactPairGPU& pair : state.contactPairLayout) {
-                        if (pair.objectIndex != 0u || pair.rigidProxy != 0u ||
-                            pair.continuumNode >= state.dispatch.femNodeCount)
-                            return "free_box_true_residual_pair_outside_fem_box_scope";
-                    }
+                    if (state.dispatch.rigidProxyCount !=
+                            state.rigidProxyLayout.size() ||
+                        state.dispatch.contactPairCount !=
+                            state.contactPairLayout.size())
+                        return "free_box_capsule_true_residual_layout_count_mismatch";
+                    detail::FreeBoxCapsuleProxyScopeInput proxyScope;
+                    proxyScope.proxies = state.rigidProxyLayout.data();
+                    proxyScope.proxyCount = state.rigidProxyLayout.size();
+                    proxyScope.pairs = state.contactPairLayout.data();
+                    proxyScope.pairCount = state.contactPairLayout.size();
+                    proxyScope.femNodeCount = state.dispatch.femNodeCount;
+                    proxyScope.currentBodyCount = bridge.currentBodyCount;
+                    proxyScope.currentBodyStride = bridge.currentBodyStride;
+                    proxyScope.sceneBodyCount = bridge.sceneBodyCount;
+                    proxyScope.sceneBodyStride = bridge.sceneStride;
+                    proxyScope.requiresCurrentBodies = state.requiresCurrentBodies;
+                    proxyScope.hasPrescribedTranslation = state.hasPrescribedTranslation;
+                    proxyScope.hasPrescribedPrevious = state.prescribedRigidPrevious != nil;
+                    proxyScope.hasPrescribedEndpoints = state.prescribedRigidEndpoints != nil;
+                    proxyScope.requiresSceneBodies = state.requiresSceneBodies;
+                    proxyScope.hasPrimalContactArguments =
+                        state.primalContactArguments != nil;
+                    proxyScope.hasCoupledGeneralizedCandidate =
+                        state.coupledGeneralizedCandidate != nil;
+                    proxyScope.hasCoupledPointJacobians =
+                        state.coupledPointJacobians != nil;
+                    if (const char* reason =
+                            detail::freeBoxCapsuleProxyScopeFailureReason(
+                                detail::validateFreeBoxCapsuleProxyScope(proxyScope)))
+                        return reason;
                 }
                 return nullptr;
             };
@@ -10723,16 +10815,40 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     (state.femAlgorithmicTangentCache == nil ||
                      state.femAlgorithmicTangentCacheValid == nil))
                     return "configured_tangent_cache_unavailable";
+                const detail::FEMTrueResidualArenaShape arenaShape{
+                    state.dispatch.environmentCount, state.dispatch.femNodeCount,
+                    state.dispatch.tetrahedronCount, state.dispatch.cohesiveFaceCount,
+                    state.dispatch.rigidGeneralizedCapacity,
+                    static_cast<std::uint64_t>(state.device.maxBufferLength)};
+                const auto arenaPlan = detail::planFEMTrueResidualArena(arenaShape);
+                if (!arenaPlan.admitted())
+                    return detail::femTrueResidualArenaFailureReason(arenaPlan.failure);
+                if (state.femTrueResidualRightHandSide == nil ||
+                    state.femTrueResidualMetrics == nil ||
+                    state.femTrueResidualStatuses == nil ||
+                    state.femTrueResidualElementOperator == nil ||
+                    state.femTrueResidualCohesiveOperator == nil ||
+                    state.femTrueResidualOperatorValue == nil ||
+                    state.femTrueResidualRightHandSide.length < arenaPlan.rightHandSide.allocatedBytes ||
+                    state.femTrueResidualMetrics.length < arenaPlan.metrics.allocatedBytes ||
+                    state.femTrueResidualStatuses.length < arenaPlan.statuses.allocatedBytes ||
+                    state.femTrueResidualElementOperator.length < arenaPlan.elementOperator.allocatedBytes ||
+                    state.femTrueResidualCohesiveOperator.length < arenaPlan.cohesiveOperator.allocatedBytes ||
+                    state.femTrueResidualOperatorValue.length < arenaPlan.operatorValue.allocatedBytes)
+                    return "true_residual_arena_buffer_extent_mismatch";
                 return femNewtonTraceScope(
-                    state.dispatch.rigidGeneralizedCapacity == 6u);
+                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u);
             };
             const auto femResidualArmijoScope = [&]() -> const char* {
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope(false))
+                if (const char* reason = femNewtonTraceScope(false, 8192u))
                     return reason;
+                if (state.dispatch.femNodeCount > 4096u &&
+                    !state.femPureFEMArmijo8192ArenaAdmitted)
+                    return "pure_fem_armijo_8192_checked_arena_not_admitted";
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
                     NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
@@ -10773,7 +10889,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "private_cohesive_trial_arena_missing_or_over_cap";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope(false))
+                if (const char* reason = femNewtonTraceScope(false, 4096u))
                     return reason;
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
@@ -10850,7 +10966,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope(false))
+                if (const char* reason = femNewtonTraceScope(false, 4096u))
                     return reason;
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
@@ -14334,7 +14450,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope(false)) {
+                if (const char* reason = femNewtonTraceScope(false, 4096u)) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, reason);
                     return true;
@@ -14492,7 +14608,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope(false)) {
+                if (const char* reason = femNewtonTraceScope(false, 4096u)) {
                     emitFEMNewtonTraceSkip(root, reason);
                     return true;
                 }

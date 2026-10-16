@@ -1,0 +1,98 @@
+{
+  "candidate": {
+    "base_frozen_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+    "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005",
+    "changed_file_sha256": "8191ecab72be4b16a90436e36b45070c6e63b558dc07b15258ca4ec585a91c1e",
+    "changed_files": [
+      "matter/tools/cardboard_coupled_free_box_operator_check.mm"
+    ],
+    "frozen_sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e",
+    "patch_sha256": "c07107e8c8c973fa15a28d3a18ba0cbd7c711b19f47977d112e41a14bd266943",
+    "selected_source_count": 821,
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006"
+  },
+  "finding": "The final native556 checker mismatch is consistent with a checker expected-row omission: production gather adds the free FEM nodal mass action before the contact Jacobian contribution, while the fixture binds zero element-vector data but retains positive node masses.",
+  "inputs": {
+    "admission_checker": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/matter/numi-matter-cardboard-free-box-proxy-admission-check",
+      "sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb"
+    },
+    "base_frozen_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005/frozen-source.json",
+      "sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a"
+    },
+    "candidate_frozen_source": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-006/frozen-source.json",
+      "sha256": "26636e0efcd70b8aef95afb82475c1d5f69eec7a1f26c7191d355d4fe55de67e"
+    },
+    "cpu_ctest_log": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-007/cpu-ctest.log",
+      "sha256": "b9e2a20d4a2de594e2f9a87a7129ffc8470dbc6f640ca33076166d2a413e96e1"
+    },
+    "lineage": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-007/lineage.json",
+      "sha256": "d53c324caaf3295d7f53181a28e98ece220db60e79102f728524d117e3c5be7f"
+    },
+    "native556_receipt": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-556/receipt.json",
+      "sha256": "dfe34b3f17328924d0bcf03c1d3df170b7c2fa4123bef8bc2450678bc1fe5892"
+    },
+    "native556_stderr": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-556/stderr.log",
+      "sha256": "2dbf18362e1859b231ef7e7a41a45e6b9bd74bb3d09a2a1db67b7d96948ed842"
+    },
+    "native556_stdout": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/native/prescribed-box-capsule-freebox-operator-556/stdout.log",
+      "sha256": "ce0cd97e7746543b015aa3eb73513f7e944e2107852128cb2bd6d31486d5aa76"
+    },
+    "operator_checker": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/matter/numi-matter-cardboard-coupled-free-box-operator-check",
+      "sha256": "abb3d14bae53c99d7ad32dcf6354dcc6ce8d6a542811b1b0d9f66943a9702eaa"
+    },
+    "patch": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-007/source216.patch",
+      "sha256": "c07107e8c8c973fa15a28d3a18ba0cbd7c711b19f47977d112e41a14bd266943"
+    },
+    "source_build": {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006/source-build.json",
+      "sha256": "5eff6f77c79bcb88ba55519bb2f3128667768b124b50782c6f84333f4b613727"
+    }
+  },
+  "limits": [
+    "The exact native556 mismatch has not yet been re-run against the corrected checker; the source-grounded formula explains the failure, but native confirmation remains pending.",
+    "These manufactured operator and CPU admission checks do not qualify a physical transaction, full solver, shipping geometry, or contact path."
+  ],
+  "native556": {
+    "observed_before_failure": [
+      "four manufactured coupled-operator cases reported PASS",
+      "full 14-row true-residual tail check reported expected b-Ax, omitted-tail and wrong-sign controls, with completed=false",
+      "the final prescribed proxy-to-node block expectation failed under the old checker formula"
+    ],
+    "physical_transactions": 0,
+    "qualification": false,
+    "receipt_exit_code": 2,
+    "receipt_sha256": "dfe34b3f17328924d0bcf03c1d3df170b7c2fa4123bef8bc2450678bc1fe5892",
+    "stderr_sha256": "2dbf18362e1859b231ef7e7a41a45e6b9bd74bb3d09a2a1db67b7d96948ed842",
+    "stdout_sha256": "ce0cd97e7746543b015aa3eb73513f7e944e2107852128cb2bd6d31486d5aa76",
+    "timed_out": false
+  },
+  "production_formula": "For a free FEM row: work.xyz = mass * direction.xyz - dt^2 * derivativeForce; then valid mapped contacts add their coupled barrier directional force and free-box angular correction. The fixture's bound element-node vectors are zero, so derivativeForce is zero in this manufactured operator case. The expected row must therefore include mass*direction plus the contact block.",
+  "repair": "The candidate modifies only the checker expected-value construction. It asserts each mapped test node is free and has finite positive mass, then adds positionAndMass.w*nodeDirections[node] to the existing contact expectation. It leaves production kernels, runtime, contact mapping, signs, tolerances, physical parameters, and solver unchanged.",
+  "schema": "numi.cardboard.source216-prescribed-proxy-row-mass-fix-review.v1",
+  "validation": {
+    "admission_checker_sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb",
+    "checker_native556_retest_pending": true,
+    "cpu_ctest": "matter.compiler.cardboard_free_box_proxy_admission passed 1/1",
+    "cpu_ctest_log_sha256": "b9e2a20d4a2de594e2f9a87a7129ffc8470dbc6f640ca33076166d2a413e96e1",
+    "gpu_dispatched": false,
+    "operator_checker_sha256": "abb3d14bae53c99d7ad32dcf6354dcc6ce8d6a542811b1b0d9f66943a9702eaa",
+    "source_bound_build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-006",
+    "source_build_sha256": "5eff6f77c79bcb88ba55519bb2f3128667768b124b50782c6f84333f4b613727",
+    "source_build_success": true,
+    "targets": [
+      "numi-matter-cardboard-coupled-free-box-operator-check",
+      "numi-matter-cardboard-free-box-proxy-admission-check"
+    ]
+  },
+  "verdict": "CPU_BUILD_AND_ADMISSION_CTEST_PASS_NATIVE_RECHECK_PENDING"
+}

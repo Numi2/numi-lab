@@ -1,0 +1,89 @@
+{
+  "224_off_before_snapshot_sha256": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022",
+  "550_before_json_semantics_exact": true,
+  "550_before_snapshot_exact": false,
+  "550_before_snapshot_sha256": "94b2e2e8c2767c4fb954fa2035023a33c2afb939bef2bef07e28165a7d8097d5",
+  "550_stdout_exact": true,
+  "baseline550_receipt": {
+    "all_inputs_unchanged": true,
+    "at_utc": "2026-10-16T11:09:48.652799+00:00",
+    "exit_code": 1,
+    "physical_transactions": "adjudicate from retained full logs and accepted-state bindings; do not infer from exit",
+    "schema": "numi.cardboard.native550-receipt.v1",
+    "shipping_qualified": false,
+    "stderr_sha256": "92ced1e85b7e028a76f859aeeaa36c61b85d31adaaf4e526d807e7503190a70c",
+    "stdout_sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+    "timed_out": false,
+    "wall_seconds": 1.5874295
+  },
+  "capture_completion_markers": [],
+  "capture_error_records": [
+    {
+      "reason": "command_not_completed_or_dispatch_map_incomplete",
+      "root": 1199,
+      "schema": 1
+    }
+  ],
+  "capture_validation_error": null,
+  "off_case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/first-failure-dispatch-off-566",
+  "off_on_after_snapshot_exact": true,
+  "off_on_transaction_json_exact": true,
+  "off_transaction_status": [
+    {
+      "code": 6,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        3.08632113e-12,
+        -7.31207036e-15,
+        1,
+        0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 32,
+      "fgmres_iterations": 64,
+      "object_index": 0
+    }
+  ],
+  "on_case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/first-failure-dispatch-on-567",
+  "on_transaction_status": [
+    {
+      "code": 6,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        3.08632113e-12,
+        -7.31207036e-15,
+        1,
+        0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 32,
+      "fgmres_iterations": 64,
+      "object_index": 0
+    }
+  ],
+  "ordinary_file_hashes_off": {
+    "dense/transaction-000000-after.bin": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767",
+    "dense/transaction-000000-before.bin": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022",
+    "dense/transaction-000000.json": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+  },
+  "ordinary_output_byte_exact": true,
+  "ordinary_output_files_count": 3,
+  "schema": "numi.cardboard.native224-observer-pair-adjudication.v1",
+  "scope": [
+    "Source224 off/on ordinary outputs compare bytewise; no status fields were normalized.",
+    "The two source224 transaction records show the same final failure state; the observer-on capture itself failed and cannot be used for dispatch attribution.",
+    "The named dispatch is the first global nonzero status observed after a production dispatch, not proof that it wrote status.",
+    "Private transient failures are outside observer scope.",
+    "One activation fixture is not full-contact, shipping, or physical qualification."
+  ],
+  "source_build_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+  "source_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+  "stderr_exact_after_expected_completion_marker": false,
+  "stdout_byte_exact": true,
+  "validated_capture_records": [],
+  "verdict": "FAIL_OBSERVER_CAPTURE"
+}

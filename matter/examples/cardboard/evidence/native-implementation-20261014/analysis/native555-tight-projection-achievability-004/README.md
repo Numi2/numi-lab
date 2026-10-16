@@ -1,0 +1,9 @@
+# 555 tighter local projection experiment
+
+This CPU-only experiment re-ran the exact control19/Newton3 ideal-direction endpoint projections with source206 compensated FP64 equations. It changed only the analysis continuation stop targets to scaled residual 2e-15 and dynamic correction 2e-14. The base solve remains 80 iterations and the existing strict continuation remains bounded to 16 more; the code also preserves the source residual-decrease line search and row scales. The tested epsilon powers are 12, 14, 16, 18, and 20, both signs, all 1728 paper tets per side.
+
+The prior full-gate audit calculates the centered secant directly from R(F+) minus R(F-), avoiding a center-residual bias. At the tighter targets no epsilon pair has all 1728 rows pass: about 61 percent pass the residual target per side, while nearly all pass the dynamic-correction target. The dominant reason is residual descent stalling at scaled residuals commonly around 1e-13 and as high as about 1.03e-12; the maximum observed iteration count is 23, below the 96-call upper bound. This is evidence that the requested tighter residual is not achievable for the full row set through the current binary64 residual path. It does not certify an absolute FP64 noise floor or identify which arithmetic operation causes cancellation.
+
+Because complete endpoint vectors fail the stricter local gate, this experiment does not produce a qualified tighter global secant. The prior 2e-12/2e-11 run remains available for diagnostic comparison, but its p18-p20 centered relative errors are about 21.97 against the independent linear action and are classified as projection-floor-limited. No production code, tolerances, or physical state changed; no GPU was used.
+
+The per-endpoint raw report retains detailed row failure reasons. summary.json normalizes the result and binds the direct-difference method and source hashes.

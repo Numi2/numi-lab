@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "libnumi_matter_compiler.a": {
+      "bytes": 874056,
+      "sha256": "267d2e91e7edd88be767a3df8a3dd53c4ada86d5d69bcbd20d25f50fcbc8dff4"
+    },
+    "libnumi_matter_runtime.a": {
+      "bytes": 1995992,
+      "sha256": "236322a4367370062a0a1ef7cd3b05a567a854f9372e7368166e48a61afb9c85"
+    },
+    "numi-matter-cardboard-cohesive-page-runtime-kernel-check": {
+      "bytes": 73560,
+      "sha256": "22a82c77b9e49630dd303e6e64a1aeb505da2d205ce0b428455d91d73ba44967"
+    },
+    "numi-matter-cardboard-shipping-contact-page-native-check": {
+      "bytes": 71800,
+      "sha256": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4"
+    },
+    "numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "bytes": 36792,
+      "sha256": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29"
+    },
+    "shaders/NumiMatter.metallib": {
+      "bytes": 7066078,
+      "sha256": "a9830969c35183b2ec9129a27a87c850cd429fe0c46c0fe8f7df3c6068750928"
+    },
+    "shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "build_command": "cmake --build /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001 --target numi_matter_runtime numi-matter-cardboard-shipping-contact-page-plan-check numi-matter-cardboard-shipping-contact-page-native-check numi-matter-cardboard-cohesive-page-runtime-kernel-check --parallel 4",
+  "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001",
+  "build_log": {
+    "exit_code": 0,
+    "path": "build.log",
+    "sha256": "8a4181f18e2df8c69830db2cb38a8b1ae6f9cfd086be74cb70916b1576f8e0f7"
+  },
+  "build_notes": [
+    "Build succeeded; compiler emitted two warnings in unchanged fgmres.metalinc about threadgroup sharedValid/refinementValid initialization."
+  ],
+  "built_at_utc": "2026-10-16T12:09:13.570184+00:00",
+  "cmake_cache_generator": "Unix Makefiles",
+  "compiler_paths": {
+    "CXX": "/usr/bin/c++",
+    "Metal": "xcrun metal (Metal shader target generated)",
+    "OBJCXX": "/usr/bin/clang++"
+  },
+  "configure_command": "cmake -S /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001/matter -B /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001 -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release",
+  "cpu_plan_check": {
+    "command": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/numi-matter-cardboard-shipping-contact-page-plan-check",
+    "exit_code": 0,
+    "log_path": "cpu-plan-check.log",
+    "log_sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f",
+    "stdout": "shipping_contact_page_plan_checks=30 pairs=6335568 pair_pages=97 pair_last=44112 cohesive_faces=260835 cohesive_pages=3 cohesive_last=86073 contact_page_bytes=11010064 cohesive_pages_bytes=25232256 persistent_subset_bytes=1381065984 serialized_peak_bytes=1406298240 conservative_overlap_peak_bytes=1417308304 full_pair_history_bytes=405476352 whole_process_admission=false production_paging_enabled=false physical_transactions=0"
+  },
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "architecture": "arm64",
+    "configuration": "Release",
+    "host": "macmini",
+    "native_gpu_execution": false
+  },
+  "frozen_source_sha256": "f880325285a44d854253eb5b71be40f57f08800576734324b6233efbfde94260",
+  "schema": "numi.cardboard.source-build.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001",
+  "targets": [
+    "numi_matter_runtime",
+    "numi-matter-cardboard-shipping-contact-page-plan-check",
+    "numi-matter-cardboard-shipping-contact-page-native-check",
+    "numi-matter-cardboard-cohesive-page-runtime-kernel-check"
+  ]
+}

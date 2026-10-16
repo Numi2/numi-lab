@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.native-component-command.v1",
+  "variant": "216",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-coupled-free-box-operator-check"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/shaders/NumiMatter.metallib"
+  },
+  "source_frozen_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+  "report_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source216-freebox-prescribed-tools-006/report.json",
+  "report_sha256": "b6b0336548292713e243b47ceb00f7c1cf76a3a1dd3526f91c7c2348213f855a",
+  "artifact_bindings": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/lib/libmetalrobo.dylib": "aad02e45ee4f96f196e9e44480a7f48deed5e1f017b310b88f0f6cd8bfd12cbc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-coupled-free-box-operator-check": "f0f1a55f6a37cc052155e2ae7718d085ea53aeab4fe9071e245f7ca024d854bf",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-free-box-proxy-admission-check": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-full-contact-armijo-check": "5840d9af515ed948d6b86532e55ec242cd416c7f70717e0fe761566ba8557afa",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-probe": "479642c025217ae00e833fdbe4aaa6b359e40f22569a333539db7b5920cb6ccd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/shaders/NumiMatter.metallib": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+  },
+  "all_inputs_verified": true,
+  "workers": [],
+  "physical_transactions": 0,
+  "question": "Does the bounded production-kernel component checker pass at its compiled shape?",
+  "prediction": "No result assumed. This does not test the full contact trajectory or carton assembly."
+}

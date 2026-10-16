@@ -1,0 +1,223 @@
+{
+  "schema": "numi.cardboard.publication039-reproduction-extension.v1",
+  "files": {
+    "commands/adjudicate_native573_parity_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjudicate_native573_parity_001.py",
+      "sha256": "5f9f4f970e51431e43036335760284ca19df6714159cdb25c91192d72bb5afe3",
+      "bytes": 1838
+    },
+    "commands/run_native574_cohesive_pages_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native574_cohesive_pages_001.py",
+      "sha256": "5e8247445793d3e1b610bbcae437bcae0358e781d200baaa755a35b53542a786",
+      "bytes": 2833
+    },
+    "commands/run_native575_cohesive_pages_fixed_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/run_native575_cohesive_pages_fixed_001.py",
+      "sha256": "76625cc6c1da145d5b4412de12b8bc9b01c399e56d0b4506f0c5abc3659a481d",
+      "bytes": 2839
+    },
+    "commands/build_source234_upstream_compatibility_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build_source234_upstream_compatibility_001.py",
+      "sha256": "3ba8ecadea03a28d1358ced3f8091fb15aecace51429f3f6029f5b038c1fdc49",
+      "bytes": 5417
+    },
+    "commands/archive_publication039_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/archive_publication039_001.py",
+      "sha256": "2834d2da62ecf7bdd97d1513aa42d2c488a953a18895041317911cbeccc56ef0",
+      "bytes": 11522
+    },
+    "source234/frozen-source.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/frozen-source.json",
+      "sha256": "f1acaea6d4838d3036f8f29d7217f935d7fa560eaecb16ec9fcb157a082ce896",
+      "bytes": 121772
+    },
+    "source234/configure-support-source.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source231-upstream-compatibility-234-001/configure-support-source.json",
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8",
+      "bytes": 148869
+    },
+    "source234/build/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/source-build.json",
+      "sha256": "b14a6d1591ed94fb43722fc7c5b8f3e12800978418a8076cd463d7e2149960c2",
+      "bytes": 104133
+    },
+    "source234/build/provenance-command-1.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/provenance-command-1.log",
+      "sha256": "c97956625fa30db360a437ebeb9c41d2b24cc4df2e2bbe878d6c8d0f2af16fca",
+      "bytes": 20290
+    },
+    "source234/build/provenance-command-0.log": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/provenance-command-0.log",
+      "sha256": "16a67bf1fd5894f249308d66022a78e68b26108e4f5ae613853b134111c91315",
+      "bytes": 1347
+    },
+    "source234/build/lib/libmetalrobo.dylib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/lib/libmetalrobo.dylib",
+      "sha256": "5a4e717d6e873e4845e8fccebd07d344d87d332ef6f3b3a80010b4eb4b64cdf5",
+      "bytes": 8541600
+    },
+    "source234/build/matter/numi-matter-cardboard-coupled-free-box-operator-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-cardboard-coupled-free-box-operator-check",
+      "sha256": "e1351e7bfb6ae727b89729a57d224dafaacf90299a5c06614d1945038d60f42d",
+      "bytes": 702936
+    },
+    "source234/build/matter/numi-matter-cardboard-coupon-resume-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "84dee8031c188e5d0d0fc8973c35af06c67d88790dc699bc21c6a9063f8f641e",
+      "bytes": 224952
+    },
+    "source234/build/matter/numi-matter-cardboard-free-box-proxy-admission-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-cardboard-free-box-proxy-admission-check",
+      "sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb",
+      "bytes": 54248
+    },
+    "source234/build/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "8d57cf3e7c436be843ed7d2db1954c8a636e7c23d14abdca93bbb72d26418447",
+      "bytes": 1967392
+    },
+    "source234/build/matter/numi-matter-cardboard-probe": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-cardboard-probe",
+      "sha256": "f5a2aa186c20e03b71805ff836cf6bc440d3637267d05bb9f2a1d537d78f0cad",
+      "bytes": 3082040
+    },
+    "source234/build/matter/numi-matter-fem-cgls-arena-8192-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-fem-cgls-arena-8192-check",
+      "sha256": "65bdfc16bd22254ee368c233d11661f635aad4ae1e5d1ad4e8c3915d18626d7e",
+      "bytes": 115880
+    },
+    "source234/build/matter/numi-matter-fgmres-true-residual-native-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/numi-matter-fgmres-true-residual-native-check",
+      "sha256": "f409dd026855932292e513cced5628be1ff38c2bd0314d67d378106a75ad5b85",
+      "bytes": 92352
+    },
+    "source234/build/matter/shaders/FEMPureCGLSArena8192Check.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/shaders/FEMPureCGLSArena8192Check.metallib",
+      "sha256": "f045f1bc74a167444a085dee15b47bc63634847c0f70e4647fc7bd31513b3fec",
+      "bytes": 1974025
+    },
+    "source234/build/matter/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/shaders/NumiMatter.metallib",
+      "sha256": "02fbde247e241ce40958795ceaf0259aee6a6fb57c09374b0a7d31e088cb3e2b",
+      "bytes": 7050507
+    },
+    "source234/build/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "source234/build/shaders/MetalRobo.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/shaders/MetalRobo.metallib",
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+      "bytes": 5300911
+    },
+    "source234/build/shaders/MetalRoboHyperPolicy.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/shaders/MetalRoboHyperPolicy.metallib",
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+      "bytes": 48434
+    },
+    "source234/build/shaders/NumiNeuron.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source234-upstream-compatibility-001/shaders/NumiNeuron.metallib",
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+      "bytes": 66974
+    },
+    "source-production-cohesive-pages-227-001/frozen-source.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001/frozen-source.json",
+      "sha256": "f880325285a44d854253eb5b71be40f57f08800576734324b6233efbfde94260",
+      "bytes": 108182
+    },
+    "source-production-cohesive-pages-227-001/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-production-cohesive-pages-227-001/source-build.json",
+      "sha256": "9a5552c9d60ac26ca11f2a40d3f9b3e4ba97c83198460b45e9fa174a1537e216",
+      "bytes": 4009
+    },
+    "source-production-cohesive-pages-227-001/build/libnumi_matter_compiler.a": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/libnumi_matter_compiler.a",
+      "sha256": "267d2e91e7edd88be767a3df8a3dd53c4ada86d5d69bcbd20d25f50fcbc8dff4",
+      "bytes": 874056
+    },
+    "source-production-cohesive-pages-227-001/build/libnumi_matter_runtime.a": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/libnumi_matter_runtime.a",
+      "sha256": "236322a4367370062a0a1ef7cd3b05a567a854f9372e7368166e48a61afb9c85",
+      "bytes": 1995992
+    },
+    "source-production-cohesive-pages-227-001/build/numi-matter-cardboard-cohesive-page-runtime-kernel-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/numi-matter-cardboard-cohesive-page-runtime-kernel-check",
+      "sha256": "22a82c77b9e49630dd303e6e64a1aeb505da2d205ce0b428455d91d73ba44967",
+      "bytes": 73560
+    },
+    "source-production-cohesive-pages-227-001/build/numi-matter-cardboard-shipping-contact-page-native-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/numi-matter-cardboard-shipping-contact-page-native-check",
+      "sha256": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4",
+      "bytes": 71800
+    },
+    "source-production-cohesive-pages-227-001/build/numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/numi-matter-cardboard-shipping-contact-page-plan-check",
+      "sha256": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29",
+      "bytes": 36792
+    },
+    "source-production-cohesive-pages-227-001/build/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/shaders/NumiMatter.metallib",
+      "sha256": "a9830969c35183b2ec9129a27a87c850cd429fe0c46c0fe8f7df3c6068750928",
+      "bytes": 7066078
+    },
+    "source-production-cohesive-pages-227-001/build/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "source-production-cohesive-pages-227-002/frozen-source.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-002/frozen-source.json",
+      "sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1",
+      "bytes": 108613
+    },
+    "source-production-cohesive-pages-227-002/source-build.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source-production-cohesive-pages-227-002/source-build.json",
+      "sha256": "49ab08292ba1238a47ba5862d4faa7d9684ff80dbf3d6f2bba0dc19232bba510",
+      "bytes": 3769
+    },
+    "source-production-cohesive-pages-227-002/build/libnumi_matter_compiler.a": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/libnumi_matter_compiler.a",
+      "sha256": "0cacb0603f025c43b660aa060a6462ef69a73b2c59e45509be25af6cd17828ea",
+      "bytes": 874056
+    },
+    "source-production-cohesive-pages-227-002/build/libnumi_matter_runtime.a": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/libnumi_matter_runtime.a",
+      "sha256": "686b2ad8b01b718fa5aa25fa607be5587be4168102f17e2d1c7d83feec6074ef",
+      "bytes": 1995992
+    },
+    "source-production-cohesive-pages-227-002/build/numi-matter-cardboard-cohesive-page-runtime-kernel-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/numi-matter-cardboard-cohesive-page-runtime-kernel-check",
+      "sha256": "f01f6c2c4dfd0c51d7289837c399e56dad46d8f00acb591b0b24341b1aa161bc",
+      "bytes": 73576
+    },
+    "source-production-cohesive-pages-227-002/build/numi-matter-cardboard-shipping-contact-page-native-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/numi-matter-cardboard-shipping-contact-page-native-check",
+      "sha256": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4",
+      "bytes": 71800
+    },
+    "source-production-cohesive-pages-227-002/build/numi-matter-cardboard-shipping-contact-page-plan-check": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/numi-matter-cardboard-shipping-contact-page-plan-check",
+      "sha256": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29",
+      "bytes": 36792
+    },
+    "source-production-cohesive-pages-227-002/build/shaders/NumiMatter.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/shaders/NumiMatter.metallib",
+      "sha256": "a9830969c35183b2ec9129a27a87c850cd429fe0c46c0fe8f7df3c6068750928",
+      "bytes": 7066078
+    },
+    "source-production-cohesive-pages-227-002/build/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-002/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "bytes": 80076
+    },
+    "observer-pair/retained-report.json": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source224-550-observer-pair-adjudication-tool-001/report.json",
+      "sha256": "53ffd9fbd2f2d27fa4c0ea9c46d7e06daf8062370b62fe592829ace7bab1bd6d",
+      "bytes": 3529
+    }
+  },
+  "native575_result": "PASS_BOUNDED_KERNEL_HELPER_ONLY",
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T12:16:35.716117+00:00"
+}

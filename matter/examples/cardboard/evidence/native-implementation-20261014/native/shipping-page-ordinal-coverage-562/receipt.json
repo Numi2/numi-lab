@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native-component-receipt.v2",
+  "case": "shipping-page-ordinal-coverage-562",
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.5591287920000001,
+  "all_inputs_unchanged": true,
+  "stdout_sha256": "89416f15d939016689d9f757c3c6455e43b1ff2c5c65a8b15f5400bf336dab80",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "physical_transactions": 0,
+  "full_solver_or_shipping_qualification": false,
+  "at_utc": "2026-10-16T11:43:25.733759+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "attempts_sha256": "f098861fdf25524310d1ab319a26e1f3b266d37bfb906c1fc6061d082e3ba75e",
+  "build_exit": 0,
+  "build_log_sha256": "a0d478eb942bbfeea15a2f179ea0a0b99faf5ec05e70abe5b215938185b23b8e",
+  "compiled_artifacts": "PASS 7/7",
+  "cpu_plan_exit": 0,
+  "cpu_plan_log_sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f",
+  "delta": "PASS one helper file; before/after hashes verified",
+  "native574_failure_preserved": true,
+  "native575_not_run_by_this_agent": true,
+  "overlay_patch_sha256": "8a2477e807ba4ab5c59e58b9c840637b0b35806f9370b8f8507f2845094e1641",
+  "parent_source_hashes": "PASS 823/823",
+  "patch_dry_run_exit": 0,
+  "patch_dry_run_log_sha256": "e2906ef034fe9e6d041fc7c0c19fd94679247aac1693acb30c5db8ca159adf4b",
+  "schema": "numi.cardboard.source227-verification.v1",
+  "snapshot_frozen_sha256": "1c4fbc29aa5db5ef413caffda0a666f55d2c0fdcec5b803d7546c9bcfd8037a1",
+  "source_build_record_sha256": "49ab08292ba1238a47ba5862d4faa7d9684ff80dbf3d6f2bba0dc19232bba510",
+  "source_hashes": "PASS 823/823",
+  "source_overlay_sha256": "a288b3d6bf992564baab9b20a25242bba05033fe154edcb17e7cefb9e7f54739",
+  "verified_at_utc": "2026-10-16T12:15:25.094725+00:00",
+  "verify_script_sha256": "1a069297a194be8322070c56e88926ace15021f0ba0b918a305915093f8b42b8",
+  "whole_process_shipping_admission": false
+}

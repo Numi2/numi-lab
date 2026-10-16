@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-replay-230-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-pure-proxy-replay-230-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source230-integrated-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "--target",
+    "numi-matter-cardboard-free-box-proxy-admission-check",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check"
+  ],
+  "source_frozen_sha256": "f0800b754a820f791c7d97c1126e2e653f1b2f7064bd2b9d5ca443cf102ac682",
+  "gpu_execution": false
+}

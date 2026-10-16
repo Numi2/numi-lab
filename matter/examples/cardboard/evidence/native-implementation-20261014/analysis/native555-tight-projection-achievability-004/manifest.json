@@ -1,0 +1,28 @@
+{
+  "command": "env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 Q/venvs/cardboard-reference-185/bin/python3 Q/analysis/native555-global-ideal-fd-tight-003/run.py",
+  "files_sha256": {
+    "README.md": "916bb5678ec7971ffea52d064193c21212999871f63a2e384d603f628a300c12",
+    "report.json": "01088e4dece17e431721655e5332e73f9ef566309a762462dde9a1b9e2ffbfd4",
+    "summary.json": "1908944c495dde279f72daf832a6cd8654593d5634b3141fb2af2ca88bab17c1"
+  },
+  "inputs_sha256": {
+    "achievability_probe": "01088e4dece17e431721655e5332e73f9ef566309a762462dde9a1b9e2ffbfd4",
+    "base_reference": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "compensated_reference": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "prior_global_arrays": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "prior_global_report": "4d8e195750c43c971ccad8ecc79a140380db668d77f43cf87f5062b08cefcbbe",
+    "prior_global_run": "d67914c3ca2ffb21c19417e267f7fd4e80d21e9f6e30f35009a3c2a5d488cf49",
+    "strict_layers": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "tight_arrays": "24b5fe58f80a66b969889fccceab980e4d9bcc4c780e3deba8ad5e90de23d74b",
+    "tight_report": "757c64078287952eafd035b694ae7697e55512e45780a1218060e263c2aa5d0e",
+    "tight_runner": "2b3009ed14b397c0e4a6f99e2e3128023d6f099be1fac29d93d32229da80effe"
+  },
+  "schema": "numi.cardboard.native555-tight-projection-achievability-files.v1",
+  "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002",
+  "tolerance_overrides": {
+    "analysis_only": true,
+    "dynamic_correction": 2e-14,
+    "scaled_residual": 2e-15
+  }
+}

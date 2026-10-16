@@ -1,0 +1,12 @@
+[  0%] Building CXX object CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/tools/pure_fem_armijo_cgls_arena_plan_check.cpp.o
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp:13:22: error: unused variable 'a' [-Werror,-Wunused-variable]
+   13 |  auto s=shape();auto a=planFEMPureArmijoCGLSArena(s);
+      |                      ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp:42:16: error: unused variable 'out' [-Werror,-Wunused-variable]
+   42 |  std::uint64_t out=0;assert(!femPureArmijoCheckedMultiply(UINT64_MAX,2,out));
+      |                ^~~
+2 errors generated.
+make[3]: *** [CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/tools/pure_fem_armijo_cgls_arena_plan_check.cpp.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-pure-fem-armijo-cgls-arena-plan-check.dir/rule] Error 2
+make: *** [numi-matter-pure-fem-armijo-cgls-arena-plan-check] Error 2

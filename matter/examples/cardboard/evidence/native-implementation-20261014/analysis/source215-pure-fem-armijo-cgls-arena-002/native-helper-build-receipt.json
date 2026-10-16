@@ -1,0 +1,25 @@
+{
+  "configure_argv": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-002",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DBUILD_TESTING=ON",
+    "-DNUMI_BRAIN_ROOT=/Users/n/cardboard-implementation-20261014-host-macmini/numi-brain"
+  ],
+  "configure_exit": 0,
+  "build_argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-002",
+    "--target",
+    "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "numi_matter_runtime",
+    "-j2"
+  ],
+  "build_exit": 2,
+  "native_helper_executed": false
+}

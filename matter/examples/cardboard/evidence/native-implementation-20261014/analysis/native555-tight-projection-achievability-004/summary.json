@@ -1,0 +1,472 @@
+{
+  "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+  "complete_endpoint_passes": 0,
+  "conclusion": "The tighter targets do not yield complete endpoint vectors: roughly 61 percent of rows pass the 2e-15 scaled-residual target per side, while nearly all pass the 2e-14 dynamic-correction target. Most failures stop on strict residual descent, not the iteration ceiling. Consequently the complete direct global centered secant cannot be computed under these tighter endpoint gates. Existing full-gate p12-p20 direct centered P+-P- results remain projection-limited and are listed separately.",
+  "direct_difference_method": "The original global FD computes (R(F_plus)-R(F_minus))/(2 epsilon) directly; it does not subtract the center residual.",
+  "endpoint_count": 10,
+  "endpoint_results": [
+    {
+      "both_metrics_pass_rows": 1055,
+      "dynamic_correction_pass_rows": 1728,
+      "failed_rows": 673,
+      "failure_categories": {
+        "final_gate_failed": 9,
+        "no_failure": 1055,
+        "other": 0,
+        "residual_descent_stalled": 664
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.748708916751768e-14,
+      "max_scaled_residual": 1.0181014378383973e-12,
+      "power": 12,
+      "residual_pass_rows": 1055,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 2.2814109994866453e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 8.5986604939423731e-13, correction 2.2814109994866453e-16",
+          "residual": 8.598660493942373e-13,
+          "row": 15
+        },
+        {
+          "correction": 8.247557803510251e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 7.1030521303588166e-13, correction 8.2475578035102514e-16",
+          "residual": 7.103052130358817e-13,
+          "row": 21
+        }
+      ],
+      "sign": 1,
+      "valid_rows": 1055
+    },
+    {
+      "both_metrics_pass_rows": 1079,
+      "dynamic_correction_pass_rows": 1727,
+      "failed_rows": 649,
+      "failure_categories": {
+        "final_gate_failed": 7,
+        "no_failure": 1079,
+        "other": 0,
+        "residual_descent_stalled": 642
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 6.550157105133204e-13,
+      "max_scaled_residual": 1.012074559945694e-12,
+      "power": 12,
+      "residual_pass_rows": 1080,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 2.3996146450687476e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 8.5643497788405362e-13, correction 2.3996146450687476e-16",
+          "residual": 8.564349778840536e-13,
+          "row": 15
+        },
+        {
+          "correction": 1.0103227325933097e-15,
+          "iterations": 13,
+          "reason": "tight diagnostic residual descent stalled at residual 2.7514080031274393e-13, correction 1.0103227325933097e-15",
+          "residual": 2.7514080031274393e-13,
+          "row": 21
+        }
+      ],
+      "sign": -1,
+      "valid_rows": 1079
+    },
+    {
+      "both_metrics_pass_rows": 1057,
+      "dynamic_correction_pass_rows": 1727,
+      "failed_rows": 671,
+      "failure_categories": {
+        "final_gate_failed": 7,
+        "no_failure": 1057,
+        "other": 0,
+        "residual_descent_stalled": 664
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 4.350452862591057e-14,
+      "max_scaled_residual": 1.0256941724073801e-12,
+      "power": 14,
+      "residual_pass_rows": 1057,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 1.4732305495085063e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 9.1038604812779166e-13, correction 1.4732305495085063e-16",
+          "residual": 9.103860481277917e-13,
+          "row": 15
+        },
+        {
+          "correction": 1.0070482561719838e-15,
+          "iterations": 11,
+          "reason": "tight diagnostic residual descent stalled at residual 3.0149105454433966e-13, correction 1.0070482561719838e-15",
+          "residual": 3.0149105454433966e-13,
+          "row": 21
+        }
+      ],
+      "sign": 1,
+      "valid_rows": 1057
+    },
+    {
+      "both_metrics_pass_rows": 1056,
+      "dynamic_correction_pass_rows": 1728,
+      "failed_rows": 672,
+      "failure_categories": {
+        "final_gate_failed": 11,
+        "no_failure": 1056,
+        "other": 0,
+        "residual_descent_stalled": 661
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.3031577718193284e-14,
+      "max_scaled_residual": 1.0312034475364472e-12,
+      "power": 14,
+      "residual_pass_rows": 1056,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 1.7553408346700603e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 6.3038802237817893e-13, correction 1.7553408346700603e-16",
+          "residual": 6.303880223781789e-13,
+          "row": 15
+        },
+        {
+          "correction": 9.538249141474712e-16,
+          "iterations": 8,
+          "reason": "tight diagnostic residual descent stalled at residual 4.9359202142557171e-13, correction 9.538249141474712e-16",
+          "residual": 4.935920214255717e-13,
+          "row": 21
+        }
+      ],
+      "sign": -1,
+      "valid_rows": 1056
+    },
+    {
+      "both_metrics_pass_rows": 1060,
+      "dynamic_correction_pass_rows": 1726,
+      "failed_rows": 668,
+      "failure_categories": {
+        "final_gate_failed": 14,
+        "no_failure": 1060,
+        "other": 0,
+        "residual_descent_stalled": 654
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.5944755024949966e-13,
+      "max_scaled_residual": 9.909438592131805e-13,
+      "power": 16,
+      "residual_pass_rows": 1061,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 2.7607993945309324e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 7.2973170264085977e-13, correction 2.7607993945309324e-16",
+          "residual": 7.297317026408598e-13,
+          "row": 15
+        },
+        {
+          "correction": 3.195734593707284e-17,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 8.8411529127360339e-15, correction 3.1957345937072841e-17",
+          "residual": 8.841152912736034e-15,
+          "row": 21
+        }
+      ],
+      "sign": 1,
+      "valid_rows": 1060
+    },
+    {
+      "both_metrics_pass_rows": 1054,
+      "dynamic_correction_pass_rows": 1727,
+      "failed_rows": 674,
+      "failure_categories": {
+        "final_gate_failed": 9,
+        "no_failure": 1054,
+        "other": 0,
+        "residual_descent_stalled": 665
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 4.665270152204839e-13,
+      "max_scaled_residual": 1.0230711411162128e-12,
+      "power": 16,
+      "residual_pass_rows": 1055,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 7.620890583320448e-17,
+          "iterations": 8,
+          "reason": "tight diagnostic residual descent stalled at residual 1.4718370649018924e-13, correction 7.6208905833204475e-17",
+          "residual": 1.4718370649018924e-13,
+          "row": 15
+        },
+        {
+          "correction": 8.230883051403737e-16,
+          "iterations": 8,
+          "reason": "tight diagnostic residual descent stalled at residual 5.785234732620355e-13, correction 8.230883051403737e-16",
+          "residual": 5.785234732620355e-13,
+          "row": 21
+        }
+      ],
+      "sign": -1,
+      "valid_rows": 1054
+    },
+    {
+      "both_metrics_pass_rows": 1054,
+      "dynamic_correction_pass_rows": 1725,
+      "failed_rows": 674,
+      "failure_categories": {
+        "final_gate_failed": 10,
+        "no_failure": 1054,
+        "other": 0,
+        "residual_descent_stalled": 664
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.4862938101099735e-13,
+      "max_scaled_residual": 1.0121510643271766e-12,
+      "power": 18,
+      "residual_pass_rows": 1055,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 3.417584290355729e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 2.0405713545676524e-13, correction 3.4175842903557292e-16",
+          "residual": 2.0405713545676524e-13,
+          "row": 15
+        },
+        {
+          "correction": 7.752161924999205e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 6.5491024248412843e-13, correction 7.7521619249992052e-16",
+          "residual": 6.549102424841284e-13,
+          "row": 21
+        }
+      ],
+      "sign": 1,
+      "valid_rows": 1054
+    },
+    {
+      "both_metrics_pass_rows": 1051,
+      "dynamic_correction_pass_rows": 1726,
+      "failed_rows": 677,
+      "failure_categories": {
+        "final_gate_failed": 6,
+        "no_failure": 1051,
+        "other": 0,
+        "residual_descent_stalled": 671
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.6350430964171892e-13,
+      "max_scaled_residual": 9.94555898234476e-13,
+      "power": 18,
+      "residual_pass_rows": 1052,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 2.1641123175836793e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 8.0451234013568613e-13, correction 2.1641123175836793e-16",
+          "residual": 8.045123401356861e-13,
+          "row": 15
+        },
+        {
+          "correction": 8.104575853329671e-16,
+          "iterations": 7,
+          "reason": "tight diagnostic residual descent stalled at residual 6.8677584341460083e-13, correction 8.1045758533296714e-16",
+          "residual": 6.867758434146008e-13,
+          "row": 21
+        }
+      ],
+      "sign": -1,
+      "valid_rows": 1051
+    },
+    {
+      "both_metrics_pass_rows": 1053,
+      "dynamic_correction_pass_rows": 1726,
+      "failed_rows": 675,
+      "failure_categories": {
+        "final_gate_failed": 9,
+        "no_failure": 1053,
+        "other": 0,
+        "residual_descent_stalled": 666
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.6792702875675924e-13,
+      "max_scaled_residual": 1.029036533386432e-12,
+      "power": 20,
+      "residual_pass_rows": 1054,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 6.658397805986037e-17,
+          "iterations": 8,
+          "reason": "tight diagnostic residual descent stalled at residual 3.9374794941632224e-13, correction 6.6583978059860366e-17",
+          "residual": 3.9374794941632224e-13,
+          "row": 15
+        },
+        {
+          "correction": 6.509063508998457e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 8.4858901489689109e-13, correction 6.5090635089984567e-16",
+          "residual": 8.485890148968911e-13,
+          "row": 21
+        }
+      ],
+      "sign": 1,
+      "valid_rows": 1053
+    },
+    {
+      "both_metrics_pass_rows": 1053,
+      "dynamic_correction_pass_rows": 1727,
+      "failed_rows": 675,
+      "failure_categories": {
+        "final_gate_failed": 9,
+        "no_failure": 1053,
+        "other": 0,
+        "residual_descent_stalled": 666
+      },
+      "iterations_min_median_max": [
+        1,
+        1.0,
+        23
+      ],
+      "max_dynamic_correction": 1.0771748819108558e-13,
+      "max_scaled_residual": 1.0180933154037974e-12,
+      "power": 20,
+      "residual_pass_rows": 1053,
+      "rows": 1728,
+      "sample_failed": [
+        {
+          "correction": 1.977301449705635e-16,
+          "iterations": 8,
+          "reason": "tight diagnostic residual descent stalled at residual 7.6159347550068749e-13, correction 1.9773014497056349e-16",
+          "residual": 7.615934755006875e-13,
+          "row": 15
+        },
+        {
+          "correction": 7.850807265416357e-16,
+          "iterations": 9,
+          "reason": "tight diagnostic residual descent stalled at residual 7.0674335712992609e-13, correction 7.8508072654163566e-16",
+          "residual": 7.067433571299261e-13,
+          "row": 21
+        }
+      ],
+      "sign": -1,
+      "valid_rows": 1053
+    }
+  ],
+  "inputs": {
+    "base_global_fd_arrays_sha256": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "base_global_fd_report_sha256": "4d8e195750c43c971ccad8ecc79a140380db668d77f43cf87f5062b08cefcbbe",
+    "base_reference_sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "compensated_reference_sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "strict_layers_sha256": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "strict_projection_runner_sha256": "2b3009ed14b397c0e4a6f99e2e3128023d6f099be1fac29d93d32229da80effe",
+    "tight_projection_arrays_sha256": "24b5fe58f80a66b969889fccceab980e4d9bcc4c780e3deba8ad5e90de23d74b",
+    "tight_projection_results_sha256": "757c64078287952eafd035b694ae7697e55512e45780a1218060e263c2aa5d0e"
+  },
+  "prior_full_gate_results_p12_p20": [
+    {
+      "centered_relative_error": 599.4956193637571,
+      "minus_deltaR_l2": 5.844297728276545e-06,
+      "old_full_pair_gate": true,
+      "one_sided_minus_relative_error": 877.8593515527426,
+      "one_sided_plus_relative_error": 819.624696043033,
+      "plus_deltaR_l2": 5.46141756912845e-06,
+      "power": 12
+    },
+    {
+      "centered_relative_error": 188.95019030144863,
+      "minus_deltaR_l2": 1.6422679727807537e-07,
+      "old_full_pair_gate": true,
+      "one_sided_minus_relative_error": 98.82191134596647,
+      "one_sided_plus_relative_error": 364.3159459349788,
+      "plus_deltaR_l2": 6.068927344341052e-07,
+      "power": 14
+    },
+    {
+      "centered_relative_error": 107.61384082599051,
+      "minus_deltaR_l2": 9.04085027246349e-09,
+      "old_full_pair_gate": true,
+      "one_sided_minus_relative_error": 21.631182698419995,
+      "one_sided_plus_relative_error": 212.1960995323459,
+      "plus_deltaR_l2": 8.837374047647642e-08,
+      "power": 16
+    },
+    {
+      "centered_relative_error": 21.9707522796264,
+      "minus_deltaR_l2": 2.2832603805843215e-09,
+      "old_full_pair_gate": true,
+      "one_sided_minus_relative_error": 21.853109947031545,
+      "one_sided_plus_relative_error": 22.107432439157726,
+      "plus_deltaR_l2": 2.3096423376901862e-09,
+      "power": 18
+    },
+    {
+      "centered_relative_error": 21.968928481203356,
+      "minus_deltaR_l2": 5.730113500920581e-10,
+      "old_full_pair_gate": true,
+      "one_sided_minus_relative_error": 21.937783935127676,
+      "one_sided_plus_relative_error": 22.001262944383377,
+      "plus_deltaR_l2": 5.746575781510445e-10,
+      "power": 20
+    }
+  ],
+  "projection_source_sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+  "requested_dynamic_correction": 2e-14,
+  "requested_scaled_residual": 2e-15,
+  "row_count_per_endpoint": 1728,
+  "schema": "numi.cardboard.native555-tight-projection-achievability-summary.v1",
+  "stalled_dynamic_correction_range": [
+    2.6394077107100167e-17,
+    6.550157105133204e-13
+  ],
+  "stalled_scaled_residual_range": [
+    1.1890360768660243e-17,
+    1.0312034475364472e-12
+  ],
+  "total_row_endpoint_projections": 17280,
+  "unchanged_equations": true
+}

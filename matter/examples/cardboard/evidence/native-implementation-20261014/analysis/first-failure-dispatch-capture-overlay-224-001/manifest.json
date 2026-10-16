@@ -1,0 +1,24 @@
+{
+  "build_source_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+  "candidate_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+  "files": {
+    "README.md": {
+      "bytes": 1858,
+      "sha256": "f12165d0b809faf692d71f0b494b3561e4e58563318b8d158c3604062d53e497"
+    },
+    "build-validation.json": {
+      "bytes": 3005,
+      "sha256": "2f01a31fcb32cee646c61e2f4ed6a9dc33fb9b70445f648fefa14f73551f7e32"
+    },
+    "source-overlay.json": {
+      "bytes": 1898,
+      "sha256": "fd1ef7db3516060f5dbb2d1392aaad5104d63d7bbac00ded90190c945f9af565"
+    },
+    "source-overlay.patch": {
+      "bytes": 30528,
+      "sha256": "a4d029949a328e99219654c51318e2d4e312c28fa7b8d38278a31908ad0d3a5a"
+    }
+  },
+  "native_execution": false,
+  "schema": "numi.matter.source224.package.v1"
+}

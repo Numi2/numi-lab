@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "lib/libmetalrobo.dylib": {
+      "bytes": 8541056,
+      "sha256": "aad02e45ee4f96f196e9e44480a7f48deed5e1f017b310b88f0f6cd8bfd12cbc"
+    },
+    "matter/numi-matter-cardboard-coupled-free-box-operator-check": {
+      "bytes": 702792,
+      "sha256": "f0f1a55f6a37cc052155e2ae7718d085ea53aeab4fe9071e245f7ca024d854bf"
+    },
+    "matter/numi-matter-cardboard-free-box-proxy-admission-check": {
+      "bytes": 54248,
+      "sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb"
+    },
+    "matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 1966848,
+      "sha256": "5840d9af515ed948d6b86532e55ec242cd416c7f70717e0fe761566ba8557afa"
+    },
+    "matter/numi-matter-cardboard-probe": {
+      "bytes": 3058696,
+      "sha256": "479642c025217ae00e833fdbe4aaa6b359e40f22569a333539db7b5920cb6ccd"
+    },
+    "matter/shaders/NumiMatter.metallib": {
+      "bytes": 7050491,
+      "sha256": "cc246100c97b6bb43c4fa0e2b547f3e3a920fbdced0c507ac4b5f00873bddadb"
+    },
+    "matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  },
+  "base_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-free-box-capsule-true-residual-212-012",
+  "change_scope": "True-residual admission covers one dynamic free BOX plus prescribed translation-only BOX/CAPSULE proxies, with current/prescribed body state and authored FEM-pair map validation. Production-kernel component fixture dispatches FEM gather and primal rigid-contact kernels for one free BOX contact, one prescribed BOX contact, and one capsule contact. No physical transaction is run.",
+  "changed_files": [
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp",
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+    "matter/tools/cardboard_free_box_true_residual_proxy_admission_check.cpp",
+    "matter/tools/test_true_residual_certification_contract.py"
+  ],
+  "configure_support_file_count": 1034,
+  "configure_support_manifest_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "created_at_utc": "2026-10-16T11:22:19.449198+00:00",
+  "frozen_source_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+  "limitations": [
+    "Native Metal component checker was built but not executed; root owns the single GPU worker.",
+    "The native fixture is a manufactured finite contact-Hessian component check, not a physical contact/CCD transaction or full shipping assembly.",
+    "The CPU admission test accepts the authored 12-proxy role shape (three capsules, six BOX rails sharing three body identities, platen, floor, and one dynamic impactor) but does not prove the full production setup maps every active shipping pair.",
+    "Scope remains E=1, N<=4096, T<=32768, cohesive faces<=4096, at most 16 proxies, at most 8 distinct prescribed bodies, exactly one dynamic free BOX."
+  ],
+  "schema": "numi.cardboard.source216-prescribed-proxy-review.v1",
+  "selected_source_file_count": 821,
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005",
+  "source_build": {
+    "commands": [
+      [
+        "cmake",
+        "-S",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source216-integrated-configure-support-005",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DPython3_EXECUTABLE=/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3"
+      ],
+      [
+        "cmake",
+        "--build",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005",
+        "--target",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "numi-matter-cardboard-probe",
+        "numi-matter-cardboard-coupled-free-box-operator-check",
+        "numi-matter-cardboard-free-box-proxy-admission-check",
+        "-j",
+        "4"
+      ]
+    ],
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/source-build.json",
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "sha256": "80052d7c19ce3a37debde4df9bb89134944c7459de44d3e9004ccaf77923cee7",
+    "success": true
+  },
+  "tests": {
+    "cpu-admission-ctest": {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005",
+        "--output-on-failure",
+        "-R",
+        "matter.compiler.cardboard_free_box_proxy_admission"
+      ],
+      "exit_code": 0,
+      "log_sha256": "7a6cb99554e142ba4639ad832284d8aef2a380b3951dd413b07bef3ffd736e23"
+    },
+    "cpu-admission-direct": {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source216-integrated-005/matter/numi-matter-cardboard-free-box-proxy-admission-check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "41bbfc569ea5ed104dd494aaf44a6c60b7504c3fd36837e02cd27968eaae0507"
+    },
+    "python-contracts": {
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.13/3.13.14_1/bin/python3.13",
+        "-B",
+        "-m",
+        "unittest",
+        "tools.test_true_residual_certification_contract",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "3604b067ac4ea6df72fac4cfba24f9d43fe614bb05c006f21903101968abd750"
+    }
+  },
+  "verdict": "CPU_AND_FULL_TARGET_BUILD_PASS; NATIVE_COMPONENT_CHECK_PENDING"
+}

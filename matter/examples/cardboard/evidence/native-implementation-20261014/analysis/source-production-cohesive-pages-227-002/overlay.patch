@@ -1,0 +1,412 @@
+--- a/matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm
++++ b/matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm
+@@ -9,106 +9,306 @@
+ #include <string>
+ #include <vector>
+ using namespace numi::matter::detail;
+-static void req(bool b,const char*m){if(!b)throw std::runtime_error(m);}
+-template<class T> static id<MTLBuffer> mkbuf(id<MTLDevice>d,const std::vector<T>&v){
+- NSUInteger n=std::max<NSUInteger>(sizeof(T),v.size()*sizeof(T));
+- id<MTLBuffer>b=[d newBufferWithLength:n options:MTLResourceStorageModeShared];
+- req(b!=nil,"buffer allocation failed"); std::memset(b.contents,0,b.length);
+- if(!v.empty())std::memcpy(b.contents,v.data(),v.size()*sizeof(T)); return b;
+-}
+-static id<MTLComputePipelineState> pipe(id<MTLDevice>d,id<MTLLibrary>l,const char*n){
+- std::string q=std::string("numi_matter_metal::")+n;
+- auto f=[l newFunctionWithName:[NSString stringWithUTF8String:q.c_str()]];
+- req(f!=nil,"missing production cohesive page kernel"); NSError*e=nil;
+- auto p=[d newComputePipelineStateWithFunction:f error:&e]; req(p!=nil,"pipeline failure"); return p;
+-}
+-static void launch(id<MTLComputeCommandEncoder>e,id<MTLComputePipelineState>p,NSUInteger n){
+- if(!n)return; [e setComputePipelineState:p];
+- [e dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:
+-   MTLSizeMake(std::min<NSUInteger>(128,p.maxTotalThreadsPerThreadgroup),1,1)];
+-}
+-static void run(id<MTLDevice>d,id<MTLLibrary>l){
+- constexpr uint32_t E=2,N=7,C=5,cap=2;
+- ShippingCohesivePagePlanInput pi{}; pi.environmentCount=E;pi.femNodeCount=N;
+- pi.cohesiveFaceCount=C;pi.pageBufferBudgetBytes=E*cap*sizeof(NMCohesiveFaceVectorGPU);
+- pi.maxBufferLength=1u<<20; auto plan=makeShippingCohesivePagePlan(pi);
+- req(plan.admitted()&&plan.paged&&plan.facesPerPage==cap&&plan.pageCount==3&&
+-     plan.lastPageFaces==1,"bounded test plan mismatch");
+- NMMatterDispatchGPU dd{};dd.environmentCount=E;dd.objectCount=1;dd.femNodeCount=N;
+- dd.cohesiveFaceCount=C;dd.gravityAndTimestep.w=.25f;
+- NMMicrostepGPU ms{};ms.microtickCount=1;ms.time={.25f,4,0,.25f};
+- NMContinuumObjectGPU ob{};ob.representation=NM_REPRESENTATION_FEM;
+- ob.flags=NM_OBJECT_ACTIVE;ob.schedulerIndex=0;
+- std::vector<NMSchedulerStateGPU> sched(E);std::vector<NMAdaptiveStateGPU> adapt(E);
+- for(uint32_t e=0;e<E;e++){sched[e].numerical.w=1;adapt[e].activeRepresentation=NM_REPRESENTATION_FEM;}
+- std::vector<std::vector<uint32_t>> entries(N);
+- for(uint32_t f=0;f<C;f++)for(uint32_t s=0;s<6;s++)entries[(f+s)%N].push_back(f*6+s);
+- std::vector<uint32_t> incidence;std::vector<NMIncidenceRangeGPU> ranges(E*N);
+- for(uint32_t n=0;n<N;n++){uint32_t first=incidence.size();incidence.insert(incidence.end(),entries[n].begin(),entries[n].end());
+-  NMIncidenceRangeGPU r{first,uint32_t(entries[n].size()),0,0};for(uint32_t e=0;e<E;e++)ranges[e*N+n]=r;}
+- std::vector<NMFEMNodeStateGPU> nodes(E*N);for(auto&n:nodes){n.positionAndMass.w=1;n.velocityAndInverseMass.w=.5f;}
+- std::vector<NMMatterStatusGPU> status(E);
+- auto db=mkbuf(d,std::vector<NMMatterDispatchGPU>{dd});auto mb=mkbuf(d,std::vector<NMMicrostepGPU>{ms});
+- auto obb=mkbuf(d,std::vector<NMContinuumObjectGPU>{ob});auto sb=mkbuf(d,sched);auto ab=mkbuf(d,adapt);
+- auto ib=mkbuf(d,incidence);auto rb=mkbuf(d,ranges);auto nb=mkbuf(d,nodes);auto stb=mkbuf(d,status);
+- auto page=[d newBufferWithLength:plan.facePageBytes options:MTLResourceStorageModeShared];
+- auto acc=[d newBufferWithLength:plan.accumulatorBytes options:MTLResourceStorageModeShared];
+- auto residual=mkbuf(d,std::vector<nm_float4>(E*N));auto pre=mkbuf(d,std::vector<nm_float4>(E*N));
+- auto direction=mkbuf(d,std::vector<nm_float4>(E*N));auto reactions=mkbuf(d,std::vector<nm_float4>(E*N));
+- auto work=mkbuf(d,std::vector<nm_float4>(E*N));req(page&&acc,"page buffer allocation failed");
+- auto clear=pipe(d,l,"nm_fem_clear_cohesive_force_accumulator");
+- auto add=pipe(d,l,"nm_fem_accumulate_cohesive_page_forces");
+- auto apply=pipe(d,l,"nm_fem_apply_cohesive_force_accumulator");
+- auto applyOp=pipe(d,l,"nm_fem_apply_cohesive_operator_accumulator");
+- auto q=[d newCommandQueue];auto cb=[q commandBuffer];auto e=[cb computeCommandEncoder];
+- req(q&&cb&&e,"command setup failed");
+- auto fillAndAccumulate=[&](){
+-  for(uint32_t start=0;start<C;){uint32_t count=std::min(cap,C-start);
+-   auto*v=static_cast<NMCohesiveFaceVectorGPU*>(page.contents);std::memset(v,0,page.length);
+-   for(uint32_t env=0;env<E;env++)for(uint32_t local=0;local<count;local++)for(uint32_t slot=0;slot<6;slot++){
+-    uint32_t face=start+local;float x=float(1+env*100+face*10+slot);
+-    v[env*count+local].node[slot]={x,2*x,-x,0};
+-   }
+-   launch(e,add,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
+-   [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:ib offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
+-   [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:page offset:0 atIndex:7];
+-   [e setBuffer:acc offset:0 atIndex:8];[e setBuffer:stb offset:0 atIndex:9];
+-   [e setBytes:&start length:sizeof(start) atIndex:10];[e setBytes:&count length:sizeof(count) atIndex:11];
+-   [e memoryBarrierWithScope:MTLBarrierScopeBuffers];start+=count;
+-  }
+- };
+- launch(e,clear,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:acc offset:0 atIndex:1];
+- [e memoryBarrierWithScope:MTLBarrierScopeBuffers];fillAndAccumulate();
+- launch(e,apply,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
+- [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:nb offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
+- [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:acc offset:0 atIndex:7];
+- [e setBuffer:residual offset:0 atIndex:8];[e setBuffer:pre offset:0 atIndex:9];[e setBuffer:direction offset:0 atIndex:10];
+- [e setBuffer:reactions offset:0 atIndex:11];[e setBuffer:stb offset:0 atIndex:12];
+- launch(e,clear,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:acc offset:0 atIndex:1];
+- [e memoryBarrierWithScope:MTLBarrierScopeBuffers];fillAndAccumulate();
+- launch(e,applyOp,E*N);[e setBuffer:db offset:0 atIndex:0];[e setBuffer:mb offset:0 atIndex:1];
+- [e setBuffer:obb offset:0 atIndex:2];[e setBuffer:nb offset:0 atIndex:3];[e setBuffer:rb offset:0 atIndex:4];
+- [e setBuffer:sb offset:0 atIndex:5];[e setBuffer:ab offset:0 atIndex:6];[e setBuffer:acc offset:0 atIndex:7];
+- [e setBuffer:work offset:0 atIndex:8];[e setBuffer:stb offset:0 atIndex:9];
+- [e endEncoding];[cb commit];[cb waitUntilCompleted];req(cb.status==MTLCommandBufferStatusCompleted,"page consumer dispatch failed");
+- auto*f=static_cast<const nm_float4*>(acc.contents);auto*r=static_cast<const nm_float4*>(residual.contents);
+- auto*p=static_cast<const nm_float4*>(pre.contents);auto*dv=static_cast<const nm_float4*>(direction.contents);
+- auto*w=static_cast<const nm_float4*>(work.contents);
+- for(uint32_t env=0;env<E;env++)for(uint32_t n=0;n<N;n++){
+-  float x=0,y=0,z=0;for(uint32_t face=0;face<C;face++)for(uint32_t slot=0;slot<6;slot++)if((face+slot)%N==n){
+-   float v=float(1+env*100+face*10+slot);x+=v;y+=2*v;z-=v;}
+-  uint32_t i=env*N+n;req(f[i].x==x&&f[i].y==y&&f[i].z==z,"ordered page accumulation mismatch");
+-  req(r[i].x==.25f*x&&r[i].y==.25f*y&&r[i].z==.25f*z,"force apply scale mismatch");
+-  req(p[i].x==(.5f*.25f)*x&&dv[i].y==(.5f*.25f)*y,"force correction mismatch");
+-  req(w[i].x==-(.25f*.25f)*x&&w[i].z==-(.25f*.25f)*z,"operator apply scale mismatch");
+- }
+- std::cout<<"production_cohesive_page_consumers=PASS E="<<E<<" N="<<N<<" C="<<C
+- <<" page_capacity="<<cap<<" pages="<<plan.pageCount<<" acc_bytes="<<plan.accumulatorBytes
+- <<" physical_transactions=0\n";
+-}
+-int main(int argc,char**argv){@autoreleasepool{try{req(argc==2,"usage: checker <NumiMatter.metallib>");
+- id<MTLDevice>d=MTLCreateSystemDefaultDevice();req(d!=nil,"no Metal device");NSError*err=nil;
+- NSString*p=[NSString stringWithUTF8String:argv[1]];
+- id<MTLLibrary>l=[d newLibraryWithURL:[NSURL fileURLWithPath:p] error:&err];
+- req(l!=nil,"cannot load source-bound NumiMatter.metallib");run(d,l);return 0;
+- }catch(const std::exception&e){std::cerr<<"cohesive page checker failed: "<<e.what()<<'\n';return 1;}}}
++
++static void req(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++template<class T>
++static id<MTLBuffer> mkbuf(id<MTLDevice> device, const std::vector<T>& values) {
++    const NSUInteger length = std::max<NSUInteger>(
++        sizeof(T), values.size() * sizeof(T));
++    id<MTLBuffer> buffer = [device newBufferWithLength:length
++        options:MTLResourceStorageModeShared];
++    req(buffer != nil, "buffer allocation failed");
++    std::memset(buffer.contents, 0, buffer.length);
++    if (!values.empty()) {
++        std::memcpy(buffer.contents, values.data(),
++            values.size() * sizeof(T));
++    }
++    return buffer;
++}
++
++static id<MTLComputePipelineState> pipeline(
++    id<MTLDevice> device, id<MTLLibrary> library, const char* name
++) {
++    const std::string qualified = std::string("numi_matter_metal::") + name;
++    id<MTLFunction> function = [library newFunctionWithName:
++        [NSString stringWithUTF8String:qualified.c_str()]];
++    req(function != nil, "missing production cohesive page kernel");
++    NSError* error = nil;
++    id<MTLComputePipelineState> result =
++        [device newComputePipelineStateWithFunction:function error:&error];
++    req(result != nil, "pipeline creation failed");
++    return result;
++}
++
++static void dispatch(
++    id<MTLComputeCommandEncoder> encoder,
++    id<MTLComputePipelineState> state,
++    NSUInteger threadCount
++) {
++    if (!threadCount) return;
++    [encoder setComputePipelineState:state];
++    [encoder dispatchThreads:MTLSizeMake(threadCount, 1, 1)
++        threadsPerThreadgroup:MTLSizeMake(
++            std::min<NSUInteger>(128, state.maxTotalThreadsPerThreadgroup),
++            1, 1)];
++}
++
++static void run(id<MTLDevice> device, id<MTLLibrary> library) {
++    constexpr uint32_t E = 2;
++    constexpr uint32_t N = 7;
++    constexpr uint32_t C = 5;
++    constexpr uint32_t capacity = 2;
++
++    ShippingCohesivePagePlanInput input{};
++    input.environmentCount = E;
++    input.femNodeCount = N;
++    input.cohesiveFaceCount = C;
++    input.pageBufferBudgetBytes =
++        E * capacity * sizeof(NMCohesiveFaceVectorGPU);
++    input.maxBufferLength = 1u << 20;
++    const auto plan = makeShippingCohesivePagePlan(input);
++    req(plan.admitted() && plan.paged &&
++        plan.facesPerPage == capacity && plan.pageCount == 3 &&
++        plan.lastPageFaces == 1, "bounded test plan mismatch");
++
++    NMMatterDispatchGPU dispatchData{};
++    dispatchData.environmentCount = E;
++    dispatchData.objectCount = 1;
++    dispatchData.femNodeCount = N;
++    dispatchData.cohesiveFaceCount = C;
++    dispatchData.gravityAndTimestep.w = 0.25f;
++    NMMicrostepGPU microstep{};
++    microstep.microtickCount = 1;
++    microstep.time = {0.25f, 4, 0, 0.25f};
++    NMContinuumObjectGPU object{};
++    object.representation = NM_REPRESENTATION_FEM;
++    object.flags = NM_OBJECT_ACTIVE;
++    object.schedulerIndex = 0;
++
++    std::vector<NMSchedulerStateGPU> schedulers(E);
++    std::vector<NMAdaptiveStateGPU> adaptive(E);
++    for (uint32_t env = 0; env < E; ++env) {
++        schedulers[env].numerical.w = 1;
++        adaptive[env].activeRepresentation = NM_REPRESENTATION_FEM;
++    }
++
++    std::vector<std::vector<uint32_t>> entries(N);
++    for (uint32_t face = 0; face < C; ++face) {
++        for (uint32_t slot = 0; slot < 6; ++slot) {
++            entries[(face + slot) % N].push_back(face * 6 + slot);
++        }
++    }
++    std::vector<uint32_t> incidence;
++    std::vector<NMIncidenceRangeGPU> ranges(E * N);
++    for (uint32_t node = 0; node < N; ++node) {
++        const uint32_t first = static_cast<uint32_t>(incidence.size());
++        incidence.insert(incidence.end(), entries[node].begin(),
++            entries[node].end());
++        const NMIncidenceRangeGPU range{
++            first, static_cast<uint32_t>(entries[node].size()), 0, 0};
++        for (uint32_t env = 0; env < E; ++env) ranges[env * N + node] = range;
++    }
++
++    std::vector<NMFEMNodeStateGPU> nodes(E * N);
++    for (auto& node : nodes) {
++        node.positionAndMass.w = 1.0f;
++        node.velocityAndInverseMass.w = 0.5f;
++    }
++    std::vector<NMMatterStatusGPU> statuses(E);
++
++    auto dispatchBuffer = mkbuf(device,
++        std::vector<NMMatterDispatchGPU>{dispatchData});
++    auto microstepBuffer = mkbuf(device,
++        std::vector<NMMicrostepGPU>{microstep});
++    auto objectBuffer = mkbuf(device,
++        std::vector<NMContinuumObjectGPU>{object});
++    auto schedulerBuffer = mkbuf(device, schedulers);
++    auto adaptiveBuffer = mkbuf(device, adaptive);
++    auto incidenceBuffer = mkbuf(device, incidence);
++    auto rangeBuffer = mkbuf(device, ranges);
++    auto nodeBuffer = mkbuf(device, nodes);
++    auto statusBuffer = mkbuf(device, statuses);
++    auto accumulator = [device newBufferWithLength:plan.accumulatorBytes
++        options:MTLResourceStorageModeShared];
++    req(accumulator != nil, "accumulator allocation failed");
++
++    uint32_t starts[3] = {0, 2, 4};
++    uint32_t counts[3] = {2, 2, 1};
++    id<MTLBuffer> pages[3] = {nil, nil, nil};
++    for (uint32_t pageIndex = 0; pageIndex < plan.pageCount; ++pageIndex) {
++        pages[pageIndex] = [device newBufferWithLength:plan.facePageBytes
++            options:MTLResourceStorageModeShared];
++        req(pages[pageIndex] != nil, "page allocation failed");
++        std::memset(pages[pageIndex].contents, 0, pages[pageIndex].length);
++        auto* values = static_cast<NMCohesiveFaceVectorGPU*>(
++            pages[pageIndex].contents);
++        for (uint32_t env = 0; env < E; ++env) {
++            for (uint32_t local = 0; local < counts[pageIndex]; ++local) {
++                const uint32_t face = starts[pageIndex] + local;
++                for (uint32_t slot = 0; slot < 6; ++slot) {
++                    const float value = static_cast<float>(
++                        1 + env * 100 + face * 10 + slot);
++                    values[env * counts[pageIndex] + local].node[slot] =
++                        {value, 2 * value, -value, 0};
++                }
++            }
++        }
++    }
++
++    auto residual = mkbuf(device, std::vector<nm_float4>(E * N));
++    auto preconditioned = mkbuf(device, std::vector<nm_float4>(E * N));
++    auto direction = mkbuf(device, std::vector<nm_float4>(E * N));
++    auto reactions = mkbuf(device, std::vector<nm_float4>(E * N));
++    auto work = mkbuf(device, std::vector<nm_float4>(E * N));
++
++    auto clear = pipeline(device, library,
++        "nm_fem_clear_cohesive_force_accumulator");
++    auto accumulate = pipeline(device, library,
++        "nm_fem_accumulate_cohesive_page_forces");
++    auto applyForce = pipeline(device, library,
++        "nm_fem_apply_cohesive_force_accumulator");
++    auto applyOperator = pipeline(device, library,
++        "nm_fem_apply_cohesive_operator_accumulator");
++
++    id<MTLCommandQueue> queue = [device newCommandQueue];
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++    req(queue && command && encoder, "command setup failed");
++
++    auto clearAccumulator = [&]() {
++        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++        [encoder setBuffer:accumulator offset:0 atIndex:1];
++        dispatch(encoder, clear, E * N);
++        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++    };
++
++    auto accumulatePages = [&]() {
++        for (uint32_t pageIndex = 0; pageIndex < plan.pageCount; ++pageIndex) {
++            const uint32_t start = starts[pageIndex];
++            const uint32_t count = counts[pageIndex];
++            [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++            [encoder setBuffer:microstepBuffer offset:0 atIndex:1];
++            [encoder setBuffer:objectBuffer offset:0 atIndex:2];
++            [encoder setBuffer:incidenceBuffer offset:0 atIndex:3];
++            [encoder setBuffer:rangeBuffer offset:0 atIndex:4];
++            [encoder setBuffer:schedulerBuffer offset:0 atIndex:5];
++            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:6];
++            [encoder setBuffer:pages[pageIndex] offset:0 atIndex:7];
++            [encoder setBuffer:accumulator offset:0 atIndex:8];
++            [encoder setBuffer:statusBuffer offset:0 atIndex:9];
++            [encoder setBytes:&start length:sizeof(start) atIndex:10];
++            [encoder setBytes:&count length:sizeof(count) atIndex:11];
++            dispatch(encoder, accumulate, E * N);
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        }
++    };
++
++    clearAccumulator();
++    accumulatePages();
++
++    [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++    [encoder setBuffer:microstepBuffer offset:0 atIndex:1];
++    [encoder setBuffer:objectBuffer offset:0 atIndex:2];
++    [encoder setBuffer:nodeBuffer offset:0 atIndex:3];
++    [encoder setBuffer:rangeBuffer offset:0 atIndex:4];
++    [encoder setBuffer:schedulerBuffer offset:0 atIndex:5];
++    [encoder setBuffer:adaptiveBuffer offset:0 atIndex:6];
++    [encoder setBuffer:accumulator offset:0 atIndex:7];
++    [encoder setBuffer:residual offset:0 atIndex:8];
++    [encoder setBuffer:preconditioned offset:0 atIndex:9];
++    [encoder setBuffer:direction offset:0 atIndex:10];
++    [encoder setBuffer:reactions offset:0 atIndex:11];
++    [encoder setBuffer:statusBuffer offset:0 atIndex:12];
++    dispatch(encoder, applyForce, E * N);
++
++    clearAccumulator();
++    accumulatePages();
++
++    [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++    [encoder setBuffer:microstepBuffer offset:0 atIndex:1];
++    [encoder setBuffer:objectBuffer offset:0 atIndex:2];
++    [encoder setBuffer:nodeBuffer offset:0 atIndex:3];
++    [encoder setBuffer:rangeBuffer offset:0 atIndex:4];
++    [encoder setBuffer:schedulerBuffer offset:0 atIndex:5];
++    [encoder setBuffer:adaptiveBuffer offset:0 atIndex:6];
++    [encoder setBuffer:accumulator offset:0 atIndex:7];
++    [encoder setBuffer:work offset:0 atIndex:8];
++    [encoder setBuffer:statusBuffer offset:0 atIndex:9];
++    dispatch(encoder, applyOperator, E * N);
++
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    req(command.status == MTLCommandBufferStatusCompleted,
++        "page consumer dispatch failed");
++
++    const auto* force = static_cast<const nm_float4*>(accumulator.contents);
++    const auto* residualValues =
++        static_cast<const nm_float4*>(residual.contents);
++    const auto* preconditionedValues =
++        static_cast<const nm_float4*>(preconditioned.contents);
++    const auto* directionValues =
++        static_cast<const nm_float4*>(direction.contents);
++    const auto* workValues = static_cast<const nm_float4*>(work.contents);
++
++    for (uint32_t env = 0; env < E; ++env) {
++        for (uint32_t node = 0; node < N; ++node) {
++            float x = 0;
++            float y = 0;
++            float z = 0;
++            for (uint32_t face = 0; face < C; ++face) {
++                for (uint32_t slot = 0; slot < 6; ++slot) {
++                    if ((face + slot) % N != node) continue;
++                    const float value = static_cast<float>(
++                        1 + env * 100 + face * 10 + slot);
++                    x += value;
++                    y += 2 * value;
++                    z -= value;
++                }
++            }
++            const uint32_t index = env * N + node;
++            req(force[index].x == x && force[index].y == y &&
++                force[index].z == z, "ordered page accumulation mismatch");
++            req(residualValues[index].x == 0.25f * x &&
++                residualValues[index].y == 0.25f * y &&
++                residualValues[index].z == 0.25f * z,
++                "force apply scale mismatch");
++            req(preconditionedValues[index].x == (0.5f * 0.25f) * x &&
++                directionValues[index].y == (0.5f * 0.25f) * y,
++                "force correction mismatch");
++            req(workValues[index].x == -(0.25f * 0.25f) * x &&
++                workValues[index].z == -(0.25f * 0.25f) * z,
++                "operator apply scale mismatch");
++        }
++    }
++
++    std::cout << "production_cohesive_page_consumers=PASS E=" << E
++        << " N=" << N << " C=" << C
++        << " page_capacity=" << capacity
++        << " pages=" << plan.pageCount
++        << " acc_bytes=" << plan.accumulatorBytes
++        << " physical_transactions=0\n";
++}
++
++int main(int argc, char** argv) {
++    @autoreleasepool {
++        try {
++            req(argc == 2, "usage: checker <NumiMatter.metallib>");
++            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++            req(device != nil, "no Metal device");
++            NSError* error = nil;
++            NSString* path = [NSString stringWithUTF8String:argv[1]];
++            id<MTLLibrary> library = [device newLibraryWithURL:
++                [NSURL fileURLWithPath:path] error:&error];
++            req(library != nil, "cannot load source-bound NumiMatter.metallib");
++            run(device, library);
++            return 0;
++        } catch (const std::exception& error) {
++            std::cerr << "cohesive page checker failed: " << error.what() << '\n';
++            return 1;
++        }
++    }
++}

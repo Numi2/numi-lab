@@ -1,0 +1,18 @@
+{
+  "base_frozen_sha256": "499468e952b33f98419490c9c9987f742f79791d8822285919189205eae85555",
+  "candidate_frozen_source_sha256": "42a45636971691c203c80a0e3fdf26daa41f38c263ad28ed56bcfd6f42d8f29a",
+  "package_files": {
+    "cpu-admission-ctest.log": "7a6cb99554e142ba4639ad832284d8aef2a380b3951dd413b07bef3ffd736e23",
+    "cpu-admission-direct.log": "41bbfc569ea5ed104dd494aaf44a6c60b7504c3fd36837e02cd27968eaae0507",
+    "provenance-command-0.log": "170d2149d83c19de0b0f432349b084c8326730b535e7245f9ec8b467ad00cab7",
+    "provenance-command-1.log": "b6855496b7dd7d6c5d2da307fbae0557d6d14407dff482eb86398e84259afb06",
+    "python-contracts.log": "3604b067ac4ea6df72fac4cfba24f9d43fe614bb05c006f21903101968abd750",
+    "report.json": "b6b0336548292713e243b47ceb00f7c1cf76a3a1dd3526f91c7c2348213f855a",
+    "source-build.json": "80052d7c19ce3a37debde4df9bb89134944c7459de44d3e9004ccaf77923cee7",
+    "source216.patch": "cd341a1d0ce8d3d4c4abb21008f25761497869136dd1b5a9b772d5aa3877d9f1"
+  },
+  "patch_sha256": "cd341a1d0ce8d3d4c4abb21008f25761497869136dd1b5a9b772d5aa3877d9f1",
+  "report_sha256": "b6b0336548292713e243b47ceb00f7c1cf76a3a1dd3526f91c7c2348213f855a",
+  "schema": "numi.cardboard.source216-prescribed-proxy-package.v1",
+  "source_build_sha256": "80052d7c19ce3a37debde4df9bb89134944c7459de44d3e9004ccaf77923cee7"
+}

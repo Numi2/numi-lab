@@ -52,7 +52,7 @@ static void mustReject(const auto& thunk) {
 
 int main() {
     assert(kRegisteredOutputPathKeys.size() == 7u);
-    assert(kRegisteredDiagnosticReplaySelectorKeys.size() == 5u);
+    assert(kRegisteredDiagnosticReplaySelectorKeys.size() == 6u);
     const std::string environmentA = canonicalRuntimeEnvironment({
         {"NUMI_MATTER_MODE", "coupon"}, {"NM_FEM_CGLS", "64"},
         {"PATH", "/ignored"}});
@@ -201,6 +201,42 @@ int main() {
     assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedDamping));
     validateDiagnosticReplaySelectors(replayCurrent, 19u, 2u);
     mustReject([&] { validateDiagnosticReplaySelectors(replayCurrent, 21u, 2u); });
+    const std::vector<std::pair<std::string, std::string>> fdReplay{
+        {"NM_FEM_OPERATOR_FD_SELECTOR", "19:3"},
+        {"NM_FEM_OPERATOR_FD_CAPTURE_PATH", "/fresh/fd"},
+    };
+    for (const char* allowedScale : {
+            "0.0009765625", "0.001953125", "0.00390625", "0.0078125",
+            "0.015625", "0.03125", "0.0625", "0.125", "0.25",
+            "0.5", "1", "2", "4", "8", "16"}) {
+        auto changed = fdReplay;
+        changed.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", allowedScale);
+        validateDiagnosticReplaySelectors(changed, 15u, 2u);
+        assert(couponDiagnosticReplaySettingsMatch(fdReplay, changed));
+        assert(canonicalCouponRuntimeSettings(fdReplay) !=
+               canonicalCouponRuntimeSettings(changed));
+    }
+    for (const char* invalidScale : {
+            "", "0", "-1", "nan", "inf", "0.003", "32",
+            "0.00048828125", "0.00390625x", " 0.00390625"}) {
+        auto changed = fdReplay;
+        changed.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", invalidScale);
+        mustReject([&] { validateDiagnosticReplaySelectors(changed, 15u, 2u); });
+    }
+    mustReject([&] { validateDiagnosticReplaySelectors({
+        {"NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.00390625"}}, 15u, 2u); });
+    mustReject([&] { validateDiagnosticReplaySelectors({
+        {"NM_FEM_OPERATOR_FD_SELECTOR", "19:3"},
+        {"NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.00390625"}}, 15u, 2u); });
+    auto fdWithWrongSolver = fdReplay;
+    fdWithWrongSolver.emplace_back("NM_FEM_STRICT_INNER_FORCING", "0");
+    assert(!couponDiagnosticReplaySettingsMatch(fdReplay, fdWithWrongSolver));
+    auto fdWithDuplicateScale = fdReplay;
+    fdWithDuplicateScale.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", "1");
+    fdWithDuplicateScale.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.5");
+    mustReject([&] { validateDiagnosticReplaySelectors(
+        fdWithDuplicateScale, 15u, 2u); });
+
     auto wrongPathOrder = sourcePaths;
     std::swap(wrongPathOrder[0], wrongPathOrder[1]);
     mustReject([&] { (void)canonicalCouponOutputPathMap(wrongPathOrder); });

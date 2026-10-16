@@ -1,0 +1,122 @@
+--- a/matter/tools/cardboard_coupon_resume.hpp
++++ b/matter/tools/cardboard_coupon_resume.hpp
+@@ -7,6 +7,8 @@
+ #include <charconv>
+ #include <array>
+ #include <cstdint>
++#include <cmath>
++#include <cstdlib>
+ #include <istream>
+ #include <limits>
+ #include <map>
+@@ -36,11 +38,12 @@
+ 
+ // These selectors only request bounded, read-only diagnostics.  They remain
+ // strict in ordinary resume mode; the explicit diagnostic-replay mode may
+-// change only these five selectors in addition to the seven path bindings.
+-inline constexpr std::array<std::string_view, 5u>
++// change only these six observer controls in addition to the seven path bindings.
++inline constexpr std::array<std::string_view, 6u>
+     kRegisteredDiagnosticReplaySelectorKeys{
+         "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+         "NM_FEM_BASE_CGLS_STATE_CAPTURE",
++        "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
+         "NM_FEM_OPERATOR_FD_SELECTOR",
+         "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
+         "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+@@ -322,6 +325,30 @@
+                 "NM_FEM_OPERATOR_FD_SELECTOR");
+     requirePair("NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+                 "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR");
++
++    if (const std::string* scale = find("NM_FEM_OPERATOR_FD_EPSILON_SCALE")) {
++        if (find("NM_FEM_OPERATOR_FD_SELECTOR") == nullptr ||
++            find("NM_FEM_OPERATOR_FD_CAPTURE_PATH") == nullptr)
++            throw std::invalid_argument(
++                "operator-FD epsilon scale requires its paired capture path and selector");
++        char* end = nullptr;
++        const float parsed = std::strtof(scale->c_str(), &end);
++        bool allowed = !scale->empty() &&
++            scale->find_first_of(" \t\r\n") == std::string::npos &&
++            end == scale->c_str() + scale->size() &&
++            std::isfinite(parsed);
++        if (allowed) {
++            allowed = false;
++            for (int exponent = -10; exponent <= 4; ++exponent)
++                if (parsed == std::ldexp(1.0f, exponent)) {
++                    allowed = true;
++                    break;
++                }
++        }
++        if (!allowed)
++            throw std::invalid_argument(
++                "operator-FD epsilon scale must be a finite power of two in [1/1024,16]");
++    }
+ 
+     if (const std::string* state = find("NM_FEM_BASE_CGLS_STATE_CAPTURE")) {
+         if (*state != "0" && *state != "1")
+--- a/matter/tools/cardboard_coupon_resume_check.cpp
++++ b/matter/tools/cardboard_coupon_resume_check.cpp
+@@ -52,7 +52,7 @@
+ 
+ int main() {
+     assert(kRegisteredOutputPathKeys.size() == 7u);
+-    assert(kRegisteredDiagnosticReplaySelectorKeys.size() == 5u);
++    assert(kRegisteredDiagnosticReplaySelectorKeys.size() == 6u);
+     const std::string environmentA = canonicalRuntimeEnvironment({
+         {"NUMI_MATTER_MODE", "coupon"}, {"NM_FEM_CGLS", "64"},
+         {"PATH", "/ignored"}});
+@@ -201,6 +201,42 @@
+     assert(!couponDiagnosticReplaySettingsMatch(replaySource, changedDamping));
+     validateDiagnosticReplaySelectors(replayCurrent, 19u, 2u);
+     mustReject([&] { validateDiagnosticReplaySelectors(replayCurrent, 21u, 2u); });
++    const std::vector<std::pair<std::string, std::string>> fdReplay{
++        {"NM_FEM_OPERATOR_FD_SELECTOR", "19:3"},
++        {"NM_FEM_OPERATOR_FD_CAPTURE_PATH", "/fresh/fd"},
++    };
++    for (const char* allowedScale : {
++            "0.0009765625", "0.001953125", "0.00390625", "0.0078125",
++            "0.015625", "0.03125", "0.0625", "0.125", "0.25",
++            "0.5", "1", "2", "4", "8", "16"}) {
++        auto changed = fdReplay;
++        changed.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", allowedScale);
++        validateDiagnosticReplaySelectors(changed, 15u, 2u);
++        assert(couponDiagnosticReplaySettingsMatch(fdReplay, changed));
++        assert(canonicalCouponRuntimeSettings(fdReplay) !=
++               canonicalCouponRuntimeSettings(changed));
++    }
++    for (const char* invalidScale : {
++            "", "0", "-1", "nan", "inf", "0.003", "32",
++            "0.00048828125", "0.00390625x", " 0.00390625"}) {
++        auto changed = fdReplay;
++        changed.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", invalidScale);
++        mustReject([&] { validateDiagnosticReplaySelectors(changed, 15u, 2u); });
++    }
++    mustReject([&] { validateDiagnosticReplaySelectors({
++        {"NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.00390625"}}, 15u, 2u); });
++    mustReject([&] { validateDiagnosticReplaySelectors({
++        {"NM_FEM_OPERATOR_FD_SELECTOR", "19:3"},
++        {"NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.00390625"}}, 15u, 2u); });
++    auto fdWithWrongSolver = fdReplay;
++    fdWithWrongSolver.emplace_back("NM_FEM_STRICT_INNER_FORCING", "0");
++    assert(!couponDiagnosticReplaySettingsMatch(fdReplay, fdWithWrongSolver));
++    auto fdWithDuplicateScale = fdReplay;
++    fdWithDuplicateScale.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", "1");
++    fdWithDuplicateScale.emplace_back("NM_FEM_OPERATOR_FD_EPSILON_SCALE", "0.5");
++    mustReject([&] { validateDiagnosticReplaySelectors(
++        fdWithDuplicateScale, 15u, 2u); });
++
+     auto wrongPathOrder = sourcePaths;
+     std::swap(wrongPathOrder[0], wrongPathOrder[1]);
+     mustReject([&] { (void)canonicalCouponOutputPathMap(wrongPathOrder); });
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -13294,7 +13294,7 @@
+                     couponDiagnosticReplaySettingsMatch(
+                         sourceProof.effectiveNativeSettings,
+                         currentProof.effectiveNativeSettings),
+-                "diagnostic replay may change only the five registered observer selectors and seven output paths");
++                "diagnostic replay may change only the six registered observer controls and seven output paths");
+     }
+     const bool outputPathMapRelocated = validateCouponOutputPathMapTransition(
+         sourceOutputPaths, currentOutputPaths, sourceRunnerValidated,

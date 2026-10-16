@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-pure-fem-armijo-cgls-arena-215-002/matter",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-002",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DBUILD_TESTING=ON",
+    "-DNUMI_BRAIN_ROOT=/Users/n/cardboard-implementation-20261014-host-macmini/numi-brain"
+  ],
+  "cwd": "/Users/n",
+  "exit_code": 0
+}

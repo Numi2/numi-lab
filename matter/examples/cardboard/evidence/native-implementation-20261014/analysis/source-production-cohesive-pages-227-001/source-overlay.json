@@ -1,0 +1,90 @@
+{
+  "changed_file_count": 7,
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "after_bytes": 123349,
+      "after_sha256": "19262f24428770de67319e986b87d930eec1183de22effec8525dd0bf592fcdd",
+      "before_bytes": 122306,
+      "before_sha256": "f5210c46118d0eac79dff11c006be885ba5b6f6692e66c06e662cce0695ad78a"
+    },
+    "matter/include/numi/matter/detail/shipping_contact_page_plan.hpp": {
+      "after_bytes": 26221,
+      "after_sha256": "a8d6df3752a1f2dd90857532190b5ffae79c0168e684e789b240939b791ad0d6",
+      "before_bytes": 19744,
+      "before_sha256": "33d725d566c3c22359c08e5c9d2d0887ec3c8e350e303133e4b71e1bdedfcf5c"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "after_bytes": 255053,
+      "after_sha256": "859f4f1e3b76a613d63e7638691fdb44f5a4f1e228a5bf8807077ff4e30bd0e7",
+      "before_bytes": 252230,
+      "before_sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "matter/src/runtime.mm": {
+      "after_bytes": 1936935,
+      "after_sha256": "94b3160a88be6e03be9a20fb23a47d51a127a90d74928d082ef24b0475ae94b4",
+      "before_bytes": 1937324,
+      "before_sha256": "e8a0c78dc812b491781a8f3d72a4a42d1f70e18ab3b37eff6fe157eadb7e75e1"
+    },
+    "matter/tools/cardboard_cohesive_page_runtime_kernel_check.mm": {
+      "after_bytes": 8161,
+      "after_sha256": "6c124022c8daf416ce3cd815d9510c46f119f2d650b735ccd5b0cfe29ec4a10e",
+      "before_bytes": 0,
+      "before_sha256": null
+    },
+    "matter/tools/cardboard_shipping_contact_page_native_check.mm": {
+      "after_bytes": 10806,
+      "after_sha256": "f85974e08dd11f5bd097598bcdfbc48d0b7ecba9d6b001a58e8593faf6578536",
+      "before_bytes": 10448,
+      "before_sha256": "656ebc6da01bc63184bc1c6671bd718933f82517946fa81557660552592f972b"
+    },
+    "matter/tools/cardboard_shipping_contact_page_plan_check.cpp": {
+      "after_bytes": 15210,
+      "after_sha256": "731de18c4ac343ebe0294d62808bd9aeef1eb1e125afd8a2d2623a862606fedf",
+      "before_bytes": 11885,
+      "before_sha256": "2295c8567084e6906f0184eaf271ea7716ef5fd65708e2606e9a515222a025b1"
+    }
+  },
+  "frozen_source_sha256": "f880325285a44d854253eb5b71be40f57f08800576734324b6233efbfde94260",
+  "native_helper_command": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/numi-matter-cardboard-cohesive-page-runtime-kernel-check /Users/n/cardboard-implementation-20261014-host-macmini/build-source-production-cohesive-pages-227-001/shaders/NumiMatter.metallib",
+  "overlay_id": "source-production-cohesive-pages-227-001",
+  "parent_frozen_source_sha256": "99e4e77a6801688f10cfbc8af0fd61c2dc6da4ac791469ee49af8b4d4035ea26",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-pages-225-002",
+  "parent_source_file_count": 822,
+  "parent_source_map_verification": "PASS all 822 path/hash entries match source225-002",
+  "patch_bytes": 75635,
+  "patch_dry_run_log": {
+    "exit_code": 0,
+    "path": "patch-dry-run.log",
+    "sha256": "ba9685b499f99ff047b9804d0ee70deb25958068d09bf16ed8947f9274969003"
+  },
+  "patch_path": "overlay.patch",
+  "patch_sha256": "05cbabe384737d922165796bced7e8ed342d73a6009a1416f91f5b3b36f8ba18",
+  "runtime_consumer_sites": {
+    "metal_kernels": "matter/src/metal/fem.metalinc:2041,2087,2136,2148,2234",
+    "page_helpers": "matter/src/runtime.mm:9412-9637",
+    "page_plan_and_allocation": "matter/src/runtime.mm:6312-6330",
+    "production_force_residual": "matter/src/runtime.mm:19938,19970,26387,26419",
+    "production_operator_paths": [
+      "matter/src/runtime.mm:20704,20742",
+      "matter/src/runtime.mm:22527,22549",
+      "matter/src/runtime.mm:23309,23333",
+      "matter/src/runtime.mm:23473,23494"
+    ]
+  },
+  "schema": "numi.cardboard.source-overlay.v1",
+  "scope_limits": [
+    "Cohesive face force/residual and four cohesive-operator consumer paths use page buffers in the production runtime.",
+    "Global cohesive histories/face state, FEM vectors, and incidence tables remain resident.",
+    "Dense contact-pair sample arrays/consumer are not paged; no shipping-world admission or whole-process memory qualification is claimed."
+  ],
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-production-cohesive-pages-227-001",
+  "source_build_record_sha256": "9a5552c9d60ac26ca11f2a40d3f9b3e4ba97c83198460b45e9fa174a1537e216",
+  "source_file_count": 823,
+  "validation": {
+    "build": "PASS",
+    "configure": "PASS",
+    "cpu_plan_check": "PASS 30 checks",
+    "native_execution": "NOT RUN",
+    "physical_transactions": 0
+  }
+}

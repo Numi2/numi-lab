@@ -1,0 +1,52 @@
+{
+  "all_configure_support_hashes_verified_after_build": true,
+  "all_selected_source_hashes_verified_after_build": true,
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2002432,
+      "sha256": "616cc335c0273fccd3289bdf8226c0faed4f82ecdd3011d7abb65c97badf50a9"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/numi-matter-cardboard-probe": {
+      "bytes": 3077032,
+      "sha256": "f2a0e44529b8316e539086593b500e26d5e89a8a6ec6ae277342245b43344f20"
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7055987,
+      "sha256": "8e765cd7bf4299ac808332463dfb43ea4fc5a44bb545926ab226d5a34078c3e7"
+    }
+  },
+  "at_utc": "2026-10-16T11:55:57.549991+00:00",
+  "build_source_json": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-002/source-build.json",
+  "build_source_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+  "build_success": true,
+  "candidate_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-224-001",
+  "changed_paths": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "configure_support_count": 1034,
+  "failed_attempt_preserved": {
+    "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source224-first-failure-001",
+    "reason": "[Errno 2] No such file or directory: 'cmake'",
+    "source_build_sha256": "b7e402b8f3253b5b7d7b46fb92f58736999758d67e30861e31cf1ba56eb4a688"
+  },
+  "gpu_dispatch": false,
+  "metallib_export_present": true,
+  "metallib_kernel_export": "numi_matter_metal::nm_matter_capture_first_failure",
+  "native_execution": false,
+  "overlay_manifest_sha256": "fd1ef7db3516060f5dbb2d1392aaad5104d63d7bbac00ded90190c945f9af565",
+  "parent_frozen_sha256": "8874cc2b52e6d2a0125b2cb91ee31566b1d81d0dd10481d1ac85a5cae30e39f3",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-configure-support-219-001",
+  "patch_sha256": "a4d029949a328e99219654c51318e2d4e312c28fa7b8d38278a31908ad0d3a5a",
+  "qualification": "Compile-only. No native GPU or physical transaction was run.",
+  "schema": "numi.matter.source224.build_validation.v1",
+  "selected_source_count": 821,
+  "semantics_limit": "Captures first global nonzero status observed after a production dispatch; does not identify private transient failures or prove a rollback defect.",
+  "targets": [
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "numi-matter-cardboard-probe"
+  ]
+}

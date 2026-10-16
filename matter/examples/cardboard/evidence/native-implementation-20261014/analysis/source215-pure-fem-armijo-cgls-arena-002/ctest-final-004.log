@@ -1,0 +1,15 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source-pure-fem-armijo-cgls-arena-215-buildfix004
+    Start 10: matter.analysis.pure_fem_armijo_cgls_arena_plan
+1/1 Test #10: matter.analysis.pure_fem_armijo_cgls_arena_plan ...   Passed    0.35 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+admission    =   0.35 sec*proc (1 test)
+armijo       =   0.35 sec*proc (1 test)
+cgls         =   0.35 sec*proc (1 test)
+cpu          =   0.35 sec*proc (1 test)
+fgmres       =   0.35 sec*proc (1 test)
+matter       =   0.35 sec*proc (1 test)
+
+Total Test time (real) =   0.36 sec
