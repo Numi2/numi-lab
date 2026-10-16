@@ -64,12 +64,14 @@ int main(int argc,char** argv) {
         NSData* rb=read(rp,8u*1024u*1024u);NSData* pb=read(pp,8u*1024u*1024u);
         need(sha(rb)==argv[2]&&sha(pb)==argv[4],"source or pose receipt hash mismatch");
         NSDictionary* source=object(rb);NSDictionary* pose=object(pb);
-        NSDictionary* m=source[@"skin_source_mapping"];need([m isKindOfClass:[NSDictionary class]],"receipt lacks source skin mapping");
-        const auto count=integer(m[@"source_vertex_count"]);need(count>0&&count<=2'000'000u,"invalid skin vertex count");
+        NSDictionary* m=source[@"anatomy_source_mapping"];
+        const bool completeMapping=[m isKindOfClass:[NSDictionary class]]&&m.count>0;
+        if(!completeMapping)m=source[@"skin_source_mapping"];need([m isKindOfClass:[NSDictionary class]],"receipt lacks source skin mapping");
+        const auto count=integer(m[@"source_vertex_count"]);need(count>0&&count<=8'000'000u,"invalid skin vertex count");
         need(integer(m[@"vertex_map_record_stride_bytes"])==sizeof(MRHumanRestingVertexMap)&&
             integer(m[@"influence_record_stride_bytes"])==sizeof(MRHumanRestingInfluence),"skin ABI stride differs");
         NSData* mb=pinned(m[@"vertex_map"],count*sizeof(MRHumanRestingVertexMap));
-        NSData* ib=pinned(m[@"influences"],512u*1024u*1024u);
+        NSData* ib=pinned(m[@"influences"],2ull*1024u*1024u*1024u-1u);
         NSData* ab=pinned(m[@"anatomy_parameters"],sizeof(MRHumanRestingAnatomyGPU));
         need(mb.length==count*sizeof(MRHumanRestingVertexMap)&&ab.length==sizeof(MRHumanRestingAnatomyGPU)&&
             ib.length%sizeof(MRHumanRestingInfluence)==0,"skin ABI lengths differ");
@@ -77,7 +79,7 @@ int main(int argc,char** argv) {
         const auto base=integer(m[@"influence_first_index"]);const auto ninf=ib.length/sizeof(MRHumanRestingInfluence);
         const bool tiled=[m[@"influence_layout"] isEqual:@"tile32"];
         need(tiled||[m[@"influence_layout"] isEqual:@"vertex-major"],"unknown skin influence layout");
-        const std::size_t stride=tiled?32u:1u;
+
         std::vector<MRHumanRestingVertexMap> maps(count);std::memcpy(maps.data(),mb.bytes,mb.length);
         const auto* influences=(const MRHumanRestingInfluence*)ib.bytes;
         NSArray* bodyRows=pose[@"accepted_body_poses"];need([bodyRows isKindOfClass:[NSArray class]]&&
@@ -95,8 +97,11 @@ int main(int argc,char** argv) {
         }
         need(anatomy->bodyAndFlags.x<bodies.size(),"anatomical torso body is absent");
         for(auto& map:maps) {
-            need(map.deformationKind==3u&&map.influenceCount>0u&&map.firstInfluence>=base,
-                "replay accepts only source skin kind3 with positive influences");
+            need(map.deformationKind<=12u,"unsupported native deformation kind");
+            if(!map.influenceCount) {need(completeMapping,"source skin lacks positive influences");continue;}
+            need((completeMapping||map.deformationKind==3u)&&map.firstInfluence>=base,
+                "source owner influence interval is invalid");
+            const std::size_t stride=tiled&&map.deformationKind==3u?32u:1u;
             const std::size_t first=map.firstInfluence-base;
             need(first<ninf&&std::size_t(map.influenceCount-1u)<=(ninf-1-first)/stride,"skin influence index out of range");
             double sum=0;
@@ -142,6 +147,41 @@ int main(int argc,char** argv) {
         auto bodiesGPU=buffer(bodies.data(),bodies.size()*sizeof(MRBodyStateGPU));
         auto respGPU=buffer(&respiration,sizeof(respiration));auto anatomyGPU=buffer(ab.bytes,ab.length);
         std::vector<MRVisualVertexGPUV2> vertices(count);
+        NSData* seed=completeMapping?pinned(m[@"seed_vertices"],count*sizeof(MRVisualVertexGPUV2)):nil;
+        if(completeMapping) {
+            need(seed.length==count*sizeof(MRVisualVertexGPUV2),"seed vertex ABI differs");
+            std::memcpy(vertices.data(),seed.bytes,seed.length);
+        }
+        NSData* indices=completeMapping?pinned(m[@"indices"],512u*1024u*1024u):nil;
+        NSData* wallMap=completeMapping?pinned(m[@"cardiac_wall_map"],512u*1024u*1024u):nil;
+        NSData* wallParams=completeMapping?pinned(m[@"cardiac_wall_parameters"],sizeof(MRHumanRestingCardiacWallGPU)):nil;
+        NSData* commonMap=completeMapping?pinned(m[@"common_field_map"],512u*1024u*1024u):nil;
+        NSData* normalRanges=completeMapping?pinned(m[@"normal_ranges"],128u*1024u*1024u):nil;
+        NSData* normalIncidents=completeMapping?pinned(m[@"normal_incident_triangles"],512u*1024u*1024u):nil;
+        NSData* airwayRanges=completeMapping?pinned(m[@"airway_normal_ranges"],128u*1024u*1024u):nil;
+        NSData* airwayIncidents=completeMapping?pinned(m[@"airway_normal_incident_triangles"],512u*1024u*1024u):nil;
+        NSDictionary* cardiacInputs=pose[@"accepted_cardiac_geometry_buffers"];
+        NSData* cardiac=completeMapping?pinned(cardiacInputs[@"cardiac_q"],16):nil;
+        NSData* wall=completeMapping?pinned(cardiacInputs[@"cardiac_wall_q"],16):nil;
+        NSData* common=completeMapping?pinned(cardiacInputs[@"common_coordinates"],64):nil;
+        if(completeMapping) {
+            need(cardiac.length==16&&wall.length==16&&common.length==64&&
+                indices.length%4==0&&wallMap.length%48==0&&commonMap.length%112==0&&
+                wallParams.length==sizeof(MRHumanRestingCardiacWallGPU),
+                "native cardiac/index owner ABI differs");
+            for(const auto& map:maps) {
+                if(map.deformationKind==2u||map.deformationKind==8u)
+                    need(map.chamberIndex<4u,"cardiac channel is out of range");
+                if(map.deformationKind==5u||map.deformationKind==7u)
+                    need(map.chamberIndex<24u,"rib channel is out of range");
+                if(map.deformationKind==7u)
+                    need(std::isfinite(map.deformationWeight.y)&&map.deformationWeight.y>=0&&
+                        map.deformationWeight.y<24&&std::floor(map.deformationWeight.y)==map.deformationWeight.y,
+                        "second rib channel is out of range");
+                if(map.deformationKind==10u)need(map.chamberIndex<wallMap.length/48,"wall map channel is out of range");
+                if(map.deformationKind==12u)need(map.chamberIndex<commonMap.length/112,"common map channel is out of range");
+            }
+        }
         auto verticesGPU=buffer(vertices.data(),vertices.size()*sizeof(vertices.front()));
         std::vector<std::uint8_t> dummy(4096,0);auto unusedGPU=buffer(dummy.data(),dummy.size());
         id<MTLCommandQueue> queue=[device newCommandQueue];id<MTLCommandBuffer> command=[queue commandBuffer];
@@ -151,7 +191,50 @@ int main(int argc,char** argv) {
         [encoder setBuffer:bodiesGPU offset:0 atIndex:3];[encoder setBuffer:verticesGPU offset:0 atIndex:4];
         [encoder setBuffer:respGPU offset:0 atIndex:5];[encoder setBuffer:anatomyGPU offset:0 atIndex:6];
         for(NSUInteger i=7;i<=12;++i)[encoder setBuffer:unusedGPU offset:0 atIndex:i];
+        if(completeMapping) {
+            [encoder setBuffer:buffer(cardiac.bytes,cardiac.length) offset:0 atIndex:7];
+            [encoder setBuffer:buffer(wallMap.bytes,wallMap.length) offset:0 atIndex:8];
+            [encoder setBuffer:buffer(wallParams.bytes,wallParams.length) offset:0 atIndex:9];
+            [encoder setBuffer:buffer(wall.bytes,wall.length) offset:0 atIndex:10];
+            [encoder setBuffer:buffer(commonMap.bytes,commonMap.length) offset:0 atIndex:11];
+            [encoder setBuffer:buffer(common.bytes,common.length) offset:0 atIndex:12];
+        }
         [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(std::min<NSUInteger>(64,pipeline.maxTotalThreadsPerThreadgroup),1,1)];
+        if(completeMapping) {
+            auto normalFunction=[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"];
+            need(normalFunction!=nil,"existing native normal owner is absent");
+            auto normalPipeline=[device newComputePipelineStateWithFunction:normalFunction error:&error];
+            need(normalPipeline!=nil,"existing native normal pipeline failed");
+            auto normals=[&](NSData* ranges,NSData* incidents,NSUInteger n) {
+                need(ranges.length%16==0&&incidents.length%4==0&&n<=ranges.length/16,
+                    "normal owner range ABI differs");
+                const auto* rr=(const mr_uint4*)ranges.bytes;
+                const auto* ii=(const unsigned*)incidents.bytes;
+                const auto* ix=(const unsigned*)indices.bytes;
+                for(NSUInteger i=0;i<n;++i) {
+                    const auto r=rr[i];
+                    need(r.x<count&&r.y<=incidents.length/4&&r.z<=incidents.length/4-r.y,
+                        "normal owner incident span is invalid");
+                    for(NSUInteger j=r.y;j<std::size_t(r.y)+r.z;++j) {
+                        const auto at=ii[j];need(indices.length/4>=3&&at<=indices.length/4-3,
+                            "normal owner triangle start is invalid");
+                        need(ix[at]<count&&ix[at+1]<count&&ix[at+2]<count,
+                            "normal owner triangle vertex is invalid");
+                    }
+                }
+                if(!n)return;
+                [encoder setComputePipelineState:normalPipeline];unsigned d=(unsigned)n;
+                [encoder setBytes:&d length:sizeof(d) atIndex:0];
+                [encoder setBuffer:buffer(ranges.bytes,ranges.length) offset:0 atIndex:1];
+                [encoder setBuffer:buffer(incidents.bytes,incidents.length) offset:0 atIndex:2];
+                [encoder setBuffer:buffer(indices.bytes,indices.length) offset:0 atIndex:3];
+                [encoder setBuffer:verticesGPU offset:0 atIndex:4];
+                [encoder dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:MTLSizeMake(
+                    std::min<NSUInteger>(64,normalPipeline.maxTotalThreadsPerThreadgroup),1,1)];
+            };
+            normals(normalRanges,normalIncidents,integer(m[@"normal_vertex_count"]));
+            normals(airwayRanges,airwayIncidents,integer(m[@"airway_normal_vertex_count"]));
+        }
         [encoder endEncoding];[command commit];[command waitUntilCompleted];
         need(command.status==MTLCommandBufferStatusCompleted,"native replay GPU command failed");
         const auto* vv=(const MRVisualVertexGPUV2*)verticesGPU.contents;
@@ -159,17 +242,18 @@ int main(int argc,char** argv) {
             std::isfinite(vv[i].normalAndTangentSign.x)&&std::isfinite(vv[i].normalAndTangentSign.y)&&std::isfinite(vv[i].normalAndTangentSign.z),"nonfinite native replay output");
         need(![[NSFileManager defaultManager] fileExistsAtPath:out],"refusing to overwrite replay directory");
         need([[NSFileManager defaultManager] createDirectoryAtPath:out withIntermediateDirectories:NO attributes:nil error:nil],"cannot create replay output directory");
-        NSData* vb=[NSData dataWithBytes:verticesGPU.contents length:verticesGPU.length];NSString* vp=[out stringByAppendingPathComponent:@"skin-vertices.bin"];write(vp,vb);
-        NSDictionary* report=@{@"status":@"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY",
+        NSData* vb=[NSData dataWithBytes:verticesGPU.contents length:verticesGPU.length];NSString* vp=[out stringByAppendingPathComponent:completeMapping?@"anatomy-vertices.bin":@"skin-vertices.bin"];write(vp,vb);
+        NSDictionary* report=@{@"status":completeMapping?@"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY":@"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY",
+            @"complete_mapping":@(completeMapping),
             @"source_receipt":@{@"path":rp,@"sha256":@(argv[2])},@"pose_receipt":@{@"path":pp,@"sha256":@(argv[4])},
             @"vertex_map":m[@"vertex_map"],@"influences":m[@"influences"],@"anatomy_parameters":m[@"anatomy_parameters"],@"kernel":kernel,@"kernel_mode":m[@"kernel_mode"],
             @"influence_first_index":@(base),@"influence_layout":m[@"influence_layout"],@"vertex_count":@(count),
             @"output":@{@"path":vp,@"sha256":@(sha(vb).c_str()),@"bytes":@(vb.length),@"record_type":@"MRVisualVertexGPUV2",@"stride_bytes":@(sizeof(MRVisualVertexGPUV2))},
             @"device":device.name,@"gpu_seconds":@(command.GPUEndTime-command.GPUStartTime),
-            @"physical_stepping":@NO,@"anatomical_admission":@NO,@"meaning":@"Current uploaded source skin replayed counterfactually at a retained accepted pose through the unchanged native viewer Metal kernel. Requires native capture parity and geometry gates; no new accepted physical state is claimed."};
+            @"physical_stepping":@NO,@"anatomical_admission":@NO,@"meaning":@"Current uploaded source geometry replayed counterfactually at a retained accepted pose through the unchanged native viewer Metal kernel. Requires native capture parity and geometry gates; no new accepted physical state is claimed."};
         NSData* reportBytes=[NSJSONSerialization dataWithJSONObject:report options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:nil];
         need(reportBytes!=nil,"cannot serialize replay receipt");write([out stringByAppendingPathComponent:@"receipt.json"],reportBytes);
-        std::cout<<"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY vertices="<<count<<" gpu_seconds="<<command.GPUEndTime-command.GPUStartTime<<"\n";
+        std::cout<<(completeMapping?"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY vertices=":"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY vertices=")<<count<<" gpu_seconds="<<command.GPUEndTime-command.GPUStartTime<<"\n";
         return 0;
     }catch(const std::exception& e){std::cerr<<"numi_human_resting_skin_replay: "<<e.what()<<"\n";return 1;} }
 }

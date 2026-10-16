@@ -1,0 +1,36 @@
+{
+  "input_sha256": {
+    "/Users/n/numi-lab-anatomy-replay-capture-20261016/apps/human_resting_skin_replay.mm": "2a6a0de9964bfd17740e80700d3dadfc6d7703c9e611acd2f6c93308ef827cc7",
+    "/Users/n/numi-lab-anatomy-replay-capture-20261016/apps/NumiHumanRestingSkinInfluencePipeline.hpp": "872a2eef8e4c62806001b9004f3d9a9ef7b75c890962cf144ea167614115f79e",
+    "/Users/n/numi-lab-anatomy-replay-capture-20261016/include/metalrobo/numi_human_resting_visual_gpu.h": "20005785e7c3fd259de55286fd605d621206ebbf71ddba21ea1d90d61cdcab4c",
+    "/Users/n/numi-lab-anatomy-replay-capture-20261016/include/metalrobo/engine_types.h": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+    "/Users/n/numi-lab-resting-qualification-publish-1395/matter/include/numi/matter/human_respiration.h": "e963800429edba5dd5fab210823bd2a88ccfce2844a5ba0f029ca9d41a2f1126",
+    "/Users/n/numi-human-retained-delivery-20261009/build_whole_geometry_replay_1011.py": "7ab725e6bc15706cb462aa3c609e473b82510dbaaf055580ec48fb0eff709bd4"
+  },
+  "argv": [
+    "/usr/bin/xcrun",
+    "clang++",
+    "-std=c++20",
+    "-fobjc-arc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/n/numi-lab-anatomy-replay-capture-20261016/apps",
+    "-I/Users/n/numi-lab-anatomy-replay-capture-20261016/include",
+    "-I/Users/n/numi-lab-resting-qualification-publish-1395/matter/include",
+    "/Users/n/numi-lab-anatomy-replay-capture-20261016/apps/human_resting_skin_replay.mm",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/n/numi-human-retained-delivery-20261009/native-existing-geometry-replay-build-20261016-1011/numi_human_resting_skin_replay"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.747049124998739,
+  "source_revision": "b18cf2bb62ed492ab307ece760b4ec108fd37f69",
+  "native_confirmation": false,
+  "binary_sha256": "3c296c9a37a19f960ffbc7c41deb5c445bf6889527621fcaaaa3de29d8c3eeb7"
+}

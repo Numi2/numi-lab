@@ -1,0 +1,13 @@
+{
+  "vertex_count": 2915743,
+  "stride": 80,
+  "native_vertices_sha256": "b64560ab65914a0daacff605780dd33db2030afe2923cbc4fecf86e29086ba4b",
+  "replay_vertices_sha256": "b64560ab65914a0daacff605780dd33db2030afe2923cbc4fecf86e29086ba4b",
+  "all_vertex_bytes_exact": true,
+  "source_receipt_sha256": "ece3f7f8cc58cb3ed5af4bbd61c425e9918d155c787214e7f0881264543d0213",
+  "replay_binary_sha256": "3c296c9a37a19f960ffbc7c41deb5c445bf6889527621fcaaaa3de29d8c3eeb7",
+  "position_mismatch_vertices": 0,
+  "normal_mismatch_vertices": 0,
+  "physical_step_performed": false,
+  "anatomical_admission": false
+}

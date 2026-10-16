@@ -67,6 +67,7 @@ class NumiHumanRestingVisual {
         commonFieldBoxesSHA256,commonFieldBundleSHA256,commonFieldIdentityReceiptSHA256,commonFieldSourcePayloadSHA256;
     NSDictionary* initialAnatomicalRegistration=nil;
     NSDictionary* capturedSkinSourceMapping=nil;
+    NSDictionary* capturedAnatomySourceMapping=nil;
     std::set<unsigned> registrationBodyIndices;
     std::size_t sourceBodyCount=0;
     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
@@ -394,6 +395,7 @@ class NumiHumanRestingVisual {
             @"accepted_body_pose_count":@(sourceBodyCount),
             @"accepted_body_poses":allBodyPoses,
             @"skin_source_mapping":capturedSkinSourceMapping?capturedSkinSourceMapping:@{},
+            @"anatomy_source_mapping":capturedAnatomySourceMapping?capturedAnatomySourceMapping:@{},
             @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
             @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
             @"surface_audit":surfaceAuditOutcome,
@@ -2023,6 +2025,65 @@ public:
             length:std::max(std::size_t(1),functional.commonFieldBoxes.size())*sizeof(emptyCommonBox) options:MTLResourceStorageModeShared];
         commonFieldCoordinates=coupled.presentationCommonCoordinates;
         commonFieldNormalRanges=cardiacWallNormalRanges;commonFieldIncidentTriangles=cardiacWallIncidentTriangles;
+        const char* captureReplayMapping=std::getenv("NUMI_HUMAN_RESTING_CAPTURE_REPLAY_MAPPING");
+        if(!requestedGeometrySteps.empty()&&captureReplayMapping&&
+           std::strcmp(captureReplayMapping,"1")==0) {
+            // One load-time export of the same uploaded owner records. Offline
+            // replay dispatches the existing viewer kernels; it cannot step physics.
+            require(capturedSkinSourceMapping&&mapping.contents&&influences.contents&&
+                mapping.length==maps.size()*sizeof(MRHumanRestingVertexMap)&&
+                influences.length==weights.size()*sizeof(MRHumanRestingInfluence)&&
+                std::memcmp(mapping.contents,maps.data(),mapping.length)==0&&
+                std::memcmp(influences.contents,weights.data(),influences.length)==0,
+                "anatomy replay capture differs from uploaded owner records");
+            const auto retain=[&](const char* name,const void* data,std::size_t bytes) {
+                require(data&&bytes>0&&bytes<=std::numeric_limits<CC_LONG>::max(),
+                    "anatomy replay buffer span is invalid");
+                const auto path=output/name;
+                require(!std::filesystem::exists(path),"refusing to overwrite anatomy replay evidence");
+                const auto hash=loadedKneeSHA256Hex(loadedKneeSHA256(data,bytes));
+                NSData* blob=[NSData dataWithBytesNoCopy:const_cast<void*>(data)
+                    length:bytes freeWhenDone:NO];NSError* error=nil;
+                require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                    options:NSDataWritingAtomic error:&error],
+                    "anatomy replay evidence write failed");
+                require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==hash,
+                    "anatomy replay evidence differs from uploaded bytes");
+                return @{@"path":loadedKneeNSString(path.string()),@"sha256":loadedKneeNSString(hash),
+                    @"bytes":@(bytes)};
+            };
+            const auto retainBuffer=[&](const char* name,id<MTLBuffer> buffer) {
+                require(buffer&&buffer.contents,"anatomy replay owner buffer is unavailable");
+                return retain(name,buffer.contents,buffer.length);
+            };
+            capturedAnatomySourceMapping=@{
+                @"vertex_map":retainBuffer("anatomy-source-vertex-map.bin",mapping),
+                @"influences":retainBuffer("anatomy-source-influences.bin",influences),
+                @"influence_first_index":@0,
+                @"influence_record_stride_bytes":@(sizeof(MRHumanRestingInfluence)),
+                @"influence_layout":capturedSkinSourceMapping[@"influence_layout"],
+                @"kernel":capturedSkinSourceMapping[@"kernel"],
+                @"kernel_mode":capturedSkinSourceMapping[@"kernel_mode"],
+                @"anatomy_parameters":capturedSkinSourceMapping[@"anatomy_parameters"],
+                @"vertex_map_record_type":@"MRHumanRestingVertexMap",
+                @"vertex_map_record_stride_bytes":@(sizeof(MRHumanRestingVertexMap)),
+                @"source_vertex_count":@(maps.size()),@"pack_first_vertex":@0,
+                @"anatomy_parameter_type":@"MRHumanRestingAnatomyGPU",
+                @"seed_vertices":retain("anatomy-source-seed-vertices.bin",pack.vertices.data(),
+                    pack.vertices.size()*sizeof(MRVisualVertexGPUV2)),
+                @"indices":retain("anatomy-source-indices.bin",pack.indices.data(),
+                    pack.indices.size()*sizeof(unsigned)),
+                @"cardiac_wall_map":retainBuffer("anatomy-source-cardiac-wall-map.bin",cardiacWallMap),
+                @"cardiac_wall_parameters":retainBuffer("anatomy-source-cardiac-wall-parameters.bin",cardiacWallParameters),
+                @"common_field_map":retainBuffer("anatomy-source-common-field-map.bin",commonFieldMapBuffer),
+                @"normal_ranges":retainBuffer("anatomy-source-normal-ranges.bin",cardiacWallNormalRanges),
+                @"normal_incident_triangles":retainBuffer("anatomy-source-normal-incidents.bin",cardiacWallIncidentTriangles),
+                @"normal_vertex_count":@(commonCardiacGeometry?commonFieldNormalVertexCount:cardiacWallVertexCount),
+                @"airway_normal_ranges":retainBuffer("anatomy-source-airway-normal-ranges.bin",airwayNormalRanges),
+                @"airway_normal_incident_triangles":retainBuffer("anatomy-source-airway-normal-incidents.bin",airwayIncidentTriangles),
+                @"airway_normal_vertex_count":@(airwayNormalVertexCount),
+                @"meaning":@"Exact load-time uploaded records in complete pack order for counterfactual geometry replay through the unchanged native Metal deformation and normal kernels. No physical state or controller history is advanced."};
+        }
         require(visibleLayers.size()==pack.instances.size(),
             "inspection layer-mask count differs from packed visual instances");
         for(unsigned retiredID:functional.retiredInspectionStableIDs) {

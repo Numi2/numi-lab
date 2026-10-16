@@ -1,0 +1,9 @@
+{
+  "status": "PASS_BACKWARD_COMPATIBLE_EXISTING_SKIN_REPLAY",
+  "position_bitwise_equal": true,
+  "normal_bitwise_equal": true,
+  "tangent_bitwise_equal": true,
+  "vertex_count": 61950,
+  "physical_step_performed": false,
+  "anatomical_admission": false
+}

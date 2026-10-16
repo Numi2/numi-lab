@@ -1,0 +1,9 @@
+{
+  "status": "PASS_FINAL_WHITESPACE_CLEAN_SOURCE_COMPILES_TO_IDENTICAL_NATIVE_TESTED_BINARY",
+  "final_build_report_sha256": "88033026315b6b3f4f19fb37e32cc46e8f3ffa381d414c90f54f4b890bb3d7f8",
+  "previous_tested_build_report_sha256": "f878c77347465352e1fd9f711626c1b0ad96d6d97e0e49fc3b9cb30e70aa4219",
+  "binary_sha256": "3c296c9a37a19f960ffbc7c41deb5c445bf6889527621fcaaaa3de29d8c3eeb7",
+  "final_source_hashes_reverified": true,
+  "parity_report_sha256": "a6acb089aadf09f6bea3807805cc142bbe773c45a3164f58e0d2604085933dc4",
+  "legacy_parity_report_sha256": "4cc157df3f7a839225f0d32f01ff4f079b1112878aa5da9b7a88ee0285aad02d"
+}
