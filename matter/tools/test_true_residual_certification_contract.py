@@ -67,7 +67,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
                        "const auto femResidualArmijoScope =")
         for guard in (
             "microtick != 0u", "state.enableVascularDense45",
-            "cohesiveFaceCount > 4096u", "tetrahedronCount > 32768u",
+            "cohesiveFaceCount > 4096u", "tetrahedronCount > (extendedPureArena ? 131072u : 32768u)",
             "femNewtonTraceScope(", "femTrueResidualElementOperator == nil",
             "femTrueResidualRightHandSide == nil",
             "femTrueResidualMetrics == nil", "femTrueResidualStatuses == nil",
@@ -215,10 +215,10 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("full_FEM_operator_qualification=false", NATIVE_CHECK)
 
 
-    def test_true_residual_8192_arena_is_checked_and_scoped(self):
+    def test_true_residual_refined_pure_arena_keeps_legacy_coupled_bounds(self):
         arena = (HERE.parent / "include" / "numi" / "matter" / "detail" /
                  "true_residual_arena_plan.hpp").read_text()
-        for token in ("n>8192u", "t>32768u",
+        for token in ("n>(extendedPureFEM?32768u:8192u)", "t>(extendedPureFEM?131072u:32768u)",
                       "c>4096u", "e>4u",
                       "sizeof(NMMatterStatusGPU)",
                       "sizeof(NMFEMElementVectorGPU)",
@@ -229,7 +229,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
             self.assertIn(token.replace(" ", ""), arena.replace(" ", ""))
         runtime = RUNTIME
         self.assertIn("femNewtonTraceScope(false, 4096u)", runtime)
-        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u)", runtime)
+        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u,\n                    extendedPureArena ? 32768u : 8192u)", runtime)
         allocations = section(runtime, "const detail::FEMTrueResidualArenaShape trueResidualArenaShape{",
                              "candidate->femConstraintReactions =")
         for name in ("femTrueResidualRightHandSide", "femTrueResidualMetrics",
@@ -261,7 +261,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
             self.assertIn(token, scope if token in scope else runtime)
         capability = section(runtime, "const auto femTrueResidualCapabilityFailure =",
                              "const auto femResidualArmijoScope =")
-        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u)",
+        self.assertIn("femNewtonTraceScope(\n                    state.dispatch.rigidGeneralizedCapacity == 6u,\n                    extendedPureArena ? 32768u : 8192u)",
                       capability)
         helper = (MATTER / "include" / "numi" / "matter" / "detail" /
                   "free_box_true_residual_proxy_admission.hpp").read_text()

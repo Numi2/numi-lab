@@ -1,0 +1,436 @@
+{
+  "arrays_sha256": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+  "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+  "classification": "Six-row bounded decomposition only. Independent 90-digit constitutive root/stress; no production/native changes or qualification expansion.",
+  "equations": {
+    "dP_d_epsilon": "The secant denominator is 2*epsilon. Raw FP64 array secant has the runner-001 denominator defect and is divided by two only in postprocessing.",
+    "decomposition": "Secant difference equals (rounded-F MP-root secant - exact-F MP-root secant) + (MP stress at rounded-F FP64-root - MP stress at rounded-F MP-root) + (FP64 stress - MP stress at identical rounded-F and identical FP64 root).",
+    "exact_endpoint": "F0 +/- epsilon*dt*H in Decimal; projection starts from the captured accepted history.",
+    "rounded_endpoint": "F0 +/- epsilon*dt*H as binary64; projection recomputed independently at that exact rounded binary64 F."
+  },
+  "input_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-all23-corrected-hill-highprecision-013-001/implementation/audit222_corrected.py": "f103fa58001c092197d46e7b2365aa2fb708abf7610c2fb6b87bafbd698d606e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/arrays.npz": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-runner-001.py": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "limitations": [
+    "These rows are selected from largest relative misses; this is a diagnostic sample, not a new full-population gate.",
+    "The first term combines exact endpoint representation and the material-root response to that tiny endpoint perturbation; it is not a production implementation defect.",
+    "The 90-digit calculation is an independent reference. It does not establish an absolute native FP32 noise floor.",
+    "No correction to physical parameters, solver tolerances, production source, or acceptance gates is proposed."
+  ],
+  "precision": {
+    "BLAS_threads": 1,
+    "Decimal_digits": 90
+  },
+  "rows": [
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 9062.755231943438,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 9.532564520773816e-08,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.0018602231397370158,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 6.633574714958534e-06,
+        "FP64_stress_arithmetic_at_same_F_and_state": 0.0001550489229657892,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.0017101893626381391
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 26,
+      "paper_row_index": 1466,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            10,
+            10
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.4589030005239327e-14,
+          "branch_values_FP64_root": [
+            6.931349751147388e-07,
+            7.213585284659985e-11,
+            1.3864142221036985e-06
+          ],
+          "branch_values_MP_exact_F_root": [
+            6.931349751148299e-07,
+            7.213602139174918e-11,
+            1.3864142222724434e-06
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.7343003060406702e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 4.775224793388534e-13,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 2.8752592196368025e-16
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            10,
+            10
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.458903000523938e-14,
+          "branch_values_FP64_root": [
+            6.931349289015258e-07,
+            7.21362969358097e-11,
+            1.386414130126217e-06
+          ],
+          "branch_values_MP_exact_F_root": [
+            6.931349289014407e-07,
+            7.213602620127457e-11,
+            1.3864141298552838e-06
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.4688035771295134e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 2.9073056712604997e-13,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 4.161833075239287e-15
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 16.85878960430883,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.000863912989852153,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 1562
+    },
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 19535.12034403763,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 3.076895982932585e-08,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.0016933223084510591,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 0.0,
+        "FP64_stress_arithmetic_at_same_F_and_state": 2.566940817782669e-08,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.00169332442015898
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 26,
+      "paper_row_index": 920,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.1497309520301425e-14,
+          "branch_values_FP64_root": [
+            7.198094222862225e-17,
+            0.694628298049301,
+            1.3892565960986023
+          ],
+          "branch_values_MP_exact_F_root": [
+            7.198094222862167e-17,
+            0.6946282980493061,
+            1.3892565960986125
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 4.787578157412058e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 8.673617379884035e-19,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.952644564603867e-18
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.1497309520369775e-14,
+          "branch_values_FP64_root": [
+            7.198094122654664e-17,
+            0.6946283077195007,
+            1.3892566154390016
+          ],
+          "branch_values_MP_exact_F_root": [
+            7.198094122654717e-17,
+            0.6946283077194952,
+            1.3892566154389907
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 4.787583255330649e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 8.673617379884035e-19,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.952750233515815e-18
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 33.07875402770309,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.0006010753331608197,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 1016
+    },
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 28732.576057156897,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 1.0789726920287078e-07,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.0011445877625605888,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 0.0,
+        "FP64_stress_arithmetic_at_same_F_and_state": 8.157232897064508e-07,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.0011454027910844627
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 26,
+      "paper_row_index": 46,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.1382777717242544e-14,
+          "branch_values_FP64_root": [
+            5.764071476230275e-17,
+            0.867442390304173,
+            1.7348847806083463
+          ],
+          "branch_values_MP_exact_F_root": [
+            5.764071476230204e-17,
+            0.8674423903041832,
+            1.7348847806083665
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.5172662949054933e-15,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 4.336808689942018e-19,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 2.16847052378003e-19
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.1382777717242544e-14,
+          "branch_values_FP64_root": [
+            5.764071487768017e-17,
+            0.8674423885678428,
+            1.734884777135686
+          ],
+          "branch_values_MP_exact_F_root": [
+            5.764071487768087e-17,
+            0.8674423885678326,
+            1.7348847771356655
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.517266703782831e-15,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 4.336808689942018e-19,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.993750748109963e-18
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 32.89004988240137,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.003100166493767123,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 46
+    },
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 18347.190897916807,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 3.8210569016523484e-08,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.0053287209000689,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 0.0,
+        "FP64_stress_arithmetic_at_same_F_and_state": 0.0014203700465579452,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.003938477685226592
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 28,
+      "paper_row_index": 1463,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.865690916235691e-14,
+          "branch_values_FP64_root": [
+            4.033269466463992e-16,
+            0.1239689036599092,
+            0.2479378073198192
+          ],
+          "branch_values_MP_exact_F_root": [
+            4.033269466467992e-16,
+            0.12396890365978651,
+            0.24793780731957382
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 2.599333392800454e-15,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 1.734723475976807e-18,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 1.2634331918815866e-14
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 2.865690916235691e-14,
+          "branch_values_FP64_root": [
+            4.033269408166674e-16,
+            0.12396890545176953,
+            0.24793781090353986
+          ],
+          "branch_values_MP_exact_F_root": [
+            4.0332694081691073e-16,
+            0.12396890545169478,
+            0.2479378109033904
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 4.442605264297466e-15,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 1.734723475976807e-18,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 8.027872065623448e-15
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 97.76653611461003,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.0007010566044816345,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 1559
+    },
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 19535.12034403763,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 4.2779370273557234e-07,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.005255507060112519,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 0.0,
+        "FP64_stress_arithmetic_at_same_F_and_state": 1.5997806316319826e-06,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.0052539114306910314
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 28,
+      "paper_row_index": 920,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 1.6667976128663893e-14,
+          "branch_values_FP64_root": [
+            7.198094185284402e-17,
+            0.6946283016756238,
+            1.389256603351248
+          ],
+          "branch_values_MP_exact_F_root": [
+            7.198094185284372e-17,
+            0.6946283016756271,
+            1.3892566033512543
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 4.787631286903166e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 6.938893903907228e-18,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.952486058224634e-18
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 1.6667976128972436e-14,
+          "branch_values_FP64_root": [
+            7.198094160232467e-17,
+            0.6946283040931778,
+            1.3892566081863558
+          ],
+          "branch_values_MP_exact_F_root": [
+            7.19809416023251e-17,
+            0.6946283040931743,
+            1.3892566081863489
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 4.787634140127744e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 4.336808689942018e-19,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.939158596656614e-18
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 102.65862258624288,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.00835700146534505,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 1016
+    },
+    {
+      "MP_center_IFT_expected_dt_times_tangent_frobenius": 27770.14879390091,
+      "MP_exact_endpoint_secant_vs_dt_IFT_relative": 4.5094245573272205e-08,
+      "corrected_FP64_secant_vs_MP_exact_secant_relative": 0.003678239836356742,
+      "decomposition_relative_terms": {
+        "FP64_root_state_error_at_same_rounded_F": 0.0,
+        "FP64_stress_arithmetic_at_same_F_and_state": 2.2509100977090276e-06,
+        "F_endpoint_rounding_plus_resulting_MP_root_shift": 0.003676034447915661
+      },
+      "decomposition_sum_vs_direct_abs": 0.0,
+      "epsilon_power": 28,
+      "paper_row_index": 886,
+      "per_endpoint": [
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 1.6584586348006315e-14,
+          "branch_values_FP64_root": [
+            1.336809486696735e-16,
+            0.37402486958559245,
+            0.7480497391711851
+          ],
+          "branch_values_MP_exact_F_root": [
+            1.336809486696743e-16,
+            0.37402486958559017,
+            0.7480497391711807
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": -1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.0811891372076804e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 1.0811525894194381e-20,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 6.993735154919267e-18
+        },
+        {
+          "MP_exact_and_rounded_root_iterations": [
+            3,
+            3
+          ],
+          "MP_root_at_rounded_F_minus_exact_F_root_l2": 1.6584586339290882e-14,
+          "branch_values_FP64_root": [
+            1.336809491823059e-16,
+            0.3740248681513021,
+            0.7480497363026044
+          ],
+          "branch_values_MP_exact_F_root": [
+            1.336809491823051e-16,
+            0.37402486815130453,
+            0.7480497363026093
+          ],
+          "exact_vs_rounded_endpoint_F_frobenius": 0.0,
+          "side": 1,
+          "stored_MP_root_minus_recomputed_exact_root_l2": 0.0,
+          "strict_FP64_endpoint_dynamic_correction": 1.9182819518098262e-16,
+          "strict_FP64_endpoint_gate_pass": true,
+          "strict_FP64_endpoint_residual": 1.0812224523291345e-20,
+          "strict_FP64_root_minus_MP_root_at_same_rounded_F_l2": 4.470312175903141e-19
+        }
+      ],
+      "raw_FP64_stored_secant_over_two_vs_saved_MP_secant_l2": 102.14481613157635,
+      "recomputed_MP_exact_endpoint_secant_vs_saved_MP_l2": 0.0012522739068491276,
+      "strict_FP64_both_endpoint_gates_pass": true,
+      "tet_id": 982
+    }
+  ],
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-fp64-error-decomposition.v1"
+}

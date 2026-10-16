@@ -1,0 +1,76 @@
+{
+  "changed_file_count": 8,
+  "changed_files": [
+    {
+      "composed_sha256": "fc95703c2fce94790884a319789cfadf09c0434ef361bfcc61ea02411ed26e0c",
+      "path": "matter/include/numi/matter/matter.hpp",
+      "source220_sha256": "fc95703c2fce94790884a319789cfadf09c0434ef361bfcc61ea02411ed26e0c",
+      "source231_sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "5f45dc4d14f17a66ea5113043b23ac098aac605d371424dafa2baf2927fcfc71",
+      "path": "matter/include/numi/matter/shared.h",
+      "source220_sha256": "5f45dc4d14f17a66ea5113043b23ac098aac605d371424dafa2baf2927fcfc71",
+      "source231_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "e4bc877aa8c19b8f464c8005ea3cf85ceb29320b9101df0876f6656e1eec260e",
+      "path": "matter/src/constitutive_impl.cpp",
+      "source220_sha256": "e4bc877aa8c19b8f464c8005ea3cf85ceb29320b9101df0876f6656e1eec260e",
+      "source231_sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "241066108a9dd735396e375a98b0e480c19627a6e2f772fa53aea1945ffbf662",
+      "path": "matter/src/metal/common.metalinc",
+      "source220_sha256": "241066108a9dd735396e375a98b0e480c19627a6e2f772fa53aea1945ffbf662",
+      "source231_sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "2143b52f04ccd18829cdf699b95c55361cbe31425af6e85aa823f8fa3647566a",
+      "path": "matter/src/validation_impl.cpp",
+      "source220_sha256": "2143b52f04ccd18829cdf699b95c55361cbe31425af6e85aa823f8fa3647566a",
+      "source231_sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "dd017475bcbc7df047d3a8ac66d9729c3ac0d85552532c23ba85e908c5750971",
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "source220_sha256": "dd017475bcbc7df047d3a8ac66d9729c3ac0d85552532c23ba85e908c5750971",
+      "source231_sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "6f21786b4309b9de6f95ce30933a5f7354e1ec0d73060b4b383acc6de21d94b2",
+      "path": "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+      "source220_sha256": "6f21786b4309b9de6f95ce30933a5f7354e1ec0d73060b4b383acc6de21d94b2",
+      "source231_sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d",
+      "three_way_merged": false
+    },
+    {
+      "composed_sha256": "01827d25b4f23d64b6b6d94b1a3e56894f1cc51aba81e4c0958351866aed4265",
+      "path": "matter/tools/cardboard_probe.mm",
+      "source220_sha256": "fd53ace61533f5a21b390046501fd99ee17b1d8efd427f64df3ef9481532084c",
+      "source231_sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b",
+      "three_way_merged": true
+    }
+  ],
+  "declared_source_map_matches": true,
+  "parent_source231_frozen_sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8",
+  "parent_source231_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source230-upstream-compatibility-231-001",
+  "physical_operator_changed": false,
+  "preserved_231_source_files": 822,
+  "probe_merge_conflicts": 0,
+  "schema": "numi.cardboard.source232-composition.v1",
+  "source210_frozen_sha256": "477fe6943fb1c28e782af9ce0c1c383c013146ab12f422bc55523a6834597931",
+  "source210_three_way_base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-composed-strict-periodic-freebox-210-buildfix-003",
+  "source220_frozen_sha256": "ce4db34124a09c8d1356af11c22a42cad9779629cf1800965ed6e5878d5f4639",
+  "source220_repaired_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-local-projection-state-certification-220-endpoint-identity-repair-003",
+  "source232_frozen_source_json_sha256": "dce16c539dbc01a1dad5be25b4c4f6b31594f9f7b0704415d175cc73345981f9",
+  "source232_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232",
+  "source_files": 830,
+  "strict_policy_default_off": true
+}

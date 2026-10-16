@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source237-strict-main-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-coupon-resume-check",
+    "--target",
+    "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "--target",
+    "numi-matter-cardboard-bilinear15-projection-policy-check"
+  ],
+  "gpu_execution": false
+}

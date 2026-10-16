@@ -1,0 +1,45 @@
+// Elastic numerical control for the matching Haj-Ali 2009 ideal-Hill asset.
+// Identical orthotropic energy, densities and limits, with Ep fixed to zero.
+// All cross-source and finite-strain assumptions of the plastic asset apply.
+material hajali2009_liner_elastic_control {
+    parameter density : kg/m^3 = 766;
+    parameter c11 : MPa = 4843.6261790411845;
+    parameter c22 : MPa = 2118.009773355429;
+    parameter c33 : MPa = 19.100028262603168;
+    parameter c12 : MPa = 381.24384915298583;
+    parameter c13 : MPa = 0.22861936478052688;
+    parameter c23 : MPa = 0.20899490085830671;
+    parameter g12 : MPa = 1222;
+    parameter g13 : MPa = 166.28;
+    parameter g23 : MPa = 137.28;
+
+    parameter sigma_ref : MPa = 22.92;
+    parameter hill_F : one = 6.307660915935419;
+    parameter hill_G : one = 2.981864887595591;
+    parameter hill_H : one = -1.9818648875955915;
+    parameter hill_L : one = 456012.5;
+    parameter hill_M : one = 456012.5;
+    parameter hill_N : one = 59.56081632653061;
+    parameter q_floor : one = 2e-6;
+    parameter fb_epsilon : one = 1e-8;
+
+    model generic;
+    energy =
+        0.5 * c11 * pow(0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - 0, 2)
+      + 0.5 * c22 * pow(0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - 0, 2)
+      + 0.5 * c33 * pow(0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - 0, 2)
+      + c12 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - 0)
+            * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - 0)
+      + c13 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - 0)
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - 0)
+      + c23 * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - 0)
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - 0)
+      + 0.5 * g12 * pow(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*0, 2)
+      + 0.5 * g13 * pow(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*0, 2)
+      + 0.5 * g23 * pow(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*0, 2);
+
+    valid = J() - 0.20;
+    supports fem;
+    interface { static_friction = 0; dynamic_friction = 0; restitution = 0; adhesion = 0; }
+    limits { minimum_J = 0.20; maximum_J = 2.5; maximum_stress = 1e9; maximum_energy_density = 1e9; }
+}

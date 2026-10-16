@@ -1,0 +1,1 @@
+large_row_fixture=4096,8192 measurement_only=true full_FEM_operator_at_N8192=false\nPASS native FGMRES true-residual kernel contract 131783 checks; correction_accumulated=true; unit_action=true; full_FEM_operator_qualification=false

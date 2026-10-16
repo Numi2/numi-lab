@@ -1,0 +1,49 @@
+{
+  "inputs": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source210-strict-inner-full-coupon-545/receipt.json": {
+      "sha256": "ab58ccf38702888ae3e825b358d219e672e218c668f96c5154c330a1be57eac5",
+      "bytes": 305
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source210-strict-inner-full-coupon-545/output/manifest.json": {
+      "sha256": "c89876bd2493ba74971d6612bad24541af981667ef47013108de3660eab12e74",
+      "bytes": 11869
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/fresh-source210-strict-inner-full-coupon-545/output/observations.csv": {
+      "sha256": "856f826cd4dbca08533e71f7de38755dab63b3de811c4d715a36a3f4125edcd4",
+      "bytes": 19927
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/receipt.json": {
+      "sha256": "0b5a7ef547a34d93f11be862e602dd1f6eb6e27794b8343ca8ad9bd2e88cc1c6",
+      "bytes": 305
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/output/manifest.json": {
+      "sha256": "b61f9216179e572d3991795d2eb83d75ca168e397d97a6d92d446926ebd49c42",
+      "bytes": 11952
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/output/observations.csv": {
+      "sha256": "10e64269b3ea86481633969da794c56ea24c8a70fbffa96551b5eeeb11894112",
+      "bytes": 19926
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/output/result.json": {
+      "sha256": "54b7a81d1ef8c33c8d346212361648b32a9ea78af6d45e58637f9d6f08fe014d",
+      "bytes": 701
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/stdout.log": {
+      "sha256": "539b3cad00eb2a46a366297edc943796e88779f97685ef662093ca5b9a04ae7f",
+      "bytes": 346
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/stderr.log": {
+      "sha256": "142fd0d3c415308df6480db679e88774843ed65191e2172420e0a253a8fa70fd",
+      "bytes": 87111468
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/frozen-source.json": {
+      "sha256": "dce16c539dbc01a1dad5be25b4c4f6b31594f9f7b0704415d175cc73345981f9",
+      "bytes": 125054
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-executed-bound-003/source-build.json": {
+      "sha256": "c4da6d95ae469b5c63c363d1e57866b18e35513906ecba86e975e1a76f449ffe",
+      "bytes": 102075
+    }
+  },
+  "report_sha256": "fed8542b54121f1d4a8dcd0136cffb4d9f71fff84b15d88a3417187b4993a03d"
+}

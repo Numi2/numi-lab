@@ -1,0 +1,5 @@
+{
+  "verdict": "FAILED_PREFLIGHT",
+  "reason": "Audit expected all configure-support files in authored checkout. Canonical support additionally binds one zero-byte historical build-cardboard-native-worker/worker.lock present only in frozen snapshot. Selected production source hashes passed through the earlier checks; no physical data changed.",
+  "continuation": "004 additive reproduction package preserves the zero-byte support file separately. Audit002 verifies all support against checkout or explicit archived exception."
+}

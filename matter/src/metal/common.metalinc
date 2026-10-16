@@ -1334,6 +1334,12 @@ inline bool usesScaledCorrectionProjection(const NMMaterialGPU material) {
         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u;
 }
 
+inline bool usesStrictBilinear15StateCertification(
+    const NMMaterialGPU material) {
+    return (material.flags &
+        NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u;
+}
+
 inline bool projectMaterialState(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
@@ -1390,6 +1396,8 @@ inline bool projectMaterialState(
         *stageFlagsOutput |= kMaterialDiagProjectionEntered;
     const bool accurateCandidate = usesCompensatedImplicitCandidate(material);
     const bool scaledCorrectionPolicy = usesScaledCorrectionProjection(material);
+    const float scaledCorrectionTolerance =
+        usesStrictBilinear15StateCertification(material) ? 2.0e-10f : 2.0e-8f;
     float localCandidateLow[NM_MAX_MATERIAL_STATE];
     thread float* candidateLow = projectedLowOutput != nullptr
         ? projectedLowOutput : localCandidateLow;
@@ -1601,7 +1609,7 @@ inline bool projectMaterialState(
             }
         }
         if (residualConverged && scaledCorrectionPolicy &&
-            scaledCorrectionNorm <= 2.0e-8f) {
+            scaledCorrectionNorm <= scaledCorrectionTolerance) {
             if (traceProjection) {
                 projectionIterationTrace[traceRecord+0u]=9.0f;
                 projectionIterationTrace[3]=1.0f;
@@ -1799,7 +1807,7 @@ inline bool projectMaterialState(
         }
         if (stageFlagsOutput != nullptr)
             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
-        converged = finalScaledCorrectionNorm <= 2.0e-8f;
+        converged = finalScaledCorrectionNorm <= scaledCorrectionTolerance;
     }
     if (traceProjection) {
         if (converged) projectionIterationTrace[3]=1.0f;

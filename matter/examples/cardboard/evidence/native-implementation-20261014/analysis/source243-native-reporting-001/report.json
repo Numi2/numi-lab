@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.source243-native-reporting.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-native-reporting-243-001",
+  "source_frozen_sha256": "a29ce08d01cff1e3efc37bd8c3b10cbf752b3b9fa6175dd57262254375833732",
+  "source_build_sha256": "6607a7f460f4af3936acf2be8f828e0d71c4d85d83e4920ac26976ae8ab19a14",
+  "build_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-native-reporting-243-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-true-residual-native-reporting-243-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source243-native-reporting-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check"
+  ],
+  "build_exit_code": 0,
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "operator_or_gate_change": false,
+  "at_utc": "2026-10-16T13:07:18.449663+00:00"
+}

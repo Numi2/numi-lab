@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "test-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test-2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "assert-enabled-coupon-resume-check": "e46ad82d66bb06d54ed9e8704e3d342238175855f3a5a9a85648aff426b9d762",
+    "report.json": "c308d49e3a0dc7b819b8b23d6fb949a63196cc560ea385853e0387bbf8ea002c",
+    "test-2.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test-0.stdout": "569c2b560bc9b6b822eba2aba79aa5b7fb8c1e84299b94b76a3ec0b163e8e2f0",
+    "test-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test-1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "prior_report_sha256": "4ff64e502ea3ebe1af8feb86893334d241f60a2e635ac7564f436da5728024b5"
+}

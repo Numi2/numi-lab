@@ -1,0 +1,160 @@
+#include "numi/matter/human_limits_gpu.h"
+
+namespace numi_matter_metal {
+
+kernel void nm_human_limit_prepare(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanLimitDispatchGPU& limits [[buffer(1)]],
+    device const NMHumanJointLimitGPU* rows [[buffer(2)]],
+    device const float* q0 [[buffer(3)]],
+    device const float* v0 [[buffer(4)]],
+    device const float* vFree [[buffer(5)]],
+    device float4* linearization [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint rowCount = 2u * limits.count;
+    if (global >= dispatch.environmentCount * rowCount) return;
+    const uint environment = global / rowCount;
+    const uint index = (global % rowCount) / 2u;
+    const bool lower = (global % 2u) == 0u;
+    linearization[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMHumanJointLimitGPU row = rows[index];
+    const float position = q0[environment * limits.qCount + row.indices.x];
+    const float direction = lower ? 1.0f : -1.0f;
+    const float distance = lower ? position - row.rangeMarginInverseWeight.x :
+        row.rangeMarginInverseWeight.y - position;
+    const float margin = row.rangeMarginInverseWeight.z;
+    if (!isfinite(distance)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            NM_INVALID_INDEX, index, float4(position, distance, margin, 0.0f));
+        return;
+    }
+    // Strict source admission: at distance == margin the row is absent.
+    // No prediction, hard clamping or artificial activation distance is added.
+    if (!(distance < margin)) return;
+    const float phi = distance - margin;
+    const float h = limits.time.x;
+    const uint v = environment * limits.dofCount + row.indices.y;
+    const float sourceVelocity = direction * v0[v];
+    const float freeIncrement = direction * (vFree[v] - v0[v]);
+    const float dw = clamp(row.solimp0.y, 0.0001f, 0.9999f);
+    const float impedance = humanScalarImpedance(row.solimp0, row.solimp1, phi);
+    const float2 kb = humanScalarStiffnessDamping(row.solref, dw, limits.flags, h);
+    const float referenceAcceleration = -kb.y * sourceVelocity - kb.x * impedance * phi;
+    const float regularizer = max(1.0e-15f, (1.0f - impedance) / impedance *
+        row.rangeMarginInverseWeight.w);
+    const float4 value(direction, h * referenceAcceleration - freeIncrement,
+                       1.0f / regularizer, phi);
+    if (!all(isfinite(value))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, index, value);
+        return;
+    }
+    linearization[global] = value;
+}
+
+// Source complementarity after Schur elimination: the negative physical
+// impulse is min(0, (J*deltaV-bDelta)/R). Its derivative is evaluated at the
+// same Newton candidate and reused unchanged for that Krylov solve.
+kernel void nm_human_limit_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanLimitDispatchGPU& limits [[buffer(1)]],
+    device const NMHumanJointLimitGPU* rows [[buffer(2)]],
+    device const float4* linearization [[buffer(3)]],
+    device const float* deltaV [[buffer(4)]],
+    device float4* residual [[buffer(5)]],
+    device float* tangent [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidGeneralizedCapacity) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global % dispatch.rigidGeneralizedCapacity;
+    tangent[global] = 0.0f;
+    if (dof >= limits.dofCount || !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f, derivative = 0.0f;
+    for (uint index = 0u; index < limits.count; ++index) {
+        if (rows[index].indices.y != dof) continue;
+        for (uint side = 0u; side < 2u; ++side) {
+            const float4 lin = linearization[environment * 2u * limits.count + 2u * index + side];
+            if (lin.z == 0.0f) continue;
+            const float violation = lin.x * deltaV[global] - lin.y;
+            if (!isfinite(violation)) {
+                recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                    NM_INVALID_INDEX, dof, float4(violation));
+                return;
+            }
+            value += lin.x * min(0.0f, violation) * lin.z;
+            derivative += violation < 0.0f ? lin.z : 0.0f;
+        }
+    }
+    if (!isfinite(value) || !isfinite(derivative)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(value, derivative, 0.0f, 0.0f));
+        return;
+    }
+    tangent[global] = derivative;
+    residual[fgmresRigidBase(dispatch) + global].x -= value;
+}
+
+kernel void nm_human_limit_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* tangent [[buffer(1)]],
+    device const float4* direction [[buffer(2)]],
+    device float4* output [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidGeneralizedCapacity) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint index = fgmresRigidBase(dispatch) + global;
+    output[index].x += tangent[global] * direction[index].x;
+}
+
+// An SPD envelope preconditioner includes both source-admitted sides. It is
+// deliberately an approximation when a row releases; the Krylov operator
+// above always uses the exact current unilateral derivative. No factor is
+// downloaded or reconstructed from a stiff full matrix on the host.
+kernel void nm_human_limit_factor(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanLimitDispatchGPU& limits [[buffer(1)]],
+    device const NMHumanJointLimitGPU* rows [[buffer(2)]],
+    device const float4* linearization [[buffer(3)]],
+    device float* factorB [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint3 groupPosition [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]
+) {
+    const uint environment = groupPosition.x;
+    if (environment >= dispatch.environmentCount) return;
+    const uint nv = limits.dofCount;
+    if (groupSize.x != 32u || groupSize.y != 1u || groupSize.z != 1u ||
+        nv == 0u || nv > 160u || nv > dispatch.rigidGeneralizedCapacity) {
+        if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, nv, float4(0.0f));
+        return;
+    }
+    if (!environmentHealthy(statuses, environment)) return;
+    threadgroup float update[160];
+    for (uint index = 0u; index < limits.count; ++index) {
+        const uint base = environment * 2u * limits.count + 2u * index;
+        const float inverseR = linearization[base].z + linearization[base + 1u].z;
+        if (!isfinite(inverseR) || inverseR < 0.0f) {
+            if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                NM_INVALID_INDEX, index, float4(inverseR, 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        if (inverseR == 0.0f) continue;
+        const float scale = sqrt(inverseR);
+        for (uint i = lane; i < nv; i += 32u) update[i] = i == rows[index].indices.y ? scale : 0.0f;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (!humanScalarRankUpdate(nv, environment * nv * nv, factorB, update,
+                                  statuses, environment, lane)) return;
+    }
+}
+
+} // namespace numi_matter_metal

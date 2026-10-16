@@ -1,0 +1,50 @@
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/matter_kernels.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3290:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3299:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3290:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3280:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3736:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3753:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3736:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/src/metal/fgmres.metalinc:3616:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/NumiHumanStand.metal:2524:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/NumiHumanStand.metal:2638:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.

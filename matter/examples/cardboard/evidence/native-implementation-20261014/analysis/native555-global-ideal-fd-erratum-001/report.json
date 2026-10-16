@@ -1,0 +1,87 @@
+{
+  "bounded_paper_tet_mp_check": {
+    "center_C_H_relative_errors": [
+      3.3614656926026794e-12,
+      2.0028003400807346e-14,
+      1.6227038967897518e-13,
+      9.499920513913317e-12,
+      1.1163704691684887e-13,
+      2.57024734889068e-14
+    ],
+    "interpretation": "Selected center constitutive tangents agree with corrected MP IFT; selected centered ideal endpoint secants converge toward the MP IFT tangent over powers 18\u201326 without observed dl/y sign or FB denominator-path changes. This is bounded local evidence only.",
+    "manifest_sha256": "6ecc80f375667767061514b78434caf72186f66e6bf96790b2503370a1a8eab2",
+    "path": "analysis/native555-global-ideal-fd-mp-tangent-localization-001",
+    "report_sha256": "df913886d63f432b8d62c6a4a46e479fafa8924e5bd1fd87a5464c42f6d873ce",
+    "scope": "six selected paper tets adjacent to largest corrected residual nodes; Decimal 90-digit IFT and exact ideal endpoints"
+  },
+  "corrected_replay": {
+    "arrays_sha256": "60742abf930df07eb80173f34e35626642ce819455a11d937c3487cc1f4a93eb",
+    "glue_center_stress_matches_existing_reference_bitwise": true,
+    "glue_centered_secant_vs_C_times_H": {
+      "cosine": 0.9999999999999992,
+      "p20_relative_l2_difference": 4.278234801211068e-08
+    },
+    "manifest_sha256": "79fca91e7058b6002aa4d23d4f153cdb99fded99886f0f6079418851607bebc0",
+    "method": "Evaluate the exact captured neo-Hookean glue stress at F0 +/- epsilon*dt*H for each of 192 glue tets and add the resulting gathered endpoint residual change. Paper endpoint projection/data remain those of the original run.",
+    "p18_to_p26_corrected_relative_errors": [
+      0.0096859440948866,
+      0.0006039134673072596,
+      7.512474310541263e-05,
+      0.0002587200174275191,
+      0.0010133915607879185
+    ],
+    "p20": {
+      "corrected_gap_l2_Ns": 1.648241848100004e-08,
+      "corrected_relative_error_to_A": 0.0006039134673072596,
+      "free_A_direction_l2_Ns": 2.72926824342768e-05,
+      "glue_endpoint_dR_l2_Ns": 0.000599587675054866,
+      "old_gap_l2_Ns": 0.0005995909884588221,
+      "old_gap_vs_glue_cosine": -0.9999999996374325
+    },
+    "p22_best_observed": {
+      "corrected_gap_l2_Ns": 2.0503557565327067e-09,
+      "corrected_relative_error_to_A": 7.512474310541263e-05
+    },
+    "path": "analysis/native555-global-ideal-fd-glue-corrected-001",
+    "report_sha256": "97ae36341b08ba25758d3016410fd681c378a627f7fae9fd05e546a662139187"
+  },
+  "exact_source_locations": {
+    "002_all_tet_A_lines": [
+      52,
+      53
+    ],
+    "002_all_tet_tangent_lines": [
+      49,
+      50
+    ],
+    "002_endpoint_F_line": 63,
+    "002_endpoint_project_paper_only_line": 64,
+    "002_run_py_sha256": "d67914c3ca2ffb21c19417e267f7fd4e80d21e9f6e30f35009a3c2a5d488cf49",
+    "tight003_all_tet_A_lines": [
+      55,
+      56
+    ],
+    "tight003_all_tet_tangent_lines": [
+      52,
+      53
+    ],
+    "tight003_endpoint_F_line": 66,
+    "tight003_endpoint_project_paper_only_line": 67,
+    "tight003_run_py_sha256": "2b3009ed14b397c0e4a6f99e2e3128023d6f099be1fac29d93d32229da80effe"
+  },
+  "finding": "The 002 and tight-003 ideal-FD runs perturbed F only for paper tets but compared their assembled residual derivative against a tangent action assembled over paper plus glue tets. The endpoint residual therefore omitted glue stiffness while the reference A included it.",
+  "qualification": {
+    "no_changes": "No native solver, material equations, gates, tolerances, or physical parameters were changed.",
+    "remaining": "After correction, full-mesh p20\u2013p26 mismatch ranges 7.5e-5\u20131.0e-3 relative to the assembled action; it remains above a 1e-6 FP64 derivative criterion, and the corrected p22 FD does not qualify the full tangent. Endpoint projection residual amplification and full mesh composition are not resolved here.",
+    "result": "The large p20\u2013p26 FD gap in the old comparison was caused by omitted glue endpoint deformation and is not evidence of a paper constitutive derivative defect."
+  },
+  "reproduction": "Run the corrected replay.py with the source-bound Python environment listed in the corrected package.",
+  "schema": "numi.cardboard.native555-global-ideal-fd-erratum.v1",
+  "status": "SUPERSEDES_OPERATOR_COMPARISON_INTERPRETATION_ONLY; original artifacts preserved",
+  "unchanged_old_artifacts": {
+    "002_arrays_sha256": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "002_report_sha256": "4d8e195750c43c971ccad8ecc79a140380db668d77f43cf87f5062b08cefcbbe",
+    "tight003_arrays_sha256": "24b5fe58f80a66b969889fccceab980e4d9bcc4c780e3deba8ad5e90de23d74b",
+    "tight003_report_sha256": "757c64078287952eafd035b694ae7697e55512e45780a1218060e263c2aa5d0e"
+  }
+}

@@ -347,7 +347,8 @@ struct RegionalGraphSchwarzLayout {
     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
     const std::span<const std::uint8_t> freeMask,
     const std::uint32_t environmentCount,
-    const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull
+    const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull,
+    const bool extendedPureFEM = false
 ) {
     auto original = buildRegionalGraphSchwarzLayout(
         nodeCount, tetrahedra, freeMask, environmentCount, maximumDeviceBytes);
@@ -355,13 +356,29 @@ struct RegionalGraphSchwarzLayout {
     const bool resourceRejection =
         original.error == "graph Schwarz patch count exceeds its bounded layout" ||
         original.error == "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound";
-    if (!resourceRejection) return original;
-    for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u}) {
+    if (!resourceRejection && !extendedPureFEM) return original;
+    if (resourceRejection) for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u}) {
         auto candidate = buildRegionalGraphSchwarzLayout(
             nodeCount, tetrahedra, freeMask, environmentCount,
             maximumDeviceBytes, 4096u, 32768u, 128u,
             patchNodes, patchNodes / 2u, true, true);
         if (candidate.error.empty()) return candidate;
+    }
+    // The caller must prove the static contact-free pure FEM scope before
+    // enabling this path. The same checked byte budget is retained. Smaller
+    // graph solves affect conditioning only; every residual and operator
+    // certificate still uses the original full FEM equations.
+    if (extendedPureFEM) {
+        for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u, 16u, 8u, 4u}) {
+            auto candidate = buildRegionalGraphSchwarzLayout(
+                nodeCount, tetrahedra, freeMask, environmentCount,
+                maximumDeviceBytes, 32768u, 131072u, 16384u,
+                patchNodes, patchNodes / 2u, true, true);
+            if (candidate.error.empty()) return candidate;
+            if (candidate.error != "graph Schwarz patch count exceeds its bounded layout" &&
+                candidate.error != "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound")
+                return candidate;
+        }
     }
     return original;
 }

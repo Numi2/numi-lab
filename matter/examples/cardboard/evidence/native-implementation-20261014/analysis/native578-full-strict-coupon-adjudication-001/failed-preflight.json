@@ -1,0 +1,5 @@
+{
+  "verdict": "FAILED_PREFLIGHT",
+  "reason": "Audit compared authored decimal tolerance to emitted FP32 runtime value exactly. Native value is 4.999999987376214e-7, the correct FP32 representation of5e-7. No physical result changed.",
+  "continuation": "002 verifies exact FP32 encoding with struct pack/unpack."
+}

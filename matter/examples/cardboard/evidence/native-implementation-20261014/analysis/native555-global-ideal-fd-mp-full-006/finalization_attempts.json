@@ -1,0 +1,54 @@
+{
+  "attempts": [
+    {
+      "failure": "NameError: Path is not defined during report finalization after arrays.npz and all 28 row checkpoints were fully written. Numerical replay completed; no report/receipt/manifest was produced.",
+      "id": "runner-001",
+      "script": "native555-global-ideal-fd-mp-full-runner-001.py",
+      "script_sha256": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8"
+    },
+    {
+      "failure": "IndexError: glue tet ids were used to index paper-only mp_center_tangent_dP_dH; numerical arrays were not modified.",
+      "id": "finalizer-001",
+      "script": "native555-global-ideal-fd-mp-full-finalizer-001.py",
+      "script_sha256": "f1d469494a0160f9df2aa16db1a062f3def1eac81d7bf630982307fe0761e213"
+    },
+    {
+      "failure": "FileNotFoundError: expected runner-finalization-failure.json, which finalizer-001 had not written before its IndexError.",
+      "id": "finalizer-002",
+      "preserved_outputs": [
+        "arrays.npz",
+        "progress.json",
+        "checkpoint_0000_0064.npz",
+        "checkpoint_0064_0128.npz",
+        "checkpoint_0128_0192.npz",
+        "checkpoint_0192_0256.npz",
+        "checkpoint_0256_0320.npz",
+        "checkpoint_0320_0384.npz",
+        "checkpoint_0384_0448.npz",
+        "checkpoint_0448_0512.npz",
+        "checkpoint_0512_0576.npz",
+        "checkpoint_0576_0640.npz",
+        "checkpoint_0640_0704.npz",
+        "checkpoint_0704_0768.npz",
+        "checkpoint_0768_0832.npz",
+        "checkpoint_0832_0896.npz",
+        "checkpoint_0896_0960.npz",
+        "checkpoint_0960_1024.npz",
+        "checkpoint_1024_1088.npz",
+        "checkpoint_1088_1152.npz",
+        "checkpoint_1152_1216.npz",
+        "checkpoint_1216_1280.npz",
+        "checkpoint_1280_1344.npz",
+        "checkpoint_1344_1408.npz",
+        "checkpoint_1408_1472.npz",
+        "checkpoint_1472_1536.npz",
+        "checkpoint_1536_1600.npz",
+        "checkpoint_1600_1664.npz",
+        "checkpoint_1664_1728.npz"
+      ],
+      "script": "native555-global-ideal-fd-mp-full-finalizer-002.py",
+      "script_sha256": "af82475e8ef30de5ac62092b5f984a696c8d6956217050e5a88c02a75e3476db"
+    }
+  ],
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-full-finalization-attempts.v1"
+}

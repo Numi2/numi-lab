@@ -1,0 +1,504 @@
+{
+  "FP64_reference_C_H_vs_independent_MP_IFT_gate": {
+    "finite_rows": 1728,
+    "max_relative_l2": 7.503682615933768e-11,
+    "p50_relative_l2": 6.925429614657115e-16,
+    "p95_relative_l2": 9.483124391336169e-14,
+    "p99_relative_l2": 6.000846310003951e-13,
+    "pass": true,
+    "rows": 1728,
+    "rows_over_1e-6": 0,
+    "threshold": 1e-06
+  },
+  "MP_projection_pass": true,
+  "arrays_sha256": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+  "center_projection_state_MP_minus_saved_FP64": {
+    "max_abs_component": 1.82874548837475e-14,
+    "max_per_row_l2": 1.832987210004767e-14
+  },
+  "classification": "Full environment-0 90-digit independent constitutive center/IFT and ideal-endpoint directional replay, CPU-only. No native code change or physical trajectory qualification.",
+  "finalization_attempts": {
+    "attempts": [
+      {
+        "failure": "NameError: Path is not defined during report finalization after arrays.npz and all 28 row checkpoints were fully written. Numerical replay completed; no report/receipt/manifest was produced.",
+        "id": "runner-001",
+        "script": "native555-global-ideal-fd-mp-full-runner-001.py",
+        "script_sha256": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8"
+      },
+      {
+        "failure": "IndexError: glue tet ids were used to index paper-only mp_center_tangent_dP_dH; numerical arrays were not modified.",
+        "id": "finalizer-001",
+        "script": "native555-global-ideal-fd-mp-full-finalizer-001.py",
+        "script_sha256": "f1d469494a0160f9df2aa16db1a062f3def1eac81d7bf630982307fe0761e213"
+      },
+      {
+        "failure": "FileNotFoundError: expected runner-finalization-failure.json, which finalizer-001 had not written before its IndexError.",
+        "id": "finalizer-002",
+        "preserved_outputs": [
+          "arrays.npz",
+          "progress.json",
+          "checkpoint_0000_0064.npz",
+          "checkpoint_0064_0128.npz",
+          "checkpoint_0128_0192.npz",
+          "checkpoint_0192_0256.npz",
+          "checkpoint_0256_0320.npz",
+          "checkpoint_0320_0384.npz",
+          "checkpoint_0384_0448.npz",
+          "checkpoint_0448_0512.npz",
+          "checkpoint_0512_0576.npz",
+          "checkpoint_0576_0640.npz",
+          "checkpoint_0640_0704.npz",
+          "checkpoint_0704_0768.npz",
+          "checkpoint_0768_0832.npz",
+          "checkpoint_0832_0896.npz",
+          "checkpoint_0896_0960.npz",
+          "checkpoint_0960_1024.npz",
+          "checkpoint_1024_1088.npz",
+          "checkpoint_1088_1152.npz",
+          "checkpoint_1152_1216.npz",
+          "checkpoint_1216_1280.npz",
+          "checkpoint_1280_1344.npz",
+          "checkpoint_1344_1408.npz",
+          "checkpoint_1408_1472.npz",
+          "checkpoint_1472_1536.npz",
+          "checkpoint_1536_1600.npz",
+          "checkpoint_1600_1664.npz",
+          "checkpoint_1664_1728.npz"
+        ],
+        "script": "native555-global-ideal-fd-mp-full-finalizer-002.py",
+        "script_sha256": "af82475e8ef30de5ac62092b5f984a696c8d6956217050e5a88c02a75e3476db"
+      }
+    ],
+    "attempts_sha256": "e9078c30db39428884a1b07aebcfe7722e9e7e4a0fb77f248eb9b1099c1f1f94"
+  },
+  "finalizer_sha256": "9ac4d4cbfdf9c7f76506e1df42cfd83e539ea1df449d378f7e04eb1a82d02ae8",
+  "full_assembly_results_by_power": {
+    "26": {
+      "MP_branch_sign_and_FB_denominator_side_summary": {
+        "complete_rows": 1728,
+        "same_sign_and_same_den_side": 1728
+      },
+      "mp_secant_l2_free": 2.7292682262124033e-05,
+      "mp_secant_vs_center_IFT_action": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 4.021826385918104e-12,
+        "max_abs_component_Ns_per_epsilon": 2.127017172626597e-12,
+        "nonfinite_components": 0,
+        "relative": 1.4735914637936447e-07,
+        "target_l2_Ns_per_epsilon": 2.72926824342768e-05
+      },
+      "paper_MP_endpoint_pair_rows": 1728,
+      "paper_local_MP_secant_vs_MP_IFT": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 0.053887012996407704,
+        "max_relative": 3.7152835183093714e-08,
+        "p50_relative": 8.146523270515703e-17,
+        "p95_relative": 1.1352774348552334e-13,
+        "p99_relative": 8.482516680998082e-10,
+        "rows": 1728,
+        "rows_over_1e-6": 0
+      },
+      "paper_local_strict_FP64_secant_vs_MP_IFT": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 32057410.322363082,
+        "max_relative": 1.0032374969790998,
+        "p50_relative": 0.9999994685293954,
+        "p95_relative": 1.000235064426552,
+        "p99_relative": 1.0005243831863233,
+        "rows": 1728,
+        "rows_over_1e-6": 1728
+      },
+      "paper_local_strict_FP64_secant_vs_MP_secant": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 32057410.32236279,
+        "max_relative": 1.0032374969790998,
+        "p50_relative": 0.9999994685293954,
+        "p95_relative": 1.0002350644265519,
+        "p99_relative": 1.000524383186323,
+        "rows": 1728,
+        "rows_over_1e-6": 1728
+      },
+      "same_state_FP64_stress_eval_minus_90digit_stress_at_same_FP64_state_Pa": {
+        "max_abs": 1.5729292900056652e-07,
+        "p50": 2.346430646300283e-10,
+        "p95": 6.392383479043634e-08,
+        "p99": 1.1711529590338086e-07
+      },
+      "strict_FP64_endpoint_pass_counts": {
+        "both": 1728,
+        "failures": 0,
+        "minus": 1728,
+        "plus": 1728
+      },
+      "strict_FP64_secant_l2_free": 5.9398783369655944e-05,
+      "strict_FP64_secant_vs_MP_secant": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 3.4188369792671784e-05,
+        "max_abs_component_Ns_per_epsilon": 9.633924826148046e-06,
+        "nonfinite_components": 0,
+        "relative": 1.2526570112940998,
+        "target_l2_Ns_per_epsilon": 2.7292682262124033e-05
+      },
+      "strict_FP64_secant_vs_center_IFT_action": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 3.4188369616405135e-05,
+        "max_abs_component_Ns_per_epsilon": 9.633924803616664e-06,
+        "nonfinite_components": 0,
+        "relative": 1.2526569969343895,
+        "target_l2_Ns_per_epsilon": 2.72926824342768e-05
+      },
+      "target_linear_residual_derivative_l2_free": 2.72926824342768e-05
+    },
+    "28": {
+      "MP_branch_sign_and_FB_denominator_side_summary": {
+        "complete_rows": 1728,
+        "same_sign_and_same_den_side": 1728
+      },
+      "mp_secant_l2_free": 2.7292682423525345e-05,
+      "mp_secant_vs_center_IFT_action": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 2.5129847868316433e-13,
+        "max_abs_component_Ns_per_epsilon": 1.3293619629633664e-13,
+        "nonfinite_components": 0,
+        "relative": 9.207540493255412e-09,
+        "target_l2_Ns_per_epsilon": 2.72926824342768e-05
+      },
+      "paper_MP_endpoint_pair_rows": 1728,
+      "paper_local_MP_secant_vs_MP_IFT": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 0.0033679378791808597,
+        "max_relative": 2.3220509800721964e-09,
+        "p50_relative": 5.5320185474810814e-17,
+        "p95_relative": 7.107492771645028e-15,
+        "p99_relative": 5.301573820075742e-11,
+        "rows": 1728,
+        "rows_over_1e-6": 0
+      },
+      "paper_local_strict_FP64_secant_vs_MP_IFT": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 32057405.58992039,
+        "max_relative": 1.0036368508842453,
+        "p50_relative": 0.9999986892773377,
+        "p95_relative": 1.0008912467951858,
+        "p99_relative": 1.0018153444987623,
+        "rows": 1728,
+        "rows_over_1e-6": 1728
+      },
+      "paper_local_strict_FP64_secant_vs_MP_secant": {
+        "finite_nonzero_reference_rows": 1728,
+        "max_abs_l2": 32057405.589920375,
+        "max_relative": 1.0036368508842444,
+        "p50_relative": 0.9999986892695669,
+        "p95_relative": 1.000891246795186,
+        "p99_relative": 1.001815344498762,
+        "rows": 1728,
+        "rows_over_1e-6": 1728
+      },
+      "same_state_FP64_stress_eval_minus_90digit_stress_at_same_FP64_state_Pa": {
+        "max_abs": 1.7713618389599164e-07,
+        "p50": 2.3386794581040046e-10,
+        "p95": 6.749602652654644e-08,
+        "p99": 1.2363963765703384e-07
+      },
+      "strict_FP64_endpoint_pass_counts": {
+        "both": 1728,
+        "failures": 0,
+        "minus": 1728,
+        "plus": 1728
+      },
+      "strict_FP64_secant_l2_free": 5.940933212573472e-05,
+      "strict_FP64_secant_vs_MP_secant": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 3.419797117555685e-05,
+        "max_abs_component_Ns_per_epsilon": 9.653406894947083e-06,
+        "nonfinite_components": 0,
+        "relative": 1.25300879718878,
+        "target_l2_Ns_per_epsilon": 2.7292682423525345e-05
+      },
+      "strict_FP64_secant_vs_center_IFT_action": {
+        "complete": true,
+        "error_l2_Ns_per_epsilon": 3.419797116454933e-05,
+        "max_abs_component_Ns_per_epsilon": 9.653406893525172e-06,
+        "nonfinite_components": 0,
+        "relative": 1.2530087962918661,
+        "target_l2_Ns_per_epsilon": 2.72926824342768e-05
+      },
+      "target_linear_residual_derivative_l2_free": 2.72926824342768e-05
+    }
+  },
+  "glue_FP64_reference_C_H_vs_independent_MP_analytic_tangent": {
+    "max_relative_l2": 5.6213149349856185e-14,
+    "p95_relative_l2": 2.0748408972823618e-14,
+    "pass": true,
+    "rows": 192,
+    "rows_over_1e-6": 0,
+    "threshold": 1e-06
+  },
+  "input_binding": {
+    "F_center": "capture high+low float32 words combined as binary64 and verified against replay array",
+    "H": "captured float32 F_direction_local_per_s for every paper and glue tet; deltaF=epsilon*dt*H",
+    "accepted_history": "captured FP32 accepted states for all 1728 paper rows, exactly equal to replay array",
+    "frames": "captured per-tet frames applied to local stress before force assembly",
+    "glue": "all 192 glue tetrahedra included using exact source reference compressible neo-Hookean stress/tangent",
+    "mass_and_correction": "all captured node masses and correction_delta_v included; direction residual formula dt*dF_internal - M*delta_v",
+    "parameters": "exact per-material FP32 parameter rows and header offsets",
+    "rate": "Haj-Ali paper and glue equations used here are rate-independent; Fdot was retained as a bound input but does not enter those constitutive equations"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-all23-corrected-hill-highprecision-013-001/implementation/audit222_corrected.py": "f103fa58001c092197d46e7b2365aa2fb708abf7610c2fb6b87bafbd698d606e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-002/assembled_fd.npz": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-002/report.json": "4d8e195750c43c971ccad8ecc79a140380db668d77f43cf87f5062b08cefcbbe",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-glue-corrected-001/corrected_actions.npz": "60742abf930df07eb80173f34e35626642ce819455a11d937c3487cc1f4a93eb",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-glue-corrected-001/report.json": "97ae36341b08ba25758d3016410fd681c378a627f7fae9fd05e546a662139187",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "limits": [
+    "This ideal endpoint audit does not establish native FP32 endpoint accuracy/noise floor.",
+    "The same-state FP64-vs-MP stress difference is an arithmetic disagreement, not a repeated-native measurement.",
+    "Sign and Fischer-Burmeister denominator summaries are smooth-equation diagnostics, not sufficient evidence of constitutive branch equivalence.",
+    "All global and per-element gates are reported without changing tolerances; any miss or failed endpoint remains visible.",
+    "This numerical audit does not establish physical coupon convergence, calibration, full assembly, or crush prediction."
+  ],
+  "mass_action_identity": {
+    "l2_formula_minus_saved_Ns": 0.0,
+    "max_abs_formula_minus_saved_Ns": 0.0
+  },
+  "method": {
+    "FP64": "source206 compensated binary64 reference with original strict limits (scaled residual 2e-12, dynamic correction 2e-11). Same-state arithmetic check reevaluates MP stress at exact FP64 projected endpoint state.",
+    "MP": "corrected independent Decimal transcription audit222_corrected.py at 90 digits, immutable accepted-history elastic predictor, full 15-state return map, center IFT direction from the 90-digit residual Jacobian; p26/p28 endpoints are separately projected from accepted history. Side stresses are subtracted in Decimal before conversion to float.",
+    "assembly": "all 1920 tet stress derivatives, frame transforms, captured inverse-rest matrices/volumes, nodal element force gather, dt and mass action; comparisons are over exact free-node mask.",
+    "projection_gates_unchanged": true
+  },
+  "p26_paper_local_MP_secant_vs_MP_IFT": {
+    "finite_nonzero_reference_rows": 1728,
+    "max_abs_l2": 0.053887012996407704,
+    "max_relative": 3.7152835183093714e-08,
+    "p50_relative": 8.146523270515703e-17,
+    "p95_relative": 1.1352774348552334e-13,
+    "p99_relative": 8.482516680998082e-10,
+    "rows": 1728,
+    "rows_over_1e-6": 0
+  },
+  "p26_top_free_node_MP_action_differences": [
+    {
+      "error_l2": 2.3609055663924698e-12,
+      "error_xyz_Ns_per_epsilon": [
+        9.920583406104358e-13,
+        2.127017172626597e-12,
+        2.5591656765393825e-13
+      ],
+      "node_id": 859,
+      "target_xyz": [
+        -5.322007102493309e-08,
+        -3.5121521065554334e-07,
+        -2.5144484252826827e-08
+      ]
+    },
+    {
+      "error_l2": 2.3059032199272345e-12,
+      "error_xyz_Ns_per_epsilon": [
+        -1.022314731398466e-12,
+        -2.0648104575578655e-12,
+        9.284408433577786e-14
+      ],
+      "node_id": 858,
+      "target_xyz": [
+        1.0052603257128711e-07,
+        3.4567408921827595e-07,
+        5.988428089398588e-09
+      ]
+    },
+    {
+      "error_l2": 1.1674281347578467e-12,
+      "error_xyz_Ns_per_epsilon": [
+        -3.6778978517452415e-13,
+        -1.0999108598605939e-12,
+        -1.33473683197069e-13
+      ],
+      "node_id": 856,
+      "target_xyz": [
+        7.555581217823174e-08,
+        3.030829402220436e-07,
+        -4.898991392388003e-10
+      ]
+    },
+    {
+      "error_l2": 1.1470381856361863e-12,
+      "error_xyz_Ns_per_epsilon": [
+        4.187147912858379e-13,
+        1.0648126765977649e-12,
+        -8.092272006497905e-14
+      ],
+      "node_id": 857,
+      "target_xyz": [
+        9.419794842157762e-08,
+        -2.76488284517918e-07,
+        -3.334813130947749e-08
+      ]
+    },
+    {
+      "error_l2": 7.787099646317093e-13,
+      "error_xyz_Ns_per_epsilon": [
+        -5.734737198126847e-13,
+        -4.980496631893707e-14,
+        5.244392882220876e-13
+      ],
+      "node_id": 282,
+      "target_xyz": [
+        2.754143093140617e-07,
+        -9.735185655342026e-08,
+        -4.687820575416233e-08
+      ]
+    },
+    {
+      "error_l2": 6.743517490960257e-13,
+      "error_xyz_Ns_per_epsilon": [
+        2.070655994821891e-13,
+        -6.395074599551919e-13,
+        5.38918146067625e-14
+      ],
+      "node_id": 271,
+      "target_xyz": [
+        -3.2275788588634683e-09,
+        1.1664283087476465e-07,
+        -8.404944177170424e-09
+      ]
+    },
+    {
+      "error_l2": 6.307656924881101e-13,
+      "error_xyz_Ns_per_epsilon": [
+        -2.1097654377611374e-13,
+        5.913593459984936e-13,
+        6.040182693035467e-14
+      ],
+      "node_id": 270,
+      "target_xyz": [
+        2.6984474219987186e-08,
+        -1.1372385637676584e-07,
+        -4.050606902564283e-10
+      ]
+    },
+    {
+      "error_l2": 5.88104718452972e-13,
+      "error_xyz_Ns_per_epsilon": [
+        5.808109721403978e-13,
+        4.5533110788838254e-14,
+        -8.032751913178253e-14
+      ],
+      "node_id": 283,
+      "target_xyz": [
+        3.607799546662565e-08,
+        6.705443115097523e-08,
+        -1.441467731800907e-08
+      ]
+    },
+    {
+      "error_l2": 4.4504277273059826e-13,
+      "error_xyz_Ns_per_epsilon": [
+        -7.471534532101657e-15,
+        4.2374567677221024e-15,
+        -4.449598742489217e-13
+      ],
+      "node_id": 280,
+      "target_xyz": [
+        -2.5719236215161295e-07,
+        2.681217749575095e-08,
+        3.381964648474377e-08
+      ]
+    },
+    {
+      "error_l2": 3.569939126187194e-13,
+      "error_xyz_Ns_per_epsilon": [
+        5.0271220766360224e-14,
+        3.5303533377759234e-13,
+        -1.683778827594963e-14
+      ],
+      "node_id": 145,
+      "target_xyz": [
+        -4.736380224445416e-06,
+        -2.4046245508909223e-07,
+        -1.1259995292712846e-08
+      ]
+    },
+    {
+      "error_l2": 3.5662040259317333e-13,
+      "error_xyz_Ns_per_epsilon": [
+        -5.0306086336535105e-14,
+        -3.530370695598595e-13,
+        3.4981051735234406e-15
+      ],
+      "node_id": 144,
+      "target_xyz": [
+        4.7417477603462005e-06,
+        2.370204936824709e-07,
+        -5.9854590699915974e-09
+      ]
+    },
+    {
+      "error_l2": 2.205551085648659e-13,
+      "error_xyz_Ns_per_epsilon": [
+        1.811117081028141e-14,
+        2.1961415451332894e-13,
+        -9.282485838194108e-15
+      ],
+      "node_id": 141,
+      "target_xyz": [
+        -3.2106619876168288e-06,
+        -6.707524373351587e-08,
+        1.091903409952725e-06
+      ]
+    }
+  ],
+  "p28_paper_local_MP_secant_vs_MP_IFT": {
+    "finite_nonzero_reference_rows": 1728,
+    "max_abs_l2": 0.0033679378791808597,
+    "max_relative": 2.3220509800721964e-09,
+    "p50_relative": 5.5320185474810814e-17,
+    "p95_relative": 7.107492771645028e-15,
+    "p99_relative": 5.301573820075742e-11,
+    "rows": 1728,
+    "rows_over_1e-6": 0
+  },
+  "progress": {
+    "completed_paper_rows": 1728,
+    "phase": "FP64_endpoints",
+    "started_monotonic": 5408210.890110541
+  },
+  "runner_sha256": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-full-finalized.v2",
+  "scope": {
+    "MP_decimal_precision_digits": 90,
+    "all_tets": 1920,
+    "dt_seconds_float32": 4.999999873689376e-05,
+    "environment": 0,
+    "epsilon_powers": [
+      26,
+      28
+    ],
+    "epsilon_values": [
+      1.4901161193847656e-08,
+      3.725290298461914e-09
+    ],
+    "free_nodes": 846,
+    "glue_tets": 192,
+    "nodes": 882,
+    "one_process_one_BLAS_worker": true,
+    "paper_tets": 1728
+  },
+  "strict_FP64_endpoint_projection_pass_counts": {
+    "26": {
+      "both": 1728,
+      "minus": 1728,
+      "plus": 1728
+    },
+    "28": {
+      "both": 1728,
+      "minus": 1728,
+      "plus": 1728
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source238-refined-coupon-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-true-residual-arena-plan-check",
+    "--target",
+    "numi-matter-pure-fem-armijo-cgls-arena-plan-check",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check"
+  ],
+  "gpu_execution": false
+}

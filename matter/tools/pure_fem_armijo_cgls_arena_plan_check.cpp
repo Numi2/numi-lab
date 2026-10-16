@@ -26,9 +26,9 @@ int main(){
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::cgls_layout);
  s=shape();s.includeRightScale=true;
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::right_scale_layout);
- s=shape();s.femNodeCount=8193;s.unknownCount=32772;
+ s=shape();s.femNodeCount=32769;s.unknownCount=131076;
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::fem_node_count);
- s=shape();s.tetrahedronCount=32769;
+ s=shape();s.tetrahedronCount=131073;
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::tetrahedron_count);
  s=shape();s.environmentCount=5;
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::environment_count);
@@ -45,6 +45,13 @@ int main(){
  s=shape();s.accountedResidentBytes=16ull*1024ull*1024ull*1024ull;
  require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::accounted_resident_limit);
  s=shape();s.maxBufferLength=512ull*1024ull*1024ull;s.environmentCount=2;s.femNodeCount=8192;
+ s=shape();s.femNodeCount=20682;s.tetrahedronCount=89088;s.unknownCount=4*s.femNodeCount;
+ s.includeCauchy=true;s.includeCGLS=true;s.includeRightScale=true;
+ auto finest=planFEMPureArmijoCGLSArena(s);require(finest.admitted()&&finest.scratchBytes<64ull*1024ull*1024ull);
+ s.femNodeCount=32768;s.tetrahedronCount=131072;s.unknownCount=4*s.femNodeCount;
+ require(planFEMPureArmijoCGLSArena(s).admitted());
+ s.femNodeCount=528444;s.tetrahedronCount=1477728;s.unknownCount=4*s.femNodeCount;
+ require(planFEMPureArmijoCGLSArena(s).failure==FEMPureArmijoArenaFailure::fem_node_count);
  std::uint64_t out=0;require(!femPureArmijoCheckedMultiply(UINT64_MAX,2,out));
  require(!femPureArmijoCheckedAdd(UINT64_MAX,1,out));
  std::cout<<"pure_fem_armijo_cgls_arena_plan=PASS scratch="<<b.scratchBytes<<" buffers="<<b.bufferCount<<'\n';

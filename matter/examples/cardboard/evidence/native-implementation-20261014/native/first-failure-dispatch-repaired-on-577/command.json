@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.native577-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source233-first-failure-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-233-001/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--sparse-free-body-parity",
+    "--newton-iterations",
+    "64",
+    "--diagnostic-state-output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/first-failure-dispatch-repaired-on-577/accepted-state-output",
+    "--first-failure-dispatch-root",
+    "1199"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source233-first-failure-001/matter/shaders/NumiMatter.metallib"
+  },
+  "source_frozen_sha256": "c9c442bffb3422bd3a7a7b2342892fe3cfef600e689756fe84acb751c81a59d3",
+  "source_build_sha256": "2e689d99c4d31193dd51932f2a60f76c8c151e3c6c1e9318318d3e0bbe44d484",
+  "configure_support_manifest_sha256": "92f14756f574746304b7ff1c1dae03b997492dc00ad80894a70dcf5c05c99f17",
+  "all_inputs_verified": true,
+  "predecessor546_refused_standalone_before_physics": true,
+  "timeout_s": 900,
+  "question": "Does the on first-global-status recorder preserve the exact source550 activation failure under the same64Newton residual1e-7 linear64 settings?",
+  "prediction": "No pass assumed; retain exact before/after transaction histories for off/on observer parity and first failing global-status dispatch. Small fixture only."
+}

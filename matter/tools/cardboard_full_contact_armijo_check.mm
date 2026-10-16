@@ -70,12 +70,49 @@ bool regionalContactPreconditioner = false;
 std::uint32_t authoredNewtonIterations = 0u;
 
 std::string diagnosticStateOutputPath;
+std::uint32_t firstFailureDispatchCaptureRoot = NM_INVALID_INDEX;
 std::string tiledParityCurrentStage = "not_started";
 
 std::string indexedDiagnosticStem(const std::uint64_t index) {
     std::ostringstream stem;
     stem << "transaction-" << std::setw(6) << std::setfill('0') << index;
     return stem.str();
+}
+
+std::string sha256DiagnosticFile(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input.good())
+        throw std::runtime_error("could not open accepted-state input for SHA-256");
+    CC_SHA256_CTX context{};
+    if (CC_SHA256_Init(&context) != 1)
+        throw std::runtime_error("could not initialize accepted-state SHA-256");
+    std::array<unsigned char, 1u << 16u> chunk{};
+    std::uint64_t total = 0u;
+    while (input) {
+        input.read(reinterpret_cast<char*>(chunk.data()),
+                   static_cast<std::streamsize>(chunk.size()));
+        const std::streamsize count = input.gcount();
+        if (count <= 0) break;
+        total += static_cast<std::uint64_t>(count);
+        if (total > (1ull << 30u))
+            throw std::runtime_error("accepted-state input exceeds one-GiB hash bound");
+        if (CC_SHA256_Update(&context, chunk.data(),
+                    static_cast<CC_LONG>(count)) != 1)
+            throw std::runtime_error("accepted-state SHA-256 update failed");
+    }
+    if (!input.eof())
+        throw std::runtime_error("accepted-state input read failed");
+    std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
+    if (CC_SHA256_Final(digest.data(), &context) != 1)
+        throw std::runtime_error("accepted-state SHA-256 finalization failed");
+    constexpr char hex[] = "0123456789abcdef";
+    std::string result;
+    result.reserve(digest.size() * 2u);
+    for (const unsigned char value : digest) {
+        result.push_back(hex[value >> 4u]);
+        result.push_back(hex[value & 15u]);
+    }
+    return result;
 }
 
 void writeRawDiagnosticSnapshot(const std::filesystem::path& path,
@@ -4418,10 +4455,43 @@ RuntimeStateSnapshot activateSparseFreeBodyMortar(
             "free-body activation command or zero-wrench buffer is unavailable");
 
     const std::string traceSelector = std::to_string(controlStep);
+    const bool captureFirstFailure =
+        firstFailureDispatchCaptureRoot == controlStep;
+    if (captureFirstFailure && diagnosticStateOutput == nullptr)
+        throw std::runtime_error(
+            "first-failure dispatch capture requires accepted-state diagnostic output");
+    std::string firstFailurePath;
+    std::string acceptedSnapshotPath;
+    std::string acceptedSnapshotSHA256;
+    if (captureFirstFailure) {
+        acceptedSnapshotPath =
+            (std::filesystem::path(diagnosticStateOutputPath) /
+             (indexedDiagnosticStem(diagnosticIndex) + "-before.bin")).string();
+        if (!std::filesystem::is_regular_file(acceptedSnapshotPath))
+            throw std::runtime_error(
+                "first-failure accepted-state input is missing");
+        acceptedSnapshotSHA256 = sha256DiagnosticFile(acceptedSnapshotPath);
+        firstFailurePath =
+            (std::filesystem::path(diagnosticStateOutputPath) /
+             (indexedDiagnosticStem(diagnosticIndex) + "-first-failure")).string();
+    }
+    const std::string acceptedSnapshotRoot = std::to_string(controlStep);
     numi::cardboard::ShippingRigidWorldRunner::StepResult activationStep;
     {
         ScopedEnvironmentValue trialTrace(
             "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", traceSelector.c_str());
+        ScopedEnvironmentValue failureRoot(
+            "NM_MATTER_FIRST_FAILURE_CAPTURE_ROOT",
+            captureFirstFailure ? acceptedSnapshotRoot.c_str() : nullptr);
+        ScopedEnvironmentValue failurePath(
+            "NM_MATTER_FIRST_FAILURE_CAPTURE_PATH",
+            captureFirstFailure ? firstFailurePath.c_str() : nullptr);
+        ScopedEnvironmentValue failureInputPath(
+            "NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_PATH",
+            captureFirstFailure ? acceptedSnapshotPath.c_str() : nullptr);
+        ScopedEnvironmentValue failureInputHash(
+            "NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_SHA256",
+            captureFirstFailure ? acceptedSnapshotSHA256.c_str() : nullptr);
         StderrCapture capture;
         activationStep = runner.step(
             std::span<const MRBodyStateGPU>(runner.sceneBodies().data(),
@@ -5937,7 +6007,7 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -5998,6 +6068,20 @@ int main(int argc, const char* argv[]) {
                 else if (option == "--accurate-paper") accuratePaper = true;
                 else if (option == "--compensated-material-arithmetic")
                     compensatedMaterialArithmetic = true;
+                else if (option == "--first-failure-dispatch-root") {
+                    require(index + 1 < argc, "missing first-failure dispatch control");
+                    const std::string value(argv[++index]);
+                    require(!value.empty() && std::all_of(value.begin(), value.end(),
+                        [](const char c) { return c >= '0' && c <= '9'; }),
+                        "first-failure dispatch control must be an integer");
+                    const unsigned long parsed = std::stoul(value);
+                    require(parsed < NM_INVALID_INDEX,
+                        "first-failure dispatch control is outside the supported range");
+                    require(firstFailureDispatchCaptureRoot == NM_INVALID_INDEX,
+                        "first-failure dispatch control was specified more than once");
+                    firstFailureDispatchCaptureRoot =
+                        static_cast<std::uint32_t>(parsed);
+                }
                 else if (option == "--diagnostic-state-output") {
                     require(index + 1 < argc, "missing diagnostic state output directory");
                     require(diagnosticStateOutputPath.empty(),
@@ -6130,6 +6214,9 @@ int main(int argc, const char* argv[]) {
                     "diagnostic state output is supported only for retained contact parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
                     "diagnostic state export requires a native transaction run");
+            require(firstFailureDispatchCaptureRoot == NM_INVALID_INDEX ||
+                        (sparseFreeBodyParity && !diagnosticStateOutputPath.empty()),
+                    "first-failure dispatch capture requires sparse free-body parity and diagnostic state output");
             // This parity fixture owns its numerical setup. The same material
             // policy and solver budgets are applied to both legacy and tiled
             // arms so that the comparison reaches the tiled force path under

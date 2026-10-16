@@ -1,0 +1,700 @@
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -750,6 +750,32 @@
+     nm_float4 productionExactActionMetadata;
+ } NMDeformableContactLimitTraceGPU;
+ 
++// Optional bounded trace of every alpha tested for one selected deformable
++// contact. These records are diagnostic scratch only and never feed solver
++// state. One environment owns 32 entries, matching the production line-search
++// upper bound.
++typedef struct NM_ALIGN16 NMDeformableContactLimitTrialTraceGPU {
++    // environment, solver iteration, active-list slot, contact arena slot
++    nm_uint4 identity;
++    // attempted, reject/accept reason, CCD hit, CCD certified
++    nm_uint4 outcome;
++    // full tested fraction, initial-touch nonclosing, finite barrier, accepted
++    nm_uint4 guards;
++    // current energy, base directional derivative, start alpha, current separation
++    nm_float4 base;
++    // alpha, trial TOI, trial separation, tested fraction
++    nm_float4 ccd;
++    // Exact certified CCD normal and point at the requested endpoint.
++    nm_float4 ccdNormal;
++    nm_float4 ccdPoint;
++    // trial energy, trial separation, Armijo RHS, reserved
++    nm_float4 energy;
++    // trial weighted direction xyz and its dot with the oriented normal
++    nm_float4 weightedDirection;
++    // Exact four feature endpoints tested by production CCD/barrier logic
++    nm_float4 featureEndpoint[4];
++} NMDeformableContactLimitTrialTraceGPU;
++
+ // Compact transaction-owned deformable-contact history. The
+ // geometric contact record is rebuilt from current surface primitives on each
+ // Newton candidate; only the stable source, transported frame, and lagged
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -8233,6 +8233,8 @@
+     device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+     device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
+     constant uint& fullResidualArmijoEnabled [[buffer(20)]],
++    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
++    constant uint& trialTraceContactSlot [[buffer(22)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]
+ ) {
+@@ -8254,7 +8256,14 @@
+         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+         const float laneBoundBefore = bound;
+         NMDeformableContactLimitTraceGPU traceRecord;
+-        const bool captureTrace = activeSlot < traceSlotsPerEnvironment;
++        const bool selectedTrialTraceContact =
++            trialTraceContactSlot != NM_INVALID_INDEX &&
++            slot == trialTraceContactSlot;
++        const uint traceRecordSlot =
++            trialTraceContactSlot != NM_INVALID_INDEX ? 0u : activeSlot;
++        const bool captureTrace = selectedTrialTraceContact ||
++            (trialTraceContactSlot == NM_INVALID_INDEX &&
++             activeSlot < traceSlotsPerEnvironment);
+         if (captureTrace) {
+             traceRecord = {};
+             traceRecord.contact = contact;
+@@ -8274,10 +8283,20 @@
+             traceRecord.lineSearch = float4(
+                 laneBoundBefore, laneBoundBefore, existing, 1.0f);
+             traceRecord.result = uint4(activeSlot, slot, 0u, 0u);
+-            traceRecord.diagnostic = uint4(1u, 0u, 0u, 0u);
++            traceRecord.diagnostic = uint4(
++                1u, 0u, 0u,
++                selectedTrialTraceContact ? microstep.solverIteration : 0u);
+             for (uint feature = 0u; feature < 4u; ++feature) {
+                 traceRecord.featureStart[feature] = float4(0.0f);
+                 traceRecord.featureEnd[feature] = float4(0.0f);
++            }
++        }
++        if (selectedTrialTraceContact) {
++            for (uint traceTrial = 0u; traceTrial < 32u; ++traceTrial) {
++                const uint traceIndex = environment * 32u + traceTrial;
++                trialTraceRecords[traceIndex] = {};
++                trialTraceRecords[traceIndex].identity = uint4(
++                    environment, microstep.solverIteration, activeSlot, slot);
+             }
+         }
+         float3 weightedPosition = float3(0.0f);
+@@ -8392,7 +8411,7 @@
+             if (captureTrace) {
+                 traceRecord.lineSearch.y = bound;
+                 traceRecords[environment * traceSlotsPerEnvironment +
+-                             activeSlot] = traceRecord;
++                             traceRecordSlot] = traceRecord;
+             }
+             continue;
+         }
+@@ -8442,7 +8461,7 @@
+             if (captureTrace) {
+                 traceRecord.lineSearch.y = bound;
+                 traceRecords[environment * traceSlotsPerEnvironment +
+-                             activeSlot] = traceRecord;
++                             traceRecordSlot] = traceRecord;
+             }
+             continue;
+         }
+@@ -8499,7 +8518,7 @@
+                 traceRecord.result.w = certified ? 1u : 0u;
+                 traceRecord.lineSearch.y = bound;
+                 traceRecords[environment * traceSlotsPerEnvironment +
+-                             activeSlot] = traceRecord;
++                             traceRecordSlot] = traceRecord;
+             }
+             continue;
+         }
+@@ -8572,7 +8591,7 @@
+                 traceRecord.result.w = certified ? 1u : 0u;
+                 traceRecord.lineSearch.y = bound;
+                 traceRecords[environment * traceSlotsPerEnvironment +
+-                             activeSlot] = traceRecord;
++                             traceRecordSlot] = traceRecord;
+             }
+             continue;
+         }
+@@ -8699,6 +8718,24 @@
+                         for (uint feature = 0u; feature < 4u; ++feature)
+                             trialPosition[feature] = trialNodePosition[feature];
+                     }
++                    const uint trialTraceIndex = environment * 32u + trial;
++                    const bool captureThisTrial =
++                        selectedTrialTraceContact && trial < 32u;
++                    if (captureThisTrial) {
++                        trialTraceRecords[trialTraceIndex] = {};
++                        trialTraceRecords[trialTraceIndex].identity = uint4(
++                            environment, microstep.solverIteration, activeSlot, slot);
++                        trialTraceRecords[trialTraceIndex].outcome = uint4(1u, 0u, 0u, 0u);
++                        trialTraceRecords[trialTraceIndex].base = float4(
++                            currentEnergy, directionalDerivative, startAlpha,
++                            currentSeparation);
++                        for (uint feature = 0u; feature < 4u; ++feature)
++                            trialTraceRecords[trialTraceIndex].featureEndpoint[feature] =
++                                float4(trialPosition[feature], 1.0f);
++                        trialTraceRecords[trialTraceIndex].weightedDirection =
++                            float4(trialWeightedDirection,
++                                dot(contact.normalAndTOI.xyz, trialWeightedDirection));
++                    }
+                     float trialTOI = 1.0f;
+                     float3 trialNormal = float3(0.0f);
+                     float3 trialPoint = float3(0.0f);
+@@ -8712,11 +8749,30 @@
+                             collisionThickness, trialTOI, trialNormal,
+                             trialPoint, trialCCDSeparation, trialCertified,
+                             trialTestedFraction, trialShortenedRetries);
++                    if (captureThisTrial) {
++                        trialTraceRecords[trialTraceIndex].outcome.z = trialHit ? 1u : 0u;
++                        trialTraceRecords[trialTraceIndex].outcome.w = trialCertified ? 1u : 0u;
++                        trialTraceRecords[trialTraceIndex].ccd = float4(
++                            alpha, trialTOI, trialCCDSeparation, trialTestedFraction);
++                        trialTraceRecords[trialTraceIndex].ccdNormal =
++                            float4(trialNormal, 0.0f);
++                        trialTraceRecords[trialTraceIndex].ccdPoint =
++                            float4(trialPoint, 0.0f);
++                        trialTraceRecords[trialTraceIndex].guards.x =
++                            trialTestedFraction == 1.0f ? 1u : 0u;
++                    }
+                     // This is a certificate for this exact rounded alpha
+                     // endpoint. A shortened chord is not a certificate for
+                     // the requested trial and must not be promoted.
+                     if (!trialCertified || trialTestedFraction != 1.0f ||
+-                        !isfinite(trialTOI)) continue;
++                        !isfinite(trialTOI)) {
++                        if (captureThisTrial)
++                            trialTraceRecords[trialTraceIndex].outcome.y =
++                                !trialCertified ? 1u :
++                                trialTestedFraction != 1.0f ? 2u : 3u;
++                        continue;
++                    }
++                    bool trialInitialTouchNonclosing = !trialHit;
+                     if (trialHit) {
+                         float trialCoordinateScale = coordinateScale;
+                         for (uint feature = 0u; feature < 4u; ++feature)
+@@ -8735,11 +8791,20 @@
+                             16.0f * kEpsilon * max(
+                                 length(trialWeightedDirection),
+                                 collisionThickness);
+-                        const bool initialTouchNonclosing = initialTouch &&
++                        trialInitialTouchNonclosing = initialTouch &&
+                             dot(contact.normalAndTOI.xyz,
+                                 trialWeightedDirection) >=
+                                     -directionalRoundoff;
+-                        if (!initialTouchNonclosing) continue;
++                        if (!trialInitialTouchNonclosing) {
++                            if (captureThisTrial) {
++                                trialTraceRecords[trialTraceIndex].outcome.y = 4u;
++                                trialTraceRecords[trialTraceIndex].weightedDirection =
++                                    float4(trialWeightedDirection,
++                                        dot(contact.normalAndTOI.xyz,
++                                            trialWeightedDirection));
++                            }
++                            continue;
++                        }
+                     }
+                     float trialEnergy;
+                     float trialSeparation;
+@@ -8747,17 +8812,38 @@
+                         contact, trialPosition, trialEnergy, trialSeparation);
+                     const float armijoRight = currentEnergy +
+                         1.0e-4f * alpha * directionalDerivative;
++                    const bool trialArmijoAccepted = finiteTrial &&
++                        (femFeasibilityOnly || trialEnergy <= armijoRight);
++                    if (captureThisTrial) {
++                        trialTraceRecords[trialTraceIndex].guards.y =
++                            trialInitialTouchNonclosing ? 1u : 0u;
++                        trialTraceRecords[trialTraceIndex].guards.z =
++                            finiteTrial ? 1u : 0u;
++                        trialTraceRecords[trialTraceIndex].guards.w =
++                            trialArmijoAccepted ? 1u : 0u;
++                        trialTraceRecords[trialTraceIndex].energy = float4(
++                            finiteTrial ? trialEnergy : NAN,
++                            finiteTrial ? trialSeparation : NAN,
++                            armijoRight, 0.0f);
++                        trialTraceRecords[trialTraceIndex].weightedDirection =
++                            float4(trialWeightedDirection,
++                                dot(contact.normalAndTOI.xyz,
++                                    trialWeightedDirection));
++                    }
+                     // In the opted-in FEM/full-residual path, this pass
+                     // only establishes exact-endpoint finiteness and full CCD
+                     // feasibility. The private full-contact trial below
+                     // rechecks its own exact swept endpoint and owns the
+                     // coupled residual acceptance decision. MPM and mixed
+                     // FEM/MPM contacts retain per-feature energy Armijo.
+-                    if (finiteTrial &&
+-                        (femFeasibilityOnly || trialEnergy <= armijoRight)) {
++                    if (trialArmijoAccepted) {
++                        if (captureThisTrial)
++                            trialTraceRecords[trialTraceIndex].outcome.y = 7u;
+                         armijoAlpha = alpha;
+                         break;
+                     }
++                    if (captureThisTrial)
++                        trialTraceRecords[trialTraceIndex].outcome.y = !finiteTrial ? 5u : 6u;
+                 }
+                 if (!(armijoAlpha > 0.0f)) {
+                     recordFailure(
+@@ -8776,8 +8862,11 @@
+             traceRecord.metrics = float4(
+                 collisionThickness, toi, ccdSeparation, bound);
+             traceRecord.lineSearch.y = bound;
++            if (selectedTrialTraceContact &&
++                traceRecord.diagnostic.y == 6u)
++                traceRecord.diagnostic.w = microstep.solverIteration;
+             traceRecords[environment * traceSlotsPerEnvironment +
+-                         activeSlot] = traceRecord;
++                         traceRecordSlot] = traceRecord;
+         }
+     }
+     bound = simd_min(bound);
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -12816,6 +12816,10 @@
+             constexpr std::uint32_t deformableLimitTraceSlotsPerEnvironment =
+                 256u;
+             id<MTLBuffer> deformableLimitTraceRecords = nil;
++            id<MTLBuffer> deformableLimitTrialTraceRecords = nil;
++            std::uint64_t deformableLimitTrialTraceBytes = 0u;
++            std::uint32_t deformableLimitTrialTraceContactSlot =
++                std::numeric_limits<std::uint32_t>::max();
+             std::uint32_t deformableLimitTraceSlots = 0u;
+             bool femDeformableContactCaptureSelected = false;
+             bool femExactDeformableActionCaptureDispatched = false;
+@@ -14964,8 +14968,14 @@
+                         ? femNodeTotal * sizeof(nm_float4) : 0u;
+                 const NSUInteger solutionOffset =
+                     candidateNodesOffset + nodeBytes;
++                const NSUInteger trialTraceOffset =
++                    solutionOffset + solutionBytes;
++                const NSUInteger trialTraceBytes =
++                    deformableLimitTrialTraceRecords != nil
++                        ? static_cast<NSUInteger>(deformableLimitTrialTraceBytes)
++                        : 0u;
+                 const NSUInteger totalBytes =
+-                    solutionOffset + solutionBytes;
++                    trialTraceOffset + trialTraceBytes;
+                 const NSUInteger snapshotLimit =
+                     femDeformableContactCaptureSelected
+                         ? 4u * 1024u * 1024u : 1024u * 1024u;
+@@ -15028,6 +15038,12 @@
+                      destinationOffset:solutionOffset
+                                    size:solutionBytes];
+                 }
++                if (trialTraceBytes != 0u) {
++                    [copy copyFromBuffer:deformableLimitTrialTraceRecords
++                            sourceOffset:0u toBuffer:snapshot
++                         destinationOffset:trialTraceOffset
++                                       size:trialTraceBytes];
++                }
+                 [copy endEncoding];
+                 const auto root = request.controlStep;
+                 const auto iteration = micro.solverIteration;
+@@ -15055,6 +15071,18 @@
+                 const auto capturedSolutionOffset = solutionOffset;
+                 const auto capturedSolutionBytes = solutionBytes;
+                 const auto capturedTotalBytes = totalBytes;
++                const auto capturedTrialTraceOffset = trialTraceOffset;
++                const auto capturedTrialTraceBytes = trialTraceBytes;
++                const auto capturedTrialTraceContactSlot =
++                    deformableLimitTrialTraceContactSlot;
++                const bool capturedTrialTraceSelected =
++                    capturedTrialTraceBytes != 0u &&
++                    capturedTrialTraceContactSlot !=
++                        std::numeric_limits<std::uint32_t>::max();
++                const std::string capturedAcceptedSnapshotPath =
++                    firstFailureInputPath;
++                const std::string capturedAcceptedSnapshotSHA256 =
++                    firstFailureInputHash;
+                 const auto capturedDT = micro.time.x;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) return;
+@@ -15066,6 +15094,10 @@
+                         std::uint32_t*>(bytes + recordBytes);
+                     const auto* lineSearch = reinterpret_cast<const nm_float4*>(
+                         bytes + lineSearchOffset);
++                    const auto* trialTrace = capturedTrialTraceSelected
++                        ? reinterpret_cast<const NMDeformableContactLimitTrialTraceGPU*>(
++                            bytes + capturedTrialTraceOffset)
++                        : nullptr;
+                     std::ostringstream line;
+                     line << "fem_deformable_limit_trace={\"schema\":1,\"root\":"
+                          << root << ",\"microtick\":" << tick
+@@ -15241,7 +15273,108 @@
+                             capturedAppendFloat(line, record.barrier.x); line << ',';
+                             capturedAppendFloat(line, record.barrier.y); line << ',';
+                             capturedAppendFloat(line, record.barrier.z); line << ',';
+-                            capturedAppendFloat(line, record.barrier.w); line << "]}";
++                            capturedAppendFloat(line, record.barrier.w);
++                            if (capturedTrialTraceSelected &&
++                                record.result.y == capturedTrialTraceContactSlot &&
++                                (record.diagnostic.w == iteration ||
++                                 record.diagnostic.y == 6u)) {
++                                line << ",\"per_alpha_trace\":{\"schema\":1"
++                                     << ",\"reason_codes\":{\"1\":\"ccd_uncertified\",\"2\":\"ccd_shortened_fraction\",\"3\":\"nonfinite_toi\",\"4\":\"hit_not_initial_touch_nonclosing\",\"5\":\"invalid_barrier_energy\",\"6\":\"barrier_armijo_rejected\",\"7\":\"accepted\"}"
++                                     << ",\"selected_contact_slot\":"
++                                     << capturedTrialTraceContactSlot
++                                     << ",\"contact_active_slot\":" << record.result.x
++                                     << ",\"solver_iteration\":" << record.diagnostic.w
++                                     << ",\"is_failure\":"
++                                     << (record.diagnostic.y == 6u ? "true" : "false")
++                                     << ",\"accepted_snapshot\":{\"path\":"
++                                     << jsonQuoted(capturedAcceptedSnapshotPath)
++                                     << ",\"sha256\":"
++                                     << jsonQuoted(capturedAcceptedSnapshotSHA256) << "}"
++                                     << ",\"trials\":[";
++                                bool firstTrial = true;
++                                for (std::uint32_t trialIndex = 0u;
++                                     trialIndex < 32u; ++trialIndex) {
++                                    const auto& trial = trialTrace[trialIndex];
++                                    if (trial.outcome.x != 1u ||
++                                        trial.identity.x != environment ||
++                                        trial.identity.y != record.diagnostic.w ||
++                                        trial.identity.w != capturedTrialTraceContactSlot)
++                                        continue;
++                                    if (!firstTrial) line << ',';
++                                    firstTrial = false;
++                                    line << "{\"index\":" << trialIndex
++                                         << ",\"active_slot\":" << trial.identity.z
++                                         << ",\"contact_slot\":" << trial.identity.w
++                                         << ",\"reason_code\":" << trial.outcome.y
++                                         << ",\"ccd_hit\":"
++                                         << (trial.outcome.z != 0u ? "true" : "false")
++                                         << ",\"ccd_certified\":"
++                                         << (trial.outcome.w != 0u ? "true" : "false")
++                                         << ",\"tested_full_fraction\":"
++                                         << (trial.guards.x != 0u ? "true" : "false")
++                                         << ",\"initial_touch_gate_evaluated\":"
++                                         << (trial.outcome.y >= 4u ? "true" : "false")
++                                         << ",\"initial_touch_nonclosing_or_not_required\":";
++                                    if (trial.outcome.y >= 4u)
++                                        line << (trial.guards.y != 0u ? "true" : "false");
++                                    else
++                                        line << "null";
++                                    line << ",\"barrier_evaluated\":"
++                                         << (trial.outcome.y >= 5u ? "true" : "false")
++                                         << ",\"finite_barrier\":";
++                                    if (trial.outcome.y >= 5u)
++                                        line << (trial.guards.z != 0u ? "true" : "false");
++                                    else
++                                        line << "null";
++                                    line << ",\"accepted_by_feature_gate\":"
++                                         << (trial.guards.w != 0u ? "true" : "false")
++                                         << ",\"base\":[";
++                                    capturedAppendFloat(line, trial.base.x); line << ',';
++                                    capturedAppendFloat(line, trial.base.y); line << ',';
++                                    capturedAppendFloat(line, trial.base.z); line << ',';
++                                    capturedAppendFloat(line, trial.base.w); line << ']'
++                                         << ",\"ccd\":[";
++                                    capturedAppendFloat(line, trial.ccd.x); line << ',';
++                                    capturedAppendFloat(line, trial.ccd.y); line << ',';
++                                    capturedAppendFloat(line, trial.ccd.z); line << ',';
++                                    capturedAppendFloat(line, trial.ccd.w); line << ']'
++                                         << ",\"ccd_normal\":[";
++                                    capturedAppendFloat(line, trial.ccdNormal.x); line << ',';
++                                    capturedAppendFloat(line, trial.ccdNormal.y); line << ',';
++                                    capturedAppendFloat(line, trial.ccdNormal.z); line << ']'
++                                         << ",\"ccd_point\":[";
++                                    capturedAppendFloat(line, trial.ccdPoint.x); line << ',';
++                                    capturedAppendFloat(line, trial.ccdPoint.y); line << ',';
++                                    capturedAppendFloat(line, trial.ccdPoint.z); line << ']'
++                                         << ",\"energy\":";
++                                    if (trial.outcome.y >= 5u) {
++                                        line << '[';
++                                        capturedAppendFloat(line, trial.energy.x); line << ',';
++                                        capturedAppendFloat(line, trial.energy.y); line << ',';
++                                        capturedAppendFloat(line, trial.energy.z); line << ']';
++                                    } else {
++                                        line << "null";
++                                    }
++                                    line << ",\"weighted_direction_and_normal_dot\":[";
++                                    capturedAppendFloat(line, trial.weightedDirection.x); line << ',';
++                                    capturedAppendFloat(line, trial.weightedDirection.y); line << ',';
++                                    capturedAppendFloat(line, trial.weightedDirection.z); line << ',';
++                                    capturedAppendFloat(line, trial.weightedDirection.w); line << ']'
++                                         << ",\"trial_feature_endpoints\":[";
++                                    for (std::uint32_t feature = 0u; feature < 4u; ++feature) {
++                                        if (feature != 0u) line << ',';
++                                        const auto endpoint =
++                                            trial.featureEndpoint[feature];
++                                        line << '[';
++                                        capturedAppendFloat(line, endpoint.x); line << ',';
++                                        capturedAppendFloat(line, endpoint.y); line << ',';
++                                        capturedAppendFloat(line, endpoint.z); line << ']';
++                                    }
++                                    line << "]}";
++                                }
++                                line << "]}";
++                            }
++                            line << '}';
+                         }
+                     }
+                     line << "],\"recorded_count\":" << recorded << "}\n";
+@@ -25130,7 +25263,38 @@
+                 return diagnostics;
+             }
+             deformableLimitTraceRecords = nil;
++            deformableLimitTrialTraceRecords = nil;
++            deformableLimitTrialTraceBytes = 0u;
++            deformableLimitTrialTraceContactSlot =
++                std::numeric_limits<std::uint32_t>::max();
+             deformableLimitTraceSlots = 0u;
++            const char* trialTraceSlotText = std::getenv(
++                "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT");
++            const bool trialTraceRequested =
++                trialTraceSlotText != nullptr && *trialTraceSlotText != 0;
++            bool trialTraceSlotSyntaxValid = false;
++            std::uint32_t requestedTrialTraceSlot =
++                std::numeric_limits<std::uint32_t>::max();
++            if (trialTraceRequested) {
++                const bool decimal = std::all_of(
++                    trialTraceSlotText,
++                    trialTraceSlotText + std::strlen(trialTraceSlotText),
++                    [](const unsigned char value) {
++                        return value >= '0' && value <= '9';
++                    });
++                char* slotEnd = nullptr;
++                const unsigned long parsedSlot = std::strtoul(
++                    trialTraceSlotText, &slotEnd, 10);
++                trialTraceSlotSyntaxValid = decimal &&
++                    slotEnd != trialTraceSlotText && *slotEnd == 0 &&
++                    parsedSlot <
++                        std::numeric_limits<std::uint32_t>::max() &&
++                    !(trialTraceSlotText[0] == '0' &&
++                      trialTraceSlotText[1] != 0);
++                if (trialTraceSlotSyntaxValid)
++                    requestedTrialTraceSlot =
++                        static_cast<std::uint32_t>(parsedSlot);
++            }
+             const char* deformableTraceRoot = std::getenv(
+                 "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
+             if (deformableTraceRoot != nullptr ||
+@@ -25143,15 +25307,22 @@
+                     traceRoot, &end, 10);
+                 bool selectedIteration = !femDeformableContactCaptureSelected &&
+                     micro.solverIteration < 32u;
++                if (trialTraceRequested && trialTraceSlotSyntaxValid)
++                    selectedIteration = micro.solverIteration < 256u;
+                 if (const char* iterationText = std::getenv(
+                         "NM_FEM_CONTACT_TRACE_ITERATION")) {
+                     char* iterationEnd = nullptr;
+                     const unsigned long selected = std::strtoul(
+                         iterationText, &iterationEnd, 10);
+-                    selectedIteration = iterationEnd != iterationText &&
++                    const bool iterationMatches =
++                        iterationEnd != iterationText &&
+                         *iterationEnd == '\0' && selected < 256u &&
+                         micro.solverIteration ==
+                             static_cast<std::uint32_t>(selected);
++                    selectedIteration =
++                        trialTraceRequested && trialTraceSlotSyntaxValid
++                            ? selectedIteration && iterationMatches
++                            : iterationMatches;
+                 }
+                 const bool selected = traceRoot != nullptr &&
+                     end != traceRoot && *end == '\0' &&
+@@ -25160,11 +25331,28 @@
+                     microtick == 0u && selectedIteration &&
+                     environments <= 4u &&
+                     state.dispatch.deformableContactCapacity > 0u;
++                const bool selectedTrialTrace =
++                    trialTraceRequested && trialTraceSlotSyntaxValid &&
++                    selected && !femDeformableContactCaptureSelected &&
++                    firstFailureSelected && firstFailureRoot ==
++                        static_cast<std::uint32_t>(parsed) &&
++                    environments == 1u &&
++                    requestedTrialTraceSlot <
++                        state.dispatch.deformableContactCapacity &&
++                    state.dispatch.objectCount > 0u;
++                if (trialTraceRequested && !selectedTrialTrace &&
++                    micro.solverIteration == 0u) {
++                    std::fprintf(stderr,
++                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"slot_value_valid\":%s,\"reason\":\"requires_matching_deformable_root_and_first_failure_snapshot_single_environment_contact_scope\"}\n",
++                        request.controlStep,
++                        trialTraceSlotSyntaxValid ? "true" : "false");
++                }
+                 if (selected) {
+-                    deformableLimitTraceSlots = std::min(
+-                        state.dispatch.deformableContactCapacity,
+-                        femDeformableContactCaptureSelected ? 128u :
+-                            deformableLimitTraceSlotsPerEnvironment);
++                    deformableLimitTraceSlots = selectedTrialTrace ? 1u :
++                        std::min(
++                            state.dispatch.deformableContactCapacity,
++                            femDeformableContactCaptureSelected ? 128u :
++                                deformableLimitTraceSlotsPerEnvironment);
+                     const NSUInteger traceBytes =
+                         static_cast<NSUInteger>(environments) *
+                         deformableLimitTraceSlots *
+@@ -25192,6 +25380,42 @@
+                         } else {
+                             std::memset(deformableLimitTraceRecords.contents,
+                                         0, traceBytes);
++                            if (selectedTrialTrace) {
++                                deformableLimitTrialTraceBytes =
++                                    static_cast<std::uint64_t>(environments) *
++                                    32u *
++                                    sizeof(NMDeformableContactLimitTrialTraceGPU);
++                                if (deformableLimitTrialTraceBytes > 65536u) {
++                                    std::fprintf(stderr,
++                                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"trial_arena_exceeds_64k_bound\",\"bytes\":%llu}\n",
++                                        request.controlStep,
++                                        static_cast<unsigned long long>(
++                                            deformableLimitTrialTraceBytes));
++                                    deformableLimitTrialTraceBytes = 0u;
++                                } else {
++                                    deformableLimitTrialTraceRecords = [state.device
++                                        newBufferWithLength:
++                                            static_cast<NSUInteger>(
++                                                deformableLimitTrialTraceBytes)
++                                        options:MTLResourceStorageModeShared];
++                                    if (deformableLimitTrialTraceRecords == nil ||
++                                        deformableLimitTrialTraceRecords.contents == nullptr) {
++                                        std::fprintf(stderr,
++                                            "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"trial_arena_allocation_failed\"}\n",
++                                            request.controlStep);
++                                        deformableLimitTrialTraceRecords = nil;
++                                        deformableLimitTrialTraceBytes = 0u;
++                                    } else {
++                                        std::memset(
++                                            deformableLimitTrialTraceRecords.contents,
++                                            0,
++                                            static_cast<std::size_t>(
++                                                deformableLimitTrialTraceBytes));
++                                        deformableLimitTrialTraceContactSlot =
++                                            requestedTrialTraceSlot;
++                                    }
++                                }
++                            }
+                         }
+                     }
+                 }
+@@ -25231,6 +25455,13 @@
+                     [encoder setBytes:&fullResidualContactFeasibilityOnly
+                                length:sizeof(fullResidualContactFeasibilityOnly)
+                               atIndex:20u];
++                    [encoder setBuffer:(deformableLimitTrialTraceRecords != nil
++                            ? deformableLimitTrialTraceRecords
++                            : state.deformableContactFailures)
++                               offset:0u atIndex:21u];
++                    [encoder setBytes:&deformableLimitTrialTraceContactSlot
++                               length:sizeof(deformableLimitTrialTraceContactSlot)
++                              atIndex:22u];
+                 });
+             if (femDeformableContactCaptureSelected &&
+                 deformableLimitTraceRecords != nil &&
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -12538,7 +12538,7 @@
+     return shippingJsonStringField(dictionary, key, label);
+ }
+ 
+-constexpr std::array<std::string_view, 52u> kSource161DiagnosticEnvironmentKeys{
++constexpr std::array<std::string_view, 53u> kSource161DiagnosticEnvironmentKeys{
+     "NM_CONTACT_NODE_INCIDENCE_SORT",
+     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
+     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+@@ -12563,6 +12563,7 @@
+     "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+     "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
++    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
+     "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+     "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+     "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+@@ -12686,7 +12687,8 @@
+                 ([(NSArray*)keysValue count] == 49u ||
+                  [(NSArray*)keysValue count] == 50u ||
+                  [(NSArray*)keysValue count] == 51u ||
+-                 [(NSArray*)keysValue count] == 52u),
++                 [(NSArray*)keysValue count] == 52u ||
++                 [(NSArray*)keysValue count] == 53u),
+             "source-bound diagnostic contract registry or maps are missing");
+     NSArray* const keys = (NSArray*)keysValue;
+     require(effective.count == keys.count,
+@@ -12703,6 +12705,7 @@
+     const bool contractHasWarmStartKey = keys.count >= 50u;
+     const bool contractHasIncidenceSortKey = keys.count >= 51u;
+     const bool contractHasDampingKey = keys.count >= 52u;
++    const bool contractHasTrialTraceSlotKey = keys.count >= 53u;
+     std::ostringstream runnerNonOutputSettings;
+     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
+     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
+@@ -12726,9 +12729,12 @@
+             if (expectedKey == "NM_FEM_BASE_CGLS_DAMPING_KG" &&
+                 !contractHasDampingKey)
+                 continue;
++            if (expectedKey == "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT" &&
++                !contractHasTrialTraceSlotKey)
++                continue;
+             if (expectedIndex == keyIndex) {
+                 require(key == expectedKey,
+-                        "source-bound diagnostic key registry differs from the exact 49/50/51/52-key source contract");
++                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53-key source contract");
+                 break;
+             }
+             ++expectedIndex;
+--- a/matter/tools/cardboard_solver_environment.py
++++ b/matter/tools/cardboard_solver_environment.py
+@@ -51,6 +51,7 @@
+     "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+     "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
++    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
+     "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+     "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+     "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
+@@ -94,7 +95,9 @@
+ UINT32_MAX = (1 << 32) - 1
+ # These `_ROOT` controls select a control-step index; they are not filesystem
+ # roots. The Armijo roots additionally accept the source-defined `all` token.
+-NUMERIC_SELECTOR_KEYS = frozenset(key for key in NATIVE_ENV_KEYS if key.endswith("_ROOT"))
++NUMERIC_SELECTOR_KEYS = frozenset(
++    {key for key in NATIVE_ENV_KEYS if key.endswith("_ROOT")} |
++    {"NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT"})
+ ALL_CONTROL_SELECTOR_KEYS = frozenset({
+     "NM_FEM_TRUE_RESIDUAL_ROOT",
+     "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+@@ -156,7 +159,9 @@
+         if value == "all" and key in ALL_CONTROL_SELECTOR_KEYS:
+             return
+         if not re.fullmatch(r"[0-9]+", value):
+-            raise ValueError(f"{key} is a numeric control-step selector, not a filesystem path")
++            raise ValueError(f"{key} is a numeric control-step selector/index, not a filesystem path")
++        if key == "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT" and len(value) > 1 and value[0] == "0":
++            raise ValueError(f"{key} must use canonical decimal spelling")
+         if int(value, 10) > UINT32_MAX:
+             raise ValueError(f"{key} exceeds the native uint32 control-step range")
+ 
+--- a/matter/tools/test_cardboard_solver_environment.py
++++ b/matter/tools/test_cardboard_solver_environment.py
+@@ -20,9 +20,10 @@
+     def test_registry_matches_checkout_and_detects_unregistered_control(self):
+         env.validate_source_registry(SOURCE_ROOT)
+         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
+-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 52)
++        self.assertEqual(len(env.NATIVE_ENV_KEYS), 53)
+         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
+         self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
++        self.assertIn("NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT", env.NATIVE_ENV_KEYS)
+         with tempfile.TemporaryDirectory() as temporary:
+             root = Path(temporary)
+             for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
+@@ -144,6 +145,13 @@
+             env.make_contract({"NM_FEM_CONTACT_TRACE_ROOT": "/tmp/trace"})
+         with self.assertRaisesRegex(ValueError, "uint32"):
+             env.make_contract({"NM_FEM_NEWTON_TRACE_ROOT": str(1 << 32)})
++        self.assertEqual(env.make_contract({
++            "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": "32"
++        })["effective"]["NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT"],
++            {"set": True, "value": "32"})
++        for bad in ("-1", "32:1", "4294967296", "/tmp/slot", "032"):
++            with self.subTest(slot=bad), self.assertRaises(ValueError):
++                env.make_contract({"NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": bad})
+ 
+     def test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded(self):
+         with tempfile.TemporaryDirectory() as temporary:

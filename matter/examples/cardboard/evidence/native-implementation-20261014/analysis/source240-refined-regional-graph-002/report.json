@@ -1,0 +1,69 @@
+{
+  "schema": "numi.cardboard.source240-refined-regional-graph.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002",
+  "source_frozen_sha256": "2a48b4eed314e52fe7ef7865a0d6f63543392babb1fe7ebacaad8d763d97bdc0",
+  "source_build_sha256": "69d358f68c423fe5aeb9bd742a0e964e35a0a09f06a38557352aa4f748c792aa",
+  "commands": [
+    {
+      "argv": [
+        "clang++",
+        "-O2",
+        "-std=c++20",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/src",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools/cardboard_refined_graph_layout_check.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source240-refined-regional-graph-002/layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source240-refined-regional-graph-002/layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-002",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "--target",
+        "numi-matter-regional-graph-schwarz-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-002/matter/numi-matter-regional-graph-schwarz-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-002/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "all_pass": false,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "native_preconditioner_qualification_pending": true,
+  "at_utc": "2026-10-16T12:47:16.518715+00:00"
+}

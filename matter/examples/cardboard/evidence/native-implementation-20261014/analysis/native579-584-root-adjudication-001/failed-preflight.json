@@ -1,0 +1,6 @@
+{
+  "error": "Overstrong whole-snapshot before/after rollback assertion failed; expected status/certificate changes and a rigidStates difference require field-level review.",
+  "script_sha256": "7e16e9134753708760245b78224ef709d202a980d28b16939e808818046b1472",
+  "report_published": false,
+  "inputs_mutated": false
+}

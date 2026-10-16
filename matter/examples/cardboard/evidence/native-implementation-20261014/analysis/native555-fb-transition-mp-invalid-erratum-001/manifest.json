@@ -1,0 +1,16 @@
+{
+  "files_sha256": {
+    "report.json": "0df3932c5c53e92cf6811d81927f5ca81af459c3679c63e63dc749c9d1d41c52"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-all23-corrected-hill-highprecision-013-001/implementation/audit222_corrected.py": "f103fa58001c092197d46e7b2365aa2fb708abf7610c2fb6b87bafbd698d606e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-tet222-highprecision-006/audit222.py": "1d2a66ba35e03b7182b391cfa97b9aa2e89a5aaf3a486ce312e198f733a66ab1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-corrected-002/manifest.json": "f78472db3c4db5356f93560dfc88d7c1d32e01a8f3254ed3d35545e7120176f5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-corrected-002/report.json": "010527d4c5f1ba6cd246018fb525af4b0a5e800bd8691cceec62c419d888eb3d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-diagnostic-001/manifest.json": "94a047e2ec531f176d07ddba521b9686b3ad485ca774bd0e640997d2a88f0899",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-diagnostic-001/report.json": "faaac47b5a4d13514095e834e75336da9d54c81b0e54e76fa73493b6d648d81b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "schema": "numi.cardboard.native555-fb-transition-mp-invalid-erratum-files.v1"
+}

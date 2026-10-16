@@ -1,0 +1,1 @@
+PASS: production barrier writer round-trips with per-alpha absent and present

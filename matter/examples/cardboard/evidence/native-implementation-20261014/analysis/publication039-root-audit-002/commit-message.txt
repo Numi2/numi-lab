@@ -1,0 +1,7 @@
+Expand bounded cardboard solver arenas and preserve exact diagnostic replay
+
+Add checked pure-FEM true-residual and CGLS workspace plans for8192 nodes, plus bounded free-box proxy admission, without changing the physical operator. Admit proof-only finite-difference epsilon controls for exact accepted-checkpoint replay.
+
+Manufactured native component checks pass. Two fresh composed builds complete all seven phases of the tiny coupon with32 production files byte-identical to the prior source210 regression. Native555 and565 retain the original19th-control failure and exact accepted/rejected production suffixes. Fine-perturbation derivatives remain inconclusive; the targeted strict local-projection candidate and cohesive page-kernel results are archived separately and do not qualify the full runtime.
+
+Archive60 closed cases and preserve2002 prior records with exact source and payload hashes. Fresh source234 build and nine CPU checks pass after disjoint Human upstream changes. Full solver correctness, mesh/time convergence, calibration, physical box assembly and crush/impact qualification remain open.

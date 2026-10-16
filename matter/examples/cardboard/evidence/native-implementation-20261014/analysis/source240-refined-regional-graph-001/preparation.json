@@ -1,0 +1,10 @@
+{
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-001",
+  "frozen_sha256": "516e5b18dd42951cb5ed2fbae921ccf916b044db719b23f122a1e183f5067963",
+  "changed": [
+    "matter/src/regional_graph_schwarz.hpp",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_probe.mm"
+  ],
+  "gpu_execution": false
+}

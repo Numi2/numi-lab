@@ -1,0 +1,731 @@
+{
+  "created_utc": "2026-10-16",
+  "native_pair": {
+    "off": {
+      "accepted": false,
+      "after_bin_sha256": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+      "after_rigidStates": {
+        "bytes": 288,
+        "offset": 10565,
+        "sha256": "a524b3f92ca9b25f90996c03ba504fad30b44b16028660f4cefe521444b89f26",
+        "states": [
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              -0.0005089999758638442,
+              1.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              -0.0005089999758638442,
+              0.0
+            ],
+            "extent": [
+              0.0022499999031424522,
+              0.0022499999031424522,
+              0.0005000000237487257,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              564705.875,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              564705.875,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              296296.28125,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ]
+      },
+      "after_statuses": [
+        {
+          "code": 6,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            3.08632113e-12,
+            -7.31207036e-15,
+            1,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 32,
+          "fgmres_iterations": 64,
+          "object_index": 0
+        }
+      ],
+      "before_bin_sha256": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+      "before_rigidStates": {
+        "bytes": 288,
+        "offset": 10565,
+        "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597",
+        "states": [
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "before_statuses": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 0,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      ],
+      "changed_state_vector_hash_fields": [
+        "rigidStates"
+      ],
+      "command_sha256": "cfbdba387ac4e59fa5c7a97ee1d0e4eb51d7d56a0bf3824a2f9744bc3a521881",
+      "completion_stage": "mortar_activation_rejected",
+      "first_failure": {
+        "command_completed": true,
+        "dispatch_count": 126303,
+        "dispatch_map_complete": true,
+        "dispatch_map_overflow": false,
+        "record": {
+          "certificate_nonlinear": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "certificate_validity": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "dispatch_ordinal": 53258,
+          "dispatch_ordinal_exact": true,
+          "environment": 0,
+          "failing_index": 32,
+          "fgmres_iterations": 64,
+          "object_index": 0,
+          "pipeline": "nm_contact_limit_deformable_line_search",
+          "pipeline_id": 95,
+          "pipeline_mapping_available": true,
+          "status_code": 6,
+          "status_diagnostics": [
+            3.08632113e-12,
+            -7.31207036e-15,
+            1,
+            0
+          ]
+        }
+      },
+      "first_failure_bin_sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+      "first_failure_json_sha256": "2fcc63d4486365dadc8af3a0bfc897a9700b8949d18cfb5e5e7105b51251fb2c",
+      "receipt_sha256": "9fa70a9d12f7953dbd2727e869679cc1a289197312cb8d4ff359b3c039fcd7cc",
+      "stderr_sha256": "5fbcae7fe6bd82eb57bad5784cfed8f6a60e77f884a7a11166ecf3bf1e915f75",
+      "stdout_sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+      "transaction_json_sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+    },
+    "on": {
+      "accepted": false,
+      "after_bin_sha256": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+      "after_rigidStates": {
+        "bytes": 288,
+        "offset": 10565,
+        "sha256": "a524b3f92ca9b25f90996c03ba504fad30b44b16028660f4cefe521444b89f26",
+        "states": [
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              -0.0005089999758638442,
+              1.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              -0.0005089999758638442,
+              0.0
+            ],
+            "extent": [
+              0.0022499999031424522,
+              0.0022499999031424522,
+              0.0005000000237487257,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              564705.875,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              564705.875,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              296296.28125,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ]
+      },
+      "after_statuses": [
+        {
+          "code": 6,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            3.08632113e-12,
+            -7.31207036e-15,
+            1,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 32,
+          "fgmres_iterations": 64,
+          "object_index": 0
+        }
+      ],
+      "before_bin_sha256": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+      "before_rigidStates": {
+        "bytes": 288,
+        "offset": 10565,
+        "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597",
+        "states": [
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "angularVelocity": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "bodyCenter": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "centerAndRadius": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "extent": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow0": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow1": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "inverseInertiaRow2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "linearVelocityAndInverseMass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "before_statuses": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "environment": 0,
+          "event_count": 0,
+          "failing_index": 0,
+          "fgmres_iterations": 0,
+          "object_index": 0
+        }
+      ],
+      "changed_state_vector_hash_fields": [
+        "rigidStates"
+      ],
+      "command_sha256": "84a55705145e0aa45f0a9d50412ba79f14d4765b080347301fb930b6f17cc9ed",
+      "completion_stage": "mortar_activation_rejected",
+      "first_failure": {
+        "command_completed": true,
+        "dispatch_count": 126303,
+        "dispatch_map_complete": true,
+        "dispatch_map_overflow": false,
+        "record": {
+          "certificate_nonlinear": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "certificate_validity": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "completed_microsteps": 0,
+          "contact_count": 0,
+          "dispatch_ordinal": 53258,
+          "dispatch_ordinal_exact": true,
+          "environment": 0,
+          "failing_index": 32,
+          "fgmres_iterations": 64,
+          "object_index": 0,
+          "pipeline": "nm_contact_limit_deformable_line_search",
+          "pipeline_id": 95,
+          "pipeline_mapping_available": true,
+          "status_code": 6,
+          "status_diagnostics": [
+            3.08632113e-12,
+            -7.31207036e-15,
+            1,
+            0
+          ]
+        }
+      },
+      "first_failure_bin_sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+      "first_failure_json_sha256": "dccda135c1c9397788c5ed12aacbb9dde379c11d60f1a920aa0e284fa707e471",
+      "receipt_sha256": "765b3afbfcfe4c32a7f2c718b62f270a9399fa2b9aa50ac3f5780cf05bb7b3a7",
+      "stderr_sha256": "7c09e634f15d8dd96e7534388ceeef70fd559faa5a5e805505949cb9ba372984",
+      "stdout_sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+      "transaction_json_sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+    }
+  },
+  "rigid_state_layout": {
+    "decoder_validation": "Serialized vector order/counts traversed; decoded-array SHA matches JSON summaries.",
+    "members_float4": [
+      "centerAndRadius",
+      "extent",
+      "orientation",
+      "linearVelocityAndInverseMass",
+      "angularVelocity",
+      "bodyCenter",
+      "inverseInertiaRow0",
+      "inverseInertiaRow1",
+      "inverseInertiaRow2"
+    ],
+    "sizeof_bytes": 144,
+    "source_sha256": "5bc16de138447eb0bbc3e001a9327110629f88099135a4c1f4f9e77c981f7f24",
+    "source_type": "NMRigidStateGPU",
+    "two_records_bytes": 288
+  },
+  "schema": "numi.cardboard.rigid_state_failure_forensics.v1",
+  "scope": {
+    "cases": [
+      "native/contact-trial-observer-off-583",
+      "native/contact-trial-observer-on-584"
+    ],
+    "no_gpu_run_by_auditor": true,
+    "no_source_edits": true,
+    "source_snapshot": "snapshots/source-deformable-contact-trial-trace-236-001"
+  },
+  "source_interpretation": {
+    "failed_step_publication": "ShippingRigidWorldRunner::step returns on failed MetalWorld diagnostics or rejected Matter acceptance before assigning finalQ/finalV/finalSceneBodies back to accepted runner state.",
+    "fixture_identity": "Changed proxy1 is the authored dynamic BOX proxy (bodyIndex=sceneBodyIndex=4), massKg=1.0; center z equals float32(-0.0005 m half-height - 0.000009 m gap), extents match, orientation identity, velocities zero, inverse mass 1, inverse inertia matches 1 kg box. NMRigidStateGPU has no wrench field.",
+    "limits": "Snapshots do not include MRBodyStateGPU scene-body bytes or before/after sceneBodies_ capture. Projected proxy matches authored initial pose but cannot prove external body buffer unchanged. accepted_state_vector_sha256 includes this projected readback. Do not label rollback PASS.",
+    "projection": "nm_project_rigid_states projects proxy geometry/kinematics from authored proxy plus currentBodies; it has no status-gated early return.",
+    "runtime_initialization": "Runtime allocates rigidStates from a zero-initialized vector sized to rigidProxyCount, including prepared checkpoint.",
+    "snapshot_semantics": "RuntimeStateSnapshot describes rigidStates as completion-boundary projected proxy geometry/kinematics; for prescribed translating capsules it also stores an endpoint for future-motion validation."
+  },
+  "source_pointers": [
+    {
+      "file": "matter/include/numi/matter/matter.hpp",
+      "lines": "1833-1868",
+      "point": "snapshot fields and rigidStates comment"
+    },
+    {
+      "file": "matter/src/runtime.mm",
+      "lines": "5833-5841",
+      "point": "zero initialRigidStates upload/checkpoint"
+    },
+    {
+      "file": "matter/src/runtime.mm",
+      "lines": "10506-10513",
+      "point": "projection from currentBodies"
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "lines": "5540-5602",
+      "point": "projection fields"
+    },
+    {
+      "file": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "lines": "4371-4391;4401-4520;4609-4617",
+      "point": "BOX fixture identity, initial pose, transaction"
+    },
+    {
+      "file": "matter/tools/cardboard_shipping_rigid_driver.hpp",
+      "lines": "1125-1152",
+      "point": "failure returns before publishing final state"
+    }
+  ],
+  "summary": "Only rigidStates differs in before/after accepted_state_vector hash summary. The changed entry is a projected dynamic BOX state matching the authored initial scene pose, zero velocity, mass and inertia. This is consistent with first-use projection of an initially zero arena and is evidence against body-motion leakage, but MRBodyStateGPU before/after bytes were not captured, so exact physical rollback is not certified.",
+  "verdict": "ROLLBACK_VERDICT_OPEN"
+}

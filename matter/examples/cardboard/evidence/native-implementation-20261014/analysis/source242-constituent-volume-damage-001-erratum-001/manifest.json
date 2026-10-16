@@ -1,0 +1,12 @@
+{
+  "files": {
+    "erratum.json": {
+      "bytes": 1036,
+      "sha256": "3fc05be72d67a468bae521fc0c869ce5b043507ae81d482da6af2b8ec46b14a8"
+    }
+  },
+  "original_package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source242-constituent-volume-damage-001",
+  "original_package_manifest_sha256": "de8ef8d83a97070f145c6cf60b085fffd077aae1537fee06d6cb474b5c98e316",
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source242-constituent-volume-damage-001-erratum-001",
+  "schema": "numi.cardboard.source242-erratum-package.v1"
+}

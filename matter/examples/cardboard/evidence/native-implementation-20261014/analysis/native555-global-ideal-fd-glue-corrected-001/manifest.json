@@ -1,0 +1,8 @@
+{
+  "files_sha256": {
+    "corrected_actions.npz": "60742abf930df07eb80173f34e35626642ce819455a11d937c3487cc1f4a93eb",
+    "replay.py": "6b53434ec553d2898b69ba0eabbc3876359ed83addb264b68976d36698df3980",
+    "report.json": "97ae36341b08ba25758d3016410fd681c378a627f7fae9fd05e546a662139187"
+  },
+  "schema": "numi.cardboard.native555-global-ideal-fd-glue-corrected-files.v1"
+}

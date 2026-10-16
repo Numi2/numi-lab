@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-233-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-233-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source233-first-failure-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "cwd": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-first-failure-dispatch-233-001",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "source224_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+  "source224_build_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+  "source233_overlay_manifest_sha256": "218862ef77802ec111c00eb56e170e8e9b1b83c4c1ada10d5a3ae2e1f7c19134",
+  "source233_package_manifest_sha256": "995345bb0c0c57191828faf66882cead7ccf8ec9913ba999a06ba507282d6c5e",
+  "source233_candidate_sha256": "ad791065e8724844853665c084e269f741cf5dc286844a6d845e7884bdf31420",
+  "source_file_count": 821,
+  "gpu_execution": false
+}

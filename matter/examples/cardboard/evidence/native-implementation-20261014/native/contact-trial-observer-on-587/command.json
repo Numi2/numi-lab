@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.contact-trial-observer-command.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-002/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--sparse-free-body-parity",
+    "--newton-iterations",
+    "64",
+    "--diagnostic-state-output",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/accepted-state-output",
+    "--first-failure-dispatch-root",
+    "1199"
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HOME": "/Users/n",
+    "NUMI_MATTER_METALLIB": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/shaders/NumiMatter.metallib",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": "1199",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": "32"
+  },
+  "overlay_sha256": "da72754f6363cd6144a45a59b1afa6ef582d4b02aa8dbc092c71a708fa39cffe",
+  "source_build_sha256": "38cff4debf3ee25a66bdf534a2b66e25dfb47dfaf91edfe29dfd405ef1f0c380",
+  "candidate_source_bindings_sha256": "fef68a9d62ba47b247185405ebaf20157a639f1ae92348466757c1e8c027e9a4",
+  "question": "Does per-alpha observation retain exact production histories and expose the original contact rejection?",
+  "prediction": "Failure retained; no pass assumed and no thresholds changed. Diagnostic-off/diagnostic-on histories must be byte-identical.",
+  "timeout_s": 180
+}

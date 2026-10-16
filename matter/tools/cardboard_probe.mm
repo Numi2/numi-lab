@@ -147,6 +147,7 @@ struct Arguments {
     bool compensatedImplicitProjection = false;
     bool compensatedSourcePaperProjection = false;
     bool accurateSourcePaperProjection = false;
+    bool strictSourcePaperStateCertification = false;
     bool cacheFEMAlgorithmicTangent = false;
     std::optional<std::uint32_t> couponCheckpointAfterControl;
     std::optional<std::uint32_t> couponCheckpointEvery;
@@ -207,6 +208,12 @@ struct Arguments {
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
     bool fgmresRestartExplicit = false;
+    bool fgmresIterationsExplicit = false;
+    bool newtonIterationsExplicit = false;
+    bool nxExplicit = false;
+    bool nyExplicit = false;
+    bool thicknessSlicesExplicit = false;
+    bool timestepExplicit = false;
     std::uint32_t lineSearchSteps = 8u;
     bool localMaterialIterationsExplicit = false;
     FEMPreconditionerMode femPreconditioner =
@@ -1286,10 +1293,11 @@ void printUsage() {
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
         << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget defaults to 16 and may be overridden by --material-iterations [1,32]\n"
+        << "  --strict-source-paper-state-certification  use a 2e-10 dimensionless local Newton-correction certificate for accurate bilinear15 projection; requires --accurate-source-paper-projection; residual/iteration/outer gates and equations stay unchanged\n"
         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
-        << "    graph-Schwarz selector 5 is a bounded conditioning-only coupon experiment (<=4096 nodes, <=32768 tets, <=4 environments), contact/cohesive/rigid/field/adaptive/mutation free; no shipping-box qualification\n"
+        << "    graph-Schwarz selector 5 is a bounded conditioning-only pure coupon experiment (<=32768 nodes, <=131072 tets, <=4 environments; graph arenas <=96 MiB), contact/cohesive/rigid/field/adaptive/mutation free; no shipping-box qualification\n"
         << "  --bend-angle DEGREES   final right-grip rotation\n"
         << "  --dt SECONDS           frame timestep\n"
         << "  --nx N                 cross-section subdivisions per flute pitch\n"
@@ -1438,6 +1446,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         }
         if (option == "--accurate-source-paper-projection") {
             arguments.accurateSourcePaperProjection = true;
+            continue;
+        }
+        if (option == "--strict-source-paper-state-certification") {
+            arguments.strictSourcePaperStateCertification = true;
             continue;
         }
         if (option == "--compensated-source-paper-projection") {
@@ -1598,7 +1610,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
         else if (option == "--prescribed-tool-barrier-scale")
             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
-        else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
+        else if (option == "--newton-iterations") {
+            arguments.newtonIterations = parseUnsigned(value, option);
+            arguments.newtonIterationsExplicit = true;
+        }
         else if (option == "--material-iterations") {
             arguments.localMaterialIterations = parseUnsigned(value, option);
             arguments.localMaterialIterationsExplicit = true;
@@ -1624,8 +1639,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--relax-steps") arguments.relaxSteps = parseUnsigned(value, option);
         else if (option == "--release-steps") arguments.releaseSteps = parseUnsigned(value, option);
         else if (option == "--post-release-relax-steps") arguments.postReleaseRelaxSteps = parseUnsigned(value, option);
-        else if (option == "--fgmres-iterations")
+        else if (option == "--fgmres-iterations") {
             arguments.fgmresIterations = parseUnsigned(value, option);
+            arguments.fgmresIterationsExplicit = true;
+        }
         else if (option == "--fgmres-restart") {
             arguments.fgmresRestart = parseUnsigned(value, option);
             arguments.fgmresRestartExplicit = true;
@@ -1655,14 +1672,18 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                 require(false, "--fgmres-preconditioner expects scalar or "
                                "regional-tangent-diagonal or regional-galerkin or regional-galerkin-block or regional-galerkin-contact or regional-galerkin-schwarz");
         }
-        else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
-        else if (option == "--ny") arguments.ny = parseUnsigned(value, option);
-        else if (option == "--thickness-slices")
+        else if (option == "--nx") { arguments.nxPerPitch = parseUnsigned(value, option); arguments.nxExplicit = true; }
+        else if (option == "--ny") { arguments.ny = parseUnsigned(value, option); arguments.nyExplicit = true; }
+        else if (option == "--thickness-slices") {
             arguments.thicknessSlices = parseUnsigned(value, option);
+            arguments.thicknessSlicesExplicit = true;
+        }
         else if (option == "--bend-angle")
             arguments.bendAngleDegrees = parseDouble(value, option);
-        else if (option == "--dt")
+        else if (option == "--dt") {
             arguments.timestepSeconds = parseDouble(value, option);
+            arguments.timestepExplicit = true;
+        }
         else if (option == "--length-mm")
             arguments.lengthM = parseDouble(value, option) * 1.0e-3;
         else if (option == "--width-mm")
@@ -1711,6 +1732,9 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                  arguments.preset == "literature2009" &&
                  !arguments.withoutMedium),
             "compensated implicit projection requires explicit retained-matrix damage sets for both literature2009 constituents");
+    require(!arguments.strictSourcePaperStateCertification ||
+                arguments.accurateSourcePaperProjection,
+            "strict source-paper state certification requires --accurate-source-paper-projection");
     require(!arguments.accurateSourcePaperProjection ||
                 arguments.compensatedSourcePaperProjection,
             "accurate source-paper projection requires --compensated-source-paper-projection");
@@ -1807,7 +1831,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                            arguments.shippingInsideM[1],
                            arguments.shippingInsideM[2]};
         defaults.boardRecipeId = "literature2009";
-        defaults.subdivisionsPerBand = 16u;
+        defaults.subdivisionsPerBand = arguments.nyExplicit ? arguments.ny : 16u;
 
         std::optional<numi::cardboard::ShippingCouponDocument> coupon;
         if (!arguments.shippingCouponEvidence.empty()) {
@@ -1842,6 +1866,9 @@ Arguments parseArguments(const int argc, const char* argv[]) {
             arguments.shippingPreflightOnly || arguments.compileOnly);
         arguments.shippingDesign = selected.design;
         arguments.boxConfig = selected.design.blankConfig;
+        // The blank is extruded in authored bands, rather than the strip
+        // extrusion below. Keep the exported ny equal to that actual mesh.
+        arguments.ny = arguments.boxConfig.subdivisionsPerBand;
         if (!arguments.shippingImpactorHalfExtentsProvided) {
             arguments.shippingImpactorHalfExtentsM =
                 numi::cardboard::shippingAuthoredNominalImpactorHalfExtents(
@@ -1859,15 +1886,15 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         arguments.bondWidthM = 0.800e-3;
         arguments.upperGlueGapM = 0.030e-3;
         arguments.upperBondWidthM = 0.600e-3;
-        arguments.nxPerPitch = 8u;
-        arguments.thicknessSlices = 1u;
-        arguments.fgmresIterations = 1024u;
+        if (!arguments.nxExplicit) arguments.nxPerPitch = 8u;
+        if (!arguments.thicknessSlicesExplicit) arguments.thicknessSlices = 1u;
+        if (!arguments.fgmresIterationsExplicit) arguments.fgmresIterations = 1024u;
         if (!arguments.fgmresRestartExplicit)
             arguments.fgmresRestart = NM_MIXED_FGMRES_RESTART;
         if (!arguments.localMaterialIterationsExplicit)
             arguments.localMaterialIterations = 16u;
-        arguments.newtonIterations = 14u;
-        arguments.timestepSeconds = 25.0e-6;
+        if (!arguments.newtonIterationsExplicit) arguments.newtonIterations = 14u;
+        if (!arguments.timestepExplicit) arguments.timestepSeconds = 25.0e-6;
         arguments.steps = 96u;
         arguments.holdSteps = 0u;
         arguments.unloadSteps = 0u;
@@ -2109,8 +2136,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.nxPerPitch >= 8u && arguments.nxPerPitch <= 128u &&
                 arguments.nxPerPitch % 2u == 0u,
             "--nx must be an even value in [8, 128]");
-    require(arguments.ny >= 1u && arguments.ny <= 32u,
-            "--ny must lie in [1, 32]");
+    require(arguments.ny >= 1u &&
+                arguments.ny <= (arguments.shippingBox ? 64u : 32u),
+            arguments.shippingBox ? "--ny must lie in [1, 64] for shipping blank bands"
+                                  : "--ny must lie in [1, 32]");
     require(arguments.thicknessSlices >= 1u &&
                 arguments.thicknessSlices <= 4u,
             "--thickness-slices must lie in [1, 4]");
@@ -2822,6 +2851,8 @@ MeshSource buildMesh(const Arguments& arguments,
             mapSource << "generic_compensated_source_paper_projection=1\n";
         if (arguments.accurateSourcePaperProjection)
             mapSource << "generic_bilinear15_accurate_projection=1\n";
+        if (arguments.strictSourcePaperStateCertification)
+            mapSource << "generic_bilinear15_strict_state_certification=1\n";
         for (std::size_t index = 0u; index < result.materialIndices.size(); ++index)
             mapSource << index << ':' << result.materialIndices[index] << '\n';
         const Digest mapDigest = sha256(mapSource.str());
@@ -3948,6 +3979,10 @@ void writeManifest(const std::filesystem::path& path,
            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
            << ", \"accurate_bilinear15_projection\": "
            << (arguments.accurateSourcePaperProjection ? "true" : "false")
+           << ", \"strict_state_certification\": "
+           << (arguments.strictSourcePaperStateCertification ? "true" : "false")
+           << ", \"strict_scaled_correction_threshold\": "
+           << (arguments.strictSourcePaperStateCertification ? "2e-10" : "null")
            << ", \"requested_local_newton_iterations\": "
            << arguments.localMaterialIterations
            << ", \"local_newton_iterations_explicit\": "
@@ -5622,7 +5657,7 @@ void writeShippingPrebuildMemoryScreen(
            << (enrichedBlockPreconditioner ? "true" : "false")
            << ", \"graph_schwarz_conditioning_only\": "
            << (preconditionerSelector == 5u ? "true" : "false")
-           << ", \"graph_schwarz_coupon_node_cap\": 4096"
+           << ", \"graph_schwarz_coupon_node_cap\": 32768"
            << ", \"graph_schwarz_exact_patch_bytes\": null},\n"
            << "  \"reference_pitch_intervals\": "
            << estimate.referencePitchIntervals << ",\n"
@@ -12550,7 +12585,7 @@ std::string couponRunnerString(NSDictionary* dictionary, NSString* key,
     return shippingJsonStringField(dictionary, key, label);
 }
 
-constexpr std::array<std::string_view, 53u> kSource161DiagnosticEnvironmentKeys{
+constexpr std::array<std::string_view, 54u> kSource161DiagnosticEnvironmentKeys{
     "NM_CONTACT_NODE_INCIDENCE_SORT",
     "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR",
     "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
@@ -12575,6 +12610,7 @@ constexpr std::array<std::string_view, 53u> kSource161DiagnosticEnvironmentKeys{
     "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
     "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
     "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
     "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
     "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
@@ -12713,7 +12749,7 @@ couponValidateSourceBoundDiagnosticRunner(
             ? contract[@"capture_prefixes"] : nil);
     require([keysValue isKindOfClass:[NSArray class]] && effective != nil &&
                 prefixes != nil && [(NSArray*)keysValue count] >= 49u &&
-                [(NSArray*)keysValue count] <= 53u,
+                [(NSArray*)keysValue count] <= 54u,
             "source-bound contract registry or maps are missing");
     NSArray* const keys = (NSArray*)keysValue;
     require(effective.count == keys.count,
@@ -12730,7 +12766,18 @@ couponValidateSourceBoundDiagnosticRunner(
     const bool contractHasWarmStartKey = keys.count >= 50u;
     const bool contractHasIncidenceSortKey = keys.count >= 51u;
     const bool contractHasDampingKey = keys.count >= 52u;
-    const bool contractHasStrictInnerKey = keys.count >= 53u;
+    const bool contractHasStrictInnerKey =
+        [keys containsObject:@"NM_FEM_STRICT_INNER_FORCING"];
+    const bool contractHasTrialTraceSlotKey =
+        [keys containsObject:@"NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT"];
+    const NSUInteger expectedRegistryCount = 49u +
+        NSUInteger(contractHasWarmStartKey) +
+        NSUInteger(contractHasIncidenceSortKey) +
+        NSUInteger(contractHasDampingKey) +
+        NSUInteger(contractHasStrictInnerKey) +
+        NSUInteger(contractHasTrialTraceSlotKey);
+    require(keys.count == expectedRegistryCount,
+            "source-bound diagnostic registry omits or adds an unregistered key");
     std::ostringstream runnerNonOutputSettings;
     runnerNonOutputSettings << "numi.cardboard.source161-runner-non-output-settings.v1\n";
     for (NSUInteger keyIndex = 0u; keyIndex < keys.count; ++keyIndex) {
@@ -12757,9 +12804,12 @@ couponValidateSourceBoundDiagnosticRunner(
             if (expectedKey == "NM_FEM_STRICT_INNER_FORCING" &&
                 !contractHasStrictInnerKey)
                 continue;
+            if (expectedKey == "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT" &&
+                !contractHasTrialTraceSlotKey)
+                continue;
             if (expectedIndex == keyIndex) {
                 require(key == expectedKey,
-                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53-key source contract");
+                        "source-bound diagnostic key registry differs from the exact 49/50/51/52/53/54-key source contract");
                 break;
             }
             ++expectedIndex;
@@ -13560,6 +13610,10 @@ int execute(Arguments arguments) {
                     "accurate source-paper projection requires the bilinear15 liner/medium pair");
             liner.genericBilinear15AccurateProjection = true;
             medium.genericBilinear15AccurateProjection = true;
+            if (arguments.strictSourcePaperStateCertification) {
+                liner.genericBilinear15StrictStateCertification = true;
+                medium.genericBilinear15StrictStateCertification = true;
+            }
         }
     }
     if (arguments.linerDamageSet && arguments.mediumDamageSet) {
@@ -13649,12 +13703,17 @@ int execute(Arguments arguments) {
                 "compiled liner/medium descriptors did not preserve the requested compensated 15-state source policy");
     }
     if (arguments.accurateSourcePaperProjection) {
-        for (std::uint32_t index = 0u; index < 2u; ++index)
+        for (std::uint32_t index = 0u; index < 2u; ++index) {
             require((compiled.world.materials[index].flags &
                         NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
                         compiled.world.materials[index].localNewtonIterations ==
                             arguments.localMaterialIterations,
                     "compiled source-paper material omitted scaled-correction policy or the requested effective local budget");
+            if (arguments.strictSourcePaperStateCertification)
+                require((compiled.world.materials[index].flags &
+                            NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u,
+                        "compiled source-paper material omitted strict state certification");
+        }
     }
     if (arguments.shippingBox) {
         require(mesh.shippingImpactorProxyIndex <
@@ -14282,7 +14341,16 @@ int main(const int argc, const char* argv[]) {
                 return 0;
             }
             if (arguments.validateArgumentsOnly) {
-                std::cout << "{\"schema\":\"numi.cardboard.probe-argument-validation.v1\",\"arguments_valid\":true,\"file_inputs_validated\":false,\"mesh_generated\":false,\"native_runtime_created\":false}\n";
+                std::cout << std::setprecision(17)
+                    << "{\"schema\":\"numi.cardboard.probe-argument-validation.v1\",\"arguments_valid\":true,\"file_inputs_validated\":false,\"mesh_generated\":false,\"native_runtime_created\":false,\"resolved\":{"
+                    << "\"shipping_box\":" << (arguments.shippingBox ? "true" : "false")
+                    << ",\"nx_per_pitch\":" << arguments.nxPerPitch
+                    << ",\"ny\":" << arguments.ny
+                    << ",\"thickness_slices\":" << arguments.thicknessSlices
+                    << ",\"box_subdivisions_per_band\":" << arguments.boxConfig.subdivisionsPerBand
+                    << ",\"dt_s\":" << arguments.timestepSeconds
+                    << ",\"newton_iterations\":" << arguments.newtonIterations
+                    << ",\"fgmres_iterations\":" << arguments.fgmresIterations << "}}\n";
                 return 0;
             }
             if (!arguments.shippingCapacityQualificationFile.empty())

@@ -1,0 +1,121 @@
+{
+  "schema": "numi.cardboard.source-overlay-build-seal.v1",
+  "overlay_id": "deformable-contact-trial-alpha-trace-236-002",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-001",
+  "base_source236_overlay_manifest": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-001/source236-overlay.json",
+    "sha256": "a39d7dfeb16edc5ddc4da717aee4b1903e13b9b7228aac31734dd7022336a4da",
+    "patch_sha256": "a56c297db0ded33aaeb5b1fb398ae21897c37c758fc24cfbca4fdaa1d238c1e5"
+  },
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-002",
+  "candidate_source_build": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/source-build.json",
+    "sha256": "38cff4debf3ee25a66bdf534a2b66e25dfb47dfaf91edfe29dfd405ef1f0c380",
+    "source_binding_count": 823,
+    "targets": [
+      "numi-matter-cardboard-full-contact-armijo-check",
+      "numi-matter-cardboard-probe"
+    ],
+    "success": true,
+    "finished_at_utc": "2026-10-16T13:03:30.087064+00:00",
+    "artifacts": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/lib/libmetalrobo.dylib": {
+        "sha256": "fa2d30ada4f00cc414cad09c960af9649f4c51992efe748d599f5f4a23bb314a",
+        "bytes": 8577824
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/numi-matter-cardboard-full-contact-armijo-check": {
+        "sha256": "c9aa86c9c04dd9ffd6c06145ecd7194dfd4894172da6222e2b558e1a4bbf62fd",
+        "bytes": 2020896
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/numi-matter-cardboard-probe": {
+        "sha256": "0bf108dca526e0626ecd2bf95ca2adf734570121ff524830df09a1f05ceae47a",
+        "bytes": 3095496
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/shaders/NumiMatter.metallib": {
+        "sha256": "dddcd6689bffb30acd579c499e0411dc44b84fe43b8fb2bef7007aa0ab9eae66",
+        "bytes": 7058307
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+        "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+        "bytes": 80076
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/shaders/MetalRobo.metallib": {
+        "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+        "bytes": 5300911
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/shaders/MetalRoboHyperPolicy.metallib": {
+        "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+        "bytes": 48434
+      },
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/build-source236-001/shaders/NumiNeuron.metallib": {
+        "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+        "bytes": 66974
+      }
+    }
+  },
+  "prebuild_manifest": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/prebuild-manifest.json",
+    "sha256": "2e9cfa40b11ee3bcef6e2f7593049d55f349d48a9d90053a3aee319538fd40f9"
+  },
+  "patch": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/source-overlay.patch",
+    "sha256": "197a603499a3ee3ba023832a5b6ae2e876931673a36e8bd7327dcbb918bceca9"
+  },
+  "source_delta": [
+    {
+      "path": "matter/include/numi/matter/deformable_limit_trace_json.hpp",
+      "base_sha256": null,
+      "candidate_sha256": "5de552386011745b8c42c93a23d89b29ee614a38eec69288a259898c23b604e1"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "bd9fd84ae7a1d13246dff90ed245124953ed0742996f72285f1e5d78442db9f1",
+      "candidate_sha256": "82f321ec33d119fd00c3e86a23196dcfb2cf5037f239288a766a6b9b8f69d7e5"
+    },
+    {
+      "path": "matter/tools/test_deformable_limit_trace_serializer.py",
+      "base_sha256": null,
+      "candidate_sha256": "8e068c09ec576fb3f1d6a93676af5a28f3429d3d8b06e7b70665a7741cd290fe"
+    }
+  ],
+  "tests": [
+    {
+      "name": "serializer_roundtrip",
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-002/matter/tools/test_deformable_limit_trace_serializer.py"
+      ],
+      "exit_code": 0,
+      "log": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/serializer-roundtrip.log",
+      "log_sha256": "2d84bc448bf91fc8daffe6d3e6801ed8e2933834d8d4e911786a2c1d5f46f11f"
+    },
+    {
+      "name": "solver_environment_contract",
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-002/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "log": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-002/solver-environment-contract.log",
+      "log_sha256": "e33926eb17e3d946086211c294c6dcdba947b2d2cc14b996372099d5de1bf8a5"
+    }
+  ],
+  "test_only_compiler": {
+    "compiler_found": true,
+    "result": "C++ production helper executed; both generated JSON lines parsed"
+  },
+  "retained_malformed_native584_evidence": {
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584",
+    "stderr_sha256": "7c09e634f15d8dd96e7534388ceeef70fd559faa5a5e805505949cb9ba372984",
+    "stderr_bytes": 108842,
+    "malformed_trace_records": 27,
+    "well_formed_trace_records": 37,
+    "total_trace_records": 64,
+    "failure": "JSON parser reports missing comma at first field after barrier array; malformed records retained unchanged."
+  },
+  "limits": [
+    "No native dispatch was performed by this overlay build.",
+    "Native584 malformed output was not rewritten.",
+    "This repairs JSON serialization only; it establishes no physical or solver qualification."
+  ]
+}

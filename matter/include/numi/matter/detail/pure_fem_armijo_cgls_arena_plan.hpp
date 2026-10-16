@@ -6,7 +6,7 @@
 #include <limits>
 
 namespace numi::matter::detail {
-inline constexpr std::uint64_t kFEMPureArmijoMaximumScratchBytes=16ull*1024ull*1024ull;
+inline constexpr std::uint64_t kFEMPureArmijoMaximumScratchBytes=64ull*1024ull*1024ull;
 inline constexpr std::uint64_t kFEMPureArmijoAccountedResidentCeiling=16ull*1024ull*1024ull*1024ull;
 inline constexpr std::size_t kFEMPureArmijoMaximumArenaBuffers=25u;
 struct FEMPureArmijoArenaShape {
@@ -49,8 +49,8 @@ struct FEMPureArmijoArenaPlan {
 [[nodiscard]] inline FEMPureArmijoArenaPlan planFEMPureArmijoCGLSArena(const FEMPureArmijoArenaShape& s) noexcept {
  FEMPureArmijoArenaPlan p{};
  if(!s.environmentCount||s.environmentCount>4u){p.failure=FEMPureArmijoArenaFailure::environment_count;return p;}
- if(!s.femNodeCount||s.femNodeCount>8192u){p.failure=FEMPureArmijoArenaFailure::fem_node_count;return p;}
- if(!s.tetrahedronCount||s.tetrahedronCount>32768u){p.failure=FEMPureArmijoArenaFailure::tetrahedron_count;return p;}
+ if(!s.femNodeCount||s.femNodeCount>32768u){p.failure=FEMPureArmijoArenaFailure::fem_node_count;return p;}
+ if(!s.tetrahedronCount||s.tetrahedronCount>131072u){p.failure=FEMPureArmijoArenaFailure::tetrahedron_count;return p;}
  if(!s.oneStaticExplicitFEM||s.unsupportedMatterFlags||s.contactPairCount||s.cohesiveFaceCount||
     s.rigidGeneralizedCapacity||s.rigidQCapacity||s.fieldBoundaryCount||s.punctureChannelCount||s.mpmActiveNodeCapacity||s.particleCount||s.mpmGridCount||s.mpmBlockCount){
   p.failure=FEMPureArmijoArenaFailure::unsupported_world;return p;}
@@ -106,8 +106,8 @@ struct FEMPureArmijoArenaPlan {
  switch(f){
  case FEMPureArmijoArenaFailure::none:return nullptr;
  case FEMPureArmijoArenaFailure::environment_count:return "pure_fem_armijo_environment_cap_4";
- case FEMPureArmijoArenaFailure::fem_node_count:return "pure_fem_armijo_node_cap_8192";
- case FEMPureArmijoArenaFailure::tetrahedron_count:return "pure_fem_armijo_tetrahedron_cap_32768";
+ case FEMPureArmijoArenaFailure::fem_node_count:return "pure_fem_armijo_node_cap_32768";
+ case FEMPureArmijoArenaFailure::tetrahedron_count:return "pure_fem_armijo_tetrahedron_cap_131072";
  case FEMPureArmijoArenaFailure::unsupported_world:return "pure_fem_armijo_requires_contact_free_static_explicit_fem";
  case FEMPureArmijoArenaFailure::unknown_count:return "pure_fem_armijo_unknown_count_mismatch_or_uint32_overflow";
  case FEMPureArmijoArenaFailure::cgls_layout:return "pure_fem_armijo_cgls_requires_cauchy_and_at_most_two_environments";
@@ -115,7 +115,7 @@ struct FEMPureArmijoArenaPlan {
  case FEMPureArmijoArenaFailure::arithmetic_overflow:return "pure_fem_armijo_arena_checked_arithmetic_overflow";
  case FEMPureArmijoArenaFailure::dispatch_index_overflow:return "pure_fem_armijo_arena_exceeds_uint32_dispatch_range";
  case FEMPureArmijoArenaFailure::per_buffer_limit:return "pure_fem_armijo_arena_exceeds_device_max_buffer_length";
- case FEMPureArmijoArenaFailure::scratch_limit:return "pure_fem_armijo_cgls_scratch_exceeds_16_mib_cap";
+ case FEMPureArmijoArenaFailure::scratch_limit:return "pure_fem_armijo_cgls_scratch_exceeds_64_mib_cap";
  case FEMPureArmijoArenaFailure::accounted_resident_limit:return "pure_fem_armijo_accounted_runtime_resident_exceeds_16_gib";
  }
  return "pure_fem_armijo_unknown_arena_failure";

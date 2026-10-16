@@ -1,0 +1,7 @@
+{
+  "files_sha256": {
+    "report.json": "df913886d63f432b8d62c6a4a46e479fafa8924e5bd1fd87a5464c42f6d873ce",
+    "run.py": "cf10a0ecff108af9df6090485024534f99c3b945c1d0d7ba329a5d69482fc387"
+  },
+  "schema": "numi.cardboard.native555-mp-tangent-localization-files.v1"
+}

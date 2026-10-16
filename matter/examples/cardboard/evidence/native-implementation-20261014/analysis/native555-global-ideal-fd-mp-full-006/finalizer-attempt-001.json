@@ -1,0 +1,7 @@
+{
+  "arrays_sha256": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+  "failure": "IndexError while indexing paper-only tangent array with glue tet ids; corrected in finalizer 002.",
+  "finalizer_sha256": "9ac4d4cbfdf9c7f76506e1df42cfd83e539ea1df449d378f7e04eb1a82d02ae8",
+  "numerical replay rerun": false,
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-full-finalizer-attempt.v1"
+}\n

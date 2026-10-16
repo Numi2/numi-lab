@@ -1,0 +1,8 @@
+{
+  "complete": true,
+  "report_sha256": "9fa50e1b6c1dc5ab10a19a06ef7df347a500aa8a911a66b51da3f01afb613bb5",
+  "rows": 6,
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-fp64-error-decomposition.receipt.v1",
+  "script_sha256": "776c709a425837fcacd77eb4f39801ad7594574d2345ae9393ccf2d07f85e679",
+  "source_arrays_sha256": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.analysis-manifest.v1",
+  "files": {
+    "report.json": "01717d0a6b16a0f76278090e2424f93fdb871641782867363db628fb07365c37"
+  },
+  "inputs_sha256": {
+    "capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "mp_arrays": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+    "fp64_arrays": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "legacy_arrays": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "native_vectors": "df17ef52e1e90d8e1dd3b6313a14ad503aa7a3414d67273daccc0baa0f2a7eb7",
+    "agent_erratum": "f013f321eee3b011135f9e4348923566be274d4c5b3cd235fad073ea97e2f25b",
+    "parser": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "reference": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "compensated_reference": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "geometry_parser": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+  }
+}

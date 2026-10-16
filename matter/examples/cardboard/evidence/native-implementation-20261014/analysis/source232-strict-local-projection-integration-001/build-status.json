@@ -1,0 +1,170 @@
+{
+  "build_command": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001",
+    "--parallel",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-coupon-resume-check",
+    "numi-matter-cardboard-coupled-free-box-operator-check",
+    "numi-matter-cardboard-free-box-proxy-admission-check",
+    "numi-matter-cardboard-full-contact-armijo-check",
+    "numi-matter-fgmres-true-residual-native-check",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "numi-matter-cardboard-bilinear15-projection-policy-check"
+  ],
+  "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001",
+  "build_exit": 0,
+  "build_topology_note": "Fresh CMake build of source232 using the source-root topology from source231, separate build directory. Built source231 integration targets plus source220 capture diagnostic and projection-policy checker. CPU CTest ran projection-policy and coupon-resume.",
+  "configure_command": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001",
+    "-DBUILD_TESTING=ON",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DNUMI_BRAIN_ROOT=/Users/n/numi-brain"
+  ],
+  "configure_exit": 0,
+  "cpu_admission_command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+    "--cpu-source547-strict-projection",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+    "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+  ],
+  "cpu_admission_exit": 0,
+  "ctest_command": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001",
+    "-R",
+    "matter.compiler.cardboard_(bilinear15_projection_policy|coupon_resume)",
+    "--output-on-failure"
+  ],
+  "ctest_exit": 0,
+  "elapsed_seconds": 0.379,
+  "endpoint_test_command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source232-strict-local-projection-integration-001/test_endpoint_binding.py"
+  ],
+  "endpoint_test_exit": 0,
+  "no_native_execution": true,
+  "schema": "numi.cardboard.source232-build.v1",
+  "source_file_count": 830,
+  "source_frozen_source_json_sha256": "dce16c539dbc01a1dad5be25b4c4f6b31594f9f7b0704415d175cc73345981f9",
+  "source_map_reverification": {
+    "changed_paths": [
+      "matter/include/numi/matter/matter.hpp",
+      "matter/include/numi/matter/shared.h",
+      "matter/src/constitutive_impl.cpp",
+      "matter/src/metal/common.metalinc",
+      "matter/src/validation_impl.cpp",
+      "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+      "matter/tools/cardboard_probe.mm"
+    ],
+    "changed_vs_source231": 8,
+    "configure_support_files": 1034,
+    "configure_support_identical_to_source231": true,
+    "configure_support_mismatches": 0,
+    "declared_source_files": 830,
+    "preserved_source231_paths": 822,
+    "source_mismatches": 0,
+    "untracked_files": 0
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-upstream-232",
+  "target_artifacts": {
+    "numi-matter-cardboard-bilinear15-capture-diagnostic-check": {
+      "bytes": 835128,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+      "sha256": "5ddebcbbe2aac9a782f1788e995c35e3794690da4c3fcb139156433c2b83ed0a"
+    },
+    "numi-matter-cardboard-bilinear15-projection-policy-check": {
+      "bytes": 907448,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-bilinear15-projection-policy-check",
+      "sha256": "2378197255a1b4e6ca55dfb457736019ab114a3d4a0260adb0ec6e25ec0f6bfc"
+    },
+    "numi-matter-cardboard-coupled-free-box-operator-check": {
+      "bytes": 702936,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-coupled-free-box-operator-check",
+      "sha256": "1a483357b06cdcaf6a6be7bc57b3b1f59c01555209817867c3bc9fbbb5c9f498"
+    },
+    "numi-matter-cardboard-coupon-resume-check": {
+      "bytes": 224952,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-coupon-resume-check",
+      "sha256": "84dee8031c188e5d0d0fc8973c35af06c67d88790dc699bc21c6a9063f8f641e"
+    },
+    "numi-matter-cardboard-free-box-proxy-admission-check": {
+      "bytes": 54248,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-free-box-proxy-admission-check",
+      "sha256": "87a8f0e5249a607edc1542001bfb9f208885f6a122705f763269f92372666fdb"
+    },
+    "numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 1967392,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "4046466097b5830cb0f217a712713fe9cd329edb86b154330f73d3bfdfd0c571"
+    },
+    "numi-matter-cardboard-probe": {
+      "bytes": 3098552,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-cardboard-probe",
+      "sha256": "d02d8b8d325b9d3c20a4084d7b831eb5a2241146356f8f38e8024cac75bd6b54"
+    },
+    "numi-matter-fem-cgls-arena-8192-check": {
+      "bytes": 115880,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-fem-cgls-arena-8192-check",
+      "sha256": "25e6e4dbc9eb280cb3410c56069230f368f44668c47b4522188c4defcb515240"
+    },
+    "numi-matter-fgmres-true-residual-native-check": {
+      "bytes": 92352,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/numi-matter-fgmres-true-residual-native-check",
+      "sha256": "7a54aac783a7d58d3e4b05fb1e924a8354a64a0fb8506fa36af43cc33314a48d"
+    },
+    "shader:FEMPureCGLSArena8192Check.metallib": {
+      "bytes": 1974201,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/shaders/FEMPureCGLSArena8192Check.metallib",
+      "sha256": "53c2ec8935160bfc1747f0c54c13c24418cafed8b84249948828fc963f069b67"
+    },
+    "shader:NumiMatter.metallib": {
+      "bytes": 7050955,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/shaders/NumiMatter.metallib",
+      "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+    },
+    "shader:NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "shader:cardboard_bilinear15_capture_diagnostic.metallib": {
+      "bytes": 939118,
+      "exists": true,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001/matter/shaders/cardboard_bilinear15_capture_diagnostic.metallib",
+      "sha256": "ce7b2e8af1a9fe1c528ffda664c17758f3870772f67600dfbc4890f076f8a61b"
+    }
+  },
+  "toolchain": {
+    "BUILD_TESTING": true,
+    "build_parallelism": 2,
+    "build_type": "Release",
+    "cmake": "cmake version 4.4.1",
+    "cxx": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "macos_sdk": "/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk"
+  }
+}

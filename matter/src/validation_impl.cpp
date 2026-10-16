@@ -40,7 +40,8 @@ constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
-    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -1094,6 +1095,8 @@ private:
                 (material.flags & NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)!=0u;
             const bool genericBilinear15AccurateProjection =
                 (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u;
+            const bool genericBilinear15StrictStateCertification =
+                (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)!=0u;
             const bool finiteElasticStarchArithmetic =
                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
                 (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
@@ -1130,6 +1133,11 @@ private:
                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
                 return failIndexed("material",index,
                     "generic compensated projection requires a generic implicit bytecode layout and cannot use Hill-only policies");
+            }
+            if (genericBilinear15StrictStateCertification &&
+                !genericBilinear15AccurateProjection) {
+                return failIndexed("material",index,
+                    "strict bilinear-15 state certification requires accurate bilinear-15 projection");
             }
             if (genericBilinear15AccurateProjection &&
                 (!genericCompensatedProjection || material.stateCount!=15u ||

@@ -46,9 +46,12 @@ void groups(id<MTLCommandQueue>q,id<MTLComputePipelineState>p,U n,const Bind&f){
  [e endEncoding];[c commit];[c waitUntilCompleted];need(c.status==MTLCommandBufferStatusCompleted,"Metal group command failed");
 }
 }
-int main(){@autoreleasepool{try{
+int main(int argc,const char* argv[]){@autoreleasepool{try{
  using namespace numi::matter::detail;
- constexpr U E=2,N=8192,T=32768,UCount=2*E*N;
+ need(argc==1||(argc==2&&(std::string(argv[1])=="--refined-coupon"||std::string(argv[1])=="--maximum-coupon-arena")),"usage: checker [--refined-coupon|--maximum-coupon-arena]");
+ const bool refined=argc==2&&std::string(argv[1])=="--refined-coupon";
+ const bool maximum=argc==2&&std::string(argv[1])=="--maximum-coupon-arena";
+ const U E=2,N=refined?20682u:(maximum?32768u:8192u),T=refined?89088u:(maximum?131072u:32768u),UCount=2*E*N;
  FEMPureArmijoArenaShape shape{};shape.environmentCount=E;shape.femNodeCount=N;shape.tetrahedronCount=T;
  shape.unknownCount=UCount;shape.maxBufferLength=512ull*1024ull*1024ull;shape.oneStaticExplicitFEM=true;
  shape.includeCauchy=true;shape.includeCGLS=true;shape.includeRightScale=true;
@@ -113,6 +116,6 @@ int main(){@autoreleasepool{try{
  auto*sol=static_cast<const F4*>(physical.contents);auto*rhsPtr=static_cast<const F4*>(rhs.contents);
  for(U i=0;i<UCount;++i){if(i<E*N)need(std::memcmp(sol+i,rhsPtr+i,sizeof(F4))==0,"identity correction differs from b");
   else need(sol[i].x==0&&sol[i].y==0&&sol[i].z==0,"field/quiet output is nonzero");}
- std::cout<<"pure_fem_cgls_arena_8192_native_check=PASS checks="<<checks<<" planned_bytes="<<plan.scratchBytes<<" buffers="<<plan.bufferCount<<" active_environments=1 quiet_environments=1 physical_transactions=0\n";
+ std::cout<<"pure_fem_cgls_arena_"<<N<<"_native_check=PASS checks="<<checks<<" planned_bytes="<<plan.scratchBytes<<" buffers="<<plan.bufferCount<<" active_environments=1 quiet_environments=1 physical_transactions=0\n";
  return 0;
  }catch(const std::exception&e){std::cerr<<"pure_fem_cgls_arena_8192_native_check=FAIL reason="<<e.what()<<'\n';return 1;}}}

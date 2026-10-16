@@ -1,0 +1,18 @@
+{
+  "files_sha256": {
+    "receipt.json": "803c8fa3626dc8ea8c544e6141b26afa8c27dab6b05a266368869143d38169e4",
+    "report.json": "9fa50e1b6c1dc5ab10a19a06ef7df347a500aa8a911a66b51da3f01afb613bb5"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-all23-corrected-hill-highprecision-013-001/implementation/audit222_corrected.py": "f103fa58001c092197d46e7b2365aa2fb708abf7610c2fb6b87bafbd698d606e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/arrays.npz": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-runner-001.py": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-fp64-error-decomposition.files.v1",
+  "script_sha256": "776c709a425837fcacd77eb4f39801ad7594574d2345ae9393ccf2d07f85e679"
+}

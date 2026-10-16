@@ -1,0 +1,263 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -46,9 +46,11 @@
+ #include <memory>
+ #include <mutex>
+ #include <numeric>
++#include <new>
+ #include <set>
+ #include <sstream>
+ #include <string>
++#include <string_view>
+ #include <unordered_map>
+ #include <utility>
+ #include <vector>
+@@ -9094,19 +9096,87 @@
+                          offset:0u atIndex:index];
+         };
+ 
+-        std::uint32_t firstFailureDispatchOrdinal = 0u;
+-        std::vector<std::string> firstFailureDispatchNames;
++        // Keep only a bounded ordinal-to-interned-name map. The observer must
++        // continue even if attribution storage fills: a status record and an
++        // explicit incomplete-map flag are more useful than silently losing
++        // the first global failure.
++        constexpr std::size_t kMaximumFirstFailureDispatchMapEntries = 1u << 20u;
++        constexpr std::size_t kMaximumFirstFailurePipelineNames = 4096u;
++        constexpr std::uint16_t kUnmappedFirstFailurePipeline =
++            std::numeric_limits<std::uint16_t>::max();
++        struct FirstFailurePipelineNameHash {
++            using is_transparent = void;
++            std::size_t operator()(std::string_view value) const noexcept {
++                return std::hash<std::string_view>{}(value);
++            }
++        };
++        struct FirstFailurePipelineNameEqual {
++            using is_transparent = void;
++            bool operator()(std::string_view left,
++                            std::string_view right) const noexcept {
++                return left == right;
++            }
++        };
++        std::uint64_t firstFailureDispatchOrdinal = 0u;
++        std::vector<std::uint16_t> firstFailureDispatchPipelineIDs;
++        std::vector<std::string> firstFailurePipelineNames;
++        std::unordered_map<std::string, std::uint16_t,
++            FirstFailurePipelineNameHash, FirstFailurePipelineNameEqual>
++            firstFailurePipelineIDs;
+         bool firstFailureDispatchMapOverflow = false;
+-        if (firstFailureSelected) firstFailureDispatchNames.reserve(256u);
++        if (firstFailureSelected) {
++            try {
++                firstFailureDispatchPipelineIDs.reserve(
++                    kMaximumFirstFailureDispatchMapEntries);
++                firstFailurePipelineNames.reserve(
++                    kMaximumFirstFailurePipelineNames);
++                firstFailurePipelineIDs.reserve(
++                    kMaximumFirstFailurePipelineNames);
++            } catch (const std::bad_alloc&) {
++                diagnostics.message =
++                    "first-failure bounded dispatch-name map allocation failed";
++                return diagnostics;
++            }
++        }
+         const auto observeFirstFailureAfterDispatch = [&](const char* name) {
+             if (!firstFailureSelected) return;
+-            constexpr std::size_t kMaximumDispatchNames = 32768u;
+-            if (firstFailureDispatchNames.size() >= kMaximumDispatchNames) {
++            const std::uint64_t ordinal64 = firstFailureDispatchOrdinal++;
++            const std::uint32_t ordinal =
++                ordinal64 <= std::numeric_limits<std::uint32_t>::max()
++                    ? static_cast<std::uint32_t>(ordinal64)
++                    : std::numeric_limits<std::uint32_t>::max();
++            std::uint16_t pipelineID = kUnmappedFirstFailurePipeline;
++            if (ordinal64 <= std::numeric_limits<std::uint32_t>::max() &&
++                firstFailureDispatchPipelineIDs.size() <
++                    kMaximumFirstFailureDispatchMapEntries) {
++                try {
++                    const auto found = firstFailurePipelineIDs.find(
++                        std::string_view(name));
++                    if (found != firstFailurePipelineIDs.end()) {
++                        pipelineID = found->second;
++                    } else if (firstFailurePipelineNames.size() <
++                               kMaximumFirstFailurePipelineNames) {
++                        pipelineID = static_cast<std::uint16_t>(
++                            firstFailurePipelineNames.size());
++                        firstFailurePipelineNames.emplace_back(name);
++                        firstFailurePipelineIDs.emplace(
++                            firstFailurePipelineNames.back(), pipelineID);
++                    }
++                    firstFailureDispatchPipelineIDs.push_back(pipelineID);
++                } catch (const std::bad_alloc&) {
++                    firstFailureDispatchMapOverflow = true;
++                    if (firstFailureDispatchPipelineIDs.size() <
++                        kMaximumFirstFailureDispatchMapEntries) {
++                        firstFailureDispatchPipelineIDs.push_back(
++                            kUnmappedFirstFailurePipeline);
++                    }
++                }
++            } else {
+                 firstFailureDispatchMapOverflow = true;
+-                return;
+             }
+-            const std::uint32_t ordinal = firstFailureDispatchOrdinal;
+-            firstFailureDispatchNames.emplace_back(name);
++            if (pipelineID == kUnmappedFirstFailurePipeline)
++                firstFailureDispatchMapOverflow = true;
++
+             nm_uint4 context{};
+             context.x = ordinal;
+             context.y = static_cast<std::uint32_t>(request.phase);
+@@ -9126,7 +9196,6 @@
+                 state.dispatch.environmentCount, 1u, 1u)
+                 threadsPerThreadgroup:MTLSizeMake(observerWidth, 1u, 1u)];
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-            ++firstFailureDispatchOrdinal;
+         };
+         const auto dispatchThreads = [&](
+             const char* name,
+@@ -27280,17 +27349,42 @@
+                 state.executionFingerprint;
+             const std::uint64_t capturedDeviceRegistry = state.device.registryID;
+             const std::string capturedDeviceName = nsString(state.device.name);
+-            const std::vector<std::string> capturedDispatchNames =
+-                firstFailureDispatchNames;
++            const std::vector<std::uint16_t> capturedDispatchPipelineIDs =
++                firstFailureDispatchPipelineIDs;
++            const std::vector<std::string> capturedPipelineNames =
++                firstFailurePipelineNames;
+             const bool capturedDispatchMapOverflow =
+                 firstFailureDispatchMapOverflow;
++            const std::uint64_t capturedDispatchCount =
++                firstFailureDispatchOrdinal;
++            bool capturedDispatchMapComplete =
++                !capturedDispatchMapOverflow &&
++                capturedDispatchPipelineIDs.size() == capturedDispatchCount;
++            std::uint64_t capturedMappedDispatchCount = 0u;
++            for (const std::uint16_t pipelineID : capturedDispatchPipelineIDs) {
++                if (pipelineID == kUnmappedFirstFailurePipeline ||
++                    pipelineID >= capturedPipelineNames.size()) {
++                    capturedDispatchMapComplete = false;
++                } else {
++                    ++capturedMappedDispatchCount;
++                }
++            }
+             [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+-                if (completed.status != MTLCommandBufferStatusCompleted ||
+-                    captureBuffer.contents == nullptr ||
+-                    capturedDispatchMapOverflow) {
++                const bool commandCompleted =
++                    completed.status == MTLCommandBufferStatusCompleted;
++                const bool captureBufferAvailable =
++                    captureBuffer.contents != nullptr;
++                if (!commandCompleted || !captureBufferAvailable) {
+                     std::fprintf(stderr,
+-                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"command_not_completed_or_dispatch_map_incomplete\"}\n",
+-                        capturedRoot);
++                        "matter_first_failure_capture_error={\"schema\":2,\"root\":%u,\"command_completed\":%s,\"command_status\":%u,\"capture_buffer_available\":%s,\"dispatch_count\":%llu,\"dispatch_map_complete\":%s,\"dispatch_map_overflow\":%s,\"mapped_dispatch_count\":%zu}\n",
++                        capturedRoot,
++                        commandCompleted ? "true" : "false",
++                        static_cast<unsigned>(completed.status),
++                        captureBufferAvailable ? "true" : "false",
++                        static_cast<unsigned long long>(capturedDispatchCount),
++                        capturedDispatchMapComplete ? "true" : "false",
++                        capturedDispatchMapOverflow ? "true" : "false",
++                        capturedDispatchPipelineIDs.size());
+                     return;
+                 }
+                 const void* payload = captureBuffer.contents;
+@@ -27322,9 +27416,26 @@
+                 for (std::uint64_t e = 0u; e < capturedEnvironments; ++e)
+                     present += records[e].capture.x != 0u ? 1u : 0u;
+                 std::ostringstream json;
+-                json << "{\"schema\":\"numi.matter.first_global_failure_after_dispatch.v1\""
++                json << "{\"schema\":\"numi.matter.first_global_failure_after_dispatch.v2\""
+                     << ",\"capture_point\":\"after_each_production_dispatch_before_next_dispatch\""
+                     << ",\"semantics\":\"first_nonzero_global_status_observed; private_transient_failures_not_captured\""
++                    << ",\"command_completed\":true"
++                    << ",\"dispatch_count\":" << capturedDispatchCount
++                    << ",\"ordinal_map_entries\":" << capturedDispatchPipelineIDs.size()
++                    << ",\"mapped_dispatch_count\":" << capturedMappedDispatchCount
++                    << ",\"dispatch_map_complete\":"
++                    << (capturedDispatchMapComplete ? "true" : "false")
++                    << ",\"dispatch_map_overflow\":"
++                    << (capturedDispatchMapOverflow ? "true" : "false")
++                    << ",\"dispatch_map_capacity\":"
++                    << kMaximumFirstFailureDispatchMapEntries
++                    << ",\"pipeline_name_table\":[";
++                for (std::size_t nameIndex = 0u;
++                     nameIndex < capturedPipelineNames.size(); ++nameIndex) {
++                    if (nameIndex != 0u) json << ',';
++                    json << jsonQuoted(capturedPipelineNames[nameIndex]);
++                }
++                json << "]"
+                     << ",\"control_step\":" << capturedRoot
+                     << ",\"physics_substep\":" << capturedSubstep
+                     << ",\"phase\":" << capturedPhase
+@@ -27344,8 +27455,8 @@
+                     << ",\"device\":{\"name\":"
+                     << jsonQuoted(capturedDeviceName)
+                     << ",\"registry_id\":" << capturedDeviceRegistry << '}'
+-                    << ",\"dispatch_name_map_count\":"
+-                    << capturedDispatchNames.size()
++                    << ",\"pipeline_name_table_count\":"
++                    << capturedPipelineNames.size()
+                     << ",\"records\":[";
+                 bool first = true;
+                 for (std::uint64_t e = 0u; e < capturedEnvironments; ++e) {
+@@ -27353,13 +27464,35 @@
+                     if (!r.capture.x) continue;
+                     if (!first) json << ',';
+                     first = false;
+-                    const std::string pipeline =
+-                        r.capture.y < capturedDispatchNames.size()
+-                            ? capturedDispatchNames[r.capture.y]
+-                            : std::string("unmapped_dispatch_ordinal");
++                    const bool ordinalMapped =
++                        r.capture.y < capturedDispatchPipelineIDs.size() &&
++                        capturedDispatchPipelineIDs[r.capture.y] !=
++                            kUnmappedFirstFailurePipeline &&
++                        capturedDispatchPipelineIDs[r.capture.y] <
++                            capturedPipelineNames.size();
++                    const std::uint16_t pipelineID = ordinalMapped
++                        ? capturedDispatchPipelineIDs[r.capture.y]
++                        : kUnmappedFirstFailurePipeline;
++                    const std::string pipeline = ordinalMapped
++                        ? capturedPipelineNames[pipelineID] : std::string();
++                    const bool ordinalExact =
++                        !(capturedDispatchCount >
++                              std::numeric_limits<std::uint32_t>::max() &&
++                          r.capture.y ==
++                              std::numeric_limits<std::uint32_t>::max());
+                     json << "{\"environment\":" << e
+                         << ",\"dispatch_ordinal\":" << r.capture.y
+-                        << ",\"pipeline\":" << jsonQuoted(pipeline)
++                        << ",\"dispatch_ordinal_exact\":"
++                        << (ordinalExact ? "true" : "false")
++                        << ",\"pipeline_mapping_available\":"
++                        << (ordinalMapped ? "true" : "false")
++                        << ",\"pipeline_id\":";
++                    if (ordinalMapped) json << pipelineID;
++                    else json << "null";
++                    json << ",\"pipeline\":";
++                    if (ordinalMapped) json << jsonQuoted(pipeline);
++                    else json << "null";
++                    json
+                         << ",\"status_code\":" << r.status.code
+                         << ",\"object_index\":" << r.status.objectIndex
+                         << ",\"failing_index\":" << r.status.failingIndex
+@@ -27407,8 +27540,12 @@
+                     return;
+                 }
+                 std::fprintf(stderr,
+-                    "matter_first_failure_capture_complete={\"schema\":1,\"root\":%u,\"records_present\":%u,\"manifest\":%s}\n",
+-                    capturedRoot, present, jsonQuoted(manifestPath).c_str());
++                    "matter_first_failure_capture_complete={\"schema\":2,\"root\":%u,\"records_present\":%u,\"command_completed\":true,\"dispatch_count\":%llu,\"dispatch_map_complete\":%s,\"dispatch_map_overflow\":%s,\"manifest\":%s}\n",
++                    capturedRoot, present,
++                    static_cast<unsigned long long>(capturedDispatchCount),
++                    capturedDispatchMapComplete ? "true" : "false",
++                    capturedDispatchMapOverflow ? "true" : "false",
++                    jsonQuoted(manifestPath).c_str());
+             }];
+         }
+         if (firstEncodeForCommandBuffer) {

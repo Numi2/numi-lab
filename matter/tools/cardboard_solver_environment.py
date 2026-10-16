@@ -51,6 +51,7 @@ NATIVE_ENV_KEYS = tuple(sorted({
     "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
     "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
     "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
     "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
     "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
     "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH",
@@ -95,7 +96,9 @@ MAX_DIAGNOSTIC_CAPTURE_TOTAL_BYTES = 128 * 1024 * 1024
 UINT32_MAX = (1 << 32) - 1
 # These `_ROOT` controls select a control-step index; they are not filesystem
 # roots. The Armijo roots additionally accept the source-defined `all` token.
-NUMERIC_SELECTOR_KEYS = frozenset(key for key in NATIVE_ENV_KEYS if key.endswith("_ROOT"))
+NUMERIC_SELECTOR_KEYS = frozenset(
+    {key for key in NATIVE_ENV_KEYS if key.endswith("_ROOT")} |
+    {"NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT"})
 ALL_CONTROL_SELECTOR_KEYS = frozenset({
     "NM_FEM_TRUE_RESIDUAL_ROOT",
     "NM_FEM_RESIDUAL_ARMIJO_ROOT",
@@ -157,7 +160,9 @@ def _validate_environment_value(key: str, value: str) -> None:
         if value == "all" and key in ALL_CONTROL_SELECTOR_KEYS:
             return
         if not re.fullmatch(r"[0-9]+", value):
-            raise ValueError(f"{key} is a numeric control-step selector, not a filesystem path")
+            raise ValueError(f"{key} is a numeric control-step selector/index, not a filesystem path")
+        if key == "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT" and len(value) > 1 and value[0] == "0":
+            raise ValueError(f"{key} must use canonical decimal spelling")
         if int(value, 10) > UINT32_MAX:
             raise ValueError(f"{key} exceeds the native uint32 control-step range")
 

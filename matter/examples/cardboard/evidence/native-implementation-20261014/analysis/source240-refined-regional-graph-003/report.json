@@ -1,0 +1,93 @@
+{
+  "schema": "numi.cardboard.source240-refined-regional-graph.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003",
+  "source_frozen_sha256": "bcb37b35391f2dc9ab04492cba44306825540028edb354b219493412ad638644",
+  "source_build_sha256": "04087ebb2983861913b5dfb1c985f314f62a515281a8bcd00e4ca1f6fab1f92d",
+  "commands": [
+    {
+      "argv": [
+        "clang++",
+        "-O2",
+        "-std=c++20",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/src",
+        "-I/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/include",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_refined_graph_layout_check.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source240-refined-regional-graph-003/layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source240-refined-regional-graph-003/layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-003",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "--target",
+        "numi-matter-regional-graph-schwarz-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-003/matter/numi-matter-regional-graph-schwarz-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-003/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "native_preconditioner_qualification_pending": true,
+  "at_utc": "2026-10-16T12:48:45.778577+00:00"
+}

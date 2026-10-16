@@ -1,0 +1,8 @@
+{
+  "attempt": "input binding failed before numerical audit",
+  "error": "source206 cached-operator parser environment registry predates source221 diagnostic contract; source221 environment validator selected explicitly for parsing, with source206 independent material equations retained",
+  "run002_sha256": "e75a0f7581b6b4f8aed21410b4248f3a07cdb40ff5488ac406bf465fe68c1dd0",
+  "run003_sha256": "0e0fb3ee19cf486ac23f95d06fa0e6d444e7e80b472f845ac18f267f6e44f1a9",
+  "capture_unchanged": true,
+  "native_transactions": 0
+}

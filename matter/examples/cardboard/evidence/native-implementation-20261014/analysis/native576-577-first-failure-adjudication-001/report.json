@@ -1,0 +1,271 @@
+{
+  "first_failure": {
+    "accepted_snapshot_sha256": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022",
+    "binary_capture_u32": [
+      1,
+      53258,
+      0,
+      1199
+    ],
+    "binary_status_f32_diagnostics": [
+      3.0863211292198045e-12,
+      -7.312070362446108e-15,
+      1.0,
+      0.0
+    ],
+    "binary_status_u32": [
+      6,
+      0,
+      0,
+      32,
+      0,
+      64,
+      0,
+      0
+    ],
+    "command_completed": true,
+    "device_program_fingerprint": "b0346d610aed8092",
+    "dispatch_map_complete": true,
+    "dispatch_map_overflow": false,
+    "manifest_path": "native/first-failure-dispatch-repaired-on-577/accepted-state-output/dense/transaction-000000-first-failure.json",
+    "manifest_sha256": "a26b52ba8c18b0fb83af0cd32254413b1d294610f8c234064e4249e373a47efc",
+    "mapped_dispatch_count": 126303,
+    "payload_bytes": 128,
+    "payload_path": "native/first-failure-dispatch-repaired-on-577/accepted-state-output/dense/transaction-000000-first-failure.bin",
+    "payload_sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+    "production_dispatch_count": 126303,
+    "record": {
+      "certificate_nonlinear": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "certificate_validity": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "dispatch_ordinal": 53258,
+      "dispatch_ordinal_exact": true,
+      "environment": 0,
+      "failing_index": 32,
+      "fgmres_iterations": 64,
+      "object_index": 0,
+      "pipeline": "nm_contact_limit_deformable_line_search",
+      "pipeline_id": 95,
+      "pipeline_mapping_available": true,
+      "status_code": 6,
+      "status_diagnostics": [
+        3.08632113e-12,
+        -7.31207036e-15,
+        1,
+        0
+      ]
+    },
+    "source_physics_fingerprint": "06fa086337841123",
+    "world_fingerprint": "966031f2f680e475"
+  },
+  "generated_utc": "2026-10-16T12:26:29.170972+00:00",
+  "inputs": {
+    "566": {
+      "accepted-state-output/dense/transaction-000000-after.bin": {
+        "bytes": 904359,
+        "sha256": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767"
+      },
+      "accepted-state-output/dense/transaction-000000-before.bin": {
+        "bytes": 904359,
+        "sha256": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022"
+      },
+      "accepted-state-output/dense/transaction-000000.json": {
+        "bytes": 6558,
+        "sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+      },
+      "command.json": {
+        "bytes": 1622,
+        "sha256": "7dbe4c8fbf587dc0704b98bb0c8945ad49b0528014b1b3c39ce7e78ecb6c84ce"
+      },
+      "receipt.json": {
+        "bytes": 534,
+        "sha256": "12c5002e7e69b1019b8deb36709a4545f495604bbf9796f1d0b1bc248ab4818f"
+      },
+      "stderr.log": {
+        "bytes": 1082,
+        "sha256": "92ced1e85b7e028a76f859aeeaa36c61b85d31adaaf4e526d807e7503190a70c"
+      },
+      "stdout.log": {
+        "bytes": 1138,
+        "sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d"
+      }
+    },
+    "567": {
+      "accepted-state-output/dense/transaction-000000-after.bin": {
+        "bytes": 904359,
+        "sha256": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767"
+      },
+      "accepted-state-output/dense/transaction-000000-before.bin": {
+        "bytes": 904359,
+        "sha256": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022"
+      },
+      "accepted-state-output/dense/transaction-000000.json": {
+        "bytes": 6558,
+        "sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+      },
+      "command.json": {
+        "bytes": 1669,
+        "sha256": "374fadea53bb2a34b37f9997046ca5db74c97e5511a5d5db1c04fb8ac902e0e1"
+      },
+      "receipt.json": {
+        "bytes": 533,
+        "sha256": "31397ec6b227e41cde505ad197ecd86528b894a55c6b66607446d9a80274752d"
+      },
+      "stderr.log": {
+        "bytes": 1202,
+        "sha256": "2977be1a3fa5abbeed850d51598512351ec6ca6bae7fbe98d6d468262bd3d0be"
+      },
+      "stdout.log": {
+        "bytes": 1138,
+        "sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d"
+      }
+    },
+    "577": {
+      "accepted-state-output/dense/transaction-000000-after.bin": {
+        "bytes": 904359,
+        "sha256": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767"
+      },
+      "accepted-state-output/dense/transaction-000000-before.bin": {
+        "bytes": 904359,
+        "sha256": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022"
+      },
+      "accepted-state-output/dense/transaction-000000-first-failure.bin": {
+        "bytes": 128,
+        "sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c"
+      },
+      "accepted-state-output/dense/transaction-000000-first-failure.json": {
+        "bytes": 6145,
+        "sha256": "a26b52ba8c18b0fb83af0cd32254413b1d294610f8c234064e4249e373a47efc"
+      },
+      "accepted-state-output/dense/transaction-000000.json": {
+        "bytes": 6558,
+        "sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+      },
+      "command.json": {
+        "bytes": 1678,
+        "sha256": "3317591d56c2f7b0a83f5f04dd62ebe11957997c803a3250fd229a6b54918883"
+      },
+      "receipt.json": {
+        "bytes": 534,
+        "sha256": "fbeb739b332a931d8c00b371909d2b138fb9827b87caa663e0a0bef8df2c4d83"
+      },
+      "stderr.log": {
+        "bytes": 1454,
+        "sha256": "497217630e0ef7e0df2aad45ccde53bf2a2f3fd64f76bf4fdd0befc503bd094e"
+      },
+      "stdout.log": {
+        "bytes": 1138,
+        "sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d"
+      }
+    },
+    "source": {
+      "snapshots/source-first-failure-dispatch-233-001/matter/include/numi/matter/shared.h": {
+        "bytes": 58702,
+        "sha256": "51573db81b32ec00c63bb49c4eda6adcd8650c45c829a831e4426f5cef65a12e"
+      },
+      "snapshots/source-first-failure-dispatch-233-001/matter/src/metal/contact.metalinc": {
+        "bytes": 439790,
+        "sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+      },
+      "snapshots/source-first-failure-dispatch-233-001/matter/src/metal/fgmres.metalinc": {
+        "bytes": 409917,
+        "sha256": "5b5ec27d295ff1e918415b60d676452c1f0d4a4420906d62d20fbd8c0582af5e"
+      },
+      "snapshots/source-first-failure-dispatch-233-001/matter/src/runtime.mm": {
+        "bytes": 1961378,
+        "sha256": "ad791065e8724844853665c084e269f741cf5dc286844a6d845e7884bdf31420"
+      }
+    }
+  },
+  "ordinary_outputs": {
+    "accepted-state-output/dense/transaction-000000-after.bin": {
+      "byte_identical": true,
+      "sha256_by_case": {
+        "566": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767",
+        "567": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767",
+        "577": "5e01a3de486e908134e5b7f500745b4a45fd52e6ba2ea69e7a82f60b7afae767"
+      }
+    },
+    "accepted-state-output/dense/transaction-000000-before.bin": {
+      "byte_identical": true,
+      "sha256_by_case": {
+        "566": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022",
+        "567": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022",
+        "577": "fad6bb81f6e9c92b196378ddc1419b0e88c52c795badfc36daf426d9837b1022"
+      }
+    },
+    "accepted-state-output/dense/transaction-000000.json": {
+      "byte_identical": true,
+      "sha256_by_case": {
+        "566": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+        "567": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+        "577": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+      }
+    },
+    "stdout.log": {
+      "byte_identical": true,
+      "sha256_by_case": {
+        "566": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+        "567": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+        "577": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d"
+      }
+    }
+  },
+  "runs": {
+    "566": {
+      "all_inputs_unchanged": true,
+      "command_sha256": "7dbe4c8fbf587dc0704b98bb0c8945ad49b0528014b1b3c39ce7e78ecb6c84ce",
+      "exit_code": 1,
+      "path": "native/first-failure-dispatch-off-566",
+      "receipt_sha256": "12c5002e7e69b1019b8deb36709a4545f495604bbf9796f1d0b1bc248ab4818f",
+      "source_build_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+      "source_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+      "timed_out": false
+    },
+    "567": {
+      "all_inputs_unchanged": true,
+      "command_sha256": "374fadea53bb2a34b37f9997046ca5db74c97e5511a5d5db1c04fb8ac902e0e1",
+      "exit_code": 1,
+      "path": "native/first-failure-dispatch-on-567",
+      "receipt_sha256": "31397ec6b227e41cde505ad197ecd86528b894a55c6b66607446d9a80274752d",
+      "source_build_sha256": "3c67cf7b89d847397a7e86337b796dd0bf1c8531964a55a5cebf99c0daf94d42",
+      "source_frozen_sha256": "3bbfb4fc731b4228915e23c96697e0a38ff77cc950a7f60d5efe82ebfefd9356",
+      "timed_out": false
+    },
+    "577": {
+      "all_inputs_unchanged": true,
+      "command_sha256": "3317591d56c2f7b0a83f5f04dd62ebe11957997c803a3250fd229a6b54918883",
+      "exit_code": 1,
+      "path": "native/first-failure-dispatch-repaired-on-577",
+      "receipt_sha256": "fbeb739b332a931d8c00b371909d2b138fb9827b87caa663e0a0bef8df2c4d83",
+      "source_build_sha256": "2e689d99c4d31193dd51932f2a60f76c8c151e3c6c1e9318318d3e0bbe44d484",
+      "source_frozen_sha256": "c9c442bffb3422bd3a7a7b2342892fe3cfef600e689756fe84acb751c81a59d3",
+      "timed_out": false
+    }
+  },
+  "schema": "numi.cardboard.native.first-failure-576-577-adjudication.v1",
+  "scope_limits": [
+    "These are failed small-fixture activation/setup transactions, not a full-contact solve pass.",
+    "Only ordinary output parity and first global status attribution are established; no physical qualification or cause below the named producer is claimed.",
+    "577 uses source233 and 566/567 source224, so byte-identical physical outputs demonstrate observer neutrality for this fixture, not general parity for all scenes."
+  ],
+  "source_interpretation": {
+    "metal_status_branch": "contact.metalinc lines 8748-8769: when currentEnergy>0 and directionalDerivative<0, status6 is recorded only if no trial has armijoAlpha>0; diagnostics are exactly (currentEnergy,directionalDerivative,startAlpha,0). Captured values match this branch.",
+    "pipeline_attribution": "manifest table ID 95 maps to nm_contact_limit_deformable_line_search; capture ordinal is zero-based as stored in capture.y and indexed into the ordinal-to-pipeline-ID map. First global nonzero was observed immediately after this production dispatch.",
+    "runtime_observer": "runtime.mm lines 9140-9220: after each production dispatch, append its pipeline ID, barrier, read global status with nm_matter_capture_first_failure; only first nonzero record persists. Observer kernel itself does not alter production status/history.",
+    "status_enum": "shared.h line 147 names code 6 NM_STATUS_CONTACT_FAILURE.",
+    "unresolved": "The capture does not contain the per-trial CCD/energy acceptance reasons or private contact geometry for slot 32. It cannot distinguish all trials failing exact CCD certification/endpoint tests from local barrier Armijo rejection when that path is active. The separate residual-Armijo-trace skip notice is not an alpha trace. No exact contact-candidate geometry cause is claimed."
+  },
+  "verdict": "OBSERVER_HISTORY_PARITY_AND_CAPTURE_VALID"
+}

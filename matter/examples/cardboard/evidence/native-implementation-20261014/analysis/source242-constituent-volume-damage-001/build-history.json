@@ -1,0 +1,30 @@
+[
+  {
+    "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-001",
+    "changed_source_files_vs_final": [
+      "matter/tools/cardboard_stage_resolution_study.py"
+    ],
+    "error": "[Errno 2] No such file or directory: 'cmake'",
+    "manifest_sha256": "fc40df636d830fec3ffc099a75781234be570e83e76bca6fe2b0794f819305e0",
+    "reason": "FAILED_PREFLIGHT_NO_CMAKE_ON_PATH",
+    "success": false
+  },
+  {
+    "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-002",
+    "changed_source_files_vs_final": [
+      "matter/tools/cardboard_stage_resolution_study.py"
+    ],
+    "error": null,
+    "manifest_sha256": "61febfb0e6513195ad082a86584b1a789d4fd8000d7c729ca5bebfa296a64b01",
+    "reason": "BUILD_SUCCEEDED_BUT_SOURCE_FILE_CHANGED_AFTER_BUILD; superseded by build003",
+    "success": true
+  },
+  {
+    "build_dir": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003",
+    "changed_source_files_vs_final": [],
+    "error": null,
+    "manifest_sha256": "4744f3cc05631f52c141b3e733f391b09b677a59676789bc33414b2edad4ac61",
+    "reason": "AUTHORITATIVE_FINAL_SOURCE_BOUND_BUILD",
+    "success": true
+  }
+]

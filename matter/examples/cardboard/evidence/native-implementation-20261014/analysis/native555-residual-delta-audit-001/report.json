@@ -1,0 +1,1110 @@
+{
+  "schema": "numi.cardboard.native555-residual-delta-audit.v1",
+  "classification": "CPU-only reconstructed side residual comparison from exact 555 capture; no production action or solver convergence claim",
+  "native_capture": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture",
+    "sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "root": 19,
+    "newton": 3,
+    "dt_seconds": 4.999999873689376e-05,
+    "material_rate_exponent": 0
+  },
+  "independent_reference": {
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002",
+    "reference_sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "strict_module_sha256": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "stable_green_overlay": true
+  },
+  "method": {
+    "delta_R_native_from_capture": "R_side_native - R_center_native, saved per node by production; free xyz only",
+    "delta_R_native_rebuilt": "dt*G(f(P_world_native_side)-f(P_world_native_center))-m*delta_v",
+    "delta_R_reference_exact": "dt*G(f(P_world_FP64_side)-f(P_world_FP64_center))-m*delta_v",
+    "delta_R_reference_linearized": "dt*G(f(C_FP64_center:deltaF_local_realized))-m*delta_v",
+    "geometry": "F_local = F_world R; P_world = P_local R^T; side delta-F independently reconstructed from captured nodal delta-u and immutable tet inverse-rest; Fdot delta from nodal delta-v",
+    "external_terms": "cancel in side-minus-center difference; this is a residual-difference reconstruction, not an absolute residual refit"
+  },
+  "environments": {
+    "0": {
+      "nodes": 882,
+      "tets": 1920,
+      "free_nodes": 846,
+      "center_native_Pworld_from_local": {
+        "a_norm_l2": 56629000.17546761,
+        "b_norm_l2": 56629000.16494215,
+        "difference_norm_l2": 0.2426607495246783,
+        "difference_relative_to_b": 4.285096837625337e-09,
+        "difference_max_abs_component": 0.03417205100413412,
+        "zero_b_norm": false
+      },
+      "center_Flocal_from_Fworld": {
+        "a_norm_l2": 75.89231710902945,
+        "b_norm_l2": 75.89231663818953,
+        "difference_norm_l2": 2.1991859751688993e-06,
+        "difference_relative_to_b": 2.897771569753682e-08,
+        "difference_max_abs_component": 8.2691310909766e-08,
+        "zero_b_norm": false
+      },
+      "sides": [
+        {
+          "side_index": 0,
+          "state_index": 1,
+          "epsilon": 0.03125,
+          "sign": 1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.9998880144611567e-12,
+            "max_dynamic_correction": 5.808259474431145e-14,
+            "max_independent_scaled_residual_at_native_state": 2.0794534283306576e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 953,
+                  "maximum_dynamic_scaled_correction": 0.00010731114600836787
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.9188407706309987e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 184,
+                  "rows_updated": 184,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.9214331891271611e-10,
+                  "max_preupdate_dynamic_correction": 1.9188407706309987e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.18510352758508675,
+            "b_norm_l2": 0.18510352504771402,
+            "difference_norm_l2": 3.540013317818659e-09,
+            "difference_relative_to_b": 1.912450514870612e-08,
+            "difference_max_abs_component": 3.7954051902190644e-10,
+            "zero_b_norm": false
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.18510353200888352,
+            "b_norm_l2": 0.18510352504771402,
+            "difference_norm_l2": 2.7298907332200914e-06,
+            "difference_relative_to_b": 1.4747913269163346e-05,
+            "difference_max_abs_component": 1.1689651222696051e-07,
+            "zero_b_norm": false
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 3702.0706975020207,
+            "b_norm_l2": 3702.0706898269095,
+            "difference_norm_l2": 0.0004390485615618883,
+            "difference_relative_to_b": 1.1859540196473558e-07,
+            "difference_max_abs_component": 0.00012431603511231515,
+            "zero_b_norm": false
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 3702.0706589997994,
+            "b_norm_l2": 3702.0706898269095,
+            "difference_norm_l2": 0.0004273266202763941,
+            "difference_relative_to_b": 1.1542908174354006e-07,
+            "difference_max_abs_component": 0.00011835745681310073,
+            "zero_b_norm": false
+          },
+          "mass_change_l2_Ns": 5.405920339341728e-07,
+          "native_stress_stiffness_change_l2_Ns": 0.00016578465321267447,
+          "reference_stress_stiffness_change_l2_Ns": 0.00016578465204566771,
+          "linearized_stiffness_change_l2_Ns": 1.0684032353239238e-06,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.00016579269918288713,
+            "b_norm_l2": 0.00016579269918288713,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": 0.0,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": false
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.0001657927069424763,
+            "b_norm_l2": 0.00016579269918288713,
+            "difference_norm_l2": 1.5070661037156998e-10,
+            "difference_relative_to_b": 9.090063139953131e-07,
+            "difference_max_abs_component": 2.9771295187062006e-11,
+            "zero_b_norm": false
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.00016579270577498758,
+            "b_norm_l2": 0.00016579269918288713,
+            "difference_norm_l2": 1.7110308930443868e-10,
+            "difference_relative_to_b": 1.0320303013807239e-06,
+            "difference_max_abs_component": 3.327003044870139e-11,
+            "zero_b_norm": false
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.00016579269918288713,
+            "b_norm_l2": 0.00016579270577498758,
+            "difference_norm_l2": 1.7110308930443868e-10,
+            "difference_relative_to_b": 1.0320302603460633e-06,
+            "difference_max_abs_component": 3.327003044870139e-11,
+            "zero_b_norm": false
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 8.528634915063558e-07,
+            "b_norm_l2": 0.00016579270577498758,
+            "difference_norm_l2": 0.00016578886087075475,
+            "difference_relative_to_b": 0.9999768089662638,
+            "difference_max_abs_component": 5.948535120960169e-05,
+            "zero_b_norm": false
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 56465834.06272336,
+            "b_norm_l2": 56465834.06609617,
+            "difference_norm_l2": 1.3728542627566822,
+            "difference_relative_to_b": 2.4313007776519965e-08,
+            "difference_max_abs_component": 0.12483554240316153,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 5.933306056249421e-05,
+          "max_abs_ref_exact_residual_delta_Ns": 5.933306058752911e-05,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 1,
+          "state_index": 2,
+          "epsilon": 0.03125,
+          "sign": -1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.9749140075629547e-12,
+            "max_dynamic_correction": 5.345192731351837e-12,
+            "max_independent_scaled_residual_at_native_state": 1.992039966925316e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 928,
+                  "maximum_dynamic_scaled_correction": 0.000554088094488928
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.90077052594597e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 317,
+                  "rows_updated": 317,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.900460508777999e-10,
+                  "max_preupdate_dynamic_correction": 1.90077052594597e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.1851035333252079,
+            "b_norm_l2": 0.18510353079185704,
+            "difference_norm_l2": 3.5384984145945576e-09,
+            "difference_relative_to_b": 1.911632046918373e-08,
+            "difference_max_abs_component": 3.795410297895499e-10,
+            "zero_b_norm": false
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.18510352202879765,
+            "b_norm_l2": 0.18510353079185704,
+            "difference_norm_l2": 2.8054061440391546e-06,
+            "difference_relative_to_b": 1.5155875914618524e-05,
+            "difference_max_abs_component": 1.1500301688727177e-07,
+            "zero_b_norm": false
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 3702.070761394254,
+            "b_norm_l2": 3702.070694465732,
+            "difference_norm_l2": 0.00044000548474311694,
+            "difference_relative_to_b": 1.1885388504354772e-07,
+            "difference_max_abs_component": 0.0001391826608738711,
+            "zero_b_norm": false
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 3702.0707132482503,
+            "b_norm_l2": 3702.070694465732,
+            "difference_norm_l2": 0.00042460013630877044,
+            "difference_relative_to_b": 1.1469260620644281e-07,
+            "difference_max_abs_component": 0.00012647475341509562,
+            "zero_b_norm": false
+          },
+          "mass_change_l2_Ns": 5.405920288220415e-07,
+          "native_stress_stiffness_change_l2_Ns": 0.00018111171091722724,
+          "reference_stress_stiffness_change_l2_Ns": 0.00018111171013281295,
+          "linearized_stiffness_change_l2_Ns": 1.0686482077999105e-06,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.00018113602225458094,
+            "b_norm_l2": 0.00018113602225458094,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": 0.0,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": false
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.00018113602882150078,
+            "b_norm_l2": 0.00018113602225458094,
+            "difference_norm_l2": 1.4627131429532007e-10,
+            "difference_relative_to_b": 8.075219521478747e-07,
+            "difference_max_abs_component": 2.6027828001447074e-11,
+            "zero_b_norm": false
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.000181136028036668,
+            "b_norm_l2": 0.00018113602225458094,
+            "difference_norm_l2": 1.560706130000825e-10,
+            "difference_relative_to_b": 8.616210682860762e-07,
+            "difference_max_abs_component": 2.3511122191567553e-11,
+            "zero_b_norm": false
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.00018113602225458094,
+            "b_norm_l2": 0.000181136028036668,
+            "difference_norm_l2": 1.560706130000825e-10,
+            "difference_relative_to_b": 8.616210407820613e-07,
+            "difference_max_abs_component": 2.3511122191567553e-11,
+            "zero_b_norm": false
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 8.532416228610805e-07,
+            "b_norm_l2": 0.000181136028036668,
+            "difference_norm_l2": 0.0001812096104192548,
+            "difference_relative_to_b": 1.0004062272060636,
+            "difference_max_abs_component": 6.0153347364760184e-05,
+            "zero_b_norm": false
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 56260542.92534885,
+            "b_norm_l2": 56260542.93445448,
+            "difference_norm_l2": 1.3367375112869089,
+            "difference_relative_to_b": 2.3759769130636642e-08,
+            "difference_max_abs_component": 0.12494032504037023,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 6.000679150020005e-05,
+          "max_abs_ref_exact_residual_delta_Ns": 6.00067913291944e-05,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 2,
+          "state_index": 3,
+          "epsilon": 0.015625,
+          "sign": 1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.8909020420813817e-12,
+            "max_dynamic_correction": 1.8691329267889611e-13,
+            "max_independent_scaled_residual_at_native_state": 2.0959636134757274e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 961,
+                  "maximum_dynamic_scaled_correction": 0.00035588082434927476
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.8779811414303233e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 187,
+                  "rows_updated": 187,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.87510602138698e-10,
+                  "max_preupdate_dynamic_correction": 1.8779811414303233e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.09255176199490311,
+            "b_norm_l2": 0.09255176073459773,
+            "difference_norm_l2": 1.7652115710865775e-09,
+            "difference_relative_to_b": 1.9072695722650963e-08,
+            "difference_max_abs_component": 1.8977026021568463e-10,
+            "zero_b_norm": false
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.09255178294353658,
+            "b_norm_l2": 0.09255176073459773,
+            "difference_norm_l2": 2.683879152304553e-06,
+            "difference_relative_to_b": 2.899868280194981e-05,
+            "difference_max_abs_component": 1.1801019841189975e-07,
+            "zero_b_norm": false
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 1851.0353352437132,
+            "b_norm_l2": 1851.0353476229095,
+            "difference_norm_l2": 0.0002865315440008781,
+            "difference_relative_to_b": 1.5479528490303575e-07,
+            "difference_max_abs_component": 0.00013438413301969376,
+            "zero_b_norm": false
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 1851.0353109264618,
+            "b_norm_l2": 1851.0353476229095,
+            "difference_norm_l2": 0.0002809782732330279,
+            "difference_relative_to_b": 1.5179519591230868e-07,
+            "difference_max_abs_component": 0.00013432245395961218,
+            "zero_b_norm": false
+          },
+          "mass_change_l2_Ns": 2.702960161584032e-07,
+          "native_stress_stiffness_change_l2_Ns": 5.0297257683695416e-05,
+          "reference_stress_stiffness_change_l2_Ns": 5.029725623340888e-05,
+          "linearized_stiffness_change_l2_Ns": 5.349102004938767e-07,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 5.0305722357319116e-05,
+            "b_norm_l2": 5.0305722357319116e-05,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": 0.0,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": false
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 5.0305728119654454e-05,
+            "b_norm_l2": 5.0305722357319116e-05,
+            "difference_norm_l2": 1.514287596994827e-10,
+            "difference_relative_to_b": 3.0101696706369013e-06,
+            "difference_max_abs_component": 3.083236648906208e-11,
+            "zero_b_norm": false
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 5.0305726669780705e-05,
+            "b_norm_l2": 5.0305722357319116e-05,
+            "difference_norm_l2": 1.6479868883208914e-10,
+            "difference_relative_to_b": 3.2759431951206666e-06,
+            "difference_max_abs_component": 3.003279444718516e-11,
+            "zero_b_norm": false
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 5.0305722357319116e-05,
+            "b_norm_l2": 5.0305726669780705e-05,
+            "difference_norm_l2": 1.6479868883208914e-10,
+            "difference_relative_to_b": 3.2759429142902298e-06,
+            "difference_max_abs_component": 3.003279444718516e-11,
+            "zero_b_norm": false
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 4.2730174315257805e-07,
+            "b_norm_l2": 5.0305726669780705e-05,
+            "difference_norm_l2": 5.02984455131105e-05,
+            "difference_relative_to_b": 0.9998552618727088,
+            "difference_max_abs_component": 1.5167146746873133e-05,
+            "zero_b_norm": false
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 56564981.52622168,
+            "b_norm_l2": 56564981.53133065,
+            "difference_norm_l2": 1.3599991535567117,
+            "difference_relative_to_b": 2.4043129101057423e-08,
+            "difference_max_abs_component": 0.12425662390887737,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 1.509074354544282e-05,
+          "max_abs_ref_exact_residual_delta_Ns": 1.5090745562278972e-05,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 3,
+          "state_index": 4,
+          "epsilon": 0.015625,
+          "sign": -1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.8809832380651087e-12,
+            "max_dynamic_correction": 6.127447149155647e-12,
+            "max_independent_scaled_residual_at_native_state": 2.107844088795014e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 968,
+                  "maximum_dynamic_scaled_correction": 0.000271637786871996
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.993820208998241e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 263,
+                  "rows_updated": 263,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.77190920855221e-10,
+                  "max_preupdate_dynamic_correction": 1.993820208998241e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.092551767392757,
+            "b_norm_l2": 0.09255176612190871,
+            "difference_norm_l2": 1.7749093198007945e-09,
+            "difference_relative_to_b": 1.9177476499615287e-08,
+            "difference_max_abs_component": 1.8977077027859668e-10,
+            "zero_b_norm": false
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.09255174489993354,
+            "b_norm_l2": 0.09255176612190871,
+            "difference_norm_l2": 2.743472833372834e-06,
+            "difference_relative_to_b": 2.9642576779779064e-05,
+            "difference_max_abs_component": 1.1640074148999702e-07,
+            "zero_b_norm": false
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 1851.0353601439824,
+            "b_norm_l2": 1851.0353409512593,
+            "difference_norm_l2": 0.00019787329306065194,
+            "difference_relative_to_b": 1.068987115929205e-07,
+            "difference_max_abs_component": 5.97582743324665e-05,
+            "zero_b_norm": false
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 1851.0353299801038,
+            "b_norm_l2": 1851.0353409512593,
+            "difference_norm_l2": 0.00018955828054958892,
+            "difference_relative_to_b": 1.0240662420425408e-07,
+            "difference_max_abs_component": 6.0395828768378124e-05,
+            "zero_b_norm": false
+          },
+          "mass_change_l2_Ns": 2.7029601626036266e-07,
+          "native_stress_stiffness_change_l2_Ns": 6.608190261783958e-05,
+          "reference_stress_stiffness_change_l2_Ns": 6.608190002883025e-05,
+          "linearized_stiffness_change_l2_Ns": 5.347047407434926e-07,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 6.610929644752457e-05,
+            "b_norm_l2": 6.610929644752457e-05,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": 0.0,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": false
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 6.610930200954488e-05,
+            "b_norm_l2": 6.610929644752457e-05,
+            "difference_norm_l2": 1.516819555133344e-10,
+            "difference_relative_to_b": 2.2944118855316307e-06,
+            "difference_max_abs_component": 3.5160500535549676e-11,
+            "zero_b_norm": false
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 6.610929942065093e-05,
+            "b_norm_l2": 6.610929644752457e-05,
+            "difference_norm_l2": 1.6922572781044757e-10,
+            "difference_relative_to_b": 2.5597871540619632e-06,
+            "difference_max_abs_component": 4.53050609905207e-11,
+            "zero_b_norm": false
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 6.610929644752457e-05,
+            "b_norm_l2": 6.610929942065093e-05,
+            "difference_norm_l2": 1.6922572781044757e-10,
+            "difference_relative_to_b": 2.559787038940933e-06,
+            "difference_max_abs_component": 4.53050609905207e-11,
+            "zero_b_norm": false
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 4.271042400555619e-07,
+            "b_norm_l2": 6.610929942065093e-05,
+            "difference_norm_l2": 6.621504215773043e-05,
+            "difference_relative_to_b": 1.0015995138052616,
+            "difference_max_abs_component": 1.8844930693627286e-05,
+            "zero_b_norm": false
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 56458830.07224722,
+            "b_norm_l2": 56458830.035394914,
+            "difference_norm_l2": 1.3982793190808076,
+            "difference_relative_to_b": 2.476635307894628e-08,
+            "difference_max_abs_component": 0.12172464793547988,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 1.877233535196865e-05,
+          "max_abs_ref_exact_residual_delta_Ns": 1.8772339818814763e-05,
+          "free_node_count": 846
+        }
+      ]
+    },
+    "1": {
+      "nodes": 882,
+      "tets": 1920,
+      "free_nodes": 846,
+      "center_native_Pworld_from_local": {
+        "a_norm_l2": 2017.003781072015,
+        "b_norm_l2": 2017.0037498157617,
+        "difference_norm_l2": 6.0679431251594886e-05,
+        "difference_relative_to_b": 3.0083945682866235e-08,
+        "difference_max_abs_component": 3.495344685688906e-06,
+        "zero_b_norm": false
+      },
+      "center_Flocal_from_Fworld": {
+        "a_norm_l2": 75.89466421045977,
+        "b_norm_l2": 75.8946638440411,
+        "difference_norm_l2": 9.306545819055842e-07,
+        "difference_relative_to_b": 1.2262450807055717e-08,
+        "difference_max_abs_component": 3.8784891187582105e-08,
+        "zero_b_norm": false
+      },
+      "sides": [
+        {
+          "side_index": 0,
+          "state_index": 1,
+          "epsilon": 0.03125,
+          "sign": 1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "mass_change_l2_Ns": 0.0,
+          "native_stress_stiffness_change_l2_Ns": 0.0,
+          "reference_stress_stiffness_change_l2_Ns": 0.0,
+          "linearized_stiffness_change_l2_Ns": 0.0,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 2017.0037498157617,
+            "b_norm_l2": 2017.0038019316796,
+            "difference_norm_l2": 7.541381860857566e-05,
+            "difference_relative_to_b": 3.73890314615927e-08,
+            "difference_max_abs_component": 4.974507646693382e-06,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 0.0,
+          "max_abs_ref_exact_residual_delta_Ns": 0.0,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 1,
+          "state_index": 2,
+          "epsilon": 0.03125,
+          "sign": -1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "mass_change_l2_Ns": 0.0,
+          "native_stress_stiffness_change_l2_Ns": 0.0,
+          "reference_stress_stiffness_change_l2_Ns": 0.0,
+          "linearized_stiffness_change_l2_Ns": 0.0,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 2017.0037498157617,
+            "b_norm_l2": 2017.0038019316796,
+            "difference_norm_l2": 7.541381860857566e-05,
+            "difference_relative_to_b": 3.73890314615927e-08,
+            "difference_max_abs_component": 4.974507646693382e-06,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 0.0,
+          "max_abs_ref_exact_residual_delta_Ns": 0.0,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 2,
+          "state_index": 3,
+          "epsilon": 0.015625,
+          "sign": 1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "mass_change_l2_Ns": 0.0,
+          "native_stress_stiffness_change_l2_Ns": 0.0,
+          "reference_stress_stiffness_change_l2_Ns": 0.0,
+          "linearized_stiffness_change_l2_Ns": 0.0,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 2017.0037498157617,
+            "b_norm_l2": 2017.0038019316796,
+            "difference_norm_l2": 7.541381860857566e-05,
+            "difference_relative_to_b": 3.73890314615927e-08,
+            "difference_max_abs_component": 4.974507646693382e-06,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 0.0,
+          "max_abs_ref_exact_residual_delta_Ns": 0.0,
+          "free_node_count": 846
+        },
+        {
+          "side_index": 3,
+          "state_index": 4,
+          "epsilon": 0.015625,
+          "sign": -1,
+          "reference_projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "captured_F_vs_nodal_du_local": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fworld_vs_nodal_du": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotlocal_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "captured_Fdotworld_vs_nodal_dv": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "mass_change_l2_Ns": 0.0,
+          "native_stress_stiffness_change_l2_Ns": 0.0,
+          "reference_stress_stiffness_change_l2_Ns": 0.0,
+          "linearized_stiffness_change_l2_Ns": 0.0,
+          "captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_P_gather_plus_mass_vs_captured_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_exact_side_stress_vs_captured_native_delta_R_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_delta_R_vs_reference_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "reference_linearized_vs_exact_free_Ns": {
+            "a_norm_l2": 0.0,
+            "b_norm_l2": 0.0,
+            "difference_norm_l2": 0.0,
+            "difference_relative_to_b": null,
+            "difference_max_abs_component": 0.0,
+            "zero_b_norm": true
+          },
+          "native_vs_reference_side_stress_local_Pa": {
+            "a_norm_l2": 2017.0037498157617,
+            "b_norm_l2": 2017.0038019316796,
+            "difference_norm_l2": 7.541381860857566e-05,
+            "difference_relative_to_b": 3.73890314615927e-08,
+            "difference_max_abs_component": 4.974507646693382e-06,
+            "zero_b_norm": false
+          },
+          "max_abs_native_residual_delta_Ns": 0.0,
+          "max_abs_ref_exact_residual_delta_Ns": 0.0,
+          "free_node_count": 846
+        }
+      ]
+    }
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/bindings.json": "1de645c65e948bfaeb8fab91708f13d64847e8f26a1fbc1f5295381349641c4b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/manifest.json": "c62305cfe8bc2b5476b1d00eecf39f0037e327048d1f0dec4fea698031967bbd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/summary.json": "ba64cd8f2011dfeb4ecaeb16bc3cf87abad9b46fa8fbdda72fa80323c65b359f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_solver_environment.py": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c"
+  },
+  "finished_at_utc": "2026-10-16T11:44:41.669127+00:00"
+}

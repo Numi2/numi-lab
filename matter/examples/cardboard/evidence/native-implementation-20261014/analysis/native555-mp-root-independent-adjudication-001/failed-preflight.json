@@ -1,0 +1,6 @@
+{
+  "phase": "module import before numerical work",
+  "error": "ModuleNotFoundError cardboard_bilinear_fp64_reference",
+  "script_sha256": "20eb3bda7b0cbb9e775020e0722819da9277ec9d820eb459c3a651ff945cd103",
+  "numerical_work_executed": false
+}

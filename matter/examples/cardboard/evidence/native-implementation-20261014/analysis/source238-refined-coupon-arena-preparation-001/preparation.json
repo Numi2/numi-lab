@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.source238-preparation.v1",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001",
+  "base_frozen_sha256": "ab2511b4b6992854556059676aa650769a43090f504c9cc5ead6a94e45067d6f",
+  "changed_files": [
+    "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+    "matter/include/numi/matter/detail/true_residual_arena_plan.hpp",
+    "matter/src/runtime.mm",
+    "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+    "matter/tools/true_residual_arena_plan_check.cpp",
+    "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+    "matter/tools/fgmres_true_residual_native_check.mm"
+  ],
+  "snapshot_not_yet_frozen": true,
+  "physical_operator_changed": false,
+  "extended_scope": "contact-free static explicit FEM only; legacy coupled/contact true-residual limits retained; refined coupon scratch64MiB counted against16GiB runtime resident ceiling",
+  "requested_finest_mesh": {
+    "nodes": 20682,
+    "tets": 89088
+  },
+  "at_utc": "2026-10-16T12:33:24.438489+00:00"
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "numi.cardboard.source238-refined-coupon-build.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001",
+  "source_frozen_sha256": "5907cc9e05247159cf8010ce2d5d0e06106a4188ea811ccb59e9c35de8346508",
+  "source_build_sha256": "082bf4c8ce0d87821ea3a74ab0f123eb6cb742c6ac803af11ba32879a1d913d0",
+  "build_exit_code": 0,
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source238-refined-coupon-001/matter/numi-matter-true-residual-arena-plan-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "f75b1ce7c9ab6538cfc94ad70028607f97b4b0f4c18800b9be09136c7d6d90fa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source238-refined-coupon-001/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "564c1438c6a25a9f720376c759754d00c13a05e0ff8f6ee87febd4b936f0582a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a04065c7748113387a66fbea11c87970e8c9a8b84aaa19d81282be9d5fb4a0c3"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "625c0853773df305b98363b4040a7414dc7de74efc53c1a37a3aef30cac18263"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-coupon-arenas-238-001/matter/tools/test_cardboard_stage_resolution_study.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "70babfa6ffe43132434891237b41ab7820513f5113125a01e72f8adbb6c307c5"
+    }
+  ],
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "native_component_checks_pending": true,
+  "at_utc": "2026-10-16T12:36:59.574908+00:00"
+}

@@ -1,0 +1,17 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source232-strict-local-projection-001
+    Start 206: matter.compiler.cardboard_bilinear15_projection_policy
+1/2 Test #206: matter.compiler.cardboard_bilinear15_projection_policy ...   Passed    0.47 sec
+    Start 214: matter.compiler.cardboard_coupon_resume
+2/2 Test #214: matter.compiler.cardboard_coupon_resume ..................   Passed    0.28 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+cardboard     =   0.75 sec*proc (2 tests)
+cpu           =   0.75 sec*proc (2 tests)
+matter        =   0.75 sec*proc (2 tests)
+projection    =   0.47 sec*proc (1 test)
+shipping      =   0.28 sec*proc (1 test)
+synthetic     =   0.47 sec*proc (1 test)
+
+Total Test time (real) =   0.76 sec

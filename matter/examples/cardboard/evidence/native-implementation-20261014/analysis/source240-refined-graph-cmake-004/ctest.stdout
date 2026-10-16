@@ -1,0 +1,15 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-graph-cmake-004
+    Start 154: matter.compiler.cardboard_refined_graph_layout
+1/1 Test #154: matter.compiler.cardboard_refined_graph_layout ...   Passed    0.92 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+arena        =   0.92 sec*proc (1 test)
+cardboard    =   0.92 sec*proc (1 test)
+cpu          =   0.92 sec*proc (1 test)
+matter       =   0.92 sec*proc (1 test)
+mesh         =   0.92 sec*proc (1 test)
+solver       =   0.92 sec*proc (1 test)
+
+Total Test time (real) =   0.93 sec

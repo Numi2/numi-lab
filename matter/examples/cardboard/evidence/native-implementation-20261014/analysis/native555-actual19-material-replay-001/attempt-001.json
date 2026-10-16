@@ -1,0 +1,8 @@
+{
+  "attempt": "reference-tool import preflight failed before numerical work",
+  "error": "run.py referenced nonexistent source-stable-green-reference-buildfix-002 instead of source-stable-green-reference-206-buildfix-002",
+  "run_py_sha256": "aeb57b298e7d0084a4dddabe0cd92a01fe93421cf781fab8db53152ef0cf0188",
+  "corrected_run002_sha256": "e75a0f7581b6b4f8aed21410b4248f3a07cdb40ff5488ac406bf465fe68c1dd0",
+  "native_transactions": 0,
+  "capture_unchanged": true
+}

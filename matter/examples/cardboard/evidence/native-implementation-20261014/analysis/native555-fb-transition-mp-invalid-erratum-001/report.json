@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.native555-fb-transition-mp-invalid-erratum.v1",
+  "classification": "erratum: 001 MP calculations invalid for qualification; outputs retained unchanged",
+  "invalid_attempt": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-diagnostic-001",
+    "manifest_sha256": "94a047e2ec531f176d07ddba521b9686b3ad485ca774bd0e640997d2a88f0899",
+    "report_sha256": "faaac47b5a4d13514095e834e75336da9d54c81b0e54e76fa73493b6d648d81b",
+    "bound_stale_decimal_module": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-tet222-highprecision-006/audit222.py",
+    "module_sha256": "1d2a66ba35e03b7182b391cfa97b9aa2e89a5aaf3a486ce312e198f733a66ab1"
+  },
+  "correction": {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-fb-transition-mp-corrected-002",
+    "manifest_sha256": "f78472db3c4db5356f93560dfc88d7c1d32e01a8f3254ed3d35545e7120176f5",
+    "report_sha256": "010527d4c5f1ba6cd246018fb525af4b0a5e800bd8691cceec62c419d888eb3d",
+    "corrected_decimal_module": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-all23-corrected-hill-highprecision-013-001/implementation/audit222_corrected.py",
+    "module_sha256": "f103fa58001c092197d46e7b2365aa2fb708abf7610c2fb6b87bafbd698d606e",
+    "corrected_parent_manifest_sha256": "9ba0cfce1fcd41b8d645dc72d44e128c4bb9b07ef030cdf767a95e4b34059e4a"
+  },
+  "verified_equation_difference": {
+    "stale_line_37": "f*(s[2]-s[0])+g*(s[2]-s[1]),l*s[3],m*s[4],n*s[5]]",
+    "corrected_line_37": "f*(s[2]-s[1])+g*(s[2]-s[0]),l*s[3],m*s[4],n*s[5]]",
+    "issue": "The third normal Hill flow component swaps the f/g difference pair in stale module; its q expression is unchanged. This changes plastic-flow residual components and all roots/transition values computed by that MP module.",
+    "source_location": "line 37 in both modules (one-based)"
+  },
+  "independent_reproduction": {
+    "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "selected_case": "environment 0, control 19, Newton 3, paper row 762/tet762, center F and accepted history",
+    "stale_mp_scaled_residual_at_FP64_root": "0.0032406165753632918",
+    "reference_scaled_residual_at_same_FP64_root": "5.693328800726829e-13",
+    "corrected_mp_scaled_residual_at_FP64_root": "5.693328800726828e-13",
+    "stale_vs_correct_flow_component2": {
+      "stale": 0.07490329293632617,
+      "correct_reference": 0.0145750153
+    },
+    "interpretation": "This is a source-transcription defect in the prior MP oracle, not evidence of a production or FP64 reference defect."
+  },
+  "scope": "No source, capture, native result, or prior report was modified."
+}

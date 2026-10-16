@@ -1,0 +1,13 @@
+{
+  "build_manifest_sha256": "4744f3cc05631f52c141b3e733f391b09b677a59676789bc33414b2edad4ac61",
+  "corrected_python_stdout": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.273s\n\nOK\n",
+  "correction": "The recorded unittest progress line had 49 dots, but the command reported 33 tests. The corrected display has one dot per test; this is a transcript-format correction only.",
+  "native_gpu_or_physical_run": false,
+  "original_package_manifest_sha256": "de8ef8d83a97070f145c6cf60b085fffd077aae1537fee06d6cb474b5c98e316",
+  "python_command": "/opt/homebrew/bin/python3.13 -m unittest matter/tools/test_cardboard_stage_resolution_study.py",
+  "python_exit_code": 0,
+  "schema": "numi.cardboard.source242-validation-erratum.v1",
+  "source_frozen_sha256": "9423e95363ffc62e2d11f7e8e59720c6911bc6f1870565aa68803acb6550bbcc",
+  "supersedes_field": "source242-constituent-volume-damage-001/validation.json:python_stdout",
+  "test_run_result_unchanged": true
+}

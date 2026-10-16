@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.source240-cmake-integration.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-004",
+  "source_frozen_sha256": "a937b7534a266d9d8b7acc8779eca2755b22cc0b885c21494ddd9004a9cfed06",
+  "source_build_sha256": "cb4f24d3bed9903384e1e0014a2d44df419bb12952a2d29db6bfafb79b00781f",
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-004/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-004",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-graph-cmake-004",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-refined-graph-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-graph-cmake-004",
+        "-R",
+        "^matter.compiler.cardboard_refined_graph_layout$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T12:51:05.384961+00:00"
+}

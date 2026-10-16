@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "overlay_id": "deformable-contact-trial-alpha-trace-236-002",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-001",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-002",
+  "base_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "bd9fd84ae7a1d13246dff90ed245124953ed0742996f72285f1e5d78442db9f1"
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "82f321ec33d119fd00c3e86a23196dcfb2cf5037f239288a766a6b9b8f69d7e5"
+    },
+    {
+      "path": "matter/include/numi/matter/deformable_limit_trace_json.hpp",
+      "sha256": "5de552386011745b8c42c93a23d89b29ee614a38eec69288a259898c23b604e1"
+    },
+    {
+      "path": "matter/tools/test_deformable_limit_trace_serializer.py",
+      "sha256": "8e068c09ec576fb3f1d6a93676af5a28f3429d3d8b06e7b70665a7741cd290fe"
+    }
+  ],
+  "changed_files": [
+    "matter/src/runtime.mm",
+    "matter/include/numi/matter/deformable_limit_trace_json.hpp",
+    "matter/tools/test_deformable_limit_trace_serializer.py"
+  ],
+  "purpose": "Close the production barrier JSON array before optional per_alpha_trace; factor exactly that writer into a shared helper and roundtrip both modes.",
+  "limits": [
+    "No GPU dispatch or physical qualification.",
+    "Does not repair or rewrite malformed native584 evidence; it preserves that evidence as the reason for the fix."
+  ]
+}

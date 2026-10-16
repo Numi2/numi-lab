@@ -1,0 +1,2031 @@
+{
+  "schema": "numi.cardboard.native555-material-replay-summary.v1",
+  "classification": "independent CPU reference diagnostic only; source555 actual control19/Newton3; no native transaction or physical qualification",
+  "bindings": {
+    "schema": "numi.cardboard.native555-material-replay-bindings.v1",
+    "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "capture_bytes": 39133086,
+    "prediction_sha256": "ca508e41b191c1e7a9843e82dda26d3c5269b18b5347b7beb71cee7ec32f7a7d",
+    "receipt_sha256": "944d476a6dcc86075fa3650a5c04314677e9a3651d02f1842a6087c4c5f6dbe4",
+    "stderr_sha256": "3dd7f39801327175c20a825bfac13ada5189c31901f82873e3ddf1321b9a5f18",
+    "output_manifest_sha256": "c89876bd2493ba74971d6612bad24541af981667ef47013108de3660eab12e74",
+    "resume_segment_sha256": "f57d4b8f72af9ecf0a1e55cd8b236fb54346b3c0d633acdfb4982eb8e5bc3025",
+    "result_sha256": "6baabd23175a5a883164ccda44c84f9f545da1d9c7992f11c57ef760f531cde6",
+    "compiled_pack_sha256": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003",
+    "frozen_source_sha256": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+    "source_build_sha256": "66652297bd3af8707e9999724dec12fc8994ad88ee17904bd10f0e79f4a1d677",
+    "reference_tools_sha256": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_solver_environment.py": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "material_sha256": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+    },
+    "header": {
+      "record": "header",
+      "schema": "numi.cardboard.fem-newton-capture.v1",
+      "root": 19,
+      "newton_iteration": 3,
+      "world_fingerprint_hex": "48d3b8b313356bd9",
+      "execution_fingerprint_hex": "69703800977bcdaf",
+      "environment_count": 2,
+      "node_count_per_environment": 882,
+      "tetrahedron_count_per_environment": 1920,
+      "center_residual_source": "pre_fgmres_private_copy",
+      "F_local_word_encoding": "high_float32_plus_low_float32_for_compensated_material_input; zero_low_for_other_materials",
+      "material_frame_encoding": "native_float32_rows_no_renormalization",
+      "epsilon_values": [
+        0.03125,
+        0.015625
+      ],
+      "dt_seconds": 4.99999987e-05,
+      "dt_seconds_by_environment": [
+        4.99999987e-05,
+        4.99999987e-05
+      ],
+      "cached_algorithmic_tangent_capture": {
+        "policy_enabled": true,
+        "available": true,
+        "snapshot_bitwise_guard_included": true,
+        "source": "read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation",
+        "matrix_layout": "row-major 9x9, local material frame",
+        "derivative_contract": "dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt",
+        "units": "Pa per dimensionless F component",
+        "validity": "one cache-valid bit per environment/tetrahedron; matrix is null when invalid",
+        "unavailable_reason": null
+      },
+      "materials": [
+        {
+          "index": 0,
+          "name": "hajali2009_liner_hill_bilinear_fit",
+          "parameter_offset": 0,
+          "parameter_names": [
+            "density",
+            "c11",
+            "c22",
+            "c33",
+            "c12",
+            "c13",
+            "c23",
+            "g12",
+            "g13",
+            "g23",
+            "sigma_ref",
+            "hill_F",
+            "hill_G",
+            "hill_H",
+            "hill_L",
+            "hill_M",
+            "hill_N",
+            "hardening_md",
+            "hardening_cd",
+            "fit_transfer_scale_md",
+            "fit_transfer_scale_cd",
+            "hardening_md_flow_scale",
+            "hardening_cd_flow_scale",
+            "hardening_smoothing_width",
+            "hardening_weight_scale",
+            "q_floor",
+            "fb_epsilon",
+            "residual_scale"
+          ]
+        },
+        {
+          "index": 1,
+          "name": "hajali2009_medium_hill_bilinear_fit",
+          "parameter_offset": 28,
+          "parameter_names": [
+            "density",
+            "c11",
+            "c22",
+            "c33",
+            "c12",
+            "c13",
+            "c23",
+            "g12",
+            "g13",
+            "g23",
+            "sigma_ref",
+            "hill_F",
+            "hill_G",
+            "hill_H",
+            "hill_L",
+            "hill_M",
+            "hill_N",
+            "hardening_md",
+            "hardening_cd",
+            "fit_transfer_scale_md",
+            "fit_transfer_scale_cd",
+            "hardening_md_flow_scale",
+            "hardening_cd_flow_scale",
+            "hardening_smoothing_width",
+            "hardening_weight_scale",
+            "q_floor",
+            "fb_epsilon",
+            "residual_scale"
+          ]
+        },
+        {
+          "index": 2,
+          "name": "starch2007_finite_glue_elastic",
+          "parameter_offset": 56,
+          "parameter_names": [
+            "density",
+            "mu",
+            "lambda"
+          ]
+        }
+      ],
+      "parameters_by_environment": [
+        [
+          766,
+          4843625980.0,
+          2118009730.0,
+          19100028,
+          381243840,
+          228619.359,
+          208994.906,
+          1222000000.0,
+          166280000,
+          137280000,
+          22920000,
+          6.30766106,
+          2.98186493,
+          -1.98186493,
+          456012.5,
+          456012.5,
+          59.5608177,
+          4019922690.0,
+          609061056,
+          0.90933758,
+          0.882557452,
+          1,
+          4.32579613,
+          9.99999994e-09,
+          0.00100000005,
+          1.99999999e-06,
+          9.99999994e-09,
+          10,
+          679,
+          4524848640.0,
+          1631051260.0,
+          17900030,
+          293591136,
+          213716.359,
+          192867.016,
+          1039000000.0,
+          226340000,
+          198720000,
+          9391000,
+          5.61205196,
+          2.84109926,
+          -1.84109914,
+          76554.5859,
+          76554.5859,
+          9.99896622,
+          1880207230.0,
+          287131232,
+          0.944883108,
+          0.923526824,
+          1,
+          3.7709527,
+          9.99999994e-09,
+          0.00100000005,
+          1.99999999e-06,
+          9.99999994e-09,
+          10,
+          1500,
+          153846160,
+          230769232
+        ],
+        [
+          766,
+          4843625980.0,
+          2118009730.0,
+          19100028,
+          381243840,
+          228619.359,
+          208994.906,
+          1222000000.0,
+          166280000,
+          137280000,
+          22920000,
+          6.30766106,
+          2.98186493,
+          -1.98186493,
+          456012.5,
+          456012.5,
+          59.5608177,
+          4019922690.0,
+          609061056,
+          0.90933758,
+          0.882557452,
+          1,
+          4.32579613,
+          9.99999994e-09,
+          0.00100000005,
+          1.99999999e-06,
+          9.99999994e-09,
+          10,
+          679,
+          4524848640.0,
+          1631051260.0,
+          17900030,
+          293591136,
+          213716.359,
+          192867.016,
+          1039000000.0,
+          226340000,
+          198720000,
+          9391000,
+          5.61205196,
+          2.84109926,
+          -1.84109914,
+          76554.5859,
+          76554.5859,
+          9.99896622,
+          1880207230.0,
+          287131232,
+          0.944883108,
+          0.923526824,
+          1,
+          3.7709527,
+          9.99999994e-09,
+          0.00100000005,
+          1.99999999e-06,
+          9.99999994e-09,
+          10,
+          1500,
+          153846160,
+          230769232
+        ]
+      ],
+      "units": {
+        "position": "m",
+        "mass": "kg",
+        "velocity": "m/s",
+        "residual_and_operator_action": "N*s",
+        "element_force": "N",
+        "operator_element_force": "N/s",
+        "deformation_gradient": "dimensionless",
+        "first_piola": "Pa",
+        "tangent_per_velocity": "Pa/s",
+        "dt": "s"
+      },
+      "direction_contract": {
+        "unknown": "delta_v in m/s",
+        "local_F_direction": "grad(delta_v), per second",
+        "side_F": "F_center +/- epsilon*dt*local_F_direction",
+        "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+        "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+        "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+      },
+      "production_inputs_bitwise_unchanged": true
+    },
+    "native_receipt": {
+      "exit_code": 2,
+      "timed_out": false,
+      "source_inputs_unchanged": true,
+      "native_transactions": 0
+    },
+    "epsilon_grid_powers": [
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20,
+      22,
+      24,
+      26
+    ],
+    "qualification": false
+  },
+  "environments": {
+    "0": {
+      "scope": {
+        "environment": 0,
+        "control": 19,
+        "newton": 3,
+        "tets": 1920,
+        "nodes": 882,
+        "dt_s": 4.999999873689376e-05
+      },
+      "state_rows": [
+        {
+          "state_index": 0,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.962383404161222e-12,
+            "max_dynamic_correction": 6.296135536769231e-13,
+            "max_independent_scaled_residual_at_native_state": 2.1224946956286967e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 975,
+                  "maximum_dynamic_scaled_correction": 0.0002492298940237033
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.9672019441628862e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 181,
+                  "rows_updated": 181,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.8674448423447403e-10,
+                  "max_preupdate_dynamic_correction": 1.9672019441628862e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.11976865850495083,
+            "max_reference_l2": 2699161.0304572983,
+            "max_relative_l2": 5.764013003473752e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 2.965618568332855e-11,
+            "max_reference_l2": 0.1177337057306491,
+            "max_relative_l2": 1.4577749640263868e-09,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 219,
+          "local_directional_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 46771.06926554909,
+            "max_reference_l2": 641148185538.1459,
+            "max_relative_l2": 1.5102227280125181e-06,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": true,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "frame_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 47426.27149518669,
+            "max_reference_l2": 641148185538.1459,
+            "max_relative_l2": 1.4896997344108726e-06,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": true,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "element_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.05219923542198639,
+            "max_reference_l2": 227096.76810621735,
+            "max_relative_l2": 7.856397449141334e-06,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": true,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "assembled_action": {
+            "rows": 1,
+            "finite_rows": 1,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 3.267589190306343e-10,
+            "max_reference_l2": 2.72926824342768e-05,
+            "max_relative_l2": 1.1972400287787717e-05,
+            "relative_gate": 0.01,
+            "all_rows_at_relative_gate": true,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "branch_predicates_changed_from_center": null,
+          "realized_endpoint_vs_ideal_F_perturbation": null
+        },
+        {
+          "state_index": 1,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.9998880144611567e-12,
+            "max_dynamic_correction": 5.808259474431145e-14,
+            "max_independent_scaled_residual_at_native_state": 2.0794534283306576e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 953,
+                  "maximum_dynamic_scaled_correction": 0.00010731114600836787
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.9188407706309987e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 184,
+                  "rows_updated": 184,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.9214331891271611e-10,
+                  "max_preupdate_dynamic_correction": 1.9188407706309987e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.12498591134142378,
+            "max_reference_l2": 2888922.278932693,
+            "max_relative_l2": 5.744872770722588e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 1.5556051877701389e-09,
+            "max_reference_l2": 0.12604716499477725,
+            "max_relative_l2": 1.8072703483214277e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 302,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 6.02637386445044e-08,
+            "max_reference_l2": 0.024939850317576565,
+            "max_relative_l2": 0.001712617416225468,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 2,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.9749140075629547e-12,
+            "max_dynamic_correction": 5.345192731351837e-12,
+            "max_independent_scaled_residual_at_native_state": 1.992039966925316e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 928,
+                  "maximum_dynamic_scaled_correction": 0.000554088094488928
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.90077052594597e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 317,
+                  "rows_updated": 317,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.900460508777999e-10,
+                  "max_preupdate_dynamic_correction": 1.90077052594597e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.12496965762501343,
+            "max_reference_l2": 2595117.297101526,
+            "max_relative_l2": 5.8159868950942645e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 1.149428198743611e-09,
+            "max_reference_l2": 0.1130526576803993,
+            "max_relative_l2": 1.8774903314336438e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 273,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 6.578079496928456e-08,
+            "max_reference_l2": 0.024939850317576565,
+            "max_relative_l2": 0.0019128564450468257,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 3,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.8909020420813817e-12,
+            "max_dynamic_correction": 1.8691329267889611e-13,
+            "max_independent_scaled_residual_at_native_state": 2.0959636134757274e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 961,
+                  "maximum_dynamic_scaled_correction": 0.00035588082434927476
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.8779811414303233e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 187,
+                  "rows_updated": 187,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.87510602138698e-10,
+                  "max_preupdate_dynamic_correction": 1.8779811414303233e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.12437802482561038,
+            "max_reference_l2": 2794015.683291531,
+            "max_relative_l2": 5.435405244430214e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.149978197781978e-12,
+            "max_reference_l2": 0.12188987733376042,
+            "max_relative_l2": 8.063332236756579e-10,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 255,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 9.289647480590595e-08,
+            "max_reference_l2": 0.012469925158788283,
+            "max_relative_l2": 0.007347364624125087,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 4,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 1.8809832380651087e-12,
+            "max_dynamic_correction": 6.127447149155647e-12,
+            "max_independent_scaled_residual_at_native_state": 2.107844088795014e-05,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 968,
+                  "maximum_dynamic_scaled_correction": 0.000271637786871996
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 1.993820208998241e-08
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 263,
+                  "rows_updated": 263,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 1.77190920855221e-10,
+                  "max_preupdate_dynamic_correction": 1.993820208998241e-08
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 0.12185396597851904,
+            "max_reference_l2": 2619225.2782506053,
+            "max_relative_l2": 5.518144156551217e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 1.7034194622402162e-09,
+            "max_reference_l2": 0.11410156188218365,
+            "max_relative_l2": 1.785855787581443e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 275,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 6.56168359983774e-08,
+            "max_reference_l2": 0.012469925158788283,
+            "max_relative_l2": 0.005752525181378478,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        }
+      ],
+      "fp64_directional_sweep": {
+        "rows": 1728,
+        "rows_with_two_adjacent_declared_grid_points_at_1e_6": 1713,
+        "all_rows_have_resolved_pair": false,
+        "rows_with_reference_pair_and_inferred_native_center_predicate_agreement": 1495,
+        "native_branch_derivative_qualified": false,
+        "grid": [
+          {
+            "epsilon": 0.00390625,
+            "power_of_two": -8,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1059,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 311227950402.1473,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 12.839508662280569,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 435454602521.11304,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 26.098728610283267,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 365436854894.2594,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 11.834728731921741,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.0009765625,
+            "power_of_two": -10,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1261,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 719767185205.1886,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 51.31981803377784,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1397190170365.9043,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 102.63704933219245,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1387512421006.6028,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 45.37040957013198,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.000244140625,
+            "power_of_two": -12,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1466,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1568224993602.282,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 44.537835310771705,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 3142655669022.5522,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 89.07569556055638,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 2491275729532.8438,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 66.61936799014846,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 6.103515625e-05,
+            "power_of_two": -14,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1620,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1450683038134.3228,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 10.487933085464181,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 2905396108459.6045,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 11.246567979064114,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1285291972451.8345,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 20.977487192713166,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.52587890625e-05,
+            "power_of_two": -16,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1661,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 977395860174.4369,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 3.5229930895568553,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1956204616684.4653,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 7.051078920171219,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 16554791521.094011,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.05967123302267697,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 3.814697265625e-06,
+            "power_of_two": -18,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1549,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 70677045.58492233,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.002520900094591727,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 4475447087.745086,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.016131610338506387,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 4334315679.953472,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.015622906552631391,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 9.5367431640625e-07,
+            "power_of_two": -20,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 1101,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 4414529.39059097,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.00015254711668881874,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1105356428.8896384,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.0039842229941310005,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 1096539979.5355854,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.003952444375646558,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 2.384185791015625e-07,
+            "power_of_two": -22,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 657,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 276262.7945963308,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 7.384435715748136e-05,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 275508598.859236,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.0009930622068742478,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 274957081.07099193,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.0009910742780974626,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 5.960464477539063e-08,
+            "power_of_two": -24,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 240,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 189412.5759336917,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.0003391375272863402,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 68825278.14750594,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.00027820652661848946,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 68791027.30550401,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.0004513475497139755,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.4901161193847656e-08,
+            "power_of_two": -26,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 26,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 748684.2618159656,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.001860227841594588,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 17201595.194066457,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.002315697638560093,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 0,
+              "max_absolute_l2": 17204280.49915276,
+              "max_reference_l2": 641148185538.1459,
+              "max_relative_l2": 0.00169329244211181,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          }
+        ],
+        "scope": "Independent-reference branch only: ideal unquantized FP64 endpoints at fixed accepted history; per-tet captured direction only. Inferred native-center predicates are reported separately and are not native internal branch traces. This does not measure native FP32 noise or verify every FP64 basis column."
+      }
+    },
+    "1": {
+      "scope": {
+        "environment": 1,
+        "control": 19,
+        "newton": 3,
+        "tets": 1920,
+        "nodes": 882,
+        "dt_s": 4.999999873689376e-05
+      },
+      "state_rows": [
+        {
+          "state_index": 0,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1152,
+            "max_absolute_l2": 5.092417411274242e-06,
+            "max_reference_l2": 107.01066443024588,
+            "max_relative_l2": 6.125607138701613e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.985941957924322e-13,
+            "max_reference_l2": 1.139502309823735e-05,
+            "max_relative_l2": 1.0,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 1536,
+          "local_directional_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": false,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "frame_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": false,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "element_action": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": 0.001,
+            "all_rows_at_relative_gate": false,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "assembled_action": {
+            "rows": 1,
+            "finite_rows": 1,
+            "zero_reference_rows": 1,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": 0.01,
+            "all_rows_at_relative_gate": false,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "branch_predicates_changed_from_center": null,
+          "realized_endpoint_vs_ideal_F_perturbation": null
+        },
+        {
+          "state_index": 1,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1152,
+            "max_absolute_l2": 5.092417411274242e-06,
+            "max_reference_l2": 107.01066443024588,
+            "max_relative_l2": 6.125607138701613e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.985941957924322e-13,
+            "max_reference_l2": 1.139502309823735e-05,
+            "max_relative_l2": 1.0,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 1536,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 2,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1152,
+            "max_absolute_l2": 5.092417411274242e-06,
+            "max_reference_l2": 107.01066443024588,
+            "max_relative_l2": 6.125607138701613e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.985941957924322e-13,
+            "max_reference_l2": 1.139502309823735e-05,
+            "max_relative_l2": 1.0,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 1536,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 3,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1152,
+            "max_absolute_l2": 5.092417411274242e-06,
+            "max_reference_l2": 107.01066443024588,
+            "max_relative_l2": 6.125607138701613e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.985941957924322e-13,
+            "max_reference_l2": 1.139502309823735e-05,
+            "max_relative_l2": 1.0,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 1536,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        },
+        {
+          "state_index": 4,
+          "projection": {
+            "rows": 1728,
+            "valid_rows": 1728,
+            "max_scaled_residual": 9.324487205780124e-21,
+            "max_dynamic_correction": 8.460077717259066e-16,
+            "max_independent_scaled_residual_at_native_state": 6.240696165133591e-13,
+            "failures": [],
+            "independent_refinement": {
+              "base_projection_passes": [
+                {
+                  "iteration": 0,
+                  "rows_above_dynamic_correction_gate": 576,
+                  "maximum_dynamic_scaled_correction": 9.684039285162175e-08
+                },
+                {
+                  "iteration": 1,
+                  "rows_above_dynamic_correction_gate": 0,
+                  "maximum_dynamic_scaled_correction": 5.0000099696325586e-09
+                }
+              ],
+              "tight_gate_residual": 2e-12,
+              "tight_gate_dynamic_correction": 2e-11,
+              "tight_continuation": [
+                {
+                  "extra_iteration": 0,
+                  "rows_considered": 1152,
+                  "rows_updated": 1152,
+                  "rows_stalled": 0,
+                  "max_preupdate_scaled_residual": 5.000009939245144e-13,
+                  "max_preupdate_dynamic_correction": 5.0000099696325586e-09
+                }
+              ]
+            },
+            "failure_meaning": "Failed independent FP64 reference projections make those rows inconclusive; they do not by themselves demonstrate a production projection defect."
+          },
+          "stress": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1152,
+            "max_absolute_l2": 5.092417411274242e-06,
+            "max_reference_l2": 107.01066443024588,
+            "max_relative_l2": 6.125607138701613e-08,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "projected_state": {
+            "rows": 1728,
+            "finite_rows": 1728,
+            "zero_reference_rows": 0,
+            "max_absolute_l2": 5.985941957924322e-13,
+            "max_reference_l2": 1.139502309823735e-05,
+            "max_relative_l2": 1.0,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          },
+          "native_vs_reference_branch_mismatch_rows": 1536,
+          "local_directional_action": null,
+          "frame_action": null,
+          "element_action": null,
+          "assembled_action": null,
+          "branch_predicates_changed_from_center": 0,
+          "realized_endpoint_vs_ideal_F_perturbation": {
+            "rows": 1920,
+            "finite_rows": 1920,
+            "zero_reference_rows": 1920,
+            "max_absolute_l2": 0.0,
+            "max_reference_l2": 0.0,
+            "max_relative_l2": null,
+            "relative_gate": null,
+            "all_rows_at_relative_gate": null,
+            "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+          }
+        }
+      ],
+      "fp64_directional_sweep": {
+        "rows": 1728,
+        "rows_with_two_adjacent_declared_grid_points_at_1e_6": 0,
+        "all_rows_have_resolved_pair": false,
+        "rows_with_reference_pair_and_inferred_native_center_predicate_agreement": 0,
+        "native_branch_derivative_qualified": false,
+        "grid": [
+          {
+            "epsilon": 0.00390625,
+            "power_of_two": -8,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.0009765625,
+            "power_of_two": -10,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 0.000244140625,
+            "power_of_two": -12,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 6.103515625e-05,
+            "power_of_two": -14,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.52587890625e-05,
+            "power_of_two": -16,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 3.814697265625e-06,
+            "power_of_two": -18,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 9.5367431640625e-07,
+            "power_of_two": -20,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 2.384185791015625e-07,
+            "power_of_two": -22,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 5.960464477539063e-08,
+            "power_of_two": -24,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          },
+          {
+            "epsilon": 1.4901161193847656e-08,
+            "power_of_two": -26,
+            "smooth_rows": 1728,
+            "rows_at_1e_6": 0,
+            "centered_comparison_all_rows_descriptive_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "branch_crossing_rows": 0,
+            "plus_branch_preserving_rows": 1728,
+            "minus_branch_preserving_rows": 1728,
+            "one_sided_plus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            },
+            "one_sided_minus_branch_preserving_only": {
+              "rows": 1728,
+              "finite_rows": 1728,
+              "zero_reference_rows": 1728,
+              "max_absolute_l2": 0.0,
+              "max_reference_l2": 0.0,
+              "max_relative_l2": null,
+              "relative_gate": null,
+              "all_rows_at_relative_gate": null,
+              "near_zero_policy": "Zero-reference or failed rows stay inconclusive; no measured native absolute noise floor is inferred from FP64 arithmetic."
+            }
+          }
+        ],
+        "scope": "Independent-reference branch only: ideal unquantized FP64 endpoints at fixed accepted history; per-tet captured direction only. Inferred native-center predicates are reported separately and are not native internal branch traces. This does not measure native FP32 noise or verify every FP64 basis column."
+      }
+    }
+  },
+  "wall_seconds": 21.145388542674482,
+  "finished_at_utc": "2026-10-16T11:41:15.471799+00:00"
+}

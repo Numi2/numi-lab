@@ -1,0 +1,15 @@
+{
+  "files": {
+    "report.json": "3f652542a36b54f822f68c9b5cc84b8d803a69c542fb74ac0cfabdd8086c1f54",
+    "README.md": "e9383cee48a56deba8bde5ce2844aacb7067282dab42606ec30fa17b1b874fec",
+    "commands/archive_publication040_002.py": "29f1c2e2aca61f4586325e69024975f7bc021b2d717505c019449dca87ddd8a4",
+    "commands/audit_publication040_001.py": "1398366be7d5b129e97bb640ebdff5c82e9eda8d3bc5083e72f7083cb918ff31",
+    "commands/adjud_native578_full_strict_coupon_002.py": "cc38b5acd0c82db10a44d2d4ac4d8b85d5027f832bdc997362b8c18c0e32ebb9",
+    "commands/native555-global-ideal-fd-mp-full-runner-001.py": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+    "commands/prepare_publication040_reproduction_002.py": "b8fda1e1a9c1c5f1647c489dd90d23e6ce229978822977728be5f8e4ee517f24",
+    "commands/publish_publication040_001.py": "ff662105befee4c9a05ea39a3953e456eef5871b83e3ddab9a2067873497820b",
+    "commands/prepare_publication040_reproduction_001.py": "379d8927394950f5f1752bc7939e1302f4908a1ec61e03b2edc29b536b8a9742",
+    "commands/archive_publication040_001.py": "58f3b006eea45b3aba041d2b352d4f7149ca577aa29e70fd0b621a2bdf5f17cc",
+    "commands/adjud_native578_full_strict_coupon_001.py": "66dd858c625878b8fb84b5a74bf7ac5c4ad63fb6f1fe6b16e57e250f27408772"
+  }
+}

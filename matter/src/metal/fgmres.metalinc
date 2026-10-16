@@ -8509,6 +8509,27 @@ kernel void nm_human_support_certify(
             invalidSupportDiagnostics);
 }
 
+kernel void nm_matter_capture_first_failure(
+    device const NMMatterStatusGPU* statuses [[buffer(0)]],
+    device const NMSolverCertificateGPU* certificates [[buffer(1)]],
+    device NMMatterFirstFailureCaptureGPU* captures [[buffer(2)]],
+    constant nm_uint4& context [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= context.w ||
+        captures[environment].capture.x != 0u) return;
+    const NMMatterStatusGPU observed = statuses[environment];
+    if (observed.code == NM_STATUS_SUCCESS) return;
+    NMMatterFirstFailureCaptureGPU record = {};
+    record.capture.x = 1u;
+    record.capture.y = context.x;
+    record.capture.z = context.y;
+    record.capture.w = context.z;
+    record.status = observed;
+    record.certificate = certificates[environment];
+    captures[environment] = record;
+}
+
 } // namespace numi_matter_metal
 
 #include "base_cgls.metalinc"

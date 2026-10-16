@@ -1,0 +1,10 @@
+{
+  "attempts": [
+    {
+      "attempt": "unqualified system Python rerun of native563 adjudicator",
+      "resolution": "reran with the configured cardboard-reference-185 Python environment; audit exit0 and sealed report unchanged in verdict.",
+      "result": "failed before audit: ModuleNotFoundError: No module named numpy"
+    }
+  ],
+  "schema": "numi.cardboard.source232-attempts.v1"
+}

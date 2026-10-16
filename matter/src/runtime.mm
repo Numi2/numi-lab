@@ -8,6 +8,7 @@
 #include "numi/matter/regional_consumer_capture.hpp"
 #include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/full_contact_armijo_admission.hpp"
+#include "numi/matter/deformable_limit_trace_json.hpp"
 #include "numi/matter/detail/full_contact_armijo_scratch_budget.hpp"
 #include "numi/matter/detail/true_residual_arena_plan.hpp"
 #include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
@@ -48,9 +49,11 @@
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <new>
 #include <set>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -1690,7 +1693,7 @@ struct RegionalGraphSchwarzHostLayout {
 };
 
 [[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
-    const CompiledWorld& world
+    const CompiledWorld& world, const bool extendedPureFEM
 ) {
     RegionalGraphSchwarzHostLayout result;
     const std::uint32_t nodes = world.dispatch.femNodeCount;
@@ -1736,7 +1739,8 @@ struct RegionalGraphSchwarzHostLayout {
         result.potentialMask.data(), result.potentialMask.size());
     result.layout = detail::buildBudgetedRegionalGraphSchwarzLayout(
         nodes, tetrahedra, result.sourceFreeMask,
-        world.dispatch.environmentCount);
+        world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+        extendedPureFEM);
     if (!result.layout.error.empty()) return result;
     result.patches.reserve(result.layout.patches.size());
     for (const auto& patch : result.layout.patches) {
@@ -2167,8 +2171,9 @@ struct Runtime::State {
     bool femResidualArmijoScratchEnabled = false;
     bool femBaseCauchyScratchEnabled = false;
     bool femBaseCGLSScratchEnabled = false;
-    bool femPureFEMArmijo8192ArenaAdmitted = false;
-    std::uint64_t femPureFEMArmijo8192ScratchBytes = 0u;
+    bool femPureFEMArmijoArenaAdmitted = false;
+    bool femExtendedPureTrueResidualLayout = false;
+    std::uint64_t femPureFEMArmijoScratchBytes = 0u;
     bool femArmijoMixedCohesiveSupported = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
@@ -4560,6 +4565,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
             "nm_fem_status5_capture",
+            "nm_matter_capture_first_failure",
             "nm_fem_build_algorithmic_tangent_cache",
             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
             "nm_fem_cohesive_face_forces",
@@ -5016,9 +5022,38 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->femRegionalModeCount);
             }
         }
+        // Expanded coupon storage is confined to the same static contact-free
+        // FEM layout as residual Armijo. Coupled/contact extents stay bounded
+        // by their existing admission; allocation alone never admits a step.
+        constexpr std::uint32_t extendedPureUnsupportedFlags =
+            NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
+            NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+            NM_MATTER_LEARNED_MATERIAL;
+        candidate->femExtendedPureTrueResidualLayout =
+            candidate->objectLayout.size() == 1u &&
+            candidate->objectLayout[0].representation == NM_REPRESENTATION_FEM &&
+            (candidate->objectLayout[0].flags &
+                (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE | NM_OBJECT_MIXED_FEM |
+                 NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY)) == 0u &&
+            (candidate->objectLayout[0].flags &
+                (NM_OBJECT_DISABLE_SELF_CONTACT | NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) ==
+                (NM_OBJECT_DISABLE_SELF_CONTACT | NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) &&
+            (candidate->dispatch.flags & extendedPureUnsupportedFlags) == 0u &&
+            candidate->dispatch.rigidProxyCount == 0u &&
+            candidate->dispatch.contactPairCount == 0u &&
+            candidate->dispatch.cohesiveFaceCount == 0u &&
+            candidate->dispatch.rigidGeneralizedCapacity == 0u &&
+            candidate->dispatch.rigidQCapacity == 0u &&
+            candidate->dispatch.fieldBoundaryCount == 0u &&
+            candidate->dispatch.punctureChannelCount == 0u &&
+            candidate->dispatch.mpmActiveNodeCapacity == 0u &&
+            candidate->dispatch.particleCount == 0u &&
+            candidate->dispatch.mpmGridCount == 0u &&
+            candidate->dispatch.mpmBlockCount == 0u;
         RegionalGraphSchwarzHostLayout graphSchwarz;
         if (world.mixedSolver.executionBudgets.z == 5u) {
-            graphSchwarz = buildRegionalGraphSchwarz(world);
+            graphSchwarz = buildRegionalGraphSchwarz(
+                world, candidate->femExtendedPureTrueResidualLayout);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
@@ -6381,7 +6416,8 @@ RuntimeDiagnostics Runtime::initialize(
             world.dispatch.environmentCount, world.dispatch.femNodeCount,
             world.dispatch.tetrahedronCount, world.dispatch.cohesiveFaceCount,
             world.dispatch.rigidGeneralizedCapacity,
-            static_cast<std::uint64_t>(candidate->device.maxBufferLength)};
+            static_cast<std::uint64_t>(candidate->device.maxBufferLength),
+            candidate->femExtendedPureTrueResidualLayout};
         const auto trueResidualArenaPlan =
             detail::planFEMTrueResidualArena(trueResidualArenaShape);
         const bool trueResidualResidentAdditionFits =
@@ -6528,8 +6564,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->dispatch.environmentCount >= 1u &&
             candidate->dispatch.environmentCount <= 2u &&
             candidate->dispatch.femNodeCount >= 1u &&
-            candidate->dispatch.femNodeCount <= 8192u &&
-            candidate->dispatch.tetrahedronCount <= 32768u &&
+            candidate->dispatch.femNodeCount <= 32768u &&
+            candidate->dispatch.tetrahedronCount <= 131072u &&
             candidate->fgmresLayout.unknownCount == 2u *
                 candidate->dispatch.environmentCount * candidate->dispatch.femNodeCount;
         candidate->femBaseCGLSRightScaleScratchEnabled =
@@ -6593,8 +6629,8 @@ RuntimeDiagnostics Runtime::initialize(
                     detail::femPureArmijoCGLSArenaFailureReason(plan.failure);
                 return diagnostics;
             }
-            candidate->femPureFEMArmijo8192ArenaAdmitted = true;
-            candidate->femPureFEMArmijo8192ScratchBytes = plan.scratchBytes;
+            candidate->femPureFEMArmijoArenaAdmitted = true;
+            candidate->femPureFEMArmijoScratchBytes = plan.scratchBytes;
             if (candidate->dispatch.femNodeCount > 4096u) {
                 std::fprintf(stderr,
                     "pure_fem_armijo_cgls_arena={\"schema\":1,\"node_count\":%u,\"environment_count\":%u,\"scratch_bytes\":%llu,\"scratch_cap_bytes\":%llu,\"accounted_resident_plus_scratch_bytes\":%llu,\"whole_process_peak_measured\":false}\n",
@@ -8033,6 +8069,113 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     static_cast<std::size_t>(status5CaptureBytes));
             }
         }
+        const char* firstFailureRootText =
+            std::getenv("NM_MATTER_FIRST_FAILURE_CAPTURE_ROOT");
+        const char* firstFailurePathText =
+            std::getenv("NM_MATTER_FIRST_FAILURE_CAPTURE_PATH");
+        const char* firstFailureInputPathText =
+            std::getenv("NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_PATH");
+        const char* firstFailureInputHashText =
+            std::getenv("NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_SHA256");
+        const bool firstFailureRequested =
+            firstFailureRootText != nullptr || firstFailurePathText != nullptr ||
+            firstFailureInputPathText != nullptr ||
+            firstFailureInputHashText != nullptr;
+        bool firstFailureRootValid = false;
+        std::uint32_t firstFailureRoot = 0u;
+        if (firstFailureRootText != nullptr && *firstFailureRootText != '\0') {
+            std::uint64_t parsed = 0u;
+            bool digits = true;
+            for (const char* cursor = firstFailureRootText; *cursor != '\0'; ++cursor) {
+                if (*cursor < '0' || *cursor > '9') { digits = false; break; }
+                const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
+                if (parsed > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                    digits = false; break;
+                }
+                parsed = parsed * 10u + digit;
+            }
+            if (digits) {
+                firstFailureRoot = static_cast<std::uint32_t>(parsed);
+                firstFailureRootValid = true;
+            }
+        }
+        const bool firstFailureSelected = firstFailureRequested &&
+            firstFailureRootValid && firstFailurePathText != nullptr &&
+            *firstFailurePathText != '\0' &&
+            request.phase == EncodePhase::preDynamics &&
+            request.physicsSubstep == 0u &&
+            request.controlStep == firstFailureRoot;
+        id<MTLBuffer> firstFailureCaptureBuffer = nil;
+        std::string firstFailureCapturePath;
+        std::string firstFailureInputPath;
+        std::string firstFailureInputHash;
+        std::uint64_t firstFailureCaptureBytes = 0u;
+        if (firstFailureRequested) {
+            if (!firstFailureRootValid || firstFailurePathText == nullptr ||
+                *firstFailurePathText == '\0' ||
+                firstFailureInputPathText == nullptr ||
+                *firstFailureInputPathText == '\0' ||
+                firstFailureInputHashText == nullptr ||
+                std::strlen(firstFailureInputHashText) != 64u ||
+                !std::all_of(firstFailureInputHashText,
+                    firstFailureInputHashText + 64u,
+                    [](const char value) {
+                        return (value >= '0' && value <= '9') ||
+                               (value >= 'a' && value <= 'f');
+                    })) {
+                diagnostics.message =
+                    "first-failure capture requires a decimal root, output stem, and lowercase SHA-256 accepted-snapshot binding";
+                return diagnostics;
+            }
+            if (firstFailureSelected) {
+                const std::filesystem::path outputStem(firstFailurePathText);
+                const std::filesystem::path inputPath(firstFailureInputPathText);
+                const std::uint64_t environmentCount =
+                    state.dispatch.environmentCount;
+                if (!outputStem.is_absolute() ||
+                    !std::filesystem::exists(outputStem.parent_path()) ||
+                    !inputPath.is_absolute() ||
+                    !std::filesystem::is_regular_file(inputPath) ||
+                    environmentCount != 1u ||
+                    state.dispatch.objectCount != 1u ||
+                    state.statuses == nil || state.solverCertificates == nil) {
+                    diagnostics.message =
+                        "first-failure capture is outside the one-environment, one-object activation scope";
+                    return diagnostics;
+                }
+                firstFailureCapturePath = outputStem.string();
+                firstFailureInputPath = inputPath.string();
+                firstFailureInputHash = firstFailureInputHashText;
+                if (::access((firstFailureCapturePath + ".bin").c_str(), F_OK) == 0 ||
+                    ::access((firstFailureCapturePath + ".json").c_str(), F_OK) == 0) {
+                    diagnostics.message =
+                        "first-failure capture output already exists; refusing overwrite";
+                    return diagnostics;
+                }
+                firstFailureCaptureBytes =
+                    environmentCount * sizeof(NMMatterFirstFailureCaptureGPU);
+                if (firstFailureCaptureBytes == 0u ||
+                    firstFailureCaptureBytes > 1024u * 1024u ||
+                    firstFailureCaptureBytes >
+                        std::numeric_limits<NSUInteger>::max()) {
+                    diagnostics.message =
+                        "first-failure capture exceeds its one-MiB bound";
+                    return diagnostics;
+                }
+                firstFailureCaptureBuffer = [state.device
+                    newBufferWithLength:
+                        static_cast<NSUInteger>(firstFailureCaptureBytes)
+                    options:MTLResourceStorageModeShared];
+                if (firstFailureCaptureBuffer == nil ||
+                    firstFailureCaptureBuffer.contents == nullptr) {
+                    diagnostics.message =
+                        "first-failure capture buffer allocation failed";
+                    return diagnostics;
+                }
+                std::memset(firstFailureCaptureBuffer.contents, 0,
+                    static_cast<std::size_t>(firstFailureCaptureBytes));
+            }
+        }
         // Parse once: endpoint certification and trial scope must select
         // exactly the same transactions, including the every-step mode.
         const char* boxArmijoSelector = std::getenv(
@@ -9070,6 +9213,107 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          offset:0u atIndex:index];
         };
 
+        // Keep only a bounded ordinal-to-interned-name map. The observer must
+        // continue even if attribution storage fills: a status record and an
+        // explicit incomplete-map flag are more useful than silently losing
+        // the first global failure.
+        constexpr std::size_t kMaximumFirstFailureDispatchMapEntries = 1u << 20u;
+        constexpr std::size_t kMaximumFirstFailurePipelineNames = 4096u;
+        constexpr std::uint16_t kUnmappedFirstFailurePipeline =
+            std::numeric_limits<std::uint16_t>::max();
+        struct FirstFailurePipelineNameHash {
+            using is_transparent = void;
+            std::size_t operator()(std::string_view value) const noexcept {
+                return std::hash<std::string_view>{}(value);
+            }
+        };
+        struct FirstFailurePipelineNameEqual {
+            using is_transparent = void;
+            bool operator()(std::string_view left,
+                            std::string_view right) const noexcept {
+                return left == right;
+            }
+        };
+        std::uint64_t firstFailureDispatchOrdinal = 0u;
+        std::vector<std::uint16_t> firstFailureDispatchPipelineIDs;
+        std::vector<std::string> firstFailurePipelineNames;
+        std::unordered_map<std::string, std::uint16_t,
+            FirstFailurePipelineNameHash, FirstFailurePipelineNameEqual>
+            firstFailurePipelineIDs;
+        bool firstFailureDispatchMapOverflow = false;
+        if (firstFailureSelected) {
+            try {
+                firstFailureDispatchPipelineIDs.reserve(
+                    kMaximumFirstFailureDispatchMapEntries);
+                firstFailurePipelineNames.reserve(
+                    kMaximumFirstFailurePipelineNames);
+                firstFailurePipelineIDs.reserve(
+                    kMaximumFirstFailurePipelineNames);
+            } catch (const std::bad_alloc&) {
+                diagnostics.message =
+                    "first-failure bounded dispatch-name map allocation failed";
+                return diagnostics;
+            }
+        }
+        const auto observeFirstFailureAfterDispatch = [&](const char* name) {
+            if (!firstFailureSelected) return;
+            const std::uint64_t ordinal64 = firstFailureDispatchOrdinal++;
+            const std::uint32_t ordinal =
+                ordinal64 <= std::numeric_limits<std::uint32_t>::max()
+                    ? static_cast<std::uint32_t>(ordinal64)
+                    : std::numeric_limits<std::uint32_t>::max();
+            std::uint16_t pipelineID = kUnmappedFirstFailurePipeline;
+            if (ordinal64 <= std::numeric_limits<std::uint32_t>::max() &&
+                firstFailureDispatchPipelineIDs.size() <
+                    kMaximumFirstFailureDispatchMapEntries) {
+                try {
+                    const auto found = firstFailurePipelineIDs.find(
+                        std::string_view(name));
+                    if (found != firstFailurePipelineIDs.end()) {
+                        pipelineID = found->second;
+                    } else if (firstFailurePipelineNames.size() <
+                               kMaximumFirstFailurePipelineNames) {
+                        pipelineID = static_cast<std::uint16_t>(
+                            firstFailurePipelineNames.size());
+                        firstFailurePipelineNames.emplace_back(name);
+                        firstFailurePipelineIDs.emplace(
+                            firstFailurePipelineNames.back(), pipelineID);
+                    }
+                    firstFailureDispatchPipelineIDs.push_back(pipelineID);
+                } catch (const std::bad_alloc&) {
+                    firstFailureDispatchMapOverflow = true;
+                    if (firstFailureDispatchPipelineIDs.size() <
+                        kMaximumFirstFailureDispatchMapEntries) {
+                        firstFailureDispatchPipelineIDs.push_back(
+                            kUnmappedFirstFailurePipeline);
+                    }
+                }
+            } else {
+                firstFailureDispatchMapOverflow = true;
+            }
+            if (pipelineID == kUnmappedFirstFailurePipeline)
+                firstFailureDispatchMapOverflow = true;
+
+            nm_uint4 context{};
+            context.x = ordinal;
+            context.y = static_cast<std::uint32_t>(request.phase);
+            context.z = request.controlStep;
+            context.w = state.dispatch.environmentCount;
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            id<MTLComputePipelineState> firstFailurePipeline =
+                state.pipeline("nm_matter_capture_first_failure");
+            [encoder setComputePipelineState:firstFailurePipeline];
+            [encoder setBuffer:state.statuses offset:0u atIndex:0u];
+            [encoder setBuffer:state.solverCertificates offset:0u atIndex:1u];
+            [encoder setBuffer:firstFailureCaptureBuffer offset:0u atIndex:2u];
+            [encoder setBytes:&context length:sizeof(context) atIndex:3u];
+            const NSUInteger observerWidth = std::min<NSUInteger>(
+                32u, firstFailurePipeline.maxTotalThreadsPerThreadgroup);
+            [encoder dispatchThreads:MTLSizeMake(
+                state.dispatch.environmentCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(observerWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
         const auto dispatchThreads = [&](
             const char* name,
             const NSUInteger count,
@@ -9090,6 +9334,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
             [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
         };
         const auto captureStatus5 = [&](const std::uint32_t stageID,
             const std::uint32_t domain, const std::uint32_t indexKind,
@@ -9153,6 +9398,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bind();
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
             if (profileDense) {
                 [encoder endEncoding];
                 encoder = detail::timedEncoder(commandBuffer, state.device,
@@ -9177,6 +9423,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bind();
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
         };
         const auto dispatchIndirect = [&](
             const char* name,
@@ -9197,6 +9444,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchThreadgroupsWithIndirectBuffer:indirect
                 indirectBufferOffset:0u
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
             return true;
         };
         const auto setDispatch = [&]() {
@@ -10712,7 +10960,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 if (state.dispatch.femNodeCount == 0u ||
                     state.dispatch.femNodeCount > maximumFEMNodeCount)
-                    return maximumFEMNodeCount > 4096u
+                    return maximumFEMNodeCount > 8192u
+                        ? "fem_node_cap_32768"
+                        : maximumFEMNodeCount > 4096u
                         ? "fem_node_cap_8192"
                         : "fem_node_cap_4096";
                 if (state.dispatch.objectCount != 1u ||
@@ -10801,7 +11051,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     (state.dispatch.cohesiveFaceCount != 0u &&
                      state.femTrueResidualCohesiveOperator == nil))
                     return "cohesive_true_residual_capacity_or_buffer_unavailable";
-                if (state.dispatch.tetrahedronCount > 32768u ||
+                const bool extendedPureArena = state.femExtendedPureTrueResidualLayout &&
+                    state.femPureFEMArmijoArenaAdmitted;
+                if (state.dispatch.tetrahedronCount > (extendedPureArena ? 131072u : 32768u) ||
                     state.femTrueResidualElementOperator == nil ||
                     state.femTrueResidualOperatorValue == nil ||
                     state.femTrueResidualRightHandSide == nil ||
@@ -10819,7 +11071,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.dispatch.environmentCount, state.dispatch.femNodeCount,
                     state.dispatch.tetrahedronCount, state.dispatch.cohesiveFaceCount,
                     state.dispatch.rigidGeneralizedCapacity,
-                    static_cast<std::uint64_t>(state.device.maxBufferLength)};
+                    static_cast<std::uint64_t>(state.device.maxBufferLength),
+                    extendedPureArena};
                 const auto arenaPlan = detail::planFEMTrueResidualArena(arenaShape);
                 if (!arenaPlan.admitted())
                     return detail::femTrueResidualArenaFailureReason(arenaPlan.failure);
@@ -10837,18 +11090,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femTrueResidualOperatorValue.length < arenaPlan.operatorValue.allocatedBytes)
                     return "true_residual_arena_buffer_extent_mismatch";
                 return femNewtonTraceScope(
-                    state.dispatch.rigidGeneralizedCapacity == 6u, 8192u);
+                    state.dispatch.rigidGeneralizedCapacity == 6u,
+                    extendedPureArena ? 32768u : 8192u);
             };
             const auto femResidualArmijoScope = [&]() -> const char* {
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (microtick != 0u)
                     return "requires_microtick_zero";
-                if (const char* reason = femNewtonTraceScope(false, 8192u))
+                if (const char* reason = femNewtonTraceScope(false, 32768u))
                     return reason;
                 if (state.dispatch.femNodeCount > 4096u &&
-                    !state.femPureFEMArmijo8192ArenaAdmitted)
-                    return "pure_fem_armijo_8192_checked_arena_not_admitted";
+                    !state.femPureFEMArmijoArenaAdmitted)
+                    return "pure_fem_armijo_checked_arena_not_admitted";
                 constexpr std::uint32_t unsupportedMatterFlags =
                     NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
                     NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
@@ -12568,13 +12822,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         rejectBaseCauchy(
                             "requires_true_residual_certification_for_the_same_selected_newton_state");
                     } else if (state.dispatch.environmentCount > 2u ||
-                               state.dispatch.femNodeCount > 4096u ||
-                               state.dispatch.tetrahedronCount > 32768u ||
+                               state.dispatch.femNodeCount >
+                                   (state.femPureFEMArmijoArenaAdmitted ? 32768u : 4096u) ||
+                               state.dispatch.tetrahedronCount >
+                                   (state.femPureFEMArmijoArenaAdmitted ? 131072u : 32768u) ||
                                state.mixedSolverValue.executionBudgets.w != 1u ||
                                state.femAlgorithmicTangentCache == nil ||
                                state.femAlgorithmicTangentCacheValid == nil) {
                         rejectBaseCauchy(
-                            "requires_cached_static_fem_within_E2_N4096_T32768");
+                            "requires_cached_static_fem_within_checked_pure_arena");
                     } else if (
                         state.femAuthoredMassLayout.size() !=
                             state.dispatch.femNodeCount ||
@@ -12733,6 +12989,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             constexpr std::uint32_t deformableLimitTraceSlotsPerEnvironment =
                 256u;
             id<MTLBuffer> deformableLimitTraceRecords = nil;
+            id<MTLBuffer> deformableLimitTrialTraceRecords = nil;
+            std::uint64_t deformableLimitTrialTraceBytes = 0u;
+            std::uint32_t deformableLimitTrialTraceContactSlot =
+                std::numeric_limits<std::uint32_t>::max();
             std::uint32_t deformableLimitTraceSlots = 0u;
             bool femDeformableContactCaptureSelected = false;
             bool femExactDeformableActionCaptureDispatched = false;
@@ -14881,8 +15141,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ? femNodeTotal * sizeof(nm_float4) : 0u;
                 const NSUInteger solutionOffset =
                     candidateNodesOffset + nodeBytes;
-                const NSUInteger totalBytes =
+                const NSUInteger trialTraceOffset =
                     solutionOffset + solutionBytes;
+                const NSUInteger trialTraceBytes =
+                    deformableLimitTrialTraceRecords != nil
+                        ? static_cast<NSUInteger>(deformableLimitTrialTraceBytes)
+                        : 0u;
+                const NSUInteger totalBytes =
+                    trialTraceOffset + trialTraceBytes;
                 const NSUInteger snapshotLimit =
                     femDeformableContactCaptureSelected
                         ? 4u * 1024u * 1024u : 1024u * 1024u;
@@ -14945,6 +15211,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                      destinationOffset:solutionOffset
                                    size:solutionBytes];
                 }
+                if (trialTraceBytes != 0u) {
+                    [copy copyFromBuffer:deformableLimitTrialTraceRecords
+                            sourceOffset:0u toBuffer:snapshot
+                         destinationOffset:trialTraceOffset
+                                       size:trialTraceBytes];
+                }
                 [copy endEncoding];
                 const auto root = request.controlStep;
                 const auto iteration = micro.solverIteration;
@@ -14972,6 +15244,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedSolutionOffset = solutionOffset;
                 const auto capturedSolutionBytes = solutionBytes;
                 const auto capturedTotalBytes = totalBytes;
+                const auto capturedTrialTraceOffset = trialTraceOffset;
+                const auto capturedTrialTraceBytes = trialTraceBytes;
+                const auto capturedTrialTraceContactSlot =
+                    deformableLimitTrialTraceContactSlot;
+                const bool capturedTrialTraceSelected =
+                    capturedTrialTraceBytes != 0u &&
+                    capturedTrialTraceContactSlot !=
+                        std::numeric_limits<std::uint32_t>::max();
+                const std::string capturedAcceptedSnapshotPath =
+                    firstFailureInputPath;
+                const std::string capturedAcceptedSnapshotSHA256 =
+                    firstFailureInputHash;
                 const auto capturedDT = micro.time.x;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) return;
@@ -14983,6 +15267,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         std::uint32_t*>(bytes + recordBytes);
                     const auto* lineSearch = reinterpret_cast<const nm_float4*>(
                         bytes + lineSearchOffset);
+                    const auto* trialTrace = capturedTrialTraceSelected
+                        ? reinterpret_cast<const NMDeformableContactLimitTrialTraceGPU*>(
+                            bytes + capturedTrialTraceOffset)
+                        : nullptr;
                     std::ostringstream line;
                     line << "fem_deformable_limit_trace={\"schema\":1,\"root\":"
                          << root << ",\"microtick\":" << tick
@@ -15005,6 +15293,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         if (capturedObjectCount == 0u) line << "null";
                         else capturedAppendFloat(line, lineSearch[object].x);
                     }
+                    std::uint32_t trialTraceContactRecordsAttached = 0u;
+                    std::uint32_t trialTraceRowsAttached = 0u;
                     line << "],\"truncated\":[";
                     for (std::uint32_t environment = 0u;
                          environment < capturedEnvironments; ++environment) {
@@ -15154,14 +15444,127 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             capturedAppendFloat(line, record.barrierParameters.y); line << ',';
                             capturedAppendFloat(line, record.barrierParameters.z); line << ',';
                             capturedAppendFloat(line, record.barrierParameters.w); line << ']';
-                            line << ",\"barrier\":[";
-                            capturedAppendFloat(line, record.barrier.x); line << ',';
-                            capturedAppendFloat(line, record.barrier.y); line << ',';
-                            capturedAppendFloat(line, record.barrier.z); line << ',';
-                            capturedAppendFloat(line, record.barrier.w); line << "]}";
+                            detail::appendDeformableLimitTraceBarrier(
+                                line, record.barrier.x, record.barrier.y,
+                                record.barrier.z, record.barrier.w,
+                                capturedAppendFloat);
+                            if (capturedTrialTraceSelected &&
+                                record.result.y == capturedTrialTraceContactSlot &&
+                                (record.diagnostic.w == iteration ||
+                                 record.diagnostic.y == 6u)) {
+                                ++trialTraceContactRecordsAttached;
+                                line << ",\"per_alpha_trace\":{\"schema\":1"
+                                     << ",\"reason_codes\":{\"1\":\"ccd_uncertified\",\"2\":\"ccd_shortened_fraction\",\"3\":\"nonfinite_toi\",\"4\":\"hit_not_initial_touch_nonclosing\",\"5\":\"invalid_barrier_energy\",\"6\":\"barrier_armijo_rejected\",\"7\":\"accepted\"}"
+                                     << ",\"selected_contact_slot\":"
+                                     << capturedTrialTraceContactSlot
+                                     << ",\"contact_active_slot\":" << record.result.x
+                                     << ",\"solver_iteration\":" << record.diagnostic.w
+                                     << ",\"is_failure\":"
+                                     << (record.diagnostic.y == 6u ? "true" : "false")
+                                     << ",\"accepted_snapshot\":{\"path\":"
+                                     << jsonQuoted(capturedAcceptedSnapshotPath)
+                                     << ",\"sha256\":"
+                                     << jsonQuoted(capturedAcceptedSnapshotSHA256) << "}"
+                                     << ",\"trials\":[";
+                                bool firstTrial = true;
+                                for (std::uint32_t trialIndex = 0u;
+                                     trialIndex < 32u; ++trialIndex) {
+                                    const auto& trial = trialTrace[trialIndex];
+                                    if (trial.outcome.x != 1u ||
+                                        trial.identity.x != environment ||
+                                        trial.identity.y != record.diagnostic.w ||
+                                        trial.identity.w != capturedTrialTraceContactSlot)
+                                        continue;
+                                    if (!firstTrial) line << ',';
+                                    firstTrial = false;
+                                    ++trialTraceRowsAttached;
+                                    line << "{\"index\":" << trialIndex
+                                         << ",\"active_slot\":" << trial.identity.z
+                                         << ",\"contact_slot\":" << trial.identity.w
+                                         << ",\"reason_code\":" << trial.outcome.y
+                                         << ",\"ccd_hit\":"
+                                         << (trial.outcome.z != 0u ? "true" : "false")
+                                         << ",\"ccd_certified\":"
+                                         << (trial.outcome.w != 0u ? "true" : "false")
+                                         << ",\"tested_full_fraction\":"
+                                         << (trial.guards.x != 0u ? "true" : "false")
+                                         << ",\"initial_touch_gate_evaluated\":"
+                                         << (trial.outcome.y >= 4u ? "true" : "false")
+                                         << ",\"initial_touch_nonclosing_or_not_required\":";
+                                    if (trial.outcome.y >= 4u)
+                                        line << (trial.guards.y != 0u ? "true" : "false");
+                                    else
+                                        line << "null";
+                                    line << ",\"barrier_evaluated\":"
+                                         << (trial.outcome.y >= 5u ? "true" : "false")
+                                         << ",\"finite_barrier\":";
+                                    if (trial.outcome.y >= 5u)
+                                        line << (trial.guards.z != 0u ? "true" : "false");
+                                    else
+                                        line << "null";
+                                    line << ",\"accepted_by_feature_gate\":"
+                                         << (trial.guards.w != 0u ? "true" : "false")
+                                         << ",\"base\":[";
+                                    capturedAppendFloat(line, trial.base.x); line << ',';
+                                    capturedAppendFloat(line, trial.base.y); line << ',';
+                                    capturedAppendFloat(line, trial.base.z); line << ',';
+                                    capturedAppendFloat(line, trial.base.w); line << ']'
+                                         << ",\"ccd\":[";
+                                    capturedAppendFloat(line, trial.ccd.x); line << ',';
+                                    capturedAppendFloat(line, trial.ccd.y); line << ',';
+                                    capturedAppendFloat(line, trial.ccd.z); line << ',';
+                                    capturedAppendFloat(line, trial.ccd.w); line << ']'
+                                         << ",\"ccd_normal\":[";
+                                    capturedAppendFloat(line, trial.ccdNormal.x); line << ',';
+                                    capturedAppendFloat(line, trial.ccdNormal.y); line << ',';
+                                    capturedAppendFloat(line, trial.ccdNormal.z); line << ']'
+                                         << ",\"ccd_point\":[";
+                                    capturedAppendFloat(line, trial.ccdPoint.x); line << ',';
+                                    capturedAppendFloat(line, trial.ccdPoint.y); line << ',';
+                                    capturedAppendFloat(line, trial.ccdPoint.z); line << ']'
+                                         << ",\"energy\":";
+                                    if (trial.outcome.y >= 5u) {
+                                        line << '[';
+                                        capturedAppendFloat(line, trial.energy.x); line << ',';
+                                        capturedAppendFloat(line, trial.energy.y); line << ',';
+                                        capturedAppendFloat(line, trial.energy.z); line << ']';
+                                    } else {
+                                        line << "null";
+                                    }
+                                    line << ",\"weighted_direction_and_normal_dot\":[";
+                                    capturedAppendFloat(line, trial.weightedDirection.x); line << ',';
+                                    capturedAppendFloat(line, trial.weightedDirection.y); line << ',';
+                                    capturedAppendFloat(line, trial.weightedDirection.z); line << ',';
+                                    capturedAppendFloat(line, trial.weightedDirection.w); line << ']'
+                                         << ",\"trial_feature_endpoints\":[";
+                                    for (std::uint32_t feature = 0u; feature < 4u; ++feature) {
+                                        if (feature != 0u) line << ',';
+                                        const auto endpoint =
+                                            trial.featureEndpoint[feature];
+                                        line << '[';
+                                        capturedAppendFloat(line, endpoint.x); line << ',';
+                                        capturedAppendFloat(line, endpoint.y); line << ',';
+                                        capturedAppendFloat(line, endpoint.z); line << ']';
+                                    }
+                                    line << "]}";
+                                }
+                                line << "]}";
+                            }
+                            line << '}';
                         }
                     }
-                    line << "],\"recorded_count\":" << recorded << "}\n";
+                    line << "],\"recorded_count\":" << recorded;
+                    if (capturedTrialTraceSelected) {
+                        line << ",\"trial_trace_capture_summary\":{\"contact_slot\":"
+                             << capturedTrialTraceContactSlot
+                             << ",\"payload_bytes\":"
+                             << capturedTrialTraceBytes
+                             << ",\"contact_records_attached\":"
+                             << trialTraceContactRecordsAttached
+                             << ",\"trial_records_attached\":"
+                             << trialTraceRowsAttached << '}';
+                    }
+                    line << "}\n";
                     const auto text = line.str();
                     std::fwrite(text.data(), 1u, text.size(), stderr);
                     if (capturedContactCapture) {
@@ -25051,7 +25454,38 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             deformableLimitTraceRecords = nil;
+            deformableLimitTrialTraceRecords = nil;
+            deformableLimitTrialTraceBytes = 0u;
+            deformableLimitTrialTraceContactSlot =
+                std::numeric_limits<std::uint32_t>::max();
             deformableLimitTraceSlots = 0u;
+            const char* trialTraceSlotText = std::getenv(
+                "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT");
+            const bool trialTraceRequested =
+                trialTraceSlotText != nullptr && *trialTraceSlotText != 0;
+            bool trialTraceSlotSyntaxValid = false;
+            std::uint32_t requestedTrialTraceSlot =
+                std::numeric_limits<std::uint32_t>::max();
+            if (trialTraceRequested) {
+                const bool decimal = std::all_of(
+                    trialTraceSlotText,
+                    trialTraceSlotText + std::strlen(trialTraceSlotText),
+                    [](const unsigned char value) {
+                        return value >= '0' && value <= '9';
+                    });
+                char* slotEnd = nullptr;
+                const unsigned long parsedSlot = std::strtoul(
+                    trialTraceSlotText, &slotEnd, 10);
+                trialTraceSlotSyntaxValid = decimal &&
+                    slotEnd != trialTraceSlotText && *slotEnd == 0 &&
+                    parsedSlot <
+                        std::numeric_limits<std::uint32_t>::max() &&
+                    !(trialTraceSlotText[0] == '0' &&
+                      trialTraceSlotText[1] != 0);
+                if (trialTraceSlotSyntaxValid)
+                    requestedTrialTraceSlot =
+                        static_cast<std::uint32_t>(parsedSlot);
+            }
             const char* deformableTraceRoot = std::getenv(
                 "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
             if (deformableTraceRoot != nullptr ||
@@ -25064,15 +25498,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     traceRoot, &end, 10);
                 bool selectedIteration = !femDeformableContactCaptureSelected &&
                     micro.solverIteration < 32u;
+                if (trialTraceRequested && trialTraceSlotSyntaxValid)
+                    selectedIteration = micro.solverIteration < 256u;
                 if (const char* iterationText = std::getenv(
                         "NM_FEM_CONTACT_TRACE_ITERATION")) {
                     char* iterationEnd = nullptr;
                     const unsigned long selected = std::strtoul(
                         iterationText, &iterationEnd, 10);
-                    selectedIteration = iterationEnd != iterationText &&
+                    const bool iterationMatches =
+                        iterationEnd != iterationText &&
                         *iterationEnd == '\0' && selected < 256u &&
                         micro.solverIteration ==
                             static_cast<std::uint32_t>(selected);
+                    selectedIteration =
+                        trialTraceRequested && trialTraceSlotSyntaxValid
+                            ? selectedIteration && iterationMatches
+                            : iterationMatches;
                 }
                 const bool selected = traceRoot != nullptr &&
                     end != traceRoot && *end == '\0' &&
@@ -25081,11 +25522,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     microtick == 0u && selectedIteration &&
                     environments <= 4u &&
                     state.dispatch.deformableContactCapacity > 0u;
+                const bool selectedTrialTrace =
+                    trialTraceRequested && trialTraceSlotSyntaxValid &&
+                    selected && !femDeformableContactCaptureSelected &&
+                    firstFailureSelected && firstFailureRoot ==
+                        static_cast<std::uint32_t>(parsed) &&
+                    environments == 1u &&
+                    requestedTrialTraceSlot <
+                        state.dispatch.deformableContactCapacity &&
+                    state.dispatch.objectCount > 0u;
+                if (trialTraceRequested && !selectedTrialTrace &&
+                    micro.solverIteration == 0u) {
+                    std::fprintf(stderr,
+                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"slot_value_valid\":%s,\"reason\":\"requires_matching_deformable_root_and_first_failure_snapshot_single_environment_contact_scope\"}\n",
+                        request.controlStep,
+                        trialTraceSlotSyntaxValid ? "true" : "false");
+                }
                 if (selected) {
-                    deformableLimitTraceSlots = std::min(
-                        state.dispatch.deformableContactCapacity,
-                        femDeformableContactCaptureSelected ? 128u :
-                            deformableLimitTraceSlotsPerEnvironment);
+                    deformableLimitTraceSlots = selectedTrialTrace ? 1u :
+                        std::min(
+                            state.dispatch.deformableContactCapacity,
+                            femDeformableContactCaptureSelected ? 128u :
+                                deformableLimitTraceSlotsPerEnvironment);
                     const NSUInteger traceBytes =
                         static_cast<NSUInteger>(environments) *
                         deformableLimitTraceSlots *
@@ -25113,6 +25571,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         } else {
                             std::memset(deformableLimitTraceRecords.contents,
                                         0, traceBytes);
+                            if (selectedTrialTrace) {
+                                deformableLimitTrialTraceBytes =
+                                    static_cast<std::uint64_t>(environments) *
+                                    32u *
+                                    sizeof(NMDeformableContactLimitTrialTraceGPU);
+                                if (deformableLimitTrialTraceBytes > 65536u) {
+                                    std::fprintf(stderr,
+                                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"trial_arena_exceeds_64k_bound\",\"bytes\":%llu}\n",
+                                        request.controlStep,
+                                        static_cast<unsigned long long>(
+                                            deformableLimitTrialTraceBytes));
+                                    deformableLimitTrialTraceBytes = 0u;
+                                } else {
+                                    deformableLimitTrialTraceRecords = [state.device
+                                        newBufferWithLength:
+                                            static_cast<NSUInteger>(
+                                                deformableLimitTrialTraceBytes)
+                                        options:MTLResourceStorageModeShared];
+                                    if (deformableLimitTrialTraceRecords == nil ||
+                                        deformableLimitTrialTraceRecords.contents == nullptr) {
+                                        std::fprintf(stderr,
+                                            "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"trial_arena_allocation_failed\"}\n",
+                                            request.controlStep);
+                                        deformableLimitTrialTraceRecords = nil;
+                                        deformableLimitTrialTraceBytes = 0u;
+                                    } else {
+                                        std::memset(
+                                            deformableLimitTrialTraceRecords.contents,
+                                            0,
+                                            static_cast<std::size_t>(
+                                                deformableLimitTrialTraceBytes));
+                                        deformableLimitTrialTraceContactSlot =
+                                            requestedTrialTraceSlot;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -25152,6 +25646,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&fullResidualContactFeasibilityOnly
                                length:sizeof(fullResidualContactFeasibilityOnly)
                               atIndex:20u];
+                    [encoder setBuffer:(deformableLimitTrialTraceRecords != nil
+                            ? deformableLimitTrialTraceRecords
+                            : state.deformableContactFailures)
+                               offset:0u atIndex:21u];
+                    [encoder setBytes:&deformableLimitTrialTraceContactSlot
+                               length:sizeof(deformableLimitTrialTraceContactSlot)
+                              atIndex:22u];
                 });
             if (femDeformableContactCaptureSelected &&
                 deformableLimitTraceRecords != nil &&
@@ -27249,6 +27750,224 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::fprintf(stderr,
                     "fem_status5_capture_complete={\"schema\":1,\"root\":%u,\"records_present\":%u,\"manifest\":%s}\n",
                     capturedRoot, present, jsonQuoted(manifestPath).c_str());
+            }];
+        }
+        if (firstFailureSelected && firstFailureCaptureBuffer != nil) {
+            const auto captureBuffer = firstFailureCaptureBuffer;
+            const std::string captureStem = firstFailureCapturePath;
+            const std::string acceptedSnapshotPath = firstFailureInputPath;
+            const std::string acceptedSnapshotSHA256 = firstFailureInputHash;
+            const std::uint64_t payloadBytes = firstFailureCaptureBytes;
+            const std::uint32_t capturedRoot = request.controlStep;
+            const std::uint32_t capturedSubstep = request.physicsSubstep;
+            const std::uint32_t capturedPhase =
+                static_cast<std::uint32_t>(request.phase);
+            const std::uint64_t capturedEnvironments =
+                state.dispatch.environmentCount;
+            const std::uint64_t capturedSourceFingerprint =
+                state.sourcePhysicsFingerprint;
+            const std::uint64_t capturedWorldFingerprint = state.worldFingerprint;
+            const std::uint64_t capturedExecutionFingerprint =
+                state.executionFingerprint;
+            const std::uint64_t capturedDeviceRegistry = state.device.registryID;
+            const std::string capturedDeviceName = nsString(state.device.name);
+            const std::vector<std::uint16_t> capturedDispatchPipelineIDs =
+                firstFailureDispatchPipelineIDs;
+            const std::vector<std::string> capturedPipelineNames =
+                firstFailurePipelineNames;
+            const bool capturedDispatchMapOverflow =
+                firstFailureDispatchMapOverflow;
+            const std::uint64_t capturedDispatchCount =
+                firstFailureDispatchOrdinal;
+            bool capturedDispatchMapComplete =
+                !capturedDispatchMapOverflow &&
+                capturedDispatchPipelineIDs.size() == capturedDispatchCount;
+            std::uint64_t capturedMappedDispatchCount = 0u;
+            for (const std::uint16_t pipelineID : capturedDispatchPipelineIDs) {
+                if (pipelineID == kUnmappedFirstFailurePipeline ||
+                    pipelineID >= capturedPipelineNames.size()) {
+                    capturedDispatchMapComplete = false;
+                } else {
+                    ++capturedMappedDispatchCount;
+                }
+            }
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                const bool commandCompleted =
+                    completed.status == MTLCommandBufferStatusCompleted;
+                const bool captureBufferAvailable =
+                    captureBuffer.contents != nullptr;
+                if (!commandCompleted || !captureBufferAvailable) {
+                    std::fprintf(stderr,
+                        "matter_first_failure_capture_error={\"schema\":2,\"root\":%u,\"command_completed\":%s,\"command_status\":%u,\"capture_buffer_available\":%s,\"dispatch_count\":%llu,\"dispatch_map_complete\":%s,\"dispatch_map_overflow\":%s,\"mapped_dispatch_count\":%zu}\n",
+                        capturedRoot,
+                        commandCompleted ? "true" : "false",
+                        static_cast<unsigned>(completed.status),
+                        captureBufferAvailable ? "true" : "false",
+                        static_cast<unsigned long long>(capturedDispatchCount),
+                        capturedDispatchMapComplete ? "true" : "false",
+                        capturedDispatchMapOverflow ? "true" : "false",
+                        capturedDispatchPipelineIDs.size());
+                    return;
+                }
+                const void* payload = captureBuffer.contents;
+                const std::string payloadHash = sha256Hex(
+                    payload, static_cast<std::size_t>(payloadBytes));
+                const std::string binaryPath = captureStem + ".bin";
+                const std::string manifestPath = captureStem + ".json";
+                const int binaryFD = ::open(binaryPath.c_str(),
+                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                if (binaryFD < 0) {
+                    std::fprintf(stderr,
+                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                const bool binaryWritten = writeAllBytes(binaryFD, payload,
+                    static_cast<std::size_t>(payloadBytes));
+                const int binaryClose = ::close(binaryFD);
+                if (!binaryWritten || binaryClose != 0) {
+                    ::unlink(binaryPath.c_str());
+                    std::fprintf(stderr,
+                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_write_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                const auto* records = static_cast<
+                    const NMMatterFirstFailureCaptureGPU*>(payload);
+                std::uint32_t present = 0u;
+                for (std::uint64_t e = 0u; e < capturedEnvironments; ++e)
+                    present += records[e].capture.x != 0u ? 1u : 0u;
+                std::ostringstream json;
+                json << "{\"schema\":\"numi.matter.first_global_failure_after_dispatch.v2\""
+                    << ",\"capture_point\":\"after_each_production_dispatch_before_next_dispatch\""
+                    << ",\"semantics\":\"first_nonzero_global_status_observed; private_transient_failures_not_captured\""
+                    << ",\"command_completed\":true"
+                    << ",\"dispatch_count\":" << capturedDispatchCount
+                    << ",\"ordinal_map_entries\":" << capturedDispatchPipelineIDs.size()
+                    << ",\"mapped_dispatch_count\":" << capturedMappedDispatchCount
+                    << ",\"dispatch_map_complete\":"
+                    << (capturedDispatchMapComplete ? "true" : "false")
+                    << ",\"dispatch_map_overflow\":"
+                    << (capturedDispatchMapOverflow ? "true" : "false")
+                    << ",\"dispatch_map_capacity\":"
+                    << kMaximumFirstFailureDispatchMapEntries
+                    << ",\"pipeline_name_table\":[";
+                for (std::size_t nameIndex = 0u;
+                     nameIndex < capturedPipelineNames.size(); ++nameIndex) {
+                    if (nameIndex != 0u) json << ',';
+                    json << jsonQuoted(capturedPipelineNames[nameIndex]);
+                }
+                json << "]"
+                    << ",\"control_step\":" << capturedRoot
+                    << ",\"physics_substep\":" << capturedSubstep
+                    << ",\"phase\":" << capturedPhase
+                    << ",\"environment_count\":" << capturedEnvironments
+                    << ",\"record_bytes\":" << sizeof(NMMatterFirstFailureCaptureGPU)
+                    << ",\"payload_bytes\":" << payloadBytes
+                    << ",\"records_present\":" << present
+                    << ",\"accepted_snapshot\":{\"path\":"
+                    << jsonQuoted(acceptedSnapshotPath) << ",\"sha256\":"
+                    << jsonQuoted(acceptedSnapshotSHA256) << '}'
+                    << ",\"source_physics_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedSourceFingerprint))
+                    << ",\"world_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedWorldFingerprint))
+                    << ",\"device_program_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedExecutionFingerprint))
+                    << ",\"device\":{\"name\":"
+                    << jsonQuoted(capturedDeviceName)
+                    << ",\"registry_id\":" << capturedDeviceRegistry << '}'
+                    << ",\"pipeline_name_table_count\":"
+                    << capturedPipelineNames.size()
+                    << ",\"records\":[";
+                bool first = true;
+                for (std::uint64_t e = 0u; e < capturedEnvironments; ++e) {
+                    const auto& r = records[e];
+                    if (!r.capture.x) continue;
+                    if (!first) json << ',';
+                    first = false;
+                    const bool ordinalMapped =
+                        r.capture.y < capturedDispatchPipelineIDs.size() &&
+                        capturedDispatchPipelineIDs[r.capture.y] !=
+                            kUnmappedFirstFailurePipeline &&
+                        capturedDispatchPipelineIDs[r.capture.y] <
+                            capturedPipelineNames.size();
+                    const std::uint16_t pipelineID = ordinalMapped
+                        ? capturedDispatchPipelineIDs[r.capture.y]
+                        : kUnmappedFirstFailurePipeline;
+                    const std::string pipeline = ordinalMapped
+                        ? capturedPipelineNames[pipelineID] : std::string();
+                    const bool ordinalExact =
+                        !(capturedDispatchCount >
+                              std::numeric_limits<std::uint32_t>::max() &&
+                          r.capture.y ==
+                              std::numeric_limits<std::uint32_t>::max());
+                    json << "{\"environment\":" << e
+                        << ",\"dispatch_ordinal\":" << r.capture.y
+                        << ",\"dispatch_ordinal_exact\":"
+                        << (ordinalExact ? "true" : "false")
+                        << ",\"pipeline_mapping_available\":"
+                        << (ordinalMapped ? "true" : "false")
+                        << ",\"pipeline_id\":";
+                    if (ordinalMapped) json << pipelineID;
+                    else json << "null";
+                    json << ",\"pipeline\":";
+                    if (ordinalMapped) json << jsonQuoted(pipeline);
+                    else json << "null";
+                    json
+                        << ",\"status_code\":" << r.status.code
+                        << ",\"object_index\":" << r.status.objectIndex
+                        << ",\"failing_index\":" << r.status.failingIndex
+                        << ",\"completed_microsteps\":" << r.status.completedMicrosteps
+                        << ",\"fgmres_iterations\":" << r.status.fgmresIterations
+                        << ",\"contact_count\":" << r.status.contactCount
+                        << ",\"status_diagnostics\":["
+                        << jsonFloat32Token(r.status.diagnostics.x) << ','
+                        << jsonFloat32Token(r.status.diagnostics.y) << ','
+                        << jsonFloat32Token(r.status.diagnostics.z) << ','
+                        << jsonFloat32Token(r.status.diagnostics.w) << ']'
+                        << ",\"certificate_nonlinear\":["
+                        << jsonFloat32Token(r.certificate.nonlinear.x) << ','
+                        << jsonFloat32Token(r.certificate.nonlinear.y) << ','
+                        << jsonFloat32Token(r.certificate.nonlinear.z) << ','
+                        << jsonFloat32Token(r.certificate.nonlinear.w) << ']'
+                        << ",\"certificate_validity\":["
+                        << jsonFloat32Token(r.certificate.validity.x) << ','
+                        << jsonFloat32Token(r.certificate.validity.y) << ','
+                        << jsonFloat32Token(r.certificate.validity.z) << ','
+                        << jsonFloat32Token(r.certificate.validity.w) << "]}";
+                }
+                json << "],\"payload\":{\"path\":" << jsonQuoted(binaryPath)
+                    << ",\"sha256\":" << jsonQuoted(payloadHash) << "}}\n";
+                const std::string manifestText = json.str();
+                const int manifestFD = ::open(manifestPath.c_str(),
+                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                if (manifestFD < 0) {
+                    const int savedErrno = errno;
+                    ::unlink(binaryPath.c_str());
+                    std::fprintf(stderr,
+                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+                        capturedRoot, savedErrno);
+                    return;
+                }
+                const bool manifestWritten = writeAllBytes(manifestFD,
+                    manifestText.data(), manifestText.size());
+                const int manifestClose = ::close(manifestFD);
+                if (!manifestWritten || manifestClose != 0) {
+                    ::unlink(binaryPath.c_str());
+                    ::unlink(manifestPath.c_str());
+                    std::fprintf(stderr,
+                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_write_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                std::fprintf(stderr,
+                    "matter_first_failure_capture_complete={\"schema\":2,\"root\":%u,\"records_present\":%u,\"command_completed\":true,\"dispatch_count\":%llu,\"dispatch_map_complete\":%s,\"dispatch_map_overflow\":%s,\"manifest\":%s}\n",
+                    capturedRoot, present,
+                    static_cast<unsigned long long>(capturedDispatchCount),
+                    capturedDispatchMapComplete ? "true" : "false",
+                    capturedDispatchMapOverflow ? "true" : "false",
+                    jsonQuoted(manifestPath).c_str());
             }];
         }
         if (firstEncodeForCommandBuffer) {

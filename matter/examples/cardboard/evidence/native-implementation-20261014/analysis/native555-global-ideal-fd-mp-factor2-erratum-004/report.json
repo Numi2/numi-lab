@@ -1,0 +1,310 @@
+{
+  "all_tet_scope": {
+    "all_endpoint_gates_pass": true,
+    "epsilon_powers": [
+      26,
+      28
+    ],
+    "glue_tets": 192,
+    "nodes": 882,
+    "paper_tets": 1728,
+    "total_tets": 1920
+  },
+  "classification": "Postprocessing-only correction for a factor-of-two denominator defect in the FP64 secant output of runner-001. Raw arrays, report, and manifest remain immutable. No constitutive/solver/source change and no numerical replay rerun.",
+  "derivation": {
+    "FP64_secant_bug": "runner lines 306 and 316 divide by epsilon only. Since symmetric path difference is 2*epsilon, raw FP64 secants are 2x derivatives. Correction is raw stored FP64 secant / 2; no root/state/branch/tolerance changes.",
+    "MP_secant": "runner subtracts side stresses and divides by 2*epsilon, therefore epsilon-path derivative.",
+    "assembly": "stress derivative is transformed by captured per-tet material frames, passed through captured inverse-rest and volume element force, gathered by exact tet connectivity; residual derivative is dt*internal_force_derivative - mass*captured_delta_v. Correcting stress derivative halves only the internal-force term; mass action is unchanged.",
+    "captured_perturbation": "F_plus/minus = F0 +/- epsilon*dt*H on all 1920 paper+glue tets.",
+    "center_IFT": "runner uses F0 +/- h*H and divides stress difference by 2h, producing dP/ds for F0+sH; epsilon-path target is dt*dP/ds."
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-002/assembled_fd.npz": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/arrays.npz": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/manifest.json": "234dcfd571f72ceca439f24e4dc5fbcfce4f0d920b9cbf84f829aadcd2c9a8be",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/report.json": "95de5de51f84a0eab90decf9ff94810c9e2ca0a18cf58346700a29c108540999",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-runner-001.py": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "limits": [
+    "MP endpoint/IFT values and strict FP64 endpoint states are from the completed run; raw FP64 secants and all report metrics that consume them are invalid as derivative comparisons until this erratum is applied.",
+    "Corrected FP64 secants are algebraically rescaled raw outputs; they are not an independently rerun corrected FP64 replay.",
+    "Same-state FP64-vs-MP stress arithmetic differences and endpoint FP64-vs-MP state differences remain as originally measured; they do not establish a native FP32 noise floor.",
+    "No global physical, calibration, or coupon-convergence qualification is made."
+  ],
+  "postprocessing_attempts_sha256": "e4ec8f1e21d47e836657647418bfe914c94ec88265f6365fb196ec9b94af4cc4",
+  "postprocessor_script_sha256": "a787be866580c640b93ff94b343fed889a98cbdbcd274055466f21779efeb32d",
+  "results": {
+    "26": {
+      "epsilon": 1.4901161193847656e-08,
+      "full_assembly": {
+        "MP_assembly_vs_linear_residual_derivative": {
+          "error_l2_free_Ns_per_epsilon": 4.021826385918104e-12,
+          "max_abs_free": 2.127017172626597e-12,
+          "relative_error_free": 1.4735914637936447e-07,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "MP_secant_action_vs_independent_MP_center_IFT_action": {
+          "error_l2_free_Ns_per_epsilon": 4.021899001549306e-12,
+          "max_abs_free": 2.1270196524743688e-12,
+          "relative_error_free": 1.4736180700571004e-07,
+          "target_l2_free_Ns_per_epsilon": 2.729268243428546e-05
+        },
+        "captured_operator_A_delta_sign_check": {
+          "documented_relation": "A*delta = -dR/d(epsilon)",
+          "if_target_is_dR_then_negative_target_vs_saved_A_delta_is_checked_by_source_bound_operator_replay": true,
+          "independent_MP_dR_sign_convention": "dt*gather(dt*MP_center_tangent)-M*delta_v"
+        },
+        "corrected_FP64_action_vs_independent_MP_center_IFT_action": {
+          "error_l2_free_Ns_per_epsilon": 2.7658395282473976e-08,
+          "max_abs_free": 4.541719831300106e-09,
+          "relative_error_free": 0.0010133996667080663,
+          "target_l2_free_Ns_per_epsilon": 2.729268243428546e-05
+        },
+        "corrected_FP64_endpoint_pairs": 1728,
+        "corrected_FP64_reassembly_vs_linear_residual_derivative": {
+          "error_l2_free_Ns_per_epsilon": 2.7658395284393696e-08,
+          "max_abs_free": 4.5417198313005295e-09,
+          "relative_error_free": 0.001013399666778726,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "corrected_FP64_vs_MP_full_action": {
+          "error_l2_free_Ns_per_epsilon": 2.7658418630052378e-08,
+          "max_abs_free": 4.541719831300106e-09,
+          "relative_error_free": 0.0010134005285525162,
+          "target_l2_free_Ns_per_epsilon": 2.7292682262124033e-05
+        },
+        "independent_MP_center_IFT_action_vs_original_captured_linear_derivative": {
+          "error_l2_free_Ns_per_epsilon": 1.141127528313112e-15,
+          "max_abs_free": 7.645889011574343e-16,
+          "relative_error_free": 4.1810750228052825e-11,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "raw_FP64_reassembly_vs_saved_runner_action": {
+          "error_l2_free_Ns_per_epsilon": 0.0,
+          "max_abs_free": 0.0,
+          "relative_error_free": 0.0,
+          "target_l2_free_Ns_per_epsilon": 5.9398783369655944e-05
+        },
+        "strict_endpoint_failures": 0
+      },
+      "glue_corrected_FP64_vs_dt_MP_tangent": {
+        "max_abs_l2": 9.604784758869986,
+        "max_rel": 0.0007829660765820728,
+        "n": 192,
+        "p50_rel": 1.4934046468721669e-05,
+        "p95_rel": 0.00020973798944067844,
+        "p99_rel": 0.0006828974484156985,
+        "rows_over_1e-6": 186
+      },
+      "glue_raw_FP64_vs_2dt_MP_tangent": {
+        "max_abs_l2": 19.209569517739972,
+        "max_rel": 0.0007829660765820728,
+        "n": 192,
+        "p50_rel": 1.4934046468721669e-05,
+        "p95_rel": 0.00020973798944067844,
+        "p99_rel": 0.0006828974484156985,
+        "rows_over_1e-6": 186
+      },
+      "paper_MP_secant_vs_dt_times_MP_IFT": {
+        "max_abs_l2": 0.053887012996407704,
+        "max_rel": 3.7152835183093714e-08,
+        "n": 1728,
+        "p50_rel": 8.146523270515703e-17,
+        "p95_rel": 1.1352774348552334e-13,
+        "p99_rel": 8.482516680998082e-10,
+        "rows_over_1e-6": 0
+      },
+      "paper_corrected_FP64_vs_MP_secant": {
+        "max_abs_l2": 37.434212149148614,
+        "max_rel": 0.0018602278416266563,
+        "n": 1728,
+        "p50_rel": 3.0288987770876122e-05,
+        "p95_rel": 0.00029476561427888313,
+        "p99_rel": 0.0005411203956736531,
+        "rows_over_1e-6": 1702
+      },
+      "paper_raw_FP64_vs_2x_MP_secant": {
+        "max_abs_l2": 74.86842429829723,
+        "max_rel": 0.0018602278416266563,
+        "n": 1728,
+        "p50_rel": 3.0288987770876122e-05,
+        "p95_rel": 0.00029476561427888313,
+        "p99_rel": 0.0005411203956736531,
+        "rows_over_1e-6": 1702
+      },
+      "representative_glue_scalar_sanity": {
+        "MP_analytic_tangent_Pa_per_F_direction": -251129625.57493907,
+        "MP_endpoint_secant_Pa_per_epsilon": -12556.480961543555,
+        "component": [
+          0,
+          2
+        ],
+        "corrected_FP64_secant_Pa_per_epsilon": -12556.5263671875,
+        "corrected_relative_error_vs_dt_tangent": 3.6161121960758816e-06,
+        "dt_times_MP_tangent_Pa_per_epsilon": -12556.480961543555,
+        "raw_FP64_endpoint_secant_Pa_per_epsilon": -25113.052734375,
+        "raw_over_dt_tangent": 2.0000072322243923,
+        "tet_id": 864
+      },
+      "representative_paper_scalar": {
+        "MP_endpoint_secant_Pa_per_epsilon": 23233.900843054147,
+        "component": [
+          0,
+          1
+        ],
+        "corrected_FP64_secant_after_denominator_erratum": 23233.9013671875,
+        "corrected_relative_error": 2.2558990693102606e-08,
+        "dt_times_MP_IFT_Pa_per_epsilon": 23233.900843054147,
+        "raw_FP64_endpoint_secant_Pa_per_epsilon": 46467.802734375,
+        "raw_over_MP": 2.0000000451179814,
+        "tet_id": 0
+      },
+      "runner_code_check": {
+        "analytic_parameter": "F path derivative is dt*H with respect to epsilon",
+        "glue_FP64_runner_denominator": "eps (incorrect; should be 2*eps)",
+        "glue_MP_denominator": "2*eps",
+        "paper_FP64_runner_denominator": "eps (incorrect; should be 2*eps)",
+        "paper_MP_denominator": "2*eps"
+      }
+    },
+    "28": {
+      "epsilon": 3.725290298461914e-09,
+      "full_assembly": {
+        "MP_assembly_vs_linear_residual_derivative": {
+          "error_l2_free_Ns_per_epsilon": 2.5129847868316433e-13,
+          "max_abs_free": 1.3293619629633664e-13,
+          "relative_error_free": 9.207540493255412e-09,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "MP_secant_action_vs_independent_MP_center_IFT_action": {
+          "error_l2_free_Ns_per_epsilon": 2.5136867540276785e-13,
+          "max_abs_free": 1.329386761441084e-13,
+          "relative_error_free": 9.210112491068116e-09,
+          "target_l2_free_Ns_per_epsilon": 2.729268243428546e-05
+        },
+        "captured_operator_A_delta_sign_check": {
+          "documented_relation": "A*delta = -dR/d(epsilon)",
+          "if_target_is_dR_then_negative_target_vs_saved_A_delta_is_checked_by_source_bound_operator_replay": true,
+          "independent_MP_dR_sign_convention": "dt*gather(dt*MP_center_tangent)-M*delta_v"
+        },
+        "corrected_FP64_action_vs_independent_MP_center_IFT_action": {
+          "error_l2_free_Ns_per_epsilon": 1.2196654397238205e-07,
+          "max_abs_free": 1.906864206661248e-08,
+          "relative_error_free": 0.004468836812433135,
+          "target_l2_free_Ns_per_epsilon": 2.729268243428546e-05
+        },
+        "corrected_FP64_endpoint_pairs": 1728,
+        "corrected_FP64_reassembly_vs_linear_residual_derivative": {
+          "error_l2_free_Ns_per_epsilon": 1.2196654395472605e-07,
+          "max_abs_free": 1.906864206659006e-08,
+          "relative_error_free": 0.00446883681178764,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "corrected_FP64_vs_MP_full_action": {
+          "error_l2_free_Ns_per_epsilon": 1.219665441186822e-07,
+          "max_abs_free": 1.9068642066601375e-08,
+          "relative_error_free": 0.004468836819555386,
+          "target_l2_free_Ns_per_epsilon": 2.7292682423525345e-05
+        },
+        "independent_MP_center_IFT_action_vs_original_captured_linear_derivative": {
+          "error_l2_free_Ns_per_epsilon": 1.141127528313112e-15,
+          "max_abs_free": 7.645889011574343e-16,
+          "relative_error_free": 4.1810750228052825e-11,
+          "target_l2_free_Ns_per_epsilon": 2.72926824342768e-05
+        },
+        "raw_FP64_reassembly_vs_saved_runner_action": {
+          "error_l2_free_Ns_per_epsilon": 0.0,
+          "max_abs_free": 0.0,
+          "relative_error_free": 0.0,
+          "target_l2_free_Ns_per_epsilon": 5.940933212573472e-05
+        },
+        "strict_endpoint_failures": 0
+      },
+      "glue_corrected_FP64_vs_dt_MP_tangent": {
+        "max_abs_l2": 39.55375534665906,
+        "max_rel": 0.0021686262434689645,
+        "n": 192,
+        "p50_rel": 5.9177271032690926e-05,
+        "p95_rel": 0.0006179735226374282,
+        "p99_rel": 0.0015620705951339003,
+        "rows_over_1e-6": 191
+      },
+      "glue_raw_FP64_vs_2dt_MP_tangent": {
+        "max_abs_l2": 79.10751069331812,
+        "max_rel": 0.0021686262434689645,
+        "n": 192,
+        "p50_rel": 5.9177271032690926e-05,
+        "p95_rel": 0.0006179735226374282,
+        "p99_rel": 0.0015620705951339003,
+        "rows_over_1e-6": 191
+      },
+      "paper_MP_secant_vs_dt_times_MP_IFT": {
+        "max_abs_l2": 0.0033679378791808597,
+        "max_rel": 2.3220509800721964e-09,
+        "n": 1728,
+        "p50_rel": 5.5320185474810814e-17,
+        "p95_rel": 7.107492771645028e-15,
+        "p99_rel": 5.301573820075742e-11,
+        "rows_over_1e-6": 0
+      },
+      "paper_corrected_FP64_vs_MP_secant": {
+        "max_abs_l2": 152.3922511346763,
+        "max_rel": 0.005328692368143982,
+        "n": 1728,
+        "p50_rel": 0.00013370570702928616,
+        "p95_rel": 0.0010830875836543555,
+        "p99_rel": 0.0018977537076388868,
+        "rows_over_1e-6": 1725
+      },
+      "paper_raw_FP64_vs_2x_MP_secant": {
+        "max_abs_l2": 304.7845022693526,
+        "max_rel": 0.005328692368143982,
+        "n": 1728,
+        "p50_rel": 0.00013370570702928616,
+        "p95_rel": 0.0010830875836543555,
+        "p99_rel": 0.0018977537076388868,
+        "rows_over_1e-6": 1725
+      },
+      "representative_glue_scalar_sanity": {
+        "MP_analytic_tangent_Pa_per_F_direction": -251129625.57493907,
+        "MP_endpoint_secant_Pa_per_epsilon": -12556.480961543555,
+        "component": [
+          0,
+          2
+        ],
+        "corrected_FP64_secant_Pa_per_epsilon": -12556.28125,
+        "corrected_relative_error_vs_dt_tangent": -1.5905056852060675e-05,
+        "dt_times_MP_tangent_Pa_per_epsilon": -12556.480961543555,
+        "raw_FP64_endpoint_secant_Pa_per_epsilon": -25112.5625,
+        "raw_over_dt_tangent": 1.999968189886296,
+        "tet_id": 864
+      },
+      "representative_paper_scalar": {
+        "MP_endpoint_secant_Pa_per_epsilon": 23233.900843054147,
+        "component": [
+          0,
+          1
+        ],
+        "corrected_FP64_secant_after_denominator_erratum": 23233.8984375,
+        "corrected_relative_error": -1.0353638691008795e-07,
+        "dt_times_MP_IFT_Pa_per_epsilon": 23233.900843054147,
+        "raw_FP64_endpoint_secant_Pa_per_epsilon": 46467.796875,
+        "raw_over_MP": 1.9999997929272262,
+        "tet_id": 0
+      },
+      "runner_code_check": {
+        "analytic_parameter": "F path derivative is dt*H with respect to epsilon",
+        "glue_FP64_runner_denominator": "eps (incorrect; should be 2*eps)",
+        "glue_MP_denominator": "2*eps",
+        "paper_FP64_runner_denominator": "eps (incorrect; should be 2*eps)",
+        "paper_MP_denominator": "2*eps"
+      }
+    }
+  },
+  "schema": "numi.cardboard.native555-global-ideal-fd-mp-factor2-erratum.v1"
+}

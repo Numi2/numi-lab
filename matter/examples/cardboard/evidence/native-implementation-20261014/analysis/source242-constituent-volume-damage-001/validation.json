@@ -1,0 +1,23 @@
+{
+  "cmake_test_command": "/opt/homebrew/bin/ctest --test-dir /Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003 --output-on-failure -R cardboard_constituent_volume_damage",
+  "cmake_test_exit_code": 0,
+  "cmake_test_stdout": "Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003\n    Start 153: matter.compiler.cardboard_constituent_volume_damage\n1/1 Test #153: matter.compiler.cardboard_constituent_volume_damage ...   Passed    0.32 sec\n\n100% tests passed, 0 tests failed out of 1\n",
+  "initial_unqualified_ctest_command_failure": "ctest was not on remote shell PATH; final test used /opt/homebrew/bin/ctest",
+  "native_gpu_or_physical_run": false,
+  "python_command": "/opt/homebrew/bin/python3.13 -m unittest matter/tools/test_cardboard_stage_resolution_study.py",
+  "python_exit_code": 0,
+  "python_stdout": ".................................................\n----------------------------------------------------------------------\nRan 33 tests in 0.273s\n\nOK\n",
+  "schema": "numi.cardboard.source242-validation.v1",
+  "source_bound_build_manifest_sha256": "4744f3cc05631f52c141b3e733f391b09b677a59676789bc33414b2edad4ac61",
+  "source_bound_build_success": true,
+  "target_artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/lib/libmetalrobo.dylib": "e2c99be1005450d4437715337c9f289459863974796fe6db1066799fbaf6c199",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/matter/numi-matter-cardboard-constituent-volume-damage-check": "c92ea9abb55d49c7e3a77ff99e159b6b4352fd4f449c80801581309370ff677c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/matter/numi-matter-cardboard-probe": "cfef7a4e6abce8345d2ef110c0c3799a1054949eafb9483aab40a10f11d88a79",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/matter/shaders/NumiMatter.metallib": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source242-volume-damage-003/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  }
+}

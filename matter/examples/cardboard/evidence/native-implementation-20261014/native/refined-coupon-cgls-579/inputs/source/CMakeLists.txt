@@ -1,0 +1,6529 @@
+cmake_minimum_required(VERSION 3.28)
+
+# CMake 3.29+ must opt into per-target Swift compilation modes before Swift is
+# enabled. Older CMake versions retain their supported default behavior.
+if(POLICY CMP0157)
+    cmake_policy(SET CMP0157 NEW)
+endif()
+
+project(
+    MetalRobo
+    VERSION 0.4.0
+    DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
+    LANGUAGES C CXX OBJCXX
+)
+
+include(CTest)
+
+execute_process(
+    COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
+    OUTPUT_VARIABLE NUMI_SOURCE_REVISION
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT NUMI_SOURCE_REVISION)
+    set(NUMI_SOURCE_REVISION "unknown")
+endif()
+configure_file(
+    numi/VERSION.in
+    generated/numi/VERSION
+    @ONLY
+)
+configure_file(
+    numi/REVISION.in
+    generated/numi/REVISION
+    @ONLY
+)
+
+if(NOT APPLE)
+    message(FATAL_ERROR "MetalRobo 0.4 targets Apple Silicon macOS.")
+endif()
+
+set(METALROBO_HAS_SWIFT FALSE)
+if(CMAKE_GENERATOR MATCHES "Ninja|Xcode")
+    include(CheckLanguage)
+    check_language(Swift)
+    if(CMAKE_Swift_COMPILER)
+        enable_language(Swift)
+        set(METALROBO_HAS_SWIFT TRUE)
+    endif()
+endif()
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
+find_library(METAL_FRAMEWORK Metal REQUIRED)
+find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
+find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
+find_library(COREIMAGE_FRAMEWORK CoreImage REQUIRED)
+find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
+find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
+find_library(MODELIO_FRAMEWORK ModelIO REQUIRED)
+find_package(SQLite3 REQUIRED)
+if(TARGET SQLite3::SQLite3)
+    set(METALROBO_SQLITE_TARGET SQLite3::SQLite3)
+else()
+    # CMake before 4.3 only publishes the historical imported target.
+    set(METALROBO_SQLITE_TARGET SQLite::SQLite3)
+endif()
+find_package(LibXml2 REQUIRED)
+
+# The Matter compiler/runtime is a first-class Numi Lab subsystem. It builds
+# its own Metal library and exposes a borrowed-command-buffer adapter consumed
+# by MetalWorld; no second simulation queue is created for normal stepping.
+add_subdirectory(matter)
+
+set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+set(METALROBO_CONSTRAINT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ConstraintSolver.metal"
+)
+set(METALROBO_QUALITY_CONTACT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalQualityContactSolver.metal"
+)
+set(METALROBO_UNIFIED_QUALITY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalUnifiedQualitySolver.metal"
+)
+set(METALROBO_FREE_BODY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FreeBodyDynamics.metal"
+)
+set(METALROBO_MULTICOPTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MulticopterDynamics.metal"
+)
+set(METALROBO_COLLISION_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
+)
+set(METALROBO_BROADPHASE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/DeterministicBroadphase.metal"
+)
+set(METALROBO_ARTICULATED_OPERATOR_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedOperator.metal"
+)
+set(METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedOperatorCompensated.metal"
+)
+set(METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/CompensatedTranslationCheck.metal"
+)
+set(METALROBO_HUMAN_BEHAVIOR_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HumanBehavior.metal"
+)
+set(METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MillardMuscleReference.metal"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReference.metal"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReferenceCompensated.metal"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReferenceCached.metal"
+)
+set(METALROBO_NUMANX_HUMAN_IO_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanIO.metal"
+)
+set(METALROBO_NUMANX_COUPLED_HUMAN_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXCoupledHuman.metal"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanMatter.metal"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanMatterOwner.metal"
+)
+set(METALROBO_ARTICULATED_ABA_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedABA.metal"
+)
+set(METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FunctionBasedDenseDynamics.metal"
+)
+set(METALROBO_NUMI_HUMAN_STAND_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanStand.metal"
+)
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanTendonTransfer.metal"
+)
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanTendonTransferCompensated.metal"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanExtensorHood.metal"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanExtensorHoodCompensated.metal"
+)
+set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedParallelABA.metal"
+)
+set(METALROBO_ARTICULATED_INVERSE_MASS_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedInverseMass.metal"
+)
+set(METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/OpenSimSpatialTransform.metal"
+)
+set(METALROBO_WORLD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorld.metal"
+)
+set(METALROBO_WORLD_CONTACT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorldContact.metal"
+)
+set(METALROBO_WORLD_COMPILER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/WorldCompiler.metal"
+)
+set(METALROBO_LOCOMOTION_TASK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/LocomotionTask.metal"
+)
+set(METALROBO_POLICY_INFERENCE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"
+)
+set(METALROBO_HYPER_POLICY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HyperPolicy.metal"
+)
+set(METALROBO_HYBRID_RENDERER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HybridRenderer.metal"
+)
+set(METALROBO_ENVIRONMENT_PREFILTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/EnvironmentPrefilter.metal"
+)
+set(METALROBO_VISUAL_ASSET_COOK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualAssetCook.metal"
+)
+set(METALROBO_TACTILE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Tactile.metal"
+)
+set(METALROBO_SCENE_QUERY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SceneQuery.metal"
+)
+set(METALROBO_NEURON_CULTURE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NeuronCulture.metal"
+)
+set(METALROBO_NEURON_CULTURE_AIR
+    "${METALROBO_SHADER_DIR}/NumiNeuron.air"
+)
+set(METALROBO_NEURON_CULTURE_METALLIB
+    "${METALROBO_SHADER_DIR}/NumiNeuron.metallib"
+)
+set(METALROBO_CONSTRAINT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
+)
+set(METALROBO_QUALITY_CONTACT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboQualityContactSolver.air"
+)
+set(METALROBO_UNIFIED_QUALITY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboUnifiedQualitySolver.air"
+)
+set(METALROBO_FREE_BODY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboFreeBodyDynamics.air"
+)
+set(METALROBO_MULTICOPTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMulticopterDynamics.air"
+)
+set(METALROBO_COLLISION_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
+)
+set(METALROBO_BROADPHASE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboDeterministicBroadphase.air"
+)
+set(METALROBO_ARTICULATED_OPERATOR_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperator.air"
+)
+set(METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperatorCompensated.air"
+)
+set(METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboCompensatedTranslationCheck.air"
+)
+set(METALROBO_HUMAN_BEHAVIOR_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboHumanBehavior.air"
+)
+set(METALROBO_MILLARD_MUSCLE_REFERENCE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMillardMuscleReference.air"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReference.air"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReferenceCompensated.air"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReferenceCached.air"
+)
+set(METALROBO_NUMANX_HUMAN_IO_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanIO.air"
+)
+set(METALROBO_NUMANX_COUPLED_HUMAN_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXCoupledHuman.air"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanMatter.air"
+)
+set(METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanMatterOwner.air"
+)
+set(METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedOperator.air"
+)
+set(METALROBO_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABA.air"
+)
+set(METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboFunctionBasedDenseDynamics.air"
+)
+set(METALROBO_NUMI_HUMAN_STAND_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanStand.air"
+)
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanTendonTransfer.air"
+)
+set(METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanTendonTransferCompensated.air"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanExtensorHood.air"
+)
+set(METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboNumiHumanExtensorHoodCompensated.air"
+)
+set(METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedABA.air"
+)
+set(METALROBO_ARTICULATED_ABA_SMALL_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABASmall.air"
+)
+set(METALROBO_MULTI_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelParameterizedArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelArticulatedABASmall.air"
+)
+set(METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelMultiArticulatedABA.air"
+)
+set(METALROBO_DISCRETE_ELASTIC_ROD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/DiscreteElasticRod.metal"
+)
+set(METALROBO_DISCRETE_ELASTIC_ROD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboDiscreteElasticRod.air"
+)
+set(METALROBO_GENERALIZED_CONSTRAINT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalGeneralizedConstraints.metal"
+)
+set(METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalMultiArticulatedContact.metal"
+)
+set(METALROBO_GENERALIZED_CONSTRAINT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboGeneralizedConstraints.air"
+)
+set(METALROBO_MULTI_ARTICULATED_CONTACT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedContact.air"
+)
+set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
+)
+set(METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboOpenSimSpatialTransform.air"
+)
+set(METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedInverseMass.air"
+)
+set(METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedMultiArticulatedInverseMass.air"
+)
+set(METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboStreamingArticulatedInverseMass.air"
+)
+set(METALROBO_WORLD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboWorld.air"
+)
+set(METALROBO_WORLD_CONTACT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboWorldContact.air"
+)
+set(METALROBO_WORLD_COMPILER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboWorldCompiler.air"
+)
+set(METALROBO_LOCOMOTION_TASK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboLocomotionTask.air"
+)
+set(METALROBO_POLICY_INFERENCE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboPolicyInference.air"
+)
+set(METALROBO_HYBRID_RENDERER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboHybridRenderer.air"
+)
+set(METALROBO_ENVIRONMENT_PREFILTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboEnvironmentPrefilter.air"
+)
+set(METALROBO_VISUAL_ASSET_COOK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboVisualAssetCook.air"
+)
+set(METALROBO_TACTILE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboTactile.air"
+)
+set(METALROBO_SCENE_QUERY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboSceneQuery.air"
+)
+set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
+set(METALROBO_HYPER_POLICY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboHyperPolicy.air"
+)
+set(METALROBO_HYPER_POLICY_METALLIB
+    "${METALROBO_SHADER_DIR}/MetalRoboHyperPolicy.metallib"
+)
+
+add_custom_command(
+    OUTPUT "${METALROBO_METALLIB}"
+    DEPENDS
+        "${METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/millard_muscle_gpu.h"
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/mujoco_muscle_gpu.h"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_extensor_hood_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
+        "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_coupled_human_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_adapter_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_gpu.h"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
+            -o "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_STAND_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE}"
+            -o "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_CONSTRAINT_SOURCE}"
+            -o "${METALROBO_CONSTRAINT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_QUALITY_CONTACT_SOURCE}"
+            -o "${METALROBO_QUALITY_CONTACT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_UNIFIED_QUALITY_SOURCE}"
+            -o "${METALROBO_UNIFIED_QUALITY_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_FREE_BODY_SOURCE}"
+            -o "${METALROBO_FREE_BODY_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MULTICOPTER_SOURCE}"
+            -o "${METALROBO_MULTICOPTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_COLLISION_SOURCE}"
+            -o "${METALROBO_COLLISION_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_BROADPHASE_SOURCE}"
+            -o "${METALROBO_BROADPHASE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+            -o "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE}"
+            -o "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE}"
+            -o "${METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_HUMAN_BEHAVIOR_SOURCE}"
+            -o "${METALROBO_HUMAN_BEHAVIOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE}"
+            -o "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_IO_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+            -o "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+            -c "${METALROBO_NUMANX_HUMAN_MATTER_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+            -o "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ARTICULATED_OPERATOR_KERNEL_NAME=mr_parameterized_articulated_operator
+            -DMR_ARTICULATED_OPERATOR_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_parameterized_articulated_aba_step
+            -DMR_ABA_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_articulated_aba_step_small
+            -DMR_ABA_COMPILED_MAX_BODIES=12
+            -DMR_ABA_COMPILED_MAX_DOFS=16
+            -DMR_ABA_COMPILED_MAX_Q=17
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_multi_articulated_aba_step
+            -DMR_ABA_MULTI_ARTICULATION=1
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_parameterized_articulated_aba_step
+            -DMR_ABA_BODY_PARAMETERS=1
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_articulated_aba_step_small
+            -DMR_ABA_COMPILED_MAX_BODIES=12
+            -DMR_ABA_COMPILED_MAX_DOFS=16
+            -DMR_ABA_COMPILED_MAX_Q=17
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_multi_articulated_aba_step
+            -DMR_ABA_MULTI_ARTICULATION=1
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
+            -o "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
+            -o "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
+            -o "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE}"
+            -o "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_INVERSE_MASS_KERNEL_NAME=mr_multi_articulated_inverse_mass
+            -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_INVERSE_MASS_KERNEL_NAME=mr_parameterized_multi_articulated_inverse_mass
+            -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_parameterized_parallel_multi_articulated_inverse_mass
+            -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
+            -DMR_INVERSE_MASS_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_INVERSE_MASS_KERNEL_NAME=mr_world_streaming_articulated_inverse_mass
+            -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_world_parallel_streaming_articulated_inverse_mass
+            -DMR_INVERSE_MASS_BODY_PARAMETERS=1
+            -DMR_INVERSE_MASS_STREAMING_RHS=1
+            -DMR_PARALLEL_INVERSE_MASS_STREAMING_RHS=1
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_WORLD_SOURCE}"
+            -o "${METALROBO_WORLD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_WORLD_CONTACT_SOURCE}"
+            -o "${METALROBO_WORLD_CONTACT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_WORLD_COMPILER_SOURCE}"
+            -o "${METALROBO_WORLD_COMPILER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_LOCOMOTION_TASK_SOURCE}"
+            -o "${METALROBO_LOCOMOTION_TASK_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_POLICY_INFERENCE_SOURCE}"
+            -o "${METALROBO_POLICY_INFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${METALROBO_HYBRID_RENDERER_SOURCE}"
+            -o "${METALROBO_HYBRID_RENDERER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+            -o "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+            -o "${METALROBO_VISUAL_ASSET_COOK_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_TACTILE_SOURCE}"
+            -o "${METALROBO_TACTILE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_SCENE_QUERY_SOURCE}"
+            -o "${METALROBO_SCENE_QUERY_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+            "${METALROBO_CONSTRAINT_AIR}"
+            "${METALROBO_QUALITY_CONTACT_AIR}"
+            "${METALROBO_UNIFIED_QUALITY_AIR}"
+            "${METALROBO_FREE_BODY_AIR}"
+            "${METALROBO_MULTICOPTER_AIR}"
+            "${METALROBO_COLLISION_AIR}"
+            "${METALROBO_BROADPHASE_AIR}"
+            "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+            "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_AIR}"
+            "${METALROBO_COMPENSATED_TRANSLATION_CHECK_AIR}"
+            "${METALROBO_HUMAN_BEHAVIOR_AIR}"
+            "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR}"
+            "${METALROBO_NUMANX_HUMAN_IO_AIR}"
+            "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
+            "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
+            "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR}"
+            "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
+            "${METALROBO_ARTICULATED_ABA_AIR}"
+            "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
+            "${METALROBO_NUMI_HUMAN_STAND_AIR}"
+            "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"
+            "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_AIR}"
+            "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_AIR}"
+            "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_AIR}"
+            "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+            "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
+            "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR}"
+            "${METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR}"
+            "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
+            "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
+            "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
+            "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_AIR}"
+            "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_WORLD_AIR}"
+            "${METALROBO_WORLD_CONTACT_AIR}"
+            "${METALROBO_WORLD_COMPILER_AIR}"
+            "${METALROBO_LOCOMOTION_TASK_AIR}"
+            "${METALROBO_POLICY_INFERENCE_AIR}"
+            "${METALROBO_HYBRID_RENDERER_AIR}"
+            "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
+            "${METALROBO_VISUAL_ASSET_COOK_AIR}"
+            "${METALROBO_TACTILE_AIR}"
+            "${METALROBO_SCENE_QUERY_AIR}"
+            -o "${METALROBO_METALLIB}"
+    DEPENDS
+        "${METALROBO_CONSTRAINT_SOURCE}"
+        "${METALROBO_QUALITY_CONTACT_SOURCE}"
+        "${METALROBO_UNIFIED_QUALITY_SOURCE}"
+        "${METALROBO_FREE_BODY_SOURCE}"
+        "${METALROBO_MULTICOPTER_SOURCE}"
+        "${METALROBO_COLLISION_SOURCE}"
+        "${METALROBO_BROADPHASE_SOURCE}"
+        "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+        "${METALROBO_ARTICULATED_OPERATOR_COMPENSATED_SOURCE}"
+        "${METALROBO_COMPENSATED_TRANSLATION_CHECK_SOURCE}"
+        "${METALROBO_HUMAN_BEHAVIOR_SOURCE}"
+        # The paired wrappers include the corresponding legacy source units,
+        # which are also explicit dependencies of this shared metallib command.
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE}"
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PairedSourceGeometry.metalinc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_translation_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/compensated_geometry_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/human_behavior_gpu.h"
+        "${METALROBO_ARTICULATED_ABA_SOURCE}"
+        "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
+        "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanStandSolve.metalinc"
+        "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h"
+        "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_extensor_hood_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_io_gpu.h"
+        "${METALROBO_NUMANX_COUPLED_HUMAN_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_coupled_human_gpu.h"
+        "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_gpu.h"
+        "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+        "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
+        "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
+        "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
+        "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+        "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE}"
+        "${METALROBO_WORLD_SOURCE}"
+        "${METALROBO_WORLD_CONTACT_SOURCE}"
+        "${METALROBO_WORLD_COMPILER_SOURCE}"
+        "${METALROBO_LOCOMOTION_TASK_SOURCE}"
+        "${METALROBO_POLICY_INFERENCE_SOURCE}"
+        "${METALROBO_HYBRID_RENDERER_SOURCE}"
+        "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+        "${METALROBO_TACTILE_SOURCE}"
+        "${METALROBO_SCENE_QUERY_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_timed_root_force.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_passive_joint.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_constraint_projection.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_bilateral.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/unified_quality_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/parallel_aba_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/opensim_spatial_transform_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/rod_gpu_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/generalized_constraint_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multi_contact_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/r2s2r_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/visual_platform_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/tactile_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/scene_query_types.h"
+    VERBATIM
+)
+
+add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
+
+add_custom_command(
+    OUTPUT "${METALROBO_NEURON_CULTURE_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+             -fno-fast-math
+            -Wall
+            -Wextra
+            -Werror
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_NEURON_CULTURE_SOURCE}"
+            -o "${METALROBO_NEURON_CULTURE_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+            "${METALROBO_NEURON_CULTURE_AIR}"
+            -o "${METALROBO_NEURON_CULTURE_METALLIB}"
+    DEPENDS
+        "${METALROBO_NEURON_CULTURE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/neuron_culture_gpu.h"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_neuron_culture_shaders ALL
+    DEPENDS "${METALROBO_NEURON_CULTURE_METALLIB}"
+)
+
+add_custom_command(
+    OUTPUT "${METALROBO_HYPER_POLICY_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_HYPER_POLICY_SOURCE}"
+            -o "${METALROBO_HYPER_POLICY_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+            "${METALROBO_HYPER_POLICY_AIR}"
+            -o "${METALROBO_HYPER_POLICY_METALLIB}"
+    DEPENDS
+            "${METALROBO_HYPER_POLICY_SOURCE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.00.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.01.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.02.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.03.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hyper_policy_program_types.h"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_hyper_policy_shaders ALL
+    DEPENDS "${METALROBO_HYPER_POLICY_METALLIB}"
+)
+
+set(
+    METALROBO_VISUAL_KERNEL_HASH_HEADER
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
+)
+add_custom_command(
+    OUTPUT "${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E make_directory
+        "${CMAKE_CURRENT_BINARY_DIR}/generated"
+    COMMAND
+        "${CMAKE_COMMAND}"
+        "-DOUTPUT=${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+        "-DENVIRONMENT_SOURCE=${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "-DPBR_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "-DASSET_COOK_SOURCE=${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVisualKernelHashes.cmake"
+    DEPENDS
+        "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVisualKernelHashes.cmake"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_visual_kernel_hashes
+    DEPENDS "${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+)
+
+add_library(
+    metalrobo
+    SHARED
+    src/core/Model.cpp
+    src/core/Franka.cpp
+    src/core/FrankaEngine.cpp
+    src/core/FrankaHand.cpp
+    src/core/FrankaWorld.cpp
+    src/core/CpuDynamics.cpp
+    src/core/EngineModel.cpp
+    src/core/EngineModelComposer.cpp
+    src/core/RunProgram.cpp
+    src/core/ParallelABASchedule.cpp
+    src/core/CompiledMetalMultiArticulatedProgram.cpp
+    src/core/CompiledMetalMultiArticulatedContactProgram.cpp
+    src/core/WorldCompiler.cpp
+    src/core/WorldPack.cpp
+    src/core/MatterSnapshotArchive.cpp
+    src/core/EpisodeTwinCompiler.cpp
+    src/core/R2S2R.cpp
+    src/core/VisualPlatform.cpp
+    src/core/VisualPresentation.cpp
+    src/core/NeuronCulture.cpp
+    src/core/NeuronCultureArtifacts.cpp
+    src/core/NeuronCultureProtocol.cpp
+    src/core/NeuronCultureEmbodiment.cpp
+    src/core/Tactile.cpp
+    src/core/TactileDebug.cpp
+    src/core/RobotDescriptionCooker.cpp
+    src/core/GeometryCooker.cpp
+    src/core/OpenSimFunction.cpp
+    src/core/OpenSimSpatialTransform.cpp
+    src/core/OpenSimMobileRoot.cpp
+    src/core/G1.cpp
+    src/core/LocomotionWorld.cpp
+    src/core/TaskProgram.cpp
+    src/core/PolicyProgram.cpp
+    src/core/HyperPolicyProgram.cpp
+    src/core/HyperPolicyPacks.cpp
+    src/core/LearningPacks.cpp
+    src/core/MotionCompiler.cpp
+    src/core/SurgicalPSM.cpp
+    src/core/EmbodiedTactile.cpp
+    src/core/Wave.cpp
+    src/core/SurgicalAssets.cpp
+    src/core/SurgicalVisual.cpp
+    src/core/SurgicalWorld.cpp
+    src/core/SurgicalKnot.cpp
+    src/core/SurgicalThreadTargeting.cpp
+    src/core/HeterogeneousWorld.cpp
+    src/core/DiscreteElasticRod.cpp
+    src/core/Collision.cpp
+    src/core/FreeBodyDynamics.cpp
+    src/core/Multicopter.cpp
+    src/core/PX4X500.cpp
+    src/core/ArticulatedDynamics.cpp
+    src/core/NumiHumanSupport.cpp
+    src/core/ArticulatedActuation.cpp
+    src/core/MillardMuscleReference.cpp
+    src/core/MujocoMuscleReference.cpp
+    src/core/NumiHumanJointEquality.cpp
+    src/core/NumiHumanMuscleEquilibrium.cpp
+    src/core/NumiHumanInitialState.cpp
+    src/core/NumiHumanRuntimeIdentity.cpp
+    src/core/NumiHumanSourceConstraints.cpp
+    src/core/NumanXExactTransaction.cpp
+    src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
+    src/core/NumiHumanProductionOwnerSnapshot.cpp
+    src/core/HumanBehaviorProgram.cpp
+    src/core/HumanBehaviorTrial.cpp
+    src/core/HumanBehaviorAcceptedStateRoot.cpp
+    src/core/HumanBehaviorNativeAudit.cpp
+    src/core/HumanBehaviorStateComponents.cpp
+    src/core/NumiHumanTensionNetwork.cpp
+    src/core/NumiHumanTendon.cpp
+    src/core/NumiHumanCartilage.cpp
+    src/core/NumiHumanTissueMass.cpp
+    src/core/NumiHumanTissueBinding.cpp
+    src/core/NumiHumanKnee.cpp
+    src/core/NumiHumanKneeContact.cpp
+    src/core/NumiHumanLoadedKnee.cpp
+    src/core/NumiHumanLoadedKneeNumanX.cpp
+    src/metal/NumiHumanLoadedKneeBinding.mm
+    src/core/NumiHumanContinuumMap.cpp
+    src/core/ArticulatedJointLimits.cpp
+    src/core/ArticulatedContact.cpp
+    src/core/CoupledArticulatedRigidContact.cpp
+    src/core/ArticulatedRigidCollision.cpp
+    src/core/ArticulatedRigidWorld.cpp
+    src/core/ArticulatedMixedConstraints.cpp
+    src/core/ArticulatedCollision.cpp
+    src/core/ArticulatedWorld.cpp
+    src/core/MultiArticulatedWorld.cpp
+    src/core/MultiArticulatedContact.cpp
+    src/core/ConstraintIR.cpp
+    src/core/ReferenceConicSolver.cpp
+    src/core/QualityContactSolver.cpp
+    src/core/ConstraintSolver.cpp
+    src/core/RigidBodyWorld.cpp
+    src/apple/CaptureManifestJSON.mm
+    src/apple/HardwareOutcomeJSON.mm
+    src/apple/EnvironmentCooker.mm
+    src/apple/VisualAssetCooker.mm
+    src/metal/MetalArticulatedOperator.mm
+    src/metal/MetalNumanXHumanIO.mm
+    src/metal/MetalHumanBehaviorTelemetry.mm
+    src/metal/NumanXBridgeV1.mm
+    src/metal/NumanXRuntimeV1.mm
+    src/metal/MetalNumanXCoupledHuman.mm
+    src/metal/MetalNumanXHumanMatter.mm
+    src/metal/NumiHumanTendonMetal.mm
+    src/metal/NumiHumanExtensorHoodMetal.mm
+    src/metal/MetalArticulatedABA.mm
+    src/metal/MetalMultiArticulatedABA.mm
+    src/metal/MetalDiscreteElasticRod.mm
+    src/metal/MetalArticulatedInverseMass.mm
+    src/metal/MetalMultiArticulatedInverseMass.mm
+    src/metal/MetalMultiArticulatedConstraints.mm
+    src/metal/MetalMultiArticulatedContact.mm
+    src/metal/MetalQualityContactSolver.mm
+    src/metal/MetalUnifiedQualitySolver.mm
+    src/metal/MetalWorld.mm
+    src/metal/MetalHyperPolicy.mm
+    src/metal/MetalWorldFamily.mm
+    src/metal/MetalHybridRenderer.mm
+    src/metal/MetalRunInspector.mm
+    src/metal/MetalTactile.mm
+    src/metal/MetalNeuronCulture.mm
+    src/c_api.cpp
+)
+target_sources(
+    metalrobo
+    PRIVATE
+        $<TARGET_OBJECTS:numi_matter_compiler_objects>
+        $<TARGET_OBJECTS:numi_matter_runtime_objects>
+)
+add_dependencies(
+    metalrobo
+    metalrobo_shaders
+    metalrobo_hyper_policy_shaders
+    metalrobo_neuron_culture_shaders
+    metalrobo_visual_kernel_hashes
+    numi_matter_shaders
+)
+
+target_include_directories(
+    metalrobo
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/matter/include>"
+        "$<INSTALL_INTERFACE:include>"
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated"
+)
+target_compile_definitions(
+    metalrobo
+    PRIVATE
+        METALROBO_BUILDING_LIBRARY=1
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+        METALROBO_NEURON_METALLIB="${METALROBO_NEURON_CULTURE_METALLIB}"
+)
+target_compile_options(
+    metalrobo
+    PRIVATE
+        "$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic>"
+        "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc;-Wall;-Wextra;-Wpedantic>"
+)
+# Error-free root translation expansions require ordered scalar operations.
+set_source_files_properties(
+    src/core/NumiHumanInitialState.cpp
+    src/metal/MetalArticulatedOperator.mm
+    src/metal/MetalNumanXHumanMatter.mm
+    src/metal/NumanXRuntimeV1.mm
+    PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off"
+)
+target_link_libraries(
+    metalrobo
+    PRIVATE
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+        "${QUARTZCORE_FRAMEWORK}"
+        "${ACCELERATE_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${COREIMAGE_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+        "${METALKIT_FRAMEWORK}"
+        "${MODELIO_FRAMEWORK}"
+        "${METALROBO_SQLITE_TARGET}"
+        LibXml2::LibXml2
+)
+set_target_properties(
+    metalrobo
+    PROPERTIES
+        OUTPUT_NAME metalrobo
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        BUILD_RPATH "@loader_path/../lib"
+        INSTALL_RPATH "@loader_path"
+)
+
+# The cardboard driver uses the native rigid/FEM coupled operator for finite
+# mass loading. Standalone Matter builds retain the coupon-only executable.
+foreach(cardboard_driver numi-matter-cardboard-probe numi-matter-cardboard-box-native-driver
+        numi-matter-cardboard-full-contact-armijo-check)
+    target_link_libraries(${cardboard_driver} PRIVATE metalrobo)
+    target_compile_definitions(${cardboard_driver} PRIVATE NUMI_CARDBOARD_METAL_WORLD=1)
+endforeach()
+add_executable(numi-matter-cardboard-shipping-rigid-driver-check
+    matter/tools/cardboard_shipping_rigid_driver_check.cpp)
+target_link_libraries(numi-matter-cardboard-shipping-rigid-driver-check PRIVATE metalrobo)
+target_compile_options(numi-matter-cardboard-shipping-rigid-driver-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+add_executable(numi-matter-cardboard-shipping-rigid-native-check
+    matter/tools/cardboard_shipping_rigid_native_check.mm)
+target_link_libraries(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+target_compile_definitions(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    NUMI_CARDBOARD_METAL_WORLD=1)
+target_compile_options(numi-matter-cardboard-shipping-rigid-native-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -fobjc-arc)
+add_dependencies(numi-matter-cardboard-shipping-rigid-native-check
+    metalrobo_shaders numi_matter_shaders)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_shipping_rigid_driver
+        COMMAND numi-matter-cardboard-shipping-rigid-driver-check)
+    set_tests_properties(matter.compiler.cardboard_shipping_rigid_driver PROPERTIES
+        TIMEOUT 60 LABELS "matter;cardboard;rigid;synthetic")
+endif()
+
+add_executable(metalrobo_bench apps/benchmark.cpp)
+target_link_libraries(metalrobo_bench PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_bench
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(metalrobo_tactile_check apps/tactile_check.cpp)
+target_link_libraries(metalrobo_tactile_check PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_tactile_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_tactile_benchmark
+    apps/tactile_benchmark.cpp
+)
+target_link_libraries(
+    metalrobo_tactile_benchmark
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_tactile_benchmark
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_tactile_example
+    examples/tactile/main.cpp
+)
+target_link_libraries(
+    metalrobo_tactile_example
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_tactile_example
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_metal_world_contact_probe
+    apps/metal_world_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_world_contact_probe
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_metal_world_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(metalrobo_cpu_probe apps/cpu_probe.cpp)
+target_link_libraries(metalrobo_cpu_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_cpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_neuron_culture_probe
+    apps/neuron_culture_probe.mm
+)
+add_dependencies(
+    metalrobo_neuron_culture_probe
+    metalrobo_neuron_culture_shaders
+)
+target_link_libraries(
+    metalrobo_neuron_culture_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_neuron_culture_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_neuron_culture_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(NumiNeuronLab apps/NumiNeuronLab.mm)
+add_dependencies(NumiNeuronLab metalrobo_neuron_culture_shaders)
+target_link_libraries(
+    NumiNeuronLab PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+        "${APPKIT_FRAMEWORK}" "${METALKIT_FRAMEWORK}"
+)
+target_compile_definitions(
+    NumiNeuronLab PRIVATE
+    METALROBO_NEURON_METALLIB="${METALROBO_NEURON_CULTURE_METALLIB}"
+)
+target_compile_options(NumiNeuronLab PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(
+    NumiNeuronLab PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib" INSTALL_RPATH "@loader_path/../lib"
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME numi.integration.neuron_culture_gate_b
+        COMMAND metalrobo_neuron_culture_probe
+    )
+    set_tests_properties(
+        numi.integration.neuron_culture_gate_b
+        PROPERTIES TIMEOUT 90
+    )
+endif()
+
+add_executable(
+    metalrobo_opensim_function_probe
+    apps/opensim_function_probe.cpp
+)
+target_link_libraries(
+    metalrobo_opensim_function_probe
+    PRIVATE metalrobo
+)
+
+add_executable(
+    metalrobo_opensim_spatial_transform_probe
+    apps/opensim_spatial_transform_probe.cpp
+)
+target_link_libraries(
+    metalrobo_opensim_spatial_transform_probe
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_opensim_spatial_transform_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    apps/opensim_spatial_transform_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        METALROBO_OPENSIM_SPATIAL_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_opensim_spatial_transform_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+set_target_properties(
+    metalrobo_opensim_function_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_engine_model_probe apps/engine_model_probe.cpp)
+target_link_libraries(metalrobo_engine_model_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_engine_model_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_g1_model_probe apps/g1_model_probe.cpp)
+target_link_libraries(metalrobo_g1_model_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_g1_model_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_task_program_check
+    apps/task_program_check.cpp
+)
+
+add_executable(
+    metalrobo_run_program_check
+    apps/run_program_check.cpp
+)
+add_executable(
+    metalrobo_robot_catalog
+    apps/robot_catalog.cpp
+)
+add_executable(
+    metalrobo_ai_sapiens_compile
+    apps/ai_sapiens_compile.cpp
+)
+target_link_libraries(metalrobo_robot_catalog PRIVATE metalrobo)
+target_link_libraries(
+    metalrobo_ai_sapiens_compile
+    PRIVATE metalrobo LibXml2::LibXml2
+)
+set_target_properties(
+    metalrobo_robot_catalog
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+set_target_properties(
+    metalrobo_ai_sapiens_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+target_link_libraries(
+    metalrobo_run_program_check
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_run_program_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+target_link_libraries(
+    metalrobo_task_program_check
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_task_program_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+if(METALROBO_HAS_SWIFT)
+    add_executable(
+        metalrobo_matter_foot_lab
+        apps/MatterFootLab.swift
+    )
+    target_link_libraries(
+        metalrobo_matter_foot_lab
+        PRIVATE
+            "${APPKIT_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+            "${METALKIT_FRAMEWORK}"
+            "${QUARTZCORE_FRAMEWORK}"
+    )
+    target_compile_options(
+        metalrobo_matter_foot_lab
+        PRIVATE
+            "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_matter_foot_lab
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+
+    add_executable(
+        metalrobo_measured_dove_lab
+        apps/MeasuredDoveLab.swift
+    )
+    target_link_libraries(
+        metalrobo_measured_dove_lab
+        PRIVATE
+            "${APPKIT_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+            "${METALKIT_FRAMEWORK}"
+            "${QUARTZCORE_FRAMEWORK}"
+    )
+    target_compile_options(
+        metalrobo_measured_dove_lab
+        PRIVATE
+            "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_measured_dove_lab
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+
+    add_executable(
+        metalrobo_task_rollout
+        apps/task_rollout.swift
+        apps/RunInspector.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_task_rollout
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_task_rollout
+        PRIVATE
+            metalrobo
+            "${APPKIT_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_task_rollout
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            # Swift 6.3 intermittently fails to create the incremental
+            # module temporary path after a native-library relink. These two
+            # small command surfaces favor dependable interactive launches.
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
+
+    add_executable(
+        metalrobo_task_train
+        apps/task_train.swift
+        apps/RunInspector.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_task_train
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_task_train
+        PRIVATE
+            metalrobo
+            "${APPKIT_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_task_train
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
+endif()
+
+if(BUILD_TESTING)
+    add_executable(metalrobo_compensated_translation_check apps/compensated_translation_check.mm)
+    target_link_libraries(metalrobo_compensated_translation_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_compensated_translation_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_compensated_translation_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_compensated_translation_cpu COMMAND metalrobo_compensated_translation_check --cpu)
+    add_test(NAME numi_human_compensated_translation_metal COMMAND metalrobo_compensated_translation_check "${METALROBO_METALLIB}")
+    add_executable(metalrobo_compensated_geometry_check apps/compensated_geometry_check.mm)
+    target_link_libraries(metalrobo_compensated_geometry_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_compensated_geometry_check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_compensated_geometry_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_compensated_geometry_cpu COMMAND metalrobo_compensated_geometry_check --cpu)
+    add_test(NAME numi_human_compensated_geometry_metal COMMAND metalrobo_compensated_geometry_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_compensated_geometry_cpu numi_human_compensated_geometry_metal
+        PROPERTIES LABELS "numi-human;precision" TIMEOUT 60)
+    add_executable(metalrobo_source_route_precision_check apps/source_route_precision_check.mm)
+    target_link_libraries(metalrobo_source_route_precision_check PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_source_route_precision_check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_source_route_precision_check PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        OBJCXX_STANDARD 20 OBJCXX_STANDARD_REQUIRED YES OBJCXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_dependencies(metalrobo_source_route_precision_check metalrobo_shaders)
+    add_test(NAME numi_human_source_route_precision_cpu
+        COMMAND metalrobo_source_route_precision_check --cpu)
+    add_test(NAME numi_human_source_route_precision_metal
+        COMMAND metalrobo_source_route_precision_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_source_route_precision_cpu PROPERTIES
+        LABELS "numi-human;precision;source-route;cpu" TIMEOUT 30)
+    set_tests_properties(numi_human_source_route_precision_metal PROPERTIES
+        LABELS "numi-human;precision;source-route;metal" TIMEOUT 120
+        ENVIRONMENT "MTL_DEBUG_LAYER=1")
+    add_executable(metalrobo_numilab_human_extensor_hood_admission_probe
+        apps/numilab_human_extensor_hood_admission_probe.mm)
+    target_link_libraries(metalrobo_numilab_human_extensor_hood_admission_probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_numilab_human_extensor_hood_admission_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numilab_human_extensor_hood_admission_probe PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        OBJCXX_STANDARD 20 OBJCXX_STANDARD_REQUIRED YES OBJCXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_dependencies(metalrobo_numilab_human_extensor_hood_admission_probe metalrobo_shaders)
+    add_test(NAME numi_human.extensor_hood_admission
+        COMMAND metalrobo_numilab_human_extensor_hood_admission_probe "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human.extensor_hood_admission PROPERTIES
+        LABELS "numi-human;precision;tendon;metal" TIMEOUT 120
+        ENVIRONMENT "MTL_DEBUG_LAYER=1")
+    add_executable(metalrobo_human_support_precision_check apps/human_support_precision_check.cpp)
+    target_include_directories(metalrobo_human_support_precision_check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_options(metalrobo_human_support_precision_check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_human_support_precision_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_support_precision COMMAND metalrobo_human_support_precision_check)
+    set_tests_properties(numi_human_support_precision PROPERTIES LABELS "numi-human;physics;cpu" TIMEOUT 30)
+    set_tests_properties(numi_human_compensated_translation_cpu numi_human_compensated_translation_metal PROPERTIES
+        LABELS "numi-human;precision" TIMEOUT 60)
+    add_executable(metalrobo_human_behavior_telemetry_check apps/human_behavior_telemetry_check.mm)
+    target_link_libraries(metalrobo_human_behavior_telemetry_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_human_behavior_telemetry_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_human_behavior_telemetry_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_telemetry COMMAND metalrobo_human_behavior_telemetry_check "${METALROBO_METALLIB}")
+    set_tests_properties(numi_human_behavior_telemetry PROPERTIES LABELS "numi-human;behavior;metal" TIMEOUT 60)
+    add_executable(metalrobo_human_behavior_program_check apps/human_behavior_program_check.cpp)
+    target_link_libraries(metalrobo_human_behavior_program_check PRIVATE metalrobo)
+    target_compile_options(metalrobo_human_behavior_program_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_human_behavior_program_check PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_program COMMAND metalrobo_human_behavior_program_check)
+    add_executable(metalrobo_human_behavior_trial_check
+        apps/human_behavior_trial_check.cpp)
+    target_link_libraries(metalrobo_human_behavior_trial_check PRIVATE metalrobo)
+    target_compile_options(metalrobo_human_behavior_trial_check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_human_behavior_trial_check PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_trial_core
+        COMMAND metalrobo_human_behavior_trial_check)
+    set_tests_properties(numi_human_behavior_trial_core PROPERTIES
+        LABELS "numi-human;behavior;trial;cpu" TIMEOUT 30)
+    add_executable(metalrobo_human_behavior_accepted_state_root_check
+        apps/human_behavior_accepted_state_root_check.cpp)
+    target_link_libraries(
+        metalrobo_human_behavior_accepted_state_root_check PRIVATE metalrobo)
+    target_compile_options(
+        metalrobo_human_behavior_accepted_state_root_check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(
+        metalrobo_human_behavior_accepted_state_root_check PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_accepted_state_root
+        COMMAND metalrobo_human_behavior_accepted_state_root_check)
+    set_tests_properties(numi_human_behavior_accepted_state_root PROPERTIES
+        LABELS "numi-human;behavior;accepted-state;crypto;cpu" TIMEOUT 30)
+    set_tests_properties(numi_human_behavior_program PROPERTIES LABELS "numi-human;behavior;compiler")
+    add_executable(metalrobo_numi_human_cardiac_identity_test tests/numi_human_cardiac_identity_test.cpp)
+    target_compile_options(metalrobo_numi_human_cardiac_identity_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_cardiac_identity COMMAND metalrobo_numi_human_cardiac_identity_test)
+    add_executable(metalrobo_numi_human_common_field_test tests/numi_human_common_field_test.cpp)
+    target_include_directories(metalrobo_numi_human_common_field_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_common_field_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_common_field_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_common_field_layout COMMAND metalrobo_numi_human_common_field_test)
+    set_tests_properties(numi_human_common_field_layout PROPERTIES LABELS "numi-human;cardiac;common-field;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_common_field_metal_test tests/numi_human_common_field_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_common_field_metal_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_common_field_metal_test PRIVATE cxx_std_20)
+    target_compile_definitions(metalrobo_numi_human_common_field_metal_test PRIVATE
+        NUMI_COMMON_FIELD_MSLINC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/matter/src/NumiHumanRestingCommonField.metalinc")
+    target_compile_options(metalrobo_numi_human_common_field_metal_test PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_common_field_metal_test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_test(NAME numi_human_common_field_metal COMMAND metalrobo_numi_human_common_field_metal_test)
+    set_tests_properties(numi_human_common_field_metal PROPERTIES LABELS "numi-human;cardiac;common-field;metal" TIMEOUT 90)
+    add_executable(metalrobo_numi_human_hip_capsule_metal_test
+        tests/numi_human_hip_capsule_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_hip_capsule_metal_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_hip_capsule_metal_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_hip_capsule_metal_test PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_hip_capsule_metal_test PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_numi_human_hip_capsule_metal_test metalrobo_shaders)
+    add_test(NAME numi_human_hip_capsule_metal
+        COMMAND metalrobo_numi_human_hip_capsule_metal_test
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+    set_tests_properties(numi_human_hip_capsule_metal PROPERTIES
+        LABELS "numi-human;hip-capsule;metal" TIMEOUT 90)
+
+    add_executable(metalrobo_numi_human_per_contact_plane_metal_test
+        tests/numi_human_per_contact_plane_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_numi_human_per_contact_plane_metal_test metalrobo_shaders)
+    add_test(NAME numi_human_per_contact_plane_metal
+        COMMAND metalrobo_numi_human_per_contact_plane_metal_test
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+    set_tests_properties(numi_human_per_contact_plane_metal PROPERTIES
+        LABELS "numi-human;resting-bed;metal" TIMEOUT 90)
+
+    add_executable(metalrobo_numi_human_mesh_audit_metal_test tests/numi_human_mesh_audit_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_mesh_audit_metal_test PRIVATE include matter/include)
+    target_compile_features(metalrobo_numi_human_mesh_audit_metal_test PRIVATE cxx_std_20)
+    target_compile_definitions(metalrobo_numi_human_mesh_audit_metal_test PRIVATE
+        NUMI_HUMAN_RESPIRATION_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/HumanRespiration.metallib")
+    target_compile_options(metalrobo_numi_human_mesh_audit_metal_test PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_mesh_audit_metal_test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_numi_human_mesh_audit_metal_test numi_human_respiration_shaders)
+    add_test(NAME numi_human_mesh_audit_metal COMMAND metalrobo_numi_human_mesh_audit_metal_test)
+    set_tests_properties(numi_human_mesh_audit_metal PROPERTIES LABELS "numi-human;geometry;metal" TIMEOUT 90)
+    add_executable(metalrobo_numi_human_surface_audit_diagnostic_test
+        tests/numi_human_surface_audit_diagnostic_test.cpp)
+    target_include_directories(metalrobo_numi_human_surface_audit_diagnostic_test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_surface_audit_diagnostic_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_surface_audit_diagnostic
+        COMMAND metalrobo_numi_human_surface_audit_diagnostic_test)
+    set_tests_properties(numi_human_surface_audit_diagnostic PROPERTIES
+        LABELS "numi-human;surface-audit;diagnostic;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_retired_inspection_layers_test
+        tests/numi_human_retired_inspection_layers_test.cpp)
+    target_include_directories(metalrobo_numi_human_retired_inspection_layers_test PRIVATE apps)
+    target_compile_features(metalrobo_numi_human_retired_inspection_layers_test PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_retired_inspection_layers_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_retired_inspection_layers
+        COMMAND metalrobo_numi_human_retired_inspection_layers_test)
+    set_tests_properties(numi_human_retired_inspection_layers PROPERTIES
+        LABELS "numi-human;anatomy;inspection-layers;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_accepted_geometry_cadence_test
+        tests/numi_human_accepted_geometry_cadence_test.cpp)
+    target_compile_options(metalrobo_numi_human_accepted_geometry_cadence_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_accepted_geometry_cadence
+        COMMAND metalrobo_numi_human_accepted_geometry_cadence_test)
+    set_tests_properties(numi_human_accepted_geometry_cadence PROPERTIES
+        LABELS "numi-human;accepted-geometry;cadence;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_accepted_q_audit_window_test
+        tests/numi_human_accepted_q_audit_window_test.cpp)
+    target_include_directories(metalrobo_numi_human_accepted_q_audit_window_test PRIVATE apps)
+    target_compile_features(metalrobo_numi_human_accepted_q_audit_window_test PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_accepted_q_audit_window_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_accepted_q_audit_window
+        COMMAND metalrobo_numi_human_accepted_q_audit_window_test)
+    set_tests_properties(numi_human_accepted_q_audit_window PROPERTIES
+        LABELS "numi-human;accepted-q-audit;window;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_accepted_force_observer_test
+        tests/numi_human_accepted_force_observer_test.cpp)
+    target_include_directories(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_accepted_force_observer
+        COMMAND metalrobo_numi_human_accepted_force_observer_test)
+    set_tests_properties(numi_human_accepted_force_observer PROPERTIES
+        LABELS "numi-human;accepted-force-observer;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_passive_joint_test tests/numi_human_passive_joint_test.cpp)
+    target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_passive_joint_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)
+    add_test(NAME numi_human_passive_joint COMMAND metalrobo_numi_human_passive_joint_test)
+    add_executable(metalrobo_numi_human_resting_hand_reduction_test tests/numi_human_resting_hand_reduction_test.cpp)
+    target_include_directories(metalrobo_numi_human_resting_hand_reduction_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_resting_hand_reduction_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)
+    add_test(NAME numi_human_resting_hand_reduction COMMAND metalrobo_numi_human_resting_hand_reduction_test)
+    add_executable(metalrobo_numi_human_timed_root_force_test tests/numi_human_timed_root_force_test.cpp)
+    target_include_directories(metalrobo_numi_human_timed_root_force_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_timed_root_force_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math)
+    add_test(NAME numi_human_timed_root_force COMMAND metalrobo_numi_human_timed_root_force_test)
+    set_tests_properties(numi_human_timed_root_force PROPERTIES LABELS "numi-human;mechanics;perturbation;cpu")
+    add_executable(metalrobo_numi_human_initial_state_test tests/numi_human_initial_state_test.cpp)
+    target_link_libraries(metalrobo_numi_human_initial_state_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_initial_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_initial_state_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)
+    add_executable(metalrobo_numi_human_runtime_identity_test
+        tests/numi_human_runtime_identity_test.cpp)
+    target_link_libraries(metalrobo_numi_human_runtime_identity_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_runtime_identity_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_numi_human_runtime_identity_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_runtime_identity
+        COMMAND metalrobo_numi_human_runtime_identity_test)
+    add_executable(metalrobo_numi_human_root_placement_test tests/numi_human_root_placement_test.cpp)
+    target_link_libraries(metalrobo_numi_human_root_placement_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_root_placement_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_root_placement_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_root_placement COMMAND metalrobo_numi_human_root_placement_test)
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(NAME numanx.integration.human_touch_aggregation
+            COMMAND metalrobo_numanx_fullbody_bridge_probe --touch-aggregation-only)
+        set_tests_properties(numanx.integration.human_touch_aggregation
+            PROPERTIES LABELS "numanx;human;metal;support")
+    endif()
+    set_tests_properties(numi_human_initial_state numi_human_runtime_identity
+        PROPERTIES LABELS "numi-human;initialization;numanx")
+endif()
+
+if(BUILD_TESTING)
+    add_executable(metalrobo_numi_human_static_support_test
+        tests/numi_human_static_support_test.cpp)
+    target_link_libraries(metalrobo_numi_human_static_support_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_static_support_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_numi_human_static_support_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_static_support COMMAND metalrobo_numi_human_static_support_test)
+    set_tests_properties(numi_human_static_support PROPERTIES LABELS "numi-human;mechanics;support")
+    add_executable(metalrobo_numi_human_motion_observer_test
+        tests/numi_human_motion_observer_test.cpp)
+    target_link_libraries(metalrobo_numi_human_motion_observer_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_motion_observer_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_motion_observer_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_motion_observer
+        COMMAND metalrobo_numi_human_motion_observer_test)
+    set_tests_properties(numi_human_motion_observer
+        PROPERTIES LABELS "numi-human;observer;support")
+    add_executable(metalrobo_numi_human_friction_test tests/numi_human_friction_test.cpp)
+    target_include_directories(metalrobo_numi_human_friction_test PRIVATE include)
+    target_compile_options(metalrobo_numi_human_friction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_friction_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME numi_human_friction COMMAND metalrobo_numi_human_friction_test)
+    set_tests_properties(numi_human_friction PROPERTIES LABELS "numi-human;mechanics;contact")
+    add_executable(metalrobo_mujoco_muscle_path_batch_test tests/mujoco_muscle_path_batch_test.cpp)
+    target_link_libraries(metalrobo_mujoco_muscle_path_batch_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_mujoco_muscle_path_batch_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_mujoco_muscle_path_batch_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    add_test(NAME mujoco_muscle_path_batch COMMAND metalrobo_mujoco_muscle_path_batch_test)
+    set_tests_properties(mujoco_muscle_path_batch PROPERTIES LABELS "numi-human;mechanics;muscle")
+endif()
+
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_continuum_map_test
+        tests/numi_human_continuum_map_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_continuum_map_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_continuum_map_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_continuum_map_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+    add_test(
+        NAME numi_human_continuum_map
+        COMMAND metalrobo_numi_human_continuum_map_test
+    )
+    set_tests_properties(
+        numi_human_continuum_map
+        PROPERTIES LABELS "numi-human;anatomy;continuum"
+    )
+endif()
+
+add_executable(
+    metalrobo_franka_engine_model_probe
+    apps/franka_engine_model_probe.cpp
+)
+target_link_libraries(
+    metalrobo_franka_engine_model_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_franka_engine_model_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_franka_compiled_run_probe
+    apps/franka_compiled_run_probe.cpp
+)
+target_link_libraries(
+    metalrobo_franka_compiled_run_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_franka_compiled_run_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_franka_explore
+    examples/franka_explore/metal_main.cpp
+)
+target_include_directories(
+    metalrobo_franka_explore
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/examples/franka_explore"
+)
+target_link_libraries(
+    metalrobo_franka_explore
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_franka_explore
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_franka_explore
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_collision_probe apps/collision_probe.cpp)
+target_link_libraries(metalrobo_collision_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_collision_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_free_body_probe apps/free_body_probe.cpp)
+target_link_libraries(metalrobo_free_body_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_free_body_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_rigid_body_world_probe
+    apps/rigid_body_world_probe.cpp
+)
+
+add_executable(
+    metalrobo_articulated_dynamics_probe
+    apps/articulated_dynamics_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_dynamics_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_dynamics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Loads the provenance-locked NumiLab Human Rajagopal rigid-tree payload into
+# the Core FP64 reference and, when requested, qualifies the bounded
+# fixed-root FunctionBased MetalWorld dense-dynamics and Millard-actuation path.
+add_executable(
+    metalrobo_numilab_human_core_reference_probe
+    apps/numilab_human_core_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_core_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numilab_human_core_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Source-complete MyoSim full-body CPU reference: floating rigid tree plus
+# MuJoCo general-muscle spatial tendon paths.  It intentionally does not
+# claim the bounded Metal kernels can yet admit this 157-body/128-DoF model.
+add_executable(
+    metalrobo_numilab_human_myosim_reference_probe
+    apps/numilab_human_myosim_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_myosim_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numilab_human_myosim_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# FP64 reference for the posture-dependent tendon-sheet topology missing from
+# the source hand. This qualifies unilateral bundle mechanics and conservative
+# attachment reactions before the network is admitted to live Human dynamics.
+add_executable(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    apps/numilab_human_extensor_hood_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_extensor_hood_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME numi_human.extensor_hood_reference
+        COMMAND $<TARGET_FILE:metalrobo_numilab_human_extensor_hood_reference_probe>
+    )
+    set_tests_properties(
+        numi_human.extensor_hood_reference
+        PROPERTIES LABELS "numi-human;anatomy;tendon" TIMEOUT 30
+    )
+endif()
+
+add_executable(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    apps/numilab_human_extensor_hood_source_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_extensor_hood_source_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numilab_human_adm_feasibility_probe
+    apps/numilab_human_adm_feasibility_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_adm_feasibility_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_adm_feasibility_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_adm_feasibility_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Native visual inspection for the full-body MyoSim model. It obtains the
+# articulated pose from the Metal operator, renders BodyParts3D major-bone
+# geometry when supplied, and can opt in to selected CPU-resolved source route
+# centrelines (tangent contacts plus sampled wrap arcs). Its explicit
+# --open-knee-live-tissue-fem path also owns the bounded same-command-buffer
+# Human/FEM transaction; ordinary pose and route modes remain presentation
+# probes rather than live rollout evidence.
+add_executable(
+    metalrobo_numilab_human_myosim_visual_probe
+    apps/numilab_human_myosim_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+)
+add_dependencies(metalrobo_numilab_human_myosim_visual_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        NUMI_HUMAN_PASSIVE_TISSUE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/passive_skeletal_muscle_unqualified.nmatter"
+        NUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter"
+        NUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter"
+        NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter"
+        NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter"
+        NUMI_HUMAN_PLANTAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_plantar_fascia_reduced.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_febio_exp_linear.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        METALROBO_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numilab_human_myosim_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_myosim_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# The live resting scene reuses the exact source loaders, articulated owner,
+# tendon program and anatomy presentation in the existing Human application.
+# Cross-suite Brain dependency is explicit and excluded from ordinary builds.
+add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
+get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)
+target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINITIONS}
+    NUMI_HUMAN_RESTING_SCENE=1
+    NUMI_HUMAN_RESPIRATION_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/HumanRespiration.metallib")
+target_include_directories(numi-human-native PRIVATE "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include")
+target_compile_options(numi-human-native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(numi-human-native PRIVATE metalrobo
+    "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}"
+    "-framework AppKit" "-framework MetalKit" "-framework AVFoundation" "-framework CoreVideo" "-framework CoreMedia" "-framework QuartzCore")
+add_dependencies(numi-human-native numi_matter_shaders numi_human_respiration_shaders)
+set_target_properties(numi-human-native PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+
+add_executable(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    apps/numi_human_tendon_fem_load_probe.mm
+)
+
+set(NUMI_HUMAN_RESTING_SKIN_SOURCE "" CACHE FILEPATH
+    "Optional preprocessed resting presentation source; binary pins its SHA-256")
+if(NUMI_HUMAN_RESTING_SKIN_SOURCE)
+    get_filename_component(NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE
+        "${NUMI_HUMAN_RESTING_SKIN_SOURCE}" ABSOLUTE)
+    if(NOT EXISTS "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" OR
+       IS_DIRECTORY "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+        message(FATAL_ERROR "Resting skin source must be an existing regular source file")
+    endif()
+    file(SIZE "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES)
+    if(NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES LESS 1 OR
+       NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES GREATER 8388608)
+        message(FATAL_ERROR "Resting skin source must contain 1 to 8388608 bytes")
+    endif()
+    add_executable(numi-human-parent-precision-gpu-check EXCLUDE_FROM_ALL
+        tests/numi_human_parent_precision_gpu_test.mm)
+    target_include_directories(numi-human-parent-precision-gpu-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_options(numi-human-parent-precision-gpu-check PRIVATE
+        -fobjc-arc -ffp-contract=off -Wall -Wextra -Werror)
+    target_link_libraries(numi-human-parent-precision-gpu-check PRIVATE
+        "-framework Foundation" "-framework Metal")
+    if(BUILD_TESTING)
+        add_test(NAME numi_human_parent_precision_gpu
+            COMMAND numi-human-parent-precision-gpu-check
+                "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+    endif()
+    file(SHA256 "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_SKIN_SOURCE_DIGEST)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+    foreach(NUMI_HUMAN_PRESENTATION_TARGET metalrobo_numilab_human_myosim_visual_probe numi-human-native)
+        target_compile_definitions(${NUMI_HUMAN_PRESENTATION_TARGET} PRIVATE
+            NUMI_HUMAN_RESTING_SKIN_SOURCE="${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}"
+            NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256="${NUMI_HUMAN_RESTING_SKIN_SOURCE_DIGEST}")
+    endforeach()
+endif()
+
+target_link_libraries(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+add_dependencies(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE
+        NUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_tendon_fem_load_probe
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+add_executable(
+    metalrobo_numilab_human_costal_cartilage_probe
+    apps/numi_human_costal_cartilage_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+add_dependencies(
+    metalrobo_numilab_human_costal_cartilage_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE
+        NUMI_HUMAN_COSTAL_CARTILAGE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_costal_cartilage_probe
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+add_executable(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    apps/numilab_human_open_knee_ligament_probe.mm
+)
+target_link_libraries(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+add_dependencies(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    PRIVATE
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_transverse_isotropic_smooth.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_febio_exp_linear.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_open_knee_ligament_probe
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+# Exact Open Knee(s) cartilage/meniscus surface-pair elastic-foundation
+# preflight. This is a nonvisual constitutive/anatomical gate; the output
+# explicitly remains below integrated Human contact and motion evidence.
+add_executable(
+    metalrobo_numilab_human_knee_contact_probe
+    apps/numilab_human_knee_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_numilab_human_knee_contact_probe
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_numilab_human_knee_contact_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numilab_human_knee_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_knee_contact_test
+        tests/numi_human_knee_contact_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_knee_contact_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_knee_contact_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_knee_contact_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+    add_test(
+        NAME numi_human_knee_contact
+        COMMAND metalrobo_numi_human_knee_contact_test
+    )
+    set_tests_properties(
+        numi_human_knee_contact
+        PROPERTIES LABELS "numi-human;anatomy;contact"
+    )
+endif()
+
+add_executable(
+    metalrobo_millard_muscle_reference_probe
+    apps/millard_muscle_reference_probe.cpp
+)
+target_link_libraries(
+    metalrobo_millard_muscle_reference_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_millard_muscle_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_actuation_probe
+    apps/articulated_actuation_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_actuation_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_actuation_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_joint_limits_probe
+    apps/articulated_joint_limits_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_joint_limits_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_joint_limits_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_contact_probe
+    apps/articulated_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_mixed_constraints_probe
+    apps/articulated_mixed_constraints_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_mixed_constraints_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_mixed_constraints_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_world_probe
+    apps/multi_articulated_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_multi_articulated_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_multi_articulated_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_contact_probe
+    apps/multi_articulated_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_multi_articulated_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_multi_articulated_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_multi_articulated_contact_probe
+    apps/metal_multi_articulated_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_multi_articulated_contact_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_metal_multi_articulated_contact_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_metal_multi_articulated_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_parallel_aba_schedule_probe
+    apps/parallel_aba_schedule_probe.cpp
+)
+target_link_libraries(
+    metalrobo_parallel_aba_schedule_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_parallel_aba_schedule_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_parallel_aba_schedule_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_aba_gpu_probe
+    apps/multi_articulated_aba_gpu_probe.mm
+)
+target_link_libraries(
+    metalrobo_multi_articulated_aba_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_multi_articulated_aba_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
+    apps/multi_articulated_inverse_mass_gpu_probe.mm
+)
+target_link_libraries(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_constraint_gpu_probe
+    apps/multi_articulated_constraint_gpu_probe.mm
+)
+target_link_libraries(
+    metalrobo_multi_articulated_constraint_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_multi_articulated_constraint_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_discrete_elastic_rod_probe
+    apps/metal_discrete_elastic_rod_probe.mm
+)
+target_link_libraries(
+    metalrobo_metal_discrete_elastic_rod_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_metal_discrete_elastic_rod_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_knot_mechanics_probe
+    apps/surgical_knot_mechanics_probe.mm
+)
+target_compile_options(
+    metalrobo_surgical_knot_mechanics_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_knot_mechanics_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_knot_mechanics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_knot_protocol_probe
+    apps/surgical_knot_protocol_probe.cpp
+)
+target_compile_options(
+    metalrobo_surgical_knot_protocol_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_knot_protocol_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_knot_protocol_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_thread_grasp_probe
+    apps/surgical_thread_grasp_probe.mm
+)
+target_compile_options(
+    metalrobo_surgical_thread_grasp_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_thread_grasp_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_thread_grasp_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_thread_targeting_probe
+    apps/surgical_thread_targeting_probe.cpp
+)
+target_compile_options(
+    metalrobo_surgical_thread_targeting_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_thread_targeting_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_thread_targeting_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_unified_quality_probe
+    apps/metal_unified_quality_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_unified_quality_probe
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_metal_unified_quality_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_metal_unified_quality_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_robot_description_cooker_probe
+    apps/robot_description_cooker_probe.cpp
+)
+target_link_libraries(
+    metalrobo_robot_description_cooker_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_definitions(
+    metalrobo_robot_description_cooker_probe
+    PRIVATE
+        METALROBO_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
+set_target_properties(
+    metalrobo_robot_description_cooker_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_dual_psm_world_probe
+    apps/dual_psm_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_dual_psm_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_dual_psm_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_discrete_elastic_rod_probe
+    apps/discrete_elastic_rod_probe.cpp
+)
+target_link_libraries(
+    metalrobo_discrete_elastic_rod_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_discrete_elastic_rod_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_engine_model_composer_probe
+    apps/engine_model_composer_probe.cpp
+)
+target_link_libraries(
+    metalrobo_engine_model_composer_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_engine_model_composer_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_heterogeneous_world_probe
+    apps/heterogeneous_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_heterogeneous_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_heterogeneous_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_quality_contact_probe
+    apps/metal_quality_contact_probe.mm
+)
+target_link_libraries(
+    metalrobo_metal_quality_contact_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_metal_quality_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_g1_collision_contact_probe
+    apps/g1_collision_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_g1_collision_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_g1_collision_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_world_probe
+    apps/articulated_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+target_link_libraries(metalrobo_rigid_body_world_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_rigid_body_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_reference_conic_probe
+    apps/reference_conic_probe.cpp
+)
+
+add_executable(
+    metalrobo_quality_contact_probe
+    apps/quality_contact_probe.cpp
+)
+target_link_libraries(metalrobo_quality_contact_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_quality_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+target_link_libraries(metalrobo_reference_conic_probe PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_reference_conic_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_constraint_ir_probe
+    apps/constraint_ir_probe.cpp
+)
+target_link_libraries(
+    metalrobo_constraint_ir_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_constraint_ir_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_contact_gpu_probe apps/contact_gpu_probe.mm)
+add_dependencies(metalrobo_contact_gpu_probe metalrobo_shaders)
+target_compile_definitions(
+    metalrobo_contact_gpu_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_contact_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_contact_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_contact_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_free_body_gpu_probe apps/free_body_gpu_probe.mm)
+add_dependencies(metalrobo_free_body_gpu_probe metalrobo_shaders)
+target_compile_definitions(
+    metalrobo_free_body_gpu_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+
+add_executable(metalrobo_px4_x500_gpu_probe apps/px4_x500_gpu_probe.cpp)
+add_dependencies(metalrobo_px4_x500_gpu_probe metalrobo_shaders)
+target_compile_definitions(metalrobo_px4_x500_gpu_probe PRIVATE METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}")
+target_compile_options(metalrobo_px4_x500_gpu_probe PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_px4_x500_gpu_probe PRIVATE metalrobo)
+set_target_properties(metalrobo_px4_x500_gpu_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+target_compile_options(
+    metalrobo_free_body_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_free_body_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_free_body_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(metalrobo_human_reconcile_probe apps/human_reconcile_probe.mm)
+add_dependencies(metalrobo_human_reconcile_probe numi_matter_shaders metalrobo)
+target_compile_definitions(metalrobo_human_reconcile_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+    METALROBO_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+target_compile_options(metalrobo_human_reconcile_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_human_reconcile_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_human_reconcile_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_human_reconcile_probe COMMAND metalrobo_human_reconcile_probe)
+
+add_executable(metalrobo_matter_surface_bvh_probe apps/matter_surface_bvh_probe.mm)
+add_dependencies(metalrobo_matter_surface_bvh_probe numi_matter_shaders)
+target_include_directories(metalrobo_matter_surface_bvh_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_definitions(metalrobo_matter_surface_bvh_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+target_compile_options(metalrobo_matter_surface_bvh_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_matter_surface_bvh_probe PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_matter_surface_bvh_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_matter_surface_bvh_probe COMMAND metalrobo_matter_surface_bvh_probe)
+set_tests_properties(metalrobo_matter_surface_bvh_probe PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1" TIMEOUT 60)
+
+add_executable(metalrobo_matter_ccd_probe apps/matter_ccd_probe.mm)
+add_dependencies(metalrobo_matter_ccd_probe numi_matter_shaders)
+target_compile_definitions(metalrobo_matter_ccd_probe PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+target_compile_options(metalrobo_matter_ccd_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(metalrobo_matter_ccd_probe PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_matter_ccd_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME metalrobo_matter_ccd_probe COMMAND metalrobo_matter_ccd_probe)
+
+add_executable(metalrobo_matter_physics_probe apps/matter_physics_probe.mm)
+add_dependencies(metalrobo_matter_physics_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/damageable_silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_matter_physics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_matter_snapshot_archive_probe
+    apps/matter_snapshot_archive_probe.cpp
+)
+target_compile_options(
+    metalrobo_matter_snapshot_archive_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_matter_snapshot_archive_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_matter_snapshot_archive_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_tissue_probe
+    apps/surgical_tissue_probe.mm
+)
+add_dependencies(metalrobo_surgical_tissue_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        NUMI_JEJUNUM_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/porcine_jejunum_fung.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_tissue_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_fem_prestress_stage_test
+        tests/numi_human_fem_prestress_stage_test.cpp
+    )
+    target_compile_options(
+        metalrobo_numi_human_fem_prestress_stage_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    target_link_libraries(
+        metalrobo_numi_human_fem_prestress_stage_test
+        PRIVATE metalrobo
+    )
+    add_test(
+        NAME matter.numi_human.fem_prestress_stage
+        COMMAND $<TARGET_FILE:metalrobo_numi_human_fem_prestress_stage_test>
+    )
+    set_tests_properties(
+        matter.numi_human.fem_prestress_stage
+        PROPERTIES LABELS "matter;numi-human;physics" TIMEOUT 30
+    )
+
+    add_test(
+        NAME matter.numi_human.tendon_fem_transaction
+        COMMAND $<TARGET_FILE:metalrobo_numilab_human_tendon_fem_load_probe>
+    )
+    set_tests_properties(
+        matter.numi_human.tendon_fem_transaction
+        PROPERTIES LABELS "matter;numi-human;physics;metal" TIMEOUT 30
+    )
+    add_test(
+        NAME matter.runtime.snapshot_archive
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_snapshot_archive_probe>
+            "${CMAKE_CURRENT_BINARY_DIR}/matter-snapshot-archive-probe.bin"
+    )
+    set_tests_properties(
+        matter.runtime.snapshot_archive
+        PROPERTIES LABELS "matter;checkpoint" TIMEOUT 30
+    )
+    add_test(
+        NAME matter.scene.surgical_jejunal_closure_coupon
+        COMMAND $<TARGET_FILE:metalrobo_surgical_tissue_probe>
+    )
+    set_tests_properties(
+        matter.scene.surgical_jejunal_closure_coupon
+        PROPERTIES LABELS "matter;surgical;physics;metal" TIMEOUT 240
+    )
+    add_test(
+        NAME matter.scene.surgical_jejunal_closure_coupon_high_resolution
+        COMMAND
+            $<TARGET_FILE:metalrobo_surgical_tissue_probe>
+            --production-resolution
+    )
+    set_tests_properties(
+        matter.scene.surgical_jejunal_closure_coupon_high_resolution
+        PROPERTIES LABELS "matter;surgical;physics;metal" TIMEOUT 600
+    )
+    add_test(
+        NAME matter.physics.mixed_mpm_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
+    )
+    add_test(
+        NAME matter.physics.monolithic_multiphysics
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --multiphysics
+    )
+    add_test(
+        NAME matter.physics.topology_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-mutation
+    )
+    add_test(
+        NAME matter.physics.cohesive_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --cohesive-mutation
+    )
+    add_test(
+        NAME matter.physics.small_scale_topology_conservation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --small-scale-remesh
+    )
+    add_test(
+        NAME matter.physics.puncture_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --puncture-mutation
+    )
+    add_test(
+        NAME matter.runtime.topology_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-rollback
+    )
+    add_test(
+        NAME matter.physics.learned_polyconvex_icnn
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --learned-material
+    )
+    add_test(
+        NAME matter.runtime.production_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --production-rollback
+    )
+    add_test(
+        NAME matter.physics.stateful_mpm
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-mpm
+    )
+    add_test(
+        NAME matter.physics.stateful_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-fem
+    )
+    add_test(
+        NAME matter.physics.mpm_freefall
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-free
+    )
+    add_test(
+        NAME matter.physics.mpm_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm
+    )
+    add_test(
+        NAME matter.runtime.mpm_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-rollback
+    )
+    add_test(
+        NAME matter.runtime.inverse_identification
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --identification
+    )
+    add_test(
+        NAME matter.physics.adaptive_mpm_demotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-demotion
+    )
+    add_test(
+        NAME matter.integration.adaptive_rigid_contact_promotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-promotion
+    )
+    add_test(
+        NAME matter.runtime.adaptive_promotion_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-promotion-rollback
+    )
+    add_test(
+        NAME matter.physics.fem_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
+    )
+    add_test(
+        NAME matter.physics.fem_near_plane_cfl
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-rate
+    )
+    add_test(
+        NAME matter.integration.articulated_rigid_reaction
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
+    )
+    add_test(
+        NAME matter.physics.shared_rigid_coupled_contact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad-sequence
+    )
+    set_tests_properties(matter.physics.shared_rigid_coupled_contact
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1")
+    add_test(
+        NAME matter.physics.human_support_loaded
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --human-support-loaded
+    )
+    set_tests_properties(
+        matter.physics.human_support_loaded
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+        LABELS "human;matter;metal;physics" TIMEOUT 120
+    )
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(
+            NAME matter.physics.human_support_linearization
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-only
+        )
+        set_tests_properties(
+            matter.physics.human_support_linearization
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 120
+        )
+    endif()
+    add_test(
+        NAME matter.physics.articulated_contact_boundary_recovery
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --articulated-foot-pad-contact-boundary
+    )
+    add_test(
+        NAME matter.runtime.post_commit_contact_guard
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --post-commit-contact-guard
+    )
+    add_test(
+        NAME matter.runtime.puncture_channel_exit_guard
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --puncture-channel-exit-guard
+    )
+    add_test(
+        NAME matter.runtime.suture_proxy_window
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --suture-proxy-window
+    )
+    add_test(
+        NAME matter.scene.poroelastic_plate_compression
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --poroelastic-compression
+    )
+    add_test(
+        NAME matter.scene.articulated_foot_poroelastic_pad
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad
+    )
+    set_tests_properties(
+        matter.physics.mixed_mpm_fem
+        matter.physics.monolithic_multiphysics
+        matter.physics.topology_mutation
+        matter.physics.cohesive_mutation
+        matter.physics.small_scale_topology_conservation
+        matter.physics.puncture_mutation
+        matter.runtime.topology_rollback
+        matter.physics.learned_polyconvex_icnn
+        matter.runtime.production_transaction_rollback
+        matter.physics.stateful_mpm
+        matter.physics.stateful_fem
+        matter.physics.mpm_freefall
+        matter.physics.mpm_plane_impact
+        matter.runtime.mpm_transaction_rollback
+        matter.integration.articulated_rigid_reaction
+        matter.physics.shared_rigid_coupled_contact
+        matter.physics.articulated_contact_boundary_recovery
+        matter.runtime.post_commit_contact_guard
+        matter.runtime.puncture_channel_exit_guard
+        matter.runtime.suture_proxy_window
+        matter.scene.poroelastic_plate_compression
+        matter.scene.articulated_foot_poroelastic_pad
+        matter.runtime.inverse_identification
+        matter.physics.adaptive_mpm_demotion
+        matter.integration.adaptive_rigid_contact_promotion
+        matter.runtime.adaptive_promotion_rollback
+        matter.physics.fem_plane_impact
+        matter.physics.fem_near_plane_cfl
+        PROPERTIES
+            LABELS "matter;physics;metal"
+            TIMEOUT 180
+    )
+
+    add_test(
+        NAME metalrobo.runtime.task_program
+        COMMAND $<TARGET_FILE:metalrobo_task_program_check>
+    )
+    add_test(
+        NAME metalrobo.runtime.run_program
+        COMMAND $<TARGET_FILE:metalrobo_run_program_check>
+    )
+    add_test(
+        NAME metalrobo.runtime.robot_catalog
+        COMMAND $<TARGET_FILE:metalrobo_robot_catalog> --self-check
+    )
+    set_tests_properties(
+        metalrobo.runtime.task_program
+        metalrobo.runtime.run_program
+        metalrobo.runtime.robot_catalog
+        PROPERTIES LABELS "metalrobo;runtime" TIMEOUT 180
+    )
+
+    set(
+        METALROBO_PYTHON_TEST_EXECUTABLE ""
+        CACHE FILEPATH
+        "Python interpreter with the MetalRobo test dependencies"
+    )
+    set(
+        _metalrobo_python_test_executable
+        "${METALROBO_PYTHON_TEST_EXECUTABLE}"
+    )
+    if(NOT _metalrobo_python_test_executable)
+        execute_process(
+            COMMAND
+                /usr/bin/env python3 -c
+                "import sys, numpy, scipy; print(sys.executable)"
+            RESULT_VARIABLE _metalrobo_python_test_status
+            OUTPUT_VARIABLE _metalrobo_python_test_executable
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+    else()
+        execute_process(
+            COMMAND
+                "${_metalrobo_python_test_executable}" -c
+                "import numpy, scipy"
+            RESULT_VARIABLE _metalrobo_python_test_status
+            ERROR_QUIET
+        )
+    endif()
+    if(_metalrobo_python_test_status EQUAL 0 AND
+       EXISTS "${_metalrobo_python_test_executable}")
+        add_test(
+            NAME metalrobo.python.unit
+            COMMAND
+                "${CMAKE_COMMAND}" -E env
+                "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/python"
+                "${_metalrobo_python_test_executable}"
+                -m unittest discover
+                -s "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+                -p "*_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.python.unit
+            PROPERTIES LABELS "metalrobo;python" TIMEOUT 120
+        )
+    else()
+        message(
+            STATUS
+            "MetalRobo Python tests disabled: no interpreter with NumPy and SciPy"
+        )
+    endif()
+
+    add_test(
+        NAME metalrobo.cli.discovery
+        COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_cli_test.sh"
+    )
+    set_tests_properties(
+        metalrobo.cli.discovery
+        PROPERTIES LABELS "metalrobo;cli" TIMEOUT 120
+    )
+
+    find_program(_metalrobo_stdlib_python NAMES python3)
+    if(_metalrobo_stdlib_python)
+        add_test(NAME metalrobo.viewers.handoff
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_biological_viewers_test.py" -v)
+        set_tests_properties(metalrobo.viewers.handoff
+            PROPERTIES LABELS "metalrobo;cli;viewers" TIMEOUT 120)
+        add_test(NAME metalrobo.viewers.selected-export
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_viewer_export_test.py" -v)
+        set_tests_properties(metalrobo.viewers.selected-export
+            PROPERTIES LABELS "metalrobo;cli;viewers" TIMEOUT 120)
+        add_test(
+            NAME metalrobo.science.notebook
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_science_test.py" -v
+        )
+        set_tests_properties(metalrobo.science.notebook
+            PROPERTIES LABELS "metalrobo;cli;science" TIMEOUT 120)
+        add_test(
+            NAME metalrobo.skill.contract
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_skill_contract_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.skill.contract
+            PROPERTIES LABELS "metalrobo;cli;skill" TIMEOUT 120
+        )
+        add_test(
+            NAME metalrobo.solver.catalog
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/solver_catalog_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.solver.catalog
+            PROPERTIES LABELS "metalrobo;cli;solver" TIMEOUT 120
+        )
+    endif()
+endif()
+
+add_executable(metalrobo_collision_gpu_probe apps/collision_gpu_probe.mm)
+add_dependencies(metalrobo_collision_gpu_probe metalrobo_shaders)
+target_compile_definitions(
+    metalrobo_collision_gpu_probe
+    PRIVATE
+        METALROBO_COLLISION_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_collision_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_collision_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_collision_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_deterministic_broadphase_probe
+    apps/deterministic_broadphase_probe.mm
+)
+add_dependencies(
+    metalrobo_deterministic_broadphase_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_deterministic_broadphase_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_operator_gpu_probe
+    apps/articulated_operator_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_articulated_operator_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_articulated_operator_gpu_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_articulated_operator_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_articulated_operator_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_articulated_operator_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_transaction_probe
+    apps/numanx_transaction_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_transaction_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_transaction_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_transaction_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numi_human_stand_coupling_probe
+    apps/numi_human_stand_coupling_probe.mm
+)
+add_dependencies(
+    metalrobo_numi_human_stand_coupling_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numi_human_stand_coupling_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numi_human_stand_coupling_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME numi_human.stand_coupling_minimal
+        COMMAND metalrobo_numi_human_stand_coupling_probe
+    )
+    set_tests_properties(
+        numi_human.stand_coupling_minimal
+        PROPERTIES LABELS "numi-human;metal;mechanics;coupling"
+                   ENVIRONMENT "MTL_DEBUG_LAYER=1"
+    )
+endif()
+
+add_executable(
+    metalrobo_numanx_human_io_probe
+    apps/numanx_human_io_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_io_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_io_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_coupled_human_probe
+    apps/numanx_coupled_human_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_coupled_human_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_coupled_human_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_coupled_human_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_coupled_human_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_owner_probe
+    apps/numanx_human_matter_owner_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_owner_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_owner_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_owner_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_owner_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_v4_probe
+    apps/numanx_human_matter_v4_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_v4_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_v4_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_v4_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_v4_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_candidate_probe
+    apps/numanx_human_matter_candidate_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_candidate_probe
+    metalrobo_shaders
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_candidate_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_candidate_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_candidate_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_adapter_probe
+    apps/numanx_human_matter_adapter_probe.mm
+)
+
+set(NUMANX_FULLBODY_RIGID_ASSET "" CACHE FILEPATH
+    "Canonical NHRIGID2 full-body asset for the NumanX bridge probe")
+set(NUMANX_FULLBODY_MUSCLE_ASSET "" CACHE FILEPATH
+    "Canonical NHMYO2 full-body asset for the NumanX bridge probe")
+set(NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET "" CACHE FILEPATH
+    "Canonical NHCNT1 support-contact asset for the NumanX bridge probe")
+set(NUMANX_FULLBODY_VISUAL_PACK_ASSET "" CACHE FILEPATH
+    "Canonical source-authored visual pack for the NumanX bridge probe")
+set(NUMANX_FULLBODY_VISION_PROFILE_ASSET "" CACHE FILEPATH
+    "Canonical calibrated head-vision profile for the NumanX bridge probe")
+set(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET "" CACHE FILEPATH
+    "Source-bound NHBHV1 metric program for exact-runtime behavior telemetry")
+if(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET AND
+   NOT EXISTS "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}")
+    message(FATAL_ERROR
+        "NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET does not exist: "
+        "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}")
+endif()
+set(_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET
+    "${NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}")
+if(NOT _NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET AND
+   NUMANX_FULLBODY_RIGID_ASSET)
+    get_filename_component(_NUMANX_FULLBODY_ASSET_DIR
+        "${NUMANX_FULLBODY_RIGID_ASSET}" DIRECTORY)
+    set(_NUMANX_FULLBODY_SUPPORT_CONTACT_CANDIDATE
+        "${_NUMANX_FULLBODY_ASSET_DIR}/myosim-fullbody-support-contact.nhcnt")
+    if(EXISTS "${_NUMANX_FULLBODY_SUPPORT_CONTACT_CANDIDATE}")
+        set(_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET
+            "${_NUMANX_FULLBODY_SUPPORT_CONTACT_CANDIDATE}")
+    endif()
+endif()
+if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
+             EXISTS "${NUMANX_FULLBODY_MUSCLE_ASSET}" AND
+             EXISTS "${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}" AND
+             EXISTS "${NUMANX_FULLBODY_VISUAL_PACK_ASSET}" AND
+             EXISTS "${NUMANX_FULLBODY_VISION_PROFILE_ASSET}")
+    add_executable(
+        metalrobo_numanx_fullbody_bridge_probe
+        apps/numanx_fullbody_bridge_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_fullbody_bridge_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_FULLBODY_SUPPORT_CONTACT="${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}"
+            MRNX_FULLBODY_VISUAL_PACK="${NUMANX_FULLBODY_VISUAL_PACK_ASSET}"
+            MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+    )
+    target_compile_options(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_fullbody_bridge_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_fullbody_bridge_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+
+    add_executable(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        apps/numanx_exact_runtime_v3_lifecycle_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_FULLBODY_SUPPORT_CONTACT="${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}"
+            MRNX_FULLBODY_VISUAL_PACK="${NUMANX_FULLBODY_VISUAL_PACK_ASSET}"
+            MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+    )
+    target_compile_features(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE cxx_std_20
+    )
+    target_compile_options(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+
+    add_executable(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        apps/numanx_exact_runtime_horizon_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_FULLBODY_SUPPORT_CONTACT="${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}"
+            MRNX_FULLBODY_VISUAL_PACK="${NUMANX_FULLBODY_VISUAL_PACK_ASSET}"
+            MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+            MRNX_SOURCE_GIT_REVISION="${NUMI_SOURCE_REVISION}"
+    )
+    target_compile_features(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE cxx_std_20
+    )
+    target_compile_options(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
+endif()
+add_dependencies(
+    metalrobo_numanx_human_matter_adapter_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_adapter_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_adapter_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    apps/numanx_matter_accepted_state_proof_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_accepted_state_proof_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    apps/numanx_matter_exact_accepted_state_proof_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_exact_accepted_state_proof_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    apps/numanx_human_matter_exact_v2_lifecycle_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    metalrobo_shaders
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+        NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_features(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    apps/numanx_matter_attachment_runtime_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_matter_attachment_runtime_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_matter_capacity_probe
+    apps/numanx_matter_capacity_probe.cpp
+)
+target_compile_definitions(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+)
+target_compile_options(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_matter_capacity_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_numanx_matter_capacity_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_exact_request_v3_contract_test
+    tests/numanx_exact_request_v3_contract_test.cpp
+)
+target_compile_features(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    tests/numanx_exact_outbound_v2_contract_test.cpp
+    src/core/NumanXExactTransaction.cpp
+)
+
+add_executable(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    tests/numanx_human_io_exact_v2_contract_test.cpp
+)
+target_compile_features(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    apps/numanx_human_io_exact_receipt_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    metalrobo_shaders
+)
+target_compile_features(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+target_compile_features(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+set_target_properties(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_production_owner_snapshot_test
+    tests/numi_human_production_owner_snapshot_test.cpp
+    src/core/NumiHumanProductionOwnerSnapshot.cpp
+)
+target_compile_features(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+)
+set_target_properties(
+    metalrobo_numanx_production_owner_snapshot_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    tests/numi_human_production_owner_evidence_writer_test.cpp
+    src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
+)
+target_compile_features(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+set_target_properties(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME numanx.contract.production_owner_evidence_writer_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_production_owner_evidence_writer_test>
+    )
+    set_tests_properties(
+        numanx.contract.production_owner_evidence_writer_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.production_owner_snapshot_cpu
+        COMMAND $<TARGET_FILE:metalrobo_numanx_production_owner_snapshot_test>
+    )
+    set_tests_properties(
+        numanx.contract.production_owner_snapshot_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    if(_metalrobo_stdlib_python)
+        add_test(
+            NAME numanx.contract.production_owner_snapshot_audit_cpu
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_production_owner_snapshot_audit_test.py"
+                -v
+        )
+        set_tests_properties(
+            numanx.contract.production_owner_snapshot_audit_cpu
+            PROPERTIES
+                LABELS "numanx;human;contract;cpu;python"
+                TIMEOUT 120
+        )
+    endif()
+    add_test(
+        NAME numanx.contract.exact_request_v3_cpu
+        COMMAND $<TARGET_FILE:metalrobo_numanx_exact_request_v3_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.exact_request_v3_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.exact_outbound_v2_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_exact_outbound_v2_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.exact_outbound_v2_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.human_io_exact_v2_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_exact_v2_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.human_io_exact_v2_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu;exact-clock"
+    )
+    add_test(
+        NAME numanx.integration.human_io_exact_receipt_gpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_exact_receipt_probe>
+            "${METALROBO_METALLIB}"
+    )
+    set_tests_properties(
+        numanx.integration.human_io_exact_receipt_gpu
+        PROPERTIES
+            ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "numanx;human;contract;exact-clock;metal"
+            RUN_SERIAL TRUE
+            TIMEOUT 60
+    )
+    add_test(
+        NAME numanx.integration.human_transaction
+        COMMAND $<TARGET_FILE:metalrobo_numanx_transaction_probe> --accept
+    )
+    add_test(
+        NAME numanx.runtime.human_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_numanx_transaction_probe> --rollback
+    )
+    add_test(
+        NAME numanx.contract.human_transaction_abi
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_transaction_probe>
+            --abi-contract
+    )
+    add_test(
+        NAME numanx.integration.human_motor_sensor_transaction
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_probe>
+            "${METALROBO_METALLIB}"
+    )
+    set_tests_properties(numanx.integration.human_motor_sensor_transaction
+        PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1")
+    add_test(
+        NAME numanx.contract.matter_human_capacity
+        COMMAND $<TARGET_FILE:metalrobo_numanx_matter_capacity_probe>
+    )
+    add_test(
+        NAME numanx.integration.human_coupled_candidate
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_coupled_human_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_owner_transaction
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_owner_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_owner_v4
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_v4_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_exact_candidate
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_candidate_probe>
+            "${METALROBO_METALLIB}"
+    )
+    add_test(
+        NAME numanx.integration.human_matter_adapter
+        COMMAND $<TARGET_FILE:metalrobo_numanx_human_matter_adapter_probe>
+    )
+    add_test(
+        NAME numanx.integration.matter_accepted_state_2pc
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_matter_accepted_state_proof_probe>
+    )
+    add_test(
+        NAME numanx.integration.matter_exact_accepted_state_v2
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_matter_exact_accepted_state_proof_probe>
+    )
+    add_test(
+        NAME numanx.integration.human_matter_exact_v2_lifecycle
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_matter_exact_v2_lifecycle_probe>
+    )
+    set_tests_properties(
+        numanx.integration.human_matter_exact_v2_lifecycle
+        PROPERTIES
+            ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "numanx;human;matter;exact-clock;metal"
+            RUN_SERIAL TRUE
+            TIMEOUT 120
+    )
+    add_test(
+        NAME numanx.integration.human_matter_attachment_runtime
+        COMMAND $<TARGET_FILE:metalrobo_numanx_matter_attachment_runtime_probe>
+    )
+    if(TARGET metalrobo_numanx_fullbody_bridge_probe)
+        add_test(
+            NAME matter.physics.human_support_newton_admission
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-newton-admission
+        )
+        set_tests_properties(matter.physics.human_support_newton_admission
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 30 RUN_SERIAL TRUE)
+        add_test(
+            NAME matter.physics.human_support_cone_retraction
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-cone-retraction
+        )
+        set_tests_properties(matter.physics.human_support_cone_retraction
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 30 RUN_SERIAL TRUE)
+        add_test(
+            NAME numanx.integration.fullbody_bridge_prepared_root
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
+        )
+        add_test(
+            NAME numanx.integration.fullbody_authored_world
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --authored-world
+        )
+        add_test(
+            NAME numanx.integration.fullbody_vascular_admission
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --vascular-fullbody-admission
+        )
+        set_tests_properties(
+            numanx.integration.fullbody_bridge_prepared_root
+            numanx.integration.fullbody_authored_world
+            numanx.integration.fullbody_vascular_admission
+            PROPERTIES
+                LABELS "numanx;human;matter;physics;metal;fullbody"
+                TIMEOUT 180
+                RUN_SERIAL TRUE
+        )
+        if(TARGET metalrobo_numanx_exact_runtime_horizon_probe)
+            add_test(
+                NAME numanx.contract.fullbody_exact_runtime_horizon_self_test
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_exact_runtime_horizon_probe>
+                    --self-test
+            )
+            set_tests_properties(
+                numanx.contract.fullbody_exact_runtime_horizon_self_test
+                PROPERTIES
+                    LABELS "numanx;human;contract;cpu;horizon"
+                    TIMEOUT 30
+            )
+        endif()
+        if(DEFINED ENV{MRNX_EXACT_WORLD} AND
+           DEFINED ENV{MRNX_EXACT_INITIAL_STATE} AND
+           DEFINED ENV{MRNX_EXACT_SUPPORT_CONTACT} AND
+           DEFINED ENV{MRNX_EXACT_JOINT_EQUALITIES} AND
+           DEFINED ENV{MRNX_EXACT_JOINT_LIMITS} AND
+           EXISTS "$ENV{MRNX_EXACT_WORLD}" AND
+           EXISTS "$ENV{MRNX_EXACT_INITIAL_STATE}" AND
+           EXISTS "$ENV{MRNX_EXACT_SUPPORT_CONTACT}" AND
+           EXISTS "$ENV{MRNX_EXACT_JOINT_EQUALITIES}" AND
+           EXISTS "$ENV{MRNX_EXACT_JOINT_LIMITS}")
+            set(_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET
+                "MRNX_PRODUCTION_OWNER_SNAPSHOT_PATH=unset:"
+                "MRNX_PRODUCTION_OWNER_SNAPSHOT_CONTROL_STEP=unset:")
+            add_test(
+                NAME numanx.contract.fullbody_exact_request_v3_admission
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
+                    --exact-clock
+            )
+            set_tests_properties(
+                numanx.contract.fullbody_exact_request_v3_admission
+                PROPERTIES
+                    ENVIRONMENT
+                        "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    ENVIRONMENT_MODIFICATION
+                        "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET}"
+                    LABELS "numanx;human;contract;exact-clock;metal"
+                    TIMEOUT 180
+                    RUN_SERIAL TRUE
+            )
+            add_test(
+                NAME numanx.integration.fullbody_exact_runtime_v3_lifecycle
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_exact_runtime_v3_lifecycle_probe>
+            )
+            set(_NUMANX_EXACT_RUNTIME_TEST_ENV
+                "MTL_DEBUG_LAYER=1"
+                "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD}"
+                "MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE}"
+                "MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT}"
+                "MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES}"
+                "MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}")
+            set_tests_properties(
+                numanx.integration.fullbody_exact_runtime_v3_lifecycle
+                PROPERTIES
+                    ENVIRONMENT "${_NUMANX_EXACT_RUNTIME_TEST_ENV}"
+                    ENVIRONMENT_MODIFICATION
+                        "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET};MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
+                    LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody"
+                    TIMEOUT 240
+                    RUN_SERIAL TRUE
+            )
+            if(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET)
+                file(SHA256 "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}"
+                    _NUMANX_FULLBODY_BEHAVIOR_METRIC_SHA256)
+                add_test(
+                    NAME numanx.integration.fullbody_exact_runtime_v3_behavior_metric
+                    COMMAND
+                        $<TARGET_FILE:metalrobo_numanx_exact_runtime_v3_lifecycle_probe>
+                )
+                set(_NUMANX_EXACT_BEHAVIOR_TEST_ENV
+                    ${_NUMANX_EXACT_RUNTIME_TEST_ENV}
+                    "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=1"
+                    "MRNX_EXACT_BEHAVIOR_METRIC=${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}"
+                    "MRNX_EXACT_BEHAVIOR_METRIC_SHA256=${_NUMANX_FULLBODY_BEHAVIOR_METRIC_SHA256}")
+                set_tests_properties(
+                    numanx.integration.fullbody_exact_runtime_v3_behavior_metric
+                    PROPERTIES
+                        ENVIRONMENT "${_NUMANX_EXACT_BEHAVIOR_TEST_ENV}"
+                        ENVIRONMENT_MODIFICATION
+                            "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET}"
+                        LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody;behavior"
+                        TIMEOUT 240
+                        RUN_SERIAL TRUE
+                )
+            endif()
+            if(TARGET metalrobo_numanx_exact_runtime_horizon_probe)
+                set(_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER
+                    "${CMAKE_CURRENT_BINARY_DIR}/generated/numanx_exact_runtime_horizon_smoke.cmake")
+                file(CONFIGURE
+                    OUTPUT "${_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER}"
+                    CONTENT [=[
+if(NOT DEFINED PROBE OR PROBE STREQUAL "")
+    message(FATAL_ERROR "exact-runtime horizon probe path is absent")
+endif()
+set(_parent "@CMAKE_CURRENT_BINARY_DIR@/testing/numanx-exact-runtime-horizon")
+file(MAKE_DIRECTORY "${_parent}")
+string(TIMESTAMP _stamp "%Y%m%dT%H%M%SZ" UTC)
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef _random)
+set(_snapshot_directory "${_parent}/run-${_stamp}-${_random}")
+execute_process(
+    COMMAND "${PROBE}"
+        --roots 2
+        --timestep-ns 12500
+        --uniform-excitation 0.0
+        --snapshot-step 2
+        --snapshot-dir "${_snapshot_directory}"
+    RESULT_VARIABLE _result
+    OUTPUT_VARIABLE _stdout
+    ERROR_VARIABLE _stderr)
+if(NOT _stdout STREQUAL "")
+    message("${_stdout}")
+endif()
+if(NOT _stderr STREQUAL "")
+    message("${_stderr}")
+endif()
+if(NOT _result EQUAL 0)
+    message(FATAL_ERROR
+        "exact-runtime two-root horizon smoke failed with ${_result}")
+endif()
+]=]
+                    @ONLY
+                    NEWLINE_STYLE UNIX
+                )
+                add_test(
+                    NAME numanx.integration.fullbody_exact_runtime_horizon_two_roots
+                    COMMAND
+                        "${CMAKE_COMMAND}"
+                        "-DPROBE=$<TARGET_FILE:metalrobo_numanx_exact_runtime_horizon_probe>"
+                        -P "${_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER}"
+                )
+                set_tests_properties(
+                    numanx.integration.fullbody_exact_runtime_horizon_two_roots
+                    PROPERTIES
+                        ENVIRONMENT "${_NUMANX_EXACT_RUNTIME_TEST_ENV}"
+                        ENVIRONMENT_MODIFICATION
+                            "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
+                        LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody;horizon;smoke"
+                        TIMEOUT 300
+                        RUN_SERIAL TRUE
+                )
+            endif()
+            set(_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER
+                "${CMAKE_CURRENT_BINARY_DIR}/generated/numanx_prepared_fixture_publication_check.cmake")
+            file(CONFIGURE
+                OUTPUT "${_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER}"
+                CONTENT [=[
+foreach(_required PROBE STATE CONTACTS EQUALITIES LIMITS)
+    if(NOT DEFINED ${_required} OR "${${_required}}" STREQUAL "")
+        message(FATAL_ERROR "prepared-fixture check lacks ${_required}")
+    endif()
+endforeach()
+set(_parent "@CMAKE_CURRENT_BINARY_DIR@/testing/numanx-prepared-fixture")
+file(MAKE_DIRECTORY "${_parent}")
+string(TIMESTAMP _stamp "%Y%m%dT%H%M%SZ" UTC)
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef _random)
+set(_run "${_parent}/run-${_stamp}-${_random}")
+file(MAKE_DIRECTORY "${_run}")
+
+function(_run_fixture _name _output _newton _restart _iterations)
+    execute_process(
+        COMMAND "${PROBE}" --prepared-state-fixture-ns
+            "${STATE}" "${_output}" "${CONTACTS}" "${EQUALITIES}"
+            "${LIMITS}" 12500 ${ARGN}
+        RESULT_VARIABLE _result
+        OUTPUT_VARIABLE _stdout
+        ERROR_VARIABLE _stderr)
+    if(NOT _result EQUAL 0)
+        message(FATAL_ERROR
+            "${_name} prepared fixture failed (${_result}): ${_stderr}")
+    endif()
+    foreach(_leaf prepared-12500ns.nmatterpack prepared.nhinit prepared.json)
+        if(NOT EXISTS "${_output}/${_leaf}")
+            message(FATAL_ERROR "${_name} omitted ${_leaf}")
+        endif()
+    endforeach()
+    file(READ "${_output}/prepared.json" _receipt)
+    string(JSON _schema GET "${_receipt}" schema)
+    string(JSON _actual_newton GET "${_receipt}" solver_newton_iterations)
+    string(JSON _actual_restart GET "${_receipt}" solver_fgmres_restart)
+    string(JSON _actual_iterations GET "${_receipt}" solver_fgmres_iterations)
+    string(JSON _residual GET "${_receipt}" solver_relative_residual_fp32)
+    string(JSON _residual_bits GET "${_receipt}" solver_relative_residual_fp32_bits)
+    string(LENGTH "${_residual_bits}" _residual_bits_length)
+    if(NOT _schema STREQUAL "numi.human.prepared-stance-fixture.v2" OR
+       NOT _actual_newton EQUAL _newton OR
+       NOT _actual_restart EQUAL _restart OR
+       NOT _actual_iterations EQUAL _iterations OR
+       _residual LESS_EQUAL 0 OR
+       NOT _residual_bits MATCHES "^0x[0-9a-f]+$" OR
+       NOT _residual_bits_length EQUAL 10)
+        message(FATAL_ERROR "${_name} receipt policy is noncanonical")
+    endif()
+endfunction()
+
+file(MAKE_DIRECTORY "${_run}/default-parent")
+set(_default "${_run}/default-parent/./default-output")
+_run_fixture(default "${_default}" 16 10 10)
+set(_newton "${_run}/newton-output/")
+_run_fixture(newton "${_newton}" 24 10 10 24)
+set(_full "${_run}/full-output")
+_run_fixture(full "${_full}" 24 16 32 24 16 32 0.005)
+
+file(MAKE_DIRECTORY "${_run}/real-parent")
+file(CREATE_LINK "${_run}/real-parent" "${_run}/linked-parent"
+    SYMBOLIC RESULT _link_result)
+if(NOT _link_result STREQUAL "0")
+    message(FATAL_ERROR "could not create publication parent symlink: ${_link_result}")
+endif()
+set(_symlinked "${_run}/linked-parent/symlink-output")
+_run_fixture(symlinked-parent "${_symlinked}" 16 10 10)
+
+set(_legacy "${_run}/legacy-output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture
+        "${STATE}" "${_legacy}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}"
+    RESULT_VARIABLE _legacy_result
+    ERROR_VARIABLE _legacy_stderr)
+if(NOT _legacy_result EQUAL 0 OR
+   NOT EXISTS "${_legacy}/prepared-100us.nmatterpack" OR
+   NOT EXISTS "${_legacy}/prepared.nhinit" OR
+   NOT EXISTS "${_legacy}/prepared.json")
+    message(FATAL_ERROR
+        "legacy argc-7 prepared fixture failed: ${_legacy_stderr}")
+endif()
+
+set(_partial "${_run}/partial-output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_partial}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500 24 16
+    RESULT_VARIABLE _partial_result)
+if(_partial_result EQUAL 0 OR EXISTS "${_partial}")
+    message(FATAL_ERROR "partial FGMRES tuple was not rejected cleanly")
+endif()
+
+set(_missing_parent "${_run}/absent-parent/output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_missing_parent}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500
+    RESULT_VARIABLE _missing_parent_result)
+if(_missing_parent_result EQUAL 0 OR EXISTS "${_missing_parent}")
+    message(FATAL_ERROR "missing output parent was not rejected cleanly")
+endif()
+
+file(SHA256 "${_full}/prepared.json" _before_retry)
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_full}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500 24 16 32 0.005
+    RESULT_VARIABLE _retry_result)
+file(SHA256 "${_full}/prepared.json" _after_retry)
+if(_retry_result EQUAL 0 OR NOT _before_retry STREQUAL _after_retry)
+    message(FATAL_ERROR "no-replace retry changed a published receipt")
+endif()
+message("prepared_fixture_publication_check=pass run=${_run}")
+]=]
+                @ONLY
+                NEWLINE_STYLE UNIX
+            )
+            add_test(
+                NAME numanx.integration.prepared_fixture_publication
+                COMMAND
+                    "${CMAKE_COMMAND}"
+                    "-DPROBE=$<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>"
+                    "-DSTATE=$ENV{MRNX_EXACT_INITIAL_STATE}"
+                    "-DCONTACTS=$ENV{MRNX_EXACT_SUPPORT_CONTACT}"
+                    "-DEQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES}"
+                    "-DLIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    -P "${_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER}"
+            )
+            set_tests_properties(
+                numanx.integration.prepared_fixture_publication
+                PROPERTIES
+                    LABELS "numanx;human;matter;integration;fixture;publication"
+                    TIMEOUT 180
+                    RUN_SERIAL TRUE
+            )
+        endif()
+    endif()
+    set_tests_properties(
+        numanx.integration.human_transaction
+        numanx.runtime.human_transaction_rollback
+        numanx.contract.human_transaction_abi
+        numanx.integration.human_motor_sensor_transaction
+        numanx.contract.matter_human_capacity
+        numanx.integration.human_coupled_candidate
+        numanx.integration.human_matter_owner_transaction
+        numanx.integration.human_matter_owner_v4
+        numanx.integration.human_matter_exact_candidate
+        numanx.integration.human_matter_adapter
+        numanx.integration.matter_accepted_state_2pc
+        numanx.integration.matter_exact_accepted_state_v2
+        numanx.integration.human_matter_attachment_runtime
+        PROPERTIES
+            LABELS "numanx;human;physics;metal"
+            TIMEOUT 180
+            RUN_SERIAL TRUE
+    )
+endif()
+
+add_executable(
+    metalrobo_articulated_aba_gpu_probe
+    apps/articulated_aba_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_articulated_aba_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        METALROBO_ABA_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_articulated_aba_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    apps/articulated_inverse_mass_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        METALROBO_INVERSE_MASS_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_operator_host_probe
+    apps/articulated_operator_host_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_operator_host_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_operator_host_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_operator_context_probe
+    apps/articulated_operator_context_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_operator_context_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_operator_context_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_aba_host_probe
+    apps/articulated_aba_host_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_aba_host_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_aba_host_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_world_probe
+    apps/metal_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_world_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_metal_world_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_metal_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_inverse_mass_host_probe
+    apps/articulated_inverse_mass_host_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_inverse_mass_host_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_inverse_mass_host_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_psm_probe
+    apps/surgical_psm_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_psm_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_psm_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_assets_probe
+    apps/surgical_assets_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_assets_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_assets_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_metal_operator_probe
+    apps/surgical_metal_operator_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_metal_operator_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_metal_operator_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    apps/coupled_articulated_rigid_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_rigid_collision_probe
+    apps/articulated_rigid_collision_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_rigid_collision_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_rigid_collision_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_rigid_world_probe
+    apps/articulated_rigid_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_rigid_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_rigid_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_supported_needle_pickup_probe
+    apps/supported_needle_pickup_probe.cpp
+)
+
+add_executable(
+    metalrobo_dual_psm_suture_handoff_probe
+    apps/dual_psm_suture_handoff_probe.cpp
+)
+add_dependencies(
+    metalrobo_dual_psm_suture_handoff_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        NUMI_JEJUNUM_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/porcine_jejunum_fung.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_link_libraries(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_dual_psm_suture_handoff_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+target_link_libraries(
+    metalrobo_supported_needle_pickup_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_supported_needle_pickup_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_suture_visual_probe
+    apps/suture_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_suture_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_suture_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_suture_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    set(
+        METALROBO_HANDOFF_TEST_STATE_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/handoff-state"
+    )
+    set(
+        METALROBO_HANDOFF_TEST_VISUAL_OUTPUT
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/handoff-visual"
+    )
+    set(
+        METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/tissue-checkpoint"
+    )
+    set(
+        METALROBO_TISSUE_CHECKPOINT_CONTINUED_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/tissue-checkpoint-continued"
+    )
+    add_test(
+        NAME metalrobo.surgical.loaded_knot_mechanics
+        COMMAND $<TARGET_FILE:metalrobo_surgical_knot_mechanics_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.loaded_knot_mechanics
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.knot_instrument_protocol
+        COMMAND $<TARGET_FILE:metalrobo_surgical_knot_protocol_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.knot_instrument_protocol
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
+    )
+    add_test(
+        NAME metalrobo.surgical.thread_grasp_mechanics
+        COMMAND $<TARGET_FILE:metalrobo_surgical_thread_grasp_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_grasp_mechanics
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.thread_post_bite_targeting
+        COMMAND $<TARGET_FILE:metalrobo_surgical_thread_targeting_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_post_bite_targeting
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
+    )
+    add_test(
+        NAME metalrobo.surgical.thread_frame_ik
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --thread-frame-ik-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.thread_frame_ik
+        PROPERTIES
+            LABELS "metalrobo;surgical;geometry"
+            TIMEOUT 30
+    )
+    add_test(
+        NAME metalrobo.surgical.dual_psm_suture_handoff
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --state-output-dir "${METALROBO_HANDOFF_TEST_STATE_DIRECTORY}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.dual_psm_suture_handoff
+        PROPERTIES
+            FIXTURES_SETUP metalrobo_dual_suture_handoff_state
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 28800
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_suture_coupling
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-coupling-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_suture_coupling
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_static_equilibrium
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-rest-only
+            --state-output-dir
+            "${METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_static_equilibrium
+        PROPERTIES
+            FIXTURES_SETUP metalrobo_surgical_tissue_checkpoint
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_checkpoint_restore
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-checkpoint-restore-only
+            --resume-tissue-checkpoint tissue-rest
+            "${METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY}/tissue-rest.tsv"
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_checkpoint_restore
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_surgical_tissue_checkpoint
+            LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_checkpoint_hold
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-checkpoint-hold-only
+            --resume-tissue-checkpoint tissue-rest
+            "${METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY}/tissue-rest.tsv"
+            --state-output-dir
+            "${METALROBO_TISSUE_CHECKPOINT_CONTINUED_DIRECTORY}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_checkpoint_hold
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_surgical_tissue_checkpoint
+            LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tapered_needle_tissue_puncture
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-puncture-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.tapered_needle_tissue_puncture
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 1800
+    )
+    add_test(
+        NAME metalrobo.surgical.puncture_channel_advancement
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-puncture-advance-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.puncture_channel_advancement
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 1800
+    )
+    add_test(
+        NAME metalrobo.surgical.live_suture_tissue_entry
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-suture-entry-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_suture_tissue_entry
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.opposing_bite_contact_topology
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-topology-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.opposing_bite_contact_topology
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;topology"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.live_suture_cadence_transition
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-suture-cadence-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_suture_cadence_transition
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.live_suture_curved_passage
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-suture-passage-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_suture_curved_passage
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 3600
+    )
+    add_test(
+        NAME metalrobo.surgical.live_suture_pull_through
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-curved-pull-through-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_suture_pull_through
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 7200
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_state_bridge
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-state-bridge-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_state_bridge
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 10800
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_acquisition
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-acquisition-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_acquisition
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 14400
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_extraction
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-extraction-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_extraction
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 21600
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_opposing_bite_reorientation
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-reorientation-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_opposing_bite_reorientation
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 43200
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_opposing_bite_passage
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-passage-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_opposing_bite_passage
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 54000
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_opposing_bite_thread_root
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-thread-root-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_opposing_bite_thread_root
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 64800
+    )
+    add_test(
+        NAME metalrobo.surgical.curved_needle_through_wall_passage
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-curved-passage-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.curved_needle_through_wall_passage
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 3600
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_frame_ik
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-frame-ik-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_frame_ik
+        PROPERTIES
+            LABELS "metalrobo;surgical;kinematics"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_geometry
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-geometry-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_geometry
+        PROPERTIES
+            LABELS "metalrobo;surgical;kinematics"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_giver_hold
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-giver-hold-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_giver_hold
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_approach
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-approach-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_approach
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 1800
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_positive_control
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-closure-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_positive_control
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 3600
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_load_exchange
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-load-exchange-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_load_exchange
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 5400
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_giver_release
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-giver-release-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_giver_release
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 7200
+    )
+    add_test(
+        NAME metalrobo.surgical.receiver_extraction_giver_retreat
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-extraction-giver-retreat-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_extraction_giver_retreat
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal;long"
+            TIMEOUT 9000
+    )
+    set(
+        METALROBO_SUTURE_TEST_STATE
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"
+    )
+    set(
+        METALROBO_SUTURE_TEST_OUTPUT
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/visual"
+    )
+    add_test(
+        NAME metalrobo.surgical.supported_needle_suture_pickup
+        COMMAND
+            $<TARGET_FILE:metalrobo_supported_needle_pickup_probe>
+            --state-output "${METALROBO_SUTURE_TEST_STATE}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.supported_needle_suture_pickup
+        PROPERTIES
+            FIXTURES_SETUP metalrobo_suture_pickup_state
+            LABELS "metalrobo;surgical;physics"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.suture_visual_binding
+        COMMAND
+            $<TARGET_FILE:metalrobo_suture_visual_probe>
+            --state "${METALROBO_SUTURE_TEST_STATE}"
+            --output-dir "${METALROBO_SUTURE_TEST_OUTPUT}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.suture_visual_binding
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_suture_pickup_state
+            LABELS "metalrobo;surgical;visual;metal"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.dual_psm_suture_handoff_visual_binding
+        COMMAND
+            $<TARGET_FILE:metalrobo_suture_visual_probe>
+            --state
+                "${METALROBO_HANDOFF_TEST_STATE_DIRECTORY}/receiver-transfer.tsv"
+            --output-dir "${METALROBO_HANDOFF_TEST_VISUAL_OUTPUT}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.dual_psm_suture_handoff_visual_binding
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_dual_suture_handoff_state
+            LABELS "metalrobo;surgical;visual;metal"
+            TIMEOUT 180
+    )
+endif()
+
+add_executable(
+    metalrobo_world_compiler_probe
+    apps/world_compiler_probe.cpp
+)
+target_link_libraries(
+    metalrobo_world_compiler_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_world_compiler_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_world_compiler_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_world_family_probe
+    apps/metal_world_family_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_world_family_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_metal_world_family_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_metal_world_family_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_r2s2r_loop_probe
+    apps/r2s2r_loop_probe.cpp
+)
+target_link_libraries(
+    metalrobo_r2s2r_loop_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_r2s2r_loop_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_r2s2r_loop_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_world_pack
+    apps/world_pack_tool.cpp
+)
+target_link_libraries(
+    metalrobo_world_pack
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_world_pack
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_world_pack
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_episode_compile
+    apps/episode_twin_compile.cpp
+)
+target_link_libraries(
+    metalrobo_episode_compile
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_episode_compile
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_episode_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_motion_compile
+    apps/motion_compile.cpp
+)
+target_link_libraries(
+    metalrobo_motion_compile
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_motion_compile
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_motion_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_episode_twin_product_probe
+    apps/episode_twin_product_probe.cpp
+)
+target_link_libraries(
+    metalrobo_episode_twin_product_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_episode_twin_product_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_episode_twin_product_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_hybrid_renderer_probe
+    apps/hybrid_renderer_probe.cpp
+)
+target_link_libraries(
+    metalrobo_hybrid_renderer_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_hybrid_renderer_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_hybrid_renderer_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_visual_reference_probe
+    apps/visual_reference_probe.mm
+)
+target_compile_definitions(
+    metalrobo_visual_reference_probe
+    PRIVATE METALROBO_METALLIB="${METALROBO_METALLIB}"
+)
+target_link_libraries(
+    metalrobo_visual_reference_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_visual_reference_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Renders a source-static BodyParts3D pack from three inspection cameras.  The
+# probe deliberately does not register the anatomical geometry to an OpenSim
+# articulation, so it can qualify visual conversion without implying mechanics.
+add_executable(
+    metalrobo_bodyparts3d_visual_probe
+    apps/bodyparts3d_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_bodyparts3d_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_bodyparts3d_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_bodyparts3d_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_visual_platform_probe
+    apps/visual_platform_probe.cpp
+)
+set_source_files_properties(
+    apps/visual_platform_probe.cpp
+    PROPERTIES LANGUAGE OBJCXX
+)
+
+add_executable(
+    metalrobo_visual_cook
+    apps/visual_cook.cpp
+)
+target_link_libraries(
+    metalrobo_visual_cook
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_visual_cook
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_cook
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_room_scan_scene
+    tools/room_scan_scene.cpp
+)
+target_link_libraries(
+    metalrobo_room_scan_scene
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_room_scan_scene
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_room_scan_scene
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+add_executable(
+    metalrobo_environment_cook
+    apps/environment_cook.cpp
+)
+target_link_libraries(
+    metalrobo_environment_cook
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_environment_cook
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_environment_cook
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+target_link_libraries(
+    metalrobo_visual_platform_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_visual_platform_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_platform_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+install(
+    TARGETS
+        metalrobo
+        metalrobo_bench
+        metalrobo_world_pack
+        metalrobo_episode_compile
+        metalrobo_motion_compile
+        metalrobo_visual_cook
+        metalrobo_environment_cook
+        metalrobo_robot_catalog
+        metalrobo_neuron_culture_probe
+        NumiNeuronLab
+)
+if(METALROBO_HAS_SWIFT)
+    install(
+        TARGETS
+            metalrobo_task_rollout
+            metalrobo_task_train
+    )
+endif()
+install(PROGRAMS tools/numi DESTINATION bin)
+install(
+    PROGRAMS
+        numi/commands/codex
+        numi/commands/train
+        numi/commands/evaluate
+        numi/commands/foundation
+        numi/commands/hyper-policy
+        numi/commands/human-resting
+        numi/commands/matter
+        numi/commands/motion
+        numi/commands/neurons
+        numi/commands/robots
+        numi/commands/solvers
+        numi/commands/science
+        numi/commands/wet-lab
+        numi/commands/view
+    DESTINATION libexec/numi
+)
+install(
+    DIRECTORY plugins/numi-lab
+    DESTINATION plugins
+)
+install(
+    DIRECTORY numi/solvers
+    DESTINATION share/numi
+)
+install(
+    FILES .agents/plugins/marketplace.json
+    DESTINATION .agents/plugins
+)
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/numi/VERSION"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/numi/REVISION"
+    DESTINATION share/numi
+)
+install(
+    DIRECTORY python/metalrobo
+    DESTINATION share/numi/python
+    FILES_MATCHING
+        PATTERN "__pycache__" EXCLUDE
+        PATTERN "*.py"
+        PATTERN "py.typed"
+)
+install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md docs/BIOLOGICAL_VIEWERS.md DESTINATION share/numi/docs)
+install(DIRECTORY python/metalrobo/wet_lab/ DESTINATION share/numi/python/metalrobo/wet_lab
+    FILES_MATCHING PATTERN "*.html" PATTERN "*.js" PATTERN "*.css"
+    PATTERN "qualification" EXCLUDE)
+install(
+    DIRECTORY examples/science
+    DESTINATION share/numi/examples
+    PATTERN "__pycache__" EXCLUDE
+    PATTERN "evidence" EXCLUDE
+)
+install(DIRECTORY include/ DESTINATION include)
+install(
+    FILES
+        "${METALROBO_METALLIB}"
+        "${METALROBO_NEURON_CULTURE_METALLIB}"
+    DESTINATION lib/metalrobo
+)
+install(
+    FILES "${METALROBO_HYPER_POLICY_METALLIB}"
+    DESTINATION lib/metalrobo
+)
+install(
+    FILES
+        schemas/capture_manifest.schema.json
+        schemas/perception_provider.schema.json
+        schemas/tactile_calibration_record.schema.json
+        schemas/tactile_observation.schema.json
+        schemas/tactile_policy_checkpoint.schema.json
+        schemas/tactile_stream.schema.json
+        schemas/robot_dataset_manifest.schema.json
+        schemas/visual_episode_stream.schema.json
+        schemas/visual_frame_batch.schema.json
+        schemas/visual_scene_manifest_v3.schema.json
+    DESTINATION share/metalrobo/schemas
+)
+install(
+    FILES
+        THIRD_PARTY_NOTICES.md
+        licenses/CISST_LICENSE.txt
+    DESTINATION share/metalrobo
+)
+
+# Source-compliant NHEQ2 primitives: isolated kernel parity and Schur action.
+if(APPLE)
+    add_executable(metalrobo_numanx_human_equality_probe
+        apps/numanx_human_equality_probe.mm)
+    add_dependencies(metalrobo_numanx_human_equality_probe numi_matter_shaders)
+    target_include_directories(metalrobo_numanx_human_equality_probe PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_definitions(metalrobo_numanx_human_equality_probe PRIVATE
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    target_compile_options(metalrobo_numanx_human_equality_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numanx_human_equality_probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    set_target_properties(metalrobo_numanx_human_equality_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+    if(BUILD_TESTING)
+        add_test(NAME numanx.physics.human_source_equality
+            COMMAND $<TARGET_FILE:metalrobo_numanx_human_equality_probe>)
+        set_tests_properties(numanx.physics.human_source_equality PROPERTIES
+            LABELS "numanx;human;matter;physics;metal" TIMEOUT 45 RUN_SERIAL TRUE)
+    endif()
+endif()
+
+# Source-pinned NHLIM1 unilateral force, tangent and envelope preconditioner.
+if(APPLE)
+    add_executable(metalrobo_numanx_human_limit_probe
+        apps/numanx_human_limit_probe.mm)
+    add_dependencies(metalrobo_numanx_human_limit_probe numi_matter_shaders)
+    target_include_directories(metalrobo_numanx_human_limit_probe PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_definitions(metalrobo_numanx_human_limit_probe PRIVATE
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    target_compile_options(metalrobo_numanx_human_limit_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numanx_human_limit_probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    set_target_properties(metalrobo_numanx_human_limit_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+    set(NUMANX_LIMIT_ORACLE "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/numanx_human_limit_mujoco312.json"
+        CACHE FILEPATH "Pinned MuJoCo 3.12 scalar joint-limit oracle")
+    if(BUILD_TESTING)
+        add_test(NAME numanx.physics.human_source_limits
+            COMMAND $<TARGET_FILE:metalrobo_numanx_human_limit_probe> "${NUMANX_LIMIT_ORACLE}")
+        set_tests_properties(numanx.physics.human_source_limits PROPERTIES
+            LABELS "numanx;human;matter;physics;metal" TIMEOUT 45 RUN_SERIAL TRUE)
+    endif()
+endif()
+
+# Anatomical tissue mass ownership is a compiler operation, before Metal allocation.
+add_executable(numi_human_tissue_mass_probe apps/numi_human_tissue_mass_probe.cpp)
+target_link_libraries(numi_human_tissue_mass_probe PRIVATE metalrobo)
+target_compile_options(numi_human_tissue_mass_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(numi_human_tissue_mass_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME numi_human_tissue_mass_partition COMMAND numi_human_tissue_mass_probe)
+add_executable(numi_human_tissue_binding_check apps/numi_human_tissue_binding_check.cpp)
+target_link_libraries(numi_human_tissue_binding_check PRIVATE metalrobo)
+target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter")
+set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
+add_executable(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    apps/numi_human_loaded_knee_source_constraint_check.cpp
+)
+target_link_libraries(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_source_constraints_test
+        tests/numi_human_source_constraints_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_source_constraints_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_source_constraints_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_source_constraints_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_source_constraints
+        COMMAND metalrobo_numi_human_source_constraints_test
+    )
+    set_tests_properties(
+        numi_human_source_constraints
+        PROPERTIES LABELS "numi;human;matter;numanx;source" TIMEOUT 45
+    )
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        tests/numi_human_loaded_knee_numanx_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_loaded_knee_numanx_command_admission
+        COMMAND metalrobo_numi_human_loaded_knee_numanx_test
+    )
+    set_tests_properties(
+        numi_human_loaded_knee_numanx_command_admission
+        PROPERTIES LABELS "numi;human;matter;numanx;acceptance" TIMEOUT 45
+    )
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_test
+        tests/numi_human_loaded_knee_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_loaded_knee_acceptance
+        COMMAND metalrobo_numi_human_loaded_knee_test
+    )
+    set_tests_properties(
+        numi_human_loaded_knee_acceptance
+        PROPERTIES LABELS "numi;human;matter;acceptance" TIMEOUT 45
+    )
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_binding_test
+        tests/numi_human_loaded_knee_binding_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR ""
+        CACHE PATH
+        "Directory containing the immutable loaded-knee manifest and binding test bundle"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST ""
+        CACHE FILEPATH
+        "Immutable HumanPack.ownership.v1 fixture for loaded-knee admission tests"
+    )
+    if(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST
+    )
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        add_test(
+            NAME numi_human_loaded_knee_binding_mutations
+            COMMAND
+                "${Python3_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_loaded_knee_binding_mutation_test.py"
+                "$<TARGET_FILE:metalrobo_numi_human_loaded_knee_binding_test>"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_binding_mutations
+            PROPERTIES LABELS "numi;human;binding;security" TIMEOUT 240
+        )
+    endif()
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        tests/numi_human_loaded_knee_source_compliance_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE ""
+        CACHE FILEPATH
+        "Immutable loaded-knee source-compliance companion fixture"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES ""
+        CACHE FILEPATH
+        "Exact NHEQ2 loaded-knee source-compliance program fixture"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS ""
+        CACHE FILEPATH
+        "Exact NHLIM1 loaded-knee source-compliance program fixture"
+    )
+    if(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS
+    )
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        add_test(
+            NAME numi_human_loaded_knee_source_compliance_mutations
+            COMMAND
+                "${Python3_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_loaded_knee_source_compliance_mutation_test.py"
+                "$<TARGET_FILE:metalrobo_numi_human_loaded_knee_source_compliance_test>"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_source_compliance_mutations
+            PROPERTIES LABELS "numi;human;binding;constraints;security" TIMEOUT 240
+        )
+        add_test(
+            NAME numi_human_loaded_knee_source_constraint_config
+            COMMAND
+                $<TARGET_FILE:metalrobo_numi_human_loaded_knee_source_constraint_check>
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_source_constraint_config
+            PROPERTIES LABELS "numi;human;matter;numanx;source" TIMEOUT 45
+        )
+    endif()
+
+    add_executable(metalrobo_numi_human_bilateral_test tests/numi_human_bilateral_test.cpp)
+    target_include_directories(metalrobo_numi_human_bilateral_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_bilateral_test PRIVATE cxx_std_20)
+    add_test(NAME numi_human_bilateral COMMAND metalrobo_numi_human_bilateral_test)
+endif()
+
+# Offline replay of uploaded NHSKIN records through the existing viewer kernel.
+# No physical or physiological state advances in this evidence tool.
+add_executable(numi_human_resting_skin_replay apps/human_resting_skin_replay.mm)
+target_include_directories(numi_human_resting_skin_replay PRIVATE apps include matter/include)
+target_compile_features(numi_human_resting_skin_replay PRIVATE cxx_std_20)
+target_compile_options(numi_human_resting_skin_replay PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(numi_human_resting_skin_replay PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(numi_human_resting_skin_replay PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
+add_executable(
+    numi_human_resting_mesh_deformation_probe
+    apps/human_resting_mesh_deformation_probe.mm
+)
+target_compile_definitions(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE METALROBO_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+target_link_libraries(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+)
+add_test(
+    NAME numi_human_resting_mesh_deformation
+    COMMAND numi_human_resting_mesh_deformation_probe
+)
+set_tests_properties(
+    numi_human_resting_mesh_deformation
+    PROPERTIES LABELS "numi;human;renderer;metal" TIMEOUT 90
+)
+set_target_properties(
+    numi_human_resting_mesh_deformation_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Exact fixed-bed query checks use the production Metal include.
+if(APPLE)
+    set(NUMI_HUMAN_BED_QUERY_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.metallib")
+    add_custom_command(OUTPUT "${NUMI_HUMAN_BED_QUERY_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_resting_bed_query.metal"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.air"
+        COMMAND xcrun -sdk macosx metallib "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.air"
+            -o "${NUMI_HUMAN_BED_QUERY_METALLIB}"
+        DEPENDS tests/numi_human_resting_bed_query.metal
+            src/metal/NumiHumanRestingBed.metalinc include/metalrobo/numi_human_resting_bed_gpu.h
+            include/metalrobo/engine_types.h include/metalrobo/gpu_types.h
+        VERBATIM)
+    add_custom_target(numi_human_bed_query_shader DEPENDS "${NUMI_HUMAN_BED_QUERY_METALLIB}")
+    add_executable(numi-human-resting-bed-query-check EXCLUDE_FROM_ALL tests/numi_human_resting_bed_query_test.mm)
+    target_include_directories(numi-human-resting-bed-query-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numi-human-resting-bed-query-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-bed-query-check PRIVATE "-framework Foundation" "-framework Metal")
+    add_dependencies(numi-human-resting-bed-query-check numi_human_bed_query_shader)
+    if(BUILD_TESTING)
+        add_test(NAME human.metal.resting_bed_query
+            COMMAND numi-human-resting-bed-query-check "${NUMI_HUMAN_BED_QUERY_METALLIB}")
+        set_tests_properties(human.metal.resting_bed_query PROPERTIES LABELS "human;metal;resting" TIMEOUT 60)
+    endif()
+
+    # Existing retained terminal logs may supply a construction-only posture.
+    add_executable(numi-human-resting-initial-posture-check EXCLUDE_FROM_ALL
+        tests/numi_human_resting_initial_posture_test.mm)
+    target_include_directories(numi-human-resting-initial-posture-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_compile_options(numi-human-resting-initial-posture-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-initial-posture-check PRIVATE "-framework Foundation")
+    if(BUILD_TESTING)
+        add_test(NAME human.resting_initial_posture_admission
+            COMMAND numi-human-resting-initial-posture-check)
+        set_tests_properties(human.resting_initial_posture_admission PROPERTIES
+            LABELS "human;resting;admission" TIMEOUT 30)
+    endif()
+
+    # CPU-only Foundation parser coverage for the resting-scene bed manifest.
+    add_executable(numi-human-resting-bed-admission-check EXCLUDE_FROM_ALL
+        tests/numi_human_resting_bed_admission_test.mm)
+    target_include_directories(numi-human-resting-bed-admission-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numi-human-resting-bed-admission-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-bed-admission-check PRIVATE "-framework Foundation")
+    if(BUILD_TESTING)
+        add_test(NAME human.resting_bed_manifest_admission
+            COMMAND numi-human-resting-bed-admission-check)
+        set_tests_properties(human.resting_bed_manifest_admission PROPERTIES
+            LABELS "human;resting;admission" TIMEOUT 30)
+    endif()
+endif()

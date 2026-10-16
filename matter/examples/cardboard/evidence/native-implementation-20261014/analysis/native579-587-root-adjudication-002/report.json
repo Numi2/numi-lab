@@ -1,0 +1,334 @@
+{
+  "schema": "numi.cardboard.native579-584-root-adjudication.v1",
+  "component_results": [
+    {
+      "case": "refined-coupon-cgls-579",
+      "component_gate_pass": true,
+      "physical_mesh_time_convergence": false,
+      "full_shipping_operator_qualified": false,
+      "stdout_sha256": "0037e20ac48cc3a94c2f8a466b55e68ffcf7aec330e294d4ea5280ea6f2e24e7"
+    },
+    {
+      "case": "maximum-coupon-cgls-580",
+      "component_gate_pass": true,
+      "physical_mesh_time_convergence": false,
+      "full_shipping_operator_qualified": false,
+      "stdout_sha256": "a0b28a9d5ddd417a2ebfaae479e043da2ddf77dfad426cfac314922abb3a57b4"
+    },
+    {
+      "case": "refined-coupon-true-residual-581",
+      "component_gate_pass": true,
+      "physical_mesh_time_convergence": false,
+      "full_shipping_operator_qualified": false,
+      "stdout_sha256": "3daea692cccd25d06e2f95f3fa18434d9849ce8ef753822bbb8f3af941a192dc"
+    },
+    {
+      "case": "refined-regional-native-regression-582",
+      "component_gate_pass": true,
+      "physical_mesh_time_convergence": false,
+      "full_shipping_operator_qualified": false,
+      "stdout_sha256": "9f485ddc4e02b21107d89a4a69565bea8785ea2eb49347ca4a6b5baa1c930755"
+    }
+  ],
+  "native581_metadata_erratum": {
+    "executed_large_node_measurements": [
+      4096,
+      8192,
+      20682,
+      32768
+    ],
+    "proof": "Source-bound --refined-coupon branch runs 20682 and32768 before the existing4096/8192 checks; process exits0 after all assertions.",
+    "stdout_defect": "Hardcoded label lists only4096,8192 and contains a literal backslash-n; preserve raw581 stdout and repair emitter in a new snapshot.",
+    "full_FEM_operator_qualified": false
+  },
+  "native583_584": {
+    "native_failure_preserved": true,
+    "off_on_production_parity": {
+      "transaction-000000-before.bin": {
+        "off_sha256": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+        "on_sha256": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+        "byte_equal": true
+      },
+      "transaction-000000-after.bin": {
+        "off_sha256": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+        "on_sha256": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+        "byte_equal": true
+      },
+      "transaction-000000.json": {
+        "off_sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+        "on_sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+        "byte_equal": true
+      },
+      "transaction-000000-first-failure.bin": {
+        "off_sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+        "on_sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+        "byte_equal": true
+      }
+    },
+    "whole_snapshot_before_after_equal": {
+      "off": false,
+      "on": false
+    },
+    "accepted_state_vector_rollback": {
+      "off": {
+        "identical_vectors": [
+          "particles",
+          "femNodes",
+          "femFields",
+          "vascularState",
+          "vascularClock",
+          "femTopologyNodes",
+          "femTopologyTetrahedra",
+          "cohesiveFaces",
+          "punctureChannels",
+          "topologyStates",
+          "contactHistories",
+          "humanSupportHistories",
+          "humanSupportConsequences",
+          "deformableContactHistories",
+          "particleMaterialState",
+          "femMaterialState",
+          "environmentParameters"
+        ],
+        "changed_vectors": [
+          "rigidStates"
+        ],
+        "verdict": "OPEN: rigidStates field-level forensic review required; binary also contains expected failed status/certificates."
+      },
+      "on": {
+        "identical_vectors": [
+          "particles",
+          "femNodes",
+          "femFields",
+          "vascularState",
+          "vascularClock",
+          "femTopologyNodes",
+          "femTopologyTetrahedra",
+          "cohesiveFaces",
+          "punctureChannels",
+          "topologyStates",
+          "contactHistories",
+          "humanSupportHistories",
+          "humanSupportConsequences",
+          "deformableContactHistories",
+          "particleMaterialState",
+          "femMaterialState",
+          "environmentParameters"
+        ],
+        "changed_vectors": [
+          "rigidStates"
+        ],
+        "verdict": "OPEN: rigidStates field-level forensic review required; binary also contains expected failed status/certificates."
+      }
+    },
+    "trace_lines_total": 64,
+    "valid_empty_contact_records": 37,
+    "malformed_nonempty_records": [
+      {
+        "line": 2,
+        "error": "Expecting ',' delimiter: line 1 column 1429 (char 1428)"
+      },
+      {
+        "line": 3,
+        "error": "Expecting ',' delimiter: line 1 column 1556 (char 1555)"
+      },
+      {
+        "line": 4,
+        "error": "Expecting ',' delimiter: line 1 column 1554 (char 1553)"
+      },
+      {
+        "line": 5,
+        "error": "Expecting ',' delimiter: line 1 column 1558 (char 1557)"
+      },
+      {
+        "line": 6,
+        "error": "Expecting ',' delimiter: line 1 column 1557 (char 1556)"
+      },
+      {
+        "line": 7,
+        "error": "Expecting ',' delimiter: line 1 column 1559 (char 1558)"
+      },
+      {
+        "line": 8,
+        "error": "Expecting ',' delimiter: line 1 column 1555 (char 1554)"
+      },
+      {
+        "line": 9,
+        "error": "Expecting ',' delimiter: line 1 column 1553 (char 1552)"
+      },
+      {
+        "line": 10,
+        "error": "Expecting ',' delimiter: line 1 column 1555 (char 1554)"
+      },
+      {
+        "line": 11,
+        "error": "Expecting ',' delimiter: line 1 column 1541 (char 1540)"
+      },
+      {
+        "line": 12,
+        "error": "Expecting ',' delimiter: line 1 column 1554 (char 1553)"
+      },
+      {
+        "line": 13,
+        "error": "Expecting ',' delimiter: line 1 column 1558 (char 1557)"
+      },
+      {
+        "line": 14,
+        "error": "Expecting ',' delimiter: line 1 column 1557 (char 1556)"
+      },
+      {
+        "line": 15,
+        "error": "Expecting ',' delimiter: line 1 column 1540 (char 1539)"
+      },
+      {
+        "line": 16,
+        "error": "Expecting ',' delimiter: line 1 column 1559 (char 1558)"
+      },
+      {
+        "line": 17,
+        "error": "Expecting ',' delimiter: line 1 column 1557 (char 1556)"
+      },
+      {
+        "line": 18,
+        "error": "Expecting ',' delimiter: line 1 column 1542 (char 1541)"
+      },
+      {
+        "line": 19,
+        "error": "Expecting ',' delimiter: line 1 column 1538 (char 1537)"
+      },
+      {
+        "line": 20,
+        "error": "Expecting ',' delimiter: line 1 column 1559 (char 1558)"
+      },
+      {
+        "line": 21,
+        "error": "Expecting ',' delimiter: line 1 column 1554 (char 1553)"
+      },
+      {
+        "line": 22,
+        "error": "Expecting ',' delimiter: line 1 column 1555 (char 1554)"
+      },
+      {
+        "line": 23,
+        "error": "Expecting ',' delimiter: line 1 column 1554 (char 1553)"
+      },
+      {
+        "line": 24,
+        "error": "Expecting ',' delimiter: line 1 column 1541 (char 1540)"
+      },
+      {
+        "line": 25,
+        "error": "Expecting ',' delimiter: line 1 column 1551 (char 1550)"
+      },
+      {
+        "line": 26,
+        "error": "Expecting ',' delimiter: line 1 column 1555 (char 1554)"
+      },
+      {
+        "line": 27,
+        "error": "Expecting ',' delimiter: line 1 column 1572 (char 1571)"
+      },
+      {
+        "line": 28,
+        "error": "Expecting ',' delimiter: line 1 column 1582 (char 1581)"
+      }
+    ],
+    "trace_interpretation": "INCONCLUSIVE: missing barrier-array closing bracket prevents JSON decode. Preserve raw outputs; a corrected source and fresh pair are required.",
+    "nonlinear_contact_qualified": false
+  },
+  "all_inputs_unchanged": true,
+  "all_six_full_sequence_axes_open": true,
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-cgls-579/receipt.json": "fea014f273dbb822028bf11238ee5a4dd8d1827c044ba5a86d43d9433f96e27a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-cgls-579/stdout.log": "0037e20ac48cc3a94c2f8a466b55e68ffcf7aec330e294d4ea5280ea6f2e24e7",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-cgls-579/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/maximum-coupon-cgls-580/receipt.json": "fe6f11c5de0f5d30c90e1a082bdab609fc064cdd3c3473d35f9856a1fc4e4fe7",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/maximum-coupon-cgls-580/stdout.log": "a0b28a9d5ddd417a2ebfaae479e043da2ddf77dfad426cfac314922abb3a57b4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/maximum-coupon-cgls-580/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-true-residual-581/receipt.json": "69cf39ed0d539be4f9d56fa56fb8f15eff38e86c44dbab812bda6584c2036806",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-true-residual-581/stdout.log": "3daea692cccd25d06e2f95f3fa18434d9849ce8ef753822bbb8f3af941a192dc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-true-residual-581/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-regional-native-regression-582/receipt.json": "8bd047dcb5f25fe744ed92da3fe4dce307febe66081724e147da6ec6b883f3a3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-regional-native-regression-582/stdout.log": "9f485ddc4e02b21107d89a4a69565bea8785ea2eb49347ca4a6b5baa1c930755",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-regional-native-regression-582/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/fgmres_true_residual_native_check.mm": "270ddea97c534f59907170fd6de6fc0377da12796eac0e4e9d3498175f99c12e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/accepted-state-output/dense/transaction-000000-before.bin": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/accepted-state-output/dense/transaction-000000-before.bin": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/accepted-state-output/dense/transaction-000000-after.bin": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/accepted-state-output/dense/transaction-000000-after.bin": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/accepted-state-output/dense/transaction-000000.json": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/accepted-state-output/dense/transaction-000000.json": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/accepted-state-output/dense/transaction-000000-first-failure.bin": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/accepted-state-output/dense/transaction-000000-first-failure.bin": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/receipt.json": "9fa70a9d12f7953dbd2727e869679cc1a289197312cb8d4ff359b3c039fcd7cc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/command.json": "cfbdba387ac4e59fa5c7a97ee1d0e4eb51d7d56a0bf3824a2f9744bc3a521881",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/stderr.log": "5fbcae7fe6bd82eb57bad5784cfed8f6a60e77f884a7a11166ecf3bf1e915f75",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-583/stdout.log": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/receipt.json": "765b3afbfcfe4c32a7f2c718b62f270a9399fa2b9aa50ac3f5780cf05bb7b3a7",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/command.json": "84a55705145e0aa45f0a9d50412ba79f14d4765b080347301fb930b6f17cc9ed",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/stderr.log": "7c09e634f15d8dd96e7534388ceeef70fd559faa5a5e805505949cb9ba372984",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-584/stdout.log": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/command.json": "baaf4771c7b80603bcd249c3664c320e3743557de2ab11f588f41c6e7f7d94d6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/receipt.json": "4d2537d06766be469f2dd478cde905133da0299430865315647cbe4d1914c2d3",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/stdout.log": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/stderr.log": "e341d326f69b3bb6d1e009cd95560a49ed671a52d526234bf88dcc5750a42846",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/command.json": "c1bfafdf4b90a8c5d97bf2c53ea3a5eb55e8b43b380ca15aee9be1fd89ca5267",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/receipt.json": "447e44005cf841399c7cc9bc8ae0fd03c8b57391d37d4b6cb9ad88933f1d1867",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/stdout.log": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/stderr.log": "718073fa568415d82cb5c20882aa3e5a548269230a5c6cceedb7acaa9acef381",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/accepted-state-output/dense/transaction-000000-before.bin": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/accepted-state-output/dense/transaction-000000-before.bin": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/accepted-state-output/dense/transaction-000000-after.bin": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/accepted-state-output/dense/transaction-000000-after.bin": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/accepted-state-output/dense/transaction-000000.json": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/accepted-state-output/dense/transaction-000000.json": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586/accepted-state-output/dense/transaction-000000-first-failure.bin": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-on-587/accepted-state-output/dense/transaction-000000-first-failure.bin": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c"
+  },
+  "at_utc": "2026-10-16T13:07:40.091165+00:00",
+  "native586_587": {
+    "fresh_corrected_serializer": true,
+    "trace_records": 64,
+    "nonempty_records": 27,
+    "off_on_production_parity": {
+      "transaction-000000-before.bin": {
+        "byte_equal": true,
+        "sha256": "664fe95a5d1601fc4e77700c347ae313a4fc150215bea468d174212cd8926cc1"
+      },
+      "transaction-000000-after.bin": {
+        "byte_equal": true,
+        "sha256": "cefe6bb0c5aa85d4266acebd1011e9691c2f59d5fb055a0ddc1c1bacb3218692"
+      },
+      "transaction-000000.json": {
+        "byte_equal": true,
+        "sha256": "8aec0ce02903adb41a76b033aacb3a636d4bf35f87c6e21d79760fdd267ac9e0"
+      },
+      "transaction-000000-first-failure.bin": {
+        "byte_equal": true,
+        "sha256": "1fa8c80c7e1606911d6fae11195f1467c5e70a815b6e45646d7ee645daf0d69c"
+      }
+    },
+    "failure_iteration": 26,
+    "contact_slot": 32,
+    "trial_count": 8,
+    "all_trials_full_fraction_CCD_certified": true,
+    "all_trials_barrier_armijo_rejected": true,
+    "trial_alphas": [
+      1,
+      0.5,
+      0.25,
+      0.125,
+      0.0625,
+      0.03125,
+      0.015625,
+      0.0078125
+    ],
+    "base_energy_J": 3.08632113e-12,
+    "base_directional_derivative_J": -7.31207036e-15,
+    "first_trial_energy_J": 3.08632113e-12,
+    "first_trial_Armijo_RHS_J": 3.08632048e-12,
+    "diagnostic_conclusion": "The setup activation transaction is outside the admitted private full-residual slice. Legacy per-feature Armijo rejects every exact rounded endpoint; no CCD failure occurs at this feature. This does not validate the full contact solver or authorize relaxing energy acceptance.",
+    "nonlinear_contact_qualified": false,
+    "rollback_qualified": false
+  }
+}

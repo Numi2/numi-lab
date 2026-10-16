@@ -1,0 +1,4 @@
+error: patch failed: matter/tools/cardboard_probe.mm:12538
+error: matter/tools/cardboard_probe.mm: patch does not apply
+error: patch failed: matter/tools/test_cardboard_solver_environment.py:20
+error: matter/tools/test_cardboard_solver_environment.py: patch does not apply

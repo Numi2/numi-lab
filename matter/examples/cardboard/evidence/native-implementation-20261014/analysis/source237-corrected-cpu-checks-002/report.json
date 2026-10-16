@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.source237-corrected-cpu.v1",
+  "all_pass": true,
+  "prior_failure_preserved": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source237-strict-main-composition-001/report.json",
+  "prior_failure_cause": "invalid CPU admission flag in root launcher; build and source unchanged",
+  "source_frozen_sha256": "ab2511b4b6992854556059676aa650769a43090f504c9cc5ead6a94e45067d6f",
+  "source_build_sha256": "54ec5901f1800185d62d753da51efe58f8a90bdc8b7464a940087ed21e5c3b0d",
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source237-strict-main-001/matter/numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "--cpu-source547-strict-projection",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native547-critical23-sweep-input-002/input.json",
+        "a71da761e88cbaca694e7c0cd6333511f46a0a36a12b76b5081b0d26309bb74e",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "569c2b560bc9b6b822eba2aba79aa5b7fb8c1e84299b94b76a3ec0b163e8e2f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-local-projection-main-237-001/matter/tools/cardboard_coupon_resume_check.cpp",
+        "-o",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source237-corrected-cpu-checks-002/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source237-corrected-cpu-checks-002/assert-enabled-coupon-resume-check"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T12:31:18.296770+00:00"
+}

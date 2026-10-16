@@ -1,0 +1,5 @@
+{
+  "script_sha256": "eb304475d38426e63f07bdd80a58f56ea53e97ded62b714718dfed2f56968933",
+  "error": "KeyError: candidate_source_bindings; new overlay binds exact source through source-build.json instead of embedding duplicate map",
+  "native_execution_started": false
+}

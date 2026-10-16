@@ -1,0 +1,8 @@
+{
+  "after_sha256": "ada692577b4258d7bfe050516512ca5402a83d952c8385f13e9fa854cd0f1e2d",
+  "before_sha256": "6847527ae6704431c5e969bdd1616e1ae80847c606b23453f37226f661339cb7",
+  "issue": "C++ serializer contained literal backslash-n escapes in an ostream chain",
+  "preserved_copy": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/deformable-contact-trial-alpha-trace-236-001/preserved-pre-serializer-fix/runtime.mm",
+  "replacement_count": 1,
+  "source_path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-deformable-contact-trial-trace-236-001/matter/src/runtime.mm"
+}

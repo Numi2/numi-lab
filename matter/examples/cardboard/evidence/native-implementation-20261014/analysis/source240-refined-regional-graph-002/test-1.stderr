@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools/test_cardboard_shipping_resolution_controls.py", line 24, in <module>
+    r=call(["--ny",str(ny)]);assert r==dict(base,ny=ny,box_subdivisions_per_band=ny);checks+=1
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-002/matter/tools/test_cardboard_shipping_resolution_controls.py", line 13, in call
+    assert r.returncode==0,(cmd,r.stdout,r.stderr)
+           ^^^^^^^^^^^^^^^
+AssertionError: (['/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-002/matter/numi-matter-cardboard-probe', '--shipping-box', '--shipping-preflight-only', '--validate-only', '--output', '/tmp/numi-cardboard-validation-unused', '--ny', '64'], '', 'numi-matter-cardboard-probe=failed reason="--ny must lie in [1, 32]"\n')

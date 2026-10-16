@@ -1,0 +1,17 @@
+{
+  "files_sha256": {
+    "report.json": "faaac47b5a4d13514095e834e75336da9d54c81b0e54e76fa73493b6d648d81b"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native531-tet222-highprecision-006/audit222.py": "1d2a66ba35e03b7182b391cfa97b9aa2e89a5aaf3a486ce312e198f733a66ab1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/manifest.json": "f4784fa0ad81bfca84eca643176ea57eade69244285a36e50397b9b9e0be220c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/report.json": "f8d35f5d71a9355bc4506287a1faca15f8abebdc13dbc66ce4e17280d09a44a0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/prediction.json": "ca508e41b191c1e7a9843e82dda26d3c5269b18b5347b7beb71cee7ec32f7a7d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/receipt.json": "944d476a6dcc86075fa3650a5c04314677e9a3651d02f1842a6087c4c5f6dbe4"
+  },
+  "schema": "numi.cardboard.native555-fb-transition-mp-files.v1"
+}

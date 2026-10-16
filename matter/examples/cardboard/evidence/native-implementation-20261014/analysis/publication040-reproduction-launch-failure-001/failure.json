@@ -1,0 +1,7 @@
+{
+  "command": "/opt/homebrew/bin/python3 prepare_publication040_reproduction_001.py",
+  "exit_code": 127,
+  "reason": "no /opt/homebrew/bin/python3 on this host; script did not execute",
+  "continuation": "use host python3 command",
+  "at_utc": "2026-10-16T13:23:37.316549+00:00"
+}

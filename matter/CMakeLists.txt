@@ -70,6 +70,18 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.regional_graph_schwarz_layout PROPERTIES
         TIMEOUT 30 LABELS "matter;cardboard;solver;cpu;synthetic")
 endif()
+add_executable(numi-matter-cardboard-refined-graph-layout-check
+    tools/cardboard_refined_graph_layout_check.cpp)
+target_include_directories(numi-matter-cardboard-refined-graph-layout-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-cardboard-refined-graph-layout-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_refined_graph_layout
+        COMMAND numi-matter-cardboard-refined-graph-layout-check)
+    set_tests_properties(matter.compiler.cardboard_refined_graph_layout PROPERTIES
+        TIMEOUT 120 LABELS "matter;cardboard;solver;cpu;mesh;arena")
+endif()
 add_executable(numi-matter-regional-graph-completed-tail-check
     tools/regional_graph_completed_tail_check.cpp)
 target_compile_options(numi-matter-regional-graph-completed-tail-check PRIVATE

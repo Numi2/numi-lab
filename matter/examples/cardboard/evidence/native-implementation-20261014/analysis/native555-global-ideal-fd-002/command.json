@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.cpu-audit-command.v1",
+  "working_directory": "/Users/n/cardboard-implementation-20261014-host-macmini",
+  "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 /Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3 -B analysis/native555-global-ideal-fd-002/run.py",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "native_or_gpu_execution": false
+}

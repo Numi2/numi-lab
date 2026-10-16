@@ -1,0 +1,52 @@
+{
+  "schema": "numi.cardboard.publication040-command-extension.v1",
+  "files": {
+    "archive_publication040_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/archive_publication040_002.py",
+      "sha256": "29f1c2e2aca61f4586325e69024975f7bc021b2d717505c019449dca87ddd8a4",
+      "bytes": 11980
+    },
+    "audit_publication040_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/audit_publication040_001.py",
+      "sha256": "1398366be7d5b129e97bb640ebdff5c82e9eda8d3bc5083e72f7083cb918ff31",
+      "bytes": 6339
+    },
+    "adjud_native578_full_strict_coupon_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjud_native578_full_strict_coupon_002.py",
+      "sha256": "cc38b5acd0c82db10a44d2d4ac4d8b85d5027f832bdc997362b8c18c0e32ebb9",
+      "bytes": 5156
+    },
+    "prepare_publication040_reproduction_002.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication040_reproduction_002.py",
+      "sha256": "b8fda1e1a9c1c5f1647c489dd90d23e6ce229978822977728be5f8e4ee517f24",
+      "bytes": 6773
+    },
+    "publish_publication040_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/publish_publication040_001.py",
+      "sha256": "ff662105befee4c9a05ea39a3953e456eef5871b83e3ddab9a2067873497820b",
+      "bytes": 3454
+    },
+    "prepare_publication040_reproduction_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication040_reproduction_001.py",
+      "sha256": "379d8927394950f5f1752bc7939e1302f4908a1ec61e03b2edc29b536b8a9742",
+      "bytes": 5953
+    },
+    "archive_publication040_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/archive_publication040_001.py",
+      "sha256": "58f3b006eea45b3aba041d2b352d4f7149ca577aa29e70fd0b621a2bdf5f17cc",
+      "bytes": 11845
+    },
+    "adjud_native578_full_strict_coupon_001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/adjud_native578_full_strict_coupon_001.py",
+      "sha256": "66dd858c625878b8fb84b5a74bf7ac5c4ad63fb6f1fe6b16e57e250f27408772",
+      "bytes": 5110
+    },
+    "native555-global-ideal-fd-mp-full-runner-001.py": {
+      "external_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-runner-001.py",
+      "sha256": "35c1bb3dfeddff8785acac5d497f8f98d3ecb47eb852cc365eb3ead0676d03e8",
+      "bytes": 33086
+    }
+  },
+  "archive001_never_executed": true,
+  "authoritative236_overlay_maps": true
+}

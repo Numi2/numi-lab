@@ -82,6 +82,22 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
          "the standalone constitutive compiler default for this policy changed");
     need(compiled.program.fingerprint != legacy.program.fingerprint,
          "material fingerprint did not bind the scaled-correction policy");
+    MaterialProgram strictCandidate = candidate;
+    strictCandidate.genericBilinear15StrictStateCertification = true;
+    const auto strictCompiled = numi::matter::detail::compileConstitutive(
+        strictCandidate, NM_EXPRESSION_STACK_CAPACITY);
+    need(strictCompiled.succeeded() &&
+         (strictCompiled.program.gpu.flags &
+          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u &&
+         strictCompiled.program.gpu.localNewtonIterations == 16u,
+         "strict state certificate was not compiled with unchanged accurate-policy default budget");
+    need(strictCompiled.program.fingerprint != compiled.program.fingerprint,
+         "material fingerprint did not bind strict state certification");
+    auto strictWithoutAccurate = compensatedDefault;
+    strictWithoutAccurate.genericBilinear15StrictStateCertification = true;
+    need(!numi::matter::detail::compileConstitutive(
+             strictWithoutAccurate, NM_EXPRESSION_STACK_CAPACITY).succeeded(),
+         "strict certificate was admitted without accurate bilinear15 projection");
     need(compiled.program.implicitResiduals.size() == 15u &&
          compiled.program.implicitJacobians.size() == 225u &&
          compiled.program.implicitDeformationDirections.size() == 15u &&
@@ -113,14 +129,23 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
     const auto world = compileOneMaterial(candidate);
     const std::string worldFailure = world.diagnostics.empty() ? "no compiler diagnostic" : world.diagnostics.front().message;
     need(world.succeeded(), "scoped projection world failed compilation: " + worldFailure);
-    need(world.world.materials[0].localNewtonIterations == 16u,
-         "accurate bilinear-15 world default must remain 16 when no override is supplied");
+    need(world.world.materials[0].localNewtonIterations == 16u &&
+         (world.world.materials[0].flags &
+          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) == 0u,
+         "accurate bilinear-15 world default must remain 16 and strict certification default-off");
     const auto explicit16 = compileOneMaterial(candidate, 32u, 16u);
     const auto explicit32 = compileOneMaterial(candidate, 32u, 32u);
     need(explicit16.succeeded() && explicit32.succeeded() &&
          explicit16.world.materials[0].localNewtonIterations == 16u &&
          explicit32.world.materials[0].localNewtonIterations == 32u,
          "explicit accurate bilinear-15 budgets 16 and 32 were not preserved by compilation");
+    const auto strict32 = compileOneMaterial(strictCandidate, 32u, 32u);
+    need(strict32.succeeded() &&
+         strict32.world.materials[0].localNewtonIterations == 32u &&
+         (strict32.world.materials[0].flags &
+          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u &&
+         strict32.world.fingerprint != explicit32.world.fingerprint,
+         "strict state certification changed the budget or failed to bind the world fingerprint");
     need(explicit16.world.fingerprint != explicit32.world.fingerprint,
          "compiled-world fingerprint did not bind the effective local projection budget");
     const auto explicit8 = compileOneMaterial(candidate, 32u, 8u);
@@ -136,9 +161,21 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
     need(legacyWorld.succeeded() &&
          legacyWorld.world.materials[0].localNewtonIterations == 8u &&
          (legacyWorld.world.materials[0].flags &
-          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u,
+          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u &&
+         (legacyWorld.world.materials[0].flags &
+          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) == 0u,
          "the opt-in policy changed the production default world material budget or flags");
     std::string error;
+    need(validateCompiledWorldLayout(strict32.world, &error),
+         "validator rejected strict state certification: " + error);
+    auto strictWithoutAccurateWorld = strict32.world;
+    strictWithoutAccurateWorld.materials[0].flags &=
+        ~NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+    strictWithoutAccurateWorld.fingerprint =
+        compiledWorldFingerprint(strictWithoutAccurateWorld);
+    error.clear();
+    need(!validateCompiledWorldLayout(strictWithoutAccurateWorld, &error),
+         "validator admitted strict state certification without accurate projection");
     need(validateCompiledWorldLayout(world.world, &error),
          "scoped projection world failed package validation: " + error);
     need(validateCompiledWorldLayout(explicit32.world, &error),
@@ -162,22 +199,24 @@ void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& material
         "numi-cardboard-bilinear15-scaled-correction-policy.nmatterpkg";
     std::filesystem::remove(packagePath);
     CompileResult package;
-    package.world = explicit32.world;
+    package.world = strict32.world;
     need(writePackage(package, packagePath, &error),
-         "could not serialize the explicit-32 scoped policy package: " + error);
+         "could not serialize the explicit-32 strict policy package: " + error);
     CompiledWorld restored;
     need(readPackage(packagePath, restored, nullptr, &error),
          "could not restore the explicit-32 scoped policy package: " + error);
     std::filesystem::remove(packagePath);
     need(validateCompiledWorldLayout(restored, &error) &&
-         restored.fingerprint == explicit32.world.fingerprint &&
+         restored.fingerprint == strict32.world.fingerprint &&
          restored.materials[0].localNewtonIterations == 32u &&
          (restored.materials[0].flags &
-          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u,
-         "package roundtrip lost the local projection policy or iteration budget");
+          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
+         (restored.materials[0].flags &
+          NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u,
+         "package roundtrip lost strict local projection policy or iteration budget");
     std::cout << "bilinear15_scaled_correction_policy_cpu_check_passed"
               << " state_count=15 parameter_count=28 default_iterations=16 explicit_iterations=8,16,32"
-              << " package_roundtrip=pass native_metal_execution=not_run"
+              << " strict_scaled_correction_threshold=2e-10 package_roundtrip=pass native_metal_execution=not_run"
               << " physical_validation=false\n";
 }
 

@@ -246,6 +246,8 @@ struct MaterialProgram {
     // bilinear Hill bytecode law. Requires genericCompensatedImplicitProjection;
     // it changes only the local projection solve policy and iteration budget.
     bool genericBilinear15AccurateProjection = false;
+    // Opt-in stricter dimensionless Newton-correction certificate for accurate bilinear15 state projection.
+    bool genericBilinear15StrictStateCertification = false;
     std::vector<Parameter> parameters;
     std::vector<InternalState> internalState;
     ExpressionGraph expressions;

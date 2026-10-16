@@ -1,0 +1,5 @@
+{
+  "verdict": "FAILED_PREFLIGHT",
+  "reason": "source236 inherited frozen-source map describes base; authoritative candidate bindings are in sealed overlay/source-build. No checkout mutation occurred.",
+  "continuation": "reproduction002 resolves236 overlay bindings explicitly and retains inherited frozen metadata as historical."
+}

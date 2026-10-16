@@ -1,0 +1,42 @@
+{
+  "base_frozen_sha256": "a937b7534a266d9d8b7acc8779eca2755b22cc0b885c21494ddd9004a9cfed06",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-004",
+  "build_manifest_sha256": "4744f3cc05631f52c141b3e733f391b09b677a59676789bc33414b2edad4ac61",
+  "files": {
+    "README.md": {
+      "bytes": 1528,
+      "sha256": "0d43ca17c60204ee89438caf5e85833b03995940294dab72a910acf8cec02514"
+    },
+    "build-history.json": {
+      "bytes": 1240,
+      "sha256": "b3cecfb16d954cea364d3a8dcd419178ebcf3dea7185d29a733b1ef6a2f43929"
+    },
+    "reproduction-commands.json": {
+      "bytes": 1460,
+      "sha256": "804716583a08f2fec3c8159eb1e30f08b83efa0a5f2a84d3971d23bcd621e653"
+    },
+    "source-build.json": {
+      "bytes": 102617,
+      "sha256": "4744f3cc05631f52c141b3e733f391b09b677a59676789bc33414b2edad4ac61"
+    },
+    "source-integrity.json": {
+      "bytes": 3025,
+      "sha256": "9b1d018a3fcad440410ed35795585a04b585af4876a3525b31cc5fb791efd395"
+    },
+    "source242.patch": {
+      "bytes": 48975,
+      "sha256": "a9b3f3878d4e70a1548b7504e43455b4a8890c1b5fc42e3d3f9301710932c7cf"
+    },
+    "validation.json": {
+      "bytes": 2921,
+      "sha256": "dfb63e972db21f2f972ad87999df34ad682456cd8ad428bd322e7e3361c01ec0"
+    }
+  },
+  "native_gpu_run": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source242-constituent-volume-damage-001",
+  "patch_sha256": "a9b3f3878d4e70a1548b7504e43455b4a8890c1b5fc42e3d3f9301710932c7cf",
+  "physical_operator_changed": false,
+  "schema": "numi.cardboard.source242-package.v1",
+  "source_frozen_sha256": "9423e95363ffc62e2d11f7e8e59720c6911bc6f1870565aa68803acb6550bbcc",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-constituent-volume-damage-242-001"
+}

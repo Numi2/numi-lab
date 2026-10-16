@@ -1,0 +1,50 @@
+{
+  "base_frozen_sha256": "a937b7534a266d9d8b7acc8779eca2755b22cc0b885c21494ddd9004a9cfed06",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-004",
+  "base_source_file_count": 834,
+  "candidate_frozen_sha256": "9423e95363ffc62e2d11f7e8e59720c6911bc6f1870565aa68803acb6550bbcc",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-constituent-volume-damage-242-001",
+  "candidate_source_file_count": 836,
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "base_sha256": "ede9e278075676e8b41767935b6972cfaaa65982881d0c1d10ef09a1f0ad803e",
+      "candidate_bytes_sha256": "ea4cf11f44849a8154ae1e53c98151a3acdfa551503c2fd786e07a9d6151971c",
+      "candidate_sha256": "ea4cf11f44849a8154ae1e53c98151a3acdfa551503c2fd786e07a9d6151971c"
+    },
+    "matter/tools/cardboard_constituent_volume_damage.hpp": {
+      "base_sha256": null,
+      "candidate_bytes_sha256": "e54a91be1bbb4a2688bb9f575f53fc632aba5c33b72a18592e9fb5a3aed831cb",
+      "candidate_sha256": "e54a91be1bbb4a2688bb9f575f53fc632aba5c33b72a18592e9fb5a3aed831cb"
+    },
+    "matter/tools/cardboard_constituent_volume_damage_check.cpp": {
+      "base_sha256": null,
+      "candidate_bytes_sha256": "64b595f8133ce957163163a7cf723d0b547627238a0e354eb4b29a8f831c2287",
+      "candidate_sha256": "64b595f8133ce957163163a7cf723d0b547627238a0e354eb4b29a8f831c2287"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "base_sha256": "b96e9703d22f952c64f72f35aa21733c6b9d2128f2f3bd3257566b8642b15292",
+      "candidate_bytes_sha256": "17155ad589cc3b8b947f755512c2fb4eb602494a608b76b9d0e7924ddc11d1d9",
+      "candidate_sha256": "17155ad589cc3b8b947f755512c2fb4eb602494a608b76b9d0e7924ddc11d1d9"
+    },
+    "matter/tools/cardboard_stage_resolution_study.md": {
+      "base_sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827",
+      "candidate_bytes_sha256": "39d9d2743abacb67f8cec0eb03332f3424b1b12b6157bfbe9f03ea92984e55c6",
+      "candidate_sha256": "39d9d2743abacb67f8cec0eb03332f3424b1b12b6157bfbe9f03ea92984e55c6"
+    },
+    "matter/tools/cardboard_stage_resolution_study.py": {
+      "base_sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119",
+      "candidate_bytes_sha256": "5316875045fd0db6ec672833f537bd2a82e99db49a85fc094dfa0269c95ec70b",
+      "candidate_sha256": "5316875045fd0db6ec672833f537bd2a82e99db49a85fc094dfa0269c95ec70b"
+    },
+    "matter/tools/test_cardboard_stage_resolution_study.py": {
+      "base_sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b",
+      "candidate_bytes_sha256": "6b9a2e9310574b08cef3875fa0c7342bf96ad10d74572f6a709682a9028a7b50",
+      "candidate_sha256": "6b9a2e9310574b08cef3875fa0c7342bf96ad10d74572f6a709682a9028a7b50"
+    }
+  },
+  "native_gpu_run": false,
+  "physical_operator_changed": false,
+  "schema": "numi.cardboard.source242-integrity.v1",
+  "source_change_set_matches_declared": true,
+  "unchanged_source_files": 829
+}

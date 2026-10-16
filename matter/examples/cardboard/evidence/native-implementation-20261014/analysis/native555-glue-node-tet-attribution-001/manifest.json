@@ -1,0 +1,7 @@
+{
+  "files_sha256": {
+    "report.json": "eda5e957824dffe0a8ae2024c1ef9ef24533bae26190d39bef6a31653d2a4a20",
+    "run.py": "d3c30a28b2f113ff26b640f52858d17a2c8ccfb8b14923309f0bb4e009715f54"
+  },
+  "schema": "numi.cardboard.native555-glue-node-tet-attribution-files.v1"
+}

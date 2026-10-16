@@ -165,6 +165,7 @@ enum NMMaterialFlags : nm_u32 {
     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION = 1u << 5u,
     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION = 1u << 6u,
     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION = 1u << 7u,
+    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION = 1u << 8u,
 };
 
 enum NMMaterialProjectionKind : nm_u32 {
@@ -749,6 +750,32 @@ typedef struct NM_ALIGN16 NMDeformableContactLimitTraceGPU {
     // differ from the owner microstep for multirate objects.
     nm_float4 productionExactActionMetadata;
 } NMDeformableContactLimitTraceGPU;
+
+// Optional bounded trace of every alpha tested for one selected deformable
+// contact. These records are diagnostic scratch only and never feed solver
+// state. One environment owns 32 entries, matching the production line-search
+// upper bound.
+typedef struct NM_ALIGN16 NMDeformableContactLimitTrialTraceGPU {
+    // environment, solver iteration, active-list slot, contact arena slot
+    nm_uint4 identity;
+    // attempted, reject/accept reason, CCD hit, CCD certified
+    nm_uint4 outcome;
+    // full tested fraction, initial-touch nonclosing, finite barrier, accepted
+    nm_uint4 guards;
+    // current energy, base directional derivative, start alpha, current separation
+    nm_float4 base;
+    // alpha, trial TOI, trial separation, tested fraction
+    nm_float4 ccd;
+    // Exact certified CCD normal and point at the requested endpoint.
+    nm_float4 ccdNormal;
+    nm_float4 ccdPoint;
+    // trial energy, trial separation, Armijo RHS, reserved
+    nm_float4 energy;
+    // trial weighted direction xyz and its dot with the oriented normal
+    nm_float4 weightedDirection;
+    // Exact four feature endpoints tested by production CCD/barrier logic
+    nm_float4 featureEndpoint[4];
+} NMDeformableContactLimitTrialTraceGPU;
 
 // Compact transaction-owned deformable-contact history. The
 // geometric contact record is rebuilt from current surface primitives on each
@@ -1429,6 +1456,15 @@ typedef struct NM_ALIGN16 NMMatterStatusGPU {
     // minimum J, maximum stress, residual, correction.
     nm_float4 diagnostics;
 } NMMatterStatusGPU;
+
+// Read-only first global nonzero status observed after a named production
+// dispatch. This record never feeds solver, status, history, or rollback state.
+typedef struct NM_ALIGN16 NMMatterFirstFailureCaptureGPU {
+    // present, production dispatch ordinal, phase, control step.
+    nm_uint4 capture;
+    NMMatterStatusGPU status;
+    NMSolverCertificateGPU certificate;
+} NMMatterFirstFailureCaptureGPU;
 
 // Diagnostic-only, bounded snapshot written by nm_fem_status5_capture.
 // The runtime allocates two records per environment: the first global

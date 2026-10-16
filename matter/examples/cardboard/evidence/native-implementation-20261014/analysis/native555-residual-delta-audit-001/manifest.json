@@ -1,0 +1,22 @@
+{
+  "files_sha256": {
+    "README.md": "eb85aa6748604db6788dcd9c1257cc8b65d780654806d0e1cc25d5596f6f977c",
+    "attempt-001.json": "7aac3c38f3257d13e42dafd24bb3b3f8e5ebb41364f200eb6b6aa5103efda4bf",
+    "command.json": "7aabda3155c44a1c5f22ed7931950b4be7efffb0084271a9099e332a3bd2b849",
+    "report.json": "c494a5f24fc0b001cf75640072c29bdaa3befb7053579c61b262eabd9530dbf3",
+    "residual_deltas.npz": "f1845c6e27917ec3734bc9f49ceeea780e9d2381ba4958d35069e271663812cf",
+    "run.py": "02293ab89a69df53bb480856cdcacb98347007f813c00aac0c99b28396202c92"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/bindings.json": "1de645c65e948bfaeb8fab91708f13d64847e8f26a1fbc1f5295381349641c4b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/manifest.json": "c62305cfe8bc2b5476b1d00eecf39f0037e327048d1f0dec4fea698031967bbd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/summary.json": "ba64cd8f2011dfeb4ecaeb16bc3cf87abad9b46fa8fbdda72fa80323c65b359f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_solver_environment.py": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53"
+  },
+  "schema": "native555-residual-delta-audit-001-files.v1"
+}

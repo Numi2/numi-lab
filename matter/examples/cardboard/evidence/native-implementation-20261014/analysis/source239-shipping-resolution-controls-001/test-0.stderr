@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-resolution-controls-239-001/matter/tools/test_cardboard_shipping_resolution_controls.py", line 16, in <module>
+    base=call([])
+  File "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-resolution-controls-239-001/matter/tools/test_cardboard_shipping_resolution_controls.py", line 13, in call
+    assert r.returncode==0,(cmd,r.stdout,r.stderr)
+           ^^^^^^^^^^^^^^^
+AssertionError: (['/Users/n/cardboard-implementation-20261014-host-macmini/build-source239-shipping-resolution-controls-001/matter/numi-matter-cardboard-probe', '--shipping-box', '--shipping-preflight-only', '--validate-only'], '', 'numi-matter-cardboard-probe=failed reason="--output DIR is required"\n')

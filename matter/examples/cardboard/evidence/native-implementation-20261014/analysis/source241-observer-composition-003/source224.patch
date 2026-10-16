@@ -1,0 +1,538 @@
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -1430,6 +1430,15 @@
+     nm_float4 diagnostics;
+ } NMMatterStatusGPU;
+ 
++// Read-only first global nonzero status observed after a named production
++// dispatch. This record never feeds solver, status, history, or rollback state.
++typedef struct NM_ALIGN16 NMMatterFirstFailureCaptureGPU {
++    // present, production dispatch ordinal, phase, control step.
++    nm_uint4 capture;
++    NMMatterStatusGPU status;
++    NMSolverCertificateGPU certificate;
++} NMMatterFirstFailureCaptureGPU;
++
+ // Diagnostic-only, bounded snapshot written by nm_fem_status5_capture.
+ // The runtime allocates two records per environment: the first global
+ // status-5 event and the first private Armijo status-5 event. This is not a
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -8501,6 +8501,27 @@
+             invalidSupportDiagnostics);
+ }
+ 
++kernel void nm_matter_capture_first_failure(
++    device const NMMatterStatusGPU* statuses [[buffer(0)]],
++    device const NMSolverCertificateGPU* certificates [[buffer(1)]],
++    device NMMatterFirstFailureCaptureGPU* captures [[buffer(2)]],
++    constant nm_uint4& context [[buffer(3)]],
++    uint environment [[thread_position_in_grid]]
++) {
++    if (environment >= context.w ||
++        captures[environment].capture.x != 0u) return;
++    const NMMatterStatusGPU observed = statuses[environment];
++    if (observed.code == NM_STATUS_SUCCESS) return;
++    NMMatterFirstFailureCaptureGPU record = {};
++    record.capture.x = 1u;
++    record.capture.y = context.x;
++    record.capture.z = context.y;
++    record.capture.w = context.z;
++    record.status = observed;
++    record.certificate = certificates[environment];
++    captures[environment] = record;
++}
++
+ } // namespace numi_matter_metal
+ 
+ #include "base_cgls.metalinc"
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4556,6 +4556,7 @@
+             "nm_mpm_compact_active_nodes",
+             "nm_fem_internal_forces",
+             "nm_fem_status5_capture",
++            "nm_matter_capture_first_failure",
+             "nm_fem_build_algorithmic_tangent_cache",
+             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
+             "nm_fem_cohesive_face_forces",
+@@ -7949,6 +7950,113 @@
+                     static_cast<std::size_t>(status5CaptureBytes));
+             }
+         }
++        const char* firstFailureRootText =
++            std::getenv("NM_MATTER_FIRST_FAILURE_CAPTURE_ROOT");
++        const char* firstFailurePathText =
++            std::getenv("NM_MATTER_FIRST_FAILURE_CAPTURE_PATH");
++        const char* firstFailureInputPathText =
++            std::getenv("NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_PATH");
++        const char* firstFailureInputHashText =
++            std::getenv("NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_SHA256");
++        const bool firstFailureRequested =
++            firstFailureRootText != nullptr || firstFailurePathText != nullptr ||
++            firstFailureInputPathText != nullptr ||
++            firstFailureInputHashText != nullptr;
++        bool firstFailureRootValid = false;
++        std::uint32_t firstFailureRoot = 0u;
++        if (firstFailureRootText != nullptr && *firstFailureRootText != '\0') {
++            std::uint64_t parsed = 0u;
++            bool digits = true;
++            for (const char* cursor = firstFailureRootText; *cursor != '\0'; ++cursor) {
++                if (*cursor < '0' || *cursor > '9') { digits = false; break; }
++                const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
++                if (parsed > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
++                    digits = false; break;
++                }
++                parsed = parsed * 10u + digit;
++            }
++            if (digits) {
++                firstFailureRoot = static_cast<std::uint32_t>(parsed);
++                firstFailureRootValid = true;
++            }
++        }
++        const bool firstFailureSelected = firstFailureRequested &&
++            firstFailureRootValid && firstFailurePathText != nullptr &&
++            *firstFailurePathText != '\0' &&
++            request.phase == EncodePhase::preDynamics &&
++            request.physicsSubstep == 0u &&
++            request.controlStep == firstFailureRoot;
++        id<MTLBuffer> firstFailureCaptureBuffer = nil;
++        std::string firstFailureCapturePath;
++        std::string firstFailureInputPath;
++        std::string firstFailureInputHash;
++        std::uint64_t firstFailureCaptureBytes = 0u;
++        if (firstFailureRequested) {
++            if (!firstFailureRootValid || firstFailurePathText == nullptr ||
++                *firstFailurePathText == '\0' ||
++                firstFailureInputPathText == nullptr ||
++                *firstFailureInputPathText == '\0' ||
++                firstFailureInputHashText == nullptr ||
++                std::strlen(firstFailureInputHashText) != 64u ||
++                !std::all_of(firstFailureInputHashText,
++                    firstFailureInputHashText + 64u,
++                    [](const char value) {
++                        return (value >= '0' && value <= '9') ||
++                               (value >= 'a' && value <= 'f');
++                    })) {
++                diagnostics.message =
++                    "first-failure capture requires a decimal root, output stem, and lowercase SHA-256 accepted-snapshot binding";
++                return diagnostics;
++            }
++            if (firstFailureSelected) {
++                const std::filesystem::path outputStem(firstFailurePathText);
++                const std::filesystem::path inputPath(firstFailureInputPathText);
++                const std::uint64_t environmentCount =
++                    state.dispatch.environmentCount;
++                if (!outputStem.is_absolute() ||
++                    !std::filesystem::exists(outputStem.parent_path()) ||
++                    !inputPath.is_absolute() ||
++                    !std::filesystem::is_regular_file(inputPath) ||
++                    environmentCount != 1u ||
++                    state.dispatch.objectCount != 1u ||
++                    state.statuses == nil || state.solverCertificates == nil) {
++                    diagnostics.message =
++                        "first-failure capture is outside the one-environment, one-object activation scope";
++                    return diagnostics;
++                }
++                firstFailureCapturePath = outputStem.string();
++                firstFailureInputPath = inputPath.string();
++                firstFailureInputHash = firstFailureInputHashText;
++                if (::access((firstFailureCapturePath + ".bin").c_str(), F_OK) == 0 ||
++                    ::access((firstFailureCapturePath + ".json").c_str(), F_OK) == 0) {
++                    diagnostics.message =
++                        "first-failure capture output already exists; refusing overwrite";
++                    return diagnostics;
++                }
++                firstFailureCaptureBytes =
++                    environmentCount * sizeof(NMMatterFirstFailureCaptureGPU);
++                if (firstFailureCaptureBytes == 0u ||
++                    firstFailureCaptureBytes > 1024u * 1024u ||
++                    firstFailureCaptureBytes >
++                        std::numeric_limits<NSUInteger>::max()) {
++                    diagnostics.message =
++                        "first-failure capture exceeds its one-MiB bound";
++                    return diagnostics;
++                }
++                firstFailureCaptureBuffer = [state.device
++                    newBufferWithLength:
++                        static_cast<NSUInteger>(firstFailureCaptureBytes)
++                    options:MTLResourceStorageModeShared];
++                if (firstFailureCaptureBuffer == nil ||
++                    firstFailureCaptureBuffer.contents == nullptr) {
++                    diagnostics.message =
++                        "first-failure capture buffer allocation failed";
++                    return diagnostics;
++                }
++                std::memset(firstFailureCaptureBuffer.contents, 0,
++                    static_cast<std::size_t>(firstFailureCaptureBytes));
++            }
++        }
+         // Parse once: endpoint certification and trial scope must select
+         // exactly the same transactions, including the every-step mode.
+         const char* boxArmijoSelector = std::getenv(
+@@ -8986,6 +9094,40 @@
+                          offset:0u atIndex:index];
+         };
+ 
++        std::uint32_t firstFailureDispatchOrdinal = 0u;
++        std::vector<std::string> firstFailureDispatchNames;
++        bool firstFailureDispatchMapOverflow = false;
++        if (firstFailureSelected) firstFailureDispatchNames.reserve(256u);
++        const auto observeFirstFailureAfterDispatch = [&](const char* name) {
++            if (!firstFailureSelected) return;
++            constexpr std::size_t kMaximumDispatchNames = 32768u;
++            if (firstFailureDispatchNames.size() >= kMaximumDispatchNames) {
++                firstFailureDispatchMapOverflow = true;
++                return;
++            }
++            const std::uint32_t ordinal = firstFailureDispatchOrdinal;
++            firstFailureDispatchNames.emplace_back(name);
++            nm_uint4 context{};
++            context.x = ordinal;
++            context.y = static_cast<std::uint32_t>(request.phase);
++            context.z = request.controlStep;
++            context.w = state.dispatch.environmentCount;
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            id<MTLComputePipelineState> firstFailurePipeline =
++                state.pipeline("nm_matter_capture_first_failure");
++            [encoder setComputePipelineState:firstFailurePipeline];
++            [encoder setBuffer:state.statuses offset:0u atIndex:0u];
++            [encoder setBuffer:state.solverCertificates offset:0u atIndex:1u];
++            [encoder setBuffer:firstFailureCaptureBuffer offset:0u atIndex:2u];
++            [encoder setBytes:&context length:sizeof(context) atIndex:3u];
++            const NSUInteger observerWidth = std::min<NSUInteger>(
++                32u, firstFailurePipeline.maxTotalThreadsPerThreadgroup);
++            [encoder dispatchThreads:MTLSizeMake(
++                state.dispatch.environmentCount, 1u, 1u)
++                threadsPerThreadgroup:MTLSizeMake(observerWidth, 1u, 1u)];
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            ++firstFailureDispatchOrdinal;
++        };
+         const auto dispatchThreads = [&](
+             const char* name,
+             const NSUInteger count,
+@@ -9006,6 +9148,7 @@
+             );
+             [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++            observeFirstFailureAfterDispatch(name);
+         };
+         const auto captureStatus5 = [&](const std::uint32_t stageID,
+             const std::uint32_t domain, const std::uint32_t indexKind,
+@@ -9069,6 +9212,7 @@
+             bind();
+             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
++            observeFirstFailureAfterDispatch(name);
+             if (profileDense) {
+                 [encoder endEncoding];
+                 encoder = detail::timedEncoder(commandBuffer, state.device,
+@@ -9093,6 +9237,7 @@
+             bind();
+             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
++            observeFirstFailureAfterDispatch(name);
+         };
+         const auto dispatchIndirect = [&](
+             const char* name,
+@@ -9113,6 +9258,7 @@
+                 dispatchThreadgroupsWithIndirectBuffer:indirect
+                 indirectBufferOffset:0u
+                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++            observeFirstFailureAfterDispatch(name);
+             return true;
+         };
+         const auto setDispatch = [&]() {
+@@ -27115,6 +27261,156 @@
+                     capturedRoot, present, jsonQuoted(manifestPath).c_str());
+             }];
+         }
++        if (firstFailureSelected && firstFailureCaptureBuffer != nil) {
++            const auto captureBuffer = firstFailureCaptureBuffer;
++            const std::string captureStem = firstFailureCapturePath;
++            const std::string acceptedSnapshotPath = firstFailureInputPath;
++            const std::string acceptedSnapshotSHA256 = firstFailureInputHash;
++            const std::uint64_t payloadBytes = firstFailureCaptureBytes;
++            const std::uint32_t capturedRoot = request.controlStep;
++            const std::uint32_t capturedSubstep = request.physicsSubstep;
++            const std::uint32_t capturedPhase =
++                static_cast<std::uint32_t>(request.phase);
++            const std::uint64_t capturedEnvironments =
++                state.dispatch.environmentCount;
++            const std::uint64_t capturedSourceFingerprint =
++                state.sourcePhysicsFingerprint;
++            const std::uint64_t capturedWorldFingerprint = state.worldFingerprint;
++            const std::uint64_t capturedExecutionFingerprint =
++                state.executionFingerprint;
++            const std::uint64_t capturedDeviceRegistry = state.device.registryID;
++            const std::string capturedDeviceName = nsString(state.device.name);
++            const std::vector<std::string> capturedDispatchNames =
++                firstFailureDispatchNames;
++            const bool capturedDispatchMapOverflow =
++                firstFailureDispatchMapOverflow;
++            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                if (completed.status != MTLCommandBufferStatusCompleted ||
++                    captureBuffer.contents == nullptr ||
++                    capturedDispatchMapOverflow) {
++                    std::fprintf(stderr,
++                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"command_not_completed_or_dispatch_map_incomplete\"}\n",
++                        capturedRoot);
++                    return;
++                }
++                const void* payload = captureBuffer.contents;
++                const std::string payloadHash = sha256Hex(
++                    payload, static_cast<std::size_t>(payloadBytes));
++                const std::string binaryPath = captureStem + ".bin";
++                const std::string manifestPath = captureStem + ".json";
++                const int binaryFD = ::open(binaryPath.c_str(),
++                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                if (binaryFD < 0) {
++                    std::fprintf(stderr,
++                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                const bool binaryWritten = writeAllBytes(binaryFD, payload,
++                    static_cast<std::size_t>(payloadBytes));
++                const int binaryClose = ::close(binaryFD);
++                if (!binaryWritten || binaryClose != 0) {
++                    ::unlink(binaryPath.c_str());
++                    std::fprintf(stderr,
++                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_write_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                const auto* records = static_cast<
++                    const NMMatterFirstFailureCaptureGPU*>(payload);
++                std::uint32_t present = 0u;
++                for (std::uint64_t e = 0u; e < capturedEnvironments; ++e)
++                    present += records[e].capture.x != 0u ? 1u : 0u;
++                std::ostringstream json;
++                json << "{\"schema\":\"numi.matter.first_global_failure_after_dispatch.v1\""
++                    << ",\"capture_point\":\"after_each_production_dispatch_before_next_dispatch\""
++                    << ",\"semantics\":\"first_nonzero_global_status_observed; private_transient_failures_not_captured\""
++                    << ",\"control_step\":" << capturedRoot
++                    << ",\"physics_substep\":" << capturedSubstep
++                    << ",\"phase\":" << capturedPhase
++                    << ",\"environment_count\":" << capturedEnvironments
++                    << ",\"record_bytes\":" << sizeof(NMMatterFirstFailureCaptureGPU)
++                    << ",\"payload_bytes\":" << payloadBytes
++                    << ",\"records_present\":" << present
++                    << ",\"accepted_snapshot\":{\"path\":"
++                    << jsonQuoted(acceptedSnapshotPath) << ",\"sha256\":"
++                    << jsonQuoted(acceptedSnapshotSHA256) << '}'
++                    << ",\"source_physics_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedSourceFingerprint))
++                    << ",\"world_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedWorldFingerprint))
++                    << ",\"device_program_fingerprint\":"
++                    << jsonQuoted(hexU64(capturedExecutionFingerprint))
++                    << ",\"device\":{\"name\":"
++                    << jsonQuoted(capturedDeviceName)
++                    << ",\"registry_id\":" << capturedDeviceRegistry << '}'
++                    << ",\"dispatch_name_map_count\":"
++                    << capturedDispatchNames.size()
++                    << ",\"records\":[";
++                bool first = true;
++                for (std::uint64_t e = 0u; e < capturedEnvironments; ++e) {
++                    const auto& r = records[e];
++                    if (!r.capture.x) continue;
++                    if (!first) json << ',';
++                    first = false;
++                    const std::string pipeline =
++                        r.capture.y < capturedDispatchNames.size()
++                            ? capturedDispatchNames[r.capture.y]
++                            : std::string("unmapped_dispatch_ordinal");
++                    json << "{\"environment\":" << e
++                        << ",\"dispatch_ordinal\":" << r.capture.y
++                        << ",\"pipeline\":" << jsonQuoted(pipeline)
++                        << ",\"status_code\":" << r.status.code
++                        << ",\"object_index\":" << r.status.objectIndex
++                        << ",\"failing_index\":" << r.status.failingIndex
++                        << ",\"completed_microsteps\":" << r.status.completedMicrosteps
++                        << ",\"fgmres_iterations\":" << r.status.fgmresIterations
++                        << ",\"contact_count\":" << r.status.contactCount
++                        << ",\"status_diagnostics\":["
++                        << jsonFloat32Token(r.status.diagnostics.x) << ','
++                        << jsonFloat32Token(r.status.diagnostics.y) << ','
++                        << jsonFloat32Token(r.status.diagnostics.z) << ','
++                        << jsonFloat32Token(r.status.diagnostics.w) << ']'
++                        << ",\"certificate_nonlinear\":["
++                        << jsonFloat32Token(r.certificate.nonlinear.x) << ','
++                        << jsonFloat32Token(r.certificate.nonlinear.y) << ','
++                        << jsonFloat32Token(r.certificate.nonlinear.z) << ','
++                        << jsonFloat32Token(r.certificate.nonlinear.w) << ']'
++                        << ",\"certificate_validity\":["
++                        << jsonFloat32Token(r.certificate.validity.x) << ','
++                        << jsonFloat32Token(r.certificate.validity.y) << ','
++                        << jsonFloat32Token(r.certificate.validity.z) << ','
++                        << jsonFloat32Token(r.certificate.validity.w) << "]}";
++                }
++                json << "],\"payload\":{\"path\":" << jsonQuoted(binaryPath)
++                    << ",\"sha256\":" << jsonQuoted(payloadHash) << "}}\n";
++                const std::string manifestText = json.str();
++                const int manifestFD = ::open(manifestPath.c_str(),
++                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                if (manifestFD < 0) {
++                    const int savedErrno = errno;
++                    ::unlink(binaryPath.c_str());
++                    std::fprintf(stderr,
++                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
++                        capturedRoot, savedErrno);
++                    return;
++                }
++                const bool manifestWritten = writeAllBytes(manifestFD,
++                    manifestText.data(), manifestText.size());
++                const int manifestClose = ::close(manifestFD);
++                if (!manifestWritten || manifestClose != 0) {
++                    ::unlink(binaryPath.c_str());
++                    ::unlink(manifestPath.c_str());
++                    std::fprintf(stderr,
++                        "matter_first_failure_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_write_failed\",\"errno\":%d}\n",
++                        capturedRoot, errno);
++                    return;
++                }
++                std::fprintf(stderr,
++                    "matter_first_failure_capture_complete={\"schema\":1,\"root\":%u,\"records_present\":%u,\"manifest\":%s}\n",
++                    capturedRoot, present, jsonQuoted(manifestPath).c_str());
++            }];
++        }
+         if (firstEncodeForCommandBuffer) {
+             ownership->activeCommandBuffer = request.commandBuffer;
+             const std::weak_ptr<State::CommandOwnership> weakOwnership =
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -70,12 +70,49 @@
+ std::uint32_t authoredNewtonIterations = 0u;
+ 
+ std::string diagnosticStateOutputPath;
++std::uint32_t firstFailureDispatchCaptureRoot = NM_INVALID_INDEX;
+ std::string tiledParityCurrentStage = "not_started";
+ 
+ std::string indexedDiagnosticStem(const std::uint64_t index) {
+     std::ostringstream stem;
+     stem << "transaction-" << std::setw(6) << std::setfill('0') << index;
+     return stem.str();
++}
++
++std::string sha256DiagnosticFile(const std::filesystem::path& path) {
++    std::ifstream input(path, std::ios::binary);
++    if (!input.good())
++        throw std::runtime_error("could not open accepted-state input for SHA-256");
++    CC_SHA256_CTX context{};
++    if (CC_SHA256_Init(&context) != 1)
++        throw std::runtime_error("could not initialize accepted-state SHA-256");
++    std::array<unsigned char, 1u << 16u> chunk{};
++    std::uint64_t total = 0u;
++    while (input) {
++        input.read(reinterpret_cast<char*>(chunk.data()),
++                   static_cast<std::streamsize>(chunk.size()));
++        const std::streamsize count = input.gcount();
++        if (count <= 0) break;
++        total += static_cast<std::uint64_t>(count);
++        if (total > (1ull << 30u))
++            throw std::runtime_error("accepted-state input exceeds one-GiB hash bound");
++        if (CC_SHA256_Update(&context, chunk.data(),
++                    static_cast<CC_LONG>(count)) != 1)
++            throw std::runtime_error("accepted-state SHA-256 update failed");
++    }
++    if (!input.eof())
++        throw std::runtime_error("accepted-state input read failed");
++    std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
++    if (CC_SHA256_Final(digest.data(), &context) != 1)
++        throw std::runtime_error("accepted-state SHA-256 finalization failed");
++    constexpr char hex[] = "0123456789abcdef";
++    std::string result;
++    result.reserve(digest.size() * 2u);
++    for (const unsigned char value : digest) {
++        result.push_back(hex[value >> 4u]);
++        result.push_back(hex[value & 15u]);
++    }
++    return result;
+ }
+ 
+ void writeRawDiagnosticSnapshot(const std::filesystem::path& path,
+@@ -4418,10 +4455,43 @@
+             "free-body activation command or zero-wrench buffer is unavailable");
+ 
+     const std::string traceSelector = std::to_string(controlStep);
++    const bool captureFirstFailure =
++        firstFailureDispatchCaptureRoot == controlStep;
++    if (captureFirstFailure && diagnosticStateOutput == nullptr)
++        throw std::runtime_error(
++            "first-failure dispatch capture requires accepted-state diagnostic output");
++    std::string firstFailurePath;
++    std::string acceptedSnapshotPath;
++    std::string acceptedSnapshotSHA256;
++    if (captureFirstFailure) {
++        acceptedSnapshotPath =
++            (std::filesystem::path(diagnosticStateOutputPath) /
++             (indexedDiagnosticStem(diagnosticIndex) + "-before.bin")).string();
++        if (!std::filesystem::is_regular_file(acceptedSnapshotPath))
++            throw std::runtime_error(
++                "first-failure accepted-state input is missing");
++        acceptedSnapshotSHA256 = sha256DiagnosticFile(acceptedSnapshotPath);
++        firstFailurePath =
++            (std::filesystem::path(diagnosticStateOutputPath) /
++             (indexedDiagnosticStem(diagnosticIndex) + "-first-failure")).string();
++    }
++    const std::string acceptedSnapshotRoot = std::to_string(controlStep);
+     numi::cardboard::ShippingRigidWorldRunner::StepResult activationStep;
+     {
+         ScopedEnvironmentValue trialTrace(
+             "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", traceSelector.c_str());
++        ScopedEnvironmentValue failureRoot(
++            "NM_MATTER_FIRST_FAILURE_CAPTURE_ROOT",
++            captureFirstFailure ? acceptedSnapshotRoot.c_str() : nullptr);
++        ScopedEnvironmentValue failurePath(
++            "NM_MATTER_FIRST_FAILURE_CAPTURE_PATH",
++            captureFirstFailure ? firstFailurePath.c_str() : nullptr);
++        ScopedEnvironmentValue failureInputPath(
++            "NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_PATH",
++            captureFirstFailure ? acceptedSnapshotPath.c_str() : nullptr);
++        ScopedEnvironmentValue failureInputHash(
++            "NM_MATTER_FIRST_FAILURE_ACCEPTED_SNAPSHOT_SHA256",
++            captureFirstFailure ? acceptedSnapshotSHA256.c_str() : nullptr);
+         StderrCapture capture;
+         activationStep = runner.step(
+             std::span<const MRBodyStateGPU>(runner.sceneBodies().data(),
+@@ -5937,7 +6007,7 @@
+     @autoreleasepool {
+         try {
+             require(argc >= 2,
+-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
++                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
+             bool cpuOnly = false;
+             bool overflow = false;
+             bool prescribedBoxOverflow = false;
+@@ -5998,6 +6068,20 @@
+                 else if (option == "--accurate-paper") accuratePaper = true;
+                 else if (option == "--compensated-material-arithmetic")
+                     compensatedMaterialArithmetic = true;
++                else if (option == "--first-failure-dispatch-root") {
++                    require(index + 1 < argc, "missing first-failure dispatch control");
++                    const std::string value(argv[++index]);
++                    require(!value.empty() && std::all_of(value.begin(), value.end(),
++                        [](const char c) { return c >= '0' && c <= '9'; }),
++                        "first-failure dispatch control must be an integer");
++                    const unsigned long parsed = std::stoul(value);
++                    require(parsed < NM_INVALID_INDEX,
++                        "first-failure dispatch control is outside the supported range");
++                    require(firstFailureDispatchCaptureRoot == NM_INVALID_INDEX,
++                        "first-failure dispatch control was specified more than once");
++                    firstFailureDispatchCaptureRoot =
++                        static_cast<std::uint32_t>(parsed);
++                }
+                 else if (option == "--diagnostic-state-output") {
+                     require(index + 1 < argc, "missing diagnostic state output directory");
+                     require(diagnosticStateOutputPath.empty(),
+@@ -6130,6 +6214,9 @@
+                     "diagnostic state output is supported only for retained contact parity or overflow modes");
+             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
+                     "diagnostic state export requires a native transaction run");
++            require(firstFailureDispatchCaptureRoot == NM_INVALID_INDEX ||
++                        (sparseFreeBodyParity && !diagnosticStateOutputPath.empty()),
++                    "first-failure dispatch capture requires sparse free-body parity and diagnostic state output");
+             // This parity fixture owns its numerical setup. The same material
+             // policy and solver budgets are applied to both legacy and tiled
+             // arms so that the comparison reaches the tiled force path under

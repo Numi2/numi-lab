@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.refined-native-components.v1",
+  "results": [
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-cgls-579",
+      "exit_code": 0,
+      "receipt_sha256": "fea014f273dbb822028bf11238ee5a4dd8d1827c044ba5a86d43d9433f96e27a"
+    },
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/maximum-coupon-cgls-580",
+      "exit_code": 0,
+      "receipt_sha256": "fe6f11c5de0f5d30c90e1a082bdab609fc064cdd3c3473d35f9856a1fc4e4fe7"
+    },
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-coupon-true-residual-581",
+      "exit_code": 0,
+      "receipt_sha256": "69cf39ed0d539be4f9d56fa56fb8f15eff38e86c44dbab812bda6584c2036806"
+    },
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/refined-regional-native-regression-582",
+      "exit_code": 0,
+      "receipt_sha256": "8bd047dcb5f25fe744ed92da3fe4dce307febe66081724e147da6ec6b883f3a3"
+    }
+  ],
+  "all_pass": true,
+  "gpu_workers": 1,
+  "at_utc": "2026-10-16T12:54:58.851504+00:00"
+}

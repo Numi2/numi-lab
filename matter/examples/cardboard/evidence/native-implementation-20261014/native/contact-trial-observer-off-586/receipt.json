@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.contact-trial-observer-receipt.v1",
+  "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/contact-trial-observer-off-586",
+  "exit_code": 1,
+  "timed_out": false,
+  "wall_seconds": 2.5261963329999997,
+  "all_inputs_unchanged": true,
+  "stdout_sha256": "1e8a90ecd208eafd425a43b4f5d39b0d319af8f059773f000c505f946a22910d",
+  "stderr_sha256": "e341d326f69b3bb6d1e009cd95560a49ed671a52d526234bf88dcc5750a42846",
+  "at_utc": "2026-10-16T13:05:18.158716+00:00",
+  "shipping_qualified": false
+}

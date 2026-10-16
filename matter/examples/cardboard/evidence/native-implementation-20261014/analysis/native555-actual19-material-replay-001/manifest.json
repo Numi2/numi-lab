@@ -1,0 +1,38 @@
+{
+  "files_sha256": {
+    "attempt-001.json": "a6e832640710c4578dda2e731874196094136eb82f7ca7614f39a5ebd02c00e8",
+    "attempt-002.json": "0fa41c2cbbc5f4b352e8bba838a586aaedcfa2de01af57e1d22518d135a9efd8",
+    "bindings.json": "1de645c65e948bfaeb8fab91708f13d64847e8f26a1fbc1f5295381349641c4b",
+    "environment-0/arrays.npz": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "environment-0/report.json": "f8d35f5d71a9355bc4506287a1faca15f8abebdc13dbc66ce4e17280d09a44a0",
+    "environment-1/arrays.npz": "9df7212d573e4fa3f2abe0ff408a4f489c1023a938bc79e5d7db3664664bbf57",
+    "environment-1/report.json": "bfbbc6583fc41cc4e99055fa33b9a5b30889c7568821c35a74d26574c904a7bc",
+    "run.py": "aeb57b298e7d0084a4dddabe0cd92a01fe93421cf781fab8db53152ef0cf0188",
+    "run002.py": "e75a0f7581b6b4f8aed21410b4248f3a07cdb40ff5488ac406bf465fe68c1dd0",
+    "run003.py": "0e0fb3ee19cf486ac23f95d06fa0e6d444e7e80b472f845ac18f267f6e44f1a9",
+    "summary.json": "ba64cd8f2011dfeb4ecaeb16bc3cf87abad9b46fa8fbdda72fa80323c65b359f"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source221-checkpoint-proof-003/source-build.json": "66652297bd3af8707e9999724dec12fc8994ad88ee17904bd10f0e79f4a1d677",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/frozen-source.json": "fb885540a2f096ee70df5a03701a8d2710832c6df402e8e097ff95c736e7c1a5",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/tools/cardboard_solver_environment.py": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_base.py": "b135c6ff0091f0833c8dad89239abdde209fc6e0eb91babeb72313b29a88bb6c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_dd_fp64.py": "8edfd60beb2c38d181a08023d9f97bea0fec80b0f6fa04f8690c7dfe234330c2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/output/compiled.nmatterpack": "7b4df5b67bacfd579e3ce4b6776457f581cfb3240cbc70552b5d5c716f987be1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/output/coupon-resume-segment.json": "f57d4b8f72af9ecf0a1e55cd8b236fb54346b3c0d633acdfb4982eb8e5bc3025",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/output/manifest.json": "c89876bd2493ba74971d6612bad24541af981667ef47013108de3660eab12e74",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/output/result.json": "6baabd23175a5a883164ccda44c84f9f545da1d9c7992f11c57ef760f531cde6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/prediction.json": "ca508e41b191c1e7a9843e82dda26d3c5269b18b5347b7beb71cee7ec32f7a7d",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/receipt.json": "944d476a6dcc86075fa3650a5c04314677e9a3651d02f1842a6087c4c5f6dbe4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/stderr.log": "3dd7f39801327175c20a825bfac13ada5189c31901f82873e3ddf1321b9a5f18"
+  },
+  "schema": "numi.cardboard.native555-material-replay-files.v1"
+}

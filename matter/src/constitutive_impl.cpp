@@ -1145,7 +1145,8 @@ ConstitutiveCompileResult compileConstitutive(
     if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
         material.paperHillAccurateProjection ||
         material.genericCompensatedImplicitProjection ||
-        material.genericBilinear15AccurateProjection) {
+        material.genericBilinear15AccurateProjection ||
+        material.genericBilinear15StrictStateCertification) {
         const std::array<std::string_view,20> parameters{"density","c11","c22","c33",
             "c12","c13","c23","g12","g13","g23","sigma_ref","hill_F","hill_G",
             "hill_H","hill_L","hill_M","hill_N","q_floor","fb_epsilon","residual_scale"};
@@ -1249,6 +1250,8 @@ ConstitutiveCompileResult compileConstitutive(
         if((material.genericCompensatedImplicitProjection &&
                 !genericProjectionLayout) ||
            (material.genericBilinear15AccurateProjection && !bilinear15AccurateLayout) ||
+           (material.genericBilinear15StrictStateCertification &&
+            (!material.genericBilinear15AccurateProjection || !bilinear15AccurateLayout)) ||
            ((material.paperHillScalarInitializer ||
              material.paperCompensatedArithmetic ||
              material.paperHillAccurateProjection) &&
@@ -1527,7 +1530,9 @@ ConstitutiveCompileResult compileConstitutive(
         (material.genericCompensatedImplicitProjection
             ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u) |
         (material.genericBilinear15AccurateProjection
-            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u);
+            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u) |
+        (material.genericBilinear15StrictStateCertification
+            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
@@ -1688,6 +1693,10 @@ ConstitutiveCompileResult compileConstitutive(
     }
     if(material.genericBilinear15AccurateProjection) {
         const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if(material.genericBilinear15StrictStateCertification) {
+        const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
     }
     if (result.program.dissipation.has_value()) {

@@ -8233,6 +8233,8 @@ kernel void nm_contact_limit_deformable_line_search(
     device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
     constant uint& fullResidualArmijoEnabled [[buffer(20)]],
+    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
+    constant uint& trialTraceContactSlot [[buffer(22)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -8254,7 +8256,14 @@ kernel void nm_contact_limit_deformable_line_search(
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
         const float laneBoundBefore = bound;
         NMDeformableContactLimitTraceGPU traceRecord;
-        const bool captureTrace = activeSlot < traceSlotsPerEnvironment;
+        const bool selectedTrialTraceContact =
+            trialTraceContactSlot != NM_INVALID_INDEX &&
+            slot == trialTraceContactSlot;
+        const uint traceRecordSlot =
+            trialTraceContactSlot != NM_INVALID_INDEX ? 0u : activeSlot;
+        const bool captureTrace = selectedTrialTraceContact ||
+            (trialTraceContactSlot == NM_INVALID_INDEX &&
+             activeSlot < traceSlotsPerEnvironment);
         if (captureTrace) {
             traceRecord = {};
             traceRecord.contact = contact;
@@ -8274,10 +8283,20 @@ kernel void nm_contact_limit_deformable_line_search(
             traceRecord.lineSearch = float4(
                 laneBoundBefore, laneBoundBefore, existing, 1.0f);
             traceRecord.result = uint4(activeSlot, slot, 0u, 0u);
-            traceRecord.diagnostic = uint4(1u, 0u, 0u, 0u);
+            traceRecord.diagnostic = uint4(
+                1u, 0u, 0u,
+                selectedTrialTraceContact ? microstep.solverIteration : 0u);
             for (uint feature = 0u; feature < 4u; ++feature) {
                 traceRecord.featureStart[feature] = float4(0.0f);
                 traceRecord.featureEnd[feature] = float4(0.0f);
+            }
+        }
+        if (selectedTrialTraceContact) {
+            for (uint traceTrial = 0u; traceTrial < 32u; ++traceTrial) {
+                const uint traceIndex = environment * 32u + traceTrial;
+                trialTraceRecords[traceIndex] = {};
+                trialTraceRecords[traceIndex].identity = uint4(
+                    environment, microstep.solverIteration, activeSlot, slot);
             }
         }
         float3 weightedPosition = float3(0.0f);
@@ -8392,7 +8411,7 @@ kernel void nm_contact_limit_deformable_line_search(
             if (captureTrace) {
                 traceRecord.lineSearch.y = bound;
                 traceRecords[environment * traceSlotsPerEnvironment +
-                             activeSlot] = traceRecord;
+                             traceRecordSlot] = traceRecord;
             }
             continue;
         }
@@ -8442,7 +8461,7 @@ kernel void nm_contact_limit_deformable_line_search(
             if (captureTrace) {
                 traceRecord.lineSearch.y = bound;
                 traceRecords[environment * traceSlotsPerEnvironment +
-                             activeSlot] = traceRecord;
+                             traceRecordSlot] = traceRecord;
             }
             continue;
         }
@@ -8499,7 +8518,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 traceRecord.result.w = certified ? 1u : 0u;
                 traceRecord.lineSearch.y = bound;
                 traceRecords[environment * traceSlotsPerEnvironment +
-                             activeSlot] = traceRecord;
+                             traceRecordSlot] = traceRecord;
             }
             continue;
         }
@@ -8572,7 +8591,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 traceRecord.result.w = certified ? 1u : 0u;
                 traceRecord.lineSearch.y = bound;
                 traceRecords[environment * traceSlotsPerEnvironment +
-                             activeSlot] = traceRecord;
+                             traceRecordSlot] = traceRecord;
             }
             continue;
         }
@@ -8699,6 +8718,24 @@ kernel void nm_contact_limit_deformable_line_search(
                         for (uint feature = 0u; feature < 4u; ++feature)
                             trialPosition[feature] = trialNodePosition[feature];
                     }
+                    const uint trialTraceIndex = environment * 32u + trial;
+                    const bool captureThisTrial =
+                        selectedTrialTraceContact && trial < 32u;
+                    if (captureThisTrial) {
+                        trialTraceRecords[trialTraceIndex] = {};
+                        trialTraceRecords[trialTraceIndex].identity = uint4(
+                            environment, microstep.solverIteration, activeSlot, slot);
+                        trialTraceRecords[trialTraceIndex].outcome = uint4(1u, 0u, 0u, 0u);
+                        trialTraceRecords[trialTraceIndex].base = float4(
+                            currentEnergy, directionalDerivative, startAlpha,
+                            currentSeparation);
+                        for (uint feature = 0u; feature < 4u; ++feature)
+                            trialTraceRecords[trialTraceIndex].featureEndpoint[feature] =
+                                float4(trialPosition[feature], 1.0f);
+                        trialTraceRecords[trialTraceIndex].weightedDirection =
+                            float4(trialWeightedDirection,
+                                dot(contact.normalAndTOI.xyz, trialWeightedDirection));
+                    }
                     float trialTOI = 1.0f;
                     float3 trialNormal = float3(0.0f);
                     float3 trialPoint = float3(0.0f);
@@ -8712,11 +8749,30 @@ kernel void nm_contact_limit_deformable_line_search(
                             collisionThickness, trialTOI, trialNormal,
                             trialPoint, trialCCDSeparation, trialCertified,
                             trialTestedFraction, trialShortenedRetries);
+                    if (captureThisTrial) {
+                        trialTraceRecords[trialTraceIndex].outcome.z = trialHit ? 1u : 0u;
+                        trialTraceRecords[trialTraceIndex].outcome.w = trialCertified ? 1u : 0u;
+                        trialTraceRecords[trialTraceIndex].ccd = float4(
+                            alpha, trialTOI, trialCCDSeparation, trialTestedFraction);
+                        trialTraceRecords[trialTraceIndex].ccdNormal =
+                            float4(trialNormal, 0.0f);
+                        trialTraceRecords[trialTraceIndex].ccdPoint =
+                            float4(trialPoint, 0.0f);
+                        trialTraceRecords[trialTraceIndex].guards.x =
+                            trialTestedFraction == 1.0f ? 1u : 0u;
+                    }
                     // This is a certificate for this exact rounded alpha
                     // endpoint. A shortened chord is not a certificate for
                     // the requested trial and must not be promoted.
                     if (!trialCertified || trialTestedFraction != 1.0f ||
-                        !isfinite(trialTOI)) continue;
+                        !isfinite(trialTOI)) {
+                        if (captureThisTrial)
+                            trialTraceRecords[trialTraceIndex].outcome.y =
+                                !trialCertified ? 1u :
+                                trialTestedFraction != 1.0f ? 2u : 3u;
+                        continue;
+                    }
+                    bool trialInitialTouchNonclosing = !trialHit;
                     if (trialHit) {
                         float trialCoordinateScale = coordinateScale;
                         for (uint feature = 0u; feature < 4u; ++feature)
@@ -8735,11 +8791,20 @@ kernel void nm_contact_limit_deformable_line_search(
                             16.0f * kEpsilon * max(
                                 length(trialWeightedDirection),
                                 collisionThickness);
-                        const bool initialTouchNonclosing = initialTouch &&
+                        trialInitialTouchNonclosing = initialTouch &&
                             dot(contact.normalAndTOI.xyz,
                                 trialWeightedDirection) >=
                                     -directionalRoundoff;
-                        if (!initialTouchNonclosing) continue;
+                        if (!trialInitialTouchNonclosing) {
+                            if (captureThisTrial) {
+                                trialTraceRecords[trialTraceIndex].outcome.y = 4u;
+                                trialTraceRecords[trialTraceIndex].weightedDirection =
+                                    float4(trialWeightedDirection,
+                                        dot(contact.normalAndTOI.xyz,
+                                            trialWeightedDirection));
+                            }
+                            continue;
+                        }
                     }
                     float trialEnergy;
                     float trialSeparation;
@@ -8747,17 +8812,38 @@ kernel void nm_contact_limit_deformable_line_search(
                         contact, trialPosition, trialEnergy, trialSeparation);
                     const float armijoRight = currentEnergy +
                         1.0e-4f * alpha * directionalDerivative;
+                    const bool trialArmijoAccepted = finiteTrial &&
+                        (femFeasibilityOnly || trialEnergy <= armijoRight);
+                    if (captureThisTrial) {
+                        trialTraceRecords[trialTraceIndex].guards.y =
+                            trialInitialTouchNonclosing ? 1u : 0u;
+                        trialTraceRecords[trialTraceIndex].guards.z =
+                            finiteTrial ? 1u : 0u;
+                        trialTraceRecords[trialTraceIndex].guards.w =
+                            trialArmijoAccepted ? 1u : 0u;
+                        trialTraceRecords[trialTraceIndex].energy = float4(
+                            finiteTrial ? trialEnergy : NAN,
+                            finiteTrial ? trialSeparation : NAN,
+                            armijoRight, 0.0f);
+                        trialTraceRecords[trialTraceIndex].weightedDirection =
+                            float4(trialWeightedDirection,
+                                dot(contact.normalAndTOI.xyz,
+                                    trialWeightedDirection));
+                    }
                     // In the opted-in FEM/full-residual path, this pass
                     // only establishes exact-endpoint finiteness and full CCD
                     // feasibility. The private full-contact trial below
                     // rechecks its own exact swept endpoint and owns the
                     // coupled residual acceptance decision. MPM and mixed
                     // FEM/MPM contacts retain per-feature energy Armijo.
-                    if (finiteTrial &&
-                        (femFeasibilityOnly || trialEnergy <= armijoRight)) {
+                    if (trialArmijoAccepted) {
+                        if (captureThisTrial)
+                            trialTraceRecords[trialTraceIndex].outcome.y = 7u;
                         armijoAlpha = alpha;
                         break;
                     }
+                    if (captureThisTrial)
+                        trialTraceRecords[trialTraceIndex].outcome.y = !finiteTrial ? 5u : 6u;
                 }
                 if (!(armijoAlpha > 0.0f)) {
                     recordFailure(
@@ -8776,8 +8862,11 @@ kernel void nm_contact_limit_deformable_line_search(
             traceRecord.metrics = float4(
                 collisionThickness, toi, ccdSeparation, bound);
             traceRecord.lineSearch.y = bound;
+            if (selectedTrialTraceContact &&
+                traceRecord.diagnostic.y == 6u)
+                traceRecord.diagnostic.w = microstep.solverIteration;
             traceRecords[environment * traceSlotsPerEnvironment +
-                         activeSlot] = traceRecord;
+                         traceRecordSlot] = traceRecord;
         }
     }
     bound = simd_min(bound);

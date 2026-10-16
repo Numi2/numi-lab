@@ -1,0 +1,34 @@
+[
+  {
+    "stage": "source224",
+    "changed": [
+      "matter/include/numi/matter/shared.h",
+      "matter/src/metal/fgmres.metalinc",
+      "matter/src/runtime.mm",
+      "matter/tools/cardboard_full_contact_armijo_check.mm"
+    ],
+    "patch_sha256": "a4d029949a328e99219654c51318e2d4e312c28fa7b8d38278a31908ad0d3a5a",
+    "check_exit_code": 0
+  },
+  {
+    "stage": "source233",
+    "changed": [
+      "matter/src/runtime.mm"
+    ],
+    "patch_sha256": "2041d88749c0cbc07e18bec1f5afe044faf1b125e7001c27ad6a317746645645",
+    "check_exit_code": 0
+  },
+  {
+    "stage": "source236001",
+    "changed": [
+      "matter/include/numi/matter/shared.h",
+      "matter/src/metal/contact.metalinc",
+      "matter/src/runtime.mm",
+      "matter/tools/cardboard_probe.mm",
+      "matter/tools/cardboard_solver_environment.py",
+      "matter/tools/test_cardboard_solver_environment.py"
+    ],
+    "patch_sha256": "a56c297db0ded33aaeb5b1fb398ae21897c37c758fc24cfbca4fdaa1d238c1e5",
+    "check_exit_code": 1
+  }
+]

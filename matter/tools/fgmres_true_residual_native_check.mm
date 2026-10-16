@@ -189,11 +189,17 @@ void checkLargeNodeResidualMeasurement(
         require(a.x==e.x&&a.y==e.y&&a.z==e.z&&a.w==e.w,
             "large-row same-operator residual replacement mismatch");
     }
+    std::cout << "true_residual_measurement_nodes=" << nodeCount
+              << " unknown_rows=" << unknownCount
+              << " constrained_mechanical_rows=" << fixedMechanical
+              << " constrained_field_rows=" << fixedField
+              << " measurement_only=true full_FEM_operator_qualified=false"
+              << " result=PASS" << '\n';
 }
 
 } // namespace
 
-int main() {
+int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -513,9 +519,10 @@ int main() {
                     preserved[0].failingIndex == 4u,
                 "diagnostic status overwrote an existing production failure");
 
+            require(argc==1||(argc==2&&std::string(argv[1])=="--refined-coupon"),"usage: true-residual check [--refined-coupon]");
+            if(argc==2){checkLargeNodeResidualMeasurement(device,queue,measure,20682u);checkLargeNodeResidualMeasurement(device,queue,measure,32768u);}
             checkLargeNodeResidualMeasurement(device,queue,measure,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,8192u);
-            std::cout << "large_row_fixture=4096,8192 measurement_only=true full_FEM_operator_at_N8192=false\\n";
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

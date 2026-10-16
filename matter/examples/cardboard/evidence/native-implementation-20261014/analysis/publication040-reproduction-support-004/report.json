@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.publication040-support-extension.v1",
+  "canonical_support_exceptions": [
+    {
+      "name": "build-cardboard-native-worker/worker.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "commands": {
+    "audit_publication040_002.py": "ea7c3abedb03bcf22076a31342a472c0e8f7877010bd578222e44a1dc104d802",
+    "publish_publication040_002.py": "ac1776ca5c14ba25805c3a9556badb4163205abeb3102a5a75ba69fd87157291",
+    "extend_publication040_support_004.py": "26cea478f505e256be00db4a6a5f06978b4b7f61d46824f48bab45bc85cca945"
+  },
+  "physical_results_changed": false
+}

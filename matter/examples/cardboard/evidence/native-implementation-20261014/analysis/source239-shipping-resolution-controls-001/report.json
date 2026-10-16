@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.source239-shipping-resolution-controls.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-resolution-controls-239-001",
+  "source_frozen_sha256": "376dbe5557c977843592272162448a8d7d0e49a3235a6df9dab103db519f22f7",
+  "source_build_sha256": "751d8926a870d54d1616907a497894dc6b39131e73446f55332ad1cf8b4dc0be",
+  "build_exit_code": 0,
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-resolution-controls-239-001/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source239-shipping-resolution-controls-001/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "12dc9ec70be28be9d9f109da7e6895008efc654e4d95f0ca1d43625ea7d528aa"
+    }
+  ],
+  "all_pass": false,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "actual_mesh_validation_pending": true,
+  "at_utc": "2026-10-16T12:40:32.775547+00:00"
+}

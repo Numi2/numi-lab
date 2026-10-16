@@ -1,0 +1,7 @@
+{
+  "files": {
+    "matter/include/numi/matter/shared.h": "bcdbf8debc48c3efddb8c854a842aea7fae752a73a2911b812fbc60d44eec3d5",
+    "matter/src/metal/contact.metalinc": "f24ac2ee75f30121ef08462881b7fb4a4389fd740b2633f8846454f6f1238f27",
+    "matter/src/runtime.mm": "ada692577b4258d7bfe050516512ca5402a83d952c8385f13e9fa854cd0f1e2d"
+  }
+}

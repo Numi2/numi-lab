@@ -360,7 +360,13 @@ void verifyBoundPackage(const CompiledWorld& world,const Record& row,
          "point temperature does not match the exact compiled material bulk.y word");
 }
 
-CompiledWorld compileSources(const std::filesystem::path& linerPath,const std::filesystem::path& mediumPath,const bool accurate){
+CompiledWorld compileSources(const std::filesystem::path& linerPath,
+                             const std::filesystem::path& mediumPath,
+                             const bool accurate,
+                             const bool strictStateCertification = false,
+                             const std::optional<std::uint32_t> requestedIterations = std::nullopt){
+    need(!strictStateCertification || (accurate && requestedIterations.has_value()),
+         "strict state certification requires accurate policy and explicit bounded budget");
     auto l=parseMatterFile(linerPath.string()),m=parseMatterFile(mediumPath.string());
     need(l.succeeded()&&m.succeeded(),"paper source material parse failed");
     need(l.material.name==kLinerName&&m.material.name==kMediumName,"paper material source identity mismatch");
@@ -371,6 +377,7 @@ CompiledWorld compileSources(const std::filesystem::path& linerPath,const std::f
         material->paperCompensatedArithmetic=true;
         material->genericCompensatedImplicitProjection=true;
         material->genericBilinear15AccurateProjection=accurate;
+        material->genericBilinear15StrictStateCertification=strictStateCertification;
     }
     WorldSource source;source.materials={l.material,m.material};source.gravity={0.0,0.0,0.0};
     source.environmentCount=1u;source.frameTimestep=1.0e-4;
@@ -382,20 +389,25 @@ CompiledWorld compileSources(const std::filesystem::path& linerPath,const std::f
     source.objects={object};
     CompileOptions options;options.maximumRateExponent=0u;options.emitSpecializedMetal=false;
     options.localMaterialNewtonIterations=32u;
+    if(accurate&&requestedIterations.has_value())
+        options.accurateBilinear15LocalNewtonIterations=requestedIterations;
     auto compiled=compileWorld(source,options);
     need(compiled.succeeded(),"two-material captured world failed CPU compilation");
     need(compiled.world.materials.size()==2u&&compiled.world.parameters.size()==56u,
          "compiled paper world has unexpected material/parameter layout");
     const std::uint32_t required=NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|
         NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+    const auto expectedIterations=requestedIterations.value_or(accurate?16u:32u);
     for(std::size_t i=0;i<2u;++i){
         const auto& gpu=compiled.world.materials[i];
         need(gpu.stateCount==15u&&(gpu.flags&required)==required,
              "compiled paper material omitted state count or actual source flags");
         need(((gpu.flags&NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u)==accurate,
              "compiled accurate projection selector differs from requested policy");
-        need(gpu.localNewtonIterations==(accurate?16u:32u),
-             "compiled local iteration budget differs from actual source policy");
+        need(((gpu.flags&NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)!=0u)==strictStateCertification,
+             "compiled strict state-certification selector differs from requested policy");
+        need(gpu.localNewtonIterations==expectedIterations,
+             "compiled local Newton budget differs from requested exact budget");
     }
     return compiled.world;
 }
@@ -924,9 +936,279 @@ int runExactSource380Point(const std::string& expectedInputSHA,const std::string
     return 0;
 }
 
+
+void verifySource547EndpointInput(const Record& center,const Record& endpoint,
+                                  const int epsilonPower,const int sign) {
+    constexpr std::size_t basis=2u;
+    need(epsilonPower>=0&&(sign==1||sign==-1),
+         "source547 endpoint power/sign is invalid");
+    const double epsilon=std::ldexp(1.0,-epsilonPower);
+    const double dt=static_cast<double>(center.input[45u]);
+    need(std::isfinite(dt)&&dt>0.0,
+         "source547 center dt is nonfinite or nonpositive");
+    const double targetF=static_cast<double>(center.input[basis])+
+        static_cast<double>(center.input[9u+basis])+
+        static_cast<double>(sign)*epsilon;
+    const float expectedHigh=static_cast<float>(targetF);
+    const double residualF=
+        (static_cast<double>(center.input[basis])-
+         static_cast<double>(expectedHigh))+
+        static_cast<double>(center.input[9u+basis])+
+        static_cast<double>(sign)*epsilon;
+    const float expectedLow=static_cast<float>(residualF);
+    const float expectedRate=static_cast<float>(
+        static_cast<double>(center.input[18u+basis])+
+        static_cast<double>(sign)*epsilon/dt);
+    auto bits=[](const float value) {
+        return std::bit_cast<std::uint32_t>(value);
+    };
+    need(bits(endpoint.input[basis])==bits(expectedHigh)&&
+         bits(endpoint.input[9u+basis])==bits(expectedLow)&&
+         bits(endpoint.input[18u+basis])==bits(expectedRate),
+         "source547 endpoint F-high/F-low/Fdot words do not match its declared basis, sign, and epsilon");
+    for(std::size_t i=0u;i<kInputStride;++i) {
+        if(i==basis||i==9u+basis||i==18u+basis) continue;
+        need(bits(endpoint.input[i])==bits(center.input[i]),
+             "source547 endpoint changed an undeclared packed input component");
+    }
+}
+struct Bound547Input {
+    Capture selected;
+    std::string sourceCaptureSHA;
+};
+Bound547Input readBound547Input(const std::filesystem::path& path) {
+    NSDictionary* root=readJSONDocument(path);
+    need(stringValue(field(root,"schema"),"source547 batch schema")==
+         "numi.cardboard.source-bound-native-batch.v1",
+         "unexpected source547 input schema");
+    const std::string sourceCaptureSHA=
+        stringValue(field(root,"source_capture_sha256"),"source capture SHA");
+    need(sourceCaptureSHA.size()==64u&&
+         std::all_of(sourceCaptureSHA.begin(),sourceCaptureSHA.end(),
+             [](unsigned char c){return std::isxdigit(c)!=0;}),
+         "source capture SHA must be 64 hexadecimal characters");
+    NSArray* parameterRows=(NSArray*)field(root,"parameters_by_material");
+    need([parameterRows isKindOfClass:[NSArray class]]&&parameterRows.count==2u,
+         "source547 parameter rows must bind liner and medium");
+    Bound547Input out;
+    out.sourceCaptureSHA=sourceCaptureSHA;
+    for(std::size_t material=0;material<2u;++material) {
+        const auto values=flatVector(parameterRows[material],28u,
+            "source547 material parameters");
+        out.selected.parameterRow.insert(out.selected.parameterRow.end(),
+            values.begin(),values.end());
+    }
+    NSArray* rows=(NSArray*)field(root,"rows");
+    need([rows isKindOfClass:[NSArray class]]&&rows.count==1472u,
+         "source547 input must preserve all 1,472 selected native rows");
+    struct ExpectedRow {
+        std::size_t index;
+        const char* label;
+        int power;
+        int sign;
+    };
+    constexpr std::array<ExpectedRow,10> expected{{
+        {256u,"center",-1,0},{257u,"center_repeat",-1,0},
+        {282u,"endpoint",22,1},{283u,"endpoint",22,-1},
+        {284u,"endpoint",23,1},{285u,"endpoint",23,-1},
+        {286u,"endpoint",24,1},{287u,"endpoint",24,-1},
+        {288u,"endpoint",25,1},{289u,"endpoint",25,-1}
+    }};
+    std::array<float,kStateCount> acceptedCenter{};
+    bool haveAccepted=false;
+    for(const auto& expectedRow:expected) {
+        NSDictionary* item=(NSDictionary*)rows[expectedRow.index];
+        need(number(field(item,"environment"),"source547 environment")==0.0&&
+             number(field(item,"tet_id"),"source547 tet id")==222.0&&
+             number(field(item,"material_index"),"source547 material index")==0.0,
+             "source547 selected row no longer binds env0/tet222/liner");
+        need(stringValue(field(item,"label"),"source547 label")==expectedRow.label&&
+             number(field(item,"basis_column"),"source547 basis column")==2.0&&
+             number(field(item,"sign"),"source547 endpoint sign")==expectedRow.sign,
+             "source547 selected row label/basis/sign changed");
+        if(expectedRow.power>=0)
+            need(number(field(item,"epsilon_power"),"source547 epsilon power")==
+                 double(expectedRow.power),
+                 "source547 selected endpoint epsilon power changed");
+        Record row;
+        row.env=0u;row.tet=222u;row.material=0u;row.materialName=kLinerName;
+        const auto input=flatArray<kInputStride>(
+            field(item,"packed_input_f32"),"source547 packed input");
+        const auto accepted=flatArray<kStateCount>(
+            field(item,"accepted_state_f32"),"source547 accepted history");
+        row.input=input;row.accepted=accepted;
+        if(!haveAccepted) { acceptedCenter=accepted;haveAccepted=true; }
+        else for(std::size_t i=0;i<kStateCount;++i)
+            need(std::bit_cast<std::uint32_t>(accepted[i])==
+                 std::bit_cast<std::uint32_t>(acceptedCenter[i]),
+                 "source547 rows do not share the exact accepted history");
+        out.selected.rows.push_back(row);
+    }
+    need(out.selected.parameterRow.size()==56u,
+         "source547 parameter binding has wrong total length");
+    need(out.selected.rows.size()==expected.size(),
+         "source547 selected row count changed");
+    for(std::size_t i=2u;i<expected.size();++i)
+        verifySource547EndpointInput(out.selected.rows[0],out.selected.rows[i],
+                                     expected[i].power,expected[i].sign);
+    return out;
+}
+void runSource547StrictStateCertification(
+    const std::filesystem::path& inputPath,const std::string& expectedInputSHA,
+    const std::filesystem::path& linerPath,const std::filesystem::path& mediumPath,
+    const std::filesystem::path& outdir,const bool native) {
+    need(expectedInputSHA.size()==64u&&
+         std::all_of(expectedInputSHA.begin(),expectedInputSHA.end(),
+             [](unsigned char c){return std::isxdigit(c)!=0;}),
+         "expected source547 input SHA must be 64 hexadecimal characters");
+    const std::string inputSHA=sha256(inputPath);
+    need(inputSHA==expectedInputSHA,
+         "source547 input SHA differs from explicit command binding");
+    need(sha256(linerPath)==kLinerSHA&&sha256(mediumPath)==kMediumSHA,
+         "source paper source asset SHA differs from the fixed material binding");
+    const Bound547Input input=readBound547Input(inputPath);
+    const auto baseline=compileSources(linerPath,mediumPath,true,false,32u);
+    const auto strict=compileSources(linerPath,mediumPath,true,true,32u);
+    verifyParameters(baseline,input.selected);
+    verifyParameters(strict,input.selected);
+    const std::uint32_t accurateFlag=
+        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+    const std::uint32_t strictFlag=
+        NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
+    for(std::size_t i=0;i<2u;++i) {
+        need(baseline.materials[i].localNewtonIterations==32u&&
+             (baseline.materials[i].flags&accurateFlag)!=0u&&
+             (baseline.materials[i].flags&strictFlag)==0u,
+             "source547 baseline is not accurate bilinear15 with explicit32 and no strict certificate");
+        need(strict.materials[i].localNewtonIterations==32u&&
+             (strict.materials[i].flags&accurateFlag)!=0u&&
+             (strict.materials[i].flags&strictFlag)!=0u,
+             "source547 strict build omitted policy or changed the local iteration budget");
+    }
+    need(baseline.fingerprint!=strict.fingerprint,
+         "source547 strict policy did not change the compiled-world fingerprint");
+    if(!native) {
+        std::cout<<"{\"record\":\"source547_strict_state_cpu_admission\","
+                 "\"status\":\"pass\",\"input_sha256\":\""<<inputSHA
+                 <<"\",\"source_capture_sha256\":\""<<input.sourceCaptureSHA
+                 <<"\",\"selected_rows\":10,\"baseline_iterations\":32,"
+                 "\"strict_iterations\":32,\"strict_scaled_correction_tolerance\":2e-10,"
+                 "\"physical_gpu_execution\":false}\n";
+        return;
+    }
+    need(!std::filesystem::exists(outdir),
+         "source547 output directory already exists; refusing evidence overwrite");
+    need(std::filesystem::create_directories(outdir),
+         "could not create source547 native diagnostic output directory");
+    Metal metal;
+    const auto baselineBatch=runBatch(
+        metal,baseline,"accurate32",input.selected.rows,outdir,inputSHA,true);
+    const auto strictBatch=runBatch(
+        metal,strict,"strict_state_2e-10_budget32",input.selected.rows,outdir,inputSHA,true);
+    const auto centerIt=std::find_if(input.selected.rows.begin(),input.selected.rows.end(),
+        [](const Record& row) {
+            return row.env==0u&&row.tet==222u&&row.material==0u&&
+                row.input[27u]==0.0f&&row.input[28u]==0.0f&&
+                row.input[29u]==1.0f&&row.input[30u]==0.0f;
+        });
+    const auto endpointIt=input.selected.rows.size()>4u
+        ? input.selected.rows.begin()+4u : input.selected.rows.end();
+    need(centerIt!=input.selected.rows.end(),"source547 tet222 center row missing");
+    need(endpointIt!=input.selected.rows.end()&&endpointIt->tet==222u&&
+         endpointIt->input[27u]==0.0f&&endpointIt->input[28u]==0.0f&&
+         endpointIt->input[29u]==1.0f&&
+         endpointIt->input[2u]!=centerIt->input[2u]&&
+         endpointIt->input[20u]!=centerIt->input[20u],
+         "source547 selected p23 endpoint row identity changed");
+    const auto baselineCenterTrace=runTrace(
+        metal,baseline,"accurate32_center",*centerIt,outdir,inputSHA,true);
+    const auto strictCenterTrace=runTrace(
+        metal,strict,"strict_state_2e-10_budget32_center",*centerIt,outdir,inputSHA,true);
+    const auto baselineTrace=runTrace(
+        metal,baseline,"accurate32_p23plus",*endpointIt,outdir,inputSHA,true);
+    const auto strictTrace=runTrace(
+        metal,strict,"strict_state_2e-10_budget32_p23plus",*endpointIt,outdir,inputSHA,true);
+    const std::array<std::pair<unsigned,unsigned>,5> spans={{{14u,8u},{23u,17u},
+        {32u,26u},{41u,35u},{56u,50u}}};
+    const std::array<unsigned,5> lengths={9u,9u,9u,15u,15u};
+    auto mismatchCounts=[&](const std::vector<float>& trace,
+                            const std::vector<float>& batch) {
+        std::array<unsigned,5> mismatch{};
+        for(std::size_t span=0;span<spans.size();++span)
+            for(unsigned j=0;j<lengths[span];++j)
+                mismatch[span]+=std::bit_cast<std::uint32_t>(
+                    trace[spans[span].first+j])!=
+                    std::bit_cast<std::uint32_t>(
+                    batch[spans[span].second+j]);
+        return mismatch;
+    };
+    const auto baselineMismatch=mismatchCounts(
+        baselineTrace,baselineBatch);
+    const auto strictMismatch=mismatchCounts(strictTrace,strictBatch);
+    const auto traceStatus=static_cast<int>(strictTrace[
+        kTraceSummarySlots+kTraceHeaderFailureSlot]);
+    std::ofstream f(outdir/"source547-strict-state-certification.json");
+    need(f.good(),"could not write source547 strict-state summary");
+    f<<"{\"schema\":\"numi.cardboard.source547-strict-state-certification.v1\","
+     <<"\"input_sha256\":\""<<inputSHA<<"\","
+     <<"\"source_capture_sha256\":\""<<input.sourceCaptureSHA<<"\","
+     <<"\"liner_sha256\":\""<<sha256(linerPath)<<"\","
+     <<"\"medium_sha256\":\""<<sha256(mediumPath)<<"\","
+     <<"\"baseline_world_fingerprint\":"<<baseline.fingerprint<<","
+     <<"\"strict_world_fingerprint\":"<<strict.fingerprint<<","
+     <<"\"baseline_flags_liner\":"<<baseline.materials[0].flags<<","
+     <<"\"strict_flags_liner\":"<<strict.materials[0].flags<<","
+     <<"\"baseline_local_iterations\":32,\"strict_local_iterations\":32,"
+     <<"\"baseline_scaled_correction_tolerance\":2e-8,"
+     <<"\"strict_scaled_correction_tolerance\":2e-10,"
+     <<"\"projection_residual_tolerance_unchanged\":2e-8,"
+     <<"\"outer_residual_and_correction_gates_changed\":false,"
+     <<"\"rows\":10,\"selected_point\":\"env0/tet222/liner/basis2\","
+     <<"\"center_trace_iterations_baseline\":";
+    numberJSON(f,baselineCenterTrace[3]);
+    f<<",\"center_trace_iterations_strict\":";
+    numberJSON(f,strictCenterTrace[3]);
+    f<<",\"center_strict_project_valid\":"
+     <<(strictCenterTrace[0]==1.0f?"true":"false")
+     <<",\"p23plus_trace_iterations_baseline\":";
+    numberJSON(f,baselineTrace[3]);
+    f<<",\"p23plus_trace_iterations_strict\":";
+    numberJSON(f,strictTrace[3]);
+    f<<",\"p23plus_strict_project_valid\":"
+     <<(strictTrace[0]==1.0f?"true":"false")
+      <<",\"p23plus_strict_projection_residual\":";
+    numberJSON(f,strictTrace[1]);
+    f<<",\"p23plus_strict_projection_failure\":";
+    numberJSON(f,strictTrace[5]);
+    f<<",\"trace_status_code\":"<<traceStatus
+      <<",\"trace_off_parity_mismatch_counts\":{"
+      <<"\"baseline\":["<<baselineMismatch[0]<<","<<baselineMismatch[1]<<","
+      <<baselineMismatch[2]<<","<<baselineMismatch[3]<<","<<baselineMismatch[4]<<"],"
+      <<"\"strict\":["<<strictMismatch[0]<<","<<strictMismatch[1]<<","
+      <<strictMismatch[2]<<","<<strictMismatch[3]<<","<<strictMismatch[4]<<"]},"
+      <<"\"physical_transactions\":0,\"physical_qualification\":false,"
+      <<"\"interpretation\":\"bounded native local-projection comparison only; strict policy enforces a smaller dimensionless Newton-correction certificate without changing the residual gate, iteration budget, equations, or outer criteria\"}\n";
+    need(f.good(),"source547 strict-state summary write failed");
+    std::cout<<"{\"record\":\"source547_strict_state_native_observation\","
+             "\"status\":\"diagnostic_complete\",\"input_sha256\":\""<<inputSHA
+             <<"\",\"source_capture_sha256\":\""<<input.sourceCaptureSHA
+             <<"\",\"strict_projection_valid\":"<<(strictTrace[0]==1.0f?"true":"false")
+             <<",\"strict_projection_iterations\":";numberJSON(std::cout,strictTrace[3]);
+    std::cout<<",\"physical_transactions\":0,\"physical_qualification\":false}\n";
+}
+
 }
 
 int main(int argc,char** argv){@autoreleasepool{try{
+    const bool source547CPU=argc==6&&std::string(argv[1])=="--cpu-source547-strict-projection";
+    const bool source547Native=argc==7&&std::string(argv[1])=="--native-source547-strict-projection";
+    if(source547CPU||source547Native) {
+        runSource547StrictStateCertification(
+            argv[2],argv[3],argv[4],argv[5],
+            source547Native?std::filesystem::path(argv[6]):std::filesystem::path{},
+            source547Native);
+        return 0;
+    }
     const bool native392Trace=argc==6&&std::string(argv[1])=="--native-source392-tet858-trace";
     if(native392Trace)
         return runExactSource392Tet858Trace(argv[2],argv[3],argv[4],argv[5]);
@@ -941,7 +1223,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     const bool nativeAll=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--all-points"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool nativeSweep=argc==9&&std::string(argv[1])=="--native"&&std::string(argv[2])=="--derivative-sweep"&&std::string(argv[3])=="--expected-capture-sha256";
     const bool native=nativeSelected||nativeAll||nativeSweep;
-    need(cpu||native||nativeExactPoint||native392Trace,"usage: capture-diagnostic --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR | --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR");
+    need(source547CPU||source547Native||cpu||native||nativeExactPoint||native392Trace,"usage: capture-diagnostic --cpu-source547-strict-projection INPUT.json SHA LINER.nmatter MEDIUM.nmatter | --native-source547-strict-projection INPUT.json SHA LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --cpu-admission --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter | --native --selected-only|--all-points|--derivative-sweep --expected-capture-sha256 SHA CAPTURE LINER.nmatter MEDIUM.nmatter OUTPUT_DIR | --native-source380-point --expected-input-sha256 SHA --expected-package-sha256 SHA --expected-world-fingerprint DEC INPUT.json PACKAGE.nmatterpack MEDIUM.nmatter CANDIDATE_NODES.bin ACCEPTED_HISTORY.json MESH.json OUTPUT_DIR | --native-source392-tet858-trace POINT401.json RUN392_DIR MEDIUM.nmatter OUTPUT_DIR");
     const std::string expectedCaptureSHA=argv[cpu?3:4];
     need(expectedCaptureSHA.size()==64u&&std::all_of(expectedCaptureSHA.begin(),expectedCaptureSHA.end(),[](unsigned char c){return std::isxdigit(c)!=0;}),
          "expected capture SHA must be exactly 64 hexadecimal characters");

@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.source240-component-build.v1",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-native-components-004",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-fem-cgls-arena-8192-check",
+    "--target",
+    "numi-matter-fgmres-true-residual-native-check",
+    "--target",
+    "numi-matter-fem-regional-galerkin-native-check"
+  ],
+  "exit_code": 0,
+  "source_frozen_sha256": "bcb37b35391f2dc9ab04492cba44306825540028edb354b219493412ad638644",
+  "source_build_sha256": "96fe976fa419ced284a73c067ce8468e076e6d0e7dba8d52b702f9f8eff5832c",
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "at_utc": "2026-10-16T12:50:26.492650+00:00"
+}

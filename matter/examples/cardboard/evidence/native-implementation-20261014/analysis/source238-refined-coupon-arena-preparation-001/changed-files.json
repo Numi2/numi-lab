@@ -1,0 +1,10 @@
+[
+  "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+  "matter/include/numi/matter/detail/true_residual_arena_plan.hpp",
+  "matter/src/runtime.mm",
+  "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+  "matter/tools/true_residual_arena_plan_check.cpp",
+  "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+  "matter/tools/fgmres_true_residual_native_check.mm",
+  "matter/tools/test_true_residual_certification_contract.py"
+]

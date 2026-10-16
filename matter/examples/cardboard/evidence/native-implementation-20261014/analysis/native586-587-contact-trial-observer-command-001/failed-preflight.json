@@ -1,0 +1,5 @@
+{
+  "script001": "candidate_source_bindings KeyError",
+  "script002": "FileExistsError because script001 made this directory before schema validation",
+  "native_execution_started": false
+}

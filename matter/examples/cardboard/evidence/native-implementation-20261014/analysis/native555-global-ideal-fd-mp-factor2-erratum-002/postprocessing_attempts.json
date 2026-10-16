@@ -1,0 +1,11 @@
+{
+  "attempts": [
+    {
+      "failure": "Report serialization raised TypeError because a numpy.int64 component index was not JSON serializable. No report/receipt/manifest was written; arrays were read only.",
+      "id": "erratum-001",
+      "script_sha256": "e469c9a9570b3e82cbe50abecca780647bdd7a034083d6289a7bac9b8f63e881"
+    }
+  ],
+  "schema": "numi.cardboard.native555-factor2-erratum-postprocessing-attempts.v1",
+  "source_numerical_arrays_sha256": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f"
+}

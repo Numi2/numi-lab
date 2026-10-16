@@ -20,9 +20,10 @@ class EffectiveEnvironmentTests(unittest.TestCase):
     def test_registry_matches_checkout_and_detects_unregistered_control(self):
         env.validate_source_registry(SOURCE_ROOT)
         self.assertEqual(env.source_key_registry(SOURCE_ROOT), env.NATIVE_ENV_KEYS)
-        self.assertEqual(len(env.NATIVE_ENV_KEYS), 53)
+        self.assertEqual(len(env.NATIVE_ENV_KEYS), 54)
         self.assertIn("NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR", env.NATIVE_ENV_KEYS)
         self.assertIn("NM_FEM_BASE_CGLS_DAMPING_KG", env.NATIVE_ENV_KEYS)
+        self.assertIn("NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT", env.NATIVE_ENV_KEYS)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             for relative in ("matter/src/runtime.mm", "matter/tools/cardboard_probe.mm"):
@@ -144,6 +145,13 @@ class EffectiveEnvironmentTests(unittest.TestCase):
             env.make_contract({"NM_FEM_CONTACT_TRACE_ROOT": "/tmp/trace"})
         with self.assertRaisesRegex(ValueError, "uint32"):
             env.make_contract({"NM_FEM_NEWTON_TRACE_ROOT": str(1 << 32)})
+        self.assertEqual(env.make_contract({
+            "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": "32"
+        })["effective"]["NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT"],
+            {"set": True, "value": "32"})
+        for bad in ("-1", "32:1", "4294967296", "/tmp/slot", "032"):
+            with self.subTest(slot=bad), self.assertRaises(ValueError):
+                env.make_contract({"NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": bad})
 
     def test_diagnostic_capture_prefix_is_case_local_fresh_and_bounded(self):
         with tempfile.TemporaryDirectory() as temporary:

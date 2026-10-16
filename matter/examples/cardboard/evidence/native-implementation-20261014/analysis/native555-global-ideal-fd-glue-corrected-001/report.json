@@ -1,0 +1,635 @@
+{
+  "capture_sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+  "classification": "CPU audit correction only; prior paper-only endpoint FD is invalid for full operator comparison; no solver or physics change; corrected remainder is not a qualification",
+  "corrected_rows": [
+    {
+      "corrected_gap_l2_free": 0.004709262827594718,
+      "corrected_relative_error_to_reference_A": 172.54671976398953,
+      "corrected_secant_l2_free": 0.004696703857196434,
+      "epsilon": 0.00390625,
+      "exact_glue_secant_l2_free": 0.0005995892014105156,
+      "max_abs_corrected_gap_component": 0.0012371181332913102,
+      "original_incomplete_secant_l2_free": 0.004743516383958739,
+      "power": 8,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 0.015150419747138254,
+      "corrected_relative_error_to_reference_A": 555.109223273374,
+      "corrected_secant_l2_free": 0.015134175829124238,
+      "epsilon": 0.0009765625,
+      "exact_glue_secant_l2_free": 0.0005995877576676939,
+      "max_abs_corrected_gap_component": 0.004955882175345604,
+      "original_incomplete_secant_l2_free": 0.015105016547755127,
+      "power": 10,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 0.016383732248104094,
+      "corrected_relative_error_to_reference_A": 600.2976177793288,
+      "corrected_secant_l2_free": 0.01636854409134173,
+      "epsilon": 0.000244140625,
+      "exact_glue_secant_l2_free": 0.000599587677097376,
+      "max_abs_corrected_gap_component": 0.004998585848923986,
+      "original_incomplete_secant_l2_free": 0.016346689515221124,
+      "power": 12,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 0.0051255499876312815,
+      "corrected_relative_error_to_reference_A": 187.79942206025592,
+      "corrected_secant_l2_free": 0.005123854098429719,
+      "epsilon": 6.103515625e-05,
+      "exact_glue_secant_l2_free": 0.0005995876720645358,
+      "max_abs_corrected_gap_component": 0.0031580453365199377,
+      "original_incomplete_secant_l2_free": 0.005155444627660905,
+      "power": 14,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 0.0028784822920775127,
+      "corrected_relative_error_to_reference_A": 105.46718150585431,
+      "corrected_secant_l2_free": 0.002878653978050058,
+      "epsilon": 1.52587890625e-05,
+      "exact_glue_secant_l2_free": 0.0005995876716860263,
+      "max_abs_corrected_gap_component": 0.0018538922183294682,
+      "original_incomplete_secant_l2_free": 0.0029375416505124765,
+      "power": 16,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 2.643553962578986e-07,
+      "corrected_relative_error_to_reference_A": 0.0096859440948866,
+      "corrected_secant_l2_free": 2.7282660874314316e-05,
+      "epsilon": 3.814697265625e-06,
+      "exact_glue_secant_l2_free": 0.0005995876714933882,
+      "max_abs_corrected_gap_component": 1.3935039465898918e-07,
+      "original_incomplete_secant_l2_free": 0.000601741982485731,
+      "power": 18,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 1.648241848100004e-08,
+      "corrected_relative_error_to_reference_A": 0.0006039134673072596,
+      "corrected_secant_l2_free": 2.729199630094585e-05,
+      "epsilon": 9.5367431640625e-07,
+      "exact_glue_secant_l2_free": 0.000599587675054866,
+      "max_abs_corrected_gap_component": 8.712552087598635e-09,
+      "original_incomplete_secant_l2_free": 0.0006016928612190345,
+      "power": 20,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 2.0503557565327067e-09,
+      "corrected_relative_error_to_reference_A": 7.512474310541463e-05,
+      "corrected_secant_l2_free": 2.7292642878488073e-05,
+      "epsilon": 2.384185791015625e-07,
+      "exact_glue_secant_l2_free": 0.0005995876666777016,
+      "max_abs_corrected_gap_component": 5.459357044557686e-10,
+      "original_incomplete_secant_l2_free": 0.0006016897914255425,
+      "power": 22,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 7.0611632750398385e-09,
+      "corrected_relative_error_to_reference_A": 0.0002587200174275191,
+      "corrected_secant_l2_free": 2.7292620552585655e-05,
+      "epsilon": 5.960464477539063e-08,
+      "exact_glue_secant_l2_free": 0.0005995876551059935,
+      "max_abs_corrected_gap_component": 1.1447516876377565e-09,
+      "original_incomplete_secant_l2_free": 0.0006016895361926956,
+      "power": 24,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    },
+    {
+      "corrected_gap_l2_free": 2.765817405016077e-08,
+      "corrected_relative_error_to_reference_A": 0.0010133915607879185,
+      "corrected_secant_l2_free": 2.7292054505191412e-05,
+      "epsilon": 1.4901161193847656e-08,
+      "exact_glue_secant_l2_free": 0.0005995876539391044,
+      "max_abs_corrected_gap_component": 4.541012812373025e-09,
+      "original_incomplete_secant_l2_free": 0.000601689809396982,
+      "power": 26,
+      "reference_dR_l2_free": 2.72926824342768e-05
+    }
+  ],
+  "correction": "For each old endpoint residual, add dt*[g_glue(F0 + sign*eps*dt*H)-g_glue(F0)] to gathered internal-force residual using captured exact glue law and geometry. No paper endpoint or projection was altered.",
+  "directions": "same captured F_direction_local_per_s for all 1920 tets and same delta-v; glue has no plastic projection, but its neo-Hookean stress must still be evaluated at F0 +/- epsilon*dt*H.",
+  "dt_seconds": 4.999999873689376e-05,
+  "fp64_reference_sha256": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+  "glue_center_stress_max_abs_difference_vs_existing_reference": 0.0,
+  "glue_tets": 192,
+  "material_replay_arrays_sha256": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+  "old_run_bug": "run.py perturbed endpoint F only on paper rows, but formed the all-tet tangent/action including glue rows. Endpoint residuals held glue stress fixed while the reference A included glue stiffness.",
+  "p20_norms": {
+    "corrected_gap_fraction_of_original_gap": 2.7489436629736802e-05,
+    "corrected_gap_l2_free": 1.648241848100004e-08,
+    "cosine_original_gap_vs_omitted_glue": -0.9999999996374325,
+    "omitted_glue_endpoint_dR_l2_free": 0.000599587675054866,
+    "original_gap_l2_free": 0.0005995909884588221,
+    "relative_corrected_gap_to_A": 0.0006039134673072596
+  },
+  "p20_top_node_map": [
+    {
+      "corrected_gap_norm": 4.778726114462463e-09,
+      "corrected_gap_xyz": [
+        -1.4982256566619484e-09,
+        -4.5051583344668315e-09,
+        -5.432232875617781e-10
+      ],
+      "incident_glue_tets": [
+        1890,
+        1891,
+        1892,
+        1897,
+        1898,
+        1899,
+        1900,
+        1901
+      ],
+      "incident_paper_tets": [
+        1747,
+        1748,
+        1754,
+        1757
+      ],
+      "node": 856,
+      "omitted_glue_endpoint_dR_xyz": [
+        0.00011397030133590382,
+        0.0003426590976173435,
+        4.8155872331537885e-05
+      ],
+      "original_gap_norm": 0.0003643171092902509,
+      "original_gap_xyz": [
+        -0.00011397179956156223,
+        -0.00034266360277568825,
+        -4.815641555482554e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 5.221389705470715e-10,
+      "corrected_gap_xyz": [
+        -2.077193087032329e-10,
+        -4.1785426137673595e-10,
+        -2.342639741938761e-10
+      ],
+      "incident_glue_tets": [
+        1891,
+        1892,
+        1893,
+        1894,
+        1895
+      ],
+      "incident_paper_tets": [
+        1741,
+        1742,
+        1748,
+        1751
+      ],
+      "node": 854,
+      "omitted_glue_endpoint_dR_xyz": [
+        -2.2507291572617263e-05,
+        -0.00021559210250462785,
+        4.596301119721044e-05
+      ],
+      "original_gap_norm": 0.00022158285864951063,
+      "original_gap_xyz": [
+        2.2507083853306043e-05,
+        0.00021559168465036898,
+        -4.596324546118466e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 8.261690867487252e-10,
+      "corrected_gap_xyz": [
+        1.0602357648780997e-12,
+        5.922392454244974e-11,
+        8.240429373285932e-10
+      ],
+      "incident_glue_tets": [
+        936,
+        937,
+        938,
+        1896
+      ],
+      "incident_paper_tets": [
+        793,
+        794,
+        800,
+        803,
+        1752,
+        1753,
+        1758,
+        1759,
+        1760,
+        1761,
+        1762,
+        1763
+      ],
+      "node": 564,
+      "omitted_glue_endpoint_dR_xyz": [
+        -8.771709409372301e-05,
+        -5.1727430589761615e-05,
+        -0.00011574056920325335
+      ],
+      "original_gap_norm": 0.00015416255088458765,
+      "original_gap_xyz": [
+        8.77170951539592e-05,
+        5.1727489813685984e-05,
+        0.00011574139324619069
+      ]
+    },
+    {
+      "corrected_gap_norm": 1.462527570392131e-09,
+      "corrected_gap_xyz": [
+        2.0437427247482884e-10,
+        1.4464412192062076e-09,
+        -7.089323161455199e-11
+      ],
+      "incident_glue_tets": [
+        930,
+        931,
+        932,
+        933,
+        934,
+        939,
+        940,
+        941
+      ],
+      "incident_paper_tets": [
+        420,
+        423,
+        435,
+        436
+      ],
+      "node": 145,
+      "omitted_glue_endpoint_dR_xyz": [
+        2.1882908440766477e-06,
+        -0.000136841006592571,
+        6.623948727077e-06
+      ],
+      "original_gap_norm": 0.00013702015293609647,
+      "original_gap_xyz": [
+        -2.188086469812642e-06,
+        0.0001368424530337777,
+        -6.624019620308421e-06
+      ]
+    },
+    {
+      "corrected_gap_norm": 3.534841348125027e-10,
+      "corrected_gap_xyz": [
+        3.967626891637245e-11,
+        -3.307396901709134e-10,
+        1.1827123316625852e-10
+      ],
+      "incident_glue_tets": [
+        938,
+        940,
+        941,
+        1896,
+        1897,
+        1898,
+        1899,
+        1900
+      ],
+      "incident_paper_tets": [
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        448,
+        449,
+        1392,
+        1395,
+        1407,
+        1408
+      ],
+      "node": 443,
+      "omitted_glue_endpoint_dR_xyz": [
+        8.371263255066684e-05,
+        5.770419491960478e-05,
+        8.542192446868336e-05
+      ],
+      "original_gap_norm": 0.00013279493763439736,
+      "original_gap_xyz": [
+        -8.371259287409007e-05,
+        -5.7704525659293635e-05,
+        -8.542180619757609e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 2.4670629548655736e-10,
+      "corrected_gap_xyz": [
+        1.7613501594534336e-11,
+        2.4448748837837655e-10,
+        -2.7921834121580975e-11
+      ],
+      "incident_glue_tets": [
+        935,
+        1893,
+        1894,
+        1895
+      ],
+      "incident_paper_tets": [
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        424,
+        425,
+        1368,
+        1371,
+        1383,
+        1384
+      ],
+      "node": 435,
+      "omitted_glue_endpoint_dR_xyz": [
+        -3.788854331470047e-05,
+        7.576073335779466e-05,
+        -9.42071168447938e-05
+      ],
+      "original_gap_norm": 0.0001266892668162036,
+      "original_gap_xyz": [
+        3.788856092826958e-05,
+        -7.57604888703065e-05,
+        9.42070889229903e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 2.8151223809846097e-10,
+      "corrected_gap_xyz": [
+        2.628640038406493e-11,
+        2.7821289758411077e-10,
+        3.39963082099555e-11
+      ],
+      "incident_glue_tets": [
+        936,
+        937,
+        938,
+        939,
+        940
+      ],
+      "incident_paper_tets": [
+        432,
+        435,
+        447,
+        448
+      ],
+      "node": 149,
+      "omitted_glue_endpoint_dR_xyz": [
+        3.11494605342819e-05,
+        0.00010463547431485949,
+        4.356917520242183e-05
+      ],
+      "original_gap_norm": 0.00011754608280453588,
+      "original_gap_xyz": [
+        -3.114943424777406e-05,
+        -0.0001046351961019594,
+        -4.356914120612099e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 9.446526180916559e-09,
+      "corrected_gap_xyz": [
+        -4.190267428390674e-09,
+        -8.457845928081112e-09,
+        3.786264942551592e-10
+      ],
+      "incident_glue_tets": [
+        1896,
+        1897,
+        1898
+      ],
+      "incident_paper_tets": [
+        1753,
+        1754,
+        1760,
+        1763
+      ],
+      "node": 858,
+      "omitted_glue_endpoint_dR_xyz": [
+        -4.965001296379451e-05,
+        2.31368862037469e-05,
+        -9.953127326936672e-05
+      ],
+      "original_gap_norm": 0.0001136088218031336,
+      "original_gap_xyz": [
+        4.964582269636662e-05,
+        -2.3145344049684283e-05,
+        9.953165189586095e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 4.5582110282361444e-10,
+      "corrected_gap_xyz": [
+        2.5637602786480302e-11,
+        -4.4481123483178916e-10,
+        9.622139299614009e-11
+      ],
+      "incident_glue_tets": [
+        1898,
+        1900,
+        1901
+      ],
+      "incident_paper_tets": [
+        1392,
+        1393,
+        1394,
+        1395,
+        1396,
+        1397,
+        1408,
+        1409
+      ],
+      "node": 737,
+      "omitted_glue_endpoint_dR_xyz": [
+        2.5185084287713e-05,
+        -9.317161675613998e-05,
+        2.9151189249293156e-05
+      ],
+      "original_gap_norm": 0.00010082133050851832,
+      "original_gap_xyz": [
+        -2.518505865001278e-05,
+        9.317117194491433e-05,
+        -2.9151093027783928e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 1.8681078443346204e-10,
+      "corrected_gap_xyz": [
+        1.2106888593885141e-10,
+        1.268234358971885e-10,
+        -6.447022681364266e-11
+      ],
+      "incident_glue_tets": [
+        1892,
+        1894,
+        1895,
+        1901
+      ],
+      "incident_paper_tets": [
+        1380,
+        1381,
+        1382,
+        1383,
+        1384,
+        1385,
+        1396,
+        1397
+      ],
+      "node": 733,
+      "omitted_glue_endpoint_dR_xyz": [
+        -4.0812463493050914e-05,
+        -7.416975256861489e-05,
+        1.4119918066176202e-05
+      ],
+      "original_gap_norm": 8.58266390725772e-05,
+      "original_gap_xyz": [
+        4.0812584562075396e-05,
+        7.416987939203948e-05,
+        -1.4119982536398447e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 8.216002507410535e-10,
+      "corrected_gap_xyz": [
+        1.2175219545585e-10,
+        -1.2202208489999143e-10,
+        -8.033143753949022e-10
+      ],
+      "incident_glue_tets": [
+        930,
+        931,
+        932,
+        937,
+        938,
+        939,
+        940,
+        941,
+        1890,
+        1896,
+        1897,
+        1899
+      ],
+      "incident_paper_tets": [
+        787,
+        788,
+        794,
+        797,
+        1746,
+        1747,
+        1752,
+        1753,
+        1754,
+        1755,
+        1756,
+        1757
+      ],
+      "node": 562,
+      "omitted_glue_endpoint_dR_xyz": [
+        3.289650788926026e-05,
+        -1.088227649362023e-05,
+        6.80600095023375e-05
+      ],
+      "original_gap_norm": 7.637321355091025e-05,
+      "original_gap_xyz": [
+        -3.2896386137064846e-05,
+        1.0882154471535018e-05,
+        -6.806081281671355e-05
+      ]
+    },
+    {
+      "corrected_gap_norm": 1.6916776615130776e-10,
+      "corrected_gap_xyz": [
+        7.466201025248395e-11,
+        1.3959059583747342e-10,
+        -5.964715318789888e-11
+      ],
+      "incident_glue_tets": [
+        932,
+        934,
+        935,
+        941,
+        1890,
+        1891,
+        1892,
+        1893,
+        1894,
+        1899,
+        1900,
+        1901
+      ],
+      "incident_paper_tets": [
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        436,
+        437,
+        1380,
+        1383,
+        1395,
+        1396
+      ],
+      "node": 439,
+      "omitted_glue_endpoint_dR_xyz": [
+        8.946169884721876e-06,
+        -7.200904350913948e-05,
+        6.543232608196528e-06
+      ],
+      "original_gap_norm": 7.285718731841783e-05,
+      "original_gap_xyz": [
+        -8.946095221995176e-06,
+        7.200918309973445e-05,
+        -6.543292255350995e-06
+      ]
+    }
+  ],
+  "paper_tets": 1728,
+  "preparation_sha256": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+  "projection_gates": "Inherited from prior run: endpoint rows passed its original project criteria. Separate tight run 003 did not admit a complete endpoint set at its stricter diagnostic target, so corrected endpoint FD remains exploratory.",
+  "schema": "numi.cardboard.native555-global-ideal-fd-glue-corrected.v1",
+  "selected_incident_paper_tets_for_followup": [
+    420,
+    423,
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    448,
+    449,
+    793,
+    794,
+    800,
+    803,
+    1392,
+    1395,
+    1407,
+    1408,
+    1741,
+    1742,
+    1747,
+    1748,
+    1751,
+    1752,
+    1753,
+    1754,
+    1757,
+    1758,
+    1759,
+    1760,
+    1761,
+    1762,
+    1763
+  ],
+  "source_prior_run_arrays_sha256": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+  "source_prior_run_report_sha256": "4d8e195750c43c971ccad8ecc79a140380db668d77f43cf87f5062b08cefcbbe"
+}

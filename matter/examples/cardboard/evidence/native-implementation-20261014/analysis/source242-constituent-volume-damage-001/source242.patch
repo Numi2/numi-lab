@@ -1,0 +1,788 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -60,6 +60,16 @@
+ target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
+ 
+ include(CTest)
++add_executable(numi-matter-cardboard-constituent-volume-damage-check
++    tools/cardboard_constituent_volume_damage_check.cpp)
++target_compile_options(numi-matter-cardboard-constituent-volume-damage-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.cardboard_constituent_volume_damage
++        COMMAND numi-matter-cardboard-constituent-volume-damage-check)
++    set_tests_properties(matter.compiler.cardboard_constituent_volume_damage PROPERTIES
++        TIMEOUT 30 LABELS "matter;cardboard;damage;cpu;synthetic")
++endif()
+ add_executable(numi-matter-regional-graph-schwarz-layout-check
+     tools/regional_graph_schwarz_layout_check.cpp)
+ target_compile_options(numi-matter-regional-graph-schwarz-layout-check PRIVATE
+--- /dev/null
++++ b/matter/tools/cardboard_constituent_volume_damage.hpp
+@@ -0,0 +1,86 @@
++#pragma once
++
++#include <array>
++#include <cmath>
++#include <cstddef>
++#include <cstdint>
++#include <limits>
++
++namespace numi::cardboard::damage_volume {
++
++inline constexpr double kPaperDamageVolumeThreshold = 0.5;
++
++struct PaperConstituentDamageVolume {
++    double damageVolumeIntegral = 0.0;
++    double referenceVolumeM3 = 0.0;
++    double volumeAtOrAboveThresholdM3 = 0.0;
++    std::uint64_t tetrahedronCount = 0u;
++
++    bool addTetrahedron(double referenceVolume,
++                        const std::array<double, 4>& planeAreas,
++                        const std::array<double, 4>& planeDamage,
++                        double threshold) {
++        if (!(std::isfinite(referenceVolume) && referenceVolume > 0.0 &&
++              std::isfinite(threshold) && threshold >= 0.0 && threshold <= 1.0) ||
++            tetrahedronCount == std::numeric_limits<std::uint64_t>::max()) {
++            return false;
++        }
++        double totalArea = 0.0;
++        double areaWeightedDamage = 0.0;
++        for (std::size_t plane = 0u; plane < planeAreas.size(); ++plane) {
++            const double area = planeAreas[plane];
++            const double damage = planeDamage[plane];
++            if (!(std::isfinite(area) && area > 0.0 &&
++                  std::isfinite(damage) && damage >= 0.0 && damage <= 1.0)) {
++                return false;
++            }
++            totalArea += area;
++            areaWeightedDamage += area * damage;
++            if (!(std::isfinite(totalArea) && std::isfinite(areaWeightedDamage))) {
++                return false;
++            }
++        }
++        if (!(totalArea > 0.0)) return false;
++        const double tetrahedronIndex = areaWeightedDamage / totalArea;
++        const double nextDamageVolume =
++            damageVolumeIntegral + referenceVolume * tetrahedronIndex;
++        const double nextReferenceVolume = referenceVolumeM3 + referenceVolume;
++        const double nextThresholdVolume = volumeAtOrAboveThresholdM3 +
++            (tetrahedronIndex >= threshold ? referenceVolume : 0.0);
++        if (!(std::isfinite(tetrahedronIndex) && tetrahedronIndex >= 0.0 &&
++              tetrahedronIndex <= 1.0 &&
++              std::isfinite(nextDamageVolume) &&
++              std::isfinite(nextReferenceVolume) &&
++              std::isfinite(nextThresholdVolume))) {
++            return false;
++        }
++        damageVolumeIntegral = nextDamageVolume;
++        referenceVolumeM3 = nextReferenceVolume;
++        volumeAtOrAboveThresholdM3 = nextThresholdVolume;
++        ++tetrahedronCount;
++        return true;
++    }
++
++    bool finish(double& volumeWeightedDamageIndex,
++                double& volumeFractionAtOrAboveThreshold) const {
++        if (tetrahedronCount == 0u ||
++            !(std::isfinite(damageVolumeIntegral) &&
++              std::isfinite(referenceVolumeM3) && referenceVolumeM3 > 0.0 &&
++              std::isfinite(volumeAtOrAboveThresholdM3) &&
++              volumeAtOrAboveThresholdM3 >= 0.0 &&
++              volumeAtOrAboveThresholdM3 <= referenceVolumeM3)) {
++            return false;
++        }
++        volumeWeightedDamageIndex = damageVolumeIntegral / referenceVolumeM3;
++        volumeFractionAtOrAboveThreshold =
++            volumeAtOrAboveThresholdM3 / referenceVolumeM3;
++        return std::isfinite(volumeWeightedDamageIndex) &&
++            volumeWeightedDamageIndex >= 0.0 &&
++            volumeWeightedDamageIndex <= 1.0 &&
++            std::isfinite(volumeFractionAtOrAboveThreshold) &&
++            volumeFractionAtOrAboveThreshold >= 0.0 &&
++            volumeFractionAtOrAboveThreshold <= 1.0;
++    }
++};
++
++} // namespace numi::cardboard::damage_volume
+--- /dev/null
++++ b/matter/tools/cardboard_constituent_volume_damage_check.cpp
+@@ -0,0 +1,88 @@
++#include "cardboard_constituent_volume_damage.hpp"
++
++#include <array>
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++using numi::cardboard::damage_volume::PaperConstituentDamageVolume;
++
++namespace {
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++void near(double actual, double expected, double tolerance = 1e-14) {
++    require(std::isfinite(actual) && std::abs(actual - expected) <= tolerance,
++            "unexpected volume-damage result");
++}
++}
++
++int main() {
++    try {
++        const std::array<double, 4> areasA{1.0, 3.0, 2.0, 2.0};
++        const std::array<double, 4> damageA{0.0, 0.5, 1.0, 0.0};
++        const std::array<double, 4> equalAreas{1.0, 1.0, 1.0, 1.0};
++        const std::array<double, 4> damageB{0.75, 0.75, 0.75, 0.75};
++
++        PaperConstituentDamageVolume coarse;
++        require(coarse.addTetrahedron(1.0, areasA, damageA, 0.5),
++                "valid heterogeneous tet rejected");
++        require(coarse.addTetrahedron(3.0, equalAreas, damageB, 0.5),
++                "valid second tet rejected");
++        double index = -1.0;
++        double thresholdFraction = -1.0;
++        require(coarse.finish(index, thresholdFraction), "valid aggregate rejected");
++        near(index, 0.671875);
++        near(thresholdFraction, 0.75);
++        near(coarse.referenceVolumeM3, 4.0);
++        require(coarse.tetrahedronCount == 2u, "tetrahedron count mismatch");
++
++        // Subdivide the uniform volume-3 constituent into three equal reference
++        // volume cells. Both the volume-weighted index and thresholded volume
++        // fraction must remain invariant.
++        PaperConstituentDamageVolume refined;
++        require(refined.addTetrahedron(1.0, areasA, damageA, 0.5),
++                "refined heterogeneous tet rejected");
++        for (int i = 0; i < 3; ++i)
++            require(refined.addTetrahedron(1.0, equalAreas, damageB, 0.5),
++                    "subdivided uniform tet rejected");
++        double refinedIndex = -1.0;
++        double refinedThresholdFraction = -1.0;
++        require(refined.finish(refinedIndex, refinedThresholdFraction),
++                "refined aggregate rejected");
++        near(refinedIndex, index);
++        near(refinedThresholdFraction, thresholdFraction);
++
++        const std::array<double, 4> boundaryDamage{0.5, 0.5, 0.5, 0.5};
++        PaperConstituentDamageVolume boundary;
++        require(boundary.addTetrahedron(2.0, equalAreas, boundaryDamage, 0.5),
++                "threshold-boundary tet rejected");
++        double boundaryIndex = -1.0;
++        double boundaryFraction = -1.0;
++        require(boundary.finish(boundaryIndex, boundaryFraction),
++                "threshold-boundary aggregate rejected");
++        near(boundaryIndex, 0.5);
++        near(boundaryFraction, 1.0);
++
++        PaperConstituentDamageVolume empty;
++        require(!empty.finish(index, thresholdFraction), "empty aggregate admitted");
++        const std::array<double, 4> badArea{1.0, 0.0, 1.0, 1.0};
++        const std::array<double, 4> badDamage{0.0, 0.1, 1.0001, 0.0};
++        PaperConstituentDamageVolume invalid;
++        require(!invalid.addTetrahedron(1.0, badArea, damageA, 0.5),
++                "zero plane area admitted");
++        require(!invalid.addTetrahedron(1.0, equalAreas, badDamage, 0.5),
++                "out-of-range plane damage admitted");
++        require(!invalid.addTetrahedron(
++                    std::numeric_limits<double>::quiet_NaN(), equalAreas, damageA, 0.5),
++                "nonfinite reference volume admitted");
++        require(!invalid.addTetrahedron(1.0, equalAreas, damageA, 1.1),
++                "invalid threshold admitted");
++        std::cout << "constituent volume damage index: heterogeneous weighting, subdivision invariance, threshold boundary, and invalid-input checks passed; CPU observer only\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << error.what() << '\n';
++        return 1;
++    }
++}
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -21,6 +21,7 @@
+ #include "cardboard_pin_adhesion_fixture.hpp"
+ #include "cardboard_starch_interface_mesh.hpp"
+ #include "cardboard_retained_matrix_damage_input.hpp"
++#include "cardboard_constituent_volume_damage.hpp"
+ #include "cardboard_paper_material_selection.hpp"
+ #include "cardboard_paper_projection_scaling.hpp"
+ #include "cardboard_tooling.hpp"
+@@ -6728,6 +6729,15 @@
+         std::numeric_limits<double>::quiet_NaN();
+     double paperReferencePlaneAreaM2 =
+         std::numeric_limits<double>::quiet_NaN();
++    std::string paperVolumeDamageStatus = "not_enabled";
++    double paperConstituentVolumeWeightedDamageIndex =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperConstituentReferenceVolumeM3 =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperConstituentVolumeFractionAboveDamageThreshold =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperDamageVolumeThreshold = 0.5;
++    std::uint64_t paperConstituentDamageTetrahedra = 0u;
+     std::uint64_t paperOverlayTetrahedra = 0u;
+     std::string starchStatus = "not_enabled";
+     double starchAreaWeightedDamageFraction =
+@@ -6765,6 +6775,10 @@
+ 
+     if (!mesh.damageOverlayMappings.empty()) {
+         result.paperStatus = "unavailable";
++        result.paperVolumeDamageStatus =
++            "unavailable_invalid_or_incomplete_accepted_history";
++        result.paperDamageVolumeThreshold =
++            numi::cardboard::damage_volume::kPaperDamageVolumeThreshold;
+         if (mesh.damageOverlayMappings.size() !=
+                 mesh.damageOverlayMaterialIndices.size() ||
+             snapshot.femMaterialState.size() <
+@@ -6774,6 +6788,8 @@
+         double weightedDamage = 0.0;
+         double referenceArea = 0.0;
+         bool valid = true;
++        std::set<std::uint32_t> mappedTetrahedra;
++        numi::cardboard::damage_volume::PaperConstituentDamageVolume volumeDamage;
+         std::map<std::uint32_t, std::array<std::uint32_t, 8>> stateIndicesByMaterial;
+         for (std::size_t mappingIndex = 0u;
+              mappingIndex < mesh.damageOverlayMappings.size(); ++mappingIndex) {
+@@ -6781,10 +6797,13 @@
+             const std::uint32_t tetIndex = mapping.elementIndex;
+             if (tetIndex >= world.fem.tetrahedra.size() ||
+                 tetIndex >= tetrahedronCount ||
++                !mappedTetrahedra.insert(tetIndex).second ||
+                 mesh.damageOverlayMaterialIndices[mappingIndex] >=
+                     world.materials.size() ||
+                 world.fem.tetrahedra[tetIndex].identity.x !=
+-                    mesh.damageOverlayMaterialIndices[mappingIndex]) {
++                    mesh.damageOverlayMaterialIndices[mappingIndex] ||
++                !(std::isfinite(mapping.referenceVolumeM3) &&
++                  mapping.referenceVolumeM3 > 0.0)) {
+                 valid = false;
+                 break;
+             }
+@@ -6815,6 +6834,8 @@
+                     stateIndices).first;
+             }
+             const auto& stateIndices = stateIndicesIt->second;
++            std::array<double, 4> tetPlaneAreas{};
++            std::array<double, 4> tetPlaneDamage{};
+             const std::size_t stateBase =
+                 (static_cast<std::size_t>(environment) * tetrahedronCount +
+                  tetIndex) * stride;
+@@ -6853,19 +6874,44 @@
+                 }
+                 if (!valid) break;
+                 const double damage = mapping.damageCap * (1.0 - planeSurvival);
++                if (!(std::isfinite(damage) && damage >= 0.0 && damage <= 1.0)) {
++                    valid = false;
++                    break;
++                }
++                tetPlaneAreas[plane] = area;
++                tetPlaneDamage[plane] = damage;
+                 weightedDamage += area * damage;
+                 referenceArea += area;
+             }
+             if (!valid) break;
++            if (!volumeDamage.addTetrahedron(
++                    mapping.referenceVolumeM3, tetPlaneAreas, tetPlaneDamage,
++                    result.paperDamageVolumeThreshold)) {
++                valid = false;
++                break;
++            }
+             ++result.paperOverlayTetrahedra;
+         }
+-        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage)) {
++        double volumeWeightedDamageIndex = std::numeric_limits<double>::quiet_NaN();
++        double volumeFractionAboveThreshold = std::numeric_limits<double>::quiet_NaN();
++        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage) &&
++            volumeDamage.finish(volumeWeightedDamageIndex, volumeFractionAboveThreshold)) {
+             result.paperStatus = "available_model_area_weighted_damage_index";
+             result.paperAreaWeightedDamageFraction = weightedDamage / referenceArea;
+             result.paperReferencePlaneAreaM2 = referenceArea;
++            result.paperVolumeDamageStatus =
++                "available_constituent_volume_weighted_damage_index";
++            result.paperConstituentVolumeWeightedDamageIndex = volumeWeightedDamageIndex;
++            result.paperConstituentReferenceVolumeM3 = volumeDamage.referenceVolumeM3;
++            result.paperConstituentVolumeFractionAboveDamageThreshold =
++                volumeFractionAboveThreshold;
++            result.paperConstituentDamageTetrahedra = volumeDamage.tetrahedronCount;
+         } else {
+             result.paperStatus = "unavailable_invalid_or_incomplete_accepted_history";
++            result.paperVolumeDamageStatus =
++                "unavailable_invalid_or_incomplete_accepted_history";
+             result.paperOverlayTetrahedra = 0u;
++            result.paperConstituentDamageTetrahedra = 0u;
+         }
+     }
+ 
+@@ -6958,6 +7004,9 @@
+ void writeShippingHistoryAreaHeader(std::ostream& output) {
+     output << "native_step,simulation_time_s,dt_s,stage,accepted,"
+               "paper_status,paper_area_weighted_damage_fraction,paper_reference_plane_area_m2,paper_overlay_tetrahedra,"
++              "paper_volume_damage_status,paper_constituent_volume_weighted_damage_index,"
++              "paper_constituent_reference_volume_m3,paper_constituent_volume_fraction_above_damage_threshold,"
++              "paper_damage_volume_threshold,paper_constituent_damage_tetrahedra,"
+               "starch_status,starch_area_weighted_cohesive_damage_fraction,starch_active_reference_area_m2,starch_active_faces,"
+               "starch_fully_failed_status,starch_fully_failed_cohesive_area_m2,"
+               "starch_fully_failed_cohesive_area_fraction,starch_fully_failed_faces,"
+@@ -6981,6 +7030,17 @@
+     if (std::isfinite(values.paperReferencePlaneAreaM2))
+         output << values.paperReferencePlaneAreaM2;
+     output << ',' << values.paperOverlayTetrahedra << ','
++        << values.paperVolumeDamageStatus << ',';
++    if (std::isfinite(values.paperConstituentVolumeWeightedDamageIndex))
++        output << values.paperConstituentVolumeWeightedDamageIndex;
++    output << ',';
++    if (std::isfinite(values.paperConstituentReferenceVolumeM3))
++        output << values.paperConstituentReferenceVolumeM3;
++    output << ',';
++    if (std::isfinite(values.paperConstituentVolumeFractionAboveDamageThreshold))
++        output << values.paperConstituentVolumeFractionAboveDamageThreshold;
++    output << ',' << values.paperDamageVolumeThreshold << ','
++        << values.paperConstituentDamageTetrahedra << ','
+         << values.starchStatus << ',';
+     if (std::isfinite(values.starchAreaWeightedDamageFraction))
+         output << values.starchAreaWeightedDamageFraction;
+@@ -11644,6 +11704,9 @@
+            << "  \"compression_force_curve_file\": \"shipping-compression.csv\",\n"
+            << "  \"history_observables_file\": \"shipping-history-observables.csv\",\n"
+            << "  \"paper_damage_observable_definition\": \"Each explicit retained-matrix overlay tetrahedron contributes its four authored reference crack-plane cut areas. For each plane, damage is damageCap*(1-survivalNormal*survivalShear), where survival(mode)=onset/(onset+acceptedExcess)*exp(-acceptedExcess/softening); the reported index is reference-area-weighted. This is a constitutive damage index, not a measured or binary geometric crack area.\",\n"
++           << "  \"paper_constituent_volume_damage_definition\": \"For each mapped retained-matrix overlay tetrahedron, first average its four plane damage indices by their authored reference cut areas, then weight that tetrahedron index by its exact mapped reference volume; denominator is the sum of the mapped reference tetrahedron volumes. This is a constitutive volume-weighted damage index, not geometric crack area.\",\n"
++           << "  \"paper_constituent_volume_fraction_threshold\": 0.5,\n"
++           << "  \"paper_constituent_volume_fraction_definition\": \"Reference volume fraction of mapped overlay tetrahedra whose per-tetrahedron area-weighted damage index is greater than or equal to 0.5. Descriptive thresholded damage observable; not geometric fracture area.\",\n"
+            << "  \"cohesive_degradation_observable_definition\": \"For active accepted mixed-mode starch/HMA faces, the reported fraction is sum(referenceFaceArea*acceptedFaceDamage)/sum(referenceFaceArea). It is an area-weighted cohesive degradation index, not geometric open/debond area; dormant faces are excluded until accepted activation.\",\n"
+            << "  \"cohesive_failed_capacity_area_definition\": \"Reference-area integral of indicator(accepted mixedPointHistory[q].w == 1) with the native three equal quadrature weights; fully_failed_faces counts only faces with all three points failed. Face maximum state.x is not used for this integral. This is lost cohesive capacity, not geometric open area.\",\n"
+            << "  \"compression_work_method\": \"trapezoidal integral from a zero-force contact origin through the first accepted contact-crossing increment and subsequent accepted platen stroke\",\n"
+--- a/matter/tools/cardboard_stage_resolution_study.md
++++ b/matter/tools/cardboard_stage_resolution_study.md
+@@ -80,12 +80,16 @@
+ manufacturing tolerance. The score-angle CSV remains action-relative and is
+ not substituted for released springback.
+ 
+-The accepted-history CSV exports area-weighted constitutive paper and cohesive
+-degradation indices; it does not export geometric paper crack area or a
+-thresholded open/debond area. Those indices are reported separately and do
+-not satisfy the missing geometric fractions. Therefore the full-stage gate
+-remains inconclusive until those native observables are available, even if
+-force/work comparisons can be computed.
++The accepted-history CSV keeps the existing area-weighted paper constitutive
++damage index and adds two distinct measures over the mapped paper constituent:
++a per-tetrahedron four-plane area-weighted index averaged by exact reference
++tetrahedron volume, and the reference-volume fraction of tetrahedra whose index
++is at least 0.5. The volume-weighted index uses the sum of mapped reference
++tetrahedron volumes as its denominator. Both measures are numerical constitutive
++damage observables, not geometric crack area; the thresholded volume fraction
++is the numerical area-independent damage fraction used by the capacity gate. The CSV still does not
++export geometric paper crack area or geometric open/debond area, so full-stage
++geometry gates remain inconclusive until those observables are available.
+ 
+ For mixed-mode cohesive faces, the newer history export also reports the
+ reference-area integral of fully failed accepted quadrature points, divided by
+@@ -166,10 +170,16 @@
+ Legacy maximum-face-damage exports and incompatible activation coverage are not
+ admitted.
+ 
+-Capacity qualification now requires accepted paper-damage and irreversible-debond
+-comparisons as well as decreasing force, curve and work differences. A force-only
+-match cannot qualify Fpeak while an enabled paper localization field remains
+-unmeasured. The current per-tet area-weighted damage index is retained but is not
+-substituted for a mesh-objective fractured-area fraction. Its missing observable
+-keeps the damage-enabled capacity gate inconclusive. Explicitly disabled mechanisms
+-may be not applicable; that does not qualify a damage-enabled cardboard model.
++Capacity qualification requires the accepted reference-volume fraction of
++mapped paper tetrahedra whose per-tetrahedron area-weighted index is at least
++0.5, the volume-weighted mean damage index, the irreversible-debond capacity
++comparison, and decreasing force, curve and work differences. Both paper
++observables must be available on each mesh; total mapped reference volume and
++the fixed 0.5 threshold must match. Their adjacent-mesh absolute differences
++must each be at most 0.02. The mean is an index, not a fraction; the thresholded
++observable is a reference-volume fraction. The existing plane-area-weighted index
++is retained separately.
++Neither constitutive index is substituted for geometric crack area: that
++observable remains unavailable and the full-stage geometry gate remains open.
++Explicitly disabled mechanisms may be not applicable; that does not qualify a
++damage-enabled cardboard model.
+--- a/matter/tools/cardboard_stage_resolution_study.py
++++ b/matter/tools/cardboard_stage_resolution_study.py
+@@ -1090,7 +1090,8 @@
+     result: dict[str, Any] = {"status": "available_model_damage_indices_not_geometric_area"}
+     for key in (
+         "paper_status", "paper_area_weighted_damage_fraction",
+-        "paper_reference_plane_area_m2", "starch_status",
++        "paper_reference_plane_area_m2", "paper_overlay_tetrahedra",
++        "starch_status",
+         "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
+         "hma_status", "hma_area_weighted_cohesive_damage_fraction", "hma_active_reference_area_m2",
+     ):
+@@ -1098,6 +1099,40 @@
+     result["geometric_crack_area_fraction"] = None
+     result["geometric_debond_area_fraction"] = None
+     result["area_fraction_status"] = "inconclusive_not_exported_by_probe"
++    volume_status = row.get("paper_volume_damage_status") or None
++    if result.get("paper_status") == "not_enabled" and volume_status is None:
++        volume_status = "not_enabled"
++    result["paper_volume_damage_status"] = volume_status
++    result["paper_constituent_volume_weighted_damage_index"] = None
++    result["paper_constituent_reference_volume_m3"] = None
++    result["paper_constituent_volume_fraction_above_damage_threshold"] = None
++    result["paper_damage_volume_threshold"] = None
++    result["paper_constituent_damage_tetrahedra"] = None
++    if volume_status == "available_constituent_volume_weighted_damage_index":
++        try:
++            index = float(row["paper_constituent_volume_weighted_damage_index"])
++            volume = float(row["paper_constituent_reference_volume_m3"])
++            fraction = float(row["paper_constituent_volume_fraction_above_damage_threshold"])
++            threshold = float(row["paper_damage_volume_threshold"])
++            tetrahedra = int(row["paper_constituent_damage_tetrahedra"])
++            mapped_tetrahedra = int(row["paper_overlay_tetrahedra"])
++        except (TypeError, ValueError, KeyError):
++            volume_status = "inconclusive_missing_or_invalid_volume_damage_fields"
++        else:
++            if (not all(math.isfinite(value) for value in (index, volume, fraction, threshold)) or
++                    not 0.0 <= index <= 1.0 or volume <= 0.0 or
++                    not 0.0 <= fraction <= 1.0 or
++                    not math.isclose(threshold, PAPER_DAMAGE_VOLUME_THRESHOLD,
++                                     rel_tol=0.0, abs_tol=1e-12) or
++                    tetrahedra <= 0 or mapped_tetrahedra != tetrahedra):
++                volume_status = "inconclusive_invalid_volume_damage_accounting"
++            else:
++                result["paper_constituent_volume_weighted_damage_index"] = index
++                result["paper_constituent_reference_volume_m3"] = volume
++                result["paper_constituent_volume_fraction_above_damage_threshold"] = fraction
++                result["paper_damage_volume_threshold"] = threshold
++                result["paper_constituent_damage_tetrahedra"] = tetrahedra
++    result["paper_volume_damage_status"] = volume_status
+ 
+     fully_failed_fields = {
+         "starch": ("starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
+@@ -1193,20 +1228,115 @@
+     }
+ 
+ 
++def _paper_constituent_damage_comparison(left: dict[str, Any],
++                                         right: dict[str, Any]) -> dict[str, Any]:
++    left_status = left.get("paper_volume_damage_status")
++    right_status = right.get("paper_volume_damage_status")
++    if left_status == right_status == "not_enabled":
++        return {"status": "not_enabled"}
++    expected = "available_constituent_volume_weighted_damage_index"
++    if left_status != expected or right_status != expected:
++        return {"status": "inconclusive_missing_or_invalid_constituent_volume_damage",
++                "left_status": left_status, "right_status": right_status}
++    try:
++        left_volume = float(left["paper_constituent_reference_volume_m3"])
++        right_volume = float(right["paper_constituent_reference_volume_m3"])
++        left_index = float(left["paper_constituent_volume_weighted_damage_index"])
++        right_index = float(right["paper_constituent_volume_weighted_damage_index"])
++        left_fraction = float(left["paper_constituent_volume_fraction_above_damage_threshold"])
++        right_fraction = float(right["paper_constituent_volume_fraction_above_damage_threshold"])
++        left_threshold = float(left["paper_damage_volume_threshold"])
++        right_threshold = float(right["paper_damage_volume_threshold"])
++    except (KeyError, TypeError, ValueError):
++        return {"status": "inconclusive_missing_constituent_volume_damage_values"}
++    if not all(math.isfinite(value) for value in (
++            left_volume, right_volume, left_index, right_index,
++            left_fraction, right_fraction, left_threshold, right_threshold)):
++        return {"status": "inconclusive_nonfinite_constituent_volume_damage"}
++    if left_volume <= 0.0 or right_volume <= 0.0:
++        return {"status": "inconclusive_nonpositive_reference_volume"}
++    if not math.isclose(left_threshold, right_threshold, rel_tol=0.0, abs_tol=1e-12):
++        return {"status": "incompatible_damage_threshold"}
++    if not math.isclose(left_volume, right_volume, rel_tol=1e-6, abs_tol=1e-12):
++        return {
++            "status": "incompatible_constituent_reference_volume",
++            "left_reference_volume_m3": left_volume,
++            "right_reference_volume_m3": right_volume,
++            "relative_tolerance": 1e-6,
++            "absolute_tolerance_m3": 1e-12,
++        }
++    return {
++        "status": "available",
++        "left_volume_weighted_damage_index": left_index,
++        "right_volume_weighted_damage_index": right_index,
++        "absolute_volume_weighted_damage_index_difference": abs(right_index - left_index),
++        "left_reference_volume_fraction_at_damage_threshold": left_fraction,
++        "right_reference_volume_fraction_at_damage_threshold": right_fraction,
++        "absolute_reference_volume_fraction_at_damage_threshold_difference": abs(right_fraction - left_fraction),
++        "absolute_volume_weighted_damage_index_difference_limit":
++            PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++        "absolute_reference_volume_fraction_at_damage_threshold_difference_limit":
++            PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++        "damage_threshold": left_threshold,
++        "left_reference_volume_m3": left_volume,
++        "right_reference_volume_m3": right_volume,
++        "overlay_tetrahedron_counts": [
++            left.get("paper_constituent_damage_tetrahedra"),
++            right.get("paper_constituent_damage_tetrahedra"),
++        ],
++        "definition": "per-tetrahedron four-plane area-weighted constitutive damage index averaged by exact mapped reference tetrahedron volume",
++        "not_geometric_crack_area": True,
++    }
++
++
+ def _capacity_history_gates(report: dict[str, Any]) -> dict[str, Any]:
+     damage = report.get("metrics", {}).get("damage_and_debond", {})
+     left, right = damage.get("left", {}), damage.get("right", {})
+-    # The existing paper index normalizes by a mesh-dependent sum of all tet
+-    # cut-plane areas. It is not an objective crack-area fraction. A force-only
+-    # match must not let an enabled but unmeasured localization field qualify.
+-    paper = {
+-        "status": ("not_enabled" if left.get("paper_status") == right.get("paper_status") == "not_enabled"
+-                   else "inconclusive_missing_mesh_objective_paper_damage_fraction"),
+-        "absolute_fraction_limit": 0.02,
+-        "constitutive_damage_index_substituted_for_area": False,
++    comparison = damage.get("paper_constituent_volume_damage") or _paper_constituent_damage_comparison(
++        left, right)
++    if comparison.get("status") == "not_enabled":
++        paper_index = {"status": "not_enabled"}
++        paper_volume_fraction = {"status": "not_enabled"}
++    elif comparison.get("status") != "available":
++        paper_index = {
++            "status": "inconclusive_missing_mesh_comparable_volume_weighted_damage_index",
++            "comparison": comparison,
++            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++            "not_geometric_crack_area": True,
++        }
++        paper_volume_fraction = {
++            "status": "inconclusive_missing_mesh_comparable_reference_volume_damage_fraction",
++            "comparison": comparison,
++            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++            "not_geometric_open_or_crack_area": True,
++        }
++    else:
++        index_difference = comparison["absolute_volume_weighted_damage_index_difference"]
++        paper_index = {
++            "status": "pass" if index_difference <= PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE else "fail",
++            "metric": "constituent_volume_weighted_constitutive_damage_index",
++            "absolute_index_difference": index_difference,
++            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++            "comparison": comparison,
++            "not_geometric_crack_area": True,
++        }
++        fraction_difference = comparison[
++            "absolute_reference_volume_fraction_at_damage_threshold_difference"]
++        paper_volume_fraction = {
++            "status": "pass" if fraction_difference <= PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE else "fail",
++            "metric": "reference_volume_fraction_of_tetrahedra_with_damage_index_at_or_above_threshold",
++            "damage_index_threshold": comparison["damage_threshold"],
++            "absolute_fraction_difference": fraction_difference,
++            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++            "comparison": comparison,
++            "not_geometric_open_or_crack_area": True,
++        }
++    debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
++    return {
++        "paper_volume_weighted_damage_index": paper_index,
++        "paper_reference_volume_damage_fraction_at_threshold": paper_volume_fraction,
++        "irreversible_debond_fraction": debond,
+     }
+-    debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
+-    return {"paper_damage_fraction": paper, "irreversible_debond_fraction": debond}
+ 
+ 
+ def _impact_histories(run: StageRun) -> tuple[dict[str, list[dict[str, float]]], dict[str, Any]]:
+@@ -1412,11 +1542,14 @@
+         "left": _history_metrics(left), "right": _history_metrics(right),
+         "geometric_paper_crack_fraction_difference": None,
+         "geometric_starch_debond_fraction_difference": None,
++        "paper_constituent_volume_damage": {},
+         "fully_failed_cohesive_capacity_area": {},
+         "status": "inconclusive_geometric_area_not_exported",
+     }
+     history_a = metrics["damage_and_debond"]["left"]
+     history_b = metrics["damage_and_debond"]["right"]
++    metrics["damage_and_debond"]["paper_constituent_volume_damage"] = (
++        _paper_constituent_damage_comparison(history_a, history_b))
+     area_a = history_a.get("fully_failed_cohesive_capacity_area", {})
+     area_b = history_b.get("fully_failed_cohesive_capacity_area", {})
+     if (history_a.get("fully_failed_cohesive_capacity_area_status") ==
+@@ -1452,6 +1585,9 @@
+                    for value in capacity_differences.values())
+             else "capacity_loss_area_available_geometric_open_area_unexported")
+     report["missing_observables"].extend(("geometric paper crack area fraction", "geometric starch/HMA debond area fraction"))
++    if metrics["damage_and_debond"]["paper_constituent_volume_damage"].get("status") not in ("available", "not_enabled"):
++        report["missing_observables"].append(
++            "accepted paper constituent-volume-weighted damage index and thresholded reference-volume damage fraction")
+     if (history_a.get("fully_failed_cohesive_capacity_area_status") !=
+             "available_zero_tensile_shear_capacity_not_geometric_open_area" or
+             history_b.get("fully_failed_cohesive_capacity_area_status") !=
+@@ -1617,6 +1753,9 @@
+ CAPACITY_PEAK_TOLERANCE = 0.02
+ CAPACITY_CURVE_TOLERANCE = 0.05
+ CAPACITY_WORK_TOLERANCE = 0.02
++PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE = 0.02
++PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE = 0.02
++PAPER_DAMAGE_VOLUME_THRESHOLD = 0.5
+ 
+ 
+ def _capacity_case(run: StageRun) -> tuple[dict[str, Any] | None, list[str]]:
+@@ -1912,15 +2051,15 @@
+             "moment_curve": "box-grip-reactions.csv accepted total clamp/fixture wrench moment in N m, grouped by stage/action/score-line/environment; this is not the score punch contact moment",
+             "work": "integral over accepted force/stroke or moment/rotation samples with a declared sign convention",
+             "springback": "box-score-springback.csv held-to-released score-line angle changes after accepted clamp release and settle; endpoint shape residual and coverage flags must pass",
+-            "damage": "accepted paper internal-state damage index with element crack-plane reference areas; not geometric crack area",
+-            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; current CSV exports damage index only",
++            "damage": "accepted paper internal-state damage index with element crack-plane reference areas, plus a per-tetrahedron plane-area-averaged index weighted by exact mapped constituent reference volume; neither metric is geometric crack area",
++            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; the CSV exports irreversible zero-capacity reference-area fraction separately, while geometric open area remains unexported",
+             "certificates": "accepted native step, status, certificate validity and residual/correction/volume/pressure fields for every step",
+         },
+         "available_metric_limits": {
+             "shipping-compression.csv": "mean platen force in raw N versus accepted stroke and cumulative work, when complete; curve RMS difference is normalized by left-run RMS force, never by board width; actual timestep refinement is derived from accepted native rows and validated against macro observation duration/count/min/max dt",
+             "box-grip-reactions.csv": "accepted grip wrench moments in raw N m, not width-normalized; moment-curve difference uses left-run RMS moment magnitude; score punch contact moment is not exported here",
+             "box-score-springback.csv": "accepted endpoint shape-fit observations; the probe's engineering fit bound is not a published manufacturing tolerance",
+-            "shipping_history_observables.csv": "area-weighted constitutive paper/cohesive degradation indices; not crack/debond area fractions",
++            "shipping-history-observables.csv": "paper plane-area-weighted damage index and constituent-volume-weighted damage index with exact mapped reference-volume denominator; cohesive damage and irreversible zero-capacity reference-area fractions. None is geometric crack/open-debond area",
+             "shipping_contact_observations.csv": "contact impulses and mean forces; these are not substituted for a score-tool moment curve",
+         },
+         "qualification": "A plan or descriptive comparison is not material calibration, physical cardboard validation, or convergence proof. A convergence conclusion requires complete spatial and temporal triples, decreasing force/work, accepted grip-moment and released-springback differences when the scope includes scoring/assembly, full-stage observables, and admitted accepted histories.",
+--- a/matter/tools/test_cardboard_stage_resolution_study.py
++++ b/matter/tools/test_cardboard_stage_resolution_study.py
+@@ -38,7 +38,11 @@
+                  liner_hash: str = "liner-a", failed: bool = False,
+                  old_step_schema: bool = False, force_scale: float = 1.0,
+                  fully_failed_fraction: float = 0.25,
+-                 paper_damage_enabled: bool = True) -> Path:
++                 paper_damage_enabled: bool = True,
++                 paper_volume_damage_observable: bool = True,
++                 paper_volume_damage_index: float = 0.1,
++                 paper_reference_volume_m3: float = 0.004,
++                 paper_reference_volume_fraction_above_threshold: float = 0.25) -> Path:
+     path = root / name
+     path.mkdir()
+     materials = {}
+@@ -179,6 +183,11 @@
+     write_json(path / "box-native-result.json", native)
+     hist_fields = ["native_step", "simulation_time_s", "dt_s", "stage", "accepted",
+                    "paper_status", "paper_area_weighted_damage_fraction", "paper_reference_plane_area_m2",
++                   "paper_overlay_tetrahedra", "paper_volume_damage_status",
++                   "paper_constituent_volume_weighted_damage_index",
++                   "paper_constituent_reference_volume_m3",
++                   "paper_constituent_volume_fraction_above_damage_threshold",
++                   "paper_damage_volume_threshold", "paper_constituent_damage_tetrahedra",
+                    "starch_status", "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
+                    "starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
+                    "starch_fully_failed_cohesive_area_fraction", "starch_fully_failed_faces",
+@@ -188,6 +197,22 @@
+     hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * dt, "dt_s": dt, "stage": "final_accepted_state",
+              "accepted": 1, "paper_status": ("available_model_area_weighted_damage_index" if paper_damage_enabled else "not_enabled"),
+              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
++             "paper_overlay_tetrahedra": (10 if paper_damage_enabled else 0),
++             "paper_volume_damage_status": (
++                 "available_constituent_volume_weighted_damage_index"
++                 if paper_damage_enabled and paper_volume_damage_observable
++                 else ("unavailable_invalid_or_incomplete_accepted_history"
++                       if paper_damage_enabled else "not_enabled")),
++             "paper_constituent_volume_weighted_damage_index": (
++                 paper_volume_damage_index if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_constituent_reference_volume_m3": (
++                 paper_reference_volume_m3 if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_constituent_volume_fraction_above_damage_threshold": (
++                 paper_reference_volume_fraction_above_threshold
++                 if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_damage_volume_threshold": 0.5,
++             "paper_constituent_damage_tetrahedra": (
++                 10 if paper_damage_enabled and paper_volume_damage_observable else 0),
+              "starch_status": "available_area_weighted_cohesive_degradation_index",
+              "starch_area_weighted_cohesive_damage_fraction": 0.2, "starch_active_reference_area_m2": 0.1,
+              "starch_fully_failed_status": "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area",
+@@ -378,10 +403,89 @@
+         failed = study.compare_runs(left, farther, "mesh_nx", "all")
+         self.assertEqual(failed["metrics"]["damage_and_debond"]["constitutive_debond_fraction_gate"]["status"], "fail")
+ 
+-    def test_capacity_rejects_force_match_with_unmeasured_enabled_paper_damage(self) -> None:
++    def test_thresholded_reference_volume_damage_fraction_uses_matching_volume_and_keeps_area_separate(self) -> None:
++        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
++        within = fake_box_run(self.root, "within", nx=16,
++                              paper_volume_damage_index=0.119,
++                              paper_reference_volume_m3=0.004000000001,
++                              paper_reference_volume_fraction_above_threshold=0.269)
++        report = study.compare_runs(left, within, "mesh_nx", "compression")
++        damage = report["metrics"]["damage_and_debond"]
++        comparison = damage["paper_constituent_volume_damage"]
++        self.assertEqual(comparison["status"], "available")
++        self.assertLessEqual(comparison["absolute_volume_weighted_damage_index_difference"], 0.02)
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(damage["left"]["paper_area_weighted_damage_fraction"], "0.1")
++        self.assertEqual(damage["left"]["paper_constituent_volume_weighted_damage_index"], 0.1)
++        self.assertIsNone(damage["left"]["geometric_crack_area_fraction"])
++        # Thresholded reference-volume fraction is descriptive and never substitutes for the index gate.
++        right = fake_box_run(self.root, "threshold-only", nx=16,
++                             paper_volume_damage_index=0.1)
++        f = right / "shipping-history-observables.csv"
++        fields, rows = study._rows(f)
++        rows[0]["paper_constituent_volume_fraction_above_damage_threshold"] = 0.9
++        write_csv(f, fields, rows)
++        threshold_report = study.compare_runs(left, right, "mesh_nx", "compression")
++        threshold_gate = study._capacity_history_gates(threshold_report)
++        self.assertEqual(threshold_gate["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
++        self.assertEqual(threshold_gate["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(
++            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++            ["absolute_reference_volume_fraction_at_damage_threshold_difference"], 0.65)
++        # The mean-index difference is descriptive and does not masquerade as a fraction gate.
++        self.assertEqual(
++            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++            ["absolute_volume_weighted_damage_index_difference"], 0.0)
++
++    def test_thresholded_reference_volume_damage_fraction_fails_above_two_points_and_rejects_volume_mismatch(self) -> None:
++        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
++        above_index = fake_box_run(self.root, "above-index", nx=16,
++                                   paper_volume_damage_index=0.121)
++        report = study.compare_runs(left, above_index, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "fail")
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
++        above_fraction = fake_box_run(
++            self.root, "above-fraction", nx=16, paper_volume_damage_index=0.1,
++            paper_reference_volume_fraction_above_threshold=0.271)
++        report = study.compare_runs(left, above_fraction, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
++        mismatch = fake_box_run(self.root, "mismatch", nx=16,
++                                paper_reference_volume_m3=0.0041)
++        report = study.compare_runs(left, mismatch, "mesh_nx", "compression")
++        comparison = report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++        self.assertEqual(comparison["status"], "incompatible_constituent_reference_volume")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
++        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
++
++        malformed = fake_box_run(self.root, "bad-coverage", nx=16)
++        file = malformed / "shipping-history-observables.csv"
++        fields, rows = study._rows(file)
++        rows[0]["paper_overlay_tetrahedra"] = "9"
++        write_csv(file, fields, rows)
++        report = study.compare_runs(left, malformed, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
++
++        threshold = fake_box_run(self.root, "bad-threshold", nx=16)
++        file = threshold / "shipping-history-observables.csv"
++        fields, rows = study._rows(file)
++        rows[0]["paper_damage_volume_threshold"] = "0.6"
++        write_csv(file, fields, rows)
++        report = study.compare_runs(left, threshold, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
++
++    def test_capacity_rejects_force_match_with_missing_volume_damage_index(self) -> None:
+         cases = [
+             fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03),
+-            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01),
++            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01,
++                         paper_volume_damage_observable=False),
+             fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0),
+             fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, force_scale=1.03),
+             fake_box_run(self.root, "time-fine", nx=16, dt=0.075, force_scale=1.0),
+@@ -392,7 +496,9 @@
+         self.assertEqual(report["status"], "not_qualified")
+         self.assertFalse(target.exists())
+         self.assertTrue(report["mesh_study"]["finest_pair_within_tolerance"])
+-        self.assertTrue(any("paper_damage_fraction_inconclusive" in reason
++        self.assertTrue(any("paper_volume_weighted_damage_index_inconclusive" in reason
++                            for reason in report["mesh_study"]["reasons"]))
++        self.assertTrue(any("paper_reference_volume_damage_fraction_at_threshold_inconclusive" in reason
+                             for reason in report["mesh_study"]["reasons"]))
+ 
+     def test_capacity_rejects_excessive_debond_difference_even_with_force_match(self) -> None:

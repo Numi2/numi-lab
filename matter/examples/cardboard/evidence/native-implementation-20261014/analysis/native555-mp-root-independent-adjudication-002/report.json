@@ -1,0 +1,95 @@
+{
+  "schema": "numi.cardboard.root-independent-MP-derivative-adjudication.v1",
+  "input_paths": {
+    "capture": "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture",
+    "mp_arrays": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-full-006/arrays.npz",
+    "fp64_arrays": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-actual19-material-replay-001/environment-0/arrays.npz",
+    "legacy_arrays": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-002/assembled_fd.npz",
+    "native_vectors": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-operator-001/operator.vectors.npz",
+    "agent_erratum": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-factor2-erratum-004/report.json",
+    "parser": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py",
+    "reference": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_bilinear_fp64_reference.py",
+    "compensated_reference": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_compensated_fp64_reference.py",
+    "geometry_parser": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py"
+  },
+  "input_sha256": {
+    "capture": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+    "mp_arrays": "d6d6bb54b7e4a4e9644f5aea1b25bfeeef37a5433ce45302e0adc887db67644f",
+    "fp64_arrays": "28f69ede03167ba56a9af76c00ea33b332fd8cf6ccac51179057c67e15d0a0e2",
+    "legacy_arrays": "9de7bfcad1a612f562c49eb2eff7fd17d3a5b5e3e1edb02b9b7c6ec0f751f95c",
+    "native_vectors": "df17ef52e1e90d8e1dd3b6313a14ad503aa7a3414d67273daccc0baa0f2a7eb7",
+    "agent_erratum": "f013f321eee3b011135f9e4348923566be274d4c5b3cd235fad073ea97e2f25b",
+    "parser": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "reference": "8064ba89f0c4b10413937cbf2a5886a9f7de0e4b02358988294620ebae51788f",
+    "compensated_reference": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "geometry_parser": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+  },
+  "cohort": {
+    "paper": 1728,
+    "starch": 192,
+    "tets": 1920,
+    "free_nodes": 846
+  },
+  "independent_scalar_force_assembly": true,
+  "independent_unit_quaternion_frame_transform": true,
+  "FP64_C_H_vs_MP_IFT": {
+    "maximum_relative": 7.503682428818323e-11,
+    "rows_above_1e_minus_6": 0,
+    "all_rows_pass": true
+  },
+  "MP_center_vs_saved_analytic_residual_derivative": {
+    "relative_l2": 4.180940342245761e-11,
+    "absolute_l2_Ns": 1.1410907703757011e-15,
+    "maximum_abs_Ns": 7.645985361572094e-16,
+    "target_l2_Ns": 2.72926824342768e-05
+  },
+  "native_A_delta_vs_negative_MP_center_residual_derivative": {
+    "relative_l2": 1.1972403495054814e-05,
+    "absolute_l2_Ns": 3.267590065656604e-10,
+    "maximum_abs_Ns": 1.1577149093769124e-10,
+    "target_l2_Ns": 2.7292682434285462e-05
+  },
+  "MP_secants": {
+    "26": {
+      "vs_independent_center_IFT": {
+        "relative_l2": 1.4736181082121577e-07,
+        "absolute_l2_Ns": 4.021899105684693e-12,
+        "maximum_abs_Ns": 2.12701988890244e-12,
+        "target_l2_Ns": 2.7292682434285462e-05
+      },
+      "vs_saved_secant_action": {
+        "relative_l2": 2.3577436376058668e-14,
+        "absolute_l2_Ns": 6.434914795672144e-19,
+        "maximum_abs_Ns": 2.567370098017585e-19,
+        "target_l2_Ns": 2.7292682262124033e-05
+      },
+      "element_force_balance_max_N": 4.440892098500626e-16
+    },
+    "28": {
+      "vs_independent_center_IFT": {
+        "relative_l2": 9.210118362438608e-09,
+        "absolute_l2_Ns": 2.5136883564821817e-13,
+        "maximum_abs_Ns": 1.3293886122080738e-13,
+        "target_l2_Ns": 2.7292682434285462e-05
+      },
+      "vs_saved_secant_action": {
+        "relative_l2": 2.0075698300720065e-14,
+        "absolute_l2_Ns": 5.479196581520601e-19,
+        "maximum_abs_Ns": 1.3324887051494212e-19,
+        "target_l2_Ns": 2.7292682423525345e-05
+      },
+      "element_force_balance_max_N": 4.440892098500626e-16
+    }
+  },
+  "smooth_IFT_gate_pass": true,
+  "native_assembled_action_magnitude_gate_pass": true,
+  "native_empirical_finite_difference_noise_floor_qualified": false,
+  "complete_coupon_or_mesh_time_convergence_qualified": false,
+  "limits": [
+    "Cross-audit reuses the source-bound MP projection arrays; it independently recomputes frame transforms and scalar tet/nodal actions, not the 90-digit nonlinear projections.",
+    "The factor-of-two FP64 secant report is retained with its erratum; this audit uses MP secants only.",
+    "Magnitude gates do not establish the native FP32 finite-difference noise floor or repair the complete nonlinear trajectory."
+  ],
+  "all_inputs_unchanged": true,
+  "at_utc": "2026-10-16T12:53:43.744063+00:00"
+}
