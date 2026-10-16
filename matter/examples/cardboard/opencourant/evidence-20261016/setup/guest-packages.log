@@ -1,0 +1,44 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following NEW packages will be installed:
+  libapr1t64 libgomp1
+0 upgraded, 2 newly installed, 0 to remove and 56 not upgraded.
+Need to get 251 kB of archives.
+After this operation, 736 kB of additional disk space will be used.
+Get:1 http://ports.ubuntu.com/ubuntu-ports noble-updates/main arm64 libapr1t64 arm64 1.7.2-3.1ubuntu0.1 [106 kB]
+Get:2 http://ports.ubuntu.com/ubuntu-ports noble-updates/main arm64 libgomp1 arm64 14.2.0-4ubuntu2~24.04.1 [145 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 251 kB in 0s (840 kB/s)
+Selecting previously unselected package libapr1t64:arm64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 77728 files and directories currently installed.)
+Preparing to unpack .../libapr1t64_1.7.2-3.1ubuntu0.1_arm64.deb ...
+Unpacking libapr1t64:arm64 (1.7.2-3.1ubuntu0.1) ...
+Selecting previously unselected package libgomp1:arm64.
+Preparing to unpack .../libgomp1_14.2.0-4ubuntu2~24.04.1_arm64.deb ...
+Unpacking libgomp1:arm64 (14.2.0-4ubuntu2~24.04.1) ...
+Setting up libgomp1:arm64 (14.2.0-4ubuntu2~24.04.1) ...
+Setting up libapr1t64:arm64 (1.7.2-3.1ubuntu0.1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.

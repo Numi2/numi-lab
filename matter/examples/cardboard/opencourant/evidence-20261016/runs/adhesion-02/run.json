@@ -1,0 +1,289 @@
+{
+  "adapter_sha256": "f0ab50e58feeba3cac137ef8d7ea57f009a08524cbc98556677ffbbe3f2e67b3",
+  "binary_sha256": {
+    "engine": "25de8c8eb62bcd09dc5f96b38e3dff015849b373050286b7c59fef1b6bc6ccaa",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "law117-mode-i-open-failure",
+  "case_sha256": "6b0dcc54aa341855ebfbe59826460d81d6c4d09b6307449cd91875bacfed7e4b",
+  "checkpoints": {
+    "law117_mode_i_open_failure_0000_0001.rst": {
+      "bytes": 293888,
+      "sha256": "d42c4b50cd0d06059e27c596cd99a8aa4e8531e4fa46d6a964fd214bd7809232"
+    },
+    "law117_mode_i_open_failure_0001_0001.rst": {
+      "bytes": 294156,
+      "sha256": "56d7f69c38ce5fee401c05b2ee0d32071390f00e560b5e7babeea22907596be1"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "law117_mode_i_open_failure_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5963354130000198,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-16T17:45:07.709035+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/engine_linuxa64_gf",
+        "-i",
+        "law117_mode_i_open_failure_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.12669671300000118,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-16T17:45:08.306327+00:00",
+      "timed_out": false
+    }
+  ],
+  "elapsed_s": 0.7490016579999974,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": true,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 4417,
+      "sha256": "6b0dcc54aa341855ebfbe59826460d81d6c4d09b6307449cd91875bacfed7e4b"
+    },
+    "law117_mode_i_open_failure_0000.rad": {
+      "bytes": 2893,
+      "sha256": "ca113b4c6b8b7a263de47987efb0e73d4421468d766c713267912acb6b5fa75c"
+    },
+    "law117_mode_i_open_failure_0001.rad": {
+      "bytes": 286,
+      "sha256": "a3ad6b66ea7970c2cbbf283523e246ff140fb439f7d1e44a2934bb5ede65807d"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 283,
+      "sha256": "4189cc93f34bf377e72be008ea6dc59435ef26458efc2c11b5ad26455aa28181"
+    },
+    "00-starter.stderr": {
+      "bytes": 851,
+      "sha256": "c2c68699b7c98d172c7e47809a327ffa8fd15999b80f9b4b46630c3cbb5e2576"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "b36814d831e2bee2ed0b1bd9706ba90c5d41ee8291b63d6dc4802abbe0f9836f"
+    },
+    "01-engine.process.json": {
+      "bytes": 282,
+      "sha256": "0f51e6cf33cf6fe9569d7ef384d67052c5c3e05d6add5d0a6dd867cbe4da3904"
+    },
+    "01-engine.stderr": {
+      "bytes": 846,
+      "sha256": "eb044c617739312c2e1f66116cefab0c7e4127636b7536796c3adca7180c5a20"
+    },
+    "01-engine.stdout": {
+      "bytes": 5522,
+      "sha256": "4ffef11dc2c8202a5c058f961e75604d21229d4e676699255bc198c2310784b0"
+    },
+    "case.json": {
+      "bytes": 4417,
+      "sha256": "6b0dcc54aa341855ebfbe59826460d81d6c4d09b6307449cd91875bacfed7e4b"
+    },
+    "law117_mode_i_open_failureA001": {
+      "bytes": 1426,
+      "sha256": "585c0f458fb1a68b54b2d09a4eeffbc223028fc7eb0c79e3b824c8591c6deb99"
+    },
+    "law117_mode_i_open_failureA002": {
+      "bytes": 1426,
+      "sha256": "c6edcee6187c9e3f6ae2a8a33ec5bf25810b7d448077640d4f47ab8d69aa9934"
+    },
+    "law117_mode_i_open_failureA003": {
+      "bytes": 1426,
+      "sha256": "07dd6232b8300b8e97d2ff7a9f02bde27927cfd933b4499871b14f2ce0f2b95f"
+    },
+    "law117_mode_i_open_failureA004": {
+      "bytes": 1426,
+      "sha256": "492205bca904b713fcb165f226114d7c1cc06fdabaef3cdc27d461b4205da854"
+    },
+    "law117_mode_i_open_failureA005": {
+      "bytes": 1426,
+      "sha256": "a62b5374e0e80e0736f2b037bb310fa49dd4416cdb773e69319f8a1aa134277c"
+    },
+    "law117_mode_i_open_failureA006": {
+      "bytes": 1426,
+      "sha256": "0d1cf9037b37b3d3c74f4e49ebda9a7d76a3f3b6bd4b26ea06f7e5798da221d1"
+    },
+    "law117_mode_i_open_failureA007": {
+      "bytes": 1426,
+      "sha256": "4dd788860595809aea32341b4090f631402c301e556cd7819691388096f8b7b8"
+    },
+    "law117_mode_i_open_failureA008": {
+      "bytes": 1426,
+      "sha256": "dd0705119c4a8d48709f6a3563583add549f5eda971a228a243a07fb4a47045e"
+    },
+    "law117_mode_i_open_failureA009": {
+      "bytes": 1426,
+      "sha256": "be97cf2fcbc884287d638dc7fbd33f754355b164796fef786ee785a717873f81"
+    },
+    "law117_mode_i_open_failureA010": {
+      "bytes": 1426,
+      "sha256": "3fdf70bb1d1d1f557b9addc2811f168dddbfe5ac7b0ba99abf4bfbdfeb21f815"
+    },
+    "law117_mode_i_open_failureA011": {
+      "bytes": 1426,
+      "sha256": "8f18ef146b1a5747299b80ff44306441a00ba99abb0590ec1026964b3ad83422"
+    },
+    "law117_mode_i_open_failureA012": {
+      "bytes": 1426,
+      "sha256": "fbe1fc4a3d270d17336a9f585270ade922d0320de9d23d130562d7fae7a795ef"
+    },
+    "law117_mode_i_open_failureA013": {
+      "bytes": 1426,
+      "sha256": "19f0dceb1d0f83282e23610b7b0e281f80122ad0b8698e974e49222e886eac3f"
+    },
+    "law117_mode_i_open_failureA014": {
+      "bytes": 1426,
+      "sha256": "7357d4ae6d016352995075c67bc3f4a3ba8c9bc9c103c5f42faadd0ded7a51b0"
+    },
+    "law117_mode_i_open_failureA015": {
+      "bytes": 1426,
+      "sha256": "b06edfb0fe7768351b37b30dd9e610a765dcd493c4b33b8302d51d7f8f3a2743"
+    },
+    "law117_mode_i_open_failureA016": {
+      "bytes": 1426,
+      "sha256": "06cf08db31ea6685f5386eba32ead9d154818e2dfb02b641f6a0c49b95f0c857"
+    },
+    "law117_mode_i_open_failureA017": {
+      "bytes": 1426,
+      "sha256": "f3abc59dfd4f118b6fc7ebd54b915113995ee947281ce4b5e749801146288ebe"
+    },
+    "law117_mode_i_open_failureA018": {
+      "bytes": 1426,
+      "sha256": "cabd8c256ad04a39c69c277e321efa127af7a20a8bb4d3578eec87a3e2c4a6c8"
+    },
+    "law117_mode_i_open_failureA019": {
+      "bytes": 1426,
+      "sha256": "b563005f41d413341045c33d93c5e53da96975920cfbcf2f3c82da530148b453"
+    },
+    "law117_mode_i_open_failureA020": {
+      "bytes": 1426,
+      "sha256": "adaf8f1ee86f1dd74fae4b52a1b05b5305ec306a9ef3ddaa15f3d547a7a4472c"
+    },
+    "law117_mode_i_open_failureA021": {
+      "bytes": 1426,
+      "sha256": "5817256f2248f971196f7b54ee090b55f97c0f47575e35c268551c19239d2759"
+    },
+    "law117_mode_i_open_failureA022": {
+      "bytes": 1426,
+      "sha256": "cc74dc81c6d89027b93d7dc630d6f54265cfef81f5b352784295c4352c674266"
+    },
+    "law117_mode_i_open_failureA023": {
+      "bytes": 1426,
+      "sha256": "72a5604d8228a2021721ea8abe4519cebb57e9509482117ee55e73100a756c23"
+    },
+    "law117_mode_i_open_failureA024": {
+      "bytes": 1426,
+      "sha256": "fd71db265504cdce69098d48cd2b42418060d14000e374e9e711ba442615bf6b"
+    },
+    "law117_mode_i_open_failureA025": {
+      "bytes": 1426,
+      "sha256": "00233879e2f4cb5e5eac20d03e566a5573170cd10371b7efbb66a34ec4b0ce24"
+    },
+    "law117_mode_i_open_failureA026": {
+      "bytes": 1426,
+      "sha256": "ad4681b9aaa2c7ab78831043bcd2d591a7ec752754cae4f3c6084461e3750506"
+    },
+    "law117_mode_i_open_failureA027": {
+      "bytes": 1426,
+      "sha256": "b0b5909fc89323dcc9f8414d6259a4df6d72dcb82c293b2d172f2d8c5c920101"
+    },
+    "law117_mode_i_open_failureA028": {
+      "bytes": 1426,
+      "sha256": "8360c3468a89f812be31cb3c5c61cc75c5c81bae0bff67a4c1cc82bd77176fb0"
+    },
+    "law117_mode_i_open_failureA029": {
+      "bytes": 1426,
+      "sha256": "fe2e050e6d279943dead27c4b494d9a511825179283f555bc772cd2e07b1c970"
+    },
+    "law117_mode_i_open_failureA030": {
+      "bytes": 1426,
+      "sha256": "3759b8e9564cb2fffa4ad881a072978319af00338ebeba34b9c311ee8cf6d3f2"
+    },
+    "law117_mode_i_open_failureA031": {
+      "bytes": 1426,
+      "sha256": "ad3700e76f3ffc1be7f3ee4dd220634c4dc4e98e206c8c008d184b9acd2a22fc"
+    },
+    "law117_mode_i_open_failureT01": {
+      "bytes": 11820,
+      "sha256": "aac7cf3d32530d3965a9304549f93c06f67b65922d1d39c079f2a7f5b1ea0b4a"
+    },
+    "law117_mode_i_open_failure_0000.out": {
+      "bytes": 20671,
+      "sha256": "c1c98e90a4ef7a44733600edfe32b871e9c1e22bca5c7e93b95ac0bab7541144"
+    },
+    "law117_mode_i_open_failure_0000.rad": {
+      "bytes": 2893,
+      "sha256": "ca113b4c6b8b7a263de47987efb0e73d4421468d766c713267912acb6b5fa75c"
+    },
+    "law117_mode_i_open_failure_0000_0001.rst": {
+      "bytes": 293888,
+      "sha256": "d42c4b50cd0d06059e27c596cd99a8aa4e8531e4fa46d6a964fd214bd7809232"
+    },
+    "law117_mode_i_open_failure_0001.out": {
+      "bytes": 11601,
+      "sha256": "6c80ed10e85098400472838d234e585255a6fcd118814c279db6d4dd35f266c3"
+    },
+    "law117_mode_i_open_failure_0001.rad": {
+      "bytes": 286,
+      "sha256": "a3ad6b66ea7970c2cbbf283523e246ff140fb439f7d1e44a2934bb5ede65807d"
+    },
+    "law117_mode_i_open_failure_0001_0001.rst": {
+      "bytes": 294156,
+      "sha256": "56d7f69c38ce5fee401c05b2ee0d32071390f00e560b5e7babeea22907596be1"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "e18472e1c8998f6a76865df6169686c7975ba22fefcad3b7d3051bd4279f080b",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

@@ -1,0 +1,221 @@
+{
+  "schema": "numi.cardboard.opencourant.paper-parameters.v1",
+  "material_law": "Radioss /MAT/LAW112 (PAPER or XIA)",
+  "calibration_scope": "instrument_only_not_target_grade_calibration",
+  "units": {
+    "length": "mm",
+    "time": "s",
+    "mass": "Mg",
+    "stress": "MPa",
+    "density": "Mg/mm^3",
+    "strain": "dimensionless"
+  },
+  "mapping_policy": "Known published medium elasticity and directional yield anchors are assigned only to the corresponding LAW112 card fields for a parser/constitutive instrumentation fixture. This is a cross-law mapping, not a claim that Haj-Ali proposed or identified LAW112. Unavailable LAW112 fields are explicit defaults or synthetic inactive-fixture values; they are never treated as calibration data.",
+  "source_inputs": [
+    {
+      "path": "matter/examples/cardboard/manufacturing-source-manifest.json",
+      "sha256": "6f3c556d6ffc97998d243601a6bfb34a1e8735026f06d6c0e8a8aec625a7d68f",
+      "role": "typed source/proxy status for Haj-Ali medium and separate Popil coupon density"
+    },
+    {
+      "path": "matter/examples/cardboard/manufacturing-sources.md",
+      "sha256": "71746b787a74e700ae5c951c39b1205059e34fd986293b96e78aef888cda8c7c",
+      "role": "transcription notes for Haj-Ali Table 2 elastic properties and limitations"
+    },
+    {
+      "path": "matter/examples/cardboard/source-data/haj_ali_2009_yield_anchors.csv",
+      "sha256": "ede6b47229eb02f1d1de278035c995eaa358919c55384398cbe33fe3de3c9f04",
+      "role": "Haj-Ali Tables 1 and 3 directional yield anchors and compression assumptions"
+    },
+    {
+      "path": "matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_transfer_v1.csv",
+      "sha256": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+      "role": "explicit source/derived status for Table 3 and out-of-plane assumed values"
+    },
+    {
+      "path": "matter/examples/cardboard/source-data/catalog.json",
+      "sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+      "role": "source identity, condition, dataset class and limits"
+    }
+  ],
+  "external_primary_references": {
+    "haj_ali_2009": "https://doi.org/10.1016/j.compstruct.2008.02.001",
+    "radioss_law112_card": "https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law112_paper_starter_r.htm",
+    "radioss_law1_reference_only": "https://www.2024.help.altair.com/2024/hwsolvers/rad/topics/solvers/rad/mat_law1_elast_starter_r.htm",
+    "opencourant_release": "https://opencourant.org/downloads"
+  },
+  "opencourant_binding": {
+    "release": "latest-20261011",
+    "commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+    "law112_cfg_path": "hm_cfg_files/config/CFG/radioss2021/MAT/matl112_paper.cfg",
+    "law112_cfg_sha256": "67c878f6066fe4ee6ce4af8cde0f65c0c24da897a55444ac391ba9ec44be9c20",
+    "starter_law112_reader_path": "starter/source/materials/mat/mat112/law112_upd.F",
+    "starter_law112_reader_sha256": "6208b17da98e26f3b2aa549f9f5a3d48b1901d51eaa44e721a4f5d48d29119df",
+    "engine_law112_path": "engine/source/materials/mat/mat112/mat112_xia_newton.F",
+    "engine_law112_sha256": "c437b2a6a75c71bd4ff9f95aebdf0190e76a1df7c9a53183c904bd3184b0c1b5",
+    "one_hex_qa_starter_path": "qa-tests/miniqa/LOIS/LOI44/solides_8pt/data/44SLD8_0000.rad",
+    "one_hex_qa_starter_sha256": "7fc3b2781753d28da1689e9db95832492820d22854e228c8c5c80effe8e498b9",
+    "one_hex_qa_engine_path": "qa-tests/miniqa/LOIS/LOI44/solides_8pt/data/44SLD8_0001.rad",
+    "one_hex_qa_engine_sha256": "9bbb3a9d11d90d16e9235a7a1a1c0b76578dd76b9d388851f914c0939d06442e"
+  },
+  "law112_fields": {
+    "rho_i": {
+      "value": 6.79e-10,
+      "unit": "Mg/mm^3",
+      "origin_class": "cross_source_proxy",
+      "source": "Popil 2017, Table 4.1 separate 26# NSSC medium soft-caliper coupon, 679 kg/m^3",
+      "limitation": "Not Haj-Ali's 126 gsm medium sheet and not established as the same sample/roll. Converted 679 kg/m^3 to Mg/mm^3."
+    },
+    "E1": {
+      "value": 4472,
+      "unit": "MPa",
+      "origin_class": "published_value",
+      "source": "Haj-Ali 2009 Table 2, 126 gsm NSSC medium MD (paper direction 1)"
+    },
+    "E2": {
+      "value": 1612,
+      "unit": "MPa",
+      "origin_class": "published_value",
+      "source": "Haj-Ali 2009 Table 2, 126 gsm NSSC medium CD (paper direction 2)"
+    },
+    "E3": {
+      "value": 17.9,
+      "unit": "MPa",
+      "origin_class": "published_estimate",
+      "source": "Haj-Ali 2009 Table 2; source estimates E33 as E11/250"
+    },
+    "Ires": {
+      "value": 2,
+      "unit": "enum",
+      "origin_class": "solver_method_choice",
+      "source": "LAW112 documentation: Newton iterative method"
+    },
+    "Itab": {
+      "value": 0,
+      "unit": "enum",
+      "origin_class": "solver_method_choice",
+      "source": "continuous yield-stress card branch; no fitted tables supplied"
+    },
+    "Ismooth": {
+      "value": 0,
+      "unit": "enum",
+      "origin_class": "unused_card_setting",
+      "source": "not used when Itab=0"
+    },
+    "nu21": {
+      "value": 0.06488372093023255,
+      "unit": "dimensionless",
+      "origin_class": "derived_from_published_value",
+      "source": "Reciprocal orthotropic compliance relation nu21 = nu12*E2/E1 using Table 2 nu12=0.18, E1=4472 MPa, E2=1612 MPa",
+      "limitation": "Haj-Ali's reciprocity convention is not fully documented as a solver-ready stiffness matrix; this is an explicitly derived reciprocal choice."
+    },
+    "G12": {
+      "value": 1039,
+      "unit": "MPa",
+      "origin_class": "published_relation_value",
+      "source": "Haj-Ali 2009 Table 2; G12 is related to E11 and E22 through the paper's Eq. 1"
+    },
+    "G23": {
+      "value": 198.72,
+      "unit": "MPa",
+      "origin_class": "published_model_input",
+      "source": "Haj-Ali 2009 Table 2; basis for the out-of-plane shear value is not documented as a direct measurement"
+    },
+    "G13": {
+      "value": 226.34,
+      "unit": "MPa",
+      "origin_class": "published_model_input",
+      "source": "Haj-Ali 2009 Table 2; basis for the out-of-plane shear value is not documented as a direct measurement"
+    },
+    "K": {
+      "value": 1.0,
+      "unit": "dimensionless",
+      "origin_class": "documented_law_default",
+      "source": "LAW112 default"
+    },
+    "E3C": {
+      "value": 17.9,
+      "unit": "MPa",
+      "origin_class": "documented_law_default",
+      "source": "LAW112 default E3C=E3"
+    },
+    "CC": {
+      "value": 1.0,
+      "unit": "dimensionless",
+      "origin_class": "documented_law_default",
+      "source": "LAW112 default"
+    },
+    "nu1p_nu2p_nu4p_nu5p": {
+      "value": [0.0, 0.0, 0.0, 0.0],
+      "unit": "dimensionless",
+      "origin_class": "synthetic_instrument_value",
+      "source": "No matching published LAW112 plastic Poisson set was found; zero values keep this parser fixture explicit and deterministic.",
+      "limitation": "Not measured or calibrated. Plastic Poisson behavior is not qualified."
+    },
+    "S01": {
+      "value": 15.7,
+      "unit": "MPa",
+      "origin_class": "published_tensile_yield_anchor_cross_law_mapping",
+      "source": "Haj-Ali 2009 Table 1, 126 gsm NSSC medium MD tension yield anchor"
+    },
+    "S02": {
+      "value": 8.06,
+      "unit": "MPa",
+      "origin_class": "published_tensile_yield_anchor_cross_law_mapping",
+      "source": "Haj-Ali 2009 Table 1, 126 gsm NSSC medium CD tension yield anchor"
+    },
+    "S03": {
+      "value": 1e20,
+      "unit": "MPa",
+      "origin_class": "documented_law_default_instrument_sentinel",
+      "source": "LAW112 default; no same-grade positive in-plane shear yield anchor in the source package",
+      "limitation": "Effectively disables in-plane shear yielding in these small-strain parser fixtures; not a material strength."
+    },
+    "S04": {
+      "value": 9.391,
+      "unit": "MPa",
+      "origin_class": "published_compression_model_assumption_cross_law_mapping",
+      "source": "Haj-Ali 2009 Table 3 for 126 gsm NSSC medium MD; compression value is a source modeling assumption, not a compression measurement"
+    },
+    "S05": {
+      "value": 4.836,
+      "unit": "MPa",
+      "origin_class": "published_compression_model_assumption_cross_law_mapping",
+      "source": "Haj-Ali 2009 Table 3 for 126 gsm NSSC medium CD; compression value is a source modeling assumption, not a compression measurement"
+    },
+    "ASIG": {
+      "value": 3.23,
+      "unit": "MPa",
+      "origin_class": "derived_compression_model_assumption_cross_law_mapping",
+      "source": "Beldie-derived ZD value in the Haj-Ali Table 3 transfer record; not a direct measurement"
+    },
+    "TAU0": {
+      "value": 1e20,
+      "unit": "MPa",
+      "origin_class": "documented_law_default_instrument_sentinel",
+      "source": "LAW112 default; no matching transverse-shear yield value is identified",
+      "limitation": "Effectively disables transverse-shear yielding; not a material strength."
+    },
+    "hardening_A_B_C_fields": {
+      "value": "all zero",
+      "unit": "LAW112 field units",
+      "origin_class": "synthetic_perfect_plastic_instrument_choice",
+      "source": "Source package does not identify LAW112 hardening coefficients; Haj-Ali does not tabulate post-yield slopes.",
+      "limitation": "Not an identified hardening law. Tension fit endpoints are separate digitized estimates and do not determine the multiaxial LAW112 coefficients."
+    }
+  },
+  "not_identified_for_target_calibration": [
+    "A complete Xia/LAW112 parameter set for the 205 gsm kraft liner or 126 gsm NSSC medium",
+    "same-sample density for the Haj-Ali medium sheet",
+    "LAW112 plastic Poisson ratios",
+    "complete compression yield curves and LAW112 out-of-plane/shear calibration",
+    "LAW112 hardening coefficients and calibrated multiaxial hardening",
+    "specimen-level raw test traces, condition/rate mapping, replicates, and uncertainty"
+  ],
+  "nonclaims": [
+    "No target-grade LAW112 calibration or validation",
+    "No same-roll/same-lot identity between Haj-Ali 2009 and the Popil density proxy",
+    "No corrugated board, adhesive, flute, crease, damage, box, ECT, BCT, or shipping prediction",
+    "No use of values from the LAW112 documentation example"
+  ]
+}

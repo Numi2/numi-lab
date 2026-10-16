@@ -1,0 +1,15 @@
+#RADIOSS ENGINE
+/ANIM/DT
+0 2e-05
+/ANIM/BRICK/DAMA
+/ANIM/BRICK/TENS/STRESS
+/ANIM/ELEM/ENER
+/ANIM/VECT/DISP
+/MON/ON
+/RFILE
+# restart output interval in cycles
+5000
+/TFILE/4
+4e-06
+/RUN/law117_mode_i_open_failure/1
+0.001

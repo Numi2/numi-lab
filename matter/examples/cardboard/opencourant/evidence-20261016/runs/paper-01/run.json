@@ -1,0 +1,119 @@
+{
+  "adapter_sha256": "f0ab50e58feeba3cac137ef8d7ea57f009a08524cbc98556677ffbbe3f2e67b3",
+  "binary_sha256": {
+    "engine": "25de8c8eb62bcd09dc5f96b38e3dff015849b373050286b7c59fef1b6bc6ccaa",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "law112-md-tension-instrument",
+  "case_sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311",
+  "checkpoints": {},
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "law112_md_tension_instrument_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5630034670000441,
+      "error_termination": true,
+      "exit_code": 2,
+      "normal_termination": false,
+      "started_utc": "2026-10-16T17:43:51.964517+00:00",
+      "timed_out": false
+    }
+  ],
+  "elapsed_s": 0.5879485190000651,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": false,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 1792,
+      "sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311"
+    },
+    "law112_md_tension_instrument_0000.rad": {
+      "bytes": 3016,
+      "sha256": "9e94bb5b3206b57781ecee61da17ae41d29f154ae6a9a184af00ebb8b63c83ab"
+    },
+    "law112_md_tension_instrument_0001.rad": {
+      "bytes": 262,
+      "sha256": "2c3bc80fb5453a1395da10a810320b0e8dc982b6b6577b14adc8b38e071d2ebe"
+    },
+    "parameters.json": {
+      "bytes": 10201,
+      "sha256": "3759905bd8c9e3e71941c26c4e34623b8e92446c070db8995120fabe2250c474"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 285,
+      "sha256": "cab7d6e8581067b76443b570fc27ae517e3bb9d91b83fada1432989bb3fd0e5f"
+    },
+    "00-starter.stderr": {
+      "bytes": 893,
+      "sha256": "824537b45ae1cd6a3549b98c00bd00c5a3a84c4e697673932eb55af256865c90"
+    },
+    "00-starter.stdout": {
+      "bytes": 3788,
+      "sha256": "3f752e13299511b13be3b2784e3d8e880db8a4de368e20d617eeb7312e97a2d0"
+    },
+    "case.json": {
+      "bytes": 1792,
+      "sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311"
+    },
+    "law112_md_tension_instrument_0000.out": {
+      "bytes": 30734,
+      "sha256": "7f1aa611fef3d6b7c3478f293084a8583e515f517cd2aa9999a2b92f546ddb6e"
+    },
+    "law112_md_tension_instrument_0000.rad": {
+      "bytes": 3016,
+      "sha256": "9e94bb5b3206b57781ecee61da17ae41d29f154ae6a9a184af00ebb8b63c83ab"
+    },
+    "law112_md_tension_instrument_0001.rad": {
+      "bytes": 262,
+      "sha256": "2c3bc80fb5453a1395da10a810320b0e8dc982b6b6577b14adc8b38e071d2ebe"
+    },
+    "parameters.json": {
+      "bytes": 10201,
+      "sha256": "3759905bd8c9e3e71941c26c4e34623b8e92446c070db8995120fabe2250c474"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "e18472e1c8998f6a76865df6169686c7975ba22fefcad3b7d3051bd4279f080b",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

@@ -1,0 +1,184 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                        OpenCourant Starter                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**               Linux 64 bits, ARM, GFortran compiler                **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+
+WARNING ID : 100213
+** WARNING IN INPUT OPTIONS
+DESCRIPTION :  
+-- BLOCK: /BCS/1
+-- LINE: 111       000         0         1
+unsupported field exists at the end of line
+SOLUTION :     
+    Please check input format and fields description defined in the Reference Guide.
+
+WARNING ID : 100213
+** WARNING IN INPUT OPTIONS
+DESCRIPTION :  
+-- BLOCK: /BCS/2
+-- LINE: 110       000         0         2
+unsupported field exists at the end of line
+SOLUTION :     
+    Please check input format and fields description defined in the Reference Guide.
+
+WARNING ID : 100213
+** WARNING IN INPUT OPTIONS
+DESCRIPTION :  
+-- BLOCK: /FUNCT/1
+-- LINE: 0.0009                 0.35
+unsupported field exists at the end of line
+SOLUTION :     
+    Please check input format and fields description defined in the Reference Guide.
+
+WARNING ID : 100213
+** WARNING IN INPUT OPTIONS
+DESCRIPTION :  
+-- BLOCK: /FUNCT/1
+-- LINE: 0.001                 0.35
+unsupported field exists at the end of line
+SOLUTION :     
+    Please check input format and fields description defined in the Reference Guide.
+Synthetic LAW117 cohesive admission fixture
+ .. UNITS SYSTEM                                                                         
+
+ERROR ID :    574
+** UNIT NOT DEFINED
+DESCRIPTION :  
+   WORK LENGTH UNIT IS NOT DEFINED
+
+ERROR ID :    574
+** UNIT NOT DEFINED
+DESCRIPTION :  
+   WORK TIME UNIT IS NOT DEFINED
+ .. CONTROL VARIABLES                                                                    
+ .. STARTER RUNNING ON    1 THREAD
+ .. FUNCTIONS & TABLES
+ .. MATERIALS                                                                            
+ .. NODES                                                                                
+ .. PROPERTIES                                                                           
+ .. 3D SOLID ELEMENTS                                                                    
+ .. SUBSETS
+ .. ELEMENT GROUPS
+ .. PART GROUPS
+ .. NODE GROUP
+ .. BOUNDARY CONDITIONS                                                                  
+
+ERROR ID :    678
+** ERROR IN BOUNDARY CONDITION DEFINITION
+DESCRIPTION :  
+   -- BCS ID: 1
+   -- BCS TITLE: fixed bottom translations
+   UNDEFINED NODE GROUP ID=0
+
+ERROR ID :    678
+** ERROR IN BOUNDARY CONDITION DEFINITION
+DESCRIPTION :  
+   -- BCS ID: 2
+   -- BCS TITLE: fix nondriven top axes
+   UNDEFINED NODE GROUP ID=0
+ .. IMPOSED VELOCITIES                                                                   
+ .. DOMAIN DECOMPOSITION
+ .. ELEMENT GROUPS                                                                       
+ .. ELEMENT BUFFER INITIALIZATION                                                        
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 1
+   -- THGROUP TITLE: cohesive state
+   TH VARIABLE STRESS STR IS NOT AVAILABLE
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 1
+   -- THGROUP TITLE: cohesive state
+   TH VARIABLE AIN IE OFF IS NOT AVAILABLE
+
+ERROR ID :   1109
+** ERROR IN TH
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 1
+   -- THGROUP TITLE: bottom reaction history
+   TH VARIABLE REACX REAC IS NOT AVAILABLE
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 1
+   -- THGROUP TITLE: bottom reaction history
+   TH VARIABLE Y REACZ IS NOT AVAILABLE
+
+ERROR ID :   1109
+** ERROR IN TH
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 2
+   -- THGROUP TITLE: top separation history
+   TH VARIABLE DX DY DZ V IS NOT AVAILABLE
+
+ERROR ID :    260
+** ERROR IN TH
+DESCRIPTION :  
+   -- THGROUP ID: 2
+   -- THGROUP TITLE: top separation history
+   TH VARIABLE X VY VZ IS NOT AVAILABLE
+
+ERROR ID :   1109
+** ERROR IN TH
+
+ERROR ID :     79
+** ERROR: DUPLICATE ID
+DESCRIPTION :  
+   IN TH GROUP DEFINITION
+   ID=1 is DUPLICATED
+ .. GEOMETRY PLOT FILE                                                                   
+ .. ERROR ==> NO RESTART FILE                                                            
+  
+------------------------------------------------------------------------
+  
+                   ** COMPUTE TIME INFORMATION **
+  
+ EXECUTION STARTED      :      2026/10/16  19:39:28
+ EXECUTION COMPLETED    :      2026/10/16  19:39:28
+  
+ ELAPSED TIME...........=          0.45 s
+                               00:00:00
+  
+------------------------------------------------------------------------
+
+
+
+     ERROR TERMINATION                  
+     ------------------                                                                  
+             14 ERROR(S)            
+              4 WARNING(S)          
+
+
+
+
+PLEASE CHECK LISTING FILE FOR FURTHER DETAILS
+
+

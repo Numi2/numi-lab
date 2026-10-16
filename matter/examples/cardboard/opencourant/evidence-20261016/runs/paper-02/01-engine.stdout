@@ -1,0 +1,104 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**               Linux 64 bits, ARM, GFortran compiler                **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law112_md_tension_instrument  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 16/10/2026
+ NC=       0 T= 0.0000E+00 DT= 3.3164E-06 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law112_md_tension_instrumentA001 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA002 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA003 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA004 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA005 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA006 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA007 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA008 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA009 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA010 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA011 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA012 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA013 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA014 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA015 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA016 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA017 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA018 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA019 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA020 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA021 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA022 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA023 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA024 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA025 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA026 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA027 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA028 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA029 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA030 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA031 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA032 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA033 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA034 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA035 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA036 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA037 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA038 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA039 WRITTEN
+     ANIMATION FILE: law112_md_tension_instrumentA040 WRITTEN
+     RESTART FILES: law112_md_tension_instrument_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .4004E-02 .6070E-03 .4780E-03 .1478E-01 .1536E-02 .3260E-03 .2606E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .5300E-04     0.20 % 
+ ELEMENT FORCES..............: .4004E-02    15.37 % 
+ KINEMATIC COND..............: .6070E-03     2.33 % 
+ INTEGRATION.................: .4780E-03     1.83 % 
+ ASSEMBLING..................: .3260E-03     1.25 % 
+ OTHERS (including I/O)......: .2059E-01    79.01 % 
+ TOTAL.......................: .2606E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       35 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       35 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       35 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       35 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.05 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :     302

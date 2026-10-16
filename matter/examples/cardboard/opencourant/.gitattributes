@@ -1,0 +1,3 @@
+# Native fixed-width decks, listings, binary checkpoints and signed receipts
+# must retain their exact bytes; whitespace is part of the evidence.
+evidence-20261016/** -text -whitespace

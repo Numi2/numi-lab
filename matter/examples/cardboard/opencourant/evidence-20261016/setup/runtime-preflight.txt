@@ -1,0 +1,46 @@
+Linux lima-cardboard-oc 6.8.0-142-generic #142-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:30:29 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+	linux-vdso.so.1 (0x0000f06b5f284000)
+	libdl.so.2 => /lib/aarch64-linux-gnu/libdl.so.2 (0x0000f06b5f210000)
+	libhm_reader_linuxa64.so => /Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so (0x0000f06b5e4e0000)
+	libapr-1.so.0 => /Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0 (0x0000f06b5e480000)
+	libstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000f06b5e1f0000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000f06b5e140000)
+	libgomp.so.1 => /Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1 (0x0000f06b5e0e0000)
+	libpthread.so.0 => /lib/aarch64-linux-gnu/libpthread.so.0 (0x0000f06b5e0b0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000f06b5def0000)
+	/lib/ld-linux-aarch64.so.1 (0x0000f06b5f240000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000f06b5deb0000)
+	libuuid.so.1 => /lib/aarch64-linux-gnu/libuuid.so.1 (0x0000f06b5de80000)
+	librt.so.1 => /lib/aarch64-linux-gnu/librt.so.1 (0x0000f06b5de50000)
+	libcrypt.so.1 => /lib/aarch64-linux-gnu/libcrypt.so.1 (0x0000f06b5de00000)
+	linux-vdso.so.1 (0x0000ebc11af68000)
+	libdl.so.2 => /lib/aarch64-linux-gnu/libdl.so.2 (0x0000ebc11aef0000)
+	librt.so.1 => /lib/aarch64-linux-gnu/librt.so.1 (0x0000ebc11aec0000)
+	libstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000ebc11ac30000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ebc11ab80000)
+	libgomp.so.1 => /Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1 (0x0000ebc11ab20000)
+	libpthread.so.0 => /lib/aarch64-linux-gnu/libpthread.so.0 (0x0000ebc11aaf0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ebc11a930000)
+	/lib/ld-linux-aarch64.so.1 (0x0000ebc11af20000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ebc11a8f0000)
+ 
+OpenCourant Starter 
+ 
+Platform release : linux64             
+Platform info : Linux 64 bits, ARM, GFortran compiler                             
+ 
+Time of build : 14:26:41                        
+Date of build : Oct 11 2026                     
+ 
+CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef
+Reader : 20260918_f907fe76
+ 
+ 
+OpenCourant Engine 
+ 
+Platform release : linuxa64_gf
+Platform info : Linux 64 bits, ARM, GFortran compiler                             
+ 
+Time of build : 14:26:57                        
+Date of build : Oct 11 2026                     
+ 

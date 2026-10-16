@@ -1,0 +1,2 @@
+time="2026-10-16T19:40:26+02:00" level=info msg="Using the existing instance `cardboard-oc`"
+time="2026-10-16T19:40:26+02:00" level=info msg="The instance `cardboard-oc` is already running. Run `limactl shell cardboard-oc` to open the shell."

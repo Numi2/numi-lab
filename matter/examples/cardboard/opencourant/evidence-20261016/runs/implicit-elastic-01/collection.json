@@ -1,0 +1,11 @@
+{
+  "changed_outputs": [],
+  "execution_complete": false,
+  "limitation": "Process completion and output hashes do not establish paper, interface, assembly or convergence gates.",
+  "max_solver_rss_bytes": 156319744,
+  "native_termination": [],
+  "output_identity_valid": true,
+  "physical_qualification": false,
+  "receipt_sha256": "5b7a9356fa593174adb63aa5ab15d1f0c4cba8821989525cf8dc46af0d8d59ac",
+  "schema": "cardboard.opencourant.collection.v1"
+}

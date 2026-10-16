@@ -1,0 +1,18 @@
+{
+  "changed_outputs": [],
+  "execution_complete": false,
+  "limitation": "Process completion and output hashes do not establish paper, interface, assembly or convergence gates.",
+  "max_solver_rss_bytes": 154775552,
+  "native_termination": [
+    {
+      "error_termination": false,
+      "file": "implicit_elastic_force_control_0001.out",
+      "normal_termination": false,
+      "tail": "CKS TO BE ELIMINATED        0\n\n NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0\n\n NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0\n\n NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0\n\n\n IMPLICIT OPTIONS USED :\n\n IMPLICIT TYPE : . . . . . . . . . . . . .   STATIC LINEAR            \n LINEAR SOLVER : . . . . . . . . . . . . .   PREC. CONJUGATE GRADIENT \n PRECONDITION METHOD : . . . . . . . . . .   NONE                     \n STOP CRITERION FOR LINEAR SOLVER . . . . .      3\n ITERATION NUM. LIMIT FOR LINEAR SOLVER . .      0\n TOLERANCE FOR LINEAR SOLVER . . . . . . .    0.1000000E-09\n PRINTOUT FREQUENCY FOR LINEAR SOLVER . . .      0\n\n\n GEOMETRICAL STIFFNESS FLAG  . . .. . . . .      1\n LOAD (PRESSURE) STIFFNESS FLAG  . . . . .       0\n AUTOSPC FLAG (0:OFF,1:ON,2:ALL) . . .. . .      1\n SPRING-BACK OPTION : . . . . . . . . . . .      0\n SPECIAL PCG SOLVER FOR CONTACT . . . .. .       0\n\n\n TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .  0.1000000E+31\n TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .   0.000000    \n TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21\n SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0\n TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    \n\n VARIABLE SAVED ON ANIMATION FILES (1: YES) :\n      PLASTIC STRAIN. . . . . .     0\n      DENSITY     (SOLID ONLY).     0\n      SPECIFIC ENERGY . . . . .     0\n      HOURGLASS ENERGY. . . . .     0\n      TEMPERATURE (SOLID ONLY).     0\n      THICKNESS   (SHELL ONLY).     0\n      PRESSURE    (SOLID ONLY).     0\n      VON MISES . . . . . . . .     0\n      TURBULENT ENERGY (FLUID).     0\n      TURBULENT VISCOSITY(FLUID)    0\n      VORTICITY (FLUID) . . . .     0\n NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :\n      PRESSURE. . . . . . . . .     0\n      DENSITY . . . . . . . . .     0\n      TEMPERATURE . . . . . . .     0\n VECTOR SAVED ON ANIMATION FILES (1: YES) :\n      VELOCITY VECTOR . . . . .     0\n      DISPLACEMENT VECTOR . . .     0\n      ACCELERATION VECTOR . . .     0\n      CONTACT FORCES. . . . . .     0\n      INTERNAL FORCES . . . . .     0\n      EXTERNAL FORCES . . . . .     0\n      SECTION RBY RWALL FORCES.     0\n      ROTATIONAL VELOCITY VECTOR    0\n      CONTACT PRESSURE (VECTORS)    0\n SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :\n      MEMBRANE STRESS . . . . .     0\n      BENDING STRESS(MOMENT/T^2)    0\n      UPPER LAYER STRESS. . . .     0\n      LOWER LAYER STRESS. . . .     0\n      MEMBRANE STRAIN . . . . .     0\n      CURVATURE . . . . . . . .     0\n      UPPER LAYER STRAIN. . . .     0\n      LOWER LAYER STRAIN. . . .     0\n NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0\n KEEP DELETED ELEMENT (1: YES) :    0\n\n\n 16/10/2026\n   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED\n       0   0.000      0.1000E-02 SOLID          1   0.0%   0.000       0.000       0.000       0.000       0.000      0.1000E-05   0.000    \n"
+    }
+  ],
+  "output_identity_valid": true,
+  "physical_qualification": false,
+  "receipt_sha256": "840647b7ff321595171432a9e1aee30e0d9f27d70ccd27a4487d1e5e97c8c454",
+  "schema": "cardboard.opencourant.collection.v1"
+}

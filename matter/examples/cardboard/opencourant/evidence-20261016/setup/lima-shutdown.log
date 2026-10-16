@@ -1,0 +1,249 @@
+{"level":"debug","msg":"Using internal driver \"vz\"","time":"2026-10-16T19:32:29+02:00"}
+{"level":"debug","msg":"Decompressing /opt/homebrew/share/lima/lima-guestagent.Linux-aarch64.gz","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Creating iso file /Users/n/.lima/cardboard-oc/cidata.iso","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Using /var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/diskfs_iso584749718 as workspace","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Failed to detect CPU features. Assuming that AES acceleration is available on this Apple silicon.","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"OpenSSH version 10.3.1 detected, is GSSAPI supported: true","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"AES accelerator seems available, prioritizing aes128-gcm@openssh.com and aes256-gcm@openssh.com","time":"2026-10-16T19:32:30+02:00"}
+{"level":"info","msg":"hostagent socket created at /Users/n/.lima/cardboard-oc/ha.sock","time":"2026-10-16T19:32:30+02:00"}
+{"level":"info","msg":"Starting VZ (hint: to watch the boot progress, see `/Users/n/.lima/cardboard-oc/serial*.log`)","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Start udp DNS listening on: 127.0.0.1:49262","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Start tcp DNS listening on: 127.0.0.1:55979","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Using search domains: [domain_not_set.invalid]","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Kernel file `/Users/n/.lima/cardboard-oc/kernel` not found","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Using EFI Boot Loader","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"new connection from  to ","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"[VZ] - vm state change: `VirtualMachineStateStarting`","time":"2026-10-16T19:32:30+02:00"}
+{"level":"info","msg":"[VZ] - vm state change: running","time":"2026-10-16T19:32:30+02:00"}
+{"level":"debug","msg":"Waiting for port to become available on 192.168.5.15:22","time":"2026-10-16T19:32:33+02:00"}
+{"level":"debug","msg":"Waiting for port to become available on 192.168.5.15:22","time":"2026-10-16T19:32:34+02:00"}
+{"level":"debug","msg":"Waiting for port to become available on 192.168.5.15:22","time":"2026-10-16T19:32:35+02:00"}
+{"level":"debug","msg":"Port is available on 192.168.5.15:22","time":"2026-10-16T19:32:36+02:00"}
+{"error":"Error Domain=NSPOSIXErrorDomain Code=54 Description=\"The operation couldn’t be completed. Connection reset by peer\" UserInfo={\n}","hostAddress":"127.0.0.1:55978","level":"debug","msg":"Failed to start vsock forwarder (systemd is older than v256?)","time":"2026-10-16T19:32:36+02:00"}
+{"level":"info","msg":"SSH server does not seem to be running on vsock port, using usernet forwarder","time":"2026-10-16T19:32:36+02:00"}
+{"level":"info","msg":"Waiting for the essential requirement 1 of 3: `ssh`","time":"2026-10-16T19:32:37+02:00"}
+{"level":"debug","msg":"executing script `ssh`","time":"2026-10-16T19:32:37+02:00"}
+{"level":"debug","msg":"executing ssh for script \"ssh\": /usr/bin/ssh [ssh -o ControlMaster=no -o ControlPath=none -o ControlPersist=no -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -p 55978 127.0.0.1 -- /bin/bash -c \"$(printf 'param_env=\"$(sudo cat /mnt/lima-cidata/param.env)\"; while read -r line; do [ -n \"$line\" ] \u0026\u0026 export \"$line\"; done\u003c\u003cEOF\\n${param_env}\\nEOF\\n/bin/sh')\"]","time":"2026-10-16T19:32:37+02:00"}
+{"level":"debug","msg":"stdout=``, stderr=\"Connection to 127.0.0.1 closed by remote host.\\r\\n\", err=failed to execute script \"ssh\": stdout=\"\", stderr=\"Connection to 127.0.0.1 closed by remote host.\\r\\n\": exit status 255","time":"2026-10-16T19:32:37+02:00"}
+{"level":"debug","msg":"executing script `ssh`","time":"2026-10-16T19:32:40+02:00"}
+{"level":"debug","msg":"executing ssh for script \"ssh\": /usr/bin/ssh [ssh -o ControlMaster=no -o ControlPath=none -o ControlPersist=no -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -p 55978 127.0.0.1 -- /bin/bash -c \"$(printf 'param_env=\"$(sudo cat /mnt/lima-cidata/param.env)\"; while read -r line; do [ -n \"$line\" ] \u0026\u0026 export \"$line\"; done\u003c\u003cEOF\\n${param_env}\\nEOF\\n/bin/sh')\"]","time":"2026-10-16T19:32:40+02:00"}
+{"level":"debug","msg":"stdout=``, stderr=``, err=\u003cnil\u003e","time":"2026-10-16T19:32:40+02:00"}
+{"level":"info","msg":"The essential requirement 1 of 3 is satisfied","time":"2026-10-16T19:32:40+02:00"}
+{"level":"info","msg":"Waiting for the essential requirement 2 of 3: `user session is ready for ssh`","time":"2026-10-16T19:32:40+02:00"}
+{"level":"debug","msg":"executing script `user session is ready for ssh`","time":"2026-10-16T19:32:40+02:00"}
+{"level":"debug","msg":"executing ssh for script \"user session is ready for ssh\": /usr/bin/ssh [ssh -o ControlMaster=no -o ControlPath=none -o ControlPersist=no -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -p 55978 127.0.0.1 -- /bin/bash -c \"$(printf 'param_env=\"$(sudo cat /mnt/lima-cidata/param.env)\"; while read -r line; do [ -n \"$line\" ] \u0026\u0026 export \"$line\"; done\u003c\u003cEOF\\n${param_env}\\nEOF\\n/bin/sh')\"]","time":"2026-10-16T19:32:40+02:00"}
+{"level":"debug","msg":"stdout=``, stderr=\"+ cat /run/lima-ssh-ready\\n+ [ iid-1792171950 = iid-1792171950 ]\\n\", err=\u003cnil\u003e","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"The essential requirement 2 of 3 is satisfied","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Waiting for the essential requirement 3 of 3: `Explicitly start ssh ControlMaster`","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"executing script `Explicitly start ssh ControlMaster`","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"executing ssh for script \"Explicitly start ssh ControlMaster\": /usr/bin/ssh [ssh -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -o ControlMaster=auto -o ControlPath=\"/Users/n/.lima/cardboard-oc/ssh.sock\" -o ControlPersist=yes -p 55978 127.0.0.1 -- /bin/bash -c \"$(printf 'param_env=\"$(sudo cat /mnt/lima-cidata/param.env)\"; while read -r line; do [ -n \"$line\" ] \u0026\u0026 export \"$line\"; done\u003c\u003cEOF\\n${param_env}\\nEOF\\n/bin/sh')\"]","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"stdout=``, stderr=``, err=\u003cnil\u003e","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"The essential requirement 3 of 3 is satisfied","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"Static port forwards: 0, Non-static port forwards: 0","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Waiting for the guest agent to be running","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"Forwarding unix sockets","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Guest agent is running","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Time sync: guest agent is alive, starting time synchronization","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Waiting for the final requirement 1 of 1: `boot scripts must have finished`","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"executing script `boot scripts must have finished`","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"guest agent info: local_ports:{protocol:\"tcp\"  ip:\"127.0.0.54\"  port:53}  local_ports:{protocol:\"tcp\"  ip:\"0.0.0.0\"  port:22}  local_ports:{protocol:\"tcp\"  ip:\"127.0.0.53\"  port:53}  local_ports:{protocol:\"tcp\"  ip:\"::\"  port:22}  local_ports:{protocol:\"udp\"  ip:\"127.0.0.54\"  port:53}  local_ports:{protocol:\"udp\"  ip:\"127.0.0.53\"  port:53}  local_ports:{protocol:\"udp\"  ip:\"192.168.5.15\"  port:68}  local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:5353}  local_ports:{protocol:\"udp\"  ip:\"::\"  port:5353}","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"executing ssh for script \"boot scripts must have finished\": /usr/bin/ssh [ssh -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -o ControlMaster=auto -o ControlPath=\"/Users/n/.lima/cardboard-oc/ssh.sock\" -o ControlPersist=yes -p 55978 127.0.0.1 -- /bin/bash -c \"$(printf 'param_env=\"$(sudo cat /mnt/lima-cidata/param.env)\"; while read -r line; do [ -n \"$line\" ] \u0026\u0026 export \"$line\"; done\u003c\u003cEOF\\n${param_env}\\nEOF\\n/bin/sh')\"]","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792171961  nanos:272745046}  added_local_ports:{protocol:\"tcp\"  ip:\"127.0.0.54\"  port:53}  added_local_ports:{protocol:\"tcp\"  ip:\"0.0.0.0\"  port:22}  added_local_ports:{protocol:\"tcp\"  ip:\"127.0.0.53\"  port:53}  added_local_ports:{protocol:\"tcp\"  ip:\"::\"  port:22}  added_local_ports:{protocol:\"udp\"  ip:\"127.0.0.54\"  port:53}  added_local_ports:{protocol:\"udp\"  ip:\"127.0.0.53\"  port:53}  added_local_ports:{protocol:\"udp\"  ip:\"192.168.5.15\"  port:68}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:5353}  added_local_ports:{protocol:\"udp\"  ip:\"::\"  port:5353}","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding TCP 127.0.0.54:53","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding TCP 0.0.0.0:22","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding TCP 127.0.0.53:53","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding TCP [::]:22","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.54:53","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.53:53","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 192.168.5.15:68","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:5353 to 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Forwarding UDP from [::]:5353 to 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"error":"listen udp 127.0.0.1:5353: bind: address already in use","level":"debug","msg":"failed to listen udp: 127.0.0.1:5353","negligible-reason":"mDNS port (often conflicts with the system mDNS responder)","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"error":"listen udp 127.0.0.1:5353: bind: address already in use","level":"debug","msg":"failed to listen udp: 127.0.0.1:5353","negligible-reason":"mDNS port (often conflicts with the system mDNS responder)","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"error":"listen udp 127.0.0.1:5353: bind: address already in use","level":"debug","msg":"failed to listen udp: 127.0.0.1:5353","negligible-reason":"mDNS port (often conflicts with the system mDNS responder)","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"error":"listen udp 127.0.0.1:5353: bind: address already in use","level":"debug","msg":"failed to listen udp: 127.0.0.1:5353","negligible-reason":"mDNS port (often conflicts with the system mDNS responder)","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Not forwarding UDP 127.0.0.1:5353","time":"2026-10-16T19:32:41+02:00"}
+{"level":"debug","msg":"stdout=``, stderr=\"+ BOOT_DONE=/run/lima-boot-done\\n+ uname\\n+ UNAME=Linux\\n+ [ Linux = Darwin ]\\n+ [ Linux = FreeBSD ]\\n+ cat /run/lima-boot-done\\n+ [ iid-1792171950 = iid-1792171950 ]\\n\", err=\u003cnil\u003e","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"The final requirement 1 of 1 is satisfied","time":"2026-10-16T19:32:41+02:00"}
+{"level":"info","msg":"Time sync: guest clock adjusted (was 144ms off)","time":"2026-10-16T19:32:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 0ms within threshold","time":"2026-10-16T19:32:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 0ms within threshold","time":"2026-10-16T19:33:06+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792171988  nanos:19493260}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:35228}","time":"2026-10-16T19:33:08+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:35228 to 127.0.0.1:35228","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792171988  nanos:145660177}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:35228}","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:35228, guestAddress: 0.0.0.0:35228","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:35228 closed","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:35228, guestAddress: 0.0.0.0:35228","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:35228 guest:0.0.0.0:35228","time":"2026-10-16T19:33:08+02:00"}
+{"level":"debug","msg":"Time sync: drift 36ms within threshold","time":"2026-10-16T19:33:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 53ms within threshold","time":"2026-10-16T19:33:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 58ms within threshold","time":"2026-10-16T19:33:36+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172020  nanos:134957982}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:49165}","time":"2026-10-16T19:33:40+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:49165 to 127.0.0.1:49165","time":"2026-10-16T19:33:40+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172021  nanos:155833290}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:49165}","time":"2026-10-16T19:33:41+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:49165, guestAddress: 0.0.0.0:49165","time":"2026-10-16T19:33:41+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:49165 closed","time":"2026-10-16T19:33:41+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:49165 guest:0.0.0.0:49165","time":"2026-10-16T19:33:41+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:49165, guestAddress: 0.0.0.0:49165","time":"2026-10-16T19:33:41+02:00"}
+{"level":"debug","msg":"Time sync: drift 59ms within threshold","time":"2026-10-16T19:33:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:33:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:34:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 62ms within threshold","time":"2026-10-16T19:34:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:34:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 62ms within threshold","time":"2026-10-16T19:34:36+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:34:38+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172084  nanos:384229894}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:34307}","time":"2026-10-16T19:34:44+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:34307 to 127.0.0.1:34307","time":"2026-10-16T19:34:44+02:00"}
+{"level":"debug","msg":"Time sync: drift 62ms within threshold","time":"2026-10-16T19:34:46+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172087  nanos:154554059}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:34307}","time":"2026-10-16T19:34:47+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:34307, guestAddress: 0.0.0.0:34307","time":"2026-10-16T19:34:47+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:34307 closed","time":"2026-10-16T19:34:47+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:34307, guestAddress: 0.0.0.0:34307","time":"2026-10-16T19:34:47+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:34307 guest:0.0.0.0:34307","time":"2026-10-16T19:34:47+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:34:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:35:06+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:35:10+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:35:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:35:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:35:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:35:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:35:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:06+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:36:14+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:46+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172212  nanos:630063815}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:59765}","time":"2026-10-16T19:36:52+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:59765 to 127.0.0.1:59765","time":"2026-10-16T19:36:52+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172213  nanos:146186223}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:59765}","time":"2026-10-16T19:36:53+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:59765, guestAddress: 0.0.0.0:59765","time":"2026-10-16T19:36:53+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:59765 closed","time":"2026-10-16T19:36:53+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:59765, guestAddress: 0.0.0.0:59765","time":"2026-10-16T19:36:53+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:59765 guest:0.0.0.0:59765","time":"2026-10-16T19:36:53+02:00"}
+{"level":"debug","msg":"Time sync: drift 60ms within threshold","time":"2026-10-16T19:36:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 61ms within threshold","time":"2026-10-16T19:37:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 62ms within threshold","time":"2026-10-16T19:37:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 62ms within threshold","time":"2026-10-16T19:37:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 63ms within threshold","time":"2026-10-16T19:37:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 63ms within threshold","time":"2026-10-16T19:37:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 64ms within threshold","time":"2026-10-16T19:37:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 64ms within threshold","time":"2026-10-16T19:38:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 64ms within threshold","time":"2026-10-16T19:38:16+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:38:22+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:38:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:38:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:38:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:38:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:39:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:39:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:39:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:39:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:39:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:39:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:40:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:40:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:40:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:40:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:40:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:40:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:41:06+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172468  nanos:879114269}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:53446}","time":"2026-10-16T19:41:08+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:53446 to 127.0.0.1:53446","time":"2026-10-16T19:41:08+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172471  nanos:150166340}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:53446}","time":"2026-10-16T19:41:11+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:53446, guestAddress: 0.0.0.0:53446","time":"2026-10-16T19:41:11+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:53446 closed","time":"2026-10-16T19:41:11+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:53446, guestAddress: 0.0.0.0:53446","time":"2026-10-16T19:41:11+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:53446 guest:0.0.0.0:53446","time":"2026-10-16T19:41:11+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:41:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:41:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:41:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:41:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:41:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:36+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:42:38+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:42:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:43:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:44:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:44:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:44:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:44:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:44:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:44:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:45:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:46:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:47:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:47:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:47:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:47:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:47:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:47:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:48:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:49:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:49:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 73ms within threshold","time":"2026-10-16T19:49:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 73ms within threshold","time":"2026-10-16T19:49:36+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172981  nanos:135172420}  added_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:56114}","time":"2026-10-16T19:49:41+02:00"}
+{"level":"info","msg":"Forwarding UDP from 0.0.0.0:56114 to 127.0.0.1:56114","time":"2026-10-16T19:49:41+02:00"}
+{"level":"debug","msg":"guest agent event: time:{seconds:1792172984  nanos:150749915}  removed_local_ports:{protocol:\"udp\"  ip:\"0.0.0.0\"  port:56114}","time":"2026-10-16T19:49:44+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:56114, guestAddress: 0.0.0.0:56114","time":"2026-10-16T19:49:44+02:00"}
+{"level":"debug","msg":"udp proxy for guestAddr: 0.0.0.0:56114 closed","time":"2026-10-16T19:49:44+02:00"}
+{"level":"debug","msg":"removing listener for hostAddress: 127.0.0.1:56114, guestAddress: 0.0.0.0:56114","time":"2026-10-16T19:49:44+02:00"}
+{"level":"debug","msg":"Port forwarding closed proto:udp host:127.0.0.1:56114 guest:0.0.0.0:56114","time":"2026-10-16T19:49:44+02:00"}
+{"level":"debug","msg":"Time sync: drift 73ms within threshold","time":"2026-10-16T19:49:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 72ms within threshold","time":"2026-10-16T19:49:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:50:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 71ms within threshold","time":"2026-10-16T19:50:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 70ms within threshold","time":"2026-10-16T19:50:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:50:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 69ms within threshold","time":"2026-10-16T19:50:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:50:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 68ms within threshold","time":"2026-10-16T19:51:06+02:00"}
+{"level":"debug","msg":"Stopping udp proxy (read udp 185.125.190.58:123: i/o timeout)","time":"2026-10-16T19:51:11+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:51:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 67ms within threshold","time":"2026-10-16T19:51:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:51:36+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:51:46+02:00"}
+{"level":"debug","msg":"Time sync: drift 66ms within threshold","time":"2026-10-16T19:51:56+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:52:06+02:00"}
+{"level":"debug","msg":"Time sync: drift 65ms within threshold","time":"2026-10-16T19:52:16+02:00"}
+{"level":"debug","msg":"Time sync: drift 64ms within threshold","time":"2026-10-16T19:52:26+02:00"}
+{"level":"debug","msg":"Time sync: drift 64ms within threshold","time":"2026-10-16T19:52:36+02:00"}
+{"level":"info","msg":"Received SIGINT, shutting down the host agent","time":"2026-10-16T19:52:37+02:00"}
+{"level":"info","msg":"Shutting down the host agent","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"Stop forwarding unix sockets","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"shutting down the SSH master","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"executing ssh for exiting the master: /usr/bin/ssh [ssh -F /dev/null -o IdentityFile=\"/Users/n/.lima/_config/user\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o NoHostAuthenticationForLocalhost=yes -o PreferredAuthentications=publickey -o Compression=no -o BatchMode=yes -o IdentitiesOnly=yes -o GSSAPIAuthentication=no -o Ciphers=\"^aes128-gcm@openssh.com,aes256-gcm@openssh.com\" -o User=n -o ControlMaster=auto -o ControlPath=\"/Users/n/.lima/cardboard-oc/ssh.sock\" -o ControlPersist=yes -O exit -p 55978 127.0.0.1]","time":"2026-10-16T19:52:37+02:00"}
+{"level":"info","msg":"Shutting down VZ","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"Time sync: context cancelled, stopping","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"dhcp: unhandled message type: RELEASE","time":"2026-10-16T19:52:37+02:00"}
+{"level":"info","msg":"[VZ] - vm state change: stopped","time":"2026-10-16T19:52:37+02:00"}
+{"level":"error","msg":"accept tcp 127.0.0.1:55978: use of closed network connection","time":"2026-10-16T19:52:37+02:00"}
+{"level":"debug","msg":"Stopping external driver server in instance directory /Users/n/.lima/cardboard-oc","time":"2026-10-16T19:52:37+02:00"}

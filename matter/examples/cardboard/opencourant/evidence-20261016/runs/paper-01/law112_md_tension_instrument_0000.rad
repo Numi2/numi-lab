@@ -1,0 +1,69 @@
+#RADIOSS STARTER
+# OpenCourant latest-20261011; source cb760c206e346eff12161a2268b134ef9d48a4ef
+# Instrument-only LAW112 mapping. No target-grade calibration claim.
+/BEGIN/
+law112_md_tension_instrument
+      2021         0
+    1.0000000000E+00    1.0000000000E+00    1.0000000000E+00
+    1.0000000000E+00    1.0000000000E+00    1.0000000000E+00
+/TITLE
+One eight-node paperboard LAW112 directional instrument fixture
+/ANALY
+                                        0
+/DEF_SOLID
+         0         0         2
+/MAT/LAW112/1
+Published medium mapping plus explicit instrument-only fields
+    6.7900000000E-10
+    4.4720000000E+03    1.6120000000E+03    1.7900000000E+01         2         0         0
+    6.4883720930E-02    1.0390000000E+03    1.9872000000E+02    2.2634000000E+02
+    1.0000000000E+00    1.7900000000E+01    1.0000000000E+00
+    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    1.5700000000E+01    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    8.0600000000E+00    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    1.0000000000E+20    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    9.3910000000E+00    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    4.8360000000E+00    0.0000000000E+00    0.0000000000E+00    0.0000000000E+00
+    3.2300000000E+00    0.0000000000E+00    0.0000000000E+00
+    1.0000000000E+20    0.0000000000E+00    0.0000000000E+00
+/PROP/SOLID/1
+one eight-node solid
+        12         0         0         0         0         8        -1         1    0.0000000000E+00
+    1.0000000000E-20    1.0000000000E-21
+    0.0000000000E+00
+/PART/1
+paperboard instrument element
+         1         1         0
+/NODE
+         1                   0                   0                   0
+         2                  10                   0                   0
+         3                  10                  10                   0
+         4                   0                  10                   0
+         5                   0                   0                  10
+         6                  10                   0                  10
+         7                  10                  10                  10
+         8                   0                  10                  10
+/BRICK/1
+         1         1         2         3         4         5         6         7         8
+/GRNOD/NODE/1
+fixed face
+         1         4         5         8
+/GRNOD/NODE/2
+loaded face
+         2         3         6         7
+/BCS/1
+fixed reference face
+   111 000         0         1
+/FUNCT/1
+dimensionless trapezoidal velocity multiplier
+    0.0000000000E+00    0.0000000000E+00
+    1.0000000000E-04    1.0000000000E+00
+    9.0000000000E-04    1.0000000000E+00
+    1.0000000000E-03    0.0000000000E+00
+/IMPVEL/1/0
+prescribed paper-direction velocity
+         1         X         0         0         2         0         0
+    1.0000000000E+00    1.2500000000E+01    0.0000000000E+00    1.0000000000E-03
+/ANIM/VERS
+36
+/END

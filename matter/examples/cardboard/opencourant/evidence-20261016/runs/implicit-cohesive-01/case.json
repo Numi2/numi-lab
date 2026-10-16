@@ -1,0 +1,25 @@
+{
+  "id": "implicit-cohesive-force-control",
+  "starter": "implicit_cohesive_force_control_0000.rad",
+  "engines": [
+    "implicit_cohesive_force_control_0001.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "purpose": "Bounded implicit stiffness support instrument; synthetic, not physical grade calibration",
+  "prediction": {
+    "total_applied_force_N": 1.0,
+    "mean_upper_DZ_mm": 0.01,
+    "sum_bottom_reaction_magnitude_N": 1.0,
+    "elastic_work_N_mm": 0.005
+  },
+  "gates": {
+    "normal_termination": true,
+    "finite_displacements": true,
+    "relative_displacement_error_max": 0.01,
+    "relative_reaction_error_max": 0.01,
+    "missing_stiffness_warning_allowed": false
+  },
+  "controls": "Identical restraints, load and stiffness; LAW1 HEX8 versus LAW117 TYPE43",
+  "mass_scaling": false,
+  "physical_qualification": false
+}

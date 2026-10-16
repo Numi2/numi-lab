@@ -1,0 +1,12 @@
+{
+  "release": "latest-20261011",
+  "commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "asset": {
+    "id": 631036281,
+    "name": "OpenCourant_linuxa64.zip",
+    "size": 83335518,
+    "digest": "sha256:ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7",
+    "browser_download_url": "https://github.com/OpenCourant/OpenCourant/releases/download/latest-20261011/OpenCourant_linuxa64.zip"
+  },
+  "retrieved_utc": "2026-10-16T17:32:02.225088+00:00"
+}

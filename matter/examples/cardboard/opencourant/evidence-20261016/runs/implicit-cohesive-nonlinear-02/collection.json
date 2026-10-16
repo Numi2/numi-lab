@@ -1,0 +1,18 @@
+{
+  "changed_outputs": [],
+  "execution_complete": false,
+  "limitation": "Process completion and output hashes do not establish paper, interface, assembly or convergence gates.",
+  "max_solver_rss_bytes": 155656192,
+  "native_termination": [
+    {
+      "error_termination": false,
+      "file": "implicit_cohesive_nonlinear_force_control_0001.out",
+      "normal_termination": false,
+      "tail": "TRESSES CONTROL FLAG . . . . . . . .       0\n REFERENCE RESIDUAL FLAG . . . . . . .. . .      1\n TIME STEP CONTROL METHOD . . . . . . . . .      1\n MINIMUM TIME STEP . . . . . . . . . . . .    0.1000000E-09\n MAXIMUM TIME STEP . . . . . . . . . . . .    0.1000000E+11\n\n\n SMALL DISPLACEMENT OPTION(0:OFF,1:ON) . . .. . .      0\n\n MINIMUM REFERENCE FORCE RESIDUAL . . . .    0.000000    \n MAXIMUM REFERENCE FORCE RESIDUAL . . . .    0.1000000E+31\n\n\nAUTOMATIC TIME STEP CONTROL:\n\n CONVERGE ITERATION NUM. FOR INCREASING DT.       4\n INCREASING TIME STEP SCALE FACTOR.  . . . .    1.010000    \n CONVERGE ITERATION NUM. FOR DECREASING DT .     15\n DECREASING TIME STEP SCALE FACTOR.  . . . .   0.6666667    \n\n LINE-SEARCH METHOD :. . . . . . . . . . . .      3\n MAXIMUM LINE-SEARCH ITERATION NUM. . . . .      20\n TOLERANCE FOR LINE-SEARCH ITERATION.  . . .   0.1000000E-02\n\n DIVERGENCE CRITERION NUMBERS :  . . . . . .      1\n\n\n TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .  0.1000000E+31\n TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .   0.000000    \n TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21\n SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0\n TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    \n\n VARIABLE SAVED ON ANIMATION FILES (1: YES) :\n      PLASTIC STRAIN. . . . . .     0\n      DENSITY     (SOLID ONLY).     0\n      SPECIFIC ENERGY . . . . .     0\n      HOURGLASS ENERGY. . . . .     0\n      TEMPERATURE (SOLID ONLY).     0\n      THICKNESS   (SHELL ONLY).     0\n      PRESSURE    (SOLID ONLY).     0\n      VON MISES . . . . . . . .     0\n      TURBULENT ENERGY (FLUID).     0\n      TURBULENT VISCOSITY(FLUID)    0\n      VORTICITY (FLUID) . . . .     0\n NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :\n      PRESSURE. . . . . . . . .     0\n      DENSITY . . . . . . . . .     0\n      TEMPERATURE . . . . . . .     0\n VECTOR SAVED ON ANIMATION FILES (1: YES) :\n      VELOCITY VECTOR . . . . .     0\n      DISPLACEMENT VECTOR . . .     0\n      ACCELERATION VECTOR . . .     0\n      CONTACT FORCES. . . . . .     0\n      INTERNAL FORCES . . . . .     0\n      EXTERNAL FORCES . . . . .     0\n      SECTION RBY RWALL FORCES.     0\n      ROTATIONAL VELOCITY VECTOR    0\n      CONTACT PRESSURE (VECTORS)    0\n SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :\n      MEMBRANE STRESS . . . . .     0\n      BENDING STRESS(MOMENT/T^2)    0\n      UPPER LAYER STRESS. . . .     0\n      LOWER LAYER STRESS. . . .     0\n      MEMBRANE STRAIN . . . . .     0\n      CURVATURE . . . . . . . .     0\n      UPPER LAYER STRAIN. . . .     0\n      LOWER LAYER STRAIN. . . .     0\n NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0\n KEEP DELETED ELEMENT (1: YES) :    0\n\n\n 16/10/2026\n   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED\n       0   0.000      0.1000E-03 NODE           1   0.0%   0.000       0.000       0.000       0.000       0.000      0.1000E-05   0.000    \n"
+    }
+  ],
+  "output_identity_valid": true,
+  "physical_qualification": false,
+  "receipt_sha256": "a7c0de7d4c257aacf6a87d6b944cf26a9a5625dbfc38381cfaf9693fbb0651c0",
+  "schema": "cardboard.opencourant.collection.v1"
+}

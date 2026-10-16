@@ -1,0 +1,18 @@
+{
+  "changed_outputs": [],
+  "execution_complete": true,
+  "limitation": "Process completion and output hashes do not establish paper, interface, assembly or convergence gates.",
+  "max_solver_rss_bytes": 156745728,
+  "native_termination": [
+    {
+      "error_termination": false,
+      "file": "implicit_elastic_force_control_0001.out",
+      "normal_termination": true,
+      "tail": "S . . . . .     0\n      BENDING STRESS(MOMENT/T^2)    0\n      UPPER LAYER STRESS. . . .     0\n      LOWER LAYER STRESS. . . .     0\n      MEMBRANE STRAIN . . . . .     0\n      CURVATURE . . . . . . . .     0\n      UPPER LAYER STRAIN. . . .     0\n      LOWER LAYER STRAIN. . . .     0\n NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0\n KEEP DELETED ELEMENT (1: YES) :    0\n\n\n 16/10/2026\n   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED\n       0   0.000      0.8562E-04 SOLID          1   0.0%   0.000       0.000       0.000       0.000       0.000      0.1000E-05   0.000    \n     ANIMATION FILE: implicit_elastic_force_controlA001 WRITTEN\n\n     RESTART FILES: implicit_elastic_force_control_0001_[0001-0001].rst WRITTEN\n     -------------\n\n  \n                           ** CPU USER TIME **\n  \n  \n                        ** SUMMARY **\n  \n #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    \n   1   .1470E-03 .2100E-04 .1300E-04 .2040E-02 .5500E-04 .1100E-04 .4208E-02\n  \n \n                   ** CUMULATIVE CPU TIME SUMMARY **\n  \n CONTACT SORTING.............: .0000E+00     0.00 % \n CONTACT FORCES..............: .3000E-05     0.07 % \n ELEMENT FORCES..............: .1470E-03     3.49 % \n KINEMATIC COND..............: .2100E-04     0.50 % \n INTEGRATION.................: .1300E-04     0.31 % \n ASSEMBLING..................: .1100E-04     0.26 % \n OTHERS (including I/O)......: .4013E-02    95.37 % \n TOTAL.......................: .4208E-02   100.00 % \n  \n  \n                           ** ELAPSED TIME **\n  \n  \n                        ** SUMMARY **\n  \n #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    \n   1   .5899E-03 .7154E-04 .2617E-04 .6598E-02 .2440E-03 .1792E-04 .1026E-01\n  \n                   ** MEMORY USAGE STATISTICS **\n  \n TOTAL MEMORY USED .........................:       43 MB\n MAXIMUM MEMORY PER PROCESSOR...............:       43 MB\n MINIMUM MEMORY PER PROCESSOR...............:       43 MB\n AVERAGE MEMORY PER PROCESSOR...............:       43 MB\n  \n                   ** DISK USAGE STATISTICS **\n  \n TOTAL DISK SPACE USED .....................:          0 MB\n ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB\n RESTART FILE SIZE .........................:          0 MB\n  \n                   ** COMPUTE TIME INFORMATION **\n                        ** CURRENT ENGINE **\n  \n EXECUTION STARTED .........................:      2026/10/16  19:48:37\n EXECUTION COMPLETED .......................:      2026/10/16  19:48:37\n  \n ELAPSED TIME     =          0.02 s\n                          0:00:00\n\n\n\n     NORMAL TERMINATION      \n\n\n\n     TOTAL NUMBER OF CYCLES  :      12\n\n  \n                   ** COMPUTE RUNTIME INFORMATION SUMMARY **\n  \n        STARTER RUNTIME =          0.45s (00:00:00)\n # 001   ENGINE RUNTIME =          0.02s (00:00:00)\n ------------------------------ \n STARTER+ENGINE RUNTIME =          0.47s (00:00:00)\n  \n"
+    }
+  ],
+  "output_identity_valid": true,
+  "physical_qualification": false,
+  "receipt_sha256": "639ae7aa9281f9f42ae515f17523efab0ced58e69bae96afae60ea150d4cfb43",
+  "schema": "cardboard.opencourant.collection.v1"
+}

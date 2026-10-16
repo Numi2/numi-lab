@@ -1,0 +1,14 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "receipt_created_after_conversion": true,
+  "input_relative_path": "runs/adhesion-02/law117_mode_i_open_failureT01",
+  "input_sha256": "aac7cf3d32530d3965a9304549f93c06f67b65922d1d39c079f2a7f5b1ea0b4a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "law117_mode_i_open_failureT01.csv",
+  "output_sha256": "23d06e01202f969416d8009bedd509e1734d28773677ece6ac4e9c3e36525750",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "/Users/n/cardboard-opencourant-20261016/runs/adhesion-02/law117_mode_i_open_failureT01"
+  ],
+  "scope": "Instrument repair only. Missing TITLES sidecar leaves varNN and impulse reaction channels; not a force calibration result."
+}

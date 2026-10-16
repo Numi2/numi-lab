@@ -1,0 +1,14 @@
+/IMPL/LINEAR
+/IMPL/SOLV/01
+         1         0         3               1e-10
+/IMPL/PRINT/LINEAR/1
+/ANIM/DT
+0 0.001
+/ANIM/VECT/DISP
+/ANIM/BRICK/TENS/STRESS
+/TH/TITLE
+/TFILE/4
+0.0001
+/MON/ON
+/RUN/implicit_elastic_force_control/1
+0.001

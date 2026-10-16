@@ -1,0 +1,26 @@
+{
+  "id": "implicit-without-th-animation",
+  "starter": "implicit_elastic_force_control_0000.rad",
+  "engines": [
+    "implicit_elastic_force_control_0001.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "purpose": "Instrument repair: localize cycle-zero crash in output versus implicit solution; not physics qualification",
+  "prediction": {
+    "hypotheses": [
+      "title-output path causes crash",
+      "implicit matrix path causes crash"
+    ],
+    "planned_control": "implicit-without-th-animation"
+  },
+  "gates": {
+    "normal_termination": true,
+    "finite_displacements": true,
+    "relative_displacement_error_max": 0.01,
+    "relative_reaction_error_max": 0.01,
+    "missing_stiffness_warning_allowed": false
+  },
+  "controls": "Identical restraints, load and stiffness; LAW1 HEX8 versus LAW117 TYPE43",
+  "mass_scaling": false,
+  "physical_qualification": false
+}

@@ -1,0 +1,65 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**               Linux 64 bits, ARM, GFortran compiler                **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: implicit_elastic_force_control  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 16/10/2026
+ NC=       0 T= 0.0000E+00 DT= 8.5620E-05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: implicit_elastic_force_controlA001 WRITTEN
+     RESTART FILES: implicit_elastic_force_control_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .1470E-03 .2100E-04 .1300E-04 .2040E-02 .5500E-04 .1100E-04 .4208E-02
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .3000E-05     0.07 % 
+ ELEMENT FORCES..............: .1470E-03     3.49 % 
+ KINEMATIC COND..............: .2100E-04     0.50 % 
+ INTEGRATION.................: .1300E-04     0.31 % 
+ ASSEMBLING..................: .1100E-04     0.26 % 
+ OTHERS (including I/O)......: .4013E-02    95.37 % 
+ TOTAL.......................: .4208E-02   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       43 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       43 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       43 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       43 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.02 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      12

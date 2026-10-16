@@ -1,0 +1,46 @@
+{
+  "utc": "2026-10-16T17:54:41.512102+00:00",
+  "deleted_cache": "/Users/n/Library/Caches/lima/download/by-url-sha256/8b0792f7ce936da399a685f0df1bec82cd529a1163d97430fb5c8025bd9bb464",
+  "image_url": "https://cloud-images.ubuntu.com/releases/noble/release-20260926/ubuntu-24.04-server-cloudimg-arm64.img",
+  "image_sha256": "1d6bffe64b848468ac97f821d369a4846d983de1800ccf6b5ec8853e85cefc55",
+  "reason": "Only task VM deleted; pinned image cache is regenerable, all run evidence is in mounted task root and copied locally.",
+  "manifest": {
+    "sha256.digest": {
+      "bytes": 71,
+      "blocks": 8,
+      "sha256": "adc26e260b96187387bb44aea6c2d26eb587b941507d04c22dbd91177f844f22"
+    },
+    "url": {
+      "bytes": 102,
+      "blocks": 8,
+      "sha256": "8b0792f7ce936da399a685f0df1bec82cd529a1163d97430fb5c8025bd9bb464"
+    },
+    "time": {
+      "bytes": 29,
+      "blocks": 8,
+      "sha256": "bb3a1772095276f5fff5978174b11829c94a9dd2d58893b22174c6eb7d271306"
+    },
+    "type": {
+      "bytes": 24,
+      "blocks": 8,
+      "sha256": "1e86d1bc52f24f75cdba3765b30e79519a49e5dc5c0d27605048b15591e07892"
+    },
+    "data": {
+      "bytes": 620224512,
+      "blocks": 1213664,
+      "sha256": null
+    },
+    "imgconv/raw.digest": {
+      "bytes": 71,
+      "blocks": 8,
+      "sha256": "d92a3fb9682c44951923e7347ab8404d3f6756d270c5b517ac091ef9d3f3f820"
+    },
+    "imgconv/raw": {
+      "bytes": 3758096384,
+      "blocks": 3952128,
+      "sha256": null
+    }
+  },
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 386709324  61370316    87% 3282086 613703160    1%   /System/Volumes/Data\n",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 384126352  63953288    86% 3282078 639532880    1%   /System/Volumes/Data\n"
+}

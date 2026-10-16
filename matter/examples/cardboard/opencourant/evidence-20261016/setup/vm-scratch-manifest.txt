@@ -1,0 +1,12 @@
+/Users/n/.lima/cardboard-oc/cidata.iso 20037632 39136
+/Users/n/.lima/cardboard-oc/vz-identifier 70 8
+/Users/n/.lima/cardboard-oc/serialv.log 73 8
+/Users/n/.lima/cardboard-oc/boot-session.tmp 37 8
+/Users/n/.lima/cardboard-oc/ha.stdout.log 4265 16
+/Users/n/.lima/cardboard-oc/vz-efi 131072 256
+/Users/n/.lima/cardboard-oc/lima-version 5 8
+/Users/n/.lima/cardboard-oc/ssh.config 675 8
+/Users/n/.lima/cardboard-oc/cloud-config.yaml 1216 8
+/Users/n/.lima/cardboard-oc/disk 17179869184 4498776
+/Users/n/.lima/cardboard-oc/lima.yaml 3809 8
+/Users/n/.lima/cardboard-oc/ha.stderr.log 33716 72

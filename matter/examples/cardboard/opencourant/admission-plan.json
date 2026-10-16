@@ -1,0 +1,32 @@
+{
+  "schema": "cardboard.opencourant.admission-plan.v1",
+  "purpose": "exploration",
+  "question": "Can the packaged free Linux ARM64 backend preserve all-solid paper, irreversible mixed-mode bonds, current-geometry closure activation and restart histories without a solver-development campaign?",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "release": "latest-20261011",
+  "package_sha256": "ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7",
+  "session_deadline_utc": "2026-10-16T21:28:00Z",
+  "prediction": "Admission requires every listed capability. A zero-exit process or successful activation flag cannot substitute for measured mechanics and preserved state.",
+  "execution_order": ["paper", "adhesion", "assembly", "shipping_segment_resource_forecast"],
+  "fixtures": {
+    "paper": ["MD/CD tension and compression", "shear", "unloading", "rigid rotation objectivity"],
+    "adhesion": ["pure and mixed opening", "unloading and reloading", "irreversible failure", "compressive closure without duplicate forces", "continuous versus restart history"],
+    "assembly": ["physical indentation and withdrawal", "tool-driven fold", "bond activation at accepted current overlap", "clamp release", "restart and finite-mass contact"]
+  },
+  "validity": {
+    "case_preregistration": "Each exporter writes expected values, units and numerical gates in its case.json before that case executes.",
+    "input_identity": "Bind exported files, runtime files, package hash and parent restart hashes.",
+    "resource_limit_bytes_including_vm": 17179869184,
+    "vm_memory_bytes": 12884901888,
+    "all_solid": true,
+    "explicit_flutes": true,
+    "mass_scaling": false,
+    "loading_acceleration_for_qualified_results": false
+  },
+  "stopping_rule": "Stop at the first demonstrated indispensable unsupported capability, unresolved physical failure or session deadline. Preserve failed/invalid/inconclusive evidence. Do not migrate the shipping model or create new solver algorithms to bypass admission.",
+  "calibration_boundary": "Synthetic known-value material/interface fixtures qualify instruments only. Published kraft/NSSC/starch parameters and transfer uncertainty require separate identification. Missing exact-recipe and impact evidence remains open.",
+  "native_matter_discrepancy": "Frozen, unresolved, not closed by external-backend success.",
+  "admitted": false,
+  "physical_assembly": false,
+  "crush_impact_qualified": false
+}

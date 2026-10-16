@@ -1,0 +1,238 @@
+{
+  "schema": "cardboard.opencourant.admission-result.v1",
+  "admitted": false,
+  "reason": "Packaged ARM64 runtime stops at cycle zero with MUMPS required in nonlinear implicit LAW1 and LAW117 controls, despite explicit PCG selection.",
+  "release": "latest-20261011",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "stopping_rule_applied": true,
+  "attempt_count": 15,
+  "attempts": [
+    {
+      "attempt": "adhesion-01",
+      "case": "law117-mode-i-open-failure",
+      "status": "invalid_fixture_input",
+      "elapsed_s": 0.6257895319999989,
+      "max_solver_rss_bytes": 156315648,
+      "stage_exit_codes": [
+        2
+      ],
+      "receipt_sha256": "b6494664c14f7116d99a8a30f33cf3bf4c82f95386f224404bb40de29ee2df58",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter-initial.py"
+    },
+    {
+      "attempt": "adhesion-02",
+      "case": "law117-mode-i-open-failure",
+      "status": "runtime_execution_only_not_mechanics_qualified",
+      "elapsed_s": 0.7490016579999974,
+      "max_solver_rss_bytes": 155832320,
+      "stage_exit_codes": [
+        0,
+        0
+      ],
+      "receipt_sha256": "951069821d4cecf29136677085d2b442c4990058398aa07536e7e93a45c78cac",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "explicit-with-title-01",
+      "case": "explicit-with-title",
+      "status": "runtime_execution_only_not_mechanics_qualified",
+      "elapsed_s": 0.6588409810000257,
+      "max_solver_rss_bytes": 156745728,
+      "stage_exit_codes": [
+        0,
+        0
+      ],
+      "receipt_sha256": "639ae7aa9281f9f42ae515f17523efab0ced58e69bae96afae60ea150d4cfb43",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-cohesive-01",
+      "case": "implicit-cohesive-force-control",
+      "status": "failed_cycle_zero_crash",
+      "elapsed_s": 0.6553325300000097,
+      "max_solver_rss_bytes": 155582464,
+      "stage_exit_codes": [
+        0,
+        3
+      ],
+      "receipt_sha256": "eaca7b5353aff90e1a3f56603ffd69e77bfab7cb1c939d9b3965ad1c6aa50596",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-cohesive-nonlinear-01",
+      "case": "implicit-cohesive-nonlinear-force-control",
+      "status": "invalid_engine_input",
+      "elapsed_s": 0.6637075049999339,
+      "max_solver_rss_bytes": 155672576,
+      "stage_exit_codes": [
+        0,
+        2
+      ],
+      "receipt_sha256": "acdb30c4c747dd2cdf8808572185ecf2045a603e0f04ef289293fb3f6eb30f30",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-cohesive-nonlinear-02",
+      "case": "implicit-cohesive-nonlinear-force-control",
+      "status": "blocked_packaged_implicit_missing_MUMPS",
+      "elapsed_s": 0.6467750170002091,
+      "max_solver_rss_bytes": 155656192,
+      "stage_exit_codes": [
+        0,
+        2
+      ],
+      "receipt_sha256": "a7c0de7d4c257aacf6a87d6b944cf26a9a5625dbfc38381cfaf9693fbb0651c0",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-elastic-01",
+      "case": "implicit-elastic-force-control",
+      "status": "invalid_fixture_input",
+      "elapsed_s": 0.5987904180000214,
+      "max_solver_rss_bytes": 156319744,
+      "stage_exit_codes": [
+        2
+      ],
+      "receipt_sha256": "5b7a9356fa593174adb63aa5ab15d1f0c4cba8821989525cf8dc46af0d8d59ac",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-elastic-02",
+      "case": "implicit-elastic-force-control",
+      "status": "invalid_fixture_input",
+      "elapsed_s": 0.5847368510000024,
+      "max_solver_rss_bytes": 157327360,
+      "stage_exit_codes": [
+        0
+      ],
+      "receipt_sha256": "db8010a2cef4aee4ea833ee19497da5cd33fa62bae93040039e82f1bc359fa38",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-elastic-03",
+      "case": "implicit-elastic-force-control",
+      "status": "failed_cycle_zero_crash",
+      "elapsed_s": 0.6583548890000657,
+      "max_solver_rss_bytes": 156565504,
+      "stage_exit_codes": [
+        0,
+        3
+      ],
+      "receipt_sha256": "a76a96bafbddf6869c62924e34daf15382908c333769ffc97440e0e6a8d4cf3f",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-elastic-nonlinear-01",
+      "case": "implicit-elastic-nonlinear-force-control",
+      "status": "invalid_engine_input",
+      "elapsed_s": 0.6564759290000666,
+      "max_solver_rss_bytes": 156753920,
+      "stage_exit_codes": [
+        0,
+        2
+      ],
+      "receipt_sha256": "be77f5413e0d12cfbe885d84053af4ddf76f09a4dab70937dfd16a5d520e2349",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-elastic-nonlinear-02",
+      "case": "implicit-elastic-nonlinear-force-control",
+      "status": "blocked_packaged_implicit_missing_MUMPS",
+      "elapsed_s": 0.6609587779998947,
+      "max_solver_rss_bytes": 156749824,
+      "stage_exit_codes": [
+        0,
+        2
+      ],
+      "receipt_sha256": "a6d617b25033935d193a573d6faacfe748ba9a971868f3e7af134a5ee48b6e1d",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-without-th-animation-01",
+      "case": "implicit-without-th-animation",
+      "status": "blocked_packaged_implicit_missing_MUMPS",
+      "elapsed_s": 0.6580792979999615,
+      "max_solver_rss_bytes": 154775552,
+      "stage_exit_codes": [
+        0,
+        2
+      ],
+      "receipt_sha256": "840647b7ff321595171432a9e1aee30e0d9f27d70ccd27a4487d1e5e97c8c454",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "implicit-without-title-01",
+      "case": "implicit-without-title",
+      "status": "failed_cycle_zero_crash",
+      "elapsed_s": 0.6603066809999518,
+      "max_solver_rss_bytes": 156672000,
+      "stage_exit_codes": [
+        0,
+        3
+      ],
+      "receipt_sha256": "1a8b6c95ad382a615f268ea9026d41497ceaf06e013b65b8edf8fe1fea92e48e",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "paper-01",
+      "case": "law112-md-tension-instrument",
+      "status": "invalid_fixture_input",
+      "elapsed_s": 0.5879485190000651,
+      "max_solver_rss_bytes": 155385856,
+      "stage_exit_codes": [
+        2
+      ],
+      "receipt_sha256": "8aef6eb61ca7eb2d921919e0bb475694a153ef3e9f0c9c9ddf3ef35be6e9d207",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    },
+    {
+      "attempt": "paper-02",
+      "case": "law112-md-tension-instrument",
+      "status": "runtime_execution_only_not_mechanics_qualified",
+      "elapsed_s": 0.7195565709999983,
+      "max_solver_rss_bytes": 156880896,
+      "stage_exit_codes": [
+        0,
+        0
+      ],
+      "receipt_sha256": "1a5fa7eb99ca315889f99b1b00a97070e57829f7475e0dcd841d27b1423254f4",
+      "output_identity_verified": true,
+      "executed_adapter": "executed-adapter.py"
+    }
+  ],
+  "qualification": {
+    "backend_correctness": "NOT_ADMITTED",
+    "numerical_convergence": "NOT_RUN",
+    "component_calibration": "NOT_COMPLETE",
+    "analogue_validation": "NOT_RUN",
+    "physical_assembly": "NOT_RUN",
+    "crush_impact_prediction": "NOT_RUN"
+  },
+  "forecast": {
+    "full_campaign_elapsed_time_s": null,
+    "credible_shipping_resource_estimate": false,
+    "reason": "No executable implicit slow-stage configuration admitted; single-element explicit timings cannot predict the shipping campaign."
+  },
+  "scope_limits": [
+    "No score/fold strip, activation, restart-equivalence, or shipping segment run after the indispensable failure.",
+    "Three explicit runtime completions are not mechanics qualification.",
+    "Adhesion-02 CSV lacks titles; reaction channels are impulses, not calibrated force histories.",
+    "Final exporter kinematic/output corrections after the retained probes remain unexecuted.",
+    "Native Matter discrepancy remains frozen and unresolved.",
+    "Paper and adhesion parser probes were interleaved; this was instrument repair, not confirmation in the listed fixture order."
+  ]
+}

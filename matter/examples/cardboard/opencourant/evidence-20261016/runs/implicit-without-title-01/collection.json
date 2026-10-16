@@ -1,0 +1,18 @@
+{
+  "changed_outputs": [],
+  "execution_complete": false,
+  "limitation": "Process completion and output hashes do not establish paper, interface, assembly or convergence gates.",
+  "max_solver_rss_bytes": 156672000,
+  "native_termination": [
+    {
+      "error_termination": true,
+      "file": "implicit_elastic_force_control_0001.out",
+      "normal_termination": false,
+      "tail": "ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21\n SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0\n TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    \n\n VARIABLE SAVED ON ANIMATION FILES (1: YES) :\n      PLASTIC STRAIN. . . . . .     0\n      DENSITY     (SOLID ONLY).     0\n      SPECIFIC ENERGY . . . . .     0\n      HOURGLASS ENERGY. . . . .     0\n      TEMPERATURE (SOLID ONLY).     0\n      THICKNESS   (SHELL ONLY).     0\n      PRESSURE    (SOLID ONLY).     0\n      VON MISES . . . . . . . .     0\n      TURBULENT ENERGY (FLUID).     0\n      TURBULENT VISCOSITY(FLUID)    0\n      VORTICITY (FLUID) . . . .     0\n NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :\n      PRESSURE. . . . . . . . .     0\n      DENSITY . . . . . . . . .     0\n      TEMPERATURE . . . . . . .     0\n VECTOR SAVED ON ANIMATION FILES (1: YES) :\n      VELOCITY VECTOR . . . . .     0\n      DISPLACEMENT VECTOR . . .     1\n      ACCELERATION VECTOR . . .     0\n      CONTACT FORCES. . . . . .     0\n      INTERNAL FORCES . . . . .     0\n      EXTERNAL FORCES . . . . .     0\n      SECTION RBY RWALL FORCES.     0\n      ROTATIONAL VELOCITY VECTOR    0\n      CONTACT PRESSURE (VECTORS)    0\n SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :\n      MEMBRANE STRESS . . . . .     0\n      BENDING STRESS(MOMENT/T^2)    0\n      UPPER LAYER STRESS. . . .     0\n      LOWER LAYER STRESS. . . .     0\n      MEMBRANE STRAIN . . . . .     0\n      CURVATURE . . . . . . . .     0\n      UPPER LAYER STRAIN. . . .     0\n      LOWER LAYER STRAIN. . . .     0\n NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0\n KEEP DELETED ELEMENT (1: YES) :    0\n\n\n 16/10/2026\n   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED\n       0   0.000      0.1000E-02 SOLID          1   0.0%   0.000       0.000       0.000       0.000       0.000      0.1000E-05   0.000    \n\nMESSAGE ID :         44\n\n ** ERROR: ABNORMAL END\n      +=============================================================+\n      |          Segmentation Violation                             |\n      +=============================================================+\n      | TRACE BACK:                                                |\n      +=============================================================+\n      | +  RADIOSS ENGINE                                                                                                                     \n      | +   SOLUTION PHASE: Processor=    1/    1                                                                                             \n      | +    MAIN LOOP: Cycle=    0                                                                                                           \n      | +     SORTIES L00 ANIM TH                                                                                                             \n      +=============================================================+\n\n\n\n     ERROR TERMINATION\n"
+    }
+  ],
+  "output_identity_valid": true,
+  "physical_qualification": false,
+  "receipt_sha256": "1a8b6c95ad382a615f268ea9026d41497ceaf06e013b65b8edf8fe1fea92e48e",
+  "schema": "cardboard.opencourant.collection.v1"
+}

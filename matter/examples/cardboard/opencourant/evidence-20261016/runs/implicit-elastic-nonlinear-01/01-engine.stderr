@@ -1,0 +1,35 @@
+At line 334 of file /__w/OpenCourant/OpenCourant/engine/source/input/freimpl.F
+Fortran runtime error: End of file
+
+Error termination. Backtrace:
+#0  0x184a1d7 in list_formatted_read_scalar
+#1  0xceaf77 in freimpl_
+#2  0xce7677 in freform_
+#3  0xcf546b in lecinp_
+#4  0xbfe993 in radioss2_
+#5  0xbfda9f in radioss0_
+#6  0x4a9637 in main
+Command exited with non-zero status 2
+	Command being timed: "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/engine_linuxa64_gf -i implicit_elastic_nonlinear_force_control_0001.rad -nt 1"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 53%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 17172
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 64
+	Minor (reclaiming a frame) page faults: 3218
+	Voluntary context switches: 202
+	Involuntary context switches: 1
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2

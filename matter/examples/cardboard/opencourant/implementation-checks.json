@@ -1,0 +1,21 @@
+{
+  "schema": "cardboard.opencourant.implementation-checks.v1",
+  "unit_checks_passed": 6,
+  "test_log": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.058s\n\nOK\n{\"schema\": \"cardboard.opencourant.collection.v1\", \"receipt_sha256\": \"7a6ed664477a442f8308702b323db822fc76d08b2885753d99783a26c9639099\", \"execution_complete\": true, \"output_identity_valid\": false, \"changed_outputs\": [\"solver.stdout\"], \"max_solver_rss_bytes\": null, \"native_termination\": [], \"physical_qualification\": false, \"limitation\": \"Process completion and output hashes do not establish paper, interface, assembly or convergence gates.\"}\n",
+  "export_smoke_cases": {
+    "paper": 4,
+    "adhesion": 8,
+    "implicit": 2
+  },
+  "all_retained_evidence_hashes_valid": true,
+  "native_restart_qualified": false,
+  "final_exporter_changes_solver_executed": false,
+  "source_sha256": {
+    "matter/tools/cardboard_opencourant.py": "fbb64e07b9e5bbe94125c8aa9408536e096e9cff2d88475f0794ddcb16bc22b1",
+    "matter/tools/setup_cardboard_opencourant.sh": "4e5a2aacd5c4a428dd9f5a3630d1514c3092191a505de5ba64e14ed5b71a78fd",
+    "matter/tools/cardboard_opencourant_adhesion.py": "ac7fa99184d2f23a9c77944de4c41e9609074ed03f08ab1ea3f4d62788e52738",
+    "matter/tools/cardboard_opencourant_paper.py": "a491a6b776a8e2d96724026f2f2a7b7e9e12bcba0b83af39cf0f4448f740c14c",
+    "matter/tools/test_cardboard_opencourant.py": "ab5132d93754ce1eb33274cdeebbefa5a30baa4eef59448939cc1a3334f70ad0",
+    "matter/tools/cardboard_opencourant_implicit.py": "cf75bf98bdc12df7c11ad17d2af157751eb31d3f9de0d95ced21a40e015f119f"
+  }
+}

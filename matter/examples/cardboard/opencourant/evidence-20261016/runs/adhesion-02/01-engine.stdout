@@ -1,0 +1,100 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**               Linux 64 bits, ARM, GFortran compiler                **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_mode_i_open_failure  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 16/10/2026
+ NC=       0 T= 0.0000E+00 DT= 3.1820E-05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_mode_i_open_failureA001 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA002 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA003 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA004 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA005 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA006 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA007 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA008 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA009 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA010 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA011 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA012 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA013 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA014 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA015 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA016 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA017 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA018 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA019 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA020 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA021 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA022 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA023 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA024 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA025 WRITTEN
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 1, MIXED MODE STRAIN= 3.093592086E-01 AT TIME  7.954951078E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 2, MIXED MODE STRAIN= 3.093592086E-01 AT TIME  7.954951078E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 3, MIXED MODE STRAIN= 3.093592086E-01 AT TIME  7.954951078E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 4, MIXED MODE STRAIN= 3.093592086E-01 AT TIME  7.954951078E-04
+      DELETE CONNECTION SOLID ELEMENT          1 AT TIME  7.954951078E-04
+     ANIMATION FILE: law117_mode_i_open_failureA026 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA027 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA028 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA029 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA030 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failureA031 WRITTEN
+     RESTART FILES: law117_mode_i_open_failure_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .2470E-03 .7300E-04 .5800E-04 .1196E-01 .1890E-03 .3900E-04 .1467E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .3001E-05     0.02 % 
+ ELEMENT FORCES..............: .2470E-03     1.68 % 
+ KINEMATIC COND..............: .7300E-04     0.50 % 
+ INTEGRATION.................: .5800E-04     0.40 % 
+ ASSEMBLING..................: .3900E-04     0.27 % 
+ OTHERS (including I/O)......: .1425E-01    97.14 % 
+ TOTAL.......................: .1467E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       35 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       35 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       35 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       35 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.04 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      31

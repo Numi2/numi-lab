@@ -1,0 +1,79 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                        OpenCourant Starter                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**               Linux 64 bits, ARM, GFortran compiler                **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+
+WARNING ID : 100217
+** WARNING IN INPUT OPTIONS
+DESCRIPTION :  
+-- BLOCK: /PROP/TYPE14/1
+-- LINE: /NODE
+card is missing
+SOLUTION :     
+Please check input format and fields description defined in the Reference Guide.
+Synthetic LAW117 cohesive admission fixture
+ .. UNITS SYSTEM                                                                         
+ .. CONTROL VARIABLES                                                                    
+ .. STARTER RUNNING ON    1 THREAD
+ .. FUNCTIONS & TABLES
+
+ERROR ID :    156
+** ERROR IN FUNCTION READ
+ .. MATERIALS                                                                            
+ .. NODES                                                                                
+ .. PROPERTIES                                                                           
+ .. 3D SOLID ELEMENTS                                                                    
+ .. SUBSETS
+ .. ELEMENT GROUPS
+ .. PART GROUPS
+ .. NODE GROUP
+ .. BOUNDARY CONDITIONS                                                                  
+ .. CONCENTRATED LOADS                                                                   
+ .. DOMAIN DECOMPOSITION
+ .. ELEMENT GROUPS                                                                       
+ .. ELEMENT BUFFER INITIALIZATION                                                        
+ .. GEOMETRY PLOT FILE                                                                   
+ .. ERROR ==> NO RESTART FILE                                                            
+  
+------------------------------------------------------------------------
+  
+                   ** COMPUTE TIME INFORMATION **
+  
+ EXECUTION STARTED      :      2026/10/16  19:45:38
+ EXECUTION COMPLETED    :      2026/10/16  19:45:38
+  
+ ELAPSED TIME...........=          0.44 s
+                               00:00:00
+  
+------------------------------------------------------------------------
+
+
+
+     ERROR TERMINATION                  
+     ------------------                                                                  
+              1 ERROR(S)            
+              1 WARNING(S)          
+
+
+
+
+PLEASE CHECK LISTING FILE FOR FURTHER DETAILS
+
+

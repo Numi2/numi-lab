@@ -1,0 +1,161 @@
+{
+  "adapter_sha256": "f0ab50e58feeba3cac137ef8d7ea57f009a08524cbc98556677ffbbe3f2e67b3",
+  "binary_sha256": {
+    "engine": "25de8c8eb62bcd09dc5f96b38e3dff015849b373050286b7c59fef1b6bc6ccaa",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "implicit-elastic-nonlinear-force-control",
+  "case_sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7",
+  "checkpoints": {
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": {
+      "bytes": 293234,
+      "sha256": "0d8634ad817eca6a882b67d9fbeb569857fe764c4dcfd7c0765e3b9ecf97fc9e"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "implicit_elastic_nonlinear_force_control_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5537354980000373,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-16T17:49:16.781401+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/engine_linuxa64_gf",
+        "-i",
+        "implicit_elastic_nonlinear_force_control_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.07652514500000507,
+      "error_termination": false,
+      "exit_code": 2,
+      "normal_termination": false,
+      "started_utc": "2026-10-16T17:49:17.335994+00:00",
+      "timed_out": false
+    }
+  ],
+  "elapsed_s": 0.6564759290000666,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": false,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 863,
+      "sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.rad": {
+      "bytes": 2649,
+      "sha256": "9cf107014c9840ed1f3311149f202e329744fea40f8cb2218ed0f8b8cc53e64e"
+    },
+    "implicit_elastic_nonlinear_force_control_0001.rad": {
+      "bytes": 281,
+      "sha256": "45d9f12044eeccc20aa1524da2888267d417c3d0fb38933e284d10b28badd829"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 297,
+      "sha256": "7d809143d9cfa9846118281b3002c006c9b8b23fb90d498332c905ea979b4aeb"
+    },
+    "00-starter.stderr": {
+      "bytes": 865,
+      "sha256": "1aab849447816d12302a00eca21b654b07c8630b080fbdfef0fd63576562da5a"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "b80d16037f8103393a0c022d9ade38b7f88d9318db248ba338b5d154fbb407de"
+    },
+    "01-engine.process.json": {
+      "bytes": 296,
+      "sha256": "44b0684b245d41ba6f586e9d7d52284493bf9a36b1a434a7a688b2321a9cc911"
+    },
+    "01-engine.stderr": {
+      "bytes": 1234,
+      "sha256": "88da8a7450cabc4af4ce8906ea45b1193fb315b414bef2dfe8d6c3357f6ead04"
+    },
+    "01-engine.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "08_implicit_elastic_nonlinear_force_control_0000002707_000000.tmp": {
+      "bytes": 691,
+      "sha256": "ca05dca0398d96117557f9efc151c680c8538c5bf8236445d8ca0004d149f437"
+    },
+    "09_implicit_elastic_nonlinear_force_control_0000002707_000000.tmp": {
+      "bytes": 1440,
+      "sha256": "c11355359c8b2852206bbcc63ffad38678863e17381113d59e1f7094259fe10e"
+    },
+    "30_implicit_elastic_nonlinear_force_control_0000002707_000000.tmp": {
+      "bytes": 101,
+      "sha256": "8e9bf0cc8f4d386ad01c4affae2f6130e518647110e69e338a7f21a620ef8236"
+    },
+    "case.json": {
+      "bytes": 863,
+      "sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.out": {
+      "bytes": 22770,
+      "sha256": "a0c0428984d9da34375c43e6332024ffff1159d53e8cba5b948c887f5c17f737"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.rad": {
+      "bytes": 2649,
+      "sha256": "9cf107014c9840ed1f3311149f202e329744fea40f8cb2218ed0f8b8cc53e64e"
+    },
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": {
+      "bytes": 293234,
+      "sha256": "0d8634ad817eca6a882b67d9fbeb569857fe764c4dcfd7c0765e3b9ecf97fc9e"
+    },
+    "implicit_elastic_nonlinear_force_control_0001.rad": {
+      "bytes": 281,
+      "sha256": "45d9f12044eeccc20aa1524da2888267d417c3d0fb38933e284d10b28badd829"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "e18472e1c8998f6a76865df6169686c7975ba22fefcad3b7d3051bd4279f080b",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

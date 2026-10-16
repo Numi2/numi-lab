@@ -1,0 +1,43 @@
+{
+  "calibration_scope": "instrument_only_not_target_grade_calibration",
+  "engines": [
+    "law112_md_tension_instrument_0001.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "expected_observables": [
+    "solver normal termination and finite model outputs",
+    "prescribed face displacement and loaded-direction reaction history",
+    "element stress, strain, internal energy, and directional sign consistency"
+  ],
+  "gates": {
+    "all_observed_values_finite": true,
+    "deck_and_engine_complete": true,
+    "force_stress_sign_matches_loading_direction": "instrument diagnostic only",
+    "kinematic_input_matches_declared_profile": "report measured error; no physical tolerance asserted here"
+  },
+  "id": "law112-md-tension-instrument",
+  "limitations": [
+    "No target-grade LAW112 calibration or validation",
+    "No same-roll/same-lot identity between Haj-Ali 2009 and the Popil density proxy",
+    "No corrugated board, adhesive, flute, crease, damage, box, ECT, BCT, or shipping prediction",
+    "No use of values from the LAW112 documentation example"
+  ],
+  "parameters": {
+    "calibration_scope": "instrument_only_not_target_grade_calibration",
+    "file": "parameters.json",
+    "sha256": "3759905bd8c9e3e71941c26c4e34623b8e92446c070db8995120fabe2250c474"
+  },
+  "physical_qualification": false,
+  "protocol": {
+    "element": "8-node fully integrated solid brick",
+    "element_count": 1,
+    "paper_axis": "MD",
+    "prescribed_face_displacement_mm": 0.01,
+    "target_engineering_strain": 0.001,
+    "velocity_profile": "trapezoidal, 10% ramp, 80% hold, 10% ramp-down"
+  },
+  "release": "latest-20261011",
+  "schema": "cardboard.opencourant.paper.case.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "starter": "law112_md_tension_instrument_0000.rad"
+}

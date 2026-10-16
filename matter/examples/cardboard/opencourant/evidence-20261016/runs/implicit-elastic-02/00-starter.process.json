@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/starter_linuxa64_gf",
+    "-i",
+    "implicit_elastic_force_control_0000.rad",
+    "-np",
+    "1"
+  ],
+  "pid": 2541,
+  "started_utc": "2026-10-16T17:46:46.450435+00:00"
+}

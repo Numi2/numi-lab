@@ -1,0 +1,333 @@
+{
+  "adapter_sha256": "f0ab50e58feeba3cac137ef8d7ea57f009a08524cbc98556677ffbbe3f2e67b3",
+  "binary_sha256": {
+    "engine": "25de8c8eb62bcd09dc5f96b38e3dff015849b373050286b7c59fef1b6bc6ccaa",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "law112-md-tension-instrument",
+  "case_sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311",
+  "checkpoints": {
+    "law112_md_tension_instrument_0000_0001.rst": {
+      "bytes": 286622,
+      "sha256": "2323c55bec958bff7bdb6736e9503b789b1ec561b4d82d13a3a5b9c721359317"
+    },
+    "law112_md_tension_instrument_0001_0001.rst": {
+      "bytes": 286934,
+      "sha256": "751fbc7d54aa9c1c41b7c672dbb75e1bdba6ef967e5938bb479b9ba7628bab55"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "law112_md_tension_instrument_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5624524410000049,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-16T17:47:56.368112+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/exec/engine_linuxa64_gf",
+        "-i",
+        "law112_md_tension_instrument_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.13054408599998624,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-16T17:47:56.931461+00:00",
+      "timed_out": false
+    }
+  ],
+  "elapsed_s": 0.7195565709999983,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": true,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 1792,
+      "sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311"
+    },
+    "law112_md_tension_instrument_0000.rad": {
+      "bytes": 3686,
+      "sha256": "e6cc11a521811c3123aed34dc3b58d03af750771cad5eeb06e0a155ca8fcc7fa"
+    },
+    "law112_md_tension_instrument_0001.rad": {
+      "bytes": 262,
+      "sha256": "2c3bc80fb5453a1395da10a810320b0e8dc982b6b6577b14adc8b38e071d2ebe"
+    },
+    "parameters.json": {
+      "bytes": 10201,
+      "sha256": "3759905bd8c9e3e71941c26c4e34623b8e92446c070db8995120fabe2250c474"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261016/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 285,
+      "sha256": "efe2007a7aaada3abdcadef6c61b8a53d5d1dec0e32733c6474d56502805d4b5"
+    },
+    "00-starter.stderr": {
+      "bytes": 856,
+      "sha256": "6d1d6da329bb9ab89999a3a9152c71da0ebaf11931c439d4a886738deb15b756"
+    },
+    "00-starter.stdout": {
+      "bytes": 3457,
+      "sha256": "61d3e5dc7e3d78c5d3a24e96f9849b3e31f290f88606e81ba04afc800e970146"
+    },
+    "01-engine.process.json": {
+      "bytes": 284,
+      "sha256": "21675a903d2ccd9172ce09d514dd1155dff018007457b320f7320cbee568c0ab"
+    },
+    "01-engine.stderr": {
+      "bytes": 849,
+      "sha256": "6c4387684149987d9d458f74ff49578dd17a321db38ef1ad1b17d864564a888b"
+    },
+    "01-engine.stdout": {
+      "bytes": 5584,
+      "sha256": "dcdd20fecae9080b3b17497852b4350affe8c8f4271d21076ead673cb6afda77"
+    },
+    "case.json": {
+      "bytes": 1792,
+      "sha256": "90548faa0f44f37c64492cb371251ff8a4014705262575500d3047d5115af311"
+    },
+    "law112_md_tension_instrumentA001": {
+      "bytes": 1668,
+      "sha256": "291e6da8b44d763853644446b7b576589c618fda71408edf0d736e448a6651ab"
+    },
+    "law112_md_tension_instrumentA002": {
+      "bytes": 1668,
+      "sha256": "ccb96b1cf2704f6297e4e80445affaba0bd548da2a0edff251216362781e80c5"
+    },
+    "law112_md_tension_instrumentA003": {
+      "bytes": 1668,
+      "sha256": "057f76d3f2fa107fd04626c078df34951d8cab656c369a5dc4ee06a36dec02c9"
+    },
+    "law112_md_tension_instrumentA004": {
+      "bytes": 1668,
+      "sha256": "75060059867d76f731e93e426060bba630a91ed0475d043e10abc25804eb13a8"
+    },
+    "law112_md_tension_instrumentA005": {
+      "bytes": 1668,
+      "sha256": "ed22e8375e9a69fdcc372f053adf433547a84deda8856766ed73c0e168cdd7b2"
+    },
+    "law112_md_tension_instrumentA006": {
+      "bytes": 1668,
+      "sha256": "e9a9f6fbac9121817800a11323af378dceab4cf007c0930b4a5bef35624018e1"
+    },
+    "law112_md_tension_instrumentA007": {
+      "bytes": 1668,
+      "sha256": "4a3f178df635349be04e9bd89341cd4a3d347cc4d546c8af7f602498c7e514c8"
+    },
+    "law112_md_tension_instrumentA008": {
+      "bytes": 1668,
+      "sha256": "7e83fcc4c0c13db6b9ce1d2181ca1b100a0622129bcc38f79a50b4d34dd13b7c"
+    },
+    "law112_md_tension_instrumentA009": {
+      "bytes": 1668,
+      "sha256": "45aa9348ef208f7e3a227e74a9f61560b5d3d1b87bef8b6e4dcaf7576433de36"
+    },
+    "law112_md_tension_instrumentA010": {
+      "bytes": 1668,
+      "sha256": "09dcd9bbc511a41b0f90ade0ccb3eee769963d45360311325d3be11ee238d7d1"
+    },
+    "law112_md_tension_instrumentA011": {
+      "bytes": 1668,
+      "sha256": "9d2874cc45e02cb71d4ca798495ee266438b83e461e3ef9c472951947ddfd5ca"
+    },
+    "law112_md_tension_instrumentA012": {
+      "bytes": 1668,
+      "sha256": "e595e1dc0895aa6e6b65b36f7e01fc3686e2e6efc01e849ba0589d217eddd920"
+    },
+    "law112_md_tension_instrumentA013": {
+      "bytes": 1668,
+      "sha256": "556b5b7813851e1e52659e7e0540416861d3da24ce17d31743c134ecbccc55a8"
+    },
+    "law112_md_tension_instrumentA014": {
+      "bytes": 1668,
+      "sha256": "2927bf3ef57b966b6522e0eb9900e1d6cf7a6a074445e4c0fd9232f56e728f6c"
+    },
+    "law112_md_tension_instrumentA015": {
+      "bytes": 1668,
+      "sha256": "32e04af09bd582b2094117a2ef9b601631ada9a8e706df32f69c8b967eb2448d"
+    },
+    "law112_md_tension_instrumentA016": {
+      "bytes": 1668,
+      "sha256": "84ba9e0fc7015d6d994aa4b5b5139bbee1531fcb728ca6f17cbb51e4a2296ae0"
+    },
+    "law112_md_tension_instrumentA017": {
+      "bytes": 1668,
+      "sha256": "ff57a04cce57fd8cf7698f4927bb58c1aaa1d2dbc065bfb39f2d0545808b0ff3"
+    },
+    "law112_md_tension_instrumentA018": {
+      "bytes": 1668,
+      "sha256": "3994b0769da323b00bdc095aa2342755c013863b85c2a872b200badd2efd7c2c"
+    },
+    "law112_md_tension_instrumentA019": {
+      "bytes": 1668,
+      "sha256": "1b9bdb9d53da9fcd2175705e122aace752cd5027217a3cd33c63a42a49465acf"
+    },
+    "law112_md_tension_instrumentA020": {
+      "bytes": 1668,
+      "sha256": "c6e68c172e37a1c39b08ded9f4eea2397751a4c9f46ec665e0bcbb2407acd026"
+    },
+    "law112_md_tension_instrumentA021": {
+      "bytes": 1668,
+      "sha256": "7b15adc0f8b03d2874c9c158cca287cff68461699dde272849361e480a5a80be"
+    },
+    "law112_md_tension_instrumentA022": {
+      "bytes": 1668,
+      "sha256": "5309f290a56a1b40a952afb039ef6d8f46e36fab19d0530a35183f6679aa2ea0"
+    },
+    "law112_md_tension_instrumentA023": {
+      "bytes": 1668,
+      "sha256": "c1b06c3bd94a0f580abc78d0e31b764f893001bd9d94b6ab673ece13be3c5663"
+    },
+    "law112_md_tension_instrumentA024": {
+      "bytes": 1668,
+      "sha256": "12c9f54ebd3d4a776116013a983a7551011afb1d1dbb97a1afb1d04b61f31180"
+    },
+    "law112_md_tension_instrumentA025": {
+      "bytes": 1668,
+      "sha256": "c27bbca89eb0bad6035eb5634f97bc669579b919c083bb2b494f93983df251ab"
+    },
+    "law112_md_tension_instrumentA026": {
+      "bytes": 1668,
+      "sha256": "5d5af3faab7a44abbd29cee98de444f8e291e5ba4d439356e27bf26c77ea4f21"
+    },
+    "law112_md_tension_instrumentA027": {
+      "bytes": 1668,
+      "sha256": "212ba3205f69fb2f58a635cc7b751f30061b300afca66b1b278424e96991543e"
+    },
+    "law112_md_tension_instrumentA028": {
+      "bytes": 1668,
+      "sha256": "31ddd77e2cf57297b1f6f73109a2c0895b3094e9a34e11c2519203d963e1915c"
+    },
+    "law112_md_tension_instrumentA029": {
+      "bytes": 1668,
+      "sha256": "e260d0fbc120cc8865d947d70ed2cfddf1e3cc169e47d7842229d0ee58f97047"
+    },
+    "law112_md_tension_instrumentA030": {
+      "bytes": 1668,
+      "sha256": "dbaf762d8543f04ae356d7f120fee34ea34190b478908433bc9623fb99d0720d"
+    },
+    "law112_md_tension_instrumentA031": {
+      "bytes": 1668,
+      "sha256": "abf2102462e92c14eb29673b5fd9cd0219da20b8e4be52b42e9004cd7985a1eb"
+    },
+    "law112_md_tension_instrumentA032": {
+      "bytes": 1668,
+      "sha256": "cd6de9ecf111260a13f67ef8f4605fe96e357bdda08dbe2c0da5dbb1c19495c9"
+    },
+    "law112_md_tension_instrumentA033": {
+      "bytes": 1668,
+      "sha256": "2b4a9da1b829cca7bb3a62fef40f08cb56b5802eeaa83d3329af0bab08ee4f3c"
+    },
+    "law112_md_tension_instrumentA034": {
+      "bytes": 1668,
+      "sha256": "70080db52d02ce5d106270741934b67ba917f0732865e73717a15d7f9fdfd86e"
+    },
+    "law112_md_tension_instrumentA035": {
+      "bytes": 1668,
+      "sha256": "1d2f62cdf113d8e9c182bce0207dfe918ca97beeb84d2f48b54fa061d1ed94cf"
+    },
+    "law112_md_tension_instrumentA036": {
+      "bytes": 1668,
+      "sha256": "664e40e87b1f084fa00586874c2ee0458d723e7b141254a211330ffa7abc8b90"
+    },
+    "law112_md_tension_instrumentA037": {
+      "bytes": 1668,
+      "sha256": "67774ba857e270303edca94f04b1e43b578f2c902e05d71b8ddb73edf0131fee"
+    },
+    "law112_md_tension_instrumentA038": {
+      "bytes": 1668,
+      "sha256": "877b794f2bd967820405a09ef9dfcb3a18d54646d410f4689866a98c9d1dbf01"
+    },
+    "law112_md_tension_instrumentA039": {
+      "bytes": 1668,
+      "sha256": "23ca73bf8dabf956d15019aad30735e92e524fb2e219cd7b34fb947cdbbddb7b"
+    },
+    "law112_md_tension_instrumentA040": {
+      "bytes": 1668,
+      "sha256": "57817cf14ce812809e07700117241431b182e5ecb91e9111a63314a8adb014d5"
+    },
+    "law112_md_tension_instrumentT01": {
+      "bytes": 16192,
+      "sha256": "41fc3b266957717a6323855ba59859d6dc9ee058e29c6398a0be5152f5ae1726"
+    },
+    "law112_md_tension_instrument_0000.out": {
+      "bytes": 27394,
+      "sha256": "d4ecc764beaedfa5a4821903e0646716e8b68756d7e9657f92e37db04bce02b2"
+    },
+    "law112_md_tension_instrument_0000.rad": {
+      "bytes": 3686,
+      "sha256": "e6cc11a521811c3123aed34dc3b58d03af750771cad5eeb06e0a155ca8fcc7fa"
+    },
+    "law112_md_tension_instrument_0000_0001.rst": {
+      "bytes": 286622,
+      "sha256": "2323c55bec958bff7bdb6736e9503b789b1ec561b4d82d13a3a5b9c721359317"
+    },
+    "law112_md_tension_instrument_0001.out": {
+      "bytes": 11788,
+      "sha256": "d1b96c7c66547f8fa553e881b47d10704998dbee8df1cc3a4ea19fa78a98d9d6"
+    },
+    "law112_md_tension_instrument_0001.rad": {
+      "bytes": 262,
+      "sha256": "2c3bc80fb5453a1395da10a810320b0e8dc982b6b6577b14adc8b38e071d2ebe"
+    },
+    "law112_md_tension_instrument_0001_0001.rst": {
+      "bytes": 286934,
+      "sha256": "751fbc7d54aa9c1c41b7c672dbb75e1bdba6ef967e5938bb479b9ba7628bab55"
+    },
+    "parameters.json": {
+      "bytes": 10201,
+      "sha256": "3759905bd8c9e3e71941c26c4e34623b8e92446c070db8995120fabe2250c474"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "e18472e1c8998f6a76865df6169686c7975ba22fefcad3b7d3051bd4279f080b",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}
