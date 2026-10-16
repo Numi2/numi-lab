@@ -2,6 +2,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include <map>
+#include <set>
 #include <vector>
 
 // Source compilers retain unused ancestry slots. Recover the complete allocation
@@ -37,4 +39,33 @@ inline std::uint32_t numiHumanRestingSourceAllocationBase(
             meshIndex-base==sourceIndex-sourceFirstVertex);
     }
     return base;
+}
+
+// An attachment map owns the complete source allocation, including ancestry
+// slots retired from triangle references by source topology repairs. Apply only
+// its referenced subset. Every declared motion channel must remain represented.
+inline std::set<unsigned> numiHumanRestingReferencedSourceAttachmentVertices(
+    const std::map<unsigned,unsigned>& channels,
+    const std::set<unsigned>& referencedVertices,
+    unsigned sourceBase,unsigned sourceVertexCount) {
+    const auto requireRange=[](bool valid) {
+        if(!valid)throw std::runtime_error("resting source attachment reference is outside its allocation");
+    };
+    requireRange(sourceVertexCount>0&&!referencedVertices.empty());
+    std::set<unsigned> expectedChannels,observedChannels,result;
+    for(const auto& [local,channel]:channels) {
+        requireRange(local<sourceVertexCount&&channel<24);
+        expectedChannels.insert(channel);
+    }
+    for(unsigned global:referencedVertices) {
+        requireRange(global>=sourceBase&&global-sourceBase<sourceVertexCount);
+        const unsigned local=global-sourceBase;
+        const auto found=channels.find(local);
+        if(found!=channels.end()) {
+            result.insert(local);
+            observedChannels.insert(found->second);
+        }
+    }
+    requireRange(observedChannels==expectedChannels);
+    return result;
 }

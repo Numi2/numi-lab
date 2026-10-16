@@ -1397,6 +1397,7 @@ public:
             }
             const std::map<unsigned,unsigned>* intercostalRibChannels=nullptr;
             std::set<unsigned> appliedIntercostalRibVertices;
+            std::set<unsigned> referencedIntercostalRibVertices;
             if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==313) {
                 const auto attachment=functional.intercostalRibVertexChannels.find(313);
                 if(attachment!=functional.intercostalRibVertexChannels.end()) {
@@ -1418,6 +1419,9 @@ public:
                         require(local<source->vertexCount&&channel<24,
                             "NHA313 rib-channel attachment references a vertex or channel outside its owner");
                     intercostalRibChannels=&attachment->second;
+                    referencedIntercostalRibVertices=
+                        numiHumanRestingReferencedSourceAttachmentVertices(
+                            attachment->second,vertices,base,source->vertexCount);
                 }
             }
             for(unsigned v:vertices) {
@@ -1587,9 +1591,14 @@ public:
                         p,rotatePoint(instance.orientation,vertex.normalAndTangentSign),1);
                 }
             }
-            if(intercostalRibChannels)
-                require(appliedIntercostalRibVertices.size()==intercostalRibChannels->size(),
-                    "NHA313 rib-channel attachment contains unreferenced row-local vertices");
+            if(intercostalRibChannels) {
+                require(appliedIntercostalRibVertices==referencedIntercostalRibVertices,
+                    "NHA313 referenced rib-channel attachment application differs");
+                std::cout<<"resting_intercostal_rib_attachment source_slots="<<intercostalRibChannels->size()
+                    <<" referenced_slots="<<referencedIntercostalRibVertices.size()
+                    <<" retained_unused_slots="<<(intercostalRibChannels->size()-referencedIntercostalRibVertices.size())
+                    <<" source_allocation_and_channels_preserved=true\n";
+            }
             // GPU skinning supplies world coordinates; identity keeps the exact
             // source semantic, stable ID and anatomical owner for inspection.
             instance.binding.z=MR_VISUAL_BINDING_WORLD;
