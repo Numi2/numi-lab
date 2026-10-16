@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.checkpoint-program-rejection.v1",
+  "case": "solver/primary-cache-strict-control19-final127-diagnostic-600",
+  "verdict": "CORRECT_FAIL_CLOSED_INCOMPATIBLE_PROGRAM_NO_FEM_CONTROLS_EXECUTED",
+  "reason": "source253 includes production contact-page kernels absent from the source240 checkpoint program; exact executable fingerprint differs.",
+  "diagnostic_capture_absent": true,
+  "controls_executed": 0,
+  "source_inputs_unchanged": true,
+  "followup": "source256 ports only host cache-observer correction onto240 and verifies all87 Metal source inputs unchanged. Metalled executable identity must be measured before reusing the accepted checkpoint; no fingerprint guard bypass.",
+  "at_utc": "2026-10-16T14:28:02.584559+00:00"
+}

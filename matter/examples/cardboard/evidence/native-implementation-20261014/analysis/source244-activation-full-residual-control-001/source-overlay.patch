@@ -1,0 +1,260 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -67,6 +67,7 @@
+ bool accuratePaper = false;
+ bool compensatedMaterialArithmetic = false;
+ bool regionalContactPreconditioner = false;
++bool fullContactActivationResidualArmijo = false;
+ std::uint32_t authoredNewtonIterations = 0u;
+ 
+ std::string diagnosticStateOutputPath;
+@@ -113,6 +114,121 @@
+         result.push_back(hex[value & 15u]);
+     }
+     return result;
++}
++
++template <typename T>
++std::string writeActivationBinarySidecar(
++        const std::filesystem::path& path, const std::vector<T>& values) {
++    static_assert(std::is_trivially_copyable_v<T>);
++    if (std::filesystem::exists(path))
++        throw std::runtime_error("refusing to replace activation sidecar");
++    std::ofstream output(path, std::ios::binary | std::ios::out);
++    if (!output) throw std::runtime_error("could not create activation sidecar");
++    if (!values.empty())
++        output.write(reinterpret_cast<const char*>(values.data()),
++                     static_cast<std::streamsize>(values.size() * sizeof(T)));
++    output.flush();
++    if (!output.good()) throw std::runtime_error("incomplete activation sidecar");
++    return sha256DiagnosticFile(path);
++}
++
++void writeActivationSceneEvidence(
++        const std::uint64_t index, const std::uint32_t control,
++        const std::vector<MRBodyStateGPU>& input,
++        const std::vector<MRBodyStateGPU>& targets,
++        const numi::cardboard::ShippingRigidWorldRunner::StepResult& step,
++        const std::vector<MRBodyStateGPU>& hostAfter,
++        const std::uint64_t stepsBefore, const std::uint64_t stepsAfter,
++        const RuntimeStateSnapshot& before, const RuntimeStateSnapshot& after,
++        const bool fullResidualSelected, const bool fullResidualSkipped) {
++    if (diagnosticStateOutputPath.empty())
++        throw std::runtime_error("activation evidence requires diagnostic output");
++    const std::filesystem::path root(diagnosticStateOutputPath);
++    const std::string stem = "activation-" + indexedDiagnosticStem(index);
++    const auto inputPath=root/(stem+"-scene-input.bin");
++    const auto targetsPath=root/(stem+"-kinematic-targets.bin");
++    const auto outputPath=root/(stem+"-metalworld-scene-output.bin");
++    const auto hostPath=root/(stem+"-runner-scene-after.bin");
++    const auto qPath=root/(stem+"-metalworld-final-q.bin");
++    const auto vPath=root/(stem+"-metalworld-final-v.bin");
++    const auto metaPath=root/(stem+"-scene-commit.json");
++    if (std::filesystem::exists(metaPath))
++        throw std::runtime_error("refusing to replace activation metadata");
++    static_assert(std::is_trivially_copyable_v<MRBodyStateGPU>);
++    const auto inputHash=writeActivationBinarySidecar(inputPath,input);
++    const auto targetsHash=writeActivationBinarySidecar(targetsPath,targets);
++    const auto hostHash=writeActivationBinarySidecar(hostPath,hostAfter);
++    const auto qHash=writeActivationBinarySidecar(qPath,step.result.finalQ);
++    const auto vHash=writeActivationBinarySidecar(vPath,step.result.finalV);
++    const bool outputPresent=!step.result.finalSceneBodies.empty();
++    const auto outputHash=outputPresent
++        ? writeActivationBinarySidecar(outputPath,step.result.finalSceneBodies)
++        : std::string{};
++    const bool hostSameInput=input.size()==hostAfter.size() &&
++        (input.empty() || std::memcmp(input.data(),hostAfter.data(),
++            input.size()*sizeof(MRBodyStateGPU))==0);
++    const bool outputSameHost=outputPresent &&
++        step.result.finalSceneBodies.size()==hostAfter.size() &&
++        (hostAfter.empty() || std::memcmp(step.result.finalSceneBodies.data(),
++            hostAfter.data(),hostAfter.size()*sizeof(MRBodyStateGPU))==0);
++    const std::string tx=indexedDiagnosticStem(index);
++    const auto beforePath=root/(tx+"-before.bin");
++    const auto afterPath=root/(tx+"-after.bin");
++    const bool beforePresent=std::filesystem::is_regular_file(beforePath);
++    const bool afterPresent=std::filesystem::is_regular_file(afterPath);
++    const int beforeStatus=before.statuses.empty()?-1:before.statuses.front().code;
++    const int afterStatus=after.statuses.empty()?-1:after.statuses.front().code;
++    std::ofstream out(metaPath,std::ios::out);
++    if (!out) throw std::runtime_error("could not create activation metadata");
++    out << "{\"schema\":\"numi.cardboard.free_body_activation_scene_commit.v1\""
++        << ",\"evidence_role\":\"host_scene_and_published_readback_not_raw_mtlbuffer\""
++        << ",\"control_step\":"<<control<<",\"attempt_index\":"<<index
++        << ",\"body_stride_bytes\":"<<sizeof(MRBodyStateGPU)
++        << ",\"input_scene_source\":\"runner.sceneBodies_before_step_and_batch.initialSceneBodies\""
++        << ",\"input_scene_count\":"<<input.size()
++        << ",\"input_scene_file\":\""<<inputPath.filename().string()<<"\""
++        << ",\"input_scene_sha256\":\""<<inputHash<<"\""
++        << ",\"kinematic_targets_source\":\"ShippingRigidWorldRunner.step_batch.kinematicTargets\""
++        << ",\"kinematic_targets_count\":"<<targets.size()
++        << ",\"kinematic_targets_file\":\""<<targetsPath.filename().string()<<"\""
++        << ",\"kinematic_targets_sha256\":\""<<targetsHash<<"\""
++        << ",\"metalworld_published_scene_present\":"<<(outputPresent?"true":"false")
++        << ",\"metalworld_published_scene_count\":"<<step.result.finalSceneBodies.size()
++        << ",\"metalworld_published_scene_source\":\"MetalWorldResult.finalSceneBodies\""
++        << ",\"metalworld_published_scene_file\":"
++        << (outputPresent?"\""+outputPath.filename().string()+"\"":"null")
++        << ",\"metalworld_published_scene_sha256\":"
++        << (outputPresent?"\""+outputHash+"\"":"null")
++        << ",\"runner_scene_after_count\":"<<hostAfter.size()
++        << ",\"runner_scene_after_file\":\""<<hostPath.filename().string()<<"\""
++        << ",\"runner_scene_after_sha256\":\""<<hostHash<<"\""
++        << ",\"runner_scene_unchanged_from_input\":"<<(hostSameInput?"true":"false")
++        << ",\"published_scene_matches_host_commit\":"<<(outputSameHost?"true":"false")
++        << ",\"accepted_steps_before\":"<<stepsBefore
++        << ",\"accepted_steps_after\":"<<stepsAfter
++        << ",\"full_residual_mode_selected\":"<<(fullResidualSelected?"true":"false")
++        << ",\"full_residual_mode_skipped\":"<<(fullResidualSkipped?"true":"false")
++        << ",\"metalworld_diagnostics_succeeded\":"<<(step.diagnostics.succeeded()?"true":"false")
++        << ",\"matter_accepted\":"<<(step.matterAcceptance.accepted?"true":"false")
++        << ",\"matter_status_code\":"<<step.matterAcceptance.statusCode
++        << ",\"matter_before_present\":"<<(beforePresent?"true":"false")
++        << ",\"matter_before_file\":\""<<beforePath.filename().string()<<"\""
++        << ",\"matter_before_sha256\":"
++        << (beforePresent?"\""+sha256DiagnosticFile(beforePath)+"\"":"null")
++        << ",\"matter_before_status_code\":"<<beforeStatus
++        << ",\"matter_after_present\":"<<(afterPresent?"true":"false")
++        << ",\"matter_after_file\":\""<<afterPath.filename().string()<<"\""
++        << ",\"matter_after_sha256\":"
++        << (afterPresent?"\""+sha256DiagnosticFile(afterPath)+"\"":"null")
++        << ",\"matter_after_status_code\":"<<afterStatus
++        << ",\"final_q_count\":"<<step.result.finalQ.size()
++        << ",\"final_q_file\":\""<<qPath.filename().string()<<"\""
++        << ",\"final_q_sha256\":\""<<qHash<<"\""
++        << ",\"final_v_count\":"<<step.result.finalV.size()
++        << ",\"final_v_file\":\""<<vPath.filename().string()<<"\""
++        << ",\"final_v_sha256\":\""<<vHash<<"\"}\n";
++    out.flush();
++    if (!out) throw std::runtime_error("activation metadata write failed");
+ }
+ 
+ void writeRawDiagnosticSnapshot(const std::filesystem::path& path,
+@@ -4438,6 +4554,16 @@
+     }
+     const std::uint64_t diagnosticIndex = diagnosticStateOutput
+         ? diagnosticStateOutput->begin(controlStep, before) : 0u;
++    const std::vector<MRBodyStateGPU> inputSceneBodies = runner.sceneBodies();
++    const std::uint64_t acceptedStepsBefore = runner.acceptedSteps();
++    std::vector<MRBodyStateGPU> kinematicTargets;
++    kinematicTargets.reserve(inputSceneBodies.size());
++    if (runner.toolSceneBodyCount() > inputSceneBodies.size() ||
++        runner.freeBodyIndex() >= inputSceneBodies.size())
++        throw std::runtime_error("activation scene-body layout is incomplete");
++    kinematicTargets.insert(kinematicTargets.end(), inputSceneBodies.begin(),
++        inputSceneBodies.begin() + runner.toolSceneBodyCount());
++    kinematicTargets.push_back(inputSceneBodies.at(runner.freeBodyIndex()));
+ 
+     NMCohesiveActivationCommandGPU command{};
+     command.identity = {0u, 0u, kFaceId, 0u};
+@@ -4513,6 +4639,22 @@
+             activationStep.matterAcceptance.accepted
+                 ? "mortar_activation_accepted"
+                 : "mortar_activation_rejected");
++    if (fullContactActivationResidualArmijo) {
++        const bool selected =
++            capturedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
++                std::string::npos;
++        const bool skipped =
++            capturedTrace.find("fem_full_contact_residual_armijo_skipped=") !=
++                std::string::npos;
++        writeActivationSceneEvidence(
++            diagnosticIndex, controlStep, inputSceneBodies, kinematicTargets,
++            activationStep, runner.sceneBodies(), acceptedStepsBefore,
++            runner.acceptedSteps(), before, after, selected, skipped);
++        if (!selected || skipped)
++            throw std::runtime_error(
++                "activation control did not execute selected full-residual path: " +
++                    capturedTrace);
++    }
+     require(activationStep.diagnostics.succeeded() &&
+                 activationStep.matterAcceptance.accepted,
+             "accepted-state mortar activation setup rejected: " +
+@@ -4545,10 +4687,10 @@
+     measuredAcceptedGapM = maximumAcceptedNodeGap;
+     require(hasMortarParentContact(after, source),
+             "accepted mortar setup lost uncovered-parent self-contact history");
+-    // Activation commands are intentionally submitted in an ordinary
+-    // accepted transaction. The bounded full-contact private Armijo slice
+-    // rejects request-scoped activation features; callers restore this exact
+-    // completed snapshot into the dense/sparse measurement runtimes below.
++    // Default mode submits activation through the legacy ordinary path. The
++    // opt-in diagnostic mode above requires the selected full-residual marker
++    // for this exact control. Callers restore the resulting accepted snapshot
++    // into the dense/sparse measurement runtimes below.
+     return after;
+ }
+ 
+@@ -4644,16 +4786,23 @@
+     std::string activationTrace;
+     float initialBodyZ = 0.0f;
+     {
+-        // The activation event is a separate, ordinary accepted transaction.
+-        // It latches the true accepted FEM geometry without asking the
+-        // full-contact private Armijo transaction to consume a request-scoped
+-        // event that is outside that solver slice.
+-        ScopedEnvironmentValue clearFullContactSelector(
+-            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", nullptr);
+-        ScopedEnvironmentValue clearSparseCapacity(
+-            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", nullptr);
+-        ScopedEnvironmentValue clearSparseParity(
+-            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
++        // Activation remains an ordinary accepted transaction. By default
++        // its selector is cleared as before; the explicit diagnostic option
++        // selects full-residual Armijo only for this activation control.
++        const std::string activationControlSelector =
++            std::to_string(controlStepBase - 1u);
++        ScopedEnvironmentValue activationFullContactSelector(
++            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
++            fullContactActivationResidualArmijo
++                ? activationControlSelector.c_str() : nullptr);
++        ScopedEnvironmentValue activationSparseCapacity(
++            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
++            fullContactActivationResidualArmijo && sparse
++                ? capacityText.c_str() : nullptr);
++        ScopedEnvironmentValue activationSparseParity(
++            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
++            fullContactActivationResidualArmijo && sparse && sparseCapacity > 1u
++                ? "1" : nullptr);
+         Runtime activationRuntime;
+         const RuntimeDiagnostics activationInitialized =
+             activationRuntime.initialize(matterWorld, configuration);
+@@ -6007,7 +6156,7 @@
+     @autoreleasepool {
+         try {
+             require(argc >= 2,
+-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
++                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--full-contact-activation-residual-armijo|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
+             bool cpuOnly = false;
+             bool overflow = false;
+             bool prescribedBoxOverflow = false;
+@@ -6022,6 +6171,7 @@
+             bool sparsePrivateHighPairAdmission = false;
+             bool sparseFreeBodyParity = false;
+             bool sparseFreeBodyOverflow = false;
++            bool fullContactActivationResidualArmijoOption = false;
+             bool selfSurfaceScratchAliasParity = false;
+             bool cohesiveScratchAliasParity = false;
+             bool cohesiveTiledParity = false;
+@@ -6054,6 +6204,8 @@
+                     sparseFreeBodyParity = true;
+                 else if (option == "--sparse-free-body-overflow")
+                     sparseFreeBodyOverflow = true;
++                else if (option == "--full-contact-activation-residual-armijo")
++                    fullContactActivationResidualArmijoOption = true;
+                 else if (option == "--self-surface-scratch-alias-parity")
+                     selfSurfaceScratchAliasParity = true;
+                 else if (option == "--cohesive-scratch-alias-parity")
+@@ -6102,6 +6254,12 @@
+                     authoredNewtonIterations = static_cast<std::uint32_t>(parsed);
+                 } else throw std::runtime_error("unknown option: " + option);
+             }
++            fullContactActivationResidualArmijo =
++                fullContactActivationResidualArmijoOption;
++            require(!fullContactActivationResidualArmijo ||
++                        (sparseFreeBodyParity && !cpuOnly &&
++                         !diagnosticStateOutputPath.empty()),
++                    "full-residual activation mode requires native sparse-free-body parity with diagnostic output");
+             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
+                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
+                                   privateSelfSweep || privateSelfSweepDiagnostic ||

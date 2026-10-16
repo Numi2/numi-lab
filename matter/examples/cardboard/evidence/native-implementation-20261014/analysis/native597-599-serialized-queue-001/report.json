@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.serialized-native-queue-result.v1",
+  "results": [
+    {
+      "script": "run_native597_freebody_trial_summary_001.py",
+      "exit_code": 0,
+      "wall_seconds": 5.782884166000031,
+      "log_sha256": "f6080ec7ee6f3239139ff7ce9fd8dfe8e37de8f64f154179f0bd0e31de8adeb4"
+    },
+    {
+      "script": "run_native598_contact_compactor_fixture_fixed_001.py",
+      "exit_code": 0,
+      "wall_seconds": 1.0184416250000368,
+      "log_sha256": "5a181b4e33e0a43ca0b3aa2a1c80ade0b8c633975d4ce82d450b096346cae648"
+    },
+    {
+      "script": "run_native599_primary_cache_action_diagnostic_001.py",
+      "exit_code": 0,
+      "wall_seconds": 178.875820041,
+      "log_sha256": "f1c9155f78116d64a99955cda1dc1e3a0065d2769b4c860da84ff36273c798b0"
+    }
+  ],
+  "all_scripts_zero": true,
+  "completed_at_utc": "2026-10-16T14:21:59.987367+00:00"
+}

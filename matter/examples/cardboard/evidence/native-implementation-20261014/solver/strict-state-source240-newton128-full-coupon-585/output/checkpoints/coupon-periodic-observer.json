@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.periodic-accepted-checkpoint-observer.v1",
+  "observer_only": true,
+  "full_schedule_stop_requested": false,
+  "cadence_controls": 8,
+  "scheduled_controls": 60,
+  "accepted_steps_in_this_run": 19,
+  "observer_disabled_after_error": false,
+  "observer_error": "",
+  "checkpoints": [
+    {"control_index":7,"next_control_index":8,"checkpoint":"checkpoints/coupon-control-000007.nmcb","checkpoint_sha256":"5a8787bc1d080bbe41c2b147cf360c98dff71ec67e8e1ba423b6f5c0b42049bf","prefix":"checkpoints/coupon-control-000007.prefix","metadata":"checkpoints/coupon-control-000007.resume"},
+    {"control_index":15,"next_control_index":16,"checkpoint":"checkpoints/coupon-control-000015.nmcb","checkpoint_sha256":"18e699074c60839f5129d9155f9dd95802145a5610b5b83e4fd20c373a0837ae","prefix":"checkpoints/coupon-control-000015.prefix","metadata":"checkpoints/coupon-control-000015.resume"}
+  ]
+}

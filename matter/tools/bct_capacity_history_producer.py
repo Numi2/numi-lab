@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cardboard_shipping_peak import first_local_peak_index
 from cardboard_calibration_case_binding import (
     CalibrationBindingError, canonical_sha256 as _binding_canonical_sha256,
     validate_pre_run as _validate_pre_run_binding,
@@ -388,6 +389,7 @@ def _load_curve(path: Path, expected_count: int, peak_index: int) -> list[dict[s
     samples = []
     strokes: list[float] = []
     forces: list[float] = []
+    contacts_by_row: list[float] = []
     for index, row in enumerate(rows):
         if row["sample_index"] != str(index):
             raise ProducerError("native nominal curve sample indices are not contiguous")
@@ -397,12 +399,15 @@ def _load_curve(path: Path, expected_count: int, peak_index: int) -> list[dict[s
             raise ProducerError("native nominal curve contains invalid values")
         if strokes and stroke <= strokes[-1]:
             raise ProducerError("native nominal curve stroke is not strictly increasing")
-        strokes.append(stroke); forces.append(force)
+        strokes.append(stroke); forces.append(force); contacts_by_row.append(float(contacts))
         samples.append({"sample_index": index, "phase": "shipping_compression_nominal",
                         "accepted": True, "stroke_m": stroke, "force_N": force,
                         "contact_samples": contacts})
-    if forces.index(max(forces)) != peak_index:
-        raise ProducerError("native capacity binding peak index differs from the first nominal curve maximum")
+    selected_peak_index = first_local_peak_index(strokes, forces, contacts_by_row)
+    if selected_peak_index is None:
+        raise ProducerError("native nominal curve has no qualified first local compression peak")
+    if selected_peak_index != peak_index:
+        raise ProducerError("native capacity binding peak index differs from the first qualified local peak")
     return samples
 
 

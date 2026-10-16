@@ -1,0 +1,63 @@
+material porcine_jejunum_fung {
+    parameter density : kg/m^3 = 1000 in [900, 1150];
+    parameter fung_c : Pa = 690 in [100, 5000] log identifiable;
+    // Bellini axis 11 is circumferential and axis 22 is longitudinal.
+    parameter a_longitudinal : one = 81.2 in [1, 250] identifiable;
+    parameter a_circumferential : one = 72.4 in [1, 250] identifiable;
+    parameter a_coupling : one = 19.7 in [0, 150] identifiable;
+
+    // Bellini et al.'s planar Fung law has no independent out-of-plane shear
+    // response. This small compressible Neo-Hookean ground term is an explicit
+    // 3-D numerical regularizer, not part of the reported tissue fit.
+    parameter ground_shear : Pa = 250 in [10, 5000] log;
+    parameter numerical_viscosity : Pa*s = 5 in [0.01, 500] log;
+
+    model generic;
+
+    // E_LL and E_CC are Green-Lagrange strains along the authored
+    // longitudinal (column 0) and circumferential (column 1) material axes.
+    energy = 0.5 * fung_c * (
+        exp(
+            a_longitudinal * pow(0.5 * (
+                pow(F(0, 0), 2) + pow(F(1, 0), 2) +
+                pow(F(2, 0), 2) - 1
+            ), 2) +
+            a_circumferential * pow(0.5 * (
+                pow(F(0, 1), 2) + pow(F(1, 1), 2) +
+                pow(F(2, 1), 2) - 1
+            ), 2) +
+            2 * a_coupling * 0.5 * (
+                pow(F(0, 0), 2) + pow(F(1, 0), 2) +
+                pow(F(2, 0), 2) - 1
+            ) * 0.5 * (
+                pow(F(0, 1), 2) + pow(F(1, 1), 2) +
+                pow(F(2, 1), 2) - 1
+            )
+        ) - 1
+    ) + 0.5 * ground_shear * (I1() - 3) - ground_shear * log(J());
+
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+
+    valid = J() - 0.20;
+    supports fem;
+
+    interface {
+        static_friction = 0.45;
+        dynamic_friction = 0.35;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.20;
+        maximum_J = 5.0;
+        maximum_stress = 5e6;
+        maximum_energy_density = 5e6;
+    }
+}

@@ -1,0 +1,66 @@
+{
+  "build": {
+    "artifacts_sha256": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-cohesive-page-runtime-kernel-check": "f01f6c2c4dfd0c51d7289837c399e56dad46d8f00acb591b0b24341b1aa161bc",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-contact-sample-compaction-check": "2a2a85a99a941740b94cccf5885fa9ad08f53f20aaa4021b7c5dd249c332c77a",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe": "2528052d7a8250a5291d02176ce491a3ca1a9e622423eb8804ffb72bf76a5aa0",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-shipping-contact-page-native-check": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-shipping-contact-page-plan-check": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/NumiMatter.metallib": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/cardboard_contact_sample_compaction_check.metallib": "1595d35453f1391bb93ebfed3ffb93277332e3d90cf9de9f1a1108373ecdb8ec"
+    },
+    "changed_sources": [],
+    "native_gpu_execution": false,
+    "record": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/source-build.json",
+    "record_sha256": "aa26b10a93abd9a95992dcb588b10aeb2cc7285e427619f17b42049107a3bb75",
+    "source_count": 837,
+    "success": true,
+    "targets": [
+      "numi-matter-cardboard-probe",
+      "numi-matter-cardboard-contact-sample-compaction-check",
+      "numi-matter-cardboard-shipping-contact-page-plan-check",
+      "numi-matter-cardboard-cohesive-page-runtime-kernel-check",
+      "numi-matter-cardboard-shipping-contact-page-native-check"
+    ]
+  },
+  "candidate": "source-contact-compaction-fixture-249-001",
+  "changed_sources": [
+    {
+      "current_sha256": "3b78b2d53d89de688ca070fc51c31b070537cdbb0438f9d381174b2854672704",
+      "parent_sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd",
+      "path": "matter/tools/cardboard_contact_sample_compaction_check.mm"
+    }
+  ],
+  "cpu_validation": {
+    "all_exit_zero": true,
+    "cases": 5,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/cpu-validation.json",
+    "sha256": "a20513b1b8a85020d92c940f49dddbf486c1e417f1ff416aede59e4c798dc9a0"
+  },
+  "frozen_source_sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+  "native592_failure": {
+    "build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/source-build.json",
+    "build_record_sha256": "4418188007412b5fc875efe2fa55f116ddf8b9af805b908830471cd7384256a7",
+    "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/production-contact-compactor-592",
+    "checker_sha256": "ccc34fc4bccce5e71157f845558718fbf799cbeb89da5f835d68e7a04373f53a",
+    "classification": "ordinary compact residual began with nonzero y/z while dense baseline was zero",
+    "metallib_sha256": "6ea7f46b4054ecb6497aeff1b9f3e9f4ed80c31331361bad0111362600ea5c28",
+    "receipt_sha256": "147ba0aa1bc260a169870842420110565ba8a9e7fb540ab8aa039429edece676",
+    "stderr_sha256": "aadbf5326acb236d07fb972564c395032b189761713bb3e63d72aa6f73a73a58"
+  },
+  "parent": {
+    "frozen_source_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+    "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001"
+  },
+  "prepared_native_checker_argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-contact-sample-compaction-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/cardboard_contact_sample_compaction_check.metallib"
+  ],
+  "qualification": "Fresh source-bound compile and CPU contracts only; native checker awaits root execution.",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "scope": "Checker-fixture correction only. Ordinary compact residual now starts at zero, matching dense. Overflow sentinel remains (17,18,19,0). Production kernels/storage untouched.",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001",
+  "source_selected_count": 842,
+  "source_selection_map_sha256": "6e3e7d3c6432182b82f322b436a74eb10365249bd38fe6f3421fad278d78da0b"
+}

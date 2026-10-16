@@ -1,0 +1,57 @@
+{
+  "all_inputs_unchanged": true,
+  "all_pass": true,
+  "artifacts": [
+    {
+      "bytes": 102370,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/source-build.json",
+      "sha256": "39bef01c8cd0b62d708ffae18a5d03c4ef5e2ed2061bccc68e1c55f03d0dcbcf"
+    },
+    {
+      "bytes": 2039792,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "0946f5ed970778f08319b417fab1694cfc390f21391c393ff7e9d0484b49502e"
+    }
+  ],
+  "at_utc": "2026-10-16T13:35:02.334329+00:00",
+  "base_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+  "changed_source": "matter/tools/cardboard_full_contact_armijo_check.mm",
+  "changed_source_sha256": "36e54718becf710ab8189122bf07d21f19490fa4443297a4fe734a2e66319c63",
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-full-contact-armijo-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--cpu-only"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "native_gpu_execution": false,
+  "overlay_manifest_sha256": "3b721f308075b056fccfea224d300fd80f3ae1abde27d619491eebf05e970b52",
+  "overlay_patch_sha256": "2819ffc78c715bb49b531032bf81acfe0585564363d8ce0b1128d458d3e9aa9d",
+  "physical_fem_transactions": 0,
+  "physical_qualification": false,
+  "schema": "numi.cardboard.source244.activation_build.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "source_frozen_sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4"
+}

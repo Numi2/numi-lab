@@ -1,0 +1,13 @@
+source_id,source_grade,subsurface_nu,initial_yield_K0_MPa,hardening_a_MPa,hardening_b,hardening_law,observation_class,source_location,notes
+robertsson_2023,source_single_ply_softwood_paperboard,1,20.4,12.2,690,logarithmic,source_reported_model_parameter,Table C2 and Eq27,Separate single-ply softwood grade; not kraft/NSSC transfer
+robertsson_2023,source_single_ply_softwood_paperboard,2,11.7,5.10,435,logarithmic,source_reported_model_parameter,Table C2 and Eq27,Separate single-ply softwood grade; not kraft/NSSC transfer
+robertsson_2023,source_single_ply_softwood_paperboard,3,9.91,6.63,334,logarithmic,source_reported_model_parameter,Table C2 and Eq27,Separate single-ply softwood grade; not kraft/NSSC transfer
+robertsson_2023,source_single_ply_softwood_paperboard,4,22.0,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,5,16.7,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,6,9.91,6.63,334,logarithmic,source_reported_model_parameter,Table C2 and Eq27,Separate single-ply softwood grade; not kraft/NSSC transfer
+robertsson_2023,source_single_ply_softwood_paperboard,7,1.00,49.0,,linear,source_reported_model_parameter,Table C2 and Eq27,Source b dash; Eq27 defines linear hardening for nu7
+robertsson_2023,source_single_ply_softwood_paperboard,8,0.40,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,9,2.51,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,10,2.51,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,11,2.51,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value
+robertsson_2023,source_single_ply_softwood_paperboard,12,2.51,,,none_reported,source_reported_model_parameter,Table C2 and Eq27,Source dash retained as blank; zero is not a measured hardening value

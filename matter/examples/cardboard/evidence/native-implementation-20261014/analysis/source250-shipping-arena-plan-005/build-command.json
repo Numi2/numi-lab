@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-005/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-005",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "4",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-shipping-memory-check"
+  ],
+  "gpu_execution": false
+}

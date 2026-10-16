@@ -1,0 +1,28 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "-S",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build",
+      "-DBUILD_TESTING=ON"
+    ],
+    "returncode": 0,
+    "stdout": "-- Configuring done (0.4s)\n-- Generating done (0.2s)\n-- Build files have been written to: /Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cmake",
+      "--build",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build",
+      "--target",
+      "numi-matter-cardboard-contact-sample-compaction-check",
+      "-j2"
+    ],
+    "returncode": 0,
+    "stdout": "[  0%] Built target numi_cardboard_contact_sample_compaction_shaders\n[100%] Built target numi-matter-cardboard-contact-sample-compaction-check\n",
+    "stderr": ""
+  }
+]

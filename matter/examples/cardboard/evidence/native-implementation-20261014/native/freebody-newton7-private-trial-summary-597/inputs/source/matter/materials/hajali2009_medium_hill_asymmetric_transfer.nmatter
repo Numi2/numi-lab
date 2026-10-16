@@ -1,0 +1,205 @@
+// Explicit convex tension/compression asymmetry transfer candidate for the
+// Haj-Ali et al. (2009) source grades: 205 gsm kraft liner or 126 gsm NSSC
+// medium, Composite Structures 87, 321-333, DOI 10.1016/j.compstruct.2008.02.001.
+// This is a transfer model, not the article's Table 3 symmetric Hill law.
+// Definition, in normalized principal stresses s=sigma/sigma_ref:
+//   q = sqrt(Q_t(s)+q_floor^2) + sum_i k_i max(-s_i,0)
+// where Q_t uses Table 3 tensile principal strengths. k_i=sigma_ref*(1/Yc_i-1/Yt_i)
+// maps each uniaxial compression radius to the paper's compression strengths
+// (the paper assumes 0.6*tensile strength). The Hill quadratic is PSD (pair sums
+// F+G, F+H, G+H are all positive); adding nonnegative ReLU terms preserves
+// continuity and convexity. Associated flow uses the complete derivative of q.
+// This changes mixed-stress and pressure response; the paper supplies no
+// biaxial or hydrostatic data to identify that transfer. Shear radii retain
+// the article's assumed values. Compression/shear hardening remains zero.
+// The medium tensile MD radius uses Table 3's 15.65 MPa, while Table 1 lists
+// 15.7 MPa. The source discrepancy is kept explicit.
+// Tensile hardening inputs come from one digitized endpoint per solid bilinear
+// fit (CSV SHA256 83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82);
+// H=E*Et/(E-Et). Et MPa (MD,CD): 1323.67951452, 243.719626168; derived H MPa:
+// 1880.20718228282, 287.131237790801, with pixel/readout intervals
+// [1797.49642474..1967.50661042], [275.531443649..299.174518435]. Directional weights/transfer factors are
+// assumptions and calibration inputs, not a multiaxial calibration. Marker
+// residuals from the same published curves are calibration residuals only.
+// Densities/calipers are cross-source proxies. The ReLU tie at zero selects
+// the nonnegative/tensile arm; the numerical q_floor and FB regularization are
+// retained from the separately preserved ideal/bilinear assets.
+material hajali2009_medium_hill_asymmetric_transfer {
+    parameter density : kg/m^3 = 679;
+    parameter c11 : MPa = 4524.848543681839;
+    parameter c22 : MPa = 1631.0512147406462;
+    parameter c33 : MPa = 17.90002997076348;
+    parameter c12 : MPa = 293.59114732344125;
+    parameter c13 : MPa = 0.21371636195674576;
+    parameter c23 : MPa = 0.19286701249506086;
+    parameter g12 : MPa = 1039;
+    parameter g13 : MPa = 226.34;
+    parameter g23 : MPa = 198.72;
+
+    parameter sigma_ref : MPa = 9.391;
+    parameter compression_k11 : one = 0.39993610223642173; // Table 3 C=9.391 MPa, T=15.65 MPa
+    parameter compression_k22 : one = 0.7767576509511992; // Table 3 C=4.836 MPa, T=8.06 MPa
+    parameter compression_k33 : one = 1.1618913071000265; // Table 3 C=3.23 MPa, T=5.38 MPa
+    parameter hill_F : one = 5.612051993569077;
+    parameter hill_G : one = 2.841099191623919;
+    parameter hill_H : one = -1.8410991916239194;
+    parameter hill_L : one = 76554.58420138889;
+    parameter hill_M : one = 76554.58420138889;
+    parameter hill_N : one = 9.998966099773243;
+    parameter hardening_md : MPa = 1880.20718228282;
+    parameter hardening_cd : MPa = 287.131237790801;
+    parameter fit_transfer_scale_md : one = 0.3600766813992181;
+    parameter fit_transfer_scale_cd : one = 1.3575430087002567;
+    parameter hardening_md_flow_scale : one = 1;
+    parameter hardening_cd_flow_scale : one = 1;
+    parameter hardening_smoothing_width : one = 1e-8;
+    parameter hardening_weight_scale : one = 1e-3;
+    parameter q_floor : one = 2e-6;
+    parameter fb_epsilon : one = 1e-8;
+    // Numerical conditioning only: scales every local implicit residual.
+    // Its zero set is unchanged; it is not a fitted physical parameter.
+    parameter residual_scale : one = 10;
+
+    state ep11 : one = 0;
+    state ep22 : one = 0;
+    state ep33 : one = 0;
+    state ep23 : one = 0;
+    state ep13 : one = 0;
+    state ep12 : one = 0;
+    state sbar11 : one = 0;
+    state sbar22 : one = 0;
+    state sbar33 : one = 0;
+    state sbar23 : one = 0;
+    state sbar13 : one = 0;
+    state sbar12 : one = 0;
+    state accumulated_multiplier : one = 0 transfer max;
+    state hardening_md_accumulation : one = 0;
+    state hardening_cd_accumulation : one = 0;
+
+    // These two histories partition the plastic multiplier into tensile MD/CD
+    // contributions. Their update seeds are accepted values; implicit equations
+    // accumulate only the current accepted-to-trial plastic increment.
+    update hardening_md_accumulation = hardening_md_accumulation;
+    update hardening_cd_accumulation = hardening_cd_accumulation;
+
+    model generic;
+    energy =
+        0.5 * c11 * pow(0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11), 2)
+      + 0.5 * c22 * pow(0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22), 2)
+      + 0.5 * c33 * pow(0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33), 2)
+      + c12 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11))
+            * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22))
+      + c13 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11))
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33))
+      + c23 * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22))
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33))
+      + 0.5 * g12 * pow(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*next(ep12), 2)
+      + 0.5 * g13 * pow(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*next(ep13), 2)
+      + 0.5 * g23 * pow(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*next(ep23), 2);
+
+    // The trial elastic stress is an initial guess for the implicit stress
+    // state below. Matter projects these updates before its local Newton solve;
+    // the implicit equations, not these estimates, determine accepted stress.
+    update sbar11 = (
+        c11*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c12*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c13*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar22 = (
+        c12*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c22*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c23*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar33 = (
+        c13*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c23*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c33*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar23 = g23*(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*ep23)/sigma_ref;
+    update sbar13 = g13*(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*ep13)/sigma_ref;
+    update sbar12 = g12*(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*ep12)/sigma_ref;
+
+    // Exact normalized StVK second Piola stress equations. The update roots
+    // above are only Newton seeds; these residuals define returned stress.
+    implicit sbar11 = residual_scale * (
+        next(sbar11) - (
+                c11*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+              + c12*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+              + c13*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+            )/sigma_ref
+    );
+    implicit sbar22 = residual_scale * (
+        next(sbar22) - (
+                c12*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+              + c22*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+              + c23*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+            )/sigma_ref
+    );
+    implicit sbar33 = residual_scale * (
+        next(sbar33) - (
+                c13*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+              + c23*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+              + c33*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+            )/sigma_ref
+    );
+    implicit sbar23 = residual_scale * (
+        next(sbar23) - g23*(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*next(ep23))/sigma_ref
+    );
+    implicit sbar13 = residual_scale * (
+        next(sbar13) - g13*(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*next(ep13))/sigma_ref
+    );
+    implicit sbar12 = residual_scale * (
+        next(sbar12) - g12*(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*next(ep12))/sigma_ref
+    );
+
+    implicit ep11 = residual_scale * (
+        next(ep11)-ep11-(next(accumulated_multiplier)-accumulated_multiplier) * (select_nonnegative(next(sbar11), hill_G*(next(sbar11)-next(sbar33)) + hill_H*(next(sbar11)-next(sbar22)), (hill_G*(next(sbar11)-next(sbar33)) + hill_H*(next(sbar11)-next(sbar22))) - compression_k11*sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2)))
+    );
+    implicit ep22 = residual_scale * (
+        next(ep22)-ep22-(next(accumulated_multiplier)-accumulated_multiplier) * (select_nonnegative(next(sbar22), hill_F*(next(sbar22)-next(sbar33)) + hill_H*(next(sbar22)-next(sbar11)), (hill_F*(next(sbar22)-next(sbar33)) + hill_H*(next(sbar22)-next(sbar11))) - compression_k22*sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2)))
+    );
+    implicit ep33 = residual_scale * (
+        next(ep33)-ep33-(next(accumulated_multiplier)-accumulated_multiplier) * (select_nonnegative(next(sbar33), hill_F*(next(sbar33)-next(sbar22)) + hill_G*(next(sbar33)-next(sbar11)), (hill_F*(next(sbar33)-next(sbar22)) + hill_G*(next(sbar33)-next(sbar11))) - compression_k33*sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2)))
+    );
+    implicit ep23 = residual_scale * (
+        next(ep23)-ep23-(next(accumulated_multiplier)-accumulated_multiplier) * hill_L*next(sbar23) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))
+    );
+    implicit ep13 = residual_scale * (
+        next(ep13)-ep13-(next(accumulated_multiplier)-accumulated_multiplier) * hill_M*next(sbar13) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))
+    );
+    implicit ep12 = residual_scale * (
+        next(ep12)-ep12-(next(accumulated_multiplier)-accumulated_multiplier) * hill_N*next(sbar12) / sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2))
+    );
+
+    implicit hardening_md_accumulation = residual_scale * (
+        next(hardening_md_accumulation)-hardening_md_accumulation
+        - (next(accumulated_multiplier)-accumulated_multiplier)
+          * pow(0.5*(next(sbar11)+sqrt(pow(next(sbar11),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+          / (pow(0.5*(next(sbar11)+sqrt(pow(next(sbar11),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(0.5*(next(sbar22)+sqrt(pow(next(sbar22),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(0.5*(next(sbar33)+sqrt(pow(next(sbar33),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(q_floor/hardening_weight_scale,2))
+    );
+    implicit hardening_cd_accumulation = residual_scale * (
+        next(hardening_cd_accumulation)-hardening_cd_accumulation
+        - (next(accumulated_multiplier)-accumulated_multiplier)
+          * pow(0.5*(next(sbar22)+sqrt(pow(next(sbar22),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+          / (pow(0.5*(next(sbar11)+sqrt(pow(next(sbar11),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(0.5*(next(sbar22)+sqrt(pow(next(sbar22),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(0.5*(next(sbar33)+sqrt(pow(next(sbar33),2)+pow(hardening_smoothing_width,2)))/hardening_weight_scale,2)
+             + pow(q_floor/hardening_weight_scale,2))
+    );
+
+    implicit accumulated_multiplier = residual_scale * (
+        sqrt(
+                pow(next(accumulated_multiplier)-accumulated_multiplier,2)
+              + pow((1+hardening_md*fit_transfer_scale_md*hardening_md_flow_scale*next(hardening_md_accumulation)/sigma_ref+hardening_cd*fit_transfer_scale_cd*hardening_cd_flow_scale*next(hardening_cd_accumulation)/sigma_ref)-(sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2)) + compression_k11*select_nonnegative(next(sbar11),0,-next(sbar11)) + compression_k22*select_nonnegative(next(sbar22),0,-next(sbar22)) + compression_k33*select_nonnegative(next(sbar33),0,-next(sbar33))),2)
+              + pow(fb_epsilon,2)
+            ) - (next(accumulated_multiplier)-accumulated_multiplier) - ((1+hardening_md*fit_transfer_scale_md*hardening_md_flow_scale*next(hardening_md_accumulation)/sigma_ref+hardening_cd*fit_transfer_scale_cd*hardening_cd_flow_scale*next(hardening_cd_accumulation)/sigma_ref)-(sqrt(hill_F*pow(next(sbar22)-next(sbar33),2)+hill_G*pow(next(sbar33)-next(sbar11),2)+hill_H*pow(next(sbar11)-next(sbar22),2)+2*hill_L*pow(next(sbar23),2)+2*hill_M*pow(next(sbar13),2)+2*hill_N*pow(next(sbar12),2)+pow(q_floor,2)) + compression_k11*select_nonnegative(next(sbar11),0,-next(sbar11)) + compression_k22*select_nonnegative(next(sbar22),0,-next(sbar22)) + compression_k33*select_nonnegative(next(sbar33),0,-next(sbar33))))
+    );
+
+    valid = J() - 0.20;
+    supports fem;
+    interface { static_friction = 0; dynamic_friction = 0; restitution = 0; adhesion = 0; }
+    limits { minimum_J = 0.20; maximum_J = 2.5; maximum_stress = 1e9; maximum_energy_density = 1e9; }
+}

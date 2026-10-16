@@ -2,6 +2,8 @@
 #import <Metal/Metal.h>
 #import <CommonCrypto/CommonDigest.h>
 
+#include "numi/matter/detail/shipping_contact_page_plan.hpp"
+#include "numi/matter/detail/fem_primary_operator_cache_mode.hpp"
 #include "numi/matter/matter.hpp"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/regional_restart_augmentation_admission.hpp"
@@ -183,6 +185,86 @@ SparseArmijoContactOptions sparseArmijoContactOptionsFromEnvironment() noexcept 
 // performs the authoritative bridge/count/pair checks; this early predicate
 // prevents a sparse request from allocating the free-body path for a different
 // generalized-rigid layout.
+bool contactSampleCompactionDiagnosticRequested() noexcept {
+    constexpr const char* selectors[] = {
+        "NM_FEM_CONTACT_TRACE_ROOT",
+        "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR",
+        "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR",
+        "NM_FEM_COUPLED_CAPTURE_PATH",
+        "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+        "NM_FEM_STATUS5_CAPTURE_PATH",
+        "NM_FEM_STATUS5_CAPTURE_ROOT",
+        "NM_FEM_BASE_CGLS_CAPTURE_PATH",
+        "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+        "NM_FEM_BASE_CGLS_STATE_CAPTURE",
+        "NM_FEM_NEWTON_TRACE_ROOT",
+        "NM_FEM_OPERATOR_FD_SELECTOR",
+        "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
+        "NM_FEM_REGIONAL_CONSUMER_CAPTURE_SELECTOR",
+        "NM_FEM_REGIONAL_CONSUMER_CAPTURE_PATH",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+        "NM_FEM_TRUE_RESIDUAL_ROOT",
+        "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+        "NM_FEM_CONTACT_TRACE_ITERATION",
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+        "NM_FEM_COUPLED_TRIAL_SUMMARY_SELECTOR",
+        "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR",
+        "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+        "NM_HUMAN_SUPPORT_TRACE_ROOT",
+        "NM_VASCULAR_TRACE_ROOT",
+    };
+    for (const char* selector : selectors) {
+        if (std::getenv(selector) != nullptr) return true;
+    }
+    return false;
+}
+
+bool sparsePrivateBoundedFreeBoxLayout(const CompiledWorld& world) noexcept;
+
+bool compactMainContactSampleLayoutSupported(
+    const CompiledWorld& world
+) noexcept {
+    if (world.dispatch.environmentCount == 0u ||
+        world.dispatch.environmentCount > 4u ||
+        world.dispatch.contactPairCount >
+            std::numeric_limits<std::uint32_t>::max() /
+                world.dispatch.environmentCount ||
+        world.dispatch.femNodeCount >
+            std::numeric_limits<std::uint32_t>::max() /
+                world.dispatch.environmentCount ||
+        std::min(world.dispatch.reservedMixed1,
+                 world.dispatch.contactPairCount) >
+            std::numeric_limits<std::uint32_t>::max() /
+                world.dispatch.environmentCount ||
+        world.dispatch.femNodeCount == 0u ||
+        world.dispatch.gridNodeCount != 0u ||
+        world.dispatch.particleCount != 0u ||
+        world.dispatch.mpmGridCount != 0u ||
+        world.dispatch.mpmBlockCount != 0u ||
+        world.dispatch.contactPairCount == 0u ||
+        world.dispatch.punctureChannelCount != 0u ||
+        world.dispatch.mutationCommandCount != 0u ||
+        world.dispatch.femHumanAttachmentCount != 0u ||
+        !sparsePrivateBoundedFreeBoxLayout(world))
+        return false;
+    constexpr std::uint32_t unsupportedObjectFlags =
+        NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE | NM_OBJECT_MIXED_FEM |
+        NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY;
+    if (world.objects.empty()) return false;
+    for (const NMContinuumObjectGPU& object : world.objects) {
+        if (object.representation != NM_REPRESENTATION_FEM ||
+            (object.flags & unsupportedObjectFlags) != 0u)
+            return false;
+    }
+    return true;
+}
+
 bool sparsePrivateBoundedFreeBoxLayout(const CompiledWorld& world) noexcept {
     if (world.dispatch.rigidGeneralizedCapacity != 6u ||
         world.dispatch.rigidQCapacity != 0u ||
@@ -2544,7 +2626,13 @@ struct Runtime::State {
     id<MTLBuffer> contactActivePairs = nil;
     id<MTLBuffer> contactActiveSlotsByPair = nil;
     id<MTLBuffer> contactActiveCounts = nil;
+    id<MTLBuffer> contactSampleSlotsByPair = nil;
+    id<MTLBuffer> contactSamplePageComplete = nil;
+    id<MTLBuffer> contactSampleConfiguration = nil;
     std::uint32_t contactActiveCapacity = 0u;
+    std::uint32_t contactSampleCapacity = 0u;
+    std::uint32_t contactSampleStorageMode = 0u;
+    bool compactMainContactSamples = false;
 
     id<MTLBuffer> environmentParameters = nil;
     id<MTLBuffer> environmentParametersPreparedCheckpoint = nil;
@@ -2676,6 +2764,9 @@ struct Runtime::State {
     id<MTLBuffer> elementOperator = nil;
     id<MTLBuffer> cohesiveFaceForces = nil;
     id<MTLBuffer> cohesiveFaceOperator = nil;
+    id<MTLBuffer> cohesiveForceAccumulator = nil;
+    bool cohesiveFacesPaged = false;
+    std::uint32_t cohesiveFacePageCapacity = 0u;
     id<MTLBuffer> femSolution = nil;
     id<MTLBuffer> femResidual = nil;
     id<MTLBuffer> femPreconditioned = nil;
@@ -2738,6 +2829,8 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoSparseContactPairIds = nil;
     id<MTLBuffer> femArmijoSparseContactCandidateCounts = nil;
     id<MTLBuffer> femArmijoSparseContactReferenceSamples = nil;
+    id<MTLBuffer> femArmijoSparseContactPageComplete = nil;
+    id<MTLBuffer> femArmijoContactSampleConfiguration = nil;
     std::uint32_t femArmijoSparseContactCapacity = 0u;
     bool femArmijoSparseContactRequested = false;
     bool femArmijoSparseContactParity = false;
@@ -4570,7 +4663,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
             "nm_fem_cohesive_face_forces",
             "nm_fem_accumulate_cohesive_page_forces",
+            "nm_fem_clear_cohesive_force_accumulator",
             "nm_fem_apply_cohesive_force_accumulator",
+            "nm_fem_apply_cohesive_operator_accumulator",
             "nm_fem_add_cohesive_residual",
             "nm_fem_cohesive_face_operator",
             "nm_fem_prepare_cohesive_activation",
@@ -4764,6 +4859,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_restart_residual_nodes",
             "nm_fgmres_restart_residual_rigid",
             "nm_contact_clear_samples",
+            "nm_contact_begin_compact_samples",
+            "nm_contact_finish_compact_samples",
             "nm_contact_clear_trial_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
@@ -4938,6 +5035,17 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->dispatch.reservedMixed1,
             candidate->dispatch.contactPairCount
         );
+        candidate->compactMainContactSamples =
+            !candidate->captureDiagnostics &&
+            contactPairCount > candidate->contactActiveCapacity &&
+            compactMainContactSampleLayoutSupported(world) &&
+            !contactSampleCompactionDiagnosticRequested();
+        candidate->contactSampleStorageMode =
+            candidate->compactMainContactSamples ? 1u : 0u;
+        candidate->contactSampleCapacity =
+            candidate->compactMainContactSamples
+                ? candidate->contactActiveCapacity
+                : candidate->dispatch.contactPairCount;
         if (contactPairCount != 0u && candidate->contactActiveCapacity == 0u) {
             diagnostics.message =
                 "Matter active contact capacity is zero for a contact world";
@@ -6155,8 +6263,26 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, environments,
             valid, candidate->residentBytes);
         candidate->contactSamples = privateScratch<NMContactSampleGPU>(
-            candidate->device, multiplied(world.dispatch.contactPairCount),
+            candidate->device, multiplied(candidate->contactSampleCapacity),
             valid, candidate->residentBytes);
+        candidate->contactSampleSlotsByPair =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                multiplied(world.dispatch.contactPairCount),
+                valid, candidate->residentBytes);
+        candidate->contactSamplePageComplete =
+            privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
+        candidate->contactSampleConfiguration =
+            sharedScratch<std::uint32_t>(
+                candidate->device, 2u, valid, candidate->residentBytes);
+        if (candidate->contactSampleConfiguration != nil) {
+            auto* words = static_cast<std::uint32_t*>(
+                candidate->contactSampleConfiguration.contents);
+            words[0] = candidate->contactSampleStorageMode;
+            words[1] = candidate->contactSampleCapacity;
+        }
         candidate->contactActivePairs = privateScratch<std::uint32_t>(
             candidate->device, multiplied(candidate->contactActiveCapacity),
             valid, candidate->residentBytes);
@@ -6328,12 +6454,57 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->elementOperator = privateScratch<NMFEMElementVectorGPU>(
             candidate->device, multiplied(world.dispatch.tetrahedronCount),
             valid, candidate->residentBytes);
-        candidate->cohesiveFaceForces = privateScratch<NMCohesiveFaceVectorGPU>(
-            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
-            valid, candidate->residentBytes);
-        candidate->cohesiveFaceOperator = privateScratch<NMCohesiveFaceVectorGPU>(
-            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
-            valid, candidate->residentBytes);
+        if (world.dispatch.cohesiveFaceCount != 0u) {
+            detail::ShippingCohesivePagePlanInput pageInput{};
+            pageInput.environmentCount = world.dispatch.environmentCount;
+            pageInput.cohesiveFaceCount = world.dispatch.cohesiveFaceCount;
+            pageInput.femNodeCount = world.dispatch.femNodeCount;
+            pageInput.maxBufferLength =
+                static_cast<std::uint64_t>(candidate->device.maxBufferLength);
+            if (candidate->captureDiagnostics)
+                pageInput.pageBufferBudgetBytes = pageInput.maxBufferLength;
+            const auto pagePlan = detail::makeShippingCohesivePagePlan(pageInput);
+            if (!pagePlan.admitted()) {
+                diagnostics.message =
+                    "cohesive face scratch exceeds checked Metal buffer limits";
+                return diagnostics;
+            }
+            candidate->cohesiveFacesPaged =
+                !candidate->captureDiagnostics && pagePlan.paged;
+            candidate->cohesiveFacePageCapacity =
+                candidate->cohesiveFacesPaged
+                    ? pagePlan.facesPerPage
+                    : world.dispatch.cohesiveFaceCount;
+            const std::size_t faceElements = candidate->cohesiveFacesPaged
+                ? static_cast<std::size_t>(world.dispatch.environmentCount) *
+                    candidate->cohesiveFacePageCapacity
+                : multiplied(world.dispatch.cohesiveFaceCount);
+            candidate->cohesiveFaceForces =
+                privateScratch<NMCohesiveFaceVectorGPU>(
+                    candidate->device, faceElements, valid,
+                    candidate->residentBytes);
+            candidate->cohesiveFaceOperator =
+                privateScratch<NMCohesiveFaceVectorGPU>(
+                    candidate->device, faceElements, valid,
+                    candidate->residentBytes);
+            if (candidate->cohesiveFacesPaged) {
+                candidate->cohesiveForceAccumulator = privateScratch<nm_float4>(
+                    candidate->device,
+                    multiplied(world.dispatch.femNodeCount),
+                    valid, candidate->residentBytes);
+                if (candidate->cohesiveForceAccumulator == nil) {
+                    diagnostics.message =
+                        "failed to allocate bounded cohesive nodal accumulator";
+                    return diagnostics;
+                }
+            }
+            if (candidate->cohesiveFaceForces == nil ||
+                candidate->cohesiveFaceOperator == nil) {
+                diagnostics.message =
+                    "failed to allocate cohesive face workspace";
+                return diagnostics;
+            }
+        }
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
             world.dispatch.mpmActiveNodeCapacity +
@@ -6913,6 +7084,9 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->femArmijoSparseContactCandidateCounts =
                         privateScratch<std::uint32_t>(candidate->device,
                             environments, valid, candidate->residentBytes);
+                    candidate->femArmijoSparseContactPageComplete =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            environments, valid, candidate->residentBytes);
                     if (candidate->femArmijoSparseContactParity) {
                         candidate->femArmijoSparseContactReferenceSamples =
                             privateScratch<NMContactSampleGPU>(candidate->device,
@@ -6927,6 +7101,21 @@ RuntimeDiagnostics Runtime::initialize(
                         privateScratch<NMContactSampleGPU>(candidate->device,
                             multiplied(world.dispatch.contactPairCount),
                             valid, candidate->residentBytes);
+                }
+                if (candidate->femArmijoBoxContactSamples != nil) {
+                    candidate->femArmijoContactSampleConfiguration =
+                        sharedScratch<std::uint32_t>(
+                            candidate->device, 2u,
+                            valid, candidate->residentBytes);
+                    if (candidate->femArmijoContactSampleConfiguration != nil) {
+                        auto* words = static_cast<std::uint32_t*>(
+                            candidate->femArmijoContactSampleConfiguration.contents);
+                        words[0] = candidate->femArmijoSparseContactRequested
+                            ? 1u : 0u;
+                        words[1] = candidate->femArmijoSparseContactRequested
+                            ? candidate->femArmijoSparseContactCapacity
+                            : world.dispatch.contactPairCount;
+                    }
                 }
                 if (world.dispatch.rigidGeneralizedCapacity != 0u) {
                     candidate->femArmijoContactActivePairs =
@@ -7614,6 +7803,16 @@ RuntimeDiagnostics Runtime::initialize(
         [primalContactEncoder
             setBuffer:candidate->deformableContactActiveCounts
                offset:0u atIndex:14u];
+        [primalContactEncoder setBuffer:candidate->contactSampleConfiguration
+                                 offset:0u atIndex:15u];
+        [primalContactEncoder setBuffer:candidate->contactSamplePageComplete
+                                 offset:0u atIndex:16u];
+        [primalContactEncoder setBuffer:candidate->contactSampleSlotsByPair
+                                 offset:0u atIndex:17u];
+        [primalContactEncoder setBuffer:candidate->contactActiveCounts
+                                 offset:0u atIndex:18u];
+        [primalContactEncoder setBuffer:candidate->contactSampleConfiguration
+                                 offset:sizeof(std::uint32_t) atIndex:19u];
         candidate->residentBytes += primalContactEncoder.encodedLength;
 
         // Full-contact Armijo may include one finite free body. Its trial
@@ -7673,6 +7872,27 @@ RuntimeDiagnostics Runtime::initialize(
             [primalContactEncoder setBuffer:
                 candidate->deformableContactActiveCounts
                                      offset:0u atIndex:14u];
+            [primalContactEncoder setBuffer:
+                candidate->femArmijoContactSampleConfiguration
+                                     offset:0u atIndex:15u];
+            [primalContactEncoder setBuffer:
+                candidate->femArmijoSparseContactPageComplete != nil
+                    ? candidate->femArmijoSparseContactPageComplete
+                    : candidate->dummy
+                                     offset:0u atIndex:16u];
+            [primalContactEncoder setBuffer:
+                candidate->femArmijoSparseContactSlotsByPair != nil
+                    ? candidate->femArmijoSparseContactSlotsByPair
+                    : candidate->dummy
+                                     offset:0u atIndex:17u];
+            [primalContactEncoder setBuffer:
+                candidate->femArmijoSparseContactCandidateCounts != nil
+                    ? candidate->femArmijoSparseContactCandidateCounts
+                    : candidate->dummy
+                                     offset:0u atIndex:18u];
+            [primalContactEncoder setBuffer:
+                candidate->femArmijoContactSampleConfiguration
+                                     offset:sizeof(std::uint32_t) atIndex:19u];
             candidate->residentBytes += primalContactEncoder.encodedLength;
         }
 
@@ -9132,6 +9352,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (primalResourcesEncoder != encoder) {
                 [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactSampleConfiguration
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactSamplePageComplete
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactSampleSlotsByPair
+                             usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactNodeIncidence usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactNodeRanges usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactActivePairs usage:MTLResourceUsageRead];
@@ -9175,6 +9401,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder useResource:state.contactPairs
                              usage:MTLResourceUsageRead];
                 [encoder useResource:state.femArmijoBoxContactSamples
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:state.femArmijoContactSampleConfiguration
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:
+                    (state.femArmijoSparseContactPageComplete != nil
+                        ? state.femArmijoSparseContactPageComplete
+                        : state.dummy)
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:
+                    (state.femArmijoSparseContactSlotsByPair != nil
+                        ? state.femArmijoSparseContactSlotsByPair
+                        : state.dummy)
+                             usage:MTLResourceUsageRead];
+                [encoder useResource:
+                    (state.femArmijoSparseContactCandidateCounts != nil
+                        ? state.femArmijoSparseContactCandidateCounts
+                        : state.dummy)
                              usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactNodeIncidence
                              usage:MTLResourceUsageRead];
@@ -9454,6 +9697,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
         };
+        const auto bindContactSampleStorage = [&] (
+                id<MTLBuffer> configuration,
+                id<MTLBuffer> pageComplete,
+                id<MTLBuffer> slotsByPair,
+                id<MTLBuffer> sampleCounts,
+                const NSUInteger firstIndex) {
+            [encoder setBuffer:configuration offset:0u atIndex:firstIndex];
+            [encoder setBuffer:pageComplete offset:0u atIndex:firstIndex + 1u];
+            [encoder setBuffer:slotsByPair offset:0u atIndex:firstIndex + 2u];
+            [encoder setBuffer:sampleCounts offset:0u atIndex:firstIndex + 3u];
+            [encoder setBuffer:configuration offset:sizeof(std::uint32_t)
+                         atIndex:firstIndex + 4u];
+        };
         const auto buildDeformableNodeIncidence = [&](
             id<MTLBuffer> contacts,
             id<MTLBuffer> activeIndices,
@@ -9689,6 +9945,256 @@ RuntimeDiagnostics Runtime::encodeImpl(
             static_cast<NSUInteger>(state.dispatch.objectCount),
             static_cast<NSUInteger>(state.dispatch.tetrahedronCount) * 4u
         });
+
+
+        const auto clearCohesiveAccumulator = [&]() {
+            if (!state.cohesiveFacesPaged ||
+                state.cohesiveForceAccumulator == nil) return;
+            dispatchThreads("nm_fem_clear_cohesive_force_accumulator",
+                femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.cohesiveForceAccumulator
+                             offset:0u atIndex:1u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+        const auto accumulateCohesivePage = [&](
+            const NMMicrostepGPU& pageMicro,
+            id<MTLBuffer> pageBuffer,
+            id<MTLBuffer> pageStatuses,
+            const std::uint32_t pageStart,
+            const std::uint32_t pageCount
+        ) {
+            dispatchThreads("nm_fem_accumulate_cohesive_page_forces",
+                femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&pageMicro length:sizeof(pageMicro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.femCohesiveNodeIncidence
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.femCohesiveNodeRanges
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                [encoder setBuffer:pageBuffer offset:0u atIndex:7u];
+                [encoder setBuffer:state.cohesiveForceAccumulator
+                             offset:0u atIndex:8u];
+                [encoder setBuffer:pageStatuses offset:0u atIndex:9u];
+                [encoder setBytes:&pageStart
+                           length:sizeof(pageStart) atIndex:10u];
+                [encoder setBytes:&pageCount
+                           length:sizeof(pageCount) atIndex:11u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+        const auto encodeCohesiveFaceForces = [&](
+            const NMMicrostepGPU& forceMicro
+        ) {
+            if (state.dispatch.cohesiveFaceCount == 0u) return;
+            const bool paged = state.cohesiveFacesPaged;
+            const std::uint32_t capacity = paged
+                ? state.cohesiveFacePageCapacity
+                : state.dispatch.cohesiveFaceCount;
+            if (paged) clearCohesiveAccumulator();
+            for (std::uint32_t start = 0u;
+                 start < state.dispatch.cohesiveFaceCount;) {
+                const std::uint32_t count = std::min(
+                    capacity, state.dispatch.cohesiveFaceCount - start);
+                const NSUInteger threads =
+                    static_cast<NSUInteger>(environments) * count;
+                dispatchThreads("nm_fem_cohesive_face_forces",
+                    threads, [&] {
+                    setDispatch();
+                    [encoder setBytes:&forceMicro
+                               length:sizeof(forceMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.cohesiveFacesAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.cohesiveFacesCandidate
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.cohesiveFaceForces
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.cohesiveMaterials
+                                 offset:0u atIndex:15u];
+                    [encoder setBytes:&start length:sizeof(start) atIndex:16u];
+                    [encoder setBytes:&count length:sizeof(count) atIndex:17u];
+                    const std::uint32_t writeHistory = 1u;
+                    [encoder setBytes:&writeHistory
+                               length:sizeof(writeHistory) atIndex:18u];
+                });
+                if (paged) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    accumulateCohesivePage(forceMicro,
+                        state.cohesiveFaceForces, state.statuses, start, count);
+                }
+                start += count;
+            }
+        };
+        const auto encodeAddCohesiveResidual = [&](
+            const NMMicrostepGPU& forceMicro
+        ) {
+            if (state.cohesiveFacesPaged) {
+                dispatchThreads("nm_fem_apply_cohesive_force_accumulator",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&forceMicro
+                               length:sizeof(forceMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                    [encoder setBuffer:state.cohesiveForceAccumulator
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femPreconditioned
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femConstraintReactions
+                                 offset:0u atIndex:11u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                });
+            } else {
+                dispatchThreads("nm_fem_add_cohesive_residual",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&forceMicro
+                               length:sizeof(forceMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeIncidence
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+                    [encoder setBuffer:state.cohesiveFaceForces
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femPreconditioned
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femConstraintReactions
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                });
+            }
+        };
+        const auto encodeCohesiveFaceOperator = [&](
+            const NMMicrostepGPU& operatorMicro,
+            id<MTLBuffer> directionBuffer,
+            const NSUInteger directionOffset,
+            id<MTLBuffer> faceOutput,
+            id<MTLBuffer> operatorStatuses
+        ) {
+            if (state.dispatch.cohesiveFaceCount == 0u) return;
+            const bool paged = state.cohesiveFacesPaged;
+            const std::uint32_t capacity = paged
+                ? state.cohesiveFacePageCapacity
+                : state.dispatch.cohesiveFaceCount;
+            if (paged) clearCohesiveAccumulator();
+            for (std::uint32_t start = 0u;
+                 start < state.dispatch.cohesiveFaceCount;) {
+                const std::uint32_t count = std::min(
+                    capacity, state.dispatch.cohesiveFaceCount - start);
+                const NSUInteger threads =
+                    static_cast<NSUInteger>(environments) * count;
+                dispatchThreads("nm_fem_cohesive_face_operator",
+                    threads, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.cohesiveFacesAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:directionBuffer
+                                 offset:directionOffset atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:faceOutput
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:operatorStatuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.cohesiveMaterials
+                                 offset:0u atIndex:15u];
+                    [encoder setBuffer:state.cohesiveFacesCandidate
+                                 offset:0u atIndex:16u];
+                    [encoder setBytes:&start length:sizeof(start) atIndex:17u];
+                    [encoder setBytes:&count length:sizeof(count) atIndex:18u];
+                });
+                if (paged) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    accumulateCohesivePage(operatorMicro,
+                        faceOutput, operatorStatuses, start, count);
+                }
+                start += count;
+            }
+        };
+        const auto encodeAddCohesiveOperator = [&](
+            const NMMicrostepGPU& operatorMicro,
+            id<MTLBuffer> faceInput,
+            id<MTLBuffer> workOutput,
+            id<MTLBuffer> operatorStatuses
+        ) {
+            if (state.cohesiveFacesPaged) {
+                dispatchThreads("nm_fem_apply_cohesive_operator_accumulator",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                    [encoder setBuffer:state.cohesiveForceAccumulator
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:workOutput
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:operatorStatuses offset:0u atIndex:9u];
+                });
+            } else {
+                dispatchThreads("nm_fgmres_add_cohesive_operator",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeIncidence
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:faceInput
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
+                    [encoder setBuffer:workOutput
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:operatorStatuses offset:0u atIndex:10u];
+                });
+            }
+        };
 
         const auto encodeFEMHumanAttachmentKinematics = [&]() -> bool {
             if (state.dispatch.femHumanAttachmentCount == 0u) return true;
@@ -10199,6 +10705,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.schedulers offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:2u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                bindContactSampleStorage(state.contactSampleConfiguration,
+                    state.contactSamplePageComplete,
+                    state.contactSampleSlotsByPair,
+                    state.contactActiveCounts, 4u);
             });
             dispatchThreads(
                 "nm_fem_human_attachment_mask_reactions",
@@ -13491,9 +14001,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
-                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
-                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
-                    const std::uint32_t useCache = 0u;
+                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                        ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                        ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:24u];
+                    // Match the primary Arnoldi/true-residual operator. A
+                    // separately evaluated direct tangent is still captured
+                    // in the local constitutive probe, with an explicit label.
+                    const std::uint32_t useCache =
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
@@ -14123,7 +14642,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     capturedAppendTraceFloat(header,
                                         dtByEnvironment[environment]);
                                 }
-                                header << "],\"cached_algorithmic_tangent_capture\":{";
+                                header << "],\"operator_action_policy\":{"
+                                       << "\"selection\":\"matches_primary_FGMRES_cache_mode\""
+                                       << ",\"cache_mode\":"
+                                       << (capturedCachedTangentPolicyEnabled ? 1u : 0u)
+                                       << ",\"element_force_source\":\"same_operator_dispatch_as_nodal_action\""
+                                       << ",\"local_stress_tangent_source\":\"independent_direct_constitutive_probe\""
+                                       << "},\"cached_algorithmic_tangent_capture\":{";
                                 header << "\"policy_enabled\":"
                                        << (capturedCachedTangentPolicyEnabled
                                             ? "true" : "false")
@@ -16093,6 +16618,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactSampleConfiguration
+                             offset:0u atIndex:3u];
+                [encoder setBytes:&state.contactSampleCapacity
+                           length:sizeof(state.contactSampleCapacity)
+                          atIndex:4u];
             });
             dispatchThreads("nm_human_equality_prepare",
                 environments * state.humanEqualityDispatch.count, [&] {
@@ -16500,9 +17030,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.deformableContactNodeIncidence,
                     state.statuses,
                     continuumNodeTotal);
+                if (state.compactMainContactSamples) {
+                    dispatchGroups32(
+                        "nm_contact_begin_compact_samples",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.contactActiveCapacity
+                                   length:sizeof(state.contactActiveCapacity)
+                                  atIndex:1u];
+                        [encoder setBuffer:state.contactSampleSlotsByPair
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.contactActiveCounts
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.contactSamplePageComplete
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                        [encoder setBuffer:state.contactActiveSlotsByPair
+                                     offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                const std::uint32_t unusedCandidateCapacity =
+                    state.compactMainContactSamples
+                        ? state.contactSampleCapacity : 0u;
+                const std::uint32_t sampleEvaluationMode =
+                    state.compactMainContactSamples ? 3u : 0u;
                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
-                    const std::uint32_t unusedCandidateCapacity = 0u;
-                    const std::uint32_t denseCandidateMode = 0u;
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -16529,21 +17082,55 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&unusedCandidateCapacity
                                length:sizeof(unusedCandidateCapacity)
                               atIndex:20u];
-                    [encoder setBytes:&denseCandidateMode
-                               length:sizeof(denseCandidateMode)
+                    [encoder setBytes:&sampleEvaluationMode
+                               length:sizeof(sampleEvaluationMode)
                               atIndex:21u];
+                    [encoder setBuffer:state.contactSampleSlotsByPair
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:state.contactActiveCounts
+                                 offset:0u atIndex:23u];
                 });
-                dispatchGroups32("nm_contact_compact_active", environments, [&] {
-                    setDispatch();
-                    [encoder setBytes:&state.contactActiveCapacity
-                               length:sizeof(state.contactActiveCapacity)
-                              atIndex:1u];
-                    [encoder setBuffer:state.contactSamples offset:0u atIndex:2u];
-                    [encoder setBuffer:state.contactActivePairs offset:0u atIndex:3u];
-                    [encoder setBuffer:state.contactActiveSlotsByPair offset:0u atIndex:4u];
-                    [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:5u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
-                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.compactMainContactSamples) {
+                    dispatchGroups32(
+                        "nm_contact_finish_compact_samples",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.contactActiveCapacity
+                                   length:sizeof(state.contactActiveCapacity)
+                                  atIndex:1u];
+                        [encoder setBuffer:state.contactPairs
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.contactSamples
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.contactActivePairs
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.contactSampleSlotsByPair
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.contactActiveCounts
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.contactSamplePageComplete
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.contactActiveSlotsByPair
+                                     offset:0u atIndex:9u];
+                    });
+                } else {
+                    dispatchGroups32(
+                        "nm_contact_compact_active", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.contactActiveCapacity
+                                   length:sizeof(state.contactActiveCapacity)
+                                  atIndex:1u];
+                        [encoder setBuffer:state.contactSamples offset:0u atIndex:2u];
+                        [encoder setBuffer:state.contactActivePairs offset:0u atIndex:3u];
+                        [encoder setBuffer:state.contactActiveSlotsByPair offset:0u atIndex:4u];
+                        [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    });
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.requiresCoupledCandidate) {
                     dispatchThreads(
                         "nm_contact_prepare_articulated_queries",
@@ -16566,6 +17153,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.contactSamples offset:0u atIndex:9u];
                             [encoder setBuffer:state.articulatedPointQueries offset:0u atIndex:10u];
                             [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                            bindContactSampleStorage(
+                                state.contactSampleConfiguration,
+                                state.contactSamplePageComplete,
+                                state.contactSampleSlotsByPair,
+                                state.contactActiveCounts, 12u);
                         }
                     );
                 }
@@ -16762,6 +17354,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                    bindContactSampleStorage(state.contactSampleConfiguration,
+                        state.contactSamplePageComplete,
+                        state.contactSampleSlotsByPair,
+                        state.contactActiveCounts, 5u);
                 });
                 dispatchThreads(
                     "nm_contact_accumulate_deformable_fem_residual",
@@ -16800,6 +17396,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                         [encoder setBuffer:state.femConstraintContactForces
                                      offset:0u atIndex:11u];
+                        bindContactSampleStorage(
+                            state.contactSampleConfiguration,
+                            state.contactSamplePageComplete,
+                            state.contactSampleSlotsByPair,
+                            state.contactActiveCounts, 12u);
                     });
                 }
                 return true;
@@ -20153,31 +20754,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
-            dispatchThreads("nm_fem_cohesive_face_forces",
-                cohesiveFaceTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
-                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
-                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
-                const std::uint32_t pageStart = 0u;
-                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
-                const std::uint32_t writeHistory = 1u;
-                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
-                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
-                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
-            });
+                        encodeCohesiveFaceForces(micro);
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
@@ -20209,22 +20786,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
-            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
-                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
-                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
-                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
-                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
-                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-            });
+                        encodeAddCohesiveResidual(micro);
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -20958,43 +21520,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.mixedSolverValue.executionBudgets.z == 4u &&
                         cohesiveFaceTotal != 0u;
                     if (includeCohesiveRAP) {
-                        dispatchThreads("nm_fem_cohesive_face_operator",
-                            cohesiveFaceTotal, [&] {
-                            setDispatch();
-                            [encoder setBytes:&trueResidualOperatorMicro
-                                       length:sizeof(trueResidualOperatorMicro)
-                                      atIndex:1u];
-                            [encoder setBuffer:state.objects
-                                         offset:0u atIndex:2u];
-                            [encoder setBuffer:state.materials
-                                         offset:0u atIndex:3u];
-                            [encoder setBuffer:state.scalarPrograms
-                                         offset:0u atIndex:4u];
-                            [encoder setBuffer:state.instructions
-                                         offset:0u atIndex:5u];
-                            [encoder setBuffer:state.environmentParameters
-                                         offset:0u atIndex:6u];
-                            [encoder setBuffer:state.femAccepted
-                                         offset:0u atIndex:7u];
-                            [encoder setBuffer:state.femCandidate
-                                         offset:0u atIndex:8u];
-                            [encoder setBuffer:state.cohesiveFacesAccepted
-                                         offset:0u atIndex:9u];
-                            [encoder setBuffer:state.femDirection
-                                         offset:0u atIndex:10u];
-                            [encoder setBuffer:state.schedulers
-                                         offset:0u atIndex:11u];
-                            [encoder setBuffer:state.adaptive
-                                         offset:0u atIndex:12u];
-                            [encoder setBuffer:state.cohesiveFaceOperator
-                                         offset:0u atIndex:13u];
-                            [encoder setBuffer:state.statuses
-                                         offset:0u atIndex:14u];
-                            [encoder setBuffer:state.cohesiveMaterials
-                                         offset:0u atIndex:15u];
-                            [encoder setBuffer:state.cohesiveFacesCandidate
-                                         offset:0u atIndex:16u];
-                        });
+                                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femDirection, 0u, state.cohesiveFaceOperator, state.statuses);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
                     dispatchThreads("nm_fgmres_gather_nodes",
@@ -21032,31 +21558,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (includeCohesiveRAP) {
-                        dispatchThreads("nm_fgmres_add_cohesive_operator",
-                            femNodeTotal, [&] {
-                            setDispatch();
-                            [encoder setBytes:&trueResidualOperatorMicro
-                                       length:sizeof(trueResidualOperatorMicro)
-                                      atIndex:1u];
-                            [encoder setBuffer:state.objects
-                                         offset:0u atIndex:2u];
-                            [encoder setBuffer:state.femCandidate
-                                         offset:0u atIndex:3u];
-                            [encoder setBuffer:state.femCohesiveNodeIncidence
-                                         offset:0u atIndex:4u];
-                            [encoder setBuffer:state.femCohesiveNodeRanges
-                                         offset:0u atIndex:5u];
-                            [encoder setBuffer:state.cohesiveFaceOperator
-                                         offset:0u atIndex:6u];
-                            [encoder setBuffer:state.schedulers
-                                         offset:0u atIndex:7u];
-                            [encoder setBuffer:state.adaptive
-                                         offset:0u atIndex:8u];
-                            [encoder setBuffer:state.femOperatorValue
-                                         offset:0u atIndex:9u];
-                            [encoder setBuffer:state.statuses
-                                         offset:0u atIndex:10u];
-                        });
+                                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
                     dispatchThreads("nm_fgmres_regional_store_ap",
@@ -22835,35 +23337,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                  offset:0u atIndex:24u];
                     const std::uint32_t useCache =
-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
                 });
-                dispatchThreads("nm_fem_cohesive_face_operator",
-                    cohesiveFaceTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&operatorMicro
-                               length:sizeof(operatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
-                    [encoder setBuffer:state.fgmresPreconditionedBasis
-                                 offset:columnOffset atIndex:10u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:13u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
-                    [encoder setBuffer:state.cohesiveFacesCandidate
-                                 offset:0u atIndex:16u];
-                });
+                                encodeCohesiveFaceOperator(operatorMicro, state.fgmresPreconditionedBasis, columnOffset, state.cohesiveFaceOperator, state.statuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -22885,21 +23366,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 });
-                dispatchThreads("nm_fgmres_add_cohesive_operator",
-                    femNodeTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&operatorMicro
-                               length:sizeof(operatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
-                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:6u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
-                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:9u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
-                });
+                                encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
                 if (hasVascularMechanicalForces) {
@@ -23364,7 +23831,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                  offset:0u atIndex:24u];
                     const std::uint32_t useCache =
-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
@@ -23653,36 +24121,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                  offset:0u atIndex:24u];
                     const std::uint32_t useCache =
-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
                 });
-                dispatchThreads("nm_fem_cohesive_face_operator",
-                    cohesiveFaceTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&trueResidualOperatorMicro
-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator
-                                 offset:0u atIndex:13u];
-                    [encoder setBuffer:state.femTrueResidualStatuses
-                                 offset:0u atIndex:14u];
-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
-                    [encoder setBuffer:state.cohesiveFacesCandidate
-                                 offset:0u atIndex:16u];
-                });
+                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&trueResidualOperatorMicro
@@ -23706,24 +24152,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 });
-                dispatchThreads("nm_fgmres_add_cohesive_operator",
-                    femNodeTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&trueResidualOperatorMicro
-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
-                            ? state.femTrueResidualCohesiveOperator : state.dummy
-                                 offset:0u atIndex:6u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
-                    [encoder setBuffer:state.femTrueResidualOperatorValue offset:0u atIndex:9u];
-                    [encoder setBuffer:state.femTrueResidualStatuses
-                                 offset:0u atIndex:10u];
-                });
+                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
                 if (state.dispatch.rigidGeneralizedCapacity != 0u) {
                     const std::uint32_t allowConvergedTrueResidualOperator = 1u;
                     dispatchThreads("nm_fgmres_apply_free_rigid",
@@ -23821,7 +24250,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                 });
                 const std::uint32_t useCacheForCapturedAction =
-                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                    numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                 dispatchThreads("nm_fem_apply_operator_elements",
                     tetrahedronTotal, [&] {
                     setDispatch();
@@ -23863,29 +24293,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femNodeTotal * sizeof(nm_float4);
                 const NSUInteger actionFieldWorkOffset =
                     femNodeTotal * sizeof(nm_float4);
-                dispatchThreads("nm_fem_cohesive_face_operator",
-                    cohesiveFaceTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&trueResidualOperatorMicro
-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
-                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
-                            ? state.femTrueResidualCohesiveOperator : state.dummy
-                                 offset:0u atIndex:13u];
-                    [encoder setBuffer:state.femTrueResidualStatuses offset:0u atIndex:14u];
-                    [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
-                    [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:16u];
-                });
+                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&trueResidualOperatorMicro
@@ -23906,23 +24314,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians offset:0u atIndex:15u];
                 });
-                dispatchThreads("nm_fgmres_add_cohesive_operator",
-                    femNodeTotal, [&] {
-                    setDispatch();
-                    [encoder setBytes:&trueResidualOperatorMicro
-                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
-                    [encoder setBuffer:state.femTrueResidualCohesiveOperator != nil
-                            ? state.femTrueResidualCohesiveOperator : state.dummy
-                                 offset:0u atIndex:6u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
-                    [encoder setBuffer:state.femTrueResidualOperatorValue offset:0u atIndex:9u];
-                    [encoder setBuffer:state.femTrueResidualStatuses offset:0u atIndex:10u];
-                });
+                                encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
                 const std::uint32_t allowConvergedOperatorState = 1u;
                 dispatchThreads("nm_mixed_apply_operator_elements",
                     tetrahedronTotal, [&] {
@@ -24379,7 +24771,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 metadata.materialStateStride = state.dispatch.materialStateStride;
                 metadata.unknownCount = state.fgmresLayout.unknownCount;
                 metadata.tangentCacheEnabled =
-                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                    numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
                 metadata.tangentCacheForceRebuild =
                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
                 metadata.mixedSolverPreconditioner =
@@ -26189,6 +26582,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                       atIndex:20u];
                             [encoder setBytes:&compactMode length:sizeof(compactMode)
                                       atIndex:21u];
+                            [encoder setBuffer:(femSparsePrivateContactEnabled
+                                    ? state.femArmijoSparseContactSlotsByPair
+                                    : state.contactSampleSlotsByPair)
+                                         offset:0u atIndex:22u];
+                            [encoder setBuffer:(femSparsePrivateContactEnabled
+                                    ? state.femArmijoSparseContactCandidateCounts
+                                    : state.contactActiveCounts)
+                                         offset:0u atIndex:23u];
                         });
                     };
                     if (femSparsePrivateContactEnabled) {
@@ -26353,6 +26754,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     offset:0u atIndex:9u];
                                 [encoder setBuffer:state.femArmijoStatuses
                                     offset:0u atIndex:10u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactPageComplete
+                                    offset:0u atIndex:11u];
                             });
                         } else {
                             dispatchGroups32(
@@ -26409,6 +26813,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:armijoContactSamples
                                          offset:0u atIndex:3u];
                             [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
+                            bindContactSampleStorage(
+                                state.femArmijoContactSampleConfiguration,
+                                state.femArmijoSparseContactPageComplete != nil
+                                    ? state.femArmijoSparseContactPageComplete
+                                    : state.dummy,
+                                state.femArmijoSparseContactSlotsByPair != nil
+                                    ? state.femArmijoSparseContactSlotsByPair
+                                    : state.dummy,
+                                state.femArmijoSparseContactCandidateCounts != nil
+                                    ? state.femArmijoSparseContactCandidateCounts
+                                    : state.dummy,
+                                5u);
                         });
                     }
                     if (!captureTrialResidualStage(
@@ -26751,6 +27167,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesCandidate
                              offset:0u atIndex:2u];
+                bindContactSampleStorage(state.contactSampleConfiguration,
+                    state.contactSamplePageComplete,
+                    state.contactSampleSlotsByPair,
+                    state.contactActiveCounts, 3u);
             });
             (void)dispatchIndirect(
                 "nm_contact_publish_deformable_history",
@@ -26913,31 +27333,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
-            dispatchThreads("nm_fem_cohesive_face_forces",
-                cohesiveFaceTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
-                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
-                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
-                const std::uint32_t pageStart = 0u;
-                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
-                const std::uint32_t writeHistory = 1u;
-                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
-                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
-                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
-            });
+                        encodeCohesiveFaceForces(micro);
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 1u;
@@ -26969,22 +27365,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
-            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
-                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
-                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
-                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
-                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
-                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
-                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-            });
+                        encodeAddCohesiveResidual(micro);
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
@@ -27147,6 +27528,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.rigidRanges offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
                 [encoder setBuffer:state.microstepReactions offset:0u atIndex:4u];
+                bindContactSampleStorage(state.contactSampleConfiguration,
+                    state.contactSamplePageComplete,
+                    state.contactSampleSlotsByPair,
+                    state.contactActiveCounts, 5u);
             });
             dispatchThreads("nm_accumulate_rigid_reactions", proxyTotal, [&] {
                 setDispatch();
@@ -27482,6 +27867,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:9u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                bindContactSampleStorage(state.contactSampleConfiguration,
+                    state.contactSamplePageComplete,
+                    state.contactSampleSlotsByPair,
+                    state.contactActiveCounts, 12u);
             });
             dispatchThreads("nm_complete_microstep", environments, [&] {
                 setDispatch();

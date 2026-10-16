@@ -1,0 +1,23 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-002
+    Start 153: matter.compiler.cardboard_constituent_volume_damage
+1/4 Test #153: matter.compiler.cardboard_constituent_volume_damage ...   Passed    0.00 sec
+    Start 179: matter.analysis.cardboard_stage_resolution
+2/4 Test #179: matter.analysis.cardboard_stage_resolution ............   Passed    0.32 sec
+    Start 243: matter.compiler.cardboard_free_force_residual
+3/4 Test #243: matter.compiler.cardboard_free_force_residual .........   Passed    0.00 sec
+    Start 246: matter.cli.cardboard_argument_admission
+4/4 Test #246: matter.cli.cardboard_argument_admission ...............   Passed    0.08 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+analysis          =   0.32 sec*proc (1 test)
+cardboard         =   0.40 sec*proc (4 tests)
+cli               =   0.08 sec*proc (1 test)
+cpu               =   0.40 sec*proc (4 tests)
+damage            =   0.00 sec*proc (1 test)
+force-residual    =   0.00 sec*proc (1 test)
+matter            =   0.40 sec*proc (4 tests)
+synthetic         =   0.00 sec*proc (1 test)
+
+Total Test time (real) =   0.41 sec

@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/tactile_stream.schema.json",
+  "title": "MetalRobo physical tactile stream contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "format_version",
+    "fingerprint",
+    "source",
+    "rate_hz",
+    "state",
+    "action",
+    "wrench",
+    "videos",
+    "canonical_target_fingerprint"
+  ],
+  "properties": {
+    "schema": {
+      "const": "metalrobo.physical_tactile_stream"
+    },
+    "format_version": {
+      "const": 1
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "revision", "license"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "rate_hz": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "state": {
+      "$ref": "#/$defs/vector_stream"
+    },
+    "action": {
+      "$ref": "#/$defs/vector_stream"
+    },
+    "wrench": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "sensors",
+        "axes",
+        "force_unit",
+        "torque_unit",
+        "frame",
+        "verified"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sensors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "axes": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "prefixItems": [
+            {"const": "fx"},
+            {"const": "fy"},
+            {"const": "fz"},
+            {"const": "tx"},
+            {"const": "ty"},
+            {"const": "tz"}
+          ],
+          "items": false
+        },
+        "force_unit": {
+          "enum": ["N", "unverified"]
+        },
+        "torque_unit": {
+          "enum": ["N*m", "unverified"]
+        },
+        "frame": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/video_stream"
+      }
+    },
+    "canonical_target_fingerprint": {
+      "type": ["string", "null"],
+      "pattern": "^0x[0-9a-f]{16}$"
+    }
+  },
+  "$defs": {
+    "vector_stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "names", "semantics", "verified"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "semantics": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "crop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sensor", "x", "y", "width", "height"],
+      "properties": {
+        "sensor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "x": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "video_stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "kind",
+        "width",
+        "height",
+        "channels",
+        "encoding",
+        "layout_verified",
+        "crops"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": ["scene", "tactile_raw", "tactile_deformation"]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channels": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "encoding": {
+          "enum": [
+            "rgb",
+            "unverified_deformation_video",
+            "sharpa_tacmap_uint8",
+            "metric_depth_m"
+          ]
+        },
+        "layout_verified": {
+          "type": "boolean"
+        },
+        "crops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/crop"
+          }
+        }
+      }
+    }
+  }
+}

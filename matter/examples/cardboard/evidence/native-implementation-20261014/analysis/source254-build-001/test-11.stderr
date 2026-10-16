@@ -1,0 +1,11 @@
+test_checkpoint_pair_locator_mismatch_fails_without_rewriting_native_run (__main__.BCTProducerTests.test_checkpoint_pair_locator_mismatch_fails_without_rewriting_native_run) ... ok
+test_local_peak_requires_drop_and_resets_at_contact_gap (__main__.BCTProducerTests.test_local_peak_requires_drop_and_resets_at_contact_gap) ... ok
+test_native_peak_binding_uses_first_qualified_local_peak_not_global_max (__main__.BCTProducerTests.test_native_peak_binding_uses_first_qualified_local_peak_not_global_max) ... ok
+test_parameter_mismatch_fails_before_artifact_creation (__main__.BCTProducerTests.test_parameter_mismatch_fails_before_artifact_creation) ... ok
+test_synthetic_complete_contract_wraps_without_mutating_native_run (__main__.BCTProducerTests.test_synthetic_complete_contract_wraps_without_mutating_native_run) ... ok
+test_unsealed_case_binding_fails_and_keeps_raw_files (__main__.BCTProducerTests.test_unsealed_case_binding_fails_and_keeps_raw_files) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.076s
+
+OK

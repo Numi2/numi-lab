@@ -1,0 +1,5 @@
+{
+  "error": "Reference launch002 supplied source253 registry for source240 capture and was correctly rejected before creating target output. Initial attempt to attach failed-preflight inside absent output directory also asserted before write.",
+  "repair": "Launch003 supplies exact source240003 modules and is running separately.",
+  "at_utc": "2026-10-16T14:20:24.454605+00:00"
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "stage": "pre-fix focus run",
+    "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-005",
+    "message": "sample completion/configuration buffers are omitted",
+    "test_source_sha256": "8545d1bbdb1bef3bee24da83ed7b21a39565d04f45145e371977839b6c066a83"
+  },
+  {
+    "stage": "focused debug with typed sentinel expectation changed",
+    "message": "dense default changed its prepared-node pair domain or complete private arena inventory",
+    "finding": "the stale expected peak constant was 2 bytes higher than the implementation result"
+  },
+  {
+    "stage": "focused debug after peak constant correction",
+    "message": "reference decomposition must retain case032 plus the new contact-force readback arena",
+    "finding": "the measured conservative ceil-scaled decomposition is one byte above the old exact-anchor assertion"
+  }
+]

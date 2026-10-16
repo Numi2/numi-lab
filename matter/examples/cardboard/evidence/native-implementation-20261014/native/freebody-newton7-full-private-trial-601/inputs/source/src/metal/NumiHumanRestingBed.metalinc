@@ -1,0 +1,55 @@
+#pragma once
+#include "metalrobo/numi_human_resting_bed_gpu.h"
+
+constant bool kRestingContouredBed [[function_constant(47)]];
+constant bool kUseRestingContouredBed =
+    is_function_constant_defined(kRestingContouredBed) ? kRestingContouredBed : false;
+
+struct NMHumanRestingBedQuery {
+    float3 point;
+    float3 normal;
+    float signedGap;
+    uint facet;
+    bool valid;
+};
+
+// A point's vertical projection selects one fixed facet. Its plane gives the
+// exact gap gradient within that facet. Cell transitions are reselected from
+// the accepted pose on the GPU before the existing contact solve.
+inline NMHumanRestingBedQuery nmHumanRestingBedQuery(
+    constant MRHumanRestingBedGPU& bed, device const float* heights, float3 p) {
+    NMHumanRestingBedQuery result{float3(0), float3(0,0,1), NAN, MR_INVALID_INDEX, false};
+    if (bed.counts.z != 1u || bed.counts.w != 1u ||
+        bed.counts.x < 2u || bed.counts.y < 2u ||
+        !all(isfinite(p)) || !all(isfinite(bed.originSpacing)) ||
+        bed.originSpacing.z <= 0 || bed.originSpacing.w <= 0) return result;
+    const uint nx = bed.counts.x, ny = bed.counts.y;
+    const float2 origin=bed.originSpacing.xy, step=bed.originSpacing.zw;
+    const float2 end=fma(float2(nx-1u,ny-1u),step,origin);
+    if (any(p.xy<origin) || any(p.xy>end)) return result;
+    const float2 uv=(p.xy-origin)/step;
+    if (!all(isfinite(uv))) return result;
+    uint x=min(uint(floor(uv.x)),nx-2u), y=min(uint(floor(uv.y)),ny-2u);
+    // Select against the exact rounded grid nodes used by the renderer.
+    if(x>0u && p.x<fma(float(x),step.x,origin.x))--x;
+    else if(x+2u<nx && p.x>fma(float(x+1u),step.x,origin.x))++x;
+    if(y>0u && p.y<fma(float(y),step.y,origin.y))--y;
+    else if(y+2u<ny && p.y>fma(float(y+1u),step.y,origin.y))++y;
+    const float2 lo=fma(float2(x,y),step,origin);
+    const float2 hi=fma(float2(x+1u,y+1u),step,origin);
+    const float2 extent=hi-lo, f=(p.xy-lo)/extent;
+    if(any(extent<=0.0f) || !all(isfinite(f)))return result;
+    const uint base=y*nx+x;
+    const float h00=heights[base],h10=heights[base+1u];
+    const float h01=heights[base+nx],h11=heights[base+nx+1u];
+    if(!all(isfinite(float4(h00,h10,h01,h11))))return result;
+    const bool upper=f.x+f.y>1.0f;
+    const float dx=(upper?h11-h01:h10-h00)/extent.x;
+    const float dy=(upper?h11-h10:h01-h00)/extent.y;
+    result.normal=normalize(float3(-dx,-dy,1));
+    result.point=upper?float3(hi,h11):float3(lo,h00);
+    result.signedGap=dot(p-result.point,result.normal);
+    result.facet = 2u*(y*(nx-1u)+x)+(upper?1u:0u);
+    result.valid = all(isfinite(result.normal)) && isfinite(result.signedGap);
+    return result;
+}

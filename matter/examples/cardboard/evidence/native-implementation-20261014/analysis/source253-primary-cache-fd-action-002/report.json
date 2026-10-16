@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.source253-primary-cache-fd-action.v1",
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002",
+  "base_frozen_sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+  "frozen_sha256": "714a018486005c5fe8259bff4123efb3ad058557fe3c2eae69bd77b33f3fdcda",
+  "changed_files": [
+    "matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_cached_operator_audit.py",
+    "matter/tools/test_cardboard_primary_cache_action.py"
+  ],
+  "shared_primary_policy_call_sites": 6,
+  "primary_policy_real_number_behavior_unchanged": true,
+  "FD_observer_numerical_action_changed_to_actual_primary_cache_mode": true,
+  "historical_captures_must_not_qualify_cached_production_action": true,
+  "native_validation_pending": true,
+  "at_utc": "2026-10-16T14:02:56.642953+00:00"
+}

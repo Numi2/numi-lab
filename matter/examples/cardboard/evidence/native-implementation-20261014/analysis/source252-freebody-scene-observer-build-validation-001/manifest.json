@@ -1,0 +1,17 @@
+{
+  "build_record_sha256": "562ca858314108964c0e3398ca7b363efcac5814d6fdfe702f5655e3d18701a5",
+  "files": {
+    "README.md": "b32b2c738f1544d3e9bf7d263fc356d536885d37f5e4cf2f96d4fc0b3d65f82f",
+    "audit.py": "373e66a672d73528ec8c5023cc0c94d99582cb4bf876d8faf02a33aad32e29e4",
+    "audit.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit.stdout.txt": "64938ce4aa413e8aed114a639d74f811e5b5624c74e4b494466d310878f70fbe",
+    "contract.exit.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "contract.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "contract.stdout.txt": "3397a37ac0baa3f2f07c34749e628c2bd15f0f98bd636ca722aef8908917db44",
+    "preflight-correction.json": "c800a6ee62d752f10dae239f3b2c10b04fa459e82866b202415dbf636e56add2",
+    "report.json": "a0b3ac7af63b52ef8aeaf56ef30575b7ec18188cdf4b80d980e9b9e999c7f9f9"
+  },
+  "frozen_source_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+  "schema": "numi.cardboard.source252_build_validation_manifest.v1",
+  "source_overlay_manifest_sha256": "24b32cae293a5cc09ec2a4b5028a237fe7ab8dd750a15d35b02f2349c46c93f1"
+}

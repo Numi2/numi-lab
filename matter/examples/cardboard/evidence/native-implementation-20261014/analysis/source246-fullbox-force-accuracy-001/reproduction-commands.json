@@ -1,0 +1,50 @@
+{
+  "base_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+  "build_command": [
+    "env",
+    "PATH=/opt/homebrew/bin:/usr/bin:/bin",
+    "/opt/homebrew/bin/python3.13",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-002",
+    "--cmake-source-relative",
+    ".",
+    "--target",
+    "numi-matter-cardboard-probe",
+    "--target",
+    "numi-matter-cardboard-free-force-residual-check",
+    "--target",
+    "numi-matter-cardboard-constituent-volume-damage-check",
+    "--jobs",
+    "2"
+  ],
+  "build_receipt_path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-002/source-build.json",
+  "build_receipt_sha256": "ca4b75bdecd0d93a2cf462ea4a6c3f5a1d42dca71e695c8b35f63df81e6e9c13",
+  "combined_patch_sha256": "fbb0ff178f8c2ce1d9c1da8f5ba43b6b286b7884f257bf9ca225238e414b0f28",
+  "ctest_command": [
+    "/opt/homebrew/bin/ctest",
+    "--test-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-002",
+    "--output-on-failure",
+    "-R",
+    "cardboard_(free_force_residual|constituent_volume_damage|argument_admission|stage_resolution)"
+  ],
+  "ctest_exit_code": 0,
+  "host": "macmini:/Users/n/cardboard-implementation-20261014-host-macmini",
+  "native_gpu_execution": false,
+  "python_compile_command": [
+    "/opt/homebrew/bin/python3.13",
+    "-m",
+    "py_compile",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001/matter/tools/cardboard_stage_resolution_study.py",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001/matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "python_compile_exit_code": 0,
+  "schema": "numi.cardboard.source246-reproduction.v1",
+  "source242_patch_sha256": "a9b3f3878d4e70a1548b7504e43455b4a8890c1b5fc42e3d3f9301710932c7cf",
+  "source_frozen_sha256": "43522c59e433a77882eb07f40eca3f2b7ef7253e140fec9d32c38d4438373a04",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001"
+}

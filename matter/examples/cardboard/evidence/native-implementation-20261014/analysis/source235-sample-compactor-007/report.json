@@ -1,0 +1,101 @@
+{
+  "build": {
+    "artifacts_sha256": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/numi-matter-cardboard-contact-sample-compaction-check": "ccc34fc4bccce5e71157f845558718fbf799cbeb89da5f835d68e7a04373f53a",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/numi-matter-cardboard-probe": "4a166d95ae65ccdb67efb21af23e297ffcd196af6ce35716480c24336aa468b7",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/NumiMatter.metallib": "6164739be9b8813f7b0520b3b957c1a81c3d2e8283e1aa6d3fcfce50f64c8b99",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/cardboard_contact_sample_compaction_check.metallib": "6ea7f46b4054ecb6497aeff1b9f3e9f4ed80c31331361bad0111362600ea5c28"
+    },
+    "changed_sources": [],
+    "metadata_sha256": {
+      "CMakeCache.txt": "38387daa3f7c224aea6285b6f304a20e93ce573e6ab8c81719c095f3967722b4",
+      "compile_commands.json": "92f3e08dc5d0c181d1ed332cb2876916f184cd6b12aca296a55eee3d987bedea"
+    },
+    "record_sha256": "4418188007412b5fc875efe2fa55f116ddf8b9af805b908830471cd7384256a7",
+    "source_binding_count": 833,
+    "targets": [
+      "numi-matter-cardboard-probe",
+      "numi-matter-cardboard-contact-sample-compaction-check"
+    ]
+  },
+  "configure_support_hashes": {
+    "entries": 1034,
+    "mismatches": 0
+  },
+  "failed_attempt_preserved": {
+    "exit_code": 127,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build-launch-attempt-001.json"
+  },
+  "frozen_source_sha256": "2fe9d0436f498f34a8bd67c51c30eca090cc24332a3e4de8d65df0aa28aae759",
+  "limitations": [
+    "No GPU/native checker execution.",
+    "No shipping-world or full contact-page trajectory qualification.",
+    "The native checker binary/metallib are compile outputs only; root owns later execution."
+  ],
+  "parent_006_audit": {
+    "checker_sources_missing_from_parent_map": [
+      "matter/tools/cardboard_contact_sample_compaction_check.mm",
+      "matter/tools/cardboard_contact_sample_compaction_check.metal"
+    ],
+    "manifest_sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8",
+    "selected_hash_entries": 830,
+    "selected_source_files_changed_in_007_vs_actual_006": [
+      "matter/src/runtime.mm"
+    ],
+    "stale_hash_entries": [
+      {
+        "actual_006_sha256": "f080da6542ae1e4ea4e6cc3f3df83c732e9d26b35da326351445a0de14182436",
+        "old_manifest_sha256": "160796971b6edd05a5af9c92cccb0e8c64f7ba2ddd61c0c19032d24996620a85",
+        "path": "matter/CMakeLists.txt"
+      },
+      {
+        "actual_006_sha256": "347238d32bfe775ab29307bef48f89aa1863e0dbfd90f71251c016c7bc4f161d",
+        "old_manifest_sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+        "path": "matter/src/metal/contact.metalinc"
+      },
+      {
+        "actual_006_sha256": "5e2f7ac02ed05b5c76f192d9577d9e53ab727ecb351ef8d2aceba60cd53096ec",
+        "old_manifest_sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be",
+        "path": "matter/src/metal/fem.metalinc"
+      },
+      {
+        "actual_006_sha256": "16d4bd84186cd9230620cc8cb4cacc8c18b0673556ea3826c4ce299c36502f11",
+        "old_manifest_sha256": "c1c25769c2115cd64ef9dd849cc4a987563f8d51e03638c52a1c7526b2c91c00",
+        "path": "matter/src/metal/fgmres.metalinc"
+      },
+      {
+        "actual_006_sha256": "054d3118cb598666e5ea6c59a53b1c96bb61c8776a3ba0a3762dd6ca3cd0d8f2",
+        "old_manifest_sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7",
+        "path": "matter/src/metal/identification_scheduler.metalinc"
+      },
+      {
+        "actual_006_sha256": "605b218283342bfa6ce21a0aad54dea5d25327413113a2bf96f9bed996fc78d0",
+        "old_manifest_sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681",
+        "path": "matter/src/metal/mixed_fem.metalinc"
+      },
+      {
+        "actual_006_sha256": "bd789585f14b9d929d92c8f08699d65fda6dad77bc7b5fc6f53032f63df761e7",
+        "old_manifest_sha256": "1bbdbfd99fa660e561be4f3e2dfe6fa6eead6ce3021fafb8067a228268835f46",
+        "path": "matter/src/runtime.mm"
+      }
+    ]
+  },
+  "parent_manifest_sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006",
+  "schema": "numi.cardboard.source235.audit.v1",
+  "selected_support_hashes": {
+    "entries": 832,
+    "mismatches": 0
+  },
+  "snapshot_map_assertions": {
+    "builder_source_count": 833,
+    "configure_support_entry_count": 1034,
+    "configure_support_mismatches": 0,
+    "frozen_source_entry_count": 832,
+    "frozen_source_manifest_schema": "numi.cardboard.frozen-source.v1",
+    "frozen_source_mismatches": 0
+  },
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007",
+  "verdict": "PASS_SOURCE_BINDING_AND_COMPILE_ONLY"
+}

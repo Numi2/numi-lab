@@ -1,0 +1,14 @@
+{
+  "exclusion_list": [
+    "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "tools/test_intercostal_rib_motion_attachment.mm",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "initial_check": "expected build source_sha256 count 836",
+  "observed_build_source_sha256_count": 831,
+  "resolution": "Independently verified all 836 frozen snapshot files; the build record contains an exact matching 831-entry subset. Report keeps the compile provenance count and frozen snapshot count distinct.",
+  "status": "corrected audit expectation before sealing",
+  "verified_frozen_source_sha256_count": 836
+}

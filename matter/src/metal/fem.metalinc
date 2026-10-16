@@ -42,7 +42,58 @@ struct NMPrimalContactArguments {
     device const NMRigidProxyGPU* rigidProxies [[id(12)]];
     device const NMRigidStateGPU* rigidStates [[id(13)]];
     device const uint* deformableActiveCounts [[id(14)]];
+    // 0 = canonical dense samples; 1 = active samples addressed through the
+    // canonical pair->active-slot map after complete page enumeration.
+    device const uint* sampleStorageMode [[id(15)]];
+    device const uint* samplePageComplete [[id(16)]];
+    // Dense mode ignores these; compact mode keeps pair->sample-slot separate
+    // from the canonical active-pair iteration list.
+    device const uint* sampleSlotsByPair [[id(17)]];
+    device const uint* sampleCounts [[id(18)]];
+    device const uint* sampleCapacity [[id(19)]];
 };
+
+inline NMContactSampleGPU contactSampleAt(
+    const NMMatterDispatchGPU dispatch,
+    device const NMContactSampleGPU* samples,
+    device const uint* sampleStorageMode,
+    device const uint* samplePageComplete,
+    device const uint* sampleSlotsByPair,
+    device const uint* sampleCounts,
+    device const uint* sampleCapacity,
+    const uint environment,
+    const uint pairIndex
+) {
+    NMContactSampleGPU zero{};
+    if (environment >= dispatch.environmentCount ||
+        pairIndex >= dispatch.contactPairCount)
+        return zero;
+    const uint mode = sampleStorageMode[0];
+    if (mode == 0u)
+        return samples[environment * dispatch.contactPairCount + pairIndex];
+    if (mode != 1u || samplePageComplete[environment] != 1u)
+        return zero;
+    const uint capacity = sampleCapacity[0];
+    const uint count = min(sampleCounts[environment], capacity);
+    const uint slot = sampleSlotsByPair[
+        environment * dispatch.contactPairCount + pairIndex];
+    if (capacity == 0u || slot == NM_INVALID_INDEX || slot >= count)
+        return zero;
+    return samples[environment * capacity + slot];
+}
+
+inline NMContactSampleGPU primalContactSample(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const uint pairIndex
+) {
+    return contactSampleAt(
+        dispatch, contact.samples, contact.sampleStorageMode,
+        contact.samplePageComplete, contact.sampleSlotsByPair,
+        contact.sampleCounts, contact.sampleCapacity,
+        environment, pairIndex);
+}
 
 // Reflection-only anchor for the monolithic contact argument table. Runtime
 // obtains its MTLArgumentEncoder from this function but never dispatches it.
@@ -73,6 +124,11 @@ kernel void nm_primal_contact_argument_layout(
         reinterpret_cast<device const uint*>(contact.rigidProxies)[0];
     checksum ^=
         reinterpret_cast<device const uint*>(contact.rigidStates)[0];
+    checksum ^= contact.sampleStorageMode[0];
+    checksum ^= contact.samplePageComplete[0];
+    checksum ^= contact.sampleSlotsByPair[0];
+    checksum ^= contact.sampleCounts[0];
+    checksum ^= contact.sampleCapacity[0];
     checksum ^= contact.deformableActiveCounts[0];
     sink[0] = checksum;
 }
@@ -2130,6 +2186,52 @@ kernel void nm_fem_apply_cohesive_force_accumulator(
     direction[global].xyz += correction;
 }
 
+
+// Zero the global node accumulator before a sequence of ordered cohesive
+// pages. This is separate from the existing trial accumulator lifecycle.
+kernel void nm_fem_clear_cohesive_force_accumulator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* forceAccumulator [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < total) forceAccumulator[global] = float4(0.0f);
+}
+
+// Apply the completed ordered cohesive operator gather once, at the same
+// point as nm_fgmres_add_cohesive_operator. This keeps the original dt^2
+// scale and final subtraction outside the per-page accumulation.
+kernel void nm_fem_apply_cohesive_operator_accumulator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const float4* forceAccumulator [[buffer(7)]],
+    device float4* work [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
+    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep) ||
+        femStaticConstraint(candidateNodes[global].restAndFixed.w) ||
+        candidateNodes[global].positionAndMass.w <= 0.0f) return;
+    const float3 derivativeForce = forceAccumulator[global].xyz;
+    const float dt = objectTimestep(dispatch, scheduler);
+    work[global].xyz -= dt * dt * derivativeForce;
+}
+
 kernel void nm_fem_add_cohesive_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -2203,19 +2305,26 @@ kernel void nm_fem_cohesive_face_operator(
     device NMMatterStatusGPU* statuses [[buffer(14)]],
     device const NMCohesiveMaterialGPU* cohesiveMaterials [[buffer(15)]],
     device const NMCohesiveFaceGPU* candidateFaces [[buffer(16)]],
+    constant uint& pageFaceStart [[buffer(17)]],
+    constant uint& pageFaceCount [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
-    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
+    if (pageFaceCount == 0u || dispatch.cohesiveFaceCount == 0u ||
+        pageFaceStart > dispatch.cohesiveFaceCount ||
+        pageFaceCount > dispatch.cohesiveFaceCount - pageFaceStart) return;
+    const uint total = dispatch.environmentCount * pageFaceCount;
+    if (global >= total) return;
     faceOperator[global] = {};
-    const uint environment = global / dispatch.cohesiveFaceCount;
-    const uint localFace = global - environment * dispatch.cohesiveFaceCount;
+    const uint environment = global / pageFaceCount;
+    const uint pageLocalFace = global - environment * pageFaceCount;
+    const uint localFace = pageFaceStart + pageLocalFace;
+    const uint faceGlobal = environment * dispatch.cohesiveFaceCount + localFace;
     if (!environmentHealthy(statuses, environment)) return;
-    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[global];
+    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[faceGlobal];
     const bool mixedMode =
         (acceptedFace.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u;
     const NMCohesiveFaceGPU face = mixedMode
-        ? candidateFaces[global] : acceptedFace;
+        ? candidateFaces[faceGlobal] : acceptedFace;
     if ((face.adjacency.w & (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) !=
         (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) return;
     const uint objectIndex = face.adjacency.y;
@@ -2449,7 +2558,7 @@ kernel void nm_fem_cohesive_face_operator(
     float3x3 tangent;
     evaluateAlgorithmicStressTangent(material, programs, instructions,
         materialParameters,
-        reinterpret_cast<device const float*>(&acceptedFaces[global].state), deformation,
+        reinterpret_cast<device const float*>(&acceptedFaces[faceGlobal].state), deformation,
         deformationDirection, deformationRate, float3x3(0.0f),
         objectTimestep(dispatch, scheduler), material.bulk.y,
         stress, tangent, valid);

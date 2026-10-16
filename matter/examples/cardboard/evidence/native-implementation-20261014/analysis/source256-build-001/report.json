@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.narrow-observer-build.v1",
+  "source_frozen_sha256": "258f9b543d18b7316636d9df7cf73b3028f9cafbbf7946697cfd03103da847c0",
+  "source_build_sha256": "fdd2a791daa28678eadc55052a35a6e299a248bcf5341eb90f4d58b84a0d7397",
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-legacy-program-primary-cache-observer-256-002/matter/tools/cardboard_source_bound_build.py",
+    "--source-snapshot",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-legacy-program-primary-cache-observer-256-002",
+    "--build-dir",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source256-legacy-program-cache-observer-001",
+    "--cmake-source-relative",
+    ".",
+    "--jobs",
+    "2",
+    "--target",
+    "numi-matter-cardboard-probe"
+  ],
+  "exit_code": 0,
+  "GPU_execution": false,
+  "at_utc": "2026-10-16T14:28:56.492011+00:00",
+  "new_metallib_sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a",
+  "old_metallib_sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a",
+  "metallib_byte_identical": true
+}

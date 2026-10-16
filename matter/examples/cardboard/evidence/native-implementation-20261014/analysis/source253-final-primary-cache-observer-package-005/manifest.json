@@ -1,0 +1,46 @@
+{
+  "inputs": {
+    "snapshots/source-primary-cache-fd-action-253-003/frozen-source.json": {
+      "sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+      "bytes": 137049
+    },
+    "snapshots/source-contact-compaction-fixture-249-001/frozen-source.json": {
+      "sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+      "bytes": 136552
+    },
+    "build-source253-primary-cache-action-002/source-build.json": {
+      "sha256": "1b838291f7362318f3b4e3ae4dbd2b78351e1d3a338fc6773d95e19547a44c5b",
+      "bytes": 104750
+    },
+    "analysis/source253-build-002/report.json": {
+      "sha256": "57e4530d2d94a454c4d7f1e6203de8903ab5d45f5acd72fb83f5e836f2b3a961",
+      "bytes": 4828
+    },
+    "analysis/source253-primary-cache-fd-action-003/report.json": {
+      "sha256": "eaaf10713318217757469da3b46d6ee94e0a2c22213c04077a06abe670033697",
+      "bytes": 1984
+    },
+    "analysis/native555-primary-cache-action-scope-erratum-253-001/report.json": {
+      "sha256": "66a0b79a2d918551285ab39b56048f258b516092b09f6142fbfd983ea54ca862",
+      "bytes": 3036
+    },
+    "analysis/native555-primary-cache-action-scope-independent-audit-253-001/report.json": {
+      "sha256": "62ae2977b7bb7246c1f2cdabe6d4a7c163fd99b3fd8a914858611c25fb8ffb23",
+      "bytes": 29414
+    },
+    "package_source253_final_primary_cache_observer_005.py": {
+      "sha256": "9c7cd05d2cc4eca98cefd207a91757fbf1dba8cec17e33c274af82cddb575034",
+      "bytes": 3109
+    }
+  },
+  "artifacts": {
+    "report.json": {
+      "sha256": "9f5c1450ca7af6fa59781b14ded408a9015d00371b0bbd569bc6adec12c4ea26",
+      "bytes": 2311
+    },
+    "source253-final.patch": {
+      "sha256": "932307c511e0bfff214879c9f14acc47080807c9c7422935cf0fb78318e1a536",
+      "bytes": 13314
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "results": [
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/freebody-newton7-full-private-trial-601",
+      "full_activation_residual": true,
+      "exit_code": 1,
+      "receipt_sha256": "4c0b11f0a753f3aad644569e58bb6b2d00fb4341273a013215cfb5550419ca0c",
+      "stdout_sha256": "c25bca3d089418c70deecba768ee807a2aa3d4a3bd3f1b85cf8cf4d0c0dc7d19"
+    }
+  ],
+  "no_result_assumed": true,
+  "at_utc": "2026-10-16T14:29:15.075727+00:00"
+}

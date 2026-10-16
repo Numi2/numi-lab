@@ -1,0 +1,41 @@
+{
+  "artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/lib/libmetalrobo.dylib": "775cfa3e0ade825f9f95da0c99ecda4a2f79f85d8c97d64792401c58150b6a6e",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/matter/numi-matter-cardboard-full-contact-armijo-check": "a65a485d081e5154c7d293743727b2e9ab7790d61b2363ad98b6f5917bb244ba",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/matter/shaders/NumiMatter.metallib": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/source-build.json",
+  "build_record_sha256": "562ca858314108964c0e3398ca7b363efcac5814d6fdfe702f5655e3d18701a5",
+  "build_source_file_count": 831,
+  "build_source_files_omitted_from_build_record": [
+    "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+    "apps/NumiHumanRestingSourceAllocation.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "tools/test_intercostal_rib_motion_attachment.mm",
+    "tools/test_resting_referenced_source_attachments.cpp"
+  ],
+  "build_success": true,
+  "build_targets": [
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "contract_command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source252-freebody-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "--free-body-control-scene-evidence-contract"
+  ],
+  "contract_exit_code": 0,
+  "contract_stderr": "",
+  "contract_stdout": "free_body_control_scene_evidence_contract=pass physical_transactions=0",
+  "frozen_source_file_count_verified": 836,
+  "frozen_source_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+  "native_gpu_execution": false,
+  "overlay_manifest": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source252-freebody-scene-observer-002/source-overlay.json",
+  "overlay_manifest_sha256": "24b32cae293a5cc09ec2a4b5028a237fe7ab8dd750a15d35b02f2349c46c93f1",
+  "patch_sha256": "decd23a3842e086c0b1ece61a72cdb5f39b4fe6eab48a59414b42bdb7a7d2f2a",
+  "physical_transactions": 0,
+  "schema": "numi.cardboard.source252_build_validation.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-002"
+}

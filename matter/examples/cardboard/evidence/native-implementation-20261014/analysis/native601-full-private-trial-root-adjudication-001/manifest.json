@@ -1,0 +1,121 @@
+{
+  "inputs": {
+    "adjudicate_native601_full_private_trial_001.py": {
+      "sha256": "124ec436e09931ae8d120932944bc42a1767e52ad003ee40d61c11d2e6644383",
+      "bytes": 2232
+    },
+    "native/freebody-newton7-full-private-trial-601/receipt.json": {
+      "sha256": "4c0b11f0a753f3aad644569e58bb6b2d00fb4341273a013215cfb5550419ca0c",
+      "bytes": 1096
+    },
+    "native/activation-full-residual-control-on-591/receipt.json": {
+      "sha256": "79bc2de7c2e1acd286c9423caf69c18ebdffe90b4e1211d297e329b2f7f4325f",
+      "bytes": 305
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000-after.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000000-after.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000-before.bin": {
+      "sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000000-before.bin": {
+      "sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000.json": {
+      "sha256": "873a0aed90d432ce37083778bbb32debc739751fda0b7bc0a4ec7088b7eb5d82",
+      "bytes": 6556
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000000.json": {
+      "sha256": "873a0aed90d432ce37083778bbb32debc739751fda0b7bc0a4ec7088b7eb5d82",
+      "bytes": 6556
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001-after.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000001-after.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001-before.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000001-before.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001.json": {
+      "sha256": "1b0cd61d427cab070ecf006f70ed2eb1a5bc4d48b59bdbbd8d30202bb4811472",
+      "bytes": 6684
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000001.json": {
+      "sha256": "1b0cd61d427cab070ecf006f70ed2eb1a5bc4d48b59bdbbd8d30202bb4811472",
+      "bytes": 6684
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002-after.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000002-after.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002-before.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000002-before.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002.json": {
+      "sha256": "7c6d7069f382f99a4309da3255f456850fb4ded5e9fd5142d6fab4994f2a7abd",
+      "bytes": 6698
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000002.json": {
+      "sha256": "7c6d7069f382f99a4309da3255f456850fb4ded5e9fd5142d6fab4994f2a7abd",
+      "bytes": 6698
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003-after.bin": {
+      "sha256": "14a3a62f910792c06151f8ef8107ff0e782e296b34133141f5e6196025ab6729",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000003-after.bin": {
+      "sha256": "14a3a62f910792c06151f8ef8107ff0e782e296b34133141f5e6196025ab6729",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003-before.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000003-before.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003.json": {
+      "sha256": "faa8ce4683e9e3dc97b780127a1941d6c1b11ad3b424118196a2ac2b728e188a",
+      "bytes": 6664
+    },
+    "native/freebody-newton7-full-private-trial-601/output/dense/transaction-000003.json": {
+      "sha256": "faa8ce4683e9e3dc97b780127a1941d6c1b11ad3b424118196a2ac2b728e188a",
+      "bytes": 6664
+    },
+    "native/freebody-newton7-full-private-trial-601/diagnostics/capture-coupled-trial-capture/capture.coupled.json": {
+      "sha256": "9e04539ce17fce72992e3d15b648f7c5a51652eb8dfb04fdade2b9746e7ea539",
+      "bytes": 37236
+    },
+    "native/freebody-newton7-full-private-trial-601/diagnostics/capture-coupled-trial-capture/capture.coupled.bin": {
+      "sha256": "db9f8e0fc68ddc4d7141cfa9d5a7bca459ee7f0db8c1dbab869982fe32d91f7e",
+      "bytes": 19682936
+    }
+  },
+  "report_sha256": "9940b804e9e196d7fe4d3418fffae87c555ae3f1d5516a0619c0978af3e37967"
+}

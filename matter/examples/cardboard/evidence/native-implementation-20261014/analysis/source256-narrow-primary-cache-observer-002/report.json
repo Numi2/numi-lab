@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.source256-narrow-observer-composition.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-legacy-program-primary-cache-observer-256-002",
+  "source_frozen_sha256": "258f9b543d18b7316636d9df7cf73b3028f9cafbbf7946697cfd03103da847c0",
+  "changes": [
+    "matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_cached_operator_audit.py",
+    "matter/tools/test_cardboard_primary_cache_action.py",
+    "matter/tools/test_true_residual_certification_contract.py"
+  ],
+  "three_way_merges": [
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_cached_operator_audit.py",
+    "matter/tools/test_true_residual_certification_contract.py"
+  ],
+  "all_metal_inputs_byte_identical_to240": 87,
+  "all_production_settings_and_operator_unchanged": true,
+  "CPU_tests": [
+    {
+      "name": "test_cardboard_primary_cache_action.py",
+      "exit_code": 0
+    },
+    {
+      "name": "test_cardboard_cached_operator_audit.py",
+      "exit_code": 0
+    },
+    {
+      "name": "test_cardboard_solver_environment.py",
+      "exit_code": 0
+    }
+  ],
+  "GPU_execution": false,
+  "metallib_identity_and_checkpoint_compatibility_pending": true,
+  "at_utc": "2026-10-16T14:27:08.082466+00:00"
+}

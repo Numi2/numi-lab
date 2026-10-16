@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.bilinear-capture-layer-files.v1",
+  "files_sha256": {
+    "arrays.npz": "d6583c2c43e1bf644a6e2e79acec6e0557d88cce8d20f5242238ca70a638e63b",
+    "report.json": "cf17a8aaad2043cc973884eb340bc37a6458a561c716cc31a823e617989ee90b"
+  },
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/diagnostics/capture-operator-fd-capture/capture": "d73993d528900ed570c6a1a66c61dbb127180e441dad25cce9c6300185b8fe8b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/prediction.json": "b12f56d5175c92518fd9a2a15d9428ca1cc34d60623e674e050543a0d256fb96",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/receipt.json": "cde7e300b347177f3d6597ec7d1b697f9855dc2ee29229907743fc13fc8948a2",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/stderr.log": "e23345c5f9043e8c53ce31fa2e4db410b2aa60247f0f622929dcd85e3e276c85",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/output/manifest.json": "f84c848ccb88b2a42b8faa0493d5bdb2094a03a6f6f91fc666431e9c010c588b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+  }
+}

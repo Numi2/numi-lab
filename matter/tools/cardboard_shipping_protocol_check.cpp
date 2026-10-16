@@ -408,6 +408,31 @@ void run() {
                 firstPeak->peak.sampleIndex == 1u &&
                 firstPeak->qualifyingDropFraction >= 0.01,
             "compression peak detector did not include the first contact sample in the accepted curve");
+    ShippingFirstCompressionPeakDetector fullCurveDetector(0.01, 2u);
+    const std::array<ShippingCompressionForceSample, 7> firstPeakCurve{{
+        {0u, 0.0000, 0.0, 0.0}, {1u, 0.0010, 40.0, 2.0},
+        {2u, 0.0700, 100.0, 4.0}, {3u, 0.0800, 98.8, 4.0},
+        {4u, 0.0900, 97.5, 4.0}, {5u, 0.1300, 130.0, 4.0},
+        {6u, 0.1400, 80.0, 4.0}}};
+    std::optional<ShippingQualifiedCompressionPeak> qualifiedFirst;
+    for (std::size_t index = 1u; index < firstPeakCurve.size(); ++index) {
+        const auto& sample = firstPeakCurve[index];
+        qualifiedFirst = fullCurveDetector.observeAccepted(
+            sample.strokeM, sample.forceN, sample.contactSamples);
+        if (qualifiedFirst) break;
+    }
+    require(qualifiedFirst && qualifiedFirst->peak.sampleIndex == 1u &&
+                firstPeakCurve[5].forceN > qualifiedFirst->peak.forceN,
+            "native streaming detector fixture must distinguish local peak from later global maximum");
+    const auto fullCurvePeakIndex = shippingCompressionCurveSampleIndex(
+        firstPeakCurve, qualifiedFirst->peak);
+    require(fullCurvePeakIndex == std::optional<std::size_t>(2u) &&
+                *fullCurvePeakIndex != qualifiedFirst->peak.sampleIndex &&
+                firstPeakCurve[*fullCurvePeakIndex].forceN == 100.0,
+            "native first-local-peak identity must map to its full curve row including zero origin");
+    require(!shippingCompressionCurveSampleIndex(firstPeakCurve,
+                ShippingCompressionForceSample{99u, 0.0700, 100.0, 3.0}),
+            "native curve mapping must reject a force/contact mismatch");
     const std::array<ShippingCompressionForceSample, 4> nominalCurve{{
         {0u, 0.0, 0.0, 0.0}, {1u, 0.001, 10.0, 1.0},
         {2u, 0.002, 20.0, 1.0}, {3u, 0.003, 10.0, 1.0}}};

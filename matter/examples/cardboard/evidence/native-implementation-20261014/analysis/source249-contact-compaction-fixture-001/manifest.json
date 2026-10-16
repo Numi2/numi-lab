@@ -1,0 +1,30 @@
+{
+  "build_artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-cohesive-page-runtime-kernel-check": "f01f6c2c4dfd0c51d7289837c399e56dad46d8f00acb591b0b24341b1aa161bc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-contact-sample-compaction-check": "2a2a85a99a941740b94cccf5885fa9ad08f53f20aaa4021b7c5dd249c332c77a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe": "2528052d7a8250a5291d02176ce491a3ca1a9e622423eb8804ffb72bf76a5aa0",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-shipping-contact-page-native-check": "0470baee8a562ec54323668fd65204b13e24a308297e58dcc4c000c647cf12c4",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-shipping-contact-page-plan-check": "bd1d66ad35f7e7954996e963ad0db0432bc2d3fabd61cd3eef05908dbaa93d29",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/NumiMatter.metallib": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/cardboard_contact_sample_compaction_check.metallib": "1595d35453f1391bb93ebfed3ffb93277332e3d90cf9de9f1a1108373ecdb8ec"
+  },
+  "files": {
+    "README.md": "a483e44bde703704b01ffc9a695beababff4ff50fe21dcacbc66308554953280",
+    "audit.json": "a1bdc7b5c38197170d6cf9143145d4c3c1fd2be935eb7728d982174795f44aaa",
+    "audit_source249.py": "ebce165582b8aee27f8db8864f670f42df67123221207dc9256c0007960cfb05",
+    "build-001/source-build.json": "aa26b10a93abd9a95992dcb588b10aeb2cc7285e427619f17b42049107a3bb75",
+    "cpu-validation.json": "a20513b1b8a85020d92c940f49dddbf486c1e417f1ff416aede59e4c798dc9a0",
+    "overlay.patch": "02748c58b643dc54cca4c83a9232906f6fa653b4b6f9e59e94ae79c514370931",
+    "report.json": "1394f5116beb4a56ccc3315231db6358f2ad130421dfb95838df40948b7d97ee",
+    "source-overlay.json": "6628a1002096e620098727c9677ee5588f7e1e5e09b8ca3d1955240debe73be1"
+  },
+  "native_gpu_execution": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001",
+  "parent_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "schema": "numi.cardboard.source249.package-manifest.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001",
+  "snapshot_frozen_sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+  "source_selected_count": 842
+}

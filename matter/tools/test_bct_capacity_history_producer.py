@@ -144,7 +144,9 @@ def make_run(base: Path):
         "scene_bodies": [{"index": 0, "synthetic_test_only": True}],
     })
     curve_path = out / "shipping-compression-nominal-curve.csv"
-    curve_rows = [(0.0, 0.0, 0), (0.00025, 40.0, 4), (0.07, 100.0, 4), (0.14, 80.0, 4)]
+    curve_rows = [(0.0, 0.0, 0), (0.00025, 40.0, 4), (0.07, 100.0, 4),
+                  (0.08, 98.8, 4), (0.09, 97.5, 4), (0.13, 130.0, 4),
+                  (0.14, 80.0, 4)]
     with curve_path.open("w", newline="") as stream:
         writer = csv.writer(stream); writer.writerow(["sample_index", "stroke_m", "force_N", "contact_samples"])
         writer.writerows([[i, x, y, n] for i, (x, y, n) in enumerate(curve_rows)])
@@ -168,7 +170,8 @@ def make_run(base: Path):
              "platen_mean_force_y_N": "40", "platen_reaction_samples": "4"},
         ])
         prev = 0.00025
-        for stroke, force in ((0.07, 100.0), (0.14, 80.0)):
+        for stroke, force in ((0.07, 100.0), (0.08, 98.8), (0.09, 97.5),
+                              (0.13, 130.0), (0.14, 80.0)):
             duration = (stroke - prev) / rate
             branch_rows.append({"phase": f"{prefix}_slow_compression", "accepted": "1",
                 "stroke_m": str(stroke), "macro_observation_duration_s": str(duration),
@@ -187,7 +190,7 @@ def make_run(base: Path):
         "compiled_world_fingerprint": "222", "source_binding_sha256": source_binding,
         "assembled_matter_checkpoint_sha256": checkpoint_sha,
         "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
-        "nominal_peak_sample_index": "2", "nominal_accepted_sample_count": "4",
+        "nominal_peak_sample_index": "2", "nominal_accepted_sample_count": "7",
         "nominal_terminal_stroke_fraction": "0.7", "nominal_full_stroke_completed": "true",
         "nominal_rate_sensitivity_passed": "true", "mesh_status": "qualified",
         "mesh_report_file": mesh_path.name, "mesh_report_sha256": mesh_sha,
@@ -212,7 +215,7 @@ def make_run(base: Path):
         "compiled_world_fingerprint": 222, "source_binding_sha256": source_binding,
         "assembled_matter_checkpoint_sha256": checkpoint_sha,
         "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
-        "nominal_peak_sample_index": 2, "nominal_accepted_sample_count": 4,
+        "nominal_peak_sample_index": 2, "nominal_accepted_sample_count": 7,
         "nominal_terminal_stroke_fraction": 0.7, "nominal_full_stroke_completed": True,
         "nominal_rate_sensitivity_passed": True, "inside_height_m": 0.2,
         "mesh_report_sha256": mesh_sha, "time_report_sha256": time_sha,
@@ -317,6 +320,31 @@ def make_run(base: Path):
 
 
 class BCTProducerTests(unittest.TestCase):
+
+    def test_native_peak_binding_uses_first_qualified_local_peak_not_global_max(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "curve.csv"
+            path.write_text(
+                "sample_index,stroke_m,force_N,contact_samples\n"
+                "0,0,0,0\n1,0.001,40,2\n2,0.07,100,4\n"
+                "3,0.08,98.8,4\n4,0.09,97.5,4\n5,0.13,130,4\n6,0.14,80,4\n",
+                encoding="utf-8")
+            self.assertEqual(producer._load_curve(path, 7, 2)[2]["force_N"], 100.0)
+            with self.assertRaisesRegex(producer.ProducerError, "first qualified local peak"):
+                producer._load_curve(path, 7, 5)
+
+    def test_local_peak_requires_drop_and_resets_at_contact_gap(self) -> None:
+        no_qualified_peak = producer.first_local_peak_index(
+            [0.0, 0.01, 0.02, 0.03, 0.04],
+            [0.0, 40.0, 100.0, 99.5, 99.2],
+            [0.0, 2.0, 4.0, 4.0, 4.0])
+        self.assertIsNone(no_qualified_peak)
+        reset_peak = producer.first_local_peak_index(
+            [0.0, .01, .02, .03, .04, .05, .06, .07, .08],
+            [0.0, 40.0, 100.0, 98.8, 0.0, 70.0, 110.0, 108.8, 107.5],
+            [0.0, 2.0, 4.0, 4.0, 0.0, 4.0, 4.0, 4.0, 4.0])
+        self.assertEqual(reset_peak, 6)
+
     def test_synthetic_complete_contract_wraps_without_mutating_native_run(self):
         with tempfile.TemporaryDirectory() as temp:
             base = Path(temp)

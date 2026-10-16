@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "script": "run_native588_composed241_regression_001.py",
+      "exit_code": 0,
+      "wall_seconds": 106.85349833299995,
+      "log_sha256": "3b0ed27a3e0e141d6f56cd0e9674a82e5853788166f8773a656b3d75b9a70147"
+    },
+    {
+      "script": "adjudicate_native588_parity_001.py",
+      "exit_code": 0,
+      "wall_seconds": 0.04816975000005641,
+      "log_sha256": "e45c9de18b0491c308b826c000816f4778cd6207feb5c36bccdbcf9737314ea9"
+    },
+    {
+      "script": "run_native589_corrected_metadata_002.py",
+      "exit_code": 0,
+      "wall_seconds": 0.9120473749999292,
+      "log_sha256": "e71052b170111097227aff98fca7b3b595100668c1fa9e44b1c08605557bcedd"
+    },
+    {
+      "script": "run_native592_contact_compactor_001.py",
+      "exit_code": 1,
+      "wall_seconds": 0.9666632079999999,
+      "log_sha256": "5ff7770bce2377677d1d8501421c44e5cbdcf4ec27bde58ffde538f34d6a6300"
+    },
+    {
+      "script": "run_native590_591_activation_full_residual_001.py",
+      "exit_code": 0,
+      "wall_seconds": 11.123792417000004,
+      "log_sha256": "ea7d00f4a1271168fe82cee82edfeafd03ed5544a1ebdb843367307e09a3a935"
+    }
+  ]
+}

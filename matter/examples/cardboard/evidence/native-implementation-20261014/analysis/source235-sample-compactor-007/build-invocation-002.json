@@ -1,0 +1,26 @@
+{
+  "artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/numi-matter-cardboard-contact-sample-compaction-check": "ccc34fc4bccce5e71157f845558718fbf799cbeb89da5f835d68e7a04373f53a",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/numi-matter-cardboard-probe": "4a166d95ae65ccdb67efb21af23e297ffcd196af6ce35716480c24336aa468b7",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/NumiMatter.metallib": "6164739be9b8813f7b0520b3b957c1a81c3d2e8283e1aa6d3fcfce50f64c8b99",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/shaders/cardboard_contact_sample_compaction_check.metallib": "6ea7f46b4054ecb6497aeff1b9f3e9f4ed80c31331361bad0111362600ea5c28"
+  },
+  "build_metadata_sha256": {
+    "CMakeCache.txt": "38387daa3f7c224aea6285b6f304a20e93ce573e6ab8c81719c095f3967722b4",
+    "compile_commands.json": "92f3e08dc5d0c181d1ed332cb2876916f184cd6b12aca296a55eee3d987bedea"
+  },
+  "build_record_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/source-build.json",
+  "build_record_sha256": "4418188007412b5fc875efe2fa55f116ddf8b9af805b908830471cd7384256a7",
+  "builder_stdout": "{\"success\": true, \"exit_code\": 0, \"provenance\": \"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build/source-build.json\"}",
+  "command": "PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin HOME=/Users/n /usr/bin/python3 /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007/matter/tools/cardboard_source_bound_build.py --source-snapshot /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007 --build-dir /Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-007/build --target numi-matter-cardboard-probe --target numi-matter-cardboard-contact-sample-compaction-check --jobs 6",
+  "frozen_source_sha256": "2fe9d0436f498f34a8bd67c51c30eca090cc24332a3e4de8d65df0aa28aae759",
+  "no_gpu_or_test_execution": true,
+  "returncode": 0,
+  "schema": "numi.cardboard.source-build-invocation.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007",
+  "targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-contact-sample-compaction-check"
+  ]
+}

@@ -777,6 +777,33 @@ def spectral_diagnostics(operator: sparse.csr_matrix, metadata: dict,
     return diagnostics
 
 
+def capture_operator_action_policy(header: dict) -> dict:
+    """Legacy captures omitted the primary cache binding and used mode zero."""
+    policy = header.get("operator_action_policy")
+    if policy is None:
+        return {"production_operator_action_bound": False,
+                "cache_mode": None,
+                "classification": "legacy action lacks primary-cache binding; cached-production parity unestablished"}
+    if not isinstance(policy, dict):
+        raise ValueError("operator action policy must be an object")
+    expected = {"selection", "cache_mode", "element_force_source",
+                "local_stress_tangent_source"}
+    if set(policy) != expected:
+        raise ValueError("operator action policy fields are incomplete or unknown")
+    enabled = header.get("cached_algorithmic_tangent_capture", {}).get("policy_enabled")
+    if type(enabled) is not bool:
+        raise ValueError("operator action requires a Boolean primary cache policy")
+    mode = policy.get("cache_mode")
+    if type(mode) is not int or mode != int(enabled):
+        raise ValueError("captured operator cache mode differs from the primary cache policy")
+    if (policy["selection"] != "matches_primary_FGMRES_cache_mode" or
+            policy["element_force_source"] != "same_operator_dispatch_as_nodal_action" or
+            policy["local_stress_tangent_source"] != "independent_direct_constitutive_probe"):
+        raise ValueError("unsupported operator action policy")
+    return {"production_operator_action_bound": True, "cache_mode": mode,
+            "classification": "primary production cache-mode action; measured comparison without noise-floor qualification"}
+
+
 def run(args: argparse.Namespace) -> dict:
     capture = Path(args.capture)
     header, nodes, tets, integrity = capture_records(capture)
@@ -803,6 +830,9 @@ def run(args: argparse.Namespace) -> dict:
         raise ValueError("cached tangent layout or derivative contract is unsupported")
     mass, stiffness, operator, vector, meta = validate_and_assemble(
         header, nodes, tets, integrity, args.environment)
+    action_policy = capture_operator_action_policy(header)
+    meta["operator_action_policy"] = action_policy
+    meta["action_parity"]["classification"] = action_policy["classification"]
     action_vectors = meta.pop("action_component_arrays")
     native_rhs = meta.pop("native_rhs_free_impulse_Ns")
     captured_node_state = meta.pop("captured_node_state_f32")

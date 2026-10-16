@@ -1,0 +1,18 @@
+{
+  "configure_support_sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3",
+  "files": {
+    "README.md": "a0a962b82329e5067ea008f78b9ef0cbfdb64c1f751ffb38584b91866b7fbd6f",
+    "build-002/source-build.json": "02834a57270c7b24949e54a83f2ec5b0bfe0753c8b25d98380e0b795d1a90754",
+    "build/source-build.json": "2ed1f46908b614df5d334fb844ac291f5de2b549d13a47be7204c26fa2c8dfd2",
+    "cpu-validation-002.json": "d16d68610cb290c76ac955c87adb680408b73b8362f290a054549443c1f3589f",
+    "cpu-validation-003.json": "0a78066041a606a0481edd273b568bd3bde80db492341c75a1aad06dff5d2076",
+    "cpu-validation.json": "6bd787f5c57809c5fb08f88aca9fbac6d330619ba1ac5b42167b9c66a4add959",
+    "report.json": "8acd52728e49e9165b06d354ae359046c017b8be179f3df5b848e559598279a2",
+    "source-overlay.json": "c025fc0c7e631e2bfe1b3b0a0bd26831721781f39001bbccec956ea67e05f32b"
+  },
+  "native_gpu_execution": false,
+  "root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source247-contact-sample-integration-001",
+  "schema": "numi.cardboard.source247.package-manifest.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "snapshot_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914"
+}

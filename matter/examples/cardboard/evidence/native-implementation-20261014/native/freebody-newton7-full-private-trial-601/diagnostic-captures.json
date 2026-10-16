@@ -1,0 +1,24 @@
+{
+  "aggregate_cap_bytes": 134217728,
+  "environment_contract_sha256": "233d7cb4425c39cec540e3ac297649102002126bedd4e4caf23d9ec1a6d4ee29",
+  "file_count": 2,
+  "files": [
+    {
+      "bytes": 19682936,
+      "key": "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+      "path": "diagnostics/capture-coupled-trial-capture/capture.coupled.bin",
+      "sha256": "db9f8e0fc68ddc4d7141cfa9d5a7bca459ee7f0db8c1dbab869982fe32d91f7e"
+    },
+    {
+      "bytes": 37236,
+      "key": "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH",
+      "path": "diagnostics/capture-coupled-trial-capture/capture.coupled.json",
+      "sha256": "9e04539ce17fce72992e3d15b648f7c5a51652eb8dfb04fdade2b9746e7ea539"
+    }
+  ],
+  "pending_captures": [],
+  "per_file_cap_bytes": 67108864,
+  "schema": "numi.cardboard.diagnostic-capture-files.v1",
+  "status": "validated",
+  "total_bytes": 19720172
+}

@@ -1,0 +1,25 @@
+{
+  "base_frozen_source_sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "candidate_frozen_source_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-002",
+  "changed_file_sha256": {
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "4eae0dad075349b33a0506c5d29458b0c61b89a086e8bdcd1bd19d0ad0baab1c"
+  },
+  "changed_files": [
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "native_gpu_execution": false,
+  "patch_file": "overlay.patch",
+  "patch_sha256": "decd23a3842e086c0b1ece61a72cdb5f39b4fe6eab48a59414b42bdb7a7d2f2a",
+  "prior_attempt_001": {
+    "draft_source_sha256": "b7fac2a7887972ff887b3050585a4c41a737f528eb9966aeca11493633336eb3",
+    "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source252-freebody-scene-observer-001",
+    "source_build": "build-source252-freebody-001/source-build.json",
+    "status": "superseded by 002 additions for returned-empty scene readback and expanded CPU contract"
+  },
+  "raw_mtl_state": "unknown_not_exposed_by_StepResult_API",
+  "schema": "numi.cardboard.source252.free_body_scene_observer.v2",
+  "scope": "Observer adds no solver/operator/tolerance change; it runs only for the existing opt-in activation-residual mode.",
+  "source_file_count": 836
+}

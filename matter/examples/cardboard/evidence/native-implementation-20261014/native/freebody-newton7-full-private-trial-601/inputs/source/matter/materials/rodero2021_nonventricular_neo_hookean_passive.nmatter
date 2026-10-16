@@ -1,0 +1,28 @@
+// Rodero et al. (2021), PLOS Computational Biology 17:e1008851,
+// S4 equation 8 and Table C. DOI 10.1371/journal.pcbi.1008851.
+// S4 SHA256 5699feb01b7f91f93fd75e26a9a5043ca6bfb5da1803f010c45c71270992ebc6.
+// Source CC BY 4.0. Source average literature values are not subject fits.
+// Table C c: atria/veins 7.45 kPa; aorta 26.66 kPa; pulmonary artery
+// 3.7 kPa; artificial valve planes 1000 kPa. The continuous parameter range
+// permits authoring; only those four values are source reproductions.
+// Full energy: non-mixed FEM only. The built-in neo_hookean shortcut is a
+// different energy and must not replace this explicit isochoric expression.
+// Zero density is unresolved required input; full WorldSource cooking rejects
+// it. S4 did not supply density/mass. No viscosity, activation, or blood mass.
+material rodero2021_nonventricular_neo_hookean_passive {
+    parameter density : kg/m^3 = 0 in [0, 2000];
+    parameter c : kPa = 7.45 in [3.7, 1000];
+    parameter kappa : kPa = 1000;
+    model generic;
+    energy = 0.5*kappa*pow(J()-1,2)
+        + 0.5*c*(exp(-2*log(J())/3)*I1()-3);
+    valid = J();
+    supports fem;
+    // Numerical validity envelope, not an experimentally established range.
+    limits {
+        minimum_J = 0.05;
+        maximum_J = 20;
+        maximum_stress = 1e12;
+        maximum_energy_density = 1e12;
+    }
+}

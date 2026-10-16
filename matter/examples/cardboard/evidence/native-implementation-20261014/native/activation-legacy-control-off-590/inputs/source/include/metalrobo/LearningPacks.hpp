@@ -1,0 +1,249 @@
+#pragma once
+
+#include "metalrobo/InteractionPack.hpp"
+#include "metalrobo/PolicyProgram.hpp"
+#include "metalrobo/TaskProgram.hpp"
+#include "metalrobo/WorldCompiler.hpp"
+
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace metalrobo {
+
+inline constexpr std::uint32_t kTaskPackFormatVersion = 17u;
+inline constexpr std::uint32_t kRobotActuatorPackFormatVersion = 2u;
+inline constexpr std::uint32_t kSensorProgramPackFormatVersion = 1u;
+inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
+inline constexpr std::uint32_t kPolicyPackFormatVersion = 4u;
+inline constexpr std::uint32_t
+    kPolicyRolloutPackFormatVersion = 7u;
+inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
+inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
+
+struct MotionClip {
+    std::string id;
+    float framesPerSecond = 0.0f;
+    std::vector<float> features;
+};
+
+struct PolicyOutcomeDescriptor {
+    std::string id;
+    std::string unit;
+    std::uint32_t direction = 0u;
+};
+
+// Canonical compact expert-motion artifact. Each frame uses the task's
+// anchor-relative tracked-link feature contract; consecutive frames provide
+// motion to the learner without publishing simulator state.
+struct MotionPack {
+    std::string id;
+    std::string sourceRepository;
+    std::string sourceRevision;
+    std::string license;
+    std::string anchorBody;
+    std::vector<std::string> trackedBodies;
+    std::uint32_t featureCount = 0u;
+    std::vector<MotionClip> clips;
+};
+
+struct PolicyRolloutPack {
+    std::string id;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t policyFingerprint = 0u;
+    std::uint64_t policyRevision = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t controlStepCount = 0u;
+    std::uint32_t actorObservationCount = 0u;
+    std::uint32_t criticObservationCount = 0u;
+    std::uint32_t actionCount = 0u;
+    std::uint32_t motionFeatureCount = 0u;
+    std::vector<float> actorObservations;
+    std::vector<float> criticObservations;
+    std::vector<float> motionFeatures;
+    // Optional physically executed imagination targets in the deployment
+    // actor's normalized action coordinates. Empty means no teacher.
+    std::vector<float> teacherActions;
+    std::vector<float> latents;
+    std::vector<float> logProbabilities;
+    std::vector<float> values;
+    std::vector<float> bootstrapValues;
+    std::vector<PolicyOutcomeDescriptor> outcomes;
+    // Step-major [sample][outcome].
+    std::vector<float> outcomeValues;
+    std::vector<MRLearningTransitionGPU> transitions;
+};
+
+// Synchronous zero-copy publication view for large native rollout batches.
+// The writer never retains these spans beyond writePolicyRolloutPack().
+struct PolicyRolloutPackView {
+    std::string_view id;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t policyFingerprint = 0u;
+    std::uint64_t policyRevision = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t controlStepCount = 0u;
+    std::uint32_t actorObservationCount = 0u;
+    std::uint32_t criticObservationCount = 0u;
+    std::uint32_t actionCount = 0u;
+    std::uint32_t motionFeatureCount = 0u;
+    std::span<const float> actorObservations;
+    std::span<const float> criticObservations;
+    std::span<const float> motionFeatures;
+    std::span<const float> teacherActions;
+    std::span<const float> latents;
+    std::span<const float> logProbabilities;
+    std::span<const float> values;
+    std::span<const float> bootstrapValues;
+    std::span<const PolicyOutcomeDescriptor> outcomes;
+    std::span<const float> outcomeValues;
+    std::span<const MRLearningTransitionGPU> transitions;
+};
+
+enum class LearningPackStatus : std::uint32_t {
+    success = 0u,
+    invalidPack,
+    ioFailure,
+    unsupportedVersion,
+    corruptPayload,
+    capacityOverflow,
+    internalFailure,
+};
+
+struct LearningPackResult {
+    LearningPackStatus status = LearningPackStatus::success;
+    std::uint64_t contentHash = 0u;
+    std::string message;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == LearningPackStatus::success;
+    }
+};
+
+struct RobotActuatorPack {
+    std::string id;
+    std::vector<RobotActuatorSpec> actuators;
+};
+
+struct SensorProgramPack {
+    std::string id;
+    TaskObservationProgram observation;
+};
+
+struct RealityProgramPack {
+    std::string id;
+    // Executable world/physics variation is owned here, independently of the
+    // scene package. The run compiler resolves it directly against the
+    // selected world and executes the lowered program on Metal.
+    WorldProgram program;
+    // Optional identity of an upstream compiled program from which this
+    // authored program was recovered. It participates in run provenance but
+    // never substitutes for the executable semantics above.
+    std::uint64_t sourceProgramFingerprint = 0u;
+    TaskResetProgram reset;
+};
+
+// Canonical content fingerprint used by every learning-pack wire format.
+// Exposed so zero-copy readers can validate an already mapped payload without
+// allocating a second payload or reimplementing the hash in another language.
+[[nodiscard]] std::uint64_t learningPackContentHash(
+    std::span<const std::byte> payload
+) noexcept;
+
+// Learning packs are deterministic, little-endian native artifacts with an
+// explicit wire version, payload length, and content fingerprint. Reads and
+// writes publish transactionally.
+[[nodiscard]] LearningPackResult writeTaskPack(
+    const TaskPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readTaskPack(
+    const std::filesystem::path& path,
+    TaskPack& output
+);
+
+[[nodiscard]] LearningPackResult writeRobotActuatorPack(
+    const RobotActuatorPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readRobotActuatorPack(
+    const std::filesystem::path& path,
+    RobotActuatorPack& output
+);
+
+[[nodiscard]] LearningPackResult writeSensorProgramPack(
+    const SensorProgramPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readSensorProgramPack(
+    const std::filesystem::path& path,
+    SensorProgramPack& output
+);
+
+[[nodiscard]] LearningPackResult writeRealityProgramPack(
+    const RealityProgramPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readRealityProgramPack(
+    const std::filesystem::path& path,
+    RealityProgramPack& output
+);
+
+[[nodiscard]] LearningPackResult writePolicyPack(
+    const PolicyPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readPolicyPack(
+    const std::filesystem::path& path,
+    PolicyPack& output
+);
+
+[[nodiscard]] LearningPackResult writePolicyRolloutPack(
+    const PolicyRolloutPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult writePolicyRolloutPack(
+    const PolicyRolloutPackView& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readPolicyRolloutPack(
+    const std::filesystem::path& path,
+    PolicyRolloutPack& output
+);
+
+[[nodiscard]] LearningPackResult writeMotionPack(
+    const MotionPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readMotionPack(
+    const std::filesystem::path& path,
+    MotionPack& output
+);
+
+[[nodiscard]] LearningPackResult writeInteractionPack(
+    const InteractionPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readInteractionPack(
+    const std::filesystem::path& path,
+    InteractionPack& output
+);
+
+[[nodiscard]] const char* learningPackStatusName(
+    LearningPackStatus status
+) noexcept;
+
+} // namespace metalrobo

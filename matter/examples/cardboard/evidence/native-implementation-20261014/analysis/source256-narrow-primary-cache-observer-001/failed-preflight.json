@@ -1,0 +1,5 @@
+{
+  "error": "One include-only three-way conflict:240 has neither shipping page-plan include nor new shared cache helper.",
+  "repair": "002 keeps only the new shared cache helper include, without importing shipping page functionality. All other edits must merge cleanly.",
+  "at_utc": "2026-10-16T14:27:06.074693+00:00"
+}

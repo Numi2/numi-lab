@@ -1,0 +1,117 @@
+{
+  "schema": "numi.cardboard.source250-shipping-arena-plan-build.v1",
+  "created_at_utc": "2026-10-16T14:28:37.117360+00:00",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "base_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+  "candidate_frozen_manifest_sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646",
+  "source_file_count": 842,
+  "configure_support_file_count": 1034,
+  "changed_paths": [
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "base_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+      "candidate_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory.hpp",
+      "base_sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+      "candidate_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "base_sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9",
+      "candidate_sha256": "dbbd92853c0ff3d59c755ff3c0f00187e43bd02a787951ce6150b9a04afb5f66"
+    }
+  ],
+  "source_build_json": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/source-build.json",
+  "source_build_json_sha256": "4d773fc8e23ba4b293711b2eff090030ed576b3b7a3494c49095dcb52bd25411",
+  "source_build_success": true,
+  "source_build_bound_source_files": 837,
+  "build_artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/lib/libmetalrobo.dylib": "da13f2910f4c771a7bb61c5dc9f04f620faf83544089b042142010b666f68a5f",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/matter/numi-matter-cardboard-probe": "c9c8d2186b03b8ea78d7b2527fd489e2933120fd54250f11b1f065a5ddb3535c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/matter/numi-matter-cardboard-shipping-memory-check": "cf7431110b8d7776429082c415d372e1d7069646ecf87a88d2510d851ecd9572",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/matter/shaders/NumiMatter.metallib": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "focus_helper_passed_before_full_build": true,
+  "tests": [
+    {
+      "name": "shipping_memory_helper",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-006/shipping_memory_helper.log",
+      "sha256": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb",
+      "bytes": 40,
+      "status": "PASS"
+    },
+    {
+      "name": "probe_help",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-006/probe_help.log",
+      "sha256": "6b05092fb5b10614dd2eb392a7b53ae1a0f376654d350a44230d8556bb37db43",
+      "bytes": 8045,
+      "status": "PASS"
+    },
+    {
+      "name": "shipping_memory_ctest",
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-006/shipping_memory_ctest.log",
+      "sha256": "b1e2f9ed23f6083d6c6d9b14f44412b536aeeaff28e73954ebe5fa8e78e30f21",
+      "bytes": 489,
+      "status": "PASS"
+    }
+  ],
+  "all_cpu_build_and_tests_pass": true,
+  "gpu_execution": false,
+  "physical_operator_changed": false,
+  "count_gates_changed": false,
+  "all_physics_count_gates_retained": true,
+  "sample_compaction_parity_claimed": false,
+  "active_contact_capacity_source": "compiled dispatch.reservedMixed1, after source activeContacts=0 is resolved to the full pair domain",
+  "main_contact_plan": {
+    "buffers": 11,
+    "shipping_pair_count": 6335568,
+    "environments": 1,
+    "sample_capacity": 6335568,
+    "active_capacity": 6335568,
+    "max_buffer_length_bytes": 14302248960,
+    "planned_e1_bytes": 1495194096,
+    "all_11_rows_checked": true,
+    "allocation_formula": "max(16, elementBytes, logicalCount*elementBytes)",
+    "tested_shapes": [
+      "E=1 shipping pair domain",
+      "E=2 shipping pair domain",
+      "zero-count typed sentinels"
+    ]
+  },
+  "memory_verdict": {
+    "modeled_envelope_only": true,
+    "whole_runtime_allocation_inventory_complete": false,
+    "complete_shipping_admission": false,
+    "native_shipping_memory_qualified": false,
+    "reason": "The 11-row plan covers the canonical rigid contact pair/sample/maps/history/count/page/config rows only. Separate incidence/range buffers and the remaining Metal/host arenas, transient lifetimes, staging, and measured unified peak are not fully enumerated/admitted. Existing hard caps remain fail closed."
+  },
+  "prior_failed_attempts": [
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-003/report.json",
+      "sha256": "4af6631df749ce38b19e73ae2270773971fad3720b092563b12e19e550a13d5f",
+      "present": true
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-004-failure.json",
+      "sha256": null,
+      "present": false
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-005/report.json",
+      "sha256": "dc39d48334d239ad4b393622a13187e0ae14660b50b1520401b0119dc1bbd8ba",
+      "present": true
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006-prep-failed-001",
+      "present": true,
+      "note": "first candidate-map preparation failure retained unchanged"
+    }
+  ]
+}

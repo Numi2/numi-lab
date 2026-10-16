@@ -1,0 +1,12 @@
+{
+  "files": {
+    "report.json": "99e14082fa97b06b7ecc92fcc7883ad602b05ccebaf29abf57d16e66449c1097",
+    "canonical-support/build-cardboard-native-worker/worker.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "commands/prepare_publication041_reproduction_002.py": "43c9bfbde88afdf5e9fa26a4bae5e92df7435d7919160dd4fae48b4c642f564d",
+    "commands/archive_publication041_001.py": "038fea81caa048b71d71d10a9286121148526dde49a5ab08c618a7677f053616",
+    "commands/audit_publication041_001.py": "afa98c233d360589f0dcb81763d45ec8fa6f0e2b9339faefcc92e334259c0b98",
+    "commands/prepare_publication041_support_001.py": "35186ba58e46e40ff6af54902cc7104a10c498143e2e1bbff2336806cad77992",
+    "commands/prepare_publication041_reproduction_001.py": "2388ecee14c32fd555cdf108293721e127d5efb9cb391d8e5b0ef13e2d491105",
+    "commands/publish_publication041_001.py": "79d4b042ce05c6c3bced602b6e2e5ae53225c9785eaff1082ce6864e6bcfe14b"
+  }
+}

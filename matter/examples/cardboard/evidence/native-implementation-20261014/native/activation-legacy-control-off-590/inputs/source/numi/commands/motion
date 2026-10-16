@@ -1,0 +1,94 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Inspect or run motion-imagination models such as ARDY.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi motion inspect --model-directory PATH [--verify-hashes]
+       numi motion infer --model-directory PATH --output-directory PATH \
+           (--text-feature embedding.npy | --text-encoder-directory PATH | \
+            --reference-text-features reference.json --prompt TEXT | \
+            --unconditioned) \
+           [--provider auto|coreml|cpu] [--seed N] [--verify-hashes]
+       numi motion retarget-g1 --motion-proposal PATH --g1-urdf FILE \
+           --output-directory PATH
+       numi motion compile-style --robot unitree-g1 \
+           --interaction-pack FILE --output FILE --id ID [--clip ID] \
+           --anchor-body BODY --tracked-bodies BODY[,BODY...]
+       numi motion imagine-g1 --prompt TEXT [--output-directory PATH] \
+           [--model-family g1|core] [--provider auto|coreml|cpu]
+
+ARDY is a motion-imagination provider, not a robot action policy. Numi supports
+both ARDY G1 25 FPS Horizon52 and ARDY Core 20 FPS Horizon40 ONNX graphs. G1
+publishes native g1skel34 motion; Core publishes generic cskel27 human motion.
+InteractionPack compilation and native physical realization remain separate.
+
+The model directory stays outside the repository. Pair arbitrary prompts with
+the separately licensed ARDY text encoder and pass its [1,1,4096] feature as
+NPY/NPZ. Reference embeddings are accepted for exact runtime qualification.
+Once the ARDY cache and pinned G1 description are installed, `imagine-g1`
+defaults to native ARDY G1, projects its raw joint sequence to the closest
+mechanism-feasible trajectory, compiles an InteractionPack, executes it through
+native Metal physics, and returns GIF and MP4 evidence rendered only from
+accepted NumiSolver states. Pass `--model-family core` to retain the generic
+Core-to-G1 retargeting path.
+
+`--provider auto` selects the text encoder, denoiser, and decoder separately.
+Each Core ML result must pass its CPU comparison; only a failing graph falls
+back, and the artifact records provider and parity evidence per stage.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+if [ "${1:-}" = "compile-style" ]; then
+    shift
+    numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+    if [ -x "$numi_build/bin/metalrobo_motion_compile" ]; then
+        numi_motion_compile=$numi_build/bin/metalrobo_motion_compile
+    else
+        numi_motion_compile=$numi_root/bin/metalrobo_motion_compile
+    fi
+    [ -x "$numi_motion_compile" ] || {
+        printf 'numi motion: native motion compiler is unavailable; run numi doctor\n' >&2
+        exit 1
+    }
+    exec "$numi_motion_compile" "$@"
+fi
+if [ -f "$numi_root/python/metalrobo/ardy_onnx.py" ]; then
+    numi_python_root=$numi_root/python
+else
+    numi_python_root=$numi_root/share/numi/python
+fi
+numi_dependencies='import numpy, onnxruntime'
+if [ "${1:-}" = "retarget-g1" ]; then
+    numi_dependencies='import numpy, scipy'
+elif [ "${1:-}" = "imagine-g1" ]; then
+    numi_dependencies='import numpy, scipy, onnxruntime, tokenizers'
+fi
+numi_path_python=$(command -v python3 2>/dev/null || true)
+numi_python=
+for numi_candidate_python in \
+    "${NUMI_MOTION_PYTHON:-}" \
+    "$numi_root/python/.motion-venv/bin/python" \
+    "$numi_path_python" \
+    "${HOME:-}/.pyenv/versions/"*/bin/python3 \
+    "${HOME:-}/.pyenv/versions/"*/bin/python; do
+    [ -x "$numi_candidate_python" ] || continue
+    if "$numi_candidate_python" -c "$numi_dependencies" >/dev/null 2>&1; then
+        numi_python=$numi_candidate_python
+        break
+    fi
+done
+if [ "$numi_python" = "" ]; then
+        printf 'numi motion: Python dependencies are unavailable\n' >&2
+        exit 1
+fi
+NUMI_LAB_ROOT=$numi_root \
+PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+    "$numi_python" -m metalrobo.ardy_onnx "$@"

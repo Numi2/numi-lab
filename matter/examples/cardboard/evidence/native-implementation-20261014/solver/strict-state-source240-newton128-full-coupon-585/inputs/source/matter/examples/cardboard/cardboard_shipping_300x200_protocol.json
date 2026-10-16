@@ -1,0 +1,310 @@
+{
+  "schema": "numi.cardboard.shipping_box_protocol.v1",
+  "design_state": "decision-complete engineering protocol; native execution requires either an accepted same-recipe scoring coupon or explicit unqualified X/Y/Z engineering allowances",
+  "target": {
+    "style": "FEFCO 0201 regular slotted container",
+    "inside_clear_mm": {
+      "length_x": 300.0,
+      "height_y": 200.0,
+      "width_z": 200.0
+    },
+    "axes": {
+      "x": "inside length",
+      "y": "upright box height",
+      "z": "inside width"
+    },
+    "manufacturer_lap_width_mm": 25.0,
+    "slot_kerf_mm": 1.0,
+    "score_allowance": {
+      "status": "missing; native runs require accepted coupon evidence or explicit engineering assumptions",
+      "measurement_source": null,
+      "coupon_id": null,
+      "sha256": null,
+      "score_center_span_minus_inside_clear_mm": null,
+      "note": "Do not substitute zero or infer an allowance from caliper. Accepted coupon evidence must match the selected literature2009 recipe; an explicit engineering allowance enables only unqualified simulation."
+    },
+    "nominal_perimeter_if_allowance_were_zero_mm": 1025.0,
+    "cross_section_period_count_if_allowance_were_zero": 129.74683544303798,
+    "mesh_status": "flat blank generated only after accepted matching coupon evidence or explicitly labeled engineering allowances; no folded shipping mesh is pre-authored",
+    "blank_subdivisions_per_band": 16,
+    "source_identity": "literature2009 mixed-source C-flute proxy; not same-lot reconstruction"
+  },
+  "corrugated_geometry": {
+    "pitch_mm": 7.9,
+    "caliper_mm": 4.21,
+    "liner_each_mm": 0.277,
+    "medium_mm": 0.191,
+    "lower_bridge_mm": {
+      "width": 0.8,
+      "gap": 0.1
+    },
+    "upper_bridge_mm": {
+      "width": 0.6,
+      "gap": 0.03
+    },
+    "profile": "sinusoidal fallback, normal-thickness medium, partial terminal period clipped at the authored perimeter",
+    "starch_damage_law_calibrated": false
+  },
+  "numerical_solver_protocol": {
+    "fgmres_restart": 16,
+    "fgmres_restart_upper_bound": 16,
+    "total_krylov_iteration_budget": 1024,
+    "cli_override": "--fgmres-restart N, where 1 <= N <= 16",
+    "status": "numerical configuration, not a material parameter or qualification result"
+  },
+  "score_tool_protocol": {
+    "punch_radius_mm": 1.0,
+    "channel_width_mm": 6.0,
+    "die_to_channel_clearance_calipers": 0.25,
+    "depth_fractions_of_measured_caliper": [
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "depths_mm_for_4_21mm_caliper": [
+      0.421,
+      0.842,
+      1.263,
+      1.684
+    ],
+    "selected_production_depth_ratio": 0.25,
+    "selected_production_depth_mm_for_4_21mm_caliper": 1.0525,
+    "depth_selection_cli": "--shipping-score-depth-ratio [0.1,0.4]",
+    "depth_study_execution": "one selected depth per invocation from a freshly constructed flat blank; separate depth runs are never cumulative",
+    "punch_speed_mm_per_s": 50.0,
+    "punch_speed_evidence_class": "engineering assumption, unqualified",
+    "punch_speed_cli": "--shipping-score-speed-mm-s",
+    "step_count": "derived from stroke travel, requested speed, and timestep; per-action step cap enforced",
+    "indentation_passes_per_score_line": 1,
+    "approach_withdrawal_cycles_per_invocation": 1,
+    "authored_score_line_count": 12,
+    "scoring_is_diagnostic_not_a_calibrated_hinge": true,
+    "channel_tool_geometry_implemented_by_current_controller": true,
+    "crease_damage_law_calibrated": false,
+    "support_geometry": "two native BOX support rails per score line, each on the shared support kinematic body; rails are separated by the 6 mm channel and aligned to that score line",
+    "support_rail_width_mm": 10.0,
+    "channel_tool_geometry_qualified": false
+  },
+  "closure_plan": {
+    "method": "all glued with hot-melt adhesive (HMA); no tape material system",
+    "adhesive_grade": "engineering default not yet selected or calibrated",
+    "manufacturer_joint": {
+      "overlap_mm": "25 x (200 + accepted height-axis score allowance)",
+      "adhesive_pattern": "one centered 10 mm strip along the full wall-height lap",
+      "activation": "only after accepted native geometry shows paired faces in overlap and below the specified gap limit"
+    },
+    "ends": {
+      "bottom": {
+        "major_flaps": [
+          0,
+          2
+        ],
+        "minor_flaps": [
+          1,
+          3
+        ],
+        "overlap_patches": 4
+      },
+      "top": {
+        "major_flaps": [
+          0,
+          2
+        ],
+        "minor_flaps": [
+          1,
+          3
+        ],
+        "overlap_patches": 4
+      },
+      "per_patch_geometry": "flapDepth x flapDepth, with flapDepth=(200 mm + accepted width-axis score allowance)/2",
+      "adhesive_pattern": "one centered 10 mm strip spanning each actual major/minor overlap patch",
+      "major_flap_butt_seam_adhesive": false
+    },
+    "total_declared_patch_count": 9,
+    "substrate_bulk_reference_reset_on_activation": false,
+    "closure_hma_law_calibrated": false,
+    "HMA_set_hold_seconds": null,
+    "HMA_set_hold_protocol_calibrated": false,
+    "corrugator_starch_and_box_closure_adhesive_are_distinct_interfaces": true
+  },
+  "assembly_release_gate": {
+    "rejected_steps": 0,
+    "temporary_grips_released": false,
+    "tools_parked_or_removed": false,
+    "all_assembly_actions_accepted": false,
+    "manufacturer_lap_closed_by_geometry": false,
+    "bottom_end_closed_by_geometry": false,
+    "top_end_closed_by_geometry": false,
+    "maximum_end_corner_gap_mm": null,
+    "end_shape_residual_mm": null,
+    "accepted_checkpoint_complete": false,
+    "settled": false,
+    "maximum_nodal_speed_m_per_s": {
+      "threshold": 0.0001,
+      "measured": null
+    },
+    "normalized_force_imbalance": {
+      "threshold": 0.001,
+      "measured": null
+    },
+    "inside_dimension_tolerance_fraction_per_axis": 0.01,
+    "inside_dimension_tolerance_mm_by_axis": {
+      "length_x": 3.0,
+      "height_y": 2.0,
+      "width_z": 2.0
+    },
+    "closure_gap_and_shape_tolerance_mm": 1.0,
+    "measured_inside_dimensions_mm": null,
+    "simulation_assembly_complete": false,
+    "source_grade_calibration_gate_passed": false,
+    "native_assembly_mechanics_qualified": false,
+    "physical_shipping_box_qualified": false,
+    "physical_box_test_available": false
+  },
+  "slow_compression_then_drop": {
+    "compression": {
+      "platen_speed_mm_per_s": 0.20833333333333334,
+      "target_stroke_fraction_of_inside_height": 0.7,
+      "target_stroke_mm": 140.0,
+      "displacement_increment_mm": 0.25,
+      "first_contact_crossing_rule": "the first accepted 0.25 mm platen increment that yields native contact is counted as stroke from a zero-force contact origin; subsequent increments fill only the remaining distance to the 140 mm total ceiling",
+      "stop": "latch the first rising local peak after two accepted declines and at least a 1 percent drop, continue accepted loading through the 70 percent stroke endpoint, then require nominal-versus-half-speed peak force within 2 percent, full-stroke work within 2 percent, and maximum normalized full-curve difference within 5 percent; reject on any failed transaction",
+      "fpeak": {
+        "status": "must be measured by native platen reaction and accepted before impact masses are instantiated",
+        "newtons": null,
+        "source_run_id": null,
+        "result_sha256": null,
+        "board_recipe_id": "literature2009",
+        "source_assembly_checkpoint_sha256": null
+      },
+      "platen_speed_mm_per_min": 12.5,
+      "planned_accepted_increments": 560,
+      "nominal_duration_s": 672.0,
+      "half_speed_series": {
+        "platen_speed_mm_per_min": 6.25,
+        "platen_speed_mm_per_s": 0.10416666666666667,
+        "planned_accepted_increments": 560,
+        "nominal_duration_s": 1344.0,
+        "same_support_ready_checkpoint": true,
+        "is_timestep_refinement": false,
+        "compare_first_local_peak_force": true,
+        "approved_peak_force_equivalence_tolerance_fraction": 0.02,
+        "approved_common_stroke_work_difference_tolerance_fraction": 0.02,
+        "approved_maximum_full_curve_difference_normalized_by_nominal_peak": 0.05,
+        "curve_comparison_domain": "shared accepted stroke interval from the zero-force contact origin through the 70 percent inside-height endpoint, including postpeak response",
+        "work_method": "trapezoidal integral of mean native platen reaction over accepted stroke",
+        "kinetic_method": "sum of 0.5 times accepted FEM nodal mass times squared nodal speed; ratio to cumulative platen work is recorded at each accepted sample"
+      }
+    },
+    "impact": {
+      "checkpoint": {
+        "status": "must be one complete, accepted, released, settled assembly snapshot",
+        "id": null,
+        "sha256": null,
+        "board_recipe_id": "literature2009",
+        "all_actions_accepted": false,
+        "rejected_steps": 0,
+        "manufacturer_lap_closed_by_geometry": false,
+        "bottom_end_closed_by_geometry": false,
+        "top_end_closed_by_geometry": false,
+        "maximum_end_corner_gap_mm": null,
+        "maximum_nodal_speed_m_per_s": null,
+        "normalized_force_imbalance": null,
+        "measured_inside_dimensions_mm": null
+      },
+      "restore_same_checkpoint_for_each_case": true,
+      "mass_kg_formula": "ratio * measured_Fpeak_N / 9.80665",
+      "mass_ratios_to_Fpeak_over_g": [
+        0.5,
+        1.0,
+        1.5
+      ],
+      "drop_height_mm": 100.0,
+      "gravity_m_per_s2": 9.80665,
+      "impactor_plan": {
+        "basis": "1.2 times the measured area of the fixture-free settled accepted outer roof, preserving its aspect ratio; each measured x/z extent scales by sqrt(1.2)",
+        "units": "m",
+        "measurement_file": "shipping-outer-roof-measurement.json",
+        "checkpoint_sha256_bound": true,
+        "fallback_to_internal_target": false,
+        "length_x": null,
+        "width_z": null
+      },
+      "impactor_height_mm": 50.0,
+      "locations": [
+        {
+          "name": "center",
+          "offset_z_fraction_of_roof_extent": 0.0
+        },
+        {
+          "name": "positive-quarter-width",
+          "offset_z_fraction_of_roof_extent": 0.25
+        }
+      ],
+      "case_count": 6,
+      "drop_cases_instantiated": false,
+      "observation_duration_ms": 250.0,
+      "timestep_ms": 0.5,
+      "planned_steps_per_case": 500,
+      "branch_setup": "restore the same accepted released FEM assembly for each mass/location; reset only its parked rigid projection, accept a zero-gravity mass/pose transaction, write a mass-matched Matter checkpoint and scene-body sidecar, then rebuild the gravity-on runner with the identical mass/inertia and restore that accepted scene state. Seed initialization is outside the 250 ms drop window.",
+      "timestep_refinement": {
+        "cli": "--shipping-impact-dt-refinement",
+        "timestep_ms": [
+          0.5,
+          0.25,
+          0.125
+        ],
+        "independent_branches": true,
+        "restore_same_released_checkpoint_for_each_mass_location_and_timestep": true,
+        "case_count": 18,
+        "run_by_default": false,
+        "qualification_passed": false
+      }
+    },
+    "gravity_supported_transfer": {
+      "status": "executable protocol; native physics result pending",
+      "distinct_from_100mm_drop": true,
+      "starts_from_same_released_assembly_checkpoint_for_each_mass": true,
+      "mass_kg_formula": "ratio * measured_Fpeak_N / 9.80665",
+      "mass_ratios_to_Fpeak_over_g": [
+        0.5,
+        1.0,
+        1.5
+      ],
+      "initial_pose": "finite body tangent to accepted box roof with only an FP32 coordinate-rounding bound; no prescribed FEM node positions",
+      "gravity_m_per_s2": [
+        0.0,
+        -9.80665,
+        0.0
+      ],
+      "support_actuation": "transaction-scoped upward world force on bodyIndex 4, linearly midpoint-ramped from mg to near zero while gravity remains enabled",
+      "support_ramp_requested_duration_s": 0.5,
+      "default_timestep_s": 0.0005,
+      "default_ramp_steps": 1000,
+      "release": "separate accepted zero-wrench transaction followed by continued full gravity",
+      "post_release_observation_s": 0.25,
+      "ledger": "per-step rigid momentum balance, native body contact impulse/reaction, support and gravity work, rigid/FEM kinetic energy, and gravitational potential",
+      "timestep_sensitivity": "repeat with --shipping-gravity-transfer-dt-us 250 and 125 from the same accepted released-assembly source; separate from impact dt refinement",
+      "completed_cases": 0,
+      "native_transfer_qualified": false
+    }
+  },
+  "qualification": {
+    "simulation_assembly_complete": false,
+    "source_grade_calibration_gate_passed": false,
+    "native_physics_gates_remain_false_until_measured": true,
+    "same_stock_recipe_measured": false,
+    "crease_damage_calibrated": false,
+    "starch_cohesive_interface_calibrated": false,
+    "HMA_closure_law_calibrated": false,
+    "released_assembly_native_trial_passed": false,
+    "half_speed_compression_equivalence_measured": false,
+    "compression_and_drop_measurements_available": false,
+    "physical_shipping_box_qualified": false
+  },
+  "mini_box_regression": {
+    "existing_fixture_output_unchanged": true,
+    "existing_mini_geometry_repurposed_as_shipping_geometry": false
+  }
+}

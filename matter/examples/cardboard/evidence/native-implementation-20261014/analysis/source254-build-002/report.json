@@ -1,0 +1,54 @@
+{
+  "schema": "numi.cardboard.source254-integrated-upstream-build.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-002",
+  "source_frozen_sha256": "6b35572e45d27c534d8671dbad22106720542c13e7b8bfafca66c918862afbb1",
+  "source_build_sha256": "1e8a68eeb03576ac861cae4d58c6500c76cfcacffb5e2a093933d014a229bf52",
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-002/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-002",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source254-integrated-002",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "--target",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "--target",
+        "numi-matter-cardboard-refined-graph-layout-check",
+        "--target",
+        "numi-matter-cardboard-contact-sample-compaction-check",
+        "--target",
+        "numi-matter-cardboard-shipping-memory-check",
+        "--target",
+        "numi-matter-cardboard-shipping-protocol-check",
+        "--target",
+        "numi-matter-cardboard-constituent-volume-damage-check",
+        "--target",
+        "numi-matter-cardboard-free-force-residual-check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "all_pass": true,
+  "all_inputs_unchanged": true,
+  "unchanged_cardboard_CPU_checks": {
+    "prior_report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source254-build-001/report.json",
+    "prior_report_sha256": "a1daf713339bd0c994531eea92f43d4120356b39b3fca83dd623c2267658661c",
+    "all_14_prior_build_and_check_commands_pass": true,
+    "sole_selected_delta": [
+      "apps/NumiHumanRestingVisual.hpp"
+    ],
+    "rationale": "No cardboard source or acceptance policy changed after the complete integrated CPU checks; fresh compilation binds all eight targets to the preserved upstream Human source."
+  },
+  "gpu_execution": false,
+  "native_composed_trajectory_qualified": false,
+  "at_utc": "2026-10-16T14:39:22.590374+00:00"
+}

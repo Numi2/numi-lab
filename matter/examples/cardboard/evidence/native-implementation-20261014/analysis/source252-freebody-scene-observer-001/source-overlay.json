@@ -1,0 +1,17 @@
+{
+  "base_frozen_source_sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "candidate_frozen_source_sha256": "55e0216920a330b7479d05f03e23bf3d73dc4c6317d188bddcdd46cf710d8cc8",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-001",
+  "changed_file_sha256": {
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "b7fac2a7887972ff887b3050585a4c41a737f528eb9966aeca11493633336eb3"
+  },
+  "changed_files": [
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "native_gpu_execution": false,
+  "patch_file": "overlay.patch",
+  "patch_sha256": "f591bfbf6640f6112b5c2be2fdd3af9c6cd3de185a0cf1a52ebe56b2f8e0f9bd",
+  "schema": "numi.cardboard.source252.free_body_scene_observer.v1",
+  "scope": "Opt-in diagnostic observer for controls 1200-1202; no solver/operator/tolerance change."
+}

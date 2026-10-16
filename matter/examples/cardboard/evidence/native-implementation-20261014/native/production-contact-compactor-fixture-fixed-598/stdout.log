@@ -1,0 +1,1 @@
+production_contact_sample_compaction=PASS E=2 P=7 active_per_env=4 FEM/rigid/history_bitwise_parity=PASS overflow_prefix_rejected=PASS physical_transactions=0

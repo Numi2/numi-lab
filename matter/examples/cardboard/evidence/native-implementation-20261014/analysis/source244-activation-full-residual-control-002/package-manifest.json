@@ -1,0 +1,84 @@
+{
+  "configure_support_count": 1034,
+  "external_bindings": [
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004/frozen-source.json",
+      "sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/frozen-source.json",
+      "sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/configure-support-source.json",
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/source-build.json",
+      "sha256": "39bef01c8cd0b62d708ffae18a5d03c4ef5e2ed2061bccc68e1c55f03d0dcbcf"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-build-002/report.json",
+      "sha256": "669de3d4416b775699efc697422b691c83217f275b6c6b20b21c2877d1adce82"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-build-002/build.log",
+      "sha256": "5ba7977c7299565a7537d450b9382c075deded13915c468a51c4bf85a7c8ab12"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "0946f5ed970778f08319b417fab1694cfc390f21391c393ff7e9d0484b49502e"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-build-002/cpu.stdout",
+      "sha256": "71d3d245d348d83e99e6e627a20d6688e1d8fa4858913fb572b77fef1841d608"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-build-002/cpu.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-001/source-overlay.json",
+      "sha256": "78c3789bd09681185543a2ab54ba1b061da2a132d9a0d99ed79b32dd3889a3a3"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-001/source-overlay.patch",
+      "sha256": "d8693e434279fcdc369be6e8ca7ab1434a48dbb50edf66714821b7f6be107dd8"
+    },
+    {
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-001/candidate/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "670d71350b9ba4bd481b87ce5616b141dbf0b1ef2cf2b96a6994a46372d86dc7"
+    }
+  ],
+  "files": [
+    {
+      "bytes": 1968,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-002/README.md",
+      "sha256": "be74c2a6a60575077ca8bc818f9538d0d13e680de95d3b7af289713e0c797721"
+    },
+    {
+      "bytes": 1671,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-002/source-overlay.json",
+      "sha256": "3b721f308075b056fccfea224d300fd80f3ae1abde27d619491eebf05e970b52"
+    },
+    {
+      "bytes": 20786,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-002/source-overlay.patch",
+      "sha256": "2819ffc78c715bb49b531032bf81acfe0585564363d8ce0b1128d458d3e9aa9d"
+    },
+    {
+      "bytes": 348692,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-002/candidate/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "36e54718becf710ab8189122bf07d21f19490fa4443297a4fe734a2e66319c63"
+    },
+    {
+      "bytes": 6332,
+      "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-002/validation-report.json",
+      "sha256": "7994452913cf7278e1d9204491101f878e866bde84d636c6d318930209145df3"
+    }
+  ],
+  "native_gpu_execution": false,
+  "physical_qualification": false,
+  "schema": "numi.cardboard.source244.activation.package-manifest.v2",
+  "source_file_count": 836
+}

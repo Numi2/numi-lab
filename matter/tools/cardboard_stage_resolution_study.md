@@ -15,9 +15,15 @@ Every shipping run must contain `manifest.json`, `result.json`,
 `box-score-angles.csv`. The per-step CSV must provide accepted state, native
 status, certificate validity, residual, correction, volume and pressure
 residuals, simulation time and timestep. Each row must be accepted with zero
-native status and each exported certificate value must satisfy the matching
-manifest tolerance. Row counts and source/world fingerprints must agree with
-the native result. Old exports without the new certificate columns remain
+native status. Residual, volume and pressure certificates must satisfy their
+manifest tolerances. For exports declaring the
+numi.cardboard.full-box-native-acceptance-policy.v1 policy, correction is
+required to be finite and nonnegative telemetry, but is not compared with the
+relative-residual tolerance; native status, certificate validity and the
+authoritative residual, volume and pressure checks remain in force. Historical
+manifests without that explicit policy retain the historical correction
+tolerance. Row counts and source/world fingerprints must agree with the native
+result. Old exports without the new certificate columns remain
 inconclusive; preflight-only results are explicitly not physics baselines;
 rejected steps, failed statuses, incomplete stage branches and truncated
 histories remain failed prefixes.
@@ -50,7 +56,16 @@ must bind to its consecutive native substeps; its control-step count, summed
 duration, minimum dt, and maximum dt must match those rows. The timestep pair
 must preserve each branch duration while the finer run has a strictly smaller
 maximum accepted dt and a larger accepted substep count. Manifest labels alone
-do not establish timestep refinement. Score-depth
+do not establish timestep refinement. The timestep pair also requires the same
+relative_residual_tolerance / dt_s control ratio and an explicit matching
+--max-free-force-residual-n bound. The control ratio is not an absolute Newton
+force bound. The probe records the maximum accepted free-node residual in N by
+dividing each accepted final FEM residual impulse (RunState.residuals xyz, in
+N s) by that step's dt and selecting nodes whose restAndFixed.w == 0. The
+declared bound is compared with those observed L2 and maximum-node residuals
+across every accepted step and environment. This is a measured residual check,
+not a bound on force error or a claim of calibration; without the explicit
+bound, timestep force-accuracy admission is inconclusive. Score-depth
 comparisons are separately labeled sensitivity runs and require a fresh flat
 blank; they are never treated as convergence levels. Compression nominal vs
 half-speed is a within-run rate-sensitivity comparison, not timestep
@@ -80,12 +95,16 @@ probe's engineering shape-fit bound is explicitly not a published
 manufacturing tolerance. The score-angle CSV remains action-relative and is
 not substituted for released springback.
 
-The accepted-history CSV exports area-weighted constitutive paper and cohesive
-degradation indices; it does not export geometric paper crack area or a
-thresholded open/debond area. Those indices are reported separately and do
-not satisfy the missing geometric fractions. Therefore the full-stage gate
-remains inconclusive until those native observables are available, even if
-force/work comparisons can be computed.
+The accepted-history CSV keeps the existing area-weighted paper constitutive
+damage index and adds two distinct measures over the mapped paper constituent:
+a per-tetrahedron four-plane area-weighted index averaged by exact reference
+tetrahedron volume, and the reference-volume fraction of tetrahedra whose index
+is at least 0.5. The volume-weighted index uses the sum of mapped reference
+tetrahedron volumes as its denominator. Both measures are numerical constitutive
+damage observables, not geometric crack area; the thresholded volume fraction
+is the numerical area-independent damage fraction used by the capacity gate. The CSV still does not
+export geometric paper crack area or geometric open/debond area, so full-stage
+geometry gates remain inconclusive until those observables are available.
 
 For mixed-mode cohesive faces, the newer history export also reports the
 reference-area integral of fully failed accepted quadrature points, divided by
@@ -136,7 +155,12 @@ impact triplets accept a matching list of timestep levels. The separate
 `capacity-qualification` producer uses one shared middle run across the mesh
 and timestep triplets, stores both adjacent metric vectors, and rejects a
 triplet if any peak/curve/work difference increases from coarse-to-middle to
-middle-to-fine (at least one must strictly decrease). When the selected scope
+middle-to-fine (at least one must strictly decrease). Its peak-force metric is
+the first rising local peak followed by two accepted contact declines and at
+least a one-percent drop. The reported sample index addresses the complete
+accepted curve, including the zero-force origin. Later densification maxima
+remain in the full-curve and work comparisons, but do not replace that first
+local peak. When the selected scope
 includes scoring or assembly, accepted grip moments and released springback
 are included in the pair vectors; missing or failed observables stay
 unresolved. The report always keeps `convergence_claim: false` because
@@ -166,10 +190,16 @@ and HMA separately. Geometric opening remains a separate unavailable observable.
 Legacy maximum-face-damage exports and incompatible activation coverage are not
 admitted.
 
-Capacity qualification now requires accepted paper-damage and irreversible-debond
-comparisons as well as decreasing force, curve and work differences. A force-only
-match cannot qualify Fpeak while an enabled paper localization field remains
-unmeasured. The current per-tet area-weighted damage index is retained but is not
-substituted for a mesh-objective fractured-area fraction. Its missing observable
-keeps the damage-enabled capacity gate inconclusive. Explicitly disabled mechanisms
-may be not applicable; that does not qualify a damage-enabled cardboard model.
+Capacity qualification requires the accepted reference-volume fraction of
+mapped paper tetrahedra whose per-tetrahedron area-weighted index is at least
+0.5, the volume-weighted mean damage index, the irreversible-debond capacity
+comparison, and decreasing force, curve and work differences. Both paper
+observables must be available on each mesh; total mapped reference volume and
+the fixed 0.5 threshold must match. Their adjacent-mesh absolute differences
+must each be at most 0.02. The mean is an index, not a fraction; the thresholded
+observable is a reference-volume fraction. The existing plane-area-weighted index
+is retained separately.
+Neither constitutive index is substituted for geometric crack area: that
+observable remains unavailable and the full-stage geometry gate remains open.
+Explicitly disabled mechanisms may be not applicable; that does not qualify a
+damage-enabled cardboard model.

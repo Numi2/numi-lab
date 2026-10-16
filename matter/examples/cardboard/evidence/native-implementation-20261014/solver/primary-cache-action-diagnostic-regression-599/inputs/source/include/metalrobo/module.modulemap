@@ -1,0 +1,4 @@
+module MetalRoboC {
+  header "c_api.h"
+  export *
+}

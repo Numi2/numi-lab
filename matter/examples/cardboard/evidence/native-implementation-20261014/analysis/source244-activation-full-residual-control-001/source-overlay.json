@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source244.activation_full_residual_overlay.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+  "source_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "changed_files": [
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "base_sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e",
+      "candidate_sha256": "670d71350b9ba4bd481b87ce5616b141dbf0b1ef2cf2b96a6994a46372d86dc7"
+    }
+  ],
+  "patch_sha256": "d8693e434279fcdc369be6e8ca7ab1434a48dbb50edf66714821b7f6be107dd8",
+  "scope": [
+    "Default activation selector clearing is preserved.",
+    "New opt-in full-residual selector is scoped only to controlStepBase-1 in sparse free-body parity.",
+    "Requires diagnostic output and records host scene input, MetalWorld published output if present, runner scene after, q/v outputs, Matter snapshot hashes, and commit/status metadata.",
+    "No kernel, runtime acceptance, threshold, or physical operator changes.",
+    "No GPU execution or physical qualification."
+  ],
+  "created_at_utc": "2026-10-16T13:25:57.505675+00:00"
+}

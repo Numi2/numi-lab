@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "wall_seconds": 5.297994166612625,
+  "finished_at_utc": "2026-10-16T14:18:59.888543+00:00",
+  "run_mode": "diagnostic",
+  "diagnostic_capture_validation": {
+    "status": "validated",
+    "pending_captures": [],
+    "files": [
+      {
+        "key": "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+        "path": "diagnostics/capture-coupled-trial-summary/capture.summary.bin",
+        "bytes": 4288,
+        "sha256": "9a51e9fc89c5217db5814d346533616968158cfae51b39f096475706af93b090"
+      },
+      {
+        "key": "NM_FEM_COUPLED_TRIAL_SUMMARY_PATH",
+        "path": "diagnostics/capture-coupled-trial-summary/capture.summary.json",
+        "bytes": 18128,
+        "sha256": "bb06738816348295420034a604d8345ec3c366d523d476d1600c7761928b13e6"
+      }
+    ],
+    "total_bytes": 22416,
+    "file_count": 2,
+    "aggregate_cap_bytes": 134217728,
+    "per_file_cap_bytes": 67108864
+  }
+}

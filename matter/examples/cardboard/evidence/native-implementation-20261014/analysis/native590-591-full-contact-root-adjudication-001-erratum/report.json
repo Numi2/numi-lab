@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.audit-selector-erratum.v1",
+  "superseded_report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native590-591-full-contact-root-adjudication-001/report.json",
+  "preserved_numeric_transaction_results": true,
+  "error": "001 selected nonexistent fem_residual_armijo_trace log prefix, leaving trace_records empty; actual observer prefix is fem_residual_armijo_iteration. No production artifacts changed.",
+  "repair": "002 requires all16 Newton records and recorded Newton7 private status6.",
+  "script_sha256": "0b0a1d551ac4b68ef0e2697da2c98387a9f52ee49b5f9b276a8c1ff20f0c29b6",
+  "at_utc": "2026-10-16T14:14:58.999922+00:00"
+}

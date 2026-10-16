@@ -1,0 +1,36 @@
+{
+  "build_changed_sources": [],
+  "build_input_count": 835,
+  "build_success": true,
+  "built_targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-free-force-residual-check",
+    "numi-matter-cardboard-constituent-volume-damage-check"
+  ],
+  "ctest": {
+    "all_passed": true,
+    "exit_code": 0,
+    "tests": [
+      "matter.compiler.cardboard_constituent_volume_damage",
+      "matter.analysis.cardboard_stage_resolution",
+      "matter.compiler.cardboard_free_force_residual",
+      "matter.cli.cardboard_argument_admission"
+    ]
+  },
+  "limitations": [
+    "No native full-box physical run was executed.",
+    "The residual-in-newtons check is measured residual telemetry, not force-error certification."
+  ],
+  "native_gpu_run": false,
+  "physical_operator_changed": false,
+  "python_compile": {
+    "exit_code": 0,
+    "files": [
+      "matter/tools/cardboard_stage_resolution_study.py",
+      "matter/tools/test_cardboard_stage_resolution_study.py"
+    ]
+  },
+  "schema": "numi.cardboard.source246-validation.v1",
+  "solver_tolerance_changed": false,
+  "status": "pass_cpu_build_and_contracts"
+}

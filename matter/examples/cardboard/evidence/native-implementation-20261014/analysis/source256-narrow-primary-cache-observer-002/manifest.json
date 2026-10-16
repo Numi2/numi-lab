@@ -1,0 +1,23 @@
+{
+  "inputs": {
+    "snapshots/source-refined-regional-graph-240-003/frozen-source.json": "bcb37b35391f2dc9ab04492cba44306825540028edb354b219493412ad638644",
+    "snapshots/source-contact-compaction-fixture-249-001/frozen-source.json": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+    "snapshots/source-primary-cache-fd-action-253-003/frozen-source.json": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+    "prepare_source256_narrow_cached_observer_002.py": "4650a415995129788ea854d7a7840291e2053a03f2fcc3b686aad95b444e15c7"
+  },
+  "artifacts": {
+    "runtime.mm.merge.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-2.stderr": "c9b3df9165b7578148b1e6548b65334606fd64767d986b240d4d7c8688c47daf",
+    "cpu-0.stderr": "6695fe2c94c47012f3800e7dca6206c9fc5b99435998cc162e5b3bde031a8594",
+    "report.json": "9ee63e60f8024fc1f7f6b627e4e8fe351ff3d2f07efdab3fc16247d9b74dc011",
+    "runtime.mm.conflict": "72a53c02731ef4e2e61e799d7f5841dba91d0652fbf69a9450d2b75a6e52c13b",
+    "cpu-0.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-2.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cardboard_cached_operator_audit.py.merge.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-1.stderr": "78bb3f7701df09ec916a2fd3add296463ed1d9d595652ae0cf4ce40fd2132af4",
+    "test_true_residual_certification_contract.py.merge.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cpu-1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source256.patch": "2713e4835514e02a9145a64c455a21f8affd9cc8309913e005d068b9decff025"
+  },
+  "frozen_source_sha256": "258f9b543d18b7316636d9df7cf73b3028f9cafbbf7946697cfd03103da847c0"
+}

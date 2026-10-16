@@ -182,7 +182,7 @@ class EffectiveEnvironmentTests(unittest.TestCase):
                 env.validate_diagnostic_outputs(case, prefixes)
             linked.unlink()
 
-            linked.hardlink_to(prefix.parent / "capture.consumer.bin")
+            os.link(prefix.parent / "capture.consumer.bin", linked)
             with self.assertRaisesRegex(ValueError, "not a new regular unlinked file"):
                 env.validate_diagnostic_outputs(case, prefixes)
             linked.unlink()

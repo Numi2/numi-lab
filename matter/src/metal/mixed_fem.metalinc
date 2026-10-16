@@ -714,8 +714,8 @@ kernel void nm_mixed_certify(
             analyticBase + activeSlot];
         if (pairIndex >= dispatch.contactPairCount) continue;
         const NMContactPairGPU pair = contact.pairs[pairIndex];
-        const NMContactSampleGPU sample = contact.samples[
-            environment * dispatch.contactPairCount + pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
         if (pair.objectIndex != objectIndex ||
             (sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         ++activeContactCount;

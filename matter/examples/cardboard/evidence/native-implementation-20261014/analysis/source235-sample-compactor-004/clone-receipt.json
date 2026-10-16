@@ -1,0 +1,11 @@
+{
+  "destination": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-004",
+  "files": {
+    "frozen-source.json": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8",
+    "matter/src/metal/contact.metalinc": "1e1ede411a5a26fc9a747c3f20dc857e63ddc7af7cfffae6fbc7fa929e2236f9",
+    "matter/src/metal/fem.metalinc": "fc1361d919615b0112bc620f5b947cc57cf7dfd86c5677ee03cf61d81c574179",
+    "matter/src/runtime.mm": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+  },
+  "schema": "numi.cardboard.source235_004.clone_receipt.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-003"
+}

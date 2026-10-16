@@ -1,0 +1,57 @@
+{
+  "schema": "numi.cardboard.native589-corrected-node-metadata.v1",
+  "exit_code": 0,
+  "native_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 0.5333812916651368,
+    "finished_at_utc": "2026-10-16T13:49:45.660103+00:00"
+  },
+  "stdout_sha256": "f946aa99353062c1496525eca86ae19c15ed87c2c126999036395848d144f77a",
+  "stdout": "true_residual_measurement_nodes=20682 unknown_rows=41364 constrained_mechanical_rows=81 constrained_field_rows=79 measurement_only=true full_FEM_operator_qualified=false result=PASS\ntrue_residual_measurement_nodes=32768 unknown_rows=65536 constrained_mechanical_rows=128 constrained_field_rows=125 measurement_only=true full_FEM_operator_qualified=false result=PASS\ntrue_residual_measurement_nodes=4096 unknown_rows=8192 constrained_mechanical_rows=16 constrained_field_rows=16 measurement_only=true full_FEM_operator_qualified=false result=PASS\ntrue_residual_measurement_nodes=8192 unknown_rows=16384 constrained_mechanical_rows=32 constrained_field_rows=32 measurement_only=true full_FEM_operator_qualified=false result=PASS\nPASS native FGMRES true-residual kernel contract 131783 checks; correction_accumulated=true; unit_action=true; full_FEM_operator_qualification=false\n",
+  "recognized_records": [
+    {
+      "true_residual_measurement_nodes": "20682",
+      "unknown_rows": "41364",
+      "constrained_mechanical_rows": "81",
+      "constrained_field_rows": "79",
+      "measurement_only": "true",
+      "full_FEM_operator_qualified": "false",
+      "result": "PASS"
+    },
+    {
+      "true_residual_measurement_nodes": "32768",
+      "unknown_rows": "65536",
+      "constrained_mechanical_rows": "128",
+      "constrained_field_rows": "125",
+      "measurement_only": "true",
+      "full_FEM_operator_qualified": "false",
+      "result": "PASS"
+    },
+    {
+      "true_residual_measurement_nodes": "4096",
+      "unknown_rows": "8192",
+      "constrained_mechanical_rows": "16",
+      "constrained_field_rows": "16",
+      "measurement_only": "true",
+      "full_FEM_operator_qualified": "false",
+      "result": "PASS"
+    },
+    {
+      "true_residual_measurement_nodes": "8192",
+      "unknown_rows": "16384",
+      "constrained_mechanical_rows": "32",
+      "constrained_field_rows": "32",
+      "measurement_only": "true",
+      "full_FEM_operator_qualified": "false",
+      "result": "PASS"
+    }
+  ],
+  "physical_FEM_evolution_qualified": false,
+  "at_utc": "2026-10-16T13:49:45.675130+00:00"
+}

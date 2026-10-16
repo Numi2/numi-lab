@@ -1,0 +1,5 @@
+{
+  "verdict": "FAILED_BEFORE_RUNTIME_EDIT",
+  "reason": "Actual249pagedbase contains five existing primarycachemode sites, expectedfour from241 inspection. New helperfile added inpartialcandidateonly, nofrozenmap/build/nativeexecution.",
+  "existing_call_sites_observed": 5
+}

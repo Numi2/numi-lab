@@ -1,0 +1,18 @@
+{
+  "inputs": {
+    "solver/strict-state-source240-control19-final-newton-diagnostic-596/diagnostics/capture-operator-fd-capture/capture": "d73993d528900ed570c6a1a66c61dbb127180e441dad25cce9c6300185b8fe8b",
+    "solver/strict-state-source240-control19-final-newton-diagnostic-596/receipt.json": "cde7e300b347177f3d6597ec7d1b697f9855dc2ee29229907743fc13fc8948a2",
+    "analysis/native596-final127-material-reference-003/arrays.npz": "d6583c2c43e1bf644a6e2e79acec6e0557d88cce8d20f5242238ca70a638e63b",
+    "analysis/native596-final127-cached-tangent-conditioning-251-004/arrays.npz": "b75220fbe8c00151a9d0463074c464e6cb6be222126e9abed9b3459e4d1f71aa",
+    "analysis/native596-final127-cached-tangent-conditioning-251-004/native_cached_operator_FP64.npz": "349f55da899879de80dcda01e7376450b8107ef6789cac60a93d44b17b445a36",
+    "analyze_native596_globalization_directions_001.py": "e6964a76ebba41ba8d4a7d1c41c3670f38bec77e5ff5ff73eab8f4acd4fcb233",
+    "analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_bilinear_fp64_reference.py": "a910339573822bf32c7ea895c295a0a51b8b5a99d901b1e3ab1c788c094f6995",
+    "snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_compensated_fp64_reference.py": "760ea825449857d565c78e754c755845e4547134b381fa167d02aab2ae63720c",
+    "snapshots/source-refined-regional-graph-240-003/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+  },
+  "artifacts": {
+    "directions.npz": "7922ece383f0243ff6694173e97906597cbafbd0c027ab0b3f245305184035d8",
+    "report.json": "4ad97e66c941b9f27f23e62cfcc1112010190cbdd57744e3a878388962d9692f"
+  }
+}

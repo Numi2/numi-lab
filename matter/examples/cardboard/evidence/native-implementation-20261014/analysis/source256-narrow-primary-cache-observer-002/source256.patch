@@ -1,0 +1,209 @@
+--- a/matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp
++++ b/matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp
+@@ -0,0 +1,10 @@
++#pragma once
++#include <cstdint>
++namespace numi::matter::detail {
++// One shared policy for primary Arnoldi, true residual, center action and FD.
++// RAP mode2 and CGLS transpose/forward modes remain separate algorithms.
++constexpr std::uint32_t femPrimaryOperatorCacheMode(
++    const std::uint32_t executionBudgetFlag) noexcept {
++    return executionBudgetFlag == 1u ? 1u : 0u;
++}
++}
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2,6 +2,7 @@
+ #import <Metal/Metal.h>
+ #import <CommonCrypto/CommonDigest.h>
+ 
++#include "numi/matter/detail/fem_primary_operator_cache_mode.hpp"
+ #include "numi/matter/matter.hpp"
+ #include "numi/matter/detail.hpp"
+ #include "numi/matter/regional_restart_augmentation_admission.hpp"
+@@ -13271,9 +13272,18 @@
+                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
+                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+-                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
+-                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+-                    const std::uint32_t useCache = 0u;
++                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                        ? state.femAlgorithmicTangentCache : state.dummy
++                                 offset:0u atIndex:23u];
++                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                        ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                 offset:0u atIndex:24u];
++                    // Match the primary Arnoldi/true-residual operator. A
++                    // separately evaluated direct tangent is still captured
++                    // in the local constitutive probe, with an explicit label.
++                    const std::uint32_t useCache =
++                        numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                     [encoder setBuffer:state.femArmijoMetrics != nil
+                         ? state.femArmijoMetrics : state.dummy
+@@ -13903,7 +13913,13 @@
+                                     capturedAppendTraceFloat(header,
+                                         dtByEnvironment[environment]);
+                                 }
+-                                header << "],\"cached_algorithmic_tangent_capture\":{";
++                                header << "],\"operator_action_policy\":{"
++                                       << "\"selection\":\"matches_primary_FGMRES_cache_mode\""
++                                       << ",\"cache_mode\":"
++                                       << (capturedCachedTangentPolicyEnabled ? 1u : 0u)
++                                       << ",\"element_force_source\":\"same_operator_dispatch_as_nodal_action\""
++                                       << ",\"local_stress_tangent_source\":\"independent_direct_constitutive_probe\""
++                                       << "},\"cached_algorithmic_tangent_capture\":{";
+                                 header << "\"policy_enabled\":"
+                                        << (capturedCachedTangentPolicyEnabled
+                                             ? "true" : "false")
+@@ -22472,7 +22488,8 @@
+                             ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                  offset:0u atIndex:24u];
+                     const std::uint32_t useCache =
+-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                        numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                     [encoder setBuffer:state.femArmijoMetrics != nil
+                         ? state.femArmijoMetrics : state.dummy
+@@ -23001,7 +23018,8 @@
+                             ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                  offset:0u atIndex:24u];
+                     const std::uint32_t useCache =
+-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                        numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                     [encoder setBuffer:state.femArmijoMetrics != nil
+                         ? state.femArmijoMetrics : state.dummy
+@@ -23290,7 +23308,8 @@
+                             ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                  offset:0u atIndex:24u];
+                     const std::uint32_t useCache =
+-                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                        numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                     [encoder setBuffer:state.femArmijoMetrics != nil
+                         ? state.femArmijoMetrics : state.dummy
+@@ -23458,7 +23477,8 @@
+                                  offset:0u atIndex:2u];
+                 });
+                 const std::uint32_t useCacheForCapturedAction =
+-                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                    numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                 dispatchThreads("nm_fem_apply_operator_elements",
+                     tetrahedronTotal, [&] {
+                     setDispatch();
+@@ -24016,7 +24036,8 @@
+                 metadata.materialStateStride = state.dispatch.materialStateStride;
+                 metadata.unknownCount = state.fgmresLayout.unknownCount;
+                 metadata.tangentCacheEnabled =
+-                    state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
++                    numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
+                 metadata.tangentCacheForceRebuild =
+                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
+                 metadata.mixedSolverPreconditioner =
+--- a/matter/tools/cardboard_cached_operator_audit.py
++++ b/matter/tools/cardboard_cached_operator_audit.py
+@@ -777,6 +777,33 @@
+     return diagnostics
+ 
+ 
++def capture_operator_action_policy(header: dict) -> dict:
++    """Legacy captures omitted the primary cache binding and used mode zero."""
++    policy = header.get("operator_action_policy")
++    if policy is None:
++        return {"production_operator_action_bound": False,
++                "cache_mode": None,
++                "classification": "legacy action lacks primary-cache binding; cached-production parity unestablished"}
++    if not isinstance(policy, dict):
++        raise ValueError("operator action policy must be an object")
++    expected = {"selection", "cache_mode", "element_force_source",
++                "local_stress_tangent_source"}
++    if set(policy) != expected:
++        raise ValueError("operator action policy fields are incomplete or unknown")
++    enabled = header.get("cached_algorithmic_tangent_capture", {}).get("policy_enabled")
++    if type(enabled) is not bool:
++        raise ValueError("operator action requires a Boolean primary cache policy")
++    mode = policy.get("cache_mode")
++    if type(mode) is not int or mode != int(enabled):
++        raise ValueError("captured operator cache mode differs from the primary cache policy")
++    if (policy["selection"] != "matches_primary_FGMRES_cache_mode" or
++            policy["element_force_source"] != "same_operator_dispatch_as_nodal_action" or
++            policy["local_stress_tangent_source"] != "independent_direct_constitutive_probe"):
++        raise ValueError("unsupported operator action policy")
++    return {"production_operator_action_bound": True, "cache_mode": mode,
++            "classification": "primary production cache-mode action; measured comparison without noise-floor qualification"}
++
++
+ def run(args: argparse.Namespace) -> dict:
+     capture = Path(args.capture)
+     header, nodes, tets, integrity = capture_records(capture)
+@@ -803,6 +830,9 @@
+         raise ValueError("cached tangent layout or derivative contract is unsupported")
+     mass, stiffness, operator, vector, meta = validate_and_assemble(
+         header, nodes, tets, integrity, args.environment)
++    action_policy = capture_operator_action_policy(header)
++    meta["operator_action_policy"] = action_policy
++    meta["action_parity"]["classification"] = action_policy["classification"]
+     action_vectors = meta.pop("action_component_arrays")
+     native_rhs = meta.pop("native_rhs_free_impulse_Ns")
+     captured_node_state = meta.pop("captured_node_state_f32")
+--- a/matter/tools/test_cardboard_primary_cache_action.py
++++ b/matter/tools/test_cardboard_primary_cache_action.py
+@@ -0,0 +1,39 @@
++from pathlib import Path
++import copy,subprocess,tempfile,unittest
++import cardboard_cached_operator_audit as audit
++
++ROOT=Path(__file__).resolve().parents[2]
++class PrimaryCacheActionTests(unittest.TestCase):
++    def header(self,enabled):
++        return {"cached_algorithmic_tangent_capture":{"policy_enabled":enabled},
++                "operator_action_policy":{"selection":"matches_primary_FGMRES_cache_mode",
++                    "cache_mode":int(enabled),"element_force_source":"same_operator_dispatch_as_nodal_action",
++                    "local_stress_tangent_source":"independent_direct_constitutive_probe"}}
++    def test_enabled_and_disabled_primary_policies(self):
++        for enabled in (False,True):
++            self.assertTrue(audit.capture_operator_action_policy(self.header(enabled))["production_operator_action_bound"])
++    def test_legacy_has_no_production_cache_claim(self):
++        self.assertFalse(audit.capture_operator_action_policy({})["production_operator_action_bound"])
++    def test_mismatch_and_boolean_mode_rejected(self):
++        for mode in (0,True,2,"1"):
++            h=self.header(True);h["operator_action_policy"]["cache_mode"]=mode
++            with self.assertRaises(ValueError):audit.capture_operator_action_policy(h)
++    def test_unknown_or_missing_fields_rejected(self):
++        h=self.header(True);del h["operator_action_policy"]["element_force_source"]
++        with self.assertRaises(ValueError):audit.capture_operator_action_policy(h)
++        h=self.header(True);h["operator_action_policy"]["unknown"]=1
++        with self.assertRaises(ValueError):audit.capture_operator_action_policy(h)
++    def test_actual_fd_dispatch_uses_same_primary_helper(self):
++        runtime=(ROOT/"matter/src/runtime.mm").read_text()
++        fd=runtime.split("const auto encodeFEMOperatorFDTrace =",1)[1].split("const auto capturedNodeCaptureSlots",1)[0]
++        self.assertIn("numi::matter::detail::femPrimaryOperatorCacheMode(",fd)
++        self.assertIn("state.femAlgorithmicTangentCacheValid : state.dummy",fd)
++        self.assertNotIn("const std::uint32_t useCache = 0u;",fd)
++        self.assertEqual(runtime.count("numi::matter::detail::femPrimaryOperatorCacheMode("),6)
++    def test_compiled_policy_preserves_primary_semantics(self):
++        code='#include "numi/matter/detail/fem_primary_operator_cache_mode.hpp"\nusing numi::matter::detail::femPrimaryOperatorCacheMode;\nstatic_assert(femPrimaryOperatorCacheMode(0)==0);\nstatic_assert(femPrimaryOperatorCacheMode(1)==1);\nstatic_assert(femPrimaryOperatorCacheMode(2)==0);\nstatic_assert(femPrimaryOperatorCacheMode(0xffffffffu)==0);\nint main(){}\n'
++        with tempfile.TemporaryDirectory() as d:
++            p=Path(d)/"check.cpp";p.write_text(code)
++            subprocess.run(["/usr/bin/clang++","-std=c++20","-I",str(ROOT/"matter/include"),str(p),"-o",str(Path(d)/"check")],check=True)
++            subprocess.run([str(Path(d)/"check")],check=True)
++if __name__=="__main__":unittest.main()
+--- a/matter/tools/test_true_residual_certification_contract.py
++++ b/matter/tools/test_true_residual_certification_contract.py
+@@ -103,7 +103,7 @@
+             cycle.index('"nm_fgmres_measure_true_residual"'),
+         ]
+         self.assertEqual(order, sorted(order))
+-        self.assertIn("useCache =\n                        state.mixedSolverValue.executionBudgets.w == 1u", cycle)
++        self.assertRegex(cycle, r"const std::uint32_t useCache =\s*numi::matter::detail::femPrimaryOperatorCacheMode\(\s*state.mixedSolverValue.executionBudgets.w\)")
+         self.assertIn("state.femAlgorithmicTangentCache", cycle)
+         self.assertIn("state.femAlgorithmicTangentCacheValid", cycle)
+         self.assertIn('"nm_fem_cohesive_face_operator"', cycle)

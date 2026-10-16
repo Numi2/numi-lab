@@ -1,0 +1,1665 @@
+#pragma once
+
+// Accepted-state inside-surface provenance and clearance measurement for the
+// authored FEFCO 0201 blank.  The blank's flat coordinates identify authored
+// panel/end roles; the accepted tetrahedron geometry identifies the cavity
+// facing side.  No design target is used to construct a measured dimension.
+
+#include "cardboard_box_blank.hpp"
+#include "numi/matter/shared.h"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <span>
+#include <string>
+#include <vector>
+
+namespace numi::cardboard {
+
+enum class BoxBlankFaceRegion : std::uint8_t {
+    none = 0u,
+    wall = 1u,
+    bottomFlap = 2u,
+    topFlap = 3u,
+};
+
+enum class BoxBlankBroadSide : std::uint8_t {
+    none = 0u,
+    zZero = 1u,
+    zCaliper = 2u,
+};
+
+struct BoxBlankFaceProvenance {
+    BoxBlankFaceRegion region = BoxBlankFaceRegion::none;
+    BoxBlankBroadSide broadSide = BoxBlankBroadSide::none;
+    std::uint32_t panelIndex = NM_INVALID_INDEX;
+    bool classified = false;
+};
+
+struct BoxInsideClearanceResult {
+    bool evaluated = false;
+    bool topologyComplete = false;
+    bool roleCoverageComplete = false;
+    bool faceProvenanceMapComplete = false;
+    bool authoredSurfaceCoverageComplete = false;
+    bool wallLocalCoverageComplete = false;
+    bool overlapMeasured = false;
+    bool overlapComplete = false;
+    bool endFootprintCoverageComplete = false;
+    bool endOutsideSeamCoverageComplete = false;
+    bool buttSeamGeometryValid = false;
+    bool planarGeometryValid = false;
+    bool dimensionsWithinTolerance = false;
+    bool gatePassed = false;
+    std::string status = "not_evaluated";
+    std::string reason = "accepted released endpoint is unavailable";
+    std::array<double, 3> measuredInsideM{
+        std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::quiet_NaN()}; // length, height, width
+    std::array<double, 3> targetInsideM{};
+    std::array<double, 3> relativeError{};
+    // [region wall/bottom/top][panel 0..3], actual cavity-facing triangles.
+    std::array<std::array<std::uint64_t, 4>, 3> insideFaceCount{};
+    std::array<std::array<double, 4>, 3> insideRestAreaM2{};
+    std::array<std::array<double, 4>, 3> insideAcceptedAreaM2{};
+    std::array<std::array<double, 4>, 3> expectedInsideRestAreaM2{};
+    std::array<std::array<double, 4>, 3> insideRestCoverageFraction{};
+    // [end bottom/top][minor flap panel 1/3], covered area / actual minor area.
+    std::array<std::array<double, 2>, 2> minorFlapCoverage{};
+    std::array<std::array<double, 2>, 2> minorFlapAreaM2{};
+    std::array<double, 2> endFootprintCoverage{};
+    std::array<double, 2> endFootprintAreaM2{};
+    std::array<double, 2> endFootprintUncoveredAreaM2{};
+    std::array<double, 4> wallUncoveredAreaM2{};
+    std::array<double, 4> wallDomainAreaM2{};
+    std::array<double, 4> wallAreaRoundoffBoundM2{};
+    std::array<double, 2> endOutsideSeamUncoveredAreaM2{};
+    std::array<double, 2> endOutsideSeamAreaRoundoffBoundM2{};
+    std::array<double, 2> maximumButtSeamGapM{};
+    std::array<double, 2> buttSeamCorridorAreaM2{};
+    std::array<double, 2> maximumWallPlanarityResidualM{};
+    std::array<double, 2> endMajorPlaneSeparationM{};
+    double maximumAcceptedFloorProjectionM=std::numeric_limits<double>::quiet_NaN();
+    double minimumAcceptedRoofProjectionM=std::numeric_limits<double>::quiet_NaN();
+    double acceptedPositionUlpM=std::numeric_limits<double>::quiet_NaN();
+    std::uint64_t exteriorFaceCount = 0u;
+    std::uint64_t broadFaceCount = 0u;
+    std::uint64_t tetrahedronCountObserved = 0u;
+    std::uint64_t surfaceFaceCountObserved = 0u;
+    std::uint64_t topologyHashCapacity = 0u;
+    std::uint64_t topologyProbeSteps = 0u;
+    std::uint64_t estimatedWorkspaceBytes = 0u;
+    std::uint64_t overlapPairTestsObserved = 0u;
+    std::uint64_t overlapPairTestCap = 32000000u;
+    std::uint64_t overlapGridWorkUnitsObserved = 0u;
+    std::uint64_t overlapGridWorkUnitCap = 32000000u;
+    struct FaceRecord {
+        std::uint32_t surfaceFaceIndex = NM_INVALID_INDEX;
+        std::uint32_t tetrahedronIndex = NM_INVALID_INDEX;
+        std::uint32_t panelIndex = NM_INVALID_INDEX;
+        BoxBlankFaceRegion region = BoxBlankFaceRegion::none;
+        BoxBlankBroadSide broadSide = BoxBlankBroadSide::none;
+        bool cavityFacing = false;
+        double authoredRestAreaM2 = 0.0;
+        double acceptedAreaM2 = 0.0;
+    };
+    std::vector<FaceRecord> faceRecords;
+};
+
+namespace inside_clearance_detail {
+
+// Existing 99% coverage remains a minor-flap overlap screen only. End closure
+// uses exact clipped area outside the authored free-edge seam corridor below.
+constexpr double minimumFlapCoverage=0.99;
+// This is an explicit geometric allowance for a butt seam between the two
+// authored major-flap free edges. It is not inferred from side-slot kerf and
+// is not a measured manufacturing tolerance.
+constexpr double maximumButtSeamGapM=0.001;
+constexpr double buttSeamNumericalToleranceM=1.0e-5;
+constexpr double maximumCoveragePositionUlpM=1.0e-5;
+constexpr std::uint64_t maximumIndexedTetrahedra=1600000u;
+constexpr std::uint64_t maximumWorkspaceBytes=1024ull*1024ull*1024ull;
+constexpr std::uint64_t maximumGridWorkUnits=32000000u;
+constexpr std::uint32_t maximumGridQueryCandidates=4096u;
+constexpr std::uint32_t maximumGridSubdivisionDepth=14u;
+
+struct V3 { double x = 0.0, y = 0.0, z = 0.0; };
+struct V2 { double x = 0.0, y = 0.0; };
+using FaceKey = std::array<std::uint32_t,3>;
+struct Triangle3 {
+    std::array<V3, 3> p{};
+    // Only free-edge role lookup needs retained rest coordinates. The source
+    // state is FP32, so store its exact x/y words without tripling Triangle3.
+    std::array<std::array<float,2>,3> restXY{};
+    V3 outward{};
+    BoxBlankFaceProvenance tag{};
+    double restArea = 0.0;
+    double area = 0.0;
+    std::uint32_t surfaceFaceIndex = NM_INVALID_INDEX;
+    std::uint32_t tetrahedronIndex = NM_INVALID_INDEX;
+};
+struct Triangle2 { std::array<V2, 3> p{}; };
+struct TrianglePairView {
+    std::array<const std::vector<Triangle2>*,2> panels{};
+    const std::vector<Triangle2>& operator[](std::size_t i) const { return *panels[i]; }
+};
+struct Plane { V3 origin{}, inward{}; double maxResidual = 0.0; };
+
+struct TopologyFaceSlot {
+    std::uint32_t a=0u,b=0u,c=0u,metadata=0u;
+};
+static_assert(sizeof(TopologyFaceSlot)==16u);
+
+struct BoundaryRef { std::uint32_t tet=0u,opposite=0u,count=0u; };
+
+class ExteriorFaceIndex {
+public:
+    static constexpr std::uint32_t maxProbesPerKey=128u;
+    static constexpr std::uint64_t maxProbeSteps=160000000u;
+
+    explicit ExteriorFaceIndex(const std::uint64_t capacity)
+        : slots_(static_cast<std::size_t>(capacity)),mask_(capacity-1u) {}
+
+    static bool capacityFor(const std::uint64_t tetrahedronCount,
+                            std::uint64_t& capacity,
+                            std::uint64_t& bytes) {
+        if (tetrahedronCount==0u || tetrahedronCount>maximumIndexedTetrahedra) return false;
+        const std::uint64_t faceSlots=tetrahedronCount*4u;
+        const std::uint64_t required=faceSlots*2u;
+        capacity=1u;
+        while (capacity<required) capacity<<=1u;
+        if (capacity>(1u<<24u)) return false;
+        bytes=capacity*sizeof(TopologyFaceSlot);
+        return true;
+    }
+
+    static std::uint64_t bucketForTest(const FaceKey& key,const std::uint64_t capacity) {
+        return hash(key)&(capacity-1u);
+    }
+
+    bool insert(const FaceKey& key,const std::uint32_t tet,const std::uint32_t opposite) {
+        const std::uint64_t start=hash(key)&mask_;
+        for (std::uint32_t probe=0u;probe<maxProbesPerKey;++probe) {
+            if (!chargeProbe()) return false;
+            auto& slot=slots_[static_cast<std::size_t>((start+probe)&mask_)];
+            if (slot.metadata==0u) {
+                slot={key[0],key[1],key[2],encode(tet,opposite,1u,false)};
+                return true;
+            }
+            if (slot.a==key[0]&&slot.b==key[1]&&slot.c==key[2]) {
+                const auto count=countOf(slot.metadata);
+                if (count>=2u) { error_="nonmanifold compiled FEM surface topology"; return false; }
+                slot.metadata=(slot.metadata&~countMask)|((count+1u)<<countShift);
+                return true;
+            }
+        }
+        error_="topology hash probe bound exceeded while indexing tetrahedron faces";
+        return false;
+    }
+
+    bool markExteriorSeen(const FaceKey& key,const std::uint32_t expectedTet,
+                          const std::uint32_t expectedOpposite,
+                          BoundaryRef& ref) {
+        const std::uint64_t start=hash(key)&mask_;
+        for (std::uint32_t probe=0u;probe<maxProbesPerKey;++probe) {
+            if (!chargeProbe()) return false;
+            auto& slot=slots_[static_cast<std::size_t>((start+probe)&mask_)];
+            if (slot.metadata==0u) break;
+            if (slot.a!=key[0]||slot.b!=key[1]||slot.c!=key[2]) continue;
+            const auto count=countOf(slot.metadata);
+            if (count!=1u||seen(slot.metadata)) {
+                error_="compiled surface face is not a unique exterior tetrahedron face";
+                return false;
+            }
+            ref={tetOf(slot.metadata),oppositeOf(slot.metadata),count};
+            if (ref.tet!=expectedTet||ref.opposite!=expectedOpposite) {
+                error_="compiled surface face adjacency disagrees with indexed tetrahedron face";
+                return false;
+            }
+            slot.metadata|=seenMask;
+            return true;
+        }
+        if (error_.empty()) error_="compiled surface face is absent from tetrahedron face index";
+        return false;
+    }
+
+    bool allExteriorFacesSeen() {
+        for (const auto& slot:slots_) {
+            if (!chargeProbe()) return false;
+            if (slot.metadata!=0u&&countOf(slot.metadata)==1u&&!seen(slot.metadata)) {
+                error_="compiled surface table omits a topological exterior face";
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template<class Callback>
+    bool forEachExterior(Callback&& callback) const {
+        for (const auto& slot:slots_) {
+            if (slot.metadata==0u||countOf(slot.metadata)!=1u) continue;
+            const FaceKey key{slot.a,slot.b,slot.c};
+            const BoundaryRef ref{tetOf(slot.metadata),oppositeOf(slot.metadata),1u};
+            if (!callback(key,ref)) return false;
+        }
+        return true;
+    }
+
+    std::uint64_t capacity() const { return slots_.size(); }
+    std::uint64_t probeSteps() const { return probeSteps_; }
+    const std::string& error() const { return error_; }
+
+private:
+    static constexpr std::uint32_t countShift=2u;
+    static constexpr std::uint32_t countMask=3u<<countShift;
+    static constexpr std::uint32_t seenMask=1u;
+    std::vector<TopologyFaceSlot> slots_;
+    std::uint64_t mask_=0u;
+    std::uint64_t probeSteps_=0u;
+    std::string error_;
+
+    static std::uint32_t encode(const std::uint32_t tet,const std::uint32_t opposite,
+                                const std::uint32_t count,const bool wasSeen) {
+        return ((tet+1u)<<6u)|(opposite<<4u)|(count<<countShift)|(wasSeen?seenMask:0u);
+    }
+    static std::uint32_t countOf(const std::uint32_t value) { return (value&countMask)>>countShift; }
+    static std::uint32_t tetOf(const std::uint32_t value) { return (value>>6u)-1u; }
+    static std::uint32_t oppositeOf(const std::uint32_t value) { return (value>>4u)&3u; }
+    static bool seen(const std::uint32_t value) { return (value&seenMask)!=0u; }
+    static std::uint64_t hash(const FaceKey& key) {
+        std::uint64_t h=1469598103934665603ull;
+        for (const auto node:key) {
+            h^=node; h*=1099511628211ull;
+            h^=h>>29u; h*=0x9e3779b185ebca87ull;
+        }
+        h^=h>>32u; h*=0xd6e8feb86659fd93ull; h^=h>>32u;
+        return h;
+    }
+    bool chargeProbe() {
+        if (probeSteps_>=maxProbeSteps) {
+            error_="topology face-map total probe-work bound exceeded";
+            return false;
+        }
+        ++probeSteps_;
+        return true;
+    }
+};
+
+inline bool estimateWorkspaceBytes(const std::uint64_t hashBytes,
+                                   const std::uint64_t maximumNodeCount,
+                                   const std::uint64_t maximumSurfaceFaces,
+                                   std::uint64_t& estimate) {
+    constexpr std::uint64_t gridEntryCap=2000000u;
+    constexpr std::uint64_t gridSide=48u;
+    constexpr std::uint64_t queryCap=4096u;
+    const auto checkedAdd=[](std::uint64_t a,std::uint64_t b,std::uint64_t& out) {
+        if (a>std::numeric_limits<std::uint64_t>::max()-b) return false;
+        out=a+b; return true;
+    };
+    const auto checkedMul=[](std::uint64_t a,std::uint64_t b,std::uint64_t& out) {
+        if (a!=0u&&b>std::numeric_limits<std::uint64_t>::max()/a) return false;
+        out=a*b; return true;
+    };
+    std::uint64_t triangleBytes=0u,recordBytes=0u,projectionBytes=0u,nodeMarkBytes=0u;
+    std::uint64_t wallDomainBytes=0u,freeEdgeBytes=0u;
+    std::uint64_t gridBytes=0u,marksBytes=0u,offsetBytes=0u,queryBytes=0u;
+    std::uint64_t clippedPolygonBytes=0u;
+    // The candidate/cavity-side Triangle3 buffers are separately live. Four
+    // end-plane triangle arrays and at most three V2 free-edge samples per
+    // major source triangle can coexist. Wall-domain points, hull and fan
+    // triangulation are bounded by the node count (6 V2 slots/node total);
+    // free-edge samples receive their own surface-face bound. The recursive
+    // query stack retains at most two capped candidate lists per level, and a
+    // footprint query may retain one clipped polygon per candidate.
+    if (!checkedMul(maximumSurfaceFaces,2u*sizeof(Triangle3),triangleBytes) ||
+        !checkedMul(maximumSurfaceFaces,sizeof(BoxInsideClearanceResult::FaceRecord),recordBytes) ||
+        !checkedMul(maximumSurfaceFaces,5u*sizeof(Triangle2),projectionBytes) ||
+        !checkedMul(maximumNodeCount,sizeof(std::uint8_t),nodeMarkBytes) ||
+        !checkedMul(maximumNodeCount,6u*sizeof(V2),wallDomainBytes) ||
+        !checkedMul(maximumSurfaceFaces,3u*sizeof(V2),freeEdgeBytes) ||
+        !checkedMul(gridEntryCap,2u*sizeof(std::uint32_t),gridBytes) ||
+        !checkedMul(maximumSurfaceFaces,2u*sizeof(std::uint32_t),marksBytes) ||
+        !checkedMul(gridSide*gridSide+1u,6u*sizeof(std::uint32_t),offsetBytes) ||
+        !checkedMul(2u*(maximumGridSubdivisionDepth+1u)*queryCap,
+                    sizeof(std::uint32_t),queryBytes) ||
+        !checkedMul(queryCap,sizeof(std::vector<V2>)+8u*sizeof(V2),
+                    clippedPolygonBytes)) return false;
+    estimate=hashBytes;
+    const std::array<std::uint64_t,12> components{
+        triangleBytes,recordBytes,projectionBytes,nodeMarkBytes,wallDomainBytes,freeEdgeBytes,gridBytes,marksBytes,
+        offsetBytes,queryBytes,clippedPolygonBytes,8ull*1024ull*1024ull};
+    for (const auto bytes:components)
+        if (!checkedAdd(estimate,bytes,estimate)) return false;
+    return estimate<=maximumWorkspaceBytes;
+}
+
+inline V3 add(V3 a, V3 b) { return {a.x+b.x, a.y+b.y, a.z+b.z}; }
+inline V3 sub(V3 a, V3 b) { return {a.x-b.x, a.y-b.y, a.z-b.z}; }
+inline V3 mul(V3 a, double s) { return {a.x*s, a.y*s, a.z*s}; }
+inline double dot(V3 a, V3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
+inline V3 cross(V3 a, V3 b) {
+    return {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x};
+}
+inline double norm(V3 a) { return std::sqrt(dot(a,a)); }
+inline bool finite(V3 a) {
+    return std::isfinite(a.x) && std::isfinite(a.y) && std::isfinite(a.z);
+}
+inline V3 unit(V3 a) {
+    const double n = norm(a);
+    if (!(std::isfinite(n) && n > 1.0e-15)) return {};
+    return mul(a, 1.0/n);
+}
+inline double area3(const std::array<V3,3>& p) {
+    return 0.5 * norm(cross(sub(p[1],p[0]), sub(p[2],p[0])));
+}
+inline double fp32PositionUlp(const std::vector<Triangle3>& triangles) {
+    float maxMagnitude=0.0f;
+    for (const auto& tri:triangles) for (const auto p:tri.p) {
+        const double m=std::max({std::abs(p.x),std::abs(p.y),std::abs(p.z)});
+        if (!std::isfinite(m)||m>static_cast<double>(std::numeric_limits<float>::max()))
+            return std::numeric_limits<double>::infinity();
+        maxMagnitude=std::max(maxMagnitude,static_cast<float>(m));
+    }
+    const float next=std::nextafter(maxMagnitude,std::numeric_limits<float>::infinity());
+    return static_cast<double>(next-maxMagnitude);
+}
+inline double cross2(V2 a, V2 b, V2 c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+inline double signedArea2(const std::vector<V2>& p) {
+    double sum = 0.0;
+    for (std::size_t i=0; i<p.size(); ++i) {
+        const auto& a=p[i]; const auto& b=p[(i+1)%p.size()];
+        sum += a.x*b.y-a.y*b.x;
+    }
+    return 0.5*sum;
+}
+inline double area2(const std::vector<V2>& p) {
+    return p.size() < 3u ? 0.0 : std::abs(signedArea2(p));
+}
+inline double triangleArea2(const Triangle2& t) {
+    return 0.5*std::abs(cross2(t.p[0],t.p[1],t.p[2]));
+}
+
+inline BoxBlankFaceProvenance classifyFlatFace(
+    const FEFCO0201Blank& blank,
+    const std::array<BoxBlankPoint,3>& p,
+    const double coordinateTolerance) {
+    BoxBlankFaceProvenance result;
+    for (const auto& v : p)
+        if (!(std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z)))
+            return result;
+    const bool allZZero = std::all_of(p.begin(),p.end(),[&](const auto& v) {
+        return std::abs(v.z) <= coordinateTolerance;
+    });
+    const bool allZCaliper = std::all_of(p.begin(),p.end(),[&](const auto& v) {
+        return std::abs(v.z-blank.boardCaliper) <= coordinateTolerance;
+    });
+    if (allZZero) result.broadSide = BoxBlankBroadSide::zZero;
+    else if (allZCaliper) result.broadSide = BoxBlankBroadSide::zCaliper;
+    else return result;
+    const double x = (p[0].x+p[1].x+p[2].x)/3.0;
+    const double y = (p[0].y+p[1].y+p[2].y)/3.0;
+    for (const auto& panel : blank.panels) {
+        if (!(x > panel.xStart + coordinateTolerance &&
+              x < panel.xEnd - coordinateTolerance)) continue;
+        if (!std::all_of(p.begin(),p.end(),[&](const auto& v) {
+                return v.x>=panel.xStart-coordinateTolerance &&
+                       v.x<=panel.xEnd+coordinateTolerance;
+            })) return result;
+        result.panelIndex = panel.index;
+        if (y > blank.bottomScoreY + coordinateTolerance &&
+            y < blank.topScoreY - coordinateTolerance) {
+            if (!std::all_of(p.begin(),p.end(),[&](const auto& v) {
+                    return v.y>=blank.bottomScoreY-coordinateTolerance &&
+                           v.y<=blank.topScoreY+coordinateTolerance;
+                })) return BoxBlankFaceProvenance{};
+            result.region = BoxBlankFaceRegion::wall;
+        } else if (y < blank.bottomScoreY - coordinateTolerance &&
+                   y >= -coordinateTolerance) {
+            if (!std::all_of(p.begin(),p.end(),[&](const auto& v) {
+                    return v.y>=-coordinateTolerance &&
+                           v.y<=blank.bottomScoreY+coordinateTolerance;
+                })) return BoxBlankFaceProvenance{};
+            result.region = BoxBlankFaceRegion::bottomFlap;
+        } else if (y > blank.topScoreY + coordinateTolerance &&
+                   y <= blank.blankHeight + coordinateTolerance) {
+            if (!std::all_of(p.begin(),p.end(),[&](const auto& v) {
+                    return v.y>=blank.topScoreY-coordinateTolerance &&
+                           v.y<=blank.blankHeight+coordinateTolerance;
+                })) return BoxBlankFaceProvenance{};
+            result.region = BoxBlankFaceRegion::topFlap;
+        }
+        break;
+    }
+    result.classified = result.region != BoxBlankFaceRegion::none &&
+        result.panelIndex < 4u;
+    return result;
+}
+
+inline bool scheduleHasInnerBeforeOuterFlaps(
+    const FEFCO0201Blank& blank) {
+    std::array<std::array<int,4>,2> order{};
+    for (auto& row : order) row.fill(-1);
+    int ordinal = 0;
+    for (const auto& action : blank.assembly.actions) {
+        if (action.kind != BoxAssemblyAction::Kind::foldFlap ||
+            action.feature.kind != BoxAssemblyFeatureKind::scoreLine ||
+            action.feature.index >= blank.scoreLines.size()) continue;
+        const auto& line = blank.scoreLines[action.feature.index];
+        const std::size_t end = line.kind == BoxScoreKind::bottomFlap ? 0u :
+            line.kind == BoxScoreKind::topFlap ? 1u : 2u;
+        if (end > 1u || line.panelIndex >= 4u || order[end][line.panelIndex] >= 0)
+            return false;
+        order[end][line.panelIndex] = ordinal++;
+    }
+    for (const auto& end : order) {
+        if (std::any_of(end.begin(),end.end(),[](int x){return x<0;})) return false;
+        if (!(end[1] < end[0] && end[1] < end[2] &&
+              end[3] < end[0] && end[3] < end[2])) return false;
+    }
+    return true;
+}
+
+inline bool authoredFlapScoreLinesMatchPanels(
+    const FEFCO0201Blank& blank,const double tolerance) {
+    for (const auto& panel:blank.panels) for (const auto kind:{
+             BoxScoreKind::bottomFlap,BoxScoreKind::topFlap}) {
+        const double y=kind==BoxScoreKind::bottomFlap
+            ? blank.bottomScoreY : blank.topScoreY;
+        const BoxScoreLine* match=nullptr;
+        for (const auto& line:blank.scoreLines) {
+            if (line.kind!=kind || line.panelIndex!=panel.index) continue;
+            if (match) return false;
+            match=&line;
+        }
+        if (!match) return false;
+        const auto endpointMatches=[&](const BoxBlankPoint& p,const double x) {
+            return std::abs(p.x-x)<=tolerance&&std::abs(p.y-y)<=tolerance&&
+                   std::abs(p.z)<=tolerance;
+        };
+        if (!(endpointMatches(match->first,panel.xStart)&&
+              endpointMatches(match->second,panel.xEnd)) &&
+            !(endpointMatches(match->first,panel.xEnd)&&
+              endpointMatches(match->second,panel.xStart))) return false;
+    }
+    return true;
+}
+
+inline bool makePlane(const std::vector<Triangle3>& triangles,
+                      const double planeTolerance,
+                      const double cosineTolerance,
+                      Plane& plane) {
+    if (triangles.empty()) return false;
+    plane.origin = triangles.front().p[0];
+    plane.inward = unit(triangles.front().outward);
+    if (norm(plane.inward) < 0.99) return false;
+    for (const auto& tri : triangles) {
+        if (!(finite(tri.p[0]) && finite(tri.p[1]) && finite(tri.p[2]) &&
+              finite(tri.outward) && tri.area > 0.0)) return false;
+        const V3 n = unit(tri.outward);
+        if (dot(n,plane.inward) < cosineTolerance) return false;
+        for (const auto p : tri.p) {
+            const double residual = std::abs(dot(plane.inward,sub(p,plane.origin)));
+            plane.maxResidual = std::max(plane.maxResidual,residual);
+            if (residual > planeTolerance) return false;
+        }
+    }
+    return true;
+}
+
+inline double pointPlaneOffset(const Plane& plane, V3 p) {
+    return dot(plane.inward,sub(p,plane.origin));
+}
+
+inline bool positiveOpposingPlaneGap(const Plane& a,const Plane& b,double& gap) {
+    const double ab=dot(a.inward,sub(b.origin,a.origin));
+    const double ba=dot(b.inward,sub(a.origin,b.origin));
+    if (!(std::isfinite(ab)&&std::isfinite(ba)&&ab>0.0&&ba>0.0)) return false;
+    gap=std::min(ab,ba);
+    return std::isfinite(gap)&&gap>0.0;
+}
+
+inline std::vector<V2> clipConvex(std::vector<V2> subject,
+                                  std::vector<V2> clip) {
+    if (subject.size()<3u || clip.size()<3u) return {};
+    if (signedArea2(clip)<0.0) std::reverse(clip.begin(),clip.end());
+    constexpr double eps = 1.0e-13;
+    for (std::size_t e=0;e<clip.size() && !subject.empty();++e) {
+        const V2 a=clip[e], b=clip[(e+1)%clip.size()];
+        std::vector<V2> output;
+        output.reserve(subject.size()+1u);
+        auto inside=[&](V2 p){ return cross2(a,b,p)>=-eps; };
+        auto intersect=[&](V2 s,V2 t) {
+            const V2 d{t.x-s.x,t.y-s.y}, edge{b.x-a.x,b.y-a.y};
+            const double den=d.x*edge.y-d.y*edge.x;
+            if (std::abs(den)<1.0e-20) return s;
+            const V2 as{a.x-s.x,a.y-s.y};
+            const double u=(as.x*edge.y-as.y*edge.x)/den;
+            return V2{s.x+std::clamp(u,0.0,1.0)*d.x,
+                      s.y+std::clamp(u,0.0,1.0)*d.y};
+        };
+        V2 s=subject.back(); bool sIn=inside(s);
+        for (const V2 t : subject) {
+            const bool tIn=inside(t);
+            if (tIn) { if (!sIn) output.push_back(intersect(s,t)); output.push_back(t); }
+            else if (sIn) output.push_back(intersect(s,t));
+            s=t; sIn=tIn;
+        }
+        subject=std::move(output);
+    }
+    return subject;
+}
+
+struct TriangleGrid {
+    static constexpr std::uint32_t side=48u;
+    std::array<double,4> bounds{};
+    std::vector<std::uint32_t> offsets;
+    std::vector<std::uint32_t> entriesByCell;
+    std::uint64_t entries=0u;
+    std::uint64_t buildWork=0u;
+    bool buildWorkCharged=false;
+    bool valid=false;
+    std::vector<std::uint32_t> mark;
+    std::uint32_t stamp=0u;
+
+    explicit TriangleGrid(const std::vector<Triangle2>& triangles)
+        : offsets(side*side+1u,0u), mark(triangles.size(),0u) {
+        if (triangles.empty()) return;
+        bounds={std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity(),
+                std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity()};
+        for (const auto& t:triangles) for (const auto p:t.p) {
+            bounds[0]=std::min(bounds[0],p.x); bounds[1]=std::max(bounds[1],p.x);
+            bounds[2]=std::min(bounds[2],p.y); bounds[3]=std::max(bounds[3],p.y);
+        }
+        valid=bounds[1]>bounds[0] && bounds[3]>bounds[2];
+        if (!valid) return;
+        std::vector<std::uint32_t> counts(side*side,0u);
+        for (std::uint32_t i=0;i<triangles.size();++i) {
+            const auto r=range(triangles[i]);
+            const std::uint64_t addCount=static_cast<std::uint64_t>(r[1]-r[0]+1u)*
+                (r[3]-r[2]+1u);
+            if (entries+addCount>2000000u) { valid=false; return; }
+            entries+=addCount;
+            for (std::uint32_t y=r[2];y<=r[3];++y)
+                for (std::uint32_t x=r[0];x<=r[1];++x) {
+                    const auto cell=y*side+x;
+                    if (counts[cell]==std::numeric_limits<std::uint32_t>::max()) {
+                        valid=false; return;
+                    }
+                    ++counts[cell];
+                }
+        }
+        for (std::uint32_t i=0u;i<side*side;++i)
+            offsets[i+1u]=offsets[i]+counts[i];
+        if (offsets.back()!=entries) { valid=false; return; }
+        // Bound both full posting-list construction passes and the two cell
+        // directory passes, in addition to later query scans. These were
+        // previously omitted from the aggregate overlap-work budget.
+        buildWork=2u*entries+2u*side*side;
+        entriesByCell.resize(static_cast<std::size_t>(entries));
+        std::vector<std::uint32_t> cursor(offsets.begin(),offsets.end()-1);
+        if (entriesByCell.capacity()>entries || cursor.capacity()>side*side ||
+            offsets.capacity()>side*side+1u || mark.capacity()>triangles.size()) {
+            valid=false; return;
+        }
+        for (std::uint32_t i=0;i<triangles.size();++i) {
+            const auto r=range(triangles[i]);
+            for (std::uint32_t y=r[2];y<=r[3];++y)
+                for (std::uint32_t x=r[0];x<=r[1];++x) {
+                    const auto cell=y*side+x;
+                    entriesByCell[cursor[cell]++]=i;
+                }
+        }
+    }
+    std::array<std::uint32_t,4> range(const Triangle2& t) const {
+        double minx=t.p[0].x,maxx=minx,miny=t.p[0].y,maxy=miny;
+        for (const auto p:t.p) { minx=std::min(minx,p.x); maxx=std::max(maxx,p.x);
+            miny=std::min(miny,p.y); maxy=std::max(maxy,p.y); }
+        auto ix=[&](double x,double lo,double hi) {
+            return static_cast<std::uint32_t>(std::clamp(
+                std::floor((x-lo)/(hi-lo)*side),0.0,static_cast<double>(side-1u))); };
+        return {ix(minx,bounds[0],bounds[1]),ix(maxx,bounds[0],bounds[1]),
+                ix(miny,bounds[2],bounds[3]),ix(maxy,bounds[2],bounds[3])};
+    }
+    bool query(const Triangle2& t,std::vector<std::uint32_t>& result,
+               std::uint64_t* workUnits=nullptr,bool* candidateOverflow=nullptr) {
+        result.clear();
+        if (candidateOverflow) *candidateOverflow=false;
+        if (!valid) return false;
+        if (workUnits&&!buildWorkCharged) {
+            if (*workUnits>maximumGridWorkUnits||
+                buildWork>maximumGridWorkUnits-*workUnits) return false;
+            *workUnits+=buildWork;
+            buildWorkCharged=true;
+        }
+        if (result.capacity()<maximumGridQueryCandidates)
+            result.reserve(maximumGridQueryCandidates);
+        if (result.capacity()>maximumGridQueryCandidates) return false;
+        if (++stamp==0u) { std::fill(mark.begin(),mark.end(),0u); stamp=1u; }
+        const auto r=range(t);
+        const std::uint64_t cells=static_cast<std::uint64_t>(r[1]-r[0]+1u)*
+                                  static_cast<std::uint64_t>(r[3]-r[2]+1u);
+        if (workUnits) {
+            if (*workUnits>maximumGridWorkUnits||
+                cells>maximumGridWorkUnits-*workUnits) return false;
+            *workUnits+=cells;
+        }
+        for (std::uint32_t y=r[2];y<=r[3];++y)
+            for (std::uint32_t x=r[0];x<=r[1];++x)
+                for (std::uint32_t offset=offsets[y*side+x];
+                     offset<offsets[y*side+x+1u];++offset) {
+                    if (workUnits) {
+                        if (*workUnits>=maximumGridWorkUnits) return false;
+                        ++*workUnits;
+                    }
+                    const auto i=entriesByCell[offset];
+                    if (mark[i]==stamp) continue;
+                    mark[i]=stamp;
+                    if (result.size()>=maximumGridQueryCandidates) {
+                        if (candidateOverflow) *candidateOverflow=true;
+                        return false;
+                    }
+                    result.push_back(i);
+                }
+        return true;
+    }
+};
+
+inline Triangle2 project(const Triangle3& t,V3 origin,V3 u,V3 v) {
+    Triangle2 result;
+    for (std::size_t i=0;i<3u;++i) {
+        const V3 q=sub(t.p[i],origin);
+        result.p[i]={dot(q,u),dot(q,v)};
+    }
+    return result;
+}
+
+inline bool projectedPanelNonoverlap(const std::vector<Triangle2>& triangles,
+                                     const double areaTolerance,
+                                     std::uint64_t& pairTests,
+                                     std::uint64_t* gridWorkUnits=nullptr) {
+    TriangleGrid grid(triangles);
+    if (!grid.valid) return false;
+    pairTests=0u;
+    for (std::uint32_t i=0;i<triangles.size();++i) {
+        std::vector<std::uint32_t> candidates;
+        if (!grid.query(triangles[i],candidates,gridWorkUnits)) return false;
+        for (const auto j:candidates) {
+            if (j<=i) continue;
+            if (++pairTests>2000000u) return false;
+            const auto poly=clipConvex(
+                std::vector<V2>(triangles[i].p.begin(),triangles[i].p.end()),
+                std::vector<V2>(triangles[j].p.begin(),triangles[j].p.end()));
+            if (area2(poly)>areaTolerance) return false;
+        }
+    }
+    return true;
+}
+
+template<class MajorPair>
+inline bool flapUnionCoverage(const MajorPair& major,
+                              const std::vector<Triangle2>& minor,
+                              const double areaTolerance,
+                              double& coverage,
+                              double& minorArea,
+                              std::uint64_t& pairTests,
+                              std::uint64_t* gridWorkUnits=nullptr) {
+    coverage=0.0; minorArea=0.0;
+    if (major[0].empty() || major[1].empty() || minor.empty()) return false;
+    TriangleGrid grid0(major[0]), grid1(major[1]);
+    if (!grid0.valid || !grid1.valid) return false;
+    pairTests=0u;
+    for (const auto& t:minor) {
+        const std::vector<V2> subject(t.p.begin(),t.p.end());
+        const double a=triangleArea2(t);
+        if (!(std::isfinite(a)&&a>areaTolerance)) return false;
+        minorArea+=a;
+        double area0=0.0,area1=0.0,crossArea=0.0;
+        std::vector<std::uint32_t> candidates0,candidates1;
+        if (!grid0.query(t,candidates0,gridWorkUnits)||
+            !grid1.query(t,candidates1,gridWorkUnits)) return false;
+        for (const auto i:candidates0) {
+            if (++pairTests>2000000u) return false;
+            auto p=clipConvex(subject,std::vector<V2>(major[0][i].p.begin(),major[0][i].p.end()));
+            const double ar=area2(p);
+            if (ar<=areaTolerance) continue;
+            area0+=ar;
+            for (const auto j:candidates1) {
+                if (++pairTests>2000000u) return false;
+                const auto overlap=clipConvex(
+                    p,std::vector<V2>(major[1][j].p.begin(),major[1][j].p.end()));
+                const double overlapArea=area2(overlap);
+                if (overlapArea>areaTolerance) crossArea+=overlapArea;
+            }
+        }
+        for (const auto i:candidates1) {
+            if (++pairTests>2000000u) return false;
+            auto p=clipConvex(subject,std::vector<V2>(major[1][i].p.begin(),major[1][i].p.end()));
+            area1+=area2(p);
+        }
+        const double covered=area0+area1-crossArea;
+        if (!(std::isfinite(covered)&&covered>=-areaTolerance&&
+              covered<=a+std::max(areaTolerance,1.0e-8*a))) return false;
+        coverage+=std::clamp(covered,0.0,a);
+    }
+    if (!(std::isfinite(minorArea)&&minorArea>0.0)) return false;
+    coverage/=minorArea;
+    return std::isfinite(coverage) && coverage>=0.0 && coverage<=1.000001;
+}
+
+// Measures the union of the two last-closing major-flap tessellations over
+// the actual rectangular cavity footprint derived from accepted wall planes.
+// The rectangle is split into two triangles. Same-panel self-overlap is
+// checked separately; cross-panel intersection is subtracted to avoid counting
+// bonded overlap twice. A one-percent uncovered-area budget is explicit below
+// and represents kerf/slot-scale uncertainty, not a target-derived fill.
+template<class MajorPair>
+inline bool majorUnionFootprintCoverage(
+    const MajorPair& major,
+    const std::array<Triangle2,2>& footprint,
+    const double areaTolerance,
+    double& coverage,
+    double& footprintArea,
+    std::uint64_t& pairTests,
+    std::uint64_t* gridWorkUnits=nullptr) {
+    coverage=0.0; footprintArea=0.0; pairTests=0u;
+    if (major[0].empty()||major[1].empty()) return false;
+    TriangleGrid grid0(major[0]),grid1(major[1]);
+    if (!grid0.valid||!grid1.valid) return false;
+    for (const auto& rectTri:footprint) {
+        const double rectArea=triangleArea2(rectTri);
+        if (!(std::isfinite(rectArea)&&rectArea>areaTolerance)) return false;
+        footprintArea+=rectArea;
+        std::vector<std::uint32_t> c0,c1;
+        if (!grid0.query(rectTri,c0,gridWorkUnits)||
+            !grid1.query(rectTri,c1,gridWorkUnits)) return false;
+        double area0=0.0,area1=0.0,crossArea=0.0;
+        std::vector<std::vector<V2>> clipped0;
+        clipped0.reserve(c0.size());
+        const std::vector<V2> subject(rectTri.p.begin(),rectTri.p.end());
+        for (const auto i:c0) {
+            if (++pairTests>2000000u) return false;
+            auto p=clipConvex(subject,std::vector<V2>(major[0][i].p.begin(),major[0][i].p.end()));
+            const double a=area2(p);
+            if (a>areaTolerance) { area0+=a; clipped0.push_back(std::move(p)); }
+        }
+        for (const auto j:c1) {
+            if (++pairTests>2000000u) return false;
+            const auto p=clipConvex(subject,std::vector<V2>(major[1][j].p.begin(),major[1][j].p.end()));
+            const double a=area2(p);
+            if (a<=areaTolerance) continue;
+            area1+=a;
+            for (const auto& p0:clipped0) {
+                if (++pairTests>2000000u) return false;
+                const double intersection=area2(clipConvex(p0,p));
+                if (intersection>areaTolerance) crossArea+=intersection;
+            }
+        }
+        const double unionArea=area0+area1-crossArea;
+        if (!(std::isfinite(unionArea)&&unionArea>=-areaTolerance&&
+              unionArea<=rectArea+std::max(areaTolerance,1.0e-8*rectArea))) return false;
+        coverage+=std::clamp(unionArea,0.0,rectArea);
+    }
+    if (!(std::isfinite(footprintArea)&&footprintArea>0.0)) return false;
+    coverage/=footprintArea;
+    return std::isfinite(coverage)&&coverage>=0.0&&coverage<=1.000001;
+}
+
+inline std::array<Triangle2,4> splitTriangle4(const Triangle2& t) {
+    const auto midpoint=[](V2 a,V2 b) { return V2{0.5*(a.x+b.x),0.5*(a.y+b.y)}; };
+    const V2 ab=midpoint(t.p[0],t.p[1]);
+    const V2 bc=midpoint(t.p[1],t.p[2]);
+    const V2 ca=midpoint(t.p[2],t.p[0]);
+    return {{Triangle2{{t.p[0],ab,ca}},Triangle2{{ab,t.p[1],bc}},
+             Triangle2{{ca,bc,t.p[2]}},Triangle2{{ab,bc,ca}}}};
+}
+
+// These bounded recursive queries only partition the integration domain when
+// the spatial index returns more than its 4,096-candidate query limit. The
+// geometric test on each accepted tile remains exact polygon clipping; this is
+// not a sampling-based gap detector.
+inline bool singleSetAreaOnTriangle(
+    const Triangle2& domain,const std::vector<Triangle2>& cover,
+    TriangleGrid& grid,const double areaTolerance,const std::uint32_t depth,
+    double& coveredArea,std::uint64_t& pairTests,std::uint64_t& gridWorkUnits) {
+    if (depth>maximumGridSubdivisionDepth) return false;
+    std::vector<std::uint32_t> candidates;
+    bool candidateOverflow=false;
+    if (!grid.query(domain,candidates,&gridWorkUnits,&candidateOverflow)) {
+        if (gridWorkUnits>=maximumGridWorkUnits||!candidateOverflow) return false;
+        for (const auto& child:splitTriangle4(domain))
+            if (!singleSetAreaOnTriangle(child,cover,grid,areaTolerance,depth+1u,
+                                         coveredArea,pairTests,gridWorkUnits)) return false;
+        return true;
+    }
+    const std::vector<V2> subject(domain.p.begin(),domain.p.end());
+    for (const auto index:candidates) {
+        if (++pairTests>2000000u) return false;
+        coveredArea+=area2(clipConvex(subject,
+            std::vector<V2>(cover[index].p.begin(),cover[index].p.end())));
+    }
+    return std::isfinite(coveredArea);
+}
+
+template<class MajorPair>
+inline bool majorUnionAreaOnTriangle(
+    const Triangle2& domain,const MajorPair& cover,
+    TriangleGrid& grid0,TriangleGrid& grid1,const double areaTolerance,
+    const std::uint32_t depth,double& coveredArea,std::uint64_t& pairTests,
+    std::uint64_t& gridWorkUnits) {
+    if (depth>maximumGridSubdivisionDepth) return false;
+    std::vector<std::uint32_t> candidates0,candidates1;
+    bool overflow0=false,overflow1=false;
+    const bool q0=grid0.query(domain,candidates0,&gridWorkUnits,&overflow0);
+    const bool q1=grid1.query(domain,candidates1,&gridWorkUnits,&overflow1);
+    if (!q0||!q1) {
+        if (gridWorkUnits>=maximumGridWorkUnits||
+            (!q0&&!overflow0)||(!q1&&!overflow1)) return false;
+        for (const auto& child:splitTriangle4(domain))
+            if (!majorUnionAreaOnTriangle(child,cover,grid0,grid1,areaTolerance,
+                    depth+1u,coveredArea,pairTests,gridWorkUnits)) return false;
+        return true;
+    }
+    const std::vector<V2> subject(domain.p.begin(),domain.p.end());
+    std::vector<std::vector<V2>> clipped0;
+    clipped0.reserve(candidates0.size());
+    double area0=0.0,area1=0.0,crossArea=0.0;
+    for (const auto index:candidates0) {
+        if (++pairTests>2000000u) return false;
+        auto polygon=clipConvex(subject,
+            std::vector<V2>(cover[0][index].p.begin(),cover[0][index].p.end()));
+        const double area=area2(polygon);
+        if (area>areaTolerance) { area0+=area; clipped0.push_back(std::move(polygon)); }
+    }
+    for (const auto index:candidates1) {
+        if (++pairTests>2000000u) return false;
+        const auto polygon=clipConvex(subject,
+            std::vector<V2>(cover[1][index].p.begin(),cover[1][index].p.end()));
+        const double area=area2(polygon);
+        if (area<=areaTolerance) continue;
+        area1+=area;
+        for (const auto& prior:clipped0) {
+            if (++pairTests>2000000u) return false;
+            const double intersection=area2(clipConvex(prior,polygon));
+            if (intersection>areaTolerance) crossArea+=intersection;
+        }
+    }
+    const double unionArea=area0+area1-crossArea;
+    const double tileArea=triangleArea2(domain);
+    if (!(std::isfinite(unionArea)&&unionArea>=-areaTolerance&&
+          unionArea<=tileArea+std::max(areaTolerance,1.0e-8*tileArea))) return false;
+    coveredArea+=std::clamp(unionArea,0.0,tileArea);
+    return std::isfinite(coveredArea);
+}
+
+inline bool singleSetCoverageOnDomain(
+    const std::vector<Triangle2>& cover,const std::vector<Triangle2>& domain,
+    const double areaTolerance,double& coverage,double& domainArea,
+    std::uint64_t& pairTests,std::uint64_t& gridWorkUnits) {
+    coverage=0.0; domainArea=0.0; pairTests=0u; gridWorkUnits=0u;
+    if (cover.empty()||domain.empty()) return false;
+    TriangleGrid grid(cover);
+    if (!grid.valid) return false;
+    for (const auto& tile:domain) {
+        const double area=triangleArea2(tile);
+        if (!(std::isfinite(area)&&area>areaTolerance)) return false;
+        domainArea+=area;
+        if (!singleSetAreaOnTriangle(tile,cover,grid,areaTolerance,0u,
+                                     coverage,pairTests,gridWorkUnits)) return false;
+    }
+    if (!(std::isfinite(coverage)&&coverage>=-areaTolerance&&
+          coverage<=domainArea+std::max(areaTolerance,1.0e-8*domainArea))) return false;
+    coverage=std::clamp(coverage/domainArea,0.0,1.0);
+    return true;
+}
+
+template<class MajorPair>
+inline bool majorUnionCoverageOnDomain(
+    const MajorPair& cover,
+    const std::vector<Triangle2>& domain,const double areaTolerance,
+    double& coverage,double& domainArea,std::uint64_t& pairTests,
+    std::uint64_t& gridWorkUnits) {
+    coverage=0.0; domainArea=0.0; pairTests=0u; gridWorkUnits=0u;
+    if (cover[0].empty()||cover[1].empty()||domain.empty()) return false;
+    TriangleGrid grid0(cover[0]),grid1(cover[1]);
+    if (!grid0.valid||!grid1.valid) return false;
+    for (const auto& tile:domain) {
+        const double area=triangleArea2(tile);
+        if (!(std::isfinite(area)&&area>areaTolerance)) return false;
+        domainArea+=area;
+        if (!majorUnionAreaOnTriangle(tile,cover,grid0,grid1,areaTolerance,0u,
+                                      coverage,pairTests,gridWorkUnits)) return false;
+    }
+    if (!(std::isfinite(coverage)&&coverage>=-areaTolerance&&
+          coverage<=domainArea+std::max(areaTolerance,1.0e-8*domainArea))) return false;
+    coverage=std::clamp(coverage/domainArea,0.0,1.0);
+    return true;
+}
+
+inline std::vector<V2> convexHull2D(std::vector<V2> points) {
+    std::sort(points.begin(),points.end(),[](V2 a,V2 b) {
+        return a.x<b.x||(a.x==b.x&&a.y<b.y);
+    });
+    points.erase(std::unique(points.begin(),points.end(),[](V2 a,V2 b) {
+        return std::abs(a.x-b.x)<=1.0e-12&&std::abs(a.y-b.y)<=1.0e-12;
+    }),points.end());
+    if (points.size()<3u) return {};
+    std::vector<V2> hull;
+    hull.reserve(points.size()*2u);
+    for (const auto p:points) {
+        while (hull.size()>=2u&&cross2(hull[hull.size()-2u],hull.back(),p)<=1.0e-14)
+            hull.pop_back();
+        hull.push_back(p);
+    }
+    const std::size_t lower=hull.size();
+    for (std::size_t i=points.size()-1u;i-- >0u;) {
+        const auto p=points[i];
+        while (hull.size()>lower&&cross2(hull[hull.size()-2u],hull.back(),p)<=1.0e-14)
+            hull.pop_back();
+        hull.push_back(p);
+    }
+    if (hull.size()>1u) hull.pop_back();
+    if (signedArea2(hull)<0.0) std::reverse(hull.begin(),hull.end());
+    return hull;
+}
+
+inline std::vector<Triangle2> triangulateConvexPolygon(std::vector<V2> polygon) {
+    std::vector<Triangle2> triangles;
+    if (polygon.size()<3u) return triangles;
+    if (signedArea2(polygon)<0.0) std::reverse(polygon.begin(),polygon.end());
+    triangles.reserve(polygon.size()-2u);
+    for (std::size_t i=1u;i+1u<polygon.size();++i)
+        triangles.push_back({{polygon[0],polygon[i],polygon[i+1u]}});
+    return triangles;
+}
+
+struct FittedEdge2 {
+    double slope=0.0;
+    double intercept=0.0;
+    double minU=std::numeric_limits<double>::infinity();
+    double maxU=-std::numeric_limits<double>::infinity();
+    double maxResidual=0.0;
+    bool valid=false;
+    double at(double u) const { return slope*u+intercept; }
+};
+
+inline FittedEdge2 fitButtFreeEdge(const std::vector<V2>& points) {
+    FittedEdge2 edge;
+    if (points.size()<2u) return edge;
+    double meanU=0.0,meanV=0.0;
+    for (const auto p:points) {
+        if (!(std::isfinite(p.x)&&std::isfinite(p.y))) return edge;
+        meanU+=p.x; meanV+=p.y;
+        edge.minU=std::min(edge.minU,p.x); edge.maxU=std::max(edge.maxU,p.x);
+    }
+    meanU/=static_cast<double>(points.size());
+    meanV/=static_cast<double>(points.size());
+    double covariance=0.0,variance=0.0;
+    for (const auto p:points) {
+        covariance+=(p.x-meanU)*(p.y-meanV);
+        variance+=(p.x-meanU)*(p.x-meanU);
+    }
+    if (!(std::isfinite(variance)&&variance>1.0e-18)) return edge;
+    edge.slope=covariance/variance;
+    edge.intercept=meanV-edge.slope*meanU;
+    for (const auto p:points)
+        edge.maxResidual=std::max(edge.maxResidual,std::abs(p.y-edge.at(p.x)));
+    edge.valid=std::isfinite(edge.slope)&&std::isfinite(edge.intercept)&&
+        std::isfinite(edge.maxResidual);
+    return edge;
+}
+
+struct ButtSeamDomain {
+    bool valid=false;
+    double maximumGapM=std::numeric_limits<double>::quiet_NaN();
+    double corridorAreaM2=std::numeric_limits<double>::quiet_NaN();
+    std::vector<Triangle2> outsideCorridor;
+};
+
+inline ButtSeamDomain deriveButtSeamOutsideDomain(
+    const std::vector<V2>& firstEdgePoints,const std::vector<V2>& secondEdgePoints,
+    const double minU,const double maxU,const double minV,const double maxV,
+    const double geometricTolerance,const double areaTolerance) {
+    ButtSeamDomain out;
+    const auto first=fitButtFreeEdge(firstEdgePoints);
+    const auto second=fitButtFreeEdge(secondEdgePoints);
+    if (!(first.valid&&second.valid&&std::isfinite(minU)&&std::isfinite(maxU)&&
+          std::isfinite(minV)&&std::isfinite(maxV)&&maxU>minU&&maxV>minV)) return out;
+    const double edgeSpan=maxU-minU;
+    const double endAllowance=std::max(geometricTolerance,edgeSpan*1.0e-6);
+    if (first.minU>minU+endAllowance||first.maxU<maxU-endAllowance||
+        second.minU>minU+endAllowance||second.maxU<maxU-endAllowance||
+        std::abs(first.slope)>0.008726646259971648||
+        std::abs(second.slope)>0.008726646259971648||
+        first.maxResidual>geometricTolerance||second.maxResidual>geometricTolerance) return out;
+    const double delta0=second.at(minU)-first.at(minU);
+    const double delta1=second.at(maxU)-first.at(maxU);
+    if (!(std::isfinite(delta0)&&std::isfinite(delta1))||delta0*delta1<0.0) return out;
+    const double maximumAbsoluteSeparation=std::max(std::abs(delta0),std::abs(delta1));
+    if (maximumAbsoluteSeparation>maximumButtSeamGapM) return out;
+    const bool openGap=delta0>=0.0&&delta1>=0.0;
+    const auto lowerAt=[&](double u) {
+        const double a=first.at(u),b=second.at(u);
+        return openGap?std::min(a,b)-buttSeamNumericalToleranceM:
+                       0.5*(a+b)-buttSeamNumericalToleranceM;
+    };
+    const auto upperAt=[&](double u) {
+        const double a=first.at(u),b=second.at(u);
+        return openGap?std::max(a,b)+buttSeamNumericalToleranceM:
+                       0.5*(a+b)+buttSeamNumericalToleranceM;
+    };
+    const double low0=lowerAt(minU),low1=lowerAt(maxU);
+    const double high0=upperAt(minU),high1=upperAt(maxU);
+    if (!(low0>=minV-geometricTolerance&&low1>=minV-geometricTolerance&&
+          high0<=maxV+geometricTolerance&&high1<=maxV+geometricTolerance&&
+          high0>=low0&&high1>=low1)) return out;
+    out.corridorAreaM2=0.5*((high0-low0)+(high1-low1))*edgeSpan;
+    std::vector<V2> lower{{minU,minV},{maxU,minV},{maxU,std::max(minV,low1)},
+                          {minU,std::max(minV,low0)}};
+    std::vector<V2> upper{{minU,std::min(maxV,high0)},{maxU,std::min(maxV,high1)},
+                          {maxU,maxV},{minU,maxV}};
+    const auto append=[&](std::vector<V2> polygon) {
+        auto tris=triangulateConvexPolygon(std::move(polygon));
+        for (const auto& tri:tris)
+            if (triangleArea2(tri)>areaTolerance) out.outsideCorridor.push_back(tri);
+    };
+    append(std::move(lower)); append(std::move(upper));
+    out.maximumGapM=std::max(0.0,std::max(delta0,delta1));
+    out.valid=!out.outsideCorridor.empty()&&std::isfinite(out.corridorAreaM2);
+    return out;
+}
+
+inline std::size_t regionIndex(BoxBlankFaceRegion region) {
+    switch (region) {
+        case BoxBlankFaceRegion::wall: return 0u;
+        case BoxBlankFaceRegion::bottomFlap: return 1u;
+        case BoxBlankFaceRegion::topFlap: return 2u;
+        default: return 3u;
+    }
+}
+
+inline bool collectPlane(const std::vector<Triangle3>& triangles,
+                         const double planeTol,const double cosTol,Plane& plane) {
+    return makePlane(triangles,planeTol,cosTol,plane);
+}
+
+} // namespace inside_clearance_detail
+
+// Topology-driven map from one accepted environment of the compiled blank.
+// The function fails closed on surface-table/topology disagreement, ambiguous
+// face roles, incomplete panel coverage, warped planes, or unclosed flap overlap.
+template<class StateRange,class TetRange,class FaceRange>
+inline BoxInsideClearanceResult measureAcceptedInsideClearance(
+    const FEFCO0201Blank& blank,
+    const StateRange& acceptedNodes,
+    const std::uint32_t nodeCount,
+    const TetRange& tetrahedra,
+    const FaceRange& surfaceFaces,
+    const std::array<double,3>& targetInsideM,
+    const double clearToleranceFraction=0.01,
+    const std::uint32_t environment=0u,
+    const std::uint32_t objectIndex=0u) {
+    using namespace inside_clearance_detail;
+    BoxInsideClearanceResult result;
+    result.evaluated=true; result.targetInsideM=targetInsideM;
+    const auto fail=[&](const std::string& why) {
+        result.status="rejected"; result.reason=why; result.gatePassed=false; return result;
+    };
+    if (nodeCount==0u || !std::isfinite(blank.boardCaliper) || blank.boardCaliper<=0.0 ||
+        !(std::isfinite(clearToleranceFraction)&&clearToleranceFraction>=0.0) ||
+        !scheduleHasInnerBeforeOuterFlaps(blank))
+        return fail("invalid blank, tolerance, or inner-first flap schedule");
+    if (blank.panels.size()!=4u || !std::isfinite(blank.bottomScoreY) ||
+        !std::isfinite(blank.topScoreY) || !std::isfinite(blank.blankHeight) ||
+        !(blank.bottomScoreY>0.0 && blank.topScoreY>blank.bottomScoreY &&
+          blank.blankHeight>blank.topScoreY))
+        return fail("authored panel/end geometry is incomplete or invalid");
+    std::array<bool,4> panelIndexSeen{};
+    std::array<const BoxBlankPanel*,4> authoredPanels{};
+    for (const auto& panel:blank.panels) {
+        if (panel.index>=4u || panelIndexSeen[panel.index] ||
+            !(std::isfinite(panel.xStart)&&std::isfinite(panel.xEnd)&&
+              panel.xEnd>panel.xStart&&std::isfinite(panel.yStart)&&
+              std::isfinite(panel.yEnd)))
+            return fail("authored panel identity or extents are ambiguous");
+        panelIndexSeen[panel.index]=true;
+        authoredPanels[panel.index]=&panel;
+    }
+    for (std::size_t p=0;p<4u;++p) {
+        if (!authoredPanels[p]) return fail("authored panel map is incomplete");
+        if (p>0u && std::abs(authoredPanels[p-1u]->xEnd-authoredPanels[p]->xStart)>1.0e-10)
+            return fail("authored panel intervals are not contiguous");
+        const double expectedWidth=authoredPanels[p]->longWall
+            ? blank.config.panelLength : blank.config.panelWidth;
+        if (!(std::isfinite(expectedWidth)&&expectedWidth>0.0) ||
+            std::abs((authoredPanels[p]->xEnd-authoredPanels[p]->xStart)-expectedWidth)>
+                std::max(1.0e-10,expectedWidth*1.0e-8) ||
+            std::abs(authoredPanels[p]->yStart-blank.bottomScoreY)>1.0e-10 ||
+            std::abs(authoredPanels[p]->yEnd-blank.topScoreY)>1.0e-10)
+            return fail("authored panel geometry disagrees with blank dimensions or score lines");
+    }
+    if (!(authoredPanels[0]->longWall && !authoredPanels[1]->longWall &&
+          authoredPanels[2]->longWall && !authoredPanels[3]->longWall))
+        return fail("authored long/short panel roles are inconsistent with the box blank");
+    if (!(std::isfinite(blank.config.manufacturerJointWidth) &&
+          std::abs(authoredPanels[0]->xStart-blank.config.manufacturerJointWidth)<=1.0e-10 &&
+          std::isfinite(blank.perimeterSpan) &&
+          std::abs(authoredPanels[3]->xEnd-blank.perimeterSpan)<=1.0e-10))
+        return fail("authored panel endpoints disagree with the manufacturer joint/perimeter");
+    if (!authoredFlapScoreLinesMatchPanels(blank,1.0e-10))
+        return fail("authored flap score lines do not match their declared panels");
+    for (std::size_t i=0;i<blank.slots.size();++i) {
+        const auto& slot=blank.slots[i];
+        if (slot.panelBoundary>2u ||
+            !(std::isfinite(slot.xLeft)&&std::isfinite(slot.xRight)&&
+              std::isfinite(slot.yStart)&&std::isfinite(slot.yEnd)&&
+              slot.xRight>slot.xLeft&&slot.yEnd>slot.yStart))
+            return fail("authored flap slot is invalid");
+        const std::size_t rightPanel=static_cast<std::size_t>(slot.panelBoundary)+1u;
+        const double sharedEdge=authoredPanels[rightPanel-1u]->xEnd;
+        const double slotRegionLow=slot.top?blank.topScoreY:0.0;
+        const double slotRegionHigh=slot.top?blank.blankHeight:blank.bottomScoreY;
+        if (!(slot.xLeft<sharedEdge&&slot.xRight>sharedEdge&&
+              slot.yStart>=slotRegionLow-1.0e-10&&slot.yEnd<=slotRegionHigh+1.0e-10))
+            return fail("authored slot does not match its declared panel boundary/end region");
+        for (std::size_t j=0;j<i;++j) {
+            const auto& prior=blank.slots[j];
+            const double overlapX=std::min(slot.xRight,prior.xRight)-
+                std::max(slot.xLeft,prior.xLeft);
+            const double overlapY=std::min(slot.yEnd,prior.yEnd)-
+                std::max(slot.yStart,prior.yStart);
+            if (overlapX>1.0e-12 && overlapY>1.0e-12)
+                return fail("authored flap slot cuts overlap and make expected area ambiguous");
+        }
+    }
+    for (double d:targetInsideM) if (!(std::isfinite(d)&&d>0.0))
+        return fail("inside-dimension targets are missing or nonfinite");
+    // This remains a bounded post-run diagnostic.  The compact open-addressed
+    // boundary index makes face mapping linear in tetrahedra plus surface
+    // faces; a checked workspace estimate is admitted before allocation.
+    if (nodeCount>600000u || tetrahedra.size()>1600000u ||
+        surfaceFaces.size()>1200000u)
+        return fail("accepted inside-surface map exceeds its checked shipping-topology count bounds");
+    std::uint64_t objectTetCount=0u;
+    for (const auto& tet:tetrahedra) if (tet.identity.y==objectIndex) ++objectTetCount;
+    std::uint64_t topologyHashCapacity=0u,topologyHashBytes=0u,workspaceBytes=0u;
+    if (!ExteriorFaceIndex::capacityFor(objectTetCount,topologyHashCapacity,topologyHashBytes))
+        return fail("object tetrahedron count cannot be indexed within the bounded topology table");
+    if (!estimateWorkspaceBytes(topologyHashBytes,nodeCount,surfaceFaces.size(),workspaceBytes))
+        return fail("accepted inside-surface workspace exceeds the checked 1 GiB estimate");
+    result.tetrahedronCountObserved=objectTetCount;
+    result.surfaceFaceCountObserved=surfaceFaces.size();
+    result.topologyHashCapacity=topologyHashCapacity;
+    result.estimatedWorkspaceBytes=workspaceBytes;
+    const std::uint64_t nodeEnd=(static_cast<std::uint64_t>(environment)+1u)*nodeCount;
+    if (nodeEnd>acceptedNodes.size()) return fail("accepted node state is truncated");
+    const double scale=std::max({blank.config.panelLength,blank.config.panelWidth,
+                                 blank.config.wallHeight,blank.boardCaliper,1.0e-3});
+    const double restTol=std::max(2.0e-7,scale*2.0e-6);
+    const double planeTol=std::max(3.0e-6,blank.boardCaliper*0.05);
+    constexpr double angleTol=0.008726646259971648; // 0.5 degrees
+    const double cosTol=std::cos(angleTol);
+    const double areaTol=std::max(1.0e-16,scale*scale*1.0e-12);
+    const auto accountPairWork=[&](const std::uint64_t used) {
+        if (used>result.overlapPairTestCap-result.overlapPairTestsObserved) return false;
+        result.overlapPairTestsObserved+=used;
+        return true;
+    };
+    const auto accountGridWork=[&](const std::uint64_t used) {
+        if (used>result.overlapGridWorkUnitCap-result.overlapGridWorkUnitsObserved) return false;
+        result.overlapGridWorkUnitsObserved+=used;
+        return true;
+    };
+
+    ExteriorFaceIndex topological(topologyHashCapacity);
+    // One byte per node records which authored wall panels actually reference
+    // this node through a classified exterior wall face. A global object-node
+    // hull would absorb flap and adjacent-panel boundary nodes.
+    std::vector<std::uint8_t> wallDomainPanelMask(nodeCount,0u);
+    for (std::uint32_t ti=0;ti<tetrahedra.size();++ti) {
+        const auto& tet=tetrahedra[ti];
+        if (tet.identity.y!=objectIndex) continue;
+        const std::array<std::uint32_t,4> ids{tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+        std::array<std::uint32_t,4> sortedIds=ids;
+        std::sort(sortedIds.begin(),sortedIds.end());
+        if (sortedIds.back()>=nodeCount ||
+            std::adjacent_find(sortedIds.begin(),sortedIds.end())!=sortedIds.end())
+            return fail("compiled tet has repeated or out-of-range node identity");
+        for (std::uint32_t opposite=0;opposite<4u;++opposite) {
+            FaceKey key{}; std::size_t k=0;
+            for (std::uint32_t c=0;c<4u;++c) if (c!=opposite) key[k++]=ids[c];
+            std::sort(key.begin(),key.end());
+            if (!topological.insert(key,ti,opposite)) return fail(topological.error());
+        }
+    }
+    std::vector<Triangle3> candidates;
+    candidates.reserve(surfaceFaces.size());
+    for (std::uint32_t faceIndex=0u;faceIndex<surfaceFaces.size();++faceIndex) {
+        const auto& face=surfaceFaces[faceIndex];
+        if (face.adjacency.z!=objectIndex || face.adjacency.y!=NM_INVALID_INDEX) continue;
+        if (face.adjacency.x>=tetrahedra.size() || face.sides.x>=4u ||
+            face.sides.w!=0u || (face.adjacency.w&NM_TOPOLOGY_ACTIVE)==0u)
+            return fail("compiled exterior face references invalid tet/corner");
+        const auto& tet=tetrahedra[face.adjacency.x];
+        if (tet.identity.y!=objectIndex) return fail("compiled surface object/tet identity mismatch");
+        const std::array<std::uint32_t,4> ids{tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+        FaceKey key{}; std::array<std::uint32_t,3> faceIds{}; std::size_t k=0;
+        for (std::uint32_t c=0;c<4u;++c) if (c!=face.sides.x) {
+            key[k]=ids[c]; faceIds[k++]=ids[c];
+        }
+        std::sort(key.begin(),key.end());
+        BoundaryRef boundary{};
+        if (!topological.markExteriorSeen(key,face.adjacency.x,face.sides.x,boundary))
+            return fail(topological.error());
+        ++result.exteriorFaceCount;
+        std::array<BoxBlankPoint,3> rest{};
+        Triangle3 tri;
+        for (std::size_t i=0;i<3u;++i) {
+            if (faceIds[i]>=nodeCount) return fail("exterior face node index is out of range");
+            const auto& state=acceptedNodes[static_cast<std::size_t>(environment)*nodeCount+faceIds[i]];
+            rest[i]={state.restAndFixed.x,state.restAndFixed.y,state.restAndFixed.z};
+            tri.restXY[i]={static_cast<float>(rest[i].x),static_cast<float>(rest[i].y)};
+            tri.p[i]={state.positionAndMass.x,state.positionAndMass.y,state.positionAndMass.z};
+            if (!finite(tri.p[i]) || !std::isfinite(rest[i].x) ||
+                !std::isfinite(rest[i].y) || !std::isfinite(rest[i].z))
+                return fail("accepted or authored surface coordinate is nonfinite");
+        }
+        tri.tag=classifyFlatFace(blank,rest,restTol);
+        if (!tri.tag.classified) continue;
+        if (tri.tag.region==BoxBlankFaceRegion::wall) {
+            if (tri.tag.panelIndex>=4u)
+                return fail("accepted wall face has an invalid authored panel owner");
+            const auto panelBit=static_cast<std::uint8_t>(1u<<tri.tag.panelIndex);
+            for (const auto node:faceIds) wallDomainPanelMask[node]|=panelBit;
+        }
+        if (candidates.size()>=surfaceFaces.size())
+            return fail("accepted face provenance exceeds the checked surface-face count");
+        tri.surfaceFaceIndex=faceIndex;
+        tri.tetrahedronIndex=face.adjacency.x;
+        ++result.broadFaceCount;
+        tri.restArea=area3({V3{rest[0].x,rest[0].y,rest[0].z},
+                            V3{rest[1].x,rest[1].y,rest[1].z},
+                            V3{rest[2].x,rest[2].y,rest[2].z}});
+        tri.area=area3(tri.p);
+        if (!(std::isfinite(tri.restArea)&&tri.restArea>areaTol&&
+              std::isfinite(tri.area)&&tri.area>areaTol))
+            return fail("accepted broad face is degenerate");
+        const std::uint32_t oppositeNode=ids[face.sides.x];
+        if (oppositeNode>=nodeCount) return fail("tet opposite node is out of range");
+        const auto& oppositeState=acceptedNodes[static_cast<std::size_t>(environment)*nodeCount+oppositeNode];
+        const V3 opposite{oppositeState.positionAndMass.x,oppositeState.positionAndMass.y,
+                           oppositeState.positionAndMass.z};
+        V3 normal=unit(cross(sub(tri.p[1],tri.p[0]),sub(tri.p[2],tri.p[0])));
+        if (norm(normal)<0.99 || !finite(opposite)) return fail("accepted broad-face normal is invalid");
+        const V3 centroid=mul(add(add(tri.p[0],tri.p[1]),tri.p[2]),1.0/3.0);
+        if (dot(normal,sub(opposite,centroid))>0.0) normal=mul(normal,-1.0);
+        tri.outward=normal;
+        candidates.push_back(tri);
+    }
+    const bool exteriorMapComplete=topological.allExteriorFacesSeen();
+    result.topologyProbeSteps=topological.probeSteps();
+    if (!exteriorMapComplete) return fail(topological.error());
+    result.topologyComplete=true;
+    if (candidates.empty()) return fail("no authored broad inside-candidate faces were mapped");
+
+    // Wall surface centers are computed from actual area-weighted accepted
+    // geometry on both material sides, then used only to resolve which side
+    // faces the box cavity. No target dimension enters this side selection.
+    std::array<V3,4> wallSums{}; std::array<double,4> wallWeights{};
+    for (const auto& tri:candidates) if (tri.tag.region==BoxBlankFaceRegion::wall) {
+        const auto p=tri.tag.panelIndex;
+        const V3 c=mul(add(add(tri.p[0],tri.p[1]),tri.p[2]),1.0/3.0);
+        wallSums[p]=add(wallSums[p],mul(c,tri.area)); wallWeights[p]+=tri.area;
+    }
+    V3 interior{};
+    for (std::size_t p=0;p<4u;++p) {
+        if (!(wallWeights[p]>areaTol)) return fail("one or more authored wall panels lack broad-face coverage");
+        interior=add(interior,mul(wallSums[p],1.0/wallWeights[p]));
+    }
+    interior=mul(interior,0.25);
+    std::array<std::array<std::vector<Triangle3>,4>,3> inside;
+    std::array<std::array<std::size_t,4>,3> insideCounts{};
+    for (const auto& tri:candidates) {
+        const std::size_t ri=regionIndex(tri.tag.region);
+        const V3 c=mul(add(add(tri.p[0],tri.p[1]),tri.p[2]),1.0/3.0);
+        const double toward=dot(tri.outward,sub(interior,c));
+        const double ambiguity=std::max(1.0e-10,tri.area*scale*1.0e-5);
+        if (std::abs(toward)<=ambiguity)
+            return fail("cavity-facing side is geometrically ambiguous");
+        if (toward>0.0) ++insideCounts[ri][tri.tag.panelIndex];
+    }
+    for (std::size_t ri=0;ri<3u;++ri) for (std::size_t p=0;p<4u;++p)
+        inside[ri][p].reserve(insideCounts[ri][p]);
+    result.faceRecords.reserve(candidates.size());
+    for (auto tri:candidates) {
+        const std::size_t ri=regionIndex(tri.tag.region);
+        const V3 c=mul(add(add(tri.p[0],tri.p[1]),tri.p[2]),1.0/3.0);
+        const double toward=dot(tri.outward,sub(interior,c));
+        const double ambiguity=std::max(1.0e-10,tri.area*scale*1.0e-5);
+        if (std::abs(toward)<=ambiguity) return fail("cavity-facing side is geometrically ambiguous");
+        const bool cavityFacing=toward>0.0;
+        result.faceRecords.push_back({tri.surfaceFaceIndex,tri.tetrahedronIndex,
+            tri.tag.panelIndex,tri.tag.region,tri.tag.broadSide,cavityFacing,
+            tri.restArea,tri.area});
+        if (cavityFacing) inside[ri][tri.tag.panelIndex].push_back(tri);
+    }
+    result.faceProvenanceMapComplete=result.faceRecords.size()==result.broadFaceCount;
+    if (!result.faceProvenanceMapComplete)
+        return fail("accepted face provenance map is incomplete");
+    result.acceptedPositionUlpM=fp32PositionUlp(candidates);
+    if (!(std::isfinite(result.acceptedPositionUlpM)&&
+          result.acceptedPositionUlpM<=maximumCoveragePositionUlpM))
+        return fail("accepted FP32 world-coordinate spacing is too coarse for local opening checks");
+    for (std::size_t ri=0;ri<3u;++ri) for (std::size_t p=0;p<4u;++p) {
+        const auto& group=inside[ri][p];
+        result.insideFaceCount[ri][p]=group.size();
+        for (const auto& tri:group) {
+            result.insideRestAreaM2[ri][p]+=tri.restArea;
+            result.insideAcceptedAreaM2[ri][p]+=tri.area;
+        }
+        if (group.empty()) return fail("accepted cavity surface has incomplete authored wall/flap panel coverage");
+    }
+    result.roleCoverageComplete=true;
+
+    const std::array<std::array<double,2>,3> regionY{{
+        {{blank.bottomScoreY,blank.topScoreY}},
+        {{0.0,blank.bottomScoreY}},
+        {{blank.topScoreY,blank.blankHeight}},
+    }};
+    // Expected surface area comes from the authored blank panel rectangles
+    // less the actual recorded slot rectangles, not from target dimensions.
+    // This catches a topology map that has a few faces per role but omits a
+    // substantial part of an accepted inside surface.
+    for (std::size_t ri=0;ri<3u;++ri) for (std::size_t p=0;p<4u;++p) {
+        const auto& panel=*authoredPanels[p];
+        double expected=(panel.xEnd-panel.xStart)*(regionY[ri][1]-regionY[ri][0]);
+        for (const auto& slot:blank.slots) {
+            const bool belongs=(ri==0u) ||
+                (ri==1u && !slot.top) || (ri==2u && slot.top);
+            if (!belongs) continue;
+            const double dx=std::max(0.0,std::min(panel.xEnd,slot.xRight)-
+                std::max(panel.xStart,slot.xLeft));
+            const double dy=std::max(0.0,std::min(regionY[ri][1],slot.yEnd)-
+                std::max(regionY[ri][0],slot.yStart));
+            expected-=dx*dy;
+        }
+        result.expectedInsideRestAreaM2[ri][p]=expected;
+        const double actual=result.insideRestAreaM2[ri][p];
+        if (!(std::isfinite(expected)&&expected>areaTol&&std::isfinite(actual)&&actual>areaTol))
+            return fail("authored surface area or accepted inside-area map is empty/nonfinite");
+        const double coverage=actual/expected;
+        result.insideRestCoverageFraction[ri][p]=coverage;
+        if (!std::isfinite(coverage) || std::abs(coverage-1.0)>0.005)
+            return fail("accepted inside faces do not cover the authored panel area after recorded slot cuts");
+    }
+    result.authoredSurfaceCoverageComplete=true;
+
+    std::array<Plane,4> wallPlanes{};
+    for (std::size_t p=0;p<4u;++p)
+        if (!collectPlane(inside[0][p],planeTol,cosTol,wallPlanes[p]))
+            return fail("accepted wall panel is nonplanar or has inconsistent cavity normals");
+    for (std::size_t p=0;p<4u;++p) {
+        V3 edge=sub(inside[0][p].front().p[1],inside[0][p].front().p[0]);
+        edge=unit(sub(edge,mul(wallPlanes[p].inward,dot(edge,wallPlanes[p].inward))));
+        const V3 v=unit(cross(wallPlanes[p].inward,edge));
+        if (norm(edge)<0.99 || norm(v)<0.99)
+            return fail("accepted wall projection basis is degenerate");
+        std::vector<Triangle2> projected;
+        projected.reserve(inside[0][p].size());
+        for (const auto& tri:inside[0][p]) projected.push_back(project(tri,wallPlanes[p].origin,edge,v));
+        std::uint64_t pairTests=0u,gridVisits=0u;
+        const bool nonoverlap=projectedPanelNonoverlap(projected,areaTol,pairTests,&gridVisits);
+        if (!accountPairWork(pairTests)||!accountGridWork(gridVisits))
+            return fail("accepted wall overlap checks exceed the total bounded pair/grid-work budget");
+        if (!nonoverlap)
+            return fail("accepted wall panel self-overlaps or exceeds bounded overlap workspace");
+
+        // The accepted domain uses nodes referenced by this authored panel's
+        // own classified broad wall faces. A global object-node hull would
+        // absorb flap and neighboring-panel boundary nodes, which can be
+        // offset by caliper and spuriously enlarge this wall's domain.
+        std::vector<V2> wallDomainPoints;
+        wallDomainPoints.reserve(nodeCount);
+        for (std::uint32_t node=0u;node<nodeCount;++node) {
+            if ((wallDomainPanelMask[node]&(1u<<p))==0u) continue;
+            const auto& state=acceptedNodes[static_cast<std::size_t>(environment)*nodeCount+node];
+            const V3 q{state.positionAndMass.x,state.positionAndMass.y,state.positionAndMass.z};
+            if (!finite(q)||std::abs(dot(wallPlanes[p].inward,
+                    sub(q,wallPlanes[p].origin)))>planeTol) continue;
+            wallDomainPoints.push_back({dot(sub(q,wallPlanes[p].origin),edge),
+                                        dot(sub(q,wallPlanes[p].origin),v)});
+        }
+        auto wallHull=convexHull2D(std::move(wallDomainPoints));
+        double wallPerimeter=0.0;
+        for (std::size_t i=0;i<wallHull.size();++i) {
+            const auto a=wallHull[i],b=wallHull[(i+1u)%wallHull.size()];
+            wallPerimeter+=std::hypot(b.x-a.x,b.y-a.y);
+        }
+        auto wallDomain=triangulateConvexPolygon(std::move(wallHull));
+        double wallCoverage=0.0,wallArea=0.0;
+        std::uint64_t wallPairs=0u,wallGridVisits=0u;
+        if (wallDomain.empty()||!singleSetCoverageOnDomain(projected,wallDomain,
+                areaTol,wallCoverage,wallArea,wallPairs,wallGridVisits))
+            return fail("authored accepted wall domain is incomplete or exceeds bounded clipping work");
+        if (!accountPairWork(wallPairs)||!accountGridWork(wallGridVisits))
+            return fail("accepted wall domain checks exceed the total bounded clipping/grid budget");
+        result.wallDomainAreaM2[p]=wallArea;
+        result.wallUncoveredAreaM2[p]=std::max(0.0,wallArea*(1.0-wallCoverage));
+        const double wallAreaRoundoff=std::max(64.0*areaTol,
+            2.0*result.acceptedPositionUlpM*wallPerimeter);
+        result.wallAreaRoundoffBoundM2[p]=wallAreaRoundoff;
+        if (result.wallUncoveredAreaM2[p]>wallAreaRoundoff)
+            return fail("accepted cavity-facing wall has an uncovered opening outside authored flap slots");
+    }
+    result.wallLocalCoverageComplete=true;
+    result.maximumWallPlanarityResidualM[0]=std::max(wallPlanes[0].maxResidual,wallPlanes[2].maxResidual);
+    result.maximumWallPlanarityResidualM[1]=std::max(wallPlanes[1].maxResidual,wallPlanes[3].maxResidual);
+    const auto parallelOpposing=[&](std::size_t a,std::size_t b) {
+        return dot(wallPlanes[a].inward,wallPlanes[b].inward)<=-cosTol;
+    };
+    if (!parallelOpposing(0u,2u)||!parallelOpposing(1u,3u) ||
+        std::abs(dot(wallPlanes[0].inward,wallPlanes[1].inward))>std::sin(angleTol) ||
+        std::abs(dot(wallPlanes[0].inward,wallPlanes[3].inward))>std::sin(angleTol) ||
+        std::abs(dot(wallPlanes[2].inward,wallPlanes[1].inward))>std::sin(angleTol) ||
+        std::abs(dot(wallPlanes[2].inward,wallPlanes[3].inward))>std::sin(angleTol))
+        return fail("accepted wall planes are not a resolved rectangular cavity");
+    if (!positiveOpposingPlaneGap(wallPlanes[1],wallPlanes[3],result.measuredInsideM[0]) ||
+        !positiveOpposingPlaneGap(wallPlanes[0],wallPlanes[2],result.measuredInsideM[2]))
+        return fail("opposing wall normals do not face across a positive signed cavity gap");
+
+    std::array<std::array<Plane,4>,2> flapPlanes{};
+    for (std::size_t end=0;end<2u;++end) {
+        const std::size_t ri=end==0u?1u:2u;
+        for (std::size_t p=0;p<4u;++p)
+            if (!collectPlane(inside[ri][p],planeTol,cosTol,flapPlanes[end][p]))
+                return fail("accepted flap panel is nonplanar or has inconsistent cavity normals");
+        const V3 endNormal=flapPlanes[end][0].inward;
+        for (std::size_t p=1;p<4u;++p)
+            if (dot(endNormal,flapPlanes[end][p].inward)<cosTol)
+                return fail("accepted flaps do not share a resolved inward end direction");
+        result.endMajorPlaneSeparationM[end]=std::abs(pointPlaneOffset(
+            flapPlanes[end][0],flapPlanes[end][2].origin));
+        // Panel 0 and 2 are the last-closing major flaps. A material-thickness
+        // step between them leaves an ambiguous cavity boundary and fails closed.
+        if (result.endMajorPlaneSeparationM[end]>planeTol)
+            return fail("last-closing major flaps do not form one resolved end plane");
+
+        // Derive the cavity footprint only from accepted wall surfaces. Minor-
+        // flap coverage alone cannot detect an open strip between major flaps.
+        const V3 footprintU=unit(cross(endNormal,wallPlanes[0].inward));
+        V3 footprintV=unit(cross(wallPlanes[1].inward,endNormal));
+        // Give the width axis a stable authored direction: panel 0 to panel 2.
+        // This makes a signed edge offset distinguish a real opening from an
+        // overlap regardless of the arbitrary accepted wall-normal winding.
+        std::array<V3,2> majorCenters{};
+        std::array<double,2> majorWeights{};
+        for (std::size_t major=0;major<2u;++major) {
+            const std::size_t panel=major==0u?0u:2u;
+            for (const auto& tri:inside[ri][panel]) {
+                const V3 center=mul(add(add(tri.p[0],tri.p[1]),tri.p[2]),1.0/3.0);
+                majorCenters[major]=add(majorCenters[major],mul(center,tri.area));
+                majorWeights[major]+=tri.area;
+            }
+            if (!(majorWeights[major]>areaTol))
+                return fail("accepted major-flap geometry is insufficient to orient the authored seam");
+            majorCenters[major]=mul(majorCenters[major],1.0/majorWeights[major]);
+        }
+        if (dot(sub(majorCenters[1],majorCenters[0]),footprintV)<0.0)
+            footprintV=mul(footprintV,-1.0);
+        const V3 footprintOrigin=wallPlanes[0].origin;
+        if (norm(footprintU)<0.99||norm(footprintV)<0.99||
+            std::abs(dot(footprintU,footprintV))>std::sin(angleTol))
+            return fail("accepted wall planes do not define a resolved cavity-footprint basis");
+        double minU=std::numeric_limits<double>::infinity();
+        double maxU=-std::numeric_limits<double>::infinity();
+        double minV=std::numeric_limits<double>::infinity();
+        double maxV=-std::numeric_limits<double>::infinity();
+        for (const auto& panel:inside[0]) for (const auto& tri:panel) for (const auto p:tri.p) {
+            const V3 relative=sub(p,footprintOrigin);
+            const double u=dot(relative,footprintU),vCoord=dot(relative,footprintV);
+            if (!(std::isfinite(u)&&std::isfinite(vCoord)))
+                return fail("accepted wall footprint contains nonfinite projected coordinates");
+            minU=std::min(minU,u); maxU=std::max(maxU,u);
+            minV=std::min(minV,vCoord); maxV=std::max(maxV,vCoord);
+        }
+        if (!(std::isfinite(minU)&&std::isfinite(maxU)&&std::isfinite(minV)&&
+              std::isfinite(maxV)&&maxU-minU>scale*1.0e-8&&maxV-minV>scale*1.0e-8))
+            return fail("accepted walls do not define a positive cavity footprint");
+        const std::array<Triangle2,2> footprint{{
+            Triangle2{{V2{minU,minV},V2{maxU,minV},V2{maxU,maxV}}},
+            Triangle2{{V2{minU,minV},V2{maxU,maxV},V2{minU,maxV}}}
+        }};
+        std::array<std::vector<Triangle2>,4> projected;
+        for (std::size_t p=0;p<4u;++p) {
+            projected[p].reserve(inside[ri][p].size());
+            for (const auto& t:inside[ri][p]) projected[p].push_back(
+                project(t,footprintOrigin,footprintU,footprintV));
+            std::uint64_t pairTests=0u,gridVisits=0u;
+            const bool nonoverlap=projectedPanelNonoverlap(projected[p],areaTol,pairTests,&gridVisits);
+            if (!accountPairWork(pairTests)||!accountGridWork(gridVisits))
+                return fail("accepted flap overlap checks exceed the total bounded pair/grid-work budget");
+            if (!nonoverlap)
+                return fail("accepted flap panel self-overlaps or exceeds bounded overlap workspace");
+        }
+        const TrianglePairView major{{&projected[0],&projected[2]}};
+        const double footprintTolerance=planeTol;
+        for (const std::size_t panelIndex:{0u,2u}) for (const auto& tri:projected[panelIndex]) for (const auto p:tri.p) {
+            if (p.x<minU-footprintTolerance||p.x>maxU+footprintTolerance||
+                p.y<minV-footprintTolerance||p.y>maxV+footprintTolerance)
+                return fail("last-closing flap surface extends outside the wall-derived cavity footprint");
+        }
+        std::uint64_t footprintPairTests=0u,footprintGridVisits=0u;
+        double footprintCoverage=0.0,footprintArea=0.0;
+        if (!majorUnionFootprintCoverage(major,footprint,areaTol,footprintCoverage,
+                                         footprintArea,footprintPairTests,&footprintGridVisits))
+            return fail("major-flap cavity-footprint union is incomplete or exceeds bounded pair-work workspace");
+        if (!accountPairWork(footprintPairTests)||!accountGridWork(footprintGridVisits))
+            return fail("cavity-footprint union checks exceed the total bounded pair/grid-work budget");
+        result.endFootprintCoverage[end]=footprintCoverage;
+        result.endFootprintAreaM2[end]=footprintArea;
+        result.endFootprintUncoveredAreaM2[end]=footprintArea*(1.0-footprintCoverage);
+
+        // The only permitted opening is the narrow butt-seam corridor between
+        // the two actual authored major-flap free edges. Their edge samples are
+        // identified from each triangle's immutable rest coordinates, then
+        // mapped through the accepted geometry into the wall-derived footprint.
+        const double freeEdgeY=end==0u?0.0:blank.blankHeight;
+        std::array<std::vector<V2>,2> freeEdges;
+        for (std::size_t majorIndex=0u;majorIndex<2u;++majorIndex) {
+            const std::size_t panel=majorIndex==0u?0u:2u;
+            freeEdges[majorIndex].reserve(3u*inside[ri][panel].size());
+            for (const auto& tri:inside[ri][panel]) for (std::size_t k=0u;k<3u;++k) {
+                if (std::abs(static_cast<double>(tri.restXY[k][1])-freeEdgeY)>restTol) continue;
+                if (tri.restXY[k][0]<authoredPanels[panel]->xStart-restTol||
+                    tri.restXY[k][0]>authoredPanels[panel]->xEnd+restTol) continue;
+                const V3 relative=sub(tri.p[k],footprintOrigin);
+                freeEdges[majorIndex].push_back({dot(relative,footprintU),
+                                                 dot(relative,footprintV)});
+            }
+        }
+        const double seamGeometryTolerance=std::max(1.0e-5,scale*1.0e-5);
+        const auto seam=deriveButtSeamOutsideDomain(freeEdges[0],freeEdges[1],
+            minU,maxU,minV,maxV,seamGeometryTolerance,areaTol);
+        if (!seam.valid)
+            return fail("accepted major-flap free edges do not define a bounded authored butt seam");
+        result.maximumButtSeamGapM[end]=seam.maximumGapM;
+        result.buttSeamCorridorAreaM2[end]=seam.corridorAreaM2;
+        result.buttSeamGeometryValid=true;
+        double outsideCoverage=0.0,outsideArea=0.0;
+        std::uint64_t outsidePairs=0u,outsideGridVisits=0u;
+        if (!majorUnionCoverageOnDomain(major,seam.outsideCorridor,areaTol,
+                outsideCoverage,outsideArea,outsidePairs,outsideGridVisits))
+            return fail("major-flap exterior seam domains are incomplete or exceed bounded clipping work");
+        if (!accountPairWork(outsidePairs)||!accountGridWork(outsideGridVisits))
+            return fail("major-flap exterior seam checks exceed the total bounded pair/grid-work budget");
+        result.endOutsideSeamUncoveredAreaM2[end]=std::max(0.0,outsideArea*(1.0-outsideCoverage));
+        const double outsidePerimeter=2.0*((maxU-minU)+(maxV-minV));
+        const double outsideRoundoff=std::max(64.0*areaTol,
+            2.0*result.acceptedPositionUlpM*outsidePerimeter);
+        result.endOutsideSeamAreaRoundoffBoundM2[end]=outsideRoundoff;
+        if (result.endOutsideSeamUncoveredAreaM2[end]>outsideRoundoff)
+            return fail("last-closing major flaps leave an exposed opening outside the authored butt-seam corridor");
+        for (std::size_t m=0;m<2u;++m) {
+            const std::size_t panel=m==0u?1u:3u;
+            double coverage=0.0,area=0.0;
+            std::uint64_t pairTests=0u,gridVisits=0u;
+            const bool mapped=flapUnionCoverage(major,projected[panel],areaTol,coverage,area,pairTests,&gridVisits);
+            if (!accountPairWork(pairTests)||!accountGridWork(gridVisits))
+                return fail("flap union checks exceed the total bounded pair/grid-work budget");
+            if (!mapped)
+                return fail("flap overlap map is incomplete or outside its bounded exact-projection workspace");
+            result.minorFlapCoverage[end][m]=coverage;
+            result.minorFlapAreaM2[end][m]=area;
+            result.overlapMeasured=true;
+    if (coverage<inside_clearance_detail::minimumFlapCoverage)
+        return fail("last-closing major flaps do not cover at least 99% of an inner-first flap surface");
+        }
+    }
+    result.overlapComplete=true;
+    result.endOutsideSeamCoverageComplete=true;
+    result.endFootprintCoverageComplete=true;
+    if (dot(flapPlanes[0][0].inward,flapPlanes[1][0].inward)>-cosTol)
+        return fail("top and bottom flap planes do not face inward from opposite ends");
+    double maximumFloorProjection=-std::numeric_limits<double>::infinity();
+    double minimumRoofProjection=std::numeric_limits<double>::infinity();
+    const V3 floorAxis=flapPlanes[0][0].inward;
+    for (const auto& panel:inside[1]) for (const auto& tri:panel) for (const auto point:tri.p)
+        maximumFloorProjection=std::max(maximumFloorProjection,dot(floorAxis,point));
+    for (const auto& panel:inside[2]) for (const auto& tri:panel) for (const auto point:tri.p)
+        minimumRoofProjection=std::min(minimumRoofProjection,dot(floorAxis,point));
+    if (!(std::isfinite(maximumFloorProjection)&&std::isfinite(minimumRoofProjection)))
+        return fail("complete accepted top/bottom cavity-facing flap coverage is unavailable");
+    result.maximumAcceptedFloorProjectionM=maximumFloorProjection;
+    result.minimumAcceptedRoofProjectionM=minimumRoofProjection;
+    result.measuredInsideM[1]=minimumRoofProjection-maximumFloorProjection;
+    if (!(std::isfinite(result.measuredInsideM[0])&&result.measuredInsideM[0]>0.0&&
+          std::isfinite(result.measuredInsideM[1])&&result.measuredInsideM[1]>0.0&&
+          std::isfinite(result.measuredInsideM[2])&&result.measuredInsideM[2]>0.0))
+        return fail("measured cavity clear dimensions are nonpositive or nonfinite");
+    result.planarGeometryValid=true;
+    for (std::size_t i=0;i<3u;++i) {
+        result.relativeError[i]=std::abs(result.measuredInsideM[i]-targetInsideM[i])/targetInsideM[i];
+        if (!std::isfinite(result.relativeError[i])||result.relativeError[i]>clearToleranceFraction)
+            return fail("accepted clear dimension exceeds the explicit target tolerance");
+    }
+    result.dimensionsWithinTolerance=true;
+    result.gatePassed=result.topologyComplete&&result.roleCoverageComplete&&
+        result.authoredSurfaceCoverageComplete&&result.wallLocalCoverageComplete&&
+        result.overlapMeasured&&result.overlapComplete&&
+        result.endOutsideSeamCoverageComplete&&result.buttSeamGeometryValid&&
+        result.endFootprintCoverageComplete&&result.planarGeometryValid&&
+        result.dimensionsWithinTolerance;
+    result.status=result.gatePassed?"passed":"rejected";
+    result.reason=result.gatePassed?"complete accepted inside-surface map and dimensions passed":"inside-surface gate incomplete";
+    return result;
+}
+
+} // namespace numi::cardboard

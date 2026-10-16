@@ -1,0 +1,70 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 2248,
+      "sha256": "66e4fa92f12255db6a848d5da2edaf14c57d609afed519b169aacfe47ec12b92"
+    },
+    "build-binding.json": {
+      "bytes": 2159,
+      "sha256": "eb5f459a415b55a3a250da51252e93768408cd65d2a1e4b170cc0bfccce81067"
+    },
+    "ctest-fixed.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ctest-fixed.stdout.txt": {
+      "bytes": 955,
+      "sha256": "2595b4035baf9f132d7b954bcfc0663cc50964a52d3a644583dffa2ac9974c26"
+    },
+    "ctest.stderr.txt": {
+      "bytes": 27,
+      "sha256": "18e00877dc1071c85cd4f479d451bebeef8309022e46cf8c63b0bed5151984a4"
+    },
+    "ctest.stdout.txt": {
+      "bytes": 85186,
+      "sha256": "83783a4ed958107f9d20b2dec5149237bd2ebfc6ce40e693444ef22de54ad2f2"
+    },
+    "ensemble.stderr.txt": {
+      "bytes": 4744,
+      "sha256": "7c076aa434a8c480403a9659b5729c2d187f14a0815a58f8a8b7fe434b6aa28b"
+    },
+    "ensemble.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "producer.stderr.txt": {
+      "bytes": 1060,
+      "sha256": "5167c4a6138e366b6d65f89302ce05c91edc42d244c1dc8786d30beb0f33c5e7"
+    },
+    "producer.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "py_compile.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "py_compile.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "report.json": {
+      "bytes": 9220,
+      "sha256": "0d59e0ec1dfa51be1210786eca92074437caf4fd999044723a299c714ec1670b"
+    },
+    "source248.patch": {
+      "bytes": 51419,
+      "sha256": "e2ccfbcad393c738506510f9f84d07df1c466946c4e9413fc5846c52e9602c51"
+    },
+    "stage.stderr.txt": {
+      "bytes": 138,
+      "sha256": "975be49f73e9634f66aad6d5b07eb58d2e5ac0a6a9c80e459ed95e640c7cb8b9"
+    },
+    "stage.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source248-first-local-peak-identity-001",
+  "schema": "numi.cardboard.source248.package-manifest.v1"
+}

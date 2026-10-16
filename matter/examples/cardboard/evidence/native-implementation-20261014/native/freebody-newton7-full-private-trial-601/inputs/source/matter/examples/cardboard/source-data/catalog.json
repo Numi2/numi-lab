@@ -1,0 +1,1157 @@
+{
+  "schema": "numi.cardboard.source_data_catalog.v1",
+  "version": "1.4.0",
+  "scope": "Published-data-only package. No new physical measurements. Every digitized estimate is labeled and carries visual extraction uncertainty.",
+  "recipe": "The approved literature2009 cross-source recipe remains unchanged; do not transfer constituent, damage or interface properties across grades without explicit bounded-analogue treatment.",
+  "sources": [
+    {
+      "id": "haj_ali_2009",
+      "citation": "Haj-Ali et al. (2009), Refined nonlinear finite element models for corrugated fiberboards, Composite Structures 87(4), 321-333.",
+      "doi": "10.1016/j.compstruct.2008.02.001",
+      "urls": [
+        "https://doi.org/10.1016/j.compstruct.2008.02.001",
+        "https://www.researchgate.net/publication/223896964_Refined_nonlinear_finite_element_models_for_corrugated_fiberboard"
+      ],
+      "access_state": "Peer-reviewed article. The author-posted full-text page is publicly readable. Its page-4 PNG render exposes the plotted marker clouds and fitted lines for Figs. 1-2. Selected visible marker centers are separately digitized as plot estimates; the source provides no raw numeric test files or marker-to-specimen mapping. The direct PDF download link returned HTTP 404 in this session; the publisher PDF remains access-controlled.",
+      "external_original_pdf": null,
+      "external_original_sha256": null,
+      "page_render": {
+        "path": "/Users/home/cardboard-research-20261006/primary-access/haj-ali-2009-rendered-pages/page-4.png",
+        "sha256": "bffb53d8685c5990b2fa43f120ac0382493e893db2284b4f8c24adff6a48a6d5",
+        "url": "https://www.researchgate.net/profile/Roman-Popil/publication/223896964/viewer/AS:1078658240393218@1634183573648/background/4.png",
+        "asset_kind": "author_posted_article_page_render",
+        "dimensions_px": [
+          1041,
+          1269
+        ],
+        "viewer_page_index": 4,
+        "printed_page": 324,
+        "note": "Author-page-rendered article page image, not the original PDF. The page raster contains the chart pixels; axis labels/ranges are transcribed from the article/accessible viewer context. The retained image bytes are hash-bound exactly as served."
+      }
+    },
+    {
+      "id": "popil_2012",
+      "citation": "Popil (2012), Overview of recent studies at IPST on corrugated board edge compression strength, BioResources 7(2), 2553-2581.",
+      "doi": null,
+      "urls": [
+        "https://bioresources.cnr.ncsu.edu/resources/overview-of-recent-studies-at-ipst-on-corrugated-board-edge-compression-strength-testing-methods-and-effects-of-interflute-buckling/",
+        "https://bioresources.cnr.ncsu.edu/wp-content/uploads/2016/06/BioRes_07_2_2553_Popil_Overview_Edge_Compression_Buckling_1006.pdf"
+      ],
+      "access_state": "Peer-reviewed open article. Full PDF retained outside repository.",
+      "external_original_pdf": "/Users/home/cardboard-research-20261006/popil-2012-ect-rate.pdf",
+      "external_original_sha256": "bba07fde50facae5dba2d430d60b4015a425bbe0ae9b6c056e4492321d082295"
+    },
+    {
+      "id": "johnson_popil_2015_article",
+      "citation": "Johnson and Popil (2015), Corrugated board bonding defect visualization and characterization, International Journal of Adhesion and Adhesives.",
+      "doi": "10.1016/j.ijadhadh.2015.02.003",
+      "urls": [
+        "https://doi.org/10.1016/j.ijadhadh.2015.02.003",
+        "https://www.researchgate.net/publication/272753889_Corrugated_board_bonding_defect_visualization_and_characterization"
+      ],
+      "access_state": "Peer-reviewed article; author-posted accepted-manuscript text is publicly readable on the ResearchGate publication page. The two page-linked PDF download endpoints returned 404 in this review; no article PDF bytes or raw pin-test data are retained. The article is the source for the test-method/protocol metadata, not the pixel values digitized from the 2016 presentation.",
+      "external_original_pdf": null,
+      "external_original_sha256": null,
+      "source_text_extract": "johnson_popil_2015_pin_protocol_record.md",
+      "source_text_extract_sha256": "15487ca90c5a4278cebbd08fac6eb399a0eb2eb0c65551c6f88bf2f1254e50ae",
+      "article_figures_not_digitized": {
+        "figure_4": "Representative load-displacement waveforms described in article text; not pixel-digitized in this package.",
+        "figure_5": "Article summary across six defect classes; not the source of the checked-in slide-16 marker digitization."
+      },
+      "protocol_facts": {
+        "section": "2.2 Pin Adhesion Method and Analysis",
+        "printed_pages": [
+          10,
+          11
+        ],
+        "fixture": "Emerson 06-00-55 C-flute",
+        "machine": "Instron 1122 UTM with Series IX software",
+        "specimen_dimensions_mm": [
+          50.0,
+          160.0
+        ],
+        "relative_platen_approach_mm_per_min": 12.5,
+        "loading": "out-of-plane tension selecting the bottom facing",
+        "alternating_pin_groups": {
+          "upper_platen": [
+            1,
+            3,
+            5
+          ],
+          "lower_platen": [
+            2,
+            4,
+            6
+          ]
+        },
+        "pin_geometry": "diameter, pitch, cross-section, end geometry, and registration not dimensioned"
+      }
+    },
+    {
+      "id": "johnson_popil_2016_author_presentation",
+      "citation": "Popil and Johnson (2016), Corrugated board bonding defect visualization and characterization, Corbotec author presentation, Georgia Tech.",
+      "doi": null,
+      "urls": [
+        "https://research.gatech.edu/sites/default/files/rbi/pdfs/Roman_CORBOTEC%20PDF%20for%20distribution.pdf",
+        "https://research.gatech.edu/rbi/roman-popil"
+      ],
+      "access_state": "Author presentation; open primary plot source, not a raw data archive.",
+      "external_original_pdf": "/Users/home/cardboard-research-20261006/roman-corbotec-2016-author-presentation.pdf",
+      "external_original_sha256": "4df7b5a4318fb12ea5afb31666e60dbaef7d0a0d4fbc9c337893ce4edcb3a4e5"
+    },
+    {
+      "id": "conde_2012_corrugated_hma_joint",
+      "citation": "Conde et al. (2012), Analysis of adhesive joints in corrugated board under shear loading, International Journal of Adhesion and Adhesives 38, 50-57.",
+      "doi": "10.1016/j.ijadhadh.2012.05.003",
+      "urls": [
+        "https://doi.org/10.1016/j.ijadhadh.2012.05.003",
+        "https://www.sciencedirect.com/science/article/pii/S0143749612000711"
+      ],
+      "access_state": "Peer-reviewed article; publisher preview provides abstract and selected section text; no PDF retained.",
+      "external_original_pdf": null,
+      "external_original_sha256": null
+    },
+    {
+      "id": "robertsson_2023",
+      "citation": "Robertsson, K., Jacobsson, E., Wallin, M., Borgqvist, E., Ristinmaa, M., and Tryding, J. (2023), A continuum damage model for creasing and folding of paperboard, Packaging Technology and Science 36(12), 1037-1050.",
+      "doi": "10.1002/pts.2774",
+      "urls": [
+        "https://doi.org/10.1002/pts.2774"
+      ],
+      "access_state": "Peer-reviewed open-access article; official Wiley full-text HTML is publicly accessible through the text reader. Figure 4 remains undigitized: the publisher's figure download endpoint returned unsupported application/vnd.ms-powerpoint to the reader; a headed-browser HTML attempt returned HTTP 403 and the in-app browser blocked direct endpoint access. No pixels or numeric curve table were captured. Printed Eq. 18 compression-energy branch conflicts with the article Psi0>=0 statement. The recentered comparison is an engineering/legacy convention; no author executable source or alternate constant was identified. The discrepancy is hash-bound in the source extract.",
+      "external_original_pdf": null,
+      "external_original_sha256": null,
+      "figure4_asset_url": "https://onlinelibrary.wiley.com/action/downloadFigures?doi=10.1002%2Fpts.2774&id=pts2774-fig-0004&partId=",
+      "figure4_pixel_capture": null,
+      "figure4_digitization_status": "not_captured_publisher_asset_unavailable_to_current_reader",
+      "source_text_extract": "robertsson_2023_eq18_source_extract.md",
+      "source_text_extract_sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "external_text_extract": "/Users/home/cardboard-research-20261006/robertsson-2023-eq18-source-extract.md",
+      "external_text_extract_sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "cpu_equation_audit": {
+        "command": "numi-matter-robertsson-fem-coupling-check --cpu-only",
+        "record": "robertsson_2023_absolute_energy_audit.md",
+        "classification": "source_equation_and_compiled_builder_consistency_only",
+        "native_fem_steps": 0,
+        "primary_source_code_available": false,
+        "scope": "Robertsson 2023 single-ply softwood grade; not kraft/NSSC transfer",
+        "record_sha256": "df109c5e3d052afd33bae3ecae8ccb80d2da89f20165ccaa499f12c1f5b4c910"
+      }
+    },
+    {
+      "id": "aduke_venter_coetzee_2024",
+      "citation": "Aduke, R. N., Venter, M. P., and Coetzee, C. J. (2024), Numerical Modelling of Corrugated Paperboard Boxes, Mathematical and Computational Applications 29(4), 70.",
+      "doi": "10.3390/mca29040070",
+      "urls": [
+        "https://doi.org/10.3390/mca29040070",
+        "https://www.mdpi.com/2297-8747/29/4/70"
+      ],
+      "access_state": "Peer-reviewed open-access article. Full PDF retained externally.",
+      "external_original_pdf": "/Users/home/cardboard-research-20261006/aduke-venter-coetzee-2024.pdf",
+      "external_original_sha256": "b082376b778e72e702c5274df3b86d82396708892dc4d194bab709f5c9d01eae"
+    },
+    {
+      "id": "mrowczynski_2021",
+      "citation": "Mrówczyński, D., Garbowski, T., and Knitter-Piątkowska, A. (2021), Estimation of the Compressive Strength of Corrugated Board Boxes with Shifted Creases on the Flaps, Materials 14, 5181.",
+      "doi": "10.3390/ma14185181",
+      "urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC8467740/",
+        "https://doi.org/10.3390/ma14185181"
+      ],
+      "access_state": "Peer-reviewed open-access article. Full PDF retained externally.",
+      "external_original_pdf": "/Users/home/cardboard-research-20261006/mrowczynski-2021-box-bct.pdf",
+      "external_original_sha256": "948a5cb24a4a2149e0c37cb4fedfbc4405b8b050e0f4c035ac7612d90ee30d4c"
+    },
+    {
+      "id": "bernad_2023_impact_confidential",
+      "citation": "Cáceres-Naranjo, D., Bernad, C., Calvo, S., and Royo, J. M. (2023), Assessment and modelling of corrugated board dynamic properties under impact loads. Application to edge crush disposition, Results in Engineering 18, 101072.",
+      "doi": "10.1016/j.rineng.2023.101072",
+      "urls": [
+        "https://doi.org/10.1016/j.rineng.2023.101072"
+      ],
+      "access_state": "Open-access article. Its data-availability statement says the experimental data are confidential; no raw curves retained.",
+      "external_original_pdf": null,
+      "external_original_sha256": null
+    },
+    {
+      "id": "liu_laundrie_1987_corrugated_impact",
+      "citation": "Liu, J. Y., and Laundrie, J. F. (1987), Cushioning properties of corrugated pads in edge and corner drop tests, Boxboard Containers 94(10), 28-33, May 1987.",
+      "doi": null,
+      "urls": [
+        "https://www.fpl.fs.usda.gov/documnts/pdf1987/liu87a.pdf"
+      ],
+      "access_state": "Public USDA Forest Products Laboratory report record and indexed text. The linked official PDF returned HTTP 403 in this session, so no full PDF was retained; padded-package analogue only.",
+      "external_original_pdf": null,
+      "external_original_sha256": null
+    },
+    {
+      "id": "nagasawa_komiyama_2012",
+      "citation": "Nagasawa, S. and Komiyama, Y. (2012), Effect of Scoring Condition on Creasing Characteristics of Double-Wall Corrugated Board, Journal of Advanced Mechanical Design, Systems, and Manufacturing 6(7), 1263-1277.",
+      "doi": "10.1299/jamdsm.6.1263",
+      "urls": [
+        "https://www.jstage.jst.go.jp/article/jamdsm/6/7/6_1263/_article/-char/en",
+        "https://www.jstage.jst.go.jp/article/jamdsm/6/7/6_1263/_pdf/-char/en"
+      ],
+      "access_state": "Primary open J-STAGE article and official PDF retained externally. Figure 9 is a raster image; an explicitly bounded pooled pixel-envelope estimate is cataloged, not raw instrument output.",
+      "external_original_pdf": "/Users/home/cardboard-research-20261006/primary-access/jstage-scoring-article.pdf",
+      "external_original_sha256": "364dbc9c02d1a5bd6f7b1c2b309a2f3d502de791151b474d0989655f6f3f3e17",
+      "external_text_extract": "/Users/home/cardboard-research-20261006/primary-access/jstage-scoring-article.txt",
+      "external_text_extract_sha256": "f17087e31ab5091c2ea4c7fb4b0faaf85f02100cacda57e0d1eea22a79bef8e4",
+      "embedded_figure_image": {
+        "path": "/Users/home/cardboard-research-20261006/primary-access/figures/nagasawa-2012-fig9-embedded-image.jpg",
+        "sha256": "fd26155edee7bd320ee47ad1ba00a9a9de4371803f6165961778f853e8d3c091",
+        "source_pdf_sha256": "364dbc9c02d1a5bd6f7b1c2b309a2f3d502de791151b474d0989655f6f3f3e17",
+        "pdf_page": 6,
+        "printed_page": 1268,
+        "dimensions_px": [
+          647,
+          376
+        ],
+        "extraction": "pdfimages direct extraction from the retained PDF; not a redrawn plot"
+      },
+      "page_render": {
+        "path": "/Users/home/cardboard-research-20261006/primary-access/rendered/score-06.png",
+        "sha256": "60c03f8c46e2424f3b5c60a7a569a5d7dee8e222c31f8eb7a91b343105e1da10",
+        "source_pdf_sha256": "364dbc9c02d1a5bd6f7b1c2b309a2f3d502de791151b474d0989655f6f3f3e17",
+        "pdf_page": 6,
+        "printed_page": 1268
+      },
+      "access_audit": {
+        "path": "/Users/home/cardboard-research-20261006/primary-access/primary-source-access-audit-20261014.md",
+        "sha256": "01a9087994c764ad15e7ff0323a3f1aaa288404e9da75b04f247c8803df65c11"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "haj_ali_2009_yield_anchors",
+      "file": "haj_ali_2009_yield_anchors.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "tabulated_yield_anchors_plus_source_assumption_rows",
+      "split": "calibration_anchor_only_for_four_source_grade_tensile_yield_values",
+      "specimen": "205 g/m2 unbleached southern softwood kraft liner and 126 g/m2 NSSC medium; tensile coupons reported 1 x 7 in.",
+      "condition": "conditioning and test rate not stated in available figure/text access",
+      "failure": "reported yield stress/strain anchors; no raw specimen trace",
+      "source_location": "Table 1 and Table 3; Figs. 1-2 show fitted bilinear tension lines",
+      "units": {
+        "stress": "MPa",
+        "strain": "dimensionless"
+      },
+      "digitization": null,
+      "limits": [
+        "CSV points are tabulated anchors, not reconstructed full curves.",
+        "Compression rows are source model assumptions at about 60% of tension, not measured compression curves.",
+        "Figs. 1-2 also show fitted bilinear tension lines; see the separate fit-estimate dataset. Selected visible marker centers are retained in a second plot-digitization dataset, but the complete raw traces, occluded marker count, and replicate identities remain unavailable."
+      ],
+      "sha256": "ede6b47229eb02f1d1de278035c995eaa358919c55384398cbe33fe3de3c9f04",
+      "calibration_scope": "calibration_anchor_only_for_four_source_grade_tensile_yield_values"
+    },
+    {
+      "id": "haj_ali_2009_bilinear_tension_fit_nodes",
+      "file": "haj_ali_2009_bilinear_tension_fit_nodes.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "digitized_source_model_fit_estimate_not_raw_measurement",
+      "split": "four_complete_source_curve_groups_no_pointwise_split",
+      "specimen": "205 g/m2 unbleached southern softwood kraft liner (Figs. 1a,b) and 126 g/m2 NSSC medium (Figs. 2a,b); source reports 1 x 7 in tensile coupons, but figure curves are source bilinear fits rather than specimen-indexed raw traces.",
+      "condition": "Figure/text access does not state conditioning or tensile test rate; no individual test or replicate mapping is available.",
+      "failure": "Published source-labeled bilinear tension-fit curves; post-yield tangent estimated from one endpoint pixel and the Table 1 yield anchor for each of four MD/CD series.",
+      "source_location": "Figs. 1(a,b) and 2(a,b), printed p. 324; Table 1 tensile yield anchors; Table 2 elastic moduli.",
+      "units": {
+        "strain": "mm/mm (dimensionless)",
+        "stress": "MPa",
+        "tangent": "MPa",
+        "plastic_hardening_modulus": "MPa"
+      },
+      "curve_identity": {
+        "series_count": 4,
+        "series": [
+          "205 gsm liner MD",
+          "205 gsm liner CD",
+          "126 gsm NSSC medium MD",
+          "126 gsm NSSC medium CD"
+        ],
+        "stored_representation": "origin plus Table 1 yield point plus one digitized endpoint on each solid source-labeled bilinear tension-fit line",
+        "raw_experimental_marker_cloud_digitized": false,
+        "specimen_replicate_mapping": "unavailable"
+      },
+      "digitization": {
+        "method": "Join each published Table 1 tensile yield anchor to a manually read endpoint on the solid source-labeled bilinear tension-fit line. Do not follow/digitize experimental marker clouds.",
+        "tool": "matter/tools/cardboard_source_haj_ali_digitize.py",
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/primary-access/haj-ali-2009-rendered-pages/page-4.png",
+          "sha256": "bffb53d8685c5990b2fa43f120ac0382493e893db2284b4f8c24adff6a48a6d5",
+          "url": "https://www.researchgate.net/profile/Roman-Popil/publication/223896964/viewer/AS:1078658240393218@1634183573648/background/4.png",
+          "asset_kind": "author_posted_article_page_render",
+          "source_pdf_sha256": null,
+          "size_px": [
+            1041,
+            1269
+          ],
+          "page_index": 4,
+          "printed_page": 324
+        },
+        "axis_mapping": {
+          "plot_frames_in_pixels_and_axis_ranges_are_registered_in_tool": "matter/tools/cardboard_source_haj_ali_digitize.py CURVES",
+          "x": "linear strain axis; converted by frame x0/x1 pixel locations and printed axis min/max for each panel",
+          "y": "linear stress axis; converted by frame top/bottom pixel locations and printed axis min/max for each panel",
+          "yield_node": "Table 1 reported values, not read from pixels"
+        },
+        "line_width_handling": "Endpoint selected at visible termination of the solid fitted line. A conservative ±2 px visual line readout plus ±1 px axis-line localization bound is propagated; it is a pixel bound only.",
+        "uncertainty": "Tangent interval propagates endpoint pixel bounds and half-last-digit Table 1 anchor rounding. It excludes plot reproduction error, fit uncertainty, specimen scatter, and test uncertainty.",
+        "source_access_audit_sha256": null,
+        "uniaxial_hardening_conversion": {
+          "formula": "H = E*Et/(E-Et)",
+          "meaning": "uniaxial plastic hardening modulus H derived from total post-yield tangent Et and Table 2 elastic modulus E under a bilinear uniaxial elastic-plastic assumption",
+          "uncertainty": "interval endpoints propagated monotonically from the visual Et interval; not statistical uncertainty",
+          "limitation": "not a full anisotropic Hill hardening calibration and not a source-reported numerical parameter"
+        }
+      },
+      "limits": [
+        "These are digitized estimates of the authors’ bilinear tension-fit lines, not raw experimental observations.",
+        "Only one plotted endpoint per fit series is read in this dataset; the separate marker-center dataset contains selected visible plot glyphs, not raw measurements, complete traces, or specimen mappings.",
+        "The paper’s compressive curves are modeling assumptions and are not digitized as measurements.",
+        "Do not use tangent intervals as statistical confidence intervals or as grade-transfer uncertainty.",
+        "Conditioning and test rate are not stated in accessible text.",
+        "The uniaxial H conversion is an explicitly derived fit estimate; it does not by itself identify the multiaxial plastic hardening law."
+      ],
+      "sha256": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82",
+      "calibration_scope": "source_model_fit_curve_estimate_for_four_grade_axis_groups_only_not_independent_specimen_calibration"
+    },
+    {
+      "id": "haj_ali_2009_asymmetric_transfer_parameters_v1",
+      "file": "haj_ali_2009_asymmetric_transfer_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "explicit_constitutive_model_parameters_not_observations",
+      "split": "fixed_model_parameter_transfer_no_specimen_or_heldout_split",
+      "specimen": "Parameters reference the article's 205 g/m2 unbleached southern softwood kraft liner and 126 g/m2 NSSC medium grades; no specimen-level observations are encoded here.",
+      "condition": "Constitutive parameter record only. Article test conditioning/rate is unavailable for the plotted fits; compression and some through-thickness/shear inputs are model assumptions.",
+      "failure": "The exact-ReLU asymmetric transfer is a provisional model candidate; its zero-stress return-map corner trace is retained separately and is not treated as a passed material law.",
+      "source_location": "Haj-Ali et al. (2009), Tables 1-3 and Figs. 1-2; DOI 10.1016/j.compstruct.2008.02.001. Tensile hardening transfers additionally reference the separate bilinear-fit endpoint record.",
+      "units": {
+        "stress": "MPa",
+        "hardening_modulus": "MPa",
+        "normalized_transfer_parameter": "dimensionless"
+      },
+      "model_assets": [
+        {
+          "path": "matter/materials/hajali2009_liner_hill_asymmetric_transfer.nmatter",
+          "role": "liner exact-ReLU provisional constitutive model",
+          "sha256": "377236230f1802b10aba8c994df86d545a7694bc11885b3592275d36aa0eefe5"
+        },
+        {
+          "path": "matter/materials/hajali2009_medium_hill_asymmetric_transfer.nmatter",
+          "role": "NSSC medium exact-ReLU provisional constitutive model",
+          "sha256": "f5f0e1475a9b0a87c0c30b27b6ab5f26a04a92e50ed5ca9b5c775477ed8f6a7b"
+        }
+      ],
+      "limits": [
+        "CSV rows are model parameters and derived inputs, not material test observations.",
+        "The source assumes compression strengths at 0.6 times tensile strengths; this transfer uses those assumptions and the Beldie-derived ZD values, not measured compression curves.",
+        "The asymmetric transfer changes multiaxial and pressure response; the source does not identify these responses.",
+        "Directional hardening scales use the same published bilinear tension-fit plots as calibration inputs; there are no specimen identities or held-out curves.",
+        "The exact ReLU branch has a nondifferentiable zero-stress corner. A retained corner return-map failure is evidence against admitting this exact variant as qualified."
+      ],
+      "sha256": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+      "calibration_scope": "same_published_curve_parameter_transfer_only_provisional_not_independent_validation"
+    },
+    {
+      "id": "haj_ali_2009_asymmetric_c1_transfer_parameters_v1",
+      "file": "haj_ali_2009_asymmetric_c1_transfer_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "explicit_constitutive_model_parameters_not_observations",
+      "split": "fixed_model_parameter_transfer_no_specimen_or_heldout_split",
+      "specimen": "Parameters reference the article's 205 g/m2 unbleached southern softwood kraft liner and 126 g/m2 NSSC medium grades; no specimen-level observations are encoded here.",
+      "condition": "Constitutive parameter record only. Article test conditioning/rate is unavailable for the plotted fits; compression and some through-thickness/shear inputs are model assumptions.",
+      "failure": "C1 is an explicit nondefault numerical transfer candidate. Its width and fitted directional scales are assumptions/calibration inputs; it is not qualified for physical damage or folding.",
+      "source_location": "Haj-Ali et al. (2009), Tables 1-3 and Figs. 1-2; DOI 10.1016/j.compstruct.2008.02.001. Tensile hardening transfers additionally reference the separate bilinear-fit endpoint record.",
+      "units": {
+        "stress": "MPa",
+        "hardening_modulus": "MPa",
+        "normalized_transfer_parameter": "dimensionless",
+        "compression_smoothing_width": "dimensionless normalized stress"
+      },
+      "model_assets": [
+        {
+          "path": "matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter",
+          "role": "liner C1 transfer constitutive model",
+          "sha256": "f5951cd7fb63684a4fdcca58457af5d769fe466cc640370be54d9a4ac4309a43"
+        },
+        {
+          "path": "matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter",
+          "role": "NSSC medium C1 transfer constitutive model",
+          "sha256": "40e8bd9aa61ed946661c162c395397f958bab71306df8bec8df1140e78ae95bb"
+        }
+      ],
+      "numerical_regularization": {
+        "compression_smoothing_width": 5e-6,
+        "normalized_stress_positive_part": "C1 Huber-like regularization of max(-s,0); r_delta(0)=delta/4, so it is not exact ReLU and shifts the zero-stress radius slightly",
+        "width_sensitivity_record": "three-width CPU calibration receipt required; width is numerical and is not a physical parameter"
+      },
+      "limits": [
+        "CSV rows are model parameters and derived inputs, not material test observations.",
+        "The source assumes compression strengths at 0.6 times tensile strengths; this transfer uses those assumptions and the Beldie-derived ZD values, not measured compression curves.",
+        "The asymmetric transfer changes multiaxial and pressure response; the source does not identify these responses.",
+        "Directional hardening scales use the same published bilinear tension-fit plots as calibration inputs; there are no specimen identities or held-out curves.",
+        "The C1 width is numerical regularization, not physical calibration. Zero-stress shift and width sensitivity remain explicit.",
+        "No successful FEM folding/damage/assembly qualification is implied by material-point checks or curve calibration."
+      ],
+      "sha256": "5fccfea7ca49776cef6782f6fa8eff1876de38f643c6993c3b2829135f446e48",
+      "calibration_scope": "same_published_curve_parameter_transfer_only_not_independent_validation_or_physical_damage_qualification"
+    },
+    {
+      "id": "haj_ali_2009_experimental_marker_centers_v1",
+      "file": "haj_ali_2009_experimental_marker_centers_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "partial_digitized_plot_marker_centers_not_raw_measurements",
+      "split": "same_published_curve_groups_calibration_only_no_holdout",
+      "specimen": "205 g/m2 unbleached southern softwood kraft liner (Figs. 1a,b) and 126 g/m2 NSSC medium (Figs. 2a,b); article reports 1 x 7 in tensile coupons but no marker-to-specimen identity.",
+      "condition": "Figure/text access does not provide a per-marker condition, specimen identifier, or test rate.",
+      "failure": "Selected visible stress-strain marker glyphs in four published panels; dense overlap/occlusion and specimen assignment remain unresolved.",
+      "source_location": "Figs. 1(a,b) and 2(a,b), printed p. 324.",
+      "units": {
+        "strain": "mm/mm (dimensionless)",
+        "stress": "MPa",
+        "pixel": "raster pixel coordinate"
+      },
+      "curve_identity": {
+        "panel_count": 4,
+        "selected_visible_marker_centers": 278,
+        "groups": [
+          "205 gsm liner MD",
+          "205 gsm liner CD",
+          "126 gsm NSSC medium MD",
+          "126 gsm NSSC medium CD"
+        ],
+        "stored_representation": "Selected visible marker-glyph centers in four panel clouds plus one non-observation unresolved-overplot region record per panel.",
+        "raw_numeric_test_data_recovered": false,
+        "complete_marker_cloud_recovered": false,
+        "overplotted_or_occluded_marker_count": "unresolved",
+        "specimen_replicate_mapping": "unavailable",
+        "independence": "same publication and curve panels as the bilinear fit estimates; these points are not an independent validation set."
+      },
+      "digitization": {
+        "method": "Convert selected pixel centers in the reviewed coordinate ledger using the registered linear plot frames. Candidate detection was a bright-center/dark-neighborhood pass followed by visual overlay review; two Fig. 1(a) legend detections were removed. The selected coordinate set is intentionally partial where markers overlap.",
+        "tool": "matter/tools/cardboard_haj_ali_marker_digitize.py",
+        "pixel_ledger": {
+          "file": "haj_ali_2009_experimental_marker_centers_v1_pixels.json",
+          "sha256": "862bf0cc84217bc96f0bc1eeddea900b9664330d916728e7f65cb317ef5ffe6c"
+        },
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/primary-access/haj-ali-2009-rendered-pages/page-4.png",
+          "sha256": "bffb53d8685c5990b2fa43f120ac0382493e893db2284b4f8c24adff6a48a6d5",
+          "url": "https://www.researchgate.net/profile/Roman-Popil/publication/223896964/viewer/AS:1078658240393218@1634183573648/background/4.png",
+          "asset_kind": "author_posted_article_page_render",
+          "source_pdf_sha256": null,
+          "size_px": [
+            1041,
+            1269
+          ],
+          "page_index": 4,
+          "printed_page": 324
+        },
+        "axis_mapping": {
+          "panels": {
+            "haj_ali_2009_liner_MD_marker_cloud": {
+              "series_id": "haj_ali_2009_liner_MD_marker_cloud",
+              "figure": "Fig. 1(a)",
+              "component": "liner",
+              "basis_weight_g_m2": 205,
+              "axis": "MD",
+              "plot_frame_px": {
+                "x0": 146,
+                "x1": 493,
+                "y_top": 8,
+                "y_bottom": 357
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.025
+                ],
+                "stress_MPa": [
+                  0.0,
+                  70.0
+                ]
+              },
+              "selected_visible_center_count": 56,
+              "unresolved_overlap_bbox_px": [
+                280,
+                45,
+                405,
+                170
+              ]
+            },
+            "haj_ali_2009_liner_CD_marker_cloud": {
+              "series_id": "haj_ali_2009_liner_CD_marker_cloud",
+              "figure": "Fig. 1(b)",
+              "component": "liner",
+              "basis_weight_g_m2": 205,
+              "axis": "CD",
+              "plot_frame_px": {
+                "x0": 567,
+                "x1": 918,
+                "y_top": 8,
+                "y_bottom": 358
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.05
+                ],
+                "stress_MPa": [
+                  0.0,
+                  40.0
+                ]
+              },
+              "selected_visible_center_count": 64,
+              "unresolved_overlap_bbox_px": [
+                610,
+                140,
+                760,
+                285
+              ]
+            },
+            "haj_ali_2009_medium_NSSC_MD_marker_cloud": {
+              "series_id": "haj_ali_2009_medium_NSSC_MD_marker_cloud",
+              "figure": "Fig. 2(a)",
+              "component": "medium_NSSC",
+              "basis_weight_g_m2": 126,
+              "axis": "MD",
+              "plot_frame_px": {
+                "x0": 146,
+                "x1": 491,
+                "y_top": 513,
+                "y_bottom": 860
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.02
+                ],
+                "stress_MPa": [
+                  0.0,
+                  40.0
+                ]
+              },
+              "selected_visible_center_count": 59,
+              "unresolved_overlap_bbox_px": [
+                185,
+                625,
+                355,
+                815
+              ]
+            },
+            "haj_ali_2009_medium_NSSC_CD_marker_cloud": {
+              "series_id": "haj_ali_2009_medium_NSSC_CD_marker_cloud",
+              "figure": "Fig. 2(b)",
+              "component": "medium_NSSC",
+              "basis_weight_g_m2": 126,
+              "axis": "CD",
+              "plot_frame_px": {
+                "x0": 575,
+                "x1": 921,
+                "y_top": 513,
+                "y_bottom": 859
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.03
+                ],
+                "stress_MPa": [
+                  0.0,
+                  15.0
+                ]
+              },
+              "selected_visible_center_count": 99,
+              "unresolved_overlap_bbox_px": [
+                640,
+                555,
+                880,
+                725
+              ]
+            }
+          },
+          "x": "strain = x_min + (x_pixel - x0)*(x_max - x_min)/(x1 - x0)",
+          "y": "stress = y_min + (y_bottom - y_pixel)*(y_max - y_min)/(y_bottom - y_top)",
+          "axis_source": "printed/accessible plot labels transcribed into the hash-bound per-panel frame; pixel coordinates are inclusive axis-line center estimates"
+        },
+        "uncertainty": {
+          "marker_center_halfwidth_px": 1.5,
+          "axis_line_halfwidth_px": 1.0,
+          "propagation": "conservative linear sum of 2.5 px mapped independently through each linear axis scale",
+          "scope": "pixel center and axis-line localization only; excludes marker stroke ambiguity, plot reproduction, specimen scatter, testing error, and unobserved/occluded markers"
+        },
+        "unresolved_regions": "One bounding rectangle per panel marks dense overlapping plot glyphs; it is not a datapoint and carries no invented coordinate or marker count."
+      },
+      "limits": [
+        "These are selected digitized estimates of plotted marker centers, not raw numeric measurements or instrument exports.",
+        "The selected centers are a partial visual record; symbols may overlap or be occluded, and the exact total marker count is unresolved.",
+        "No marker is assigned to a specimen, replicate, experimental run, or fitted line; the four panel clouds remain grouped by source panel only.",
+        "The pixel-localization bound is not a statistical confidence interval and excludes specimen/test scatter.",
+        "These points come from the same published curve panels as the bilinear fit estimates and cannot be presented as held-out validation.",
+        "Compression curves and assumptions are outside this dataset."
+      ],
+      "sha256": "7a2dd7a351586971566fe34ca144b511d0b2014ab13f4cd7c9de0e87c2cf39b9",
+      "calibration_scope": "same_source_plot_estimates_only_not_independent_validation"
+    },
+    {
+      "id": "popil_2012_ect_table2",
+      "file": "popil_2012_ect_table2.csv",
+      "source_ids": [
+        "popil_2012"
+      ],
+      "class": "published_table_results",
+      "split": "analogue_holdout_no_material_parameter_fit",
+      "specimen": "Commercial 42-26C-42 single-wall C-flute board, 205 gsm liner + 127 gsm medium; distinct IPST lab board reported separately.",
+      "condition": "not reported for Table 2 row; T 839 test standard rate 12.5 mm/min discussed in article",
+      "failure": "T 839 ECT peak force per board width",
+      "source_location": "Table 2 printed p.2572",
+      "units": {
+        "caliper": "um",
+        "basis weight": "g/m2",
+        "ECT": "kN/m"
+      },
+      "digitization": null,
+      "limits": [
+        "Commercial and IPST board rows remain separate.",
+        "The Table 2 row has no replicate-level raw trace; group n not provided there."
+      ],
+      "sha256": "34de91e5707f175ac2c65e9e3e56cf9c2dc99d8dadfa203cba8e72422e4333f2",
+      "calibration_scope": "analogue_holdout_no_material_parameter_fit"
+    },
+    {
+      "id": "popil_2012_ect_rate_fit",
+      "file": "popil_2012_ect_rate_fit.csv",
+      "source_ids": [
+        "popil_2012"
+      ],
+      "class": "evaluations_of_published_regression_not_raw_observations",
+      "split": "rate_response_analogue_only",
+      "specimen": "Separate commercial 42-26C C-flute rate series; 205 gsm liner + 127 gsm medium; resin-embedded and clamped tests combined by source regression.",
+      "condition": "0.2 to 12.5 mm/min platen rates; conditioning not stated",
+      "failure": "ECT peak load; source equation ECT[kN/m] = 0.239 ln(v[mm/min]) + 6.47",
+      "source_location": "Eq. 4 and Fig. 12 printed p.2567",
+      "units": {
+        "speed": "mm/min",
+        "ECT": "kN/m"
+      },
+      "digitization": null,
+      "limits": [
+        "CSV values are equation evaluations, not measured points.",
+        "The regression at 12.5 mm/min gives ~7.074 kN/m, distinct from Table 2 commercial result 7.9; do not join series.",
+        "Not a dynamic-impact rate law for current recipe.",
+        "The source prints a mean error of ±0.01 kN/m for Eq. 4; this is not a confidence interval and is preserved separately."
+      ],
+      "sha256": "cd3c913b972ccf79f7c8c08100b3529a29afc293f05a1c2d90e02c4f535391b4",
+      "calibration_scope": "rate_response_analogue_only"
+    },
+    {
+      "id": "johnson_popil_pin_force_displacement",
+      "file": "johnson_popil_2016_pin_force_displacement_digitized.csv",
+      "source_ids": [
+        "johnson_popil_2016_author_presentation"
+      ],
+      "class": "manual_digitization_from_author_presentation_plot",
+      "split": "fixture_level_analogue_holdout_only",
+      "specimen": "Pilot-corrugator single-face defect study: 205 g/m² unbleached kraft liner + 122 g/m² regular NSSC medium; opposite liner was manually applied. Grade and method context are from the article and presentation; the plotted slide traces have no specimen IDs.",
+      "condition": "The article reports TAPPI T 821, Emerson 06-00-55 C-flute fixture, 50 x 160 mm coupon, 12.5 mm/min platen approach, and selected-facing out-of-plane tension. Slide 15 does not identify specimen/run IDs or explicitly bind its two curves to the article protocol settings; conditioning and actual caliper are unreported.",
+      "failure": "representative pin-adhesion load-displacement traces; later high-curve branch obscured and excluded",
+      "source_location": "2016 author presentation slide 15 only; partial illustrative load-displacement window, displacement 11-17 mm and load 0-600 N",
+      "units": {
+        "displacement": "mm",
+        "load": "N"
+      },
+      "digitization": {
+        "method": "manually sampled centerline from 300 dpi rendered slide and tick axes",
+        "per_point_uncertainty": "±0.06-0.08 mm and ±10-12 N; visual digitization uncertainty only, not replicate scatter",
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/tmp/pinplot/slide-15.png",
+          "sha256": "7e7e1a645397d7d40db106d7698a444ea8436dcb1ad22b906b3bc16462903198",
+          "dpi": 300,
+          "size_px": [
+            3000,
+            2250
+          ],
+          "source_pdf_sha256": "4df7b5a4318fb12ea5afb31666e60dbaef7d0a0d4fbc9c337893ce4edcb3a4e5",
+          "axis_ranges": {
+            "x_mm": [
+              11,
+              17
+            ],
+            "load_N": [
+              0,
+              600
+            ]
+          },
+          "page": 15
+        }
+      },
+      "limits": [
+        "Not raw data: sparse presentation-plot estimates.",
+        "The force includes specimen tearing/peel, paper, fixture compliance, and defect morphology.",
+        "Does not identify local starch traction, GIc, GIIc or mixed-mode law.",
+        "The plotted displacement axis does not show a zero/contact origin; native relative opening cannot be compared by silently shifting the curve.",
+        "The article protocol fields provide study context only; the presentation does not link these illustrative curves to specific article specimens or plotted article traces."
+      ],
+      "sha256": "3ca6b0ede409e8b031a193a16ec59480769f257c151a87d5264cbadb994e1b06",
+      "calibration_scope": "fixture_level_analogue_holdout_only",
+      "protocol_source_id": "johnson_popil_2015_article",
+      "study_context_source_id": "johnson_popil_2015_article",
+      "source_lineage": {
+        "direct_plot_source_id": "johnson_popil_2016_author_presentation",
+        "protocol_source_id": "johnson_popil_2015_article",
+        "article_figure_pixel_identity": "unresolved; this dataset is digitized only from the explicitly named presentation slide",
+        "independence": "same study context and possibly overlapping specimens; never count the article and presentation as independent datasets",
+        "anti_merge_rule": "calibration source_id must be the direct presentation source; article is protocol/context only"
+      },
+      "published_protocol": {
+        "protocol_source_id": "johnson_popil_2015_article",
+        "fixture": "Emerson 06-00-55 C-flute",
+        "specimen_dimensions_mm": [
+          50.0,
+          160.0
+        ],
+        "platen_approach_mm_per_min": 12.5,
+        "loading": "out-of-plane tension",
+        "alternating_pin_groups": {
+          "pins_1_3_5": "upper platen",
+          "pins_2_4_6": "lower platen"
+        },
+        "pin_diameter_pitch_and_registration": "not reported",
+        "slide_to_article_specimen_link": "not established point-for-point"
+      }
+    },
+    {
+      "id": "johnson_popil_pin_summary",
+      "file": "johnson_popil_2016_pin_strength_summary_digitized.csv",
+      "source_ids": [
+        "johnson_popil_2016_author_presentation"
+      ],
+      "class": "manual_digitization_from_author_presentation_summary_plot",
+      "split": "descriptive_analogue_no_fit",
+      "specimen": "Slide-16 summary markers from the 2016 author presentation, in the same pilot-corrugator study context: 205 g/m² kraft liner and 122 g/m² NSSC medium. No individual specimen or defect-category mapping is available for these markers.",
+      "condition": "Presentation summary of pin adhesion work and stiffness versus strength. The article describes six specimens per defect type and the T 821 protocol, but the slide points are not mapped to article Figure 5 values, specimen IDs, or categories.",
+      "failure": "plotted association of pin strength with pin work and stiffness",
+      "source_location": "author presentation slide 16",
+      "units": {
+        "strength": "N/mm",
+        "work_axis": "unresolved axis quantity: slide 16 and article narrative print N-m; integrating slide 15 load (N) by displacement (mm) gives N*mm",
+        "stiffness": "N/mm"
+      },
+      "digitization": {
+        "method": "manual marker-center reading",
+        "uncertainty": "strength ±0.02-0.03 N/mm; work-axis ordinate ±35-85 source-axis units; stiffness ±8-12 N/mm; image reading only",
+        "work_axis_unit_status": "unresolved_article_and_slide_label_vs_slide15_integral",
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/tmp/pinplot/slide-16.png",
+          "sha256": "402b1649b5c7df1ebc41e49c88ae7a07b0e9624944d34448c0b8e6ec7cfa9b36",
+          "dpi": 200,
+          "size_px": [
+            2000,
+            1500
+          ],
+          "source_pdf_sha256": "4df7b5a4318fb12ea5afb31666e60dbaef7d0a0d4fbc9c337893ce4edcb3a4e5",
+          "axis_ranges": {
+            "strength_N_mm": [
+              0,
+              1
+            ],
+            "work_axis": [
+              0,
+              2500
+            ],
+            "stiffness_N_mm": [
+              40,
+              180
+            ]
+          },
+          "page": 16
+        }
+      },
+      "limits": [
+        "Marker estimates are not individual raw observations; visible error bars are not interpreted because their statistical definition is not specified here.",
+        "The slide reports trend fits/R²; this package does not refit them or interpret them as population confidence.",
+        "No local cohesive-law inference.",
+        "Slide 16 and article text print N-m, but slide 15 uses load N versus displacement mm, whose area has dimensions N*mm. Preserve the slide-16 ordinate as an axis number; do not convert it.",
+        "The article summary and slide summary are distinct source artifacts with no established point/category mapping; do not merge or count them as independent datasets."
+      ],
+      "sha256": "94bf7e2d738f1b99457a656f89b3eb76758fbc057fc6ba5444b4be2b6171e994",
+      "calibration_scope": "descriptive_analogue_no_fit",
+      "protocol_source_id": "johnson_popil_2015_article",
+      "study_context_source_id": "johnson_popil_2015_article",
+      "source_lineage": {
+        "direct_plot_source_id": "johnson_popil_2016_author_presentation",
+        "protocol_source_id": "johnson_popil_2015_article",
+        "article_figure_pixel_identity": "unresolved; this dataset is digitized only from the explicitly named presentation slide",
+        "independence": "same study context and possibly overlapping specimens; never count the article and presentation as independent datasets",
+        "anti_merge_rule": "calibration source_id must be the direct presentation source; article is protocol/context only"
+      }
+    },
+    {
+      "id": "aduke_2024_fold_ratio",
+      "file": "aduke_2024_fold_ratio.csv",
+      "source_ids": [
+        "aduke_venter_coetzee_2024"
+      ],
+      "class": "reported_rounded_ratio_plus_unadmitted_absolute_unit_conflict",
+      "split": "folding_analogue_holdout",
+      "specimen": "Single-wall C-flute 250KL/150SC/250KL, 400 x 100 mm; conditioned 23 C, 50% RH, 24 h; four-point bending, n=10, 12.7 mm/min.",
+      "condition": "as above; stop after 10% drop from maximum",
+      "failure": "source text reports crease stiffness reduction 63%; derived ratio 0.37; raw graph points not tabulated",
+      "source_location": "printed p.15, Table 5, Eq. 1 and Fig. 15",
+      "units": {
+        "ratio": "dimensionless",
+        "absolute_Table5": "N/m as printed, conflicted"
+      },
+      "digitization": null,
+      "limits": [
+        "Admit only rounded within-study ratio 0.37.",
+        "Table 5 says N/m; printed Eq. 1 dimensions yield N*m. Absolute values 6.88 and derived 2.5456 are not comparison targets pending convention resolution.",
+        "Different board grade; physical creasing tool geometry is not fully specified."
+      ],
+      "sha256": "0037003fb4a14567215a967b3b719fd08c07ef14629e7d589ff56e07116461f2",
+      "calibration_scope": "folding_analogue_holdout"
+    },
+    {
+      "id": "mrowczynski_2021_box_bct",
+      "file": "mrowczynski_2021_box_bct_holdout.csv",
+      "source_ids": [
+        "mrowczynski_2021"
+      ],
+      "class": "reported_box_test_results",
+      "split": "box_geometry_load_path_holdout_only",
+      "specimen": "BC-780 and EB-965 commercial double-wall grades; 300 x 200 x 200 mm boxes; FEMat BCT-20T20.",
+      "condition": "not reported in extracted methods; article reports 18 total samples across several cases, group-level n not stated for Table 3",
+      "failure": "BCT without offset and first/second peaks with offset",
+      "source_location": "Table 3 and Fig. 10",
+      "units": {
+        "force": "N"
+      },
+      "digitization": null,
+      "limits": [
+        "Different materials and double-wall architecture.",
+        "Use only as geometry/load-path holdout; no constituent or damage transfer."
+      ],
+      "sha256": "402f49def648cba133ee7726f9bde7dd4de39bb671d55338766a55d317238e37",
+      "calibration_scope": "box_geometry_load_path_holdout_only"
+    },
+    {
+      "id": "conde_2012_hma_joint",
+      "file": "conde_2012_hma_joint_scope.csv",
+      "source_ids": [
+        "conde_2012_corrugated_hma_joint"
+      ],
+      "class": "reported_validation_bound_no_curve_points",
+      "split": "external_hot_melt_joint_analogue_only",
+      "specimen": "Source double-wall corrugated board double-lap joint with Sempacol-1 HM-577 hot melt.",
+      "condition": "not reported in available article preview",
+      "failure": "shear test; model joint stiffness and failure load differed by less than 14%; target mode was paper delamination",
+      "source_location": "abstract and conclusions",
+      "units": {
+        "deviation": "percent bound"
+      },
+      "digitization": null,
+      "limits": [
+        "Hot melt was represented elastically because preliminary simulations kept it in elastic range.",
+        "Not internal Stein-Hall starch; no adhesive cohesive strength or fracture energy is identified."
+      ],
+      "sha256": "186fc9e53c6edd25a49c7f1aa7a7d417a4c9a29f9eda43f818bce74cda727da3",
+      "calibration_scope": "external_hot_melt_joint_analogue_only"
+    },
+    {
+      "id": "robertsson_2023_energy_identity",
+      "file": "robertsson_2023_identity_energy_benchmark.csv",
+      "source_ids": [
+        "robertsson_2023"
+      ],
+      "class": "authored_equation_implementation_check_not_experimental_data",
+      "split": "source_law_implementation_check_only",
+      "specimen": "Separate single-ply softwood paperboard, 0.39 mm, 788 kg/m3; reference projected area 0.0011 mm2.",
+      "condition": "reference state F=I, Fp=I, hardening=0, damage=0",
+      "failure": "Identity F=I uses H=1 and both equations return zero; this does not test the compressed-side Eq. 18 limit.",
+      "source_location": "Eq. 18, source extract, and authored implementation",
+      "units": {
+        "energy": "Pa",
+        "stress": "MPa"
+      },
+      "digitization": null,
+      "limits": [
+        "The identity state is the tension-side Heaviside branch; it does not validate the compressed-side source energy.",
+        "The printed Eq. 18 compression term differs from the authored branch by +E6*(1-1/E7)=0.333260869565 MPa.",
+        "This is not current kraft/NSSC grade and not calibration transfer."
+      ],
+      "sha256": "43ab56d710de5a43da450563b2db3a1f7b30caf4c4e3511aebd26e4e800409cd",
+      "calibration_scope": "source_law_implementation_check_only"
+    },
+    {
+      "id": "robertsson_2023_eq18_compression_branch",
+      "file": "robertsson_2023_eq18_compression_branch.csv",
+      "source_ids": [
+        "robertsson_2023"
+      ],
+      "class": "deterministic_published_equation_comparison_not_experimental_data",
+      "split": "source_equation_audit_only",
+      "specimen": "Robertsson et al. (2023) single-ply softwood paperboard source parameters; not a material test.",
+      "condition": "ZD compression branch at I13=0.99, 0.9 and analytic I13->1- limit; exact identity H=1 shown separately.",
+      "failure": "The literal printed Eq. 18 paper_absolute branch and explicit recentered builder branch differ by a constant; the source positivity statement conflicts with the printed branch.",
+      "source_location": "Eq. 18 Section 2.3; Eq. 7; Table C1; official Wiley HTML source extract.",
+      "units": {
+        "I13": "dimensionless",
+        "energy_term": "MPa"
+      },
+      "digitization": null,
+      "limits": [
+        "Algebraic evaluations of two explicit energy conventions; no experimental observations.",
+        "The additive offset leaves deformation derivatives unchanged but shifts the damage conjugate A=Psi0 because the selected full energy multiplies (1-damage).",
+        "The article text does not determine whether Eq. 18 contains a typographical error; both conventions remain available and must be identified in source-bound runs.",
+        "No author implementation source or alternate executable constant was identified; recentered is an engineering/legacy comparison, not a source-verified executable convention.",
+        "The linked CPU source-equation check compares the compiled builder with Eq. 18 at a few manufactured states; it is not an experiment or physical-material qualification."
+      ],
+      "source_extract_sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "sha256": "8392aef6412eda1467e787a265a6ae6094f3ce81368187e3937a0e061340608e",
+      "calibration_scope": "source_equation_audit_only"
+    },
+    {
+      "id": "robertsson_2023_strength_hardening",
+      "file": "robertsson_2023_strength_hardening.csv",
+      "source_ids": [
+        "robertsson_2023"
+      ],
+      "class": "source_reported_constitutive_parameters_not_observations",
+      "split": "own_grade_model_parameter_table_only",
+      "specimen": "Robertsson et al. (2023) single-ply softwood paperboard, separate from corrugated kraft/NSSC recipe.",
+      "condition": "Table C2 parameters used with the hardening laws in Eq. 27.",
+      "failure": "No raw strength/hardening curve points or specimen-level replicate data are supplied by this table.",
+      "source_location": "Official Wiley full text, Table C2 and Eq. 27; hash-bound source text extract.",
+      "units": {
+        "initial_yield_K0_MPa": "MPa",
+        "hardening_a_MPa": "MPa",
+        "hardening_b": "dimensionless"
+      },
+      "digitization": null,
+      "limits": [
+        "Source table dashes are retained as blank, not observations of zero hardening.",
+        "The native source-law adapter encodes the published zero-hardening branches from Eq. 27; it does not use zero as a fallback for missing Kraft/NSSC data.",
+        "These parameters apply to a distinct single-ply softwood grade and cannot calibrate the literature2009 liner or medium."
+      ],
+      "source_extract_sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "sha256": "f3f35358ca3bef1719b1ec62d52939951a6cdf5830d320bbefaae4087344727f",
+      "calibration_scope": "source_grade_model_parameters_not_corrugated_material_calibration"
+    },
+    {
+      "id": "impact_data_boundary",
+      "file": "impact_data_availability.csv",
+      "source_ids": [
+        "bernad_2023_impact_confidential",
+        "liu_laundrie_1987_corrugated_impact"
+      ],
+      "class": "availability_boundary_without_raw_time_series",
+      "split": "unavailable_for_calibration",
+      "specimen": "Bernad raw data marked confidential. Liu-Laundrie source is a 205/127 gsm C-flute padded package with folded water-resistant cushioning, not a bare 300x200x200 box.",
+      "condition": "dynamic/drop-rate history not available for current target",
+      "failure": "no raw synchronized force-time or acceleration-time observations",
+      "source_location": "article data availability statement; FPL report indexed record",
+      "units": {},
+      "digitization": null,
+      "limits": [
+        "No dynamic impact calibration.",
+        "Do not use quasi-static ECT regression as dynamic law.",
+        "A slow load-then-drop scenario stays unvalidated."
+      ],
+      "sha256": "116bc73dde256a39c97cc668a8e430fb71fcf524896fb35447512116e7329b97",
+      "calibration_scope": "unavailable_for_calibration"
+    },
+    {
+      "id": "nagasawa_2012_fig9_scored_bend_envelope",
+      "file": "nagasawa_2012_fig9_scored_bend_envelope.csv",
+      "source_ids": [
+        "nagasawa_komiyama_2012"
+      ],
+      "class": "automated_digitization_of_pooled_visible_trace_envelope",
+      "split": "condition_group_holdout_no_point_split",
+      "specimen": "AB double-wall corrugated board; ten bent pieces from two 230 x 320 mm source specimens per the Figure 9 caption. The article does not assign each plotted trace to a named source specimen.",
+      "condition": "Figure 9: measured board caliper t=7.91 mm; pre-creaser roll gap cP=3.0 mm (cP/t=0.38); main-creaser roll gap cC=0.7 mm (cC/t=0.09); feed speed V=2.92 m/s. Article specimens were conditioned at 296 K and 50% RH for 24 h.",
+      "failure": "Bending moment resistance per width versus rotation angle after rotary scoring; the plot is a grouped analogue observable, not current-grade qualification.",
+      "source_location": "Figure 9 printed p.1268 and Section 3.4; tool/condition descriptions in Section 2.",
+      "units": {
+        "angle": "degree",
+        "moment": "N·m/m"
+      },
+      "unit_interpretation": "The article plots moment per unit width in N·m/m. Keep that normalized observable explicit even though the dimensions reduce to N; the 0-5 N·m/m chart span covers 303 vertical pixels, or 0.016502 N·m/m per pixel.",
+      "curve_identity": {
+        "reported_trace_count": 10,
+        "caption_group": "10 pieces from two specimens",
+        "legend_identifiers": "1-10 are printed in the legend, but trace-by-trace identity is unresolved because the plotted lines overlap.",
+        "individual_trace_mapping": "unresolved_overlap",
+        "stored_representation": "pooled_outer_envelope_not_replicates",
+        "group_split_unit": "one complete Figure 9 test condition; all 90 angle rows stay together"
+      },
+      "score_gap_ratio_semantics": {
+        "figure9_cC_over_t": 0.09,
+        "figure9_cP_over_t": 0.38,
+        "nagasawa_article_sweep_0p09_to_0p40": "main_creaser_roll_gap_over_measured_board_caliper",
+        "not_punch_indentation_ratio": true,
+        "separate_source_estimate_at_cC_0p7mm": "raw-sheet indentation estimate 1-0.7/1.17 approximately 0.40; source cautions urethane roll compliance makes actual gap larger than nominal",
+        "separate_sweep_condition": "cC=0.7-3.2 mm with cP/t=1.08 (no pre-crease), not the Figure 9 cP/t=0.38 condition"
+      },
+      "digitization": {
+        "method": "deterministic outer envelope of colored pixels from the exact embedded Figure 9 raster, sampled at integer angles 1-90 degrees; no individual trace following or statistical fit.",
+        "tool": "matter/tools/cardboard_nagasawa_fig9_digitize.py",
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/primary-access/figures/nagasawa-2012-fig9-embedded-image.jpg",
+          "sha256": "fd26155edee7bd320ee47ad1ba00a9a9de4371803f6165961778f853e8d3c091",
+          "source_pdf_sha256": "364dbc9c02d1a5bd6f7b1c2b309a2f3d502de791151b474d0989655f6f3f3e17",
+          "page": 6,
+          "printed_page": 1268,
+          "size_px": [
+            647,
+            376
+          ],
+          "asset_kind": "embedded_source_raster"
+        },
+        "axis_mapping": {
+          "x_pixel_min": 117,
+          "x_pixel_max": 616,
+          "x_min_deg": 0,
+          "x_max_deg": 100,
+          "x_formula": "angle_deg = (x_pixel - 117) * 100 / (616 - 117)",
+          "y_pixel_bottom": 324,
+          "y_pixel_top": 21,
+          "y_min_Nm_per_m": 0,
+          "y_max_Nm_per_m": 5,
+          "y_formula": "moment_Nm_per_m = (324 - y_pixel) * 5 / (324 - 21)"
+        },
+        "pixel_selection": {
+          "vertical_window_radius_px": 1,
+          "minimum_rgb_channel_spread": 8,
+          "maximum_rgb_channel_exclusive": 253,
+          "zero_axis_censor_at_or_below_y_px": 320
+        },
+        "readout_uncertainty": {
+          "pixel_radius": 2,
+          "angle_deg": 0.400802,
+          "moment_Nm_per_m": 0.033003,
+          "interpretation": "visual line/axis localization only; excludes specimen scatter and instrument uncertainty"
+        },
+        "line_width_handling": "visible colored stroke outer edges define the envelope; the outer stroke is retained and a separate plus/minus two-pixel edge/readout bound is reported",
+        "censored_samples": {
+          "count": 34,
+          "angle_interval_deg": [
+            1,
+            34
+          ],
+          "interpretation": "lower envelope merges with or is unresolved against the zero-axis line; stored lower bound is zero, not an inferred trace center"
+        },
+        "source_access_audit_sha256": "01a9087994c764ad15e7ff0323a3f1aaa288404e9da75b04f247c8803df65c11"
+      },
+      "limits": [
+        "The CSV is a manually reviewed, algorithmically sampled pixel-envelope estimate, not source numeric data or raw force history.",
+        "The caption identifies ten pieces from two specimens, but the traces overlap; no sample-level identities, distributions, or confidence interval are inferred.",
+        "All angle rows belong to one condition group and must never be split across calibration and holdout.",
+        "The main-roll ratio cC/t=0.09-0.40 is gap divided by measured board caliper. It is not a punch indentation ratio.",
+        "This is an AB double-wall analogue grade, not calibration or validation of the literature2009 kraft/NSSC/starch recipe, its crease constitutive law, or a full box.",
+        "Figure 9 does not isolate adhesive, interface, liner or medium contributions to the bending moment."
+      ],
+      "sha256": "12b1c668e0fae49d0c63ab4e3fed3a6b3191d84444f9e8f38465ce34f6a18983",
+      "calibration_scope": "cross_grade_scored_bending_analogue_holdout_no_parameter_transfer"
+    }
+  ],
+  "cohesive_parameter_identifiability": {
+    "target": "internal corrugating starch between kraft liner and NSSC medium in literature2009 recipe",
+    "identified_parameters": [],
+    "unidentified_parameters": [
+      "same-grade cured bridge thickness and density",
+      "local normal and shear cohesive peak tractions",
+      "mode-I fracture energy GIc",
+      "mode-II fracture energy GIIc",
+      "mixed-mode criterion and exponent",
+      "critical opening and sliding separations",
+      "rate dependence at impact rates",
+      "moisture/conditioning dependence"
+    ],
+    "disallowed_inferences": [
+      "pin-adhesion force or work to local traction or Gc",
+      "Conde Sempacol hot-melt data to internal Stein-Hall starch",
+      "Robertsson single-ply bulk damage to current kraft/NSSC papers or their interfaces",
+      "quasi-static ECT rate relation to dynamic impact"
+    ],
+    "fail_closed": true
+  },
+  "data_policy": {
+    "source_pdfs_in_repository": false,
+    "external_original_archive": "/Users/home/cardboard-research-20261006",
+    "digitized_points": "estimates only, with plot/page reference and visual uncertainty; never raw observations",
+    "missing_data": "null or absent with reason; never synthesize curves or confidence intervals",
+    "split": "analogue holdout data cannot be fit and then re-scored as independent validation; cross-grade data are bounded analogues, not same-grade calibration",
+    "pin_plot_source_rule": "Pin force/summary CSV rows digitized from the 2016 presentation list only that presentation in source_ids. The 2015 article is a separate protocol/study-context source_id; it must not silently become a direct pixel source or independent validation condition."
+  },
+  "fixture_profiles": [
+    {
+      "id": "johnson_popil_pin_adhesion_engineering_prototype",
+      "file": "pin_adhesion_fixture_profile.json",
+      "sha256": "73ff7757c68a5f1db15a255b2ce3e8958ccd662a07562fe73c33b1c96eb7572f",
+      "direct_protocol_source_id": "johnson_popil_2015_article",
+      "direct_plot_source_id": "johnson_popil_2016_author_presentation",
+      "source_exact_geometry": false,
+      "purpose": "CPU-checked authoring inputs for a native forward fixture, not calibrated pin dimensions"
+    }
+  ],
+  "source_conflicts": [
+    {
+      "id": "johnson_popil_article_vs_presentation_figure_identity",
+      "status": "unresolved_cross_artifact_mapping",
+      "article_source_id": "johnson_popil_2015_article",
+      "presentation_source_id": "johnson_popil_2016_author_presentation",
+      "article_figures": {
+        "figure_4": "representative load-displacement waveforms",
+        "figure_5": "summary across six defect classes"
+      },
+      "presentation_figures": {
+        "slide_15": "two illustrative load-displacement traces",
+        "slide_16": "summary marker plots"
+      },
+      "observed_category_difference": "Slide 15 labels White Glue Lines and Applicator roll too fast; the article uses six named defect classes and a separate Figure 4/5 numbering scheme. No specimen-by-specimen or curve-pixel identity is established.",
+      "admission_rule": "Digitized values bind to the presentation PDF hash and slide number only. The article is protocol/study context, not a second direct source for the same rows. Do not count the article and presentation as independent fixture conditions."
+    },
+    {
+      "id": "johnson_popil_pin_work_unit_conflict",
+      "status": "unresolved_dimensional_conflict",
+      "article_source_id": "johnson_popil_2015_article",
+      "presentation_source_id": "johnson_popil_2016_author_presentation",
+      "article_printed_work_unit": "N-m in the article text describing the reported pin-adhesion work range",
+      "presentation_slide16_printed_work_unit": "N-m",
+      "presentation_slide15_axes": {
+        "force": "N",
+        "displacement": "mm",
+        "integral_dimension": "N*mm"
+      },
+      "admission_rule": "Keep slide-16 ordinate as an unresolved axis number; the calibration tool must reject conversion or fitting to N*mm/J until source convention is resolved."
+    },
+    {
+      "id": "johnson_popil_strength_range_across_artifacts",
+      "status": "source_artifact_range_difference_preserved",
+      "article_source_id": "johnson_popil_2015_article",
+      "presentation_source_id": "johnson_popil_2016_author_presentation",
+      "article_text_reported_strength_range_N_per_mm": [
+        0.17,
+        0.8
+      ],
+      "slide16_digitized_marker_range_N_per_mm": [
+        0.13,
+        0.82
+      ],
+      "admission_rule": "Retain the article text range and slide digitization separately; the marker-read bounds and source rounding do not establish identity or replace the six-category article values."
+    }
+  ]
+}

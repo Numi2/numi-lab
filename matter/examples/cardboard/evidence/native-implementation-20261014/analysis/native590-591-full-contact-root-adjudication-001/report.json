@@ -1,0 +1,192 @@
+{
+  "schema": "numi.cardboard.native590-591-root-adjudication.v1",
+  "verdict": "ACTIVATION_ACCEPTED_SUBSEQUENT_FULL_CONTACT_HISTORY_FAILED",
+  "cases": [
+    {
+      "case": "native/activation-legacy-control-off-590",
+      "exit_code": 1,
+      "accepted_controls": [
+        1199,
+        1200,
+        1201
+      ],
+      "failed_control": 1202,
+      "failed_newton": 7,
+      "accepted_state_vector_hashes_preserved_on_failure": true,
+      "accepted_cursor_preserved_on_failure": true,
+      "failed_status": {
+        "code": 10,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 7,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 20,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          6.5596754e-07,
+          null,
+          0.0078125,
+          8
+        ]
+      },
+      "failed_certificate": {
+        "nonlinear": [
+          0.0100003555,
+          0,
+          0,
+          0
+        ],
+        "contact": [
+          1.48129429e-05,
+          3.97238182e-06,
+          2.74982755e-13,
+          1.0098131e-06
+        ],
+        "transport": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "validity": [
+          0.9998914,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_records": []
+    },
+    {
+      "case": "native/activation-full-residual-control-on-591",
+      "exit_code": 1,
+      "accepted_controls": [
+        1199,
+        1200,
+        1201
+      ],
+      "failed_control": 1202,
+      "failed_newton": 7,
+      "accepted_state_vector_hashes_preserved_on_failure": true,
+      "accepted_cursor_preserved_on_failure": true,
+      "failed_status": {
+        "code": 10,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 7,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 20,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          6.5596754e-07,
+          null,
+          0.0078125,
+          8
+        ]
+      },
+      "failed_certificate": {
+        "nonlinear": [
+          0.0100003555,
+          0,
+          0,
+          0
+        ],
+        "contact": [
+          1.48129429e-05,
+          3.97238182e-06,
+          2.74982755e-13,
+          1.0098131e-06
+        ],
+        "transport": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "validity": [
+          0.9998914,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_records": []
+    }
+  ],
+  "activation_host_scene_observation": {
+    "schema": "numi.cardboard.free_body_activation_scene_commit.v1",
+    "evidence_role": "host_scene_and_published_readback_not_raw_mtlbuffer",
+    "control_step": 1199,
+    "attempt_index": 0,
+    "body_stride_bytes": 128,
+    "input_scene_source": "runner.sceneBodies_before_step_and_batch.initialSceneBodies",
+    "input_scene_count": 5,
+    "input_scene_file": "activation-transaction-000000-scene-input.bin",
+    "input_scene_sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+    "kinematic_targets_source": "ShippingRigidWorldRunner.step_batch.kinematicTargets",
+    "kinematic_targets_count": 5,
+    "kinematic_targets_file": "activation-transaction-000000-kinematic-targets.bin",
+    "kinematic_targets_sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+    "metalworld_published_scene_present": true,
+    "metalworld_published_scene_assessment": "published_readback_available",
+    "metalworld_raw_buffer_readback": "not_exposed_by_StepResult_API",
+    "metalworld_published_scene_count": 5,
+    "metalworld_published_scene_source": "MetalWorldResult.finalSceneBodies",
+    "metalworld_published_scene_file": "activation-transaction-000000-metalworld-scene-output.bin",
+    "metalworld_published_scene_sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+    "runner_scene_after_count": 5,
+    "runner_scene_after_file": "activation-transaction-000000-runner-scene-after.bin",
+    "runner_scene_after_sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+    "runner_scene_unchanged_from_input": false,
+    "published_scene_matches_host_commit": true,
+    "accepted_steps_before": 0,
+    "accepted_steps_after": 1,
+    "full_residual_mode_selected": true,
+    "full_residual_mode_skipped": false,
+    "metalworld_diagnostics_succeeded": true,
+    "matter_accepted": true,
+    "matter_status_code": 0,
+    "matter_before_present": true,
+    "matter_before_file": "transaction-000000-before.bin",
+    "matter_before_sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+    "matter_before_status_code": 0,
+    "matter_after_snapshot_available": true,
+    "matter_after_present": true,
+    "matter_after_file": "transaction-000000-after.bin",
+    "matter_after_sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+    "matter_after_status_code": 0,
+    "final_q_count": 0,
+    "final_q_file": "activation-transaction-000000-metalworld-final-q.bin",
+    "final_q_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_v_count": 0,
+    "final_v_file": "activation-transaction-000000-metalworld-final-v.bin",
+    "final_v_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "common_transaction_files_identical": [
+    "transaction-000000-after.bin",
+    "transaction-000000-before.bin",
+    "transaction-000000.json",
+    "transaction-000001-after.bin",
+    "transaction-000001-before.bin",
+    "transaction-000001.json",
+    "transaction-000002-after.bin",
+    "transaction-000002-before.bin",
+    "transaction-000002.json",
+    "transaction-000003-after.bin",
+    "transaction-000003-before.bin",
+    "transaction-000003.json"
+  ],
+  "classification": "Native coupled rigid/FEM/cohesive fixture; no shipping box qualification",
+  "limits": [
+    "1199 activation is accepted with full residual mode selected and published host scene committed.",
+    "1200 and1201 accepted;1202 Newton7 has no accepted private trial and fails.",
+    "Accepted Matter vector hashes and accepted cursor remain unchanged after failure; diagnostic status and certificates change as expected.",
+    "Later freebody host scene and raw transient Metal body buffer are not covered by activation-only1199 sidecar; extended fixture observer requested separately.",
+    "Private-stage cause is not identified by null norm alone. Earlier per-feature barrier Armijo fixture does not establish this cause; full-contact policy selects feasibility-only contact vetting.",
+    "Legacy-off and on fixtures produce identical Matter transaction outputs on these actions; this is not a general policy-equivalence proof."
+  ],
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T14:14:30.800195+00:00"
+}

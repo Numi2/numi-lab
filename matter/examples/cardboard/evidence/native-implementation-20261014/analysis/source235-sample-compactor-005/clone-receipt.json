@@ -1,0 +1,11 @@
+{
+  "destination": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-005",
+  "files": {
+    "matter/src/metal/contact.metalinc": "4c056f29bcb04780f2b234fbfcd8939b359b9d5fa239fc1bc48dbd12343ee971",
+    "matter/src/metal/fem.metalinc": "5e2f7ac02ed05b5c76f192d9577d9e53ab727ecb351ef8d2aceba60cd53096ec",
+    "matter/src/metal/fgmres.metalinc": "68efd367f6406903d65ab3f5b45f6d7c087872d1ec0a875fe5a1f114780c7cfc",
+    "matter/src/metal/identification_scheduler.metalinc": "054d3118cb598666e5ea6c59a53b1c96bb61c8776a3ba0a3762dd6ca3cd0d8f2"
+  },
+  "schema": "numi.cardboard.source235_005.clone_receipt.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-004"
+}

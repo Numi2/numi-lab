@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.serialized-native-queue.v1",
+  "wait_for": "solver/strict-state-source240-newton128-full-coupon-585/receipt.json",
+  "scripts": {
+    "run_native588_composed241_regression_001.py": "876013b927445b2ccffede221e48862a23438ebbc6284fff8a4090a1493d05f9",
+    "adjudicate_native588_parity_001.py": "5e2ab5c2c526368d4d2c07da7ef297de718ea2949ffd07b2e81818c25888ce32",
+    "run_native589_corrected_metadata_002.py": "98a4b69a1cef7d9d680a732b07a4272a0315a66dbc77ce3ea3665d91d3268d6f",
+    "run_native592_contact_compactor_001.py": "fddb6201fe32592a413b0adff0887f02bb9bd023bdb3f3c6f20f8f31d023f842",
+    "run_native590_591_activation_full_residual_001.py": "6079162046c77b550088a3141187edea8d5e4b66ad66ad1f23cd22e6d7e75c72"
+  },
+  "gpu_workers": 1,
+  "independent_checks_continue_after_recorded_failures": true,
+  "launched_at_utc": "2026-10-16T13:40:42.585738+00:00"
+}

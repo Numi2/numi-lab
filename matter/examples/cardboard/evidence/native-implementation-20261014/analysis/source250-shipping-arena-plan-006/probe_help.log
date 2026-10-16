@@ -1,0 +1,79 @@
+usage: numi-matter-cardboard-probe --output DIR [options]
+  --preset nagasawa2013|literature2009 (default literature2009)
+  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)
+  --residual-tolerance N tighten nonlinear residual threshold (default 1e-4)
+  --reference-displacement-gradient  opt in to immutable-reference FEM arithmetic
+  --scaled-paper-residuals  opt in to component-scaled 13-state Hill projection residuals
+  --safeguarded-paper-initializer  opt in to safeguarded scalar Hill initial guesses for liner and medium
+  --compensated-paper-arithmetic  opt in to compensated float2 Hill arithmetic for liner and medium
+  --prescribed-tool-predictor  native feasible initial guess and swept node/punch certificate
+  --prescribed-tool-barrier-scale N  punch IPC stiffness multiplier [1,100] (default 1; study arms 1,2,4)
+  --box-blank           FEFCO0201 flat blank native rest check; requires --bend-angle 0
+  --box-assembly-native execute score-die contact and accepted-state wall-fold grips; adhesive action fails closed
+  --box-fixture-joint externally clamp the seam and folded end edges; remains unbonded/unsealed
+  --box-angle-increment-deg N --box-max-action-steps N --box-score-steps N
+  --box-shape-residual-calipers N --box-shape-coverage-min N  accepted-shape completion gate
+  --box-fixture-gap-mm N --box-fixture-steps N  seam stand-off and native grip subdivisions
+  --box-punch-radius-mm N --box-score-clearance-mm N  numerical tooling choices
+  --shipping-box        300x200x200 mm FEFCO 0201 shipping blank (one environment)
+  --shipping-inside-length-mm N --shipping-inside-height-mm N --shipping-inside-width-mm N
+  --shipping-coupon-evidence FILE  accepted hashed score/fold/release allowance record
+  --shipping-capacity-qualification FILE  source-bound mesh/time numerical evidence required before any Fpeak mass is instantiated
+  --shipping-roof-measurement FILE  prior accepted-settled roof record used to bind impactor geometry before compile
+  --shipping-impactor-half-extents-mm X,Y,Z  explicit compiled impactor BOX half-extents (default authored 1.2x nominal area; aspect ratio preserved)
+  --shipping-engineering-assumptions --shipping-allowance-x-mm N --shipping-allowance-y-mm N --shipping-allowance-z-mm N
+  --shipping-preflight-only  initialize native arenas and sample memory; do not step
+  --compact-immutable-surfaces  use the compiled exterior-face map for immutable shipping FEM contact
+  --deformable-contact-capacity N  explicit shipping contact-slot cap; overflow still rejects/rolls back (default legacy 8 per tet)
+  --shipping-through-stage scoring|walls|manufacturer-lap|flaps|complete
+  --shipping-score-depth-ratio N  one score depth per fresh run [0.1, 0.4] (default 0.25)
+  --shipping-score-speed-mm-s N  commanded punch speed; default 50 mm/s engineering assumption
+  --shipping-settle-steps N  held boundary settle steps after the selected stage
+  --shipping-impact-dt-us N  finite-mass drop step (default 500 us)
+  --shipping-impact-dt-refinement  independent 500/250/125 us drops from the same released checkpoint
+  --shipping-gravity-transfer-dt-us N  finite-mass body-weight-transfer step (default 500 us)
+  --starch-interface-parameters FILE  explicit unvalidated mixed-mode cohesive inputs
+  --shipping-hma-parameters FILE  required explicit HMA analogue/engineering law for lap and flap bonds
+  --liner-damage-parameters FILE --medium-damage-parameters FILE  complete explicit retained-matrix feasible sets; no defaults
+  --crease              rounded punch indentation; grips held at zero rotation
+  --pin-adhesion        native six-capsule analogue pin-adhesion coupon; calibration remains unqualified
+  --pin-opening-mm N --pin-withdrawal-mm N  engineering fixture travel (defaults 2 and 1 mm)
+  --indent-mm N --punch-radius-mm N --tool-clearance-mm N --anvil-clearance-mm N
+  --without-self-contact  numerical control only for the finite-glue mesh
+  --material liner=FILE --material medium=FILE
+  --liner-material FILE --medium-material FILE
+    ordinary literature2009 defaults use source-fit bilinear tension hardening; retained-matrix overlays default to ideal Hill bases
+  --glue-material FILE --glue-gap-mm N --bond-width-mm N  finite glue bridges
+  --without-medium       paired two-liner control geometry
+  --steps N              ramp the end-grip rotation
+  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases
+  --release-steps N      release right grip after preceding phases; left remains fixed
+  --post-release-relax-steps N  continue free motion after release; separate accepted phase (default 0)
+  --newton-iterations N  global nonlinear budget (1..128)
+  --material-iterations N  local constitutive Newton budget (1..32; default16)
+  --fgmres-iterations N  Krylov-column budget (max 1024)
+  --fgmres-restart N     Krylov basis restart size [1, 16] (default 10)
+  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)
+  --coupon-checkpoint-after-control N  save an accepted two-environment checkpoint after zero-based control N and stop with a prefix-only result
+  --coupon-checkpoint-every N  save bounded periodic accepted two-environment checkpoints and continue the full schedule
+  --coupon-resume-checkpoint FILE --coupon-resume-metadata FILE  resume a diagnostic segment at the next control index
+  --coupon-resume-diagnostic-replay  explicitly permit only source-bound read-only diagnostic selector changes during resume
+  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)
+  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays
+  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic
+  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget defaults to 16 and may be overridden by --material-iterations [1,32]
+  --strict-source-paper-state-certification  use a 2e-10 dimensionless local Newton-correction certificate for accurate bilinear15 projection; requires --accurate-source-paper-projection; residual/iteration/outer gates and equations stay unchanged
+  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation
+  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz
+    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies
+    graph-Schwarz selector 5 is a bounded conditioning-only pure coupon experiment (<=32768 nodes, <=131072 tets, <=4 environments; graph arenas <=96 MiB), contact/cohesive/rigid/field/adaptive/mutation free; no shipping-box qualification
+  --bend-angle DEGREES   final right-grip rotation
+  --dt SECONDS           frame timestep
+  --nx N                 cross-section subdivisions per flute pitch
+  --ny N                 subdivisions across the width
+  --thickness-slices N   elements through each paper layer
+  --length-mm N --width-mm N --height-mm N --pitch-mm N
+  --liner-thickness-mm N --medium-thickness-mm N
+  --validate-only        check argument combinations and exit before file admission, mesh generation or Metal runtime creation
+  --compile-only         write package and initial OBJ without creating a Metal runtime
+  --metallib FILE         explicit retained native Metal image for replay

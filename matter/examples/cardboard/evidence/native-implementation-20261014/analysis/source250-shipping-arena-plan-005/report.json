@@ -1,0 +1,60 @@
+{
+  "all_pass": false,
+  "all_physics_count_gates_retained": true,
+  "at_utc": "2026-10-16T14:15:56.197123+00:00",
+  "base_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "build_artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/lib/libmetalrobo.dylib": "29bac13f25ec20edfeb821989a9aceee977d92b1536d92d83f45b0ee58befb7c",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/matter/numi-matter-cardboard-probe": "cbbefc64fa796a62bd58b0126a1b2c8eeb206aea8337642a1ea6fe8561d870f1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/matter/numi-matter-cardboard-shipping-memory-check": "a20bd9bdca077baeba45d8e40ec535aba7246b33bbc57ee710632ce40bddec01",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/matter/shaders/NumiMatter.metallib": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "build_success": true,
+  "changed_paths": [
+    {
+      "base_sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+      "candidate_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5",
+      "path": "matter/tools/cardboard_shipping_memory.hpp"
+    },
+    {
+      "base_sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9",
+      "candidate_sha256": "8545d1bbdb1bef3bee24da83ed7b21a39565d04f45145e371977839b6c066a83",
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp"
+    },
+    {
+      "base_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+      "candidate_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b",
+      "path": "matter/tools/cardboard_probe.mm"
+    }
+  ],
+  "complete_shipping_admission": false,
+  "configure_support_file_count": 1034,
+  "full_runtime_allocation_inventory_complete": false,
+  "gpu_execution": false,
+  "overlay_manifest_sha256": "bda550276cfd1560f9e4ef160505f672a9f28bdb6e589fdf22ca82e209a0e491",
+  "overlay_patch_sha256": "0ae4965d2a4a75f748e45b481f5ebaf2d46e6c16a9415034ce02ecdbefa45d1c",
+  "preserved_failed_attempts": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-003/report.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-004-failure.json"
+  ],
+  "schema": "numi.cardboard.source250-shipping-arena-plan-build.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-005",
+  "source_bound_build_json_sha256": "00800623c40ce2daea41906fd8a4f1c382795a24d47940ef57d8ca0703a0a118",
+  "source_file_count": 842,
+  "source_frozen_sha256": "b7c530e3431236743a7232cc385ca44b21a4184e30251a0b83eaf909c364be8f",
+  "tests": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-005/matter/numi-matter-cardboard-shipping-memory-check"
+      ],
+      "exit_code": 1,
+      "stderr_sha256": "fff27474120fc3b8e12feffb614c4e30c6c7db7aec5ef3ceefa0f53a1506ab39",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

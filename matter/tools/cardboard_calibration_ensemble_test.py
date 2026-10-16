@@ -57,7 +57,8 @@ def make_bct_capacity_fixture(base: Path, *, complete: bool = True) -> tuple[dic
     curve_path.write_text(
         "sample_index,stroke_m,force_N,contact_samples\n"
         "0,0,0,0\n1,0.00025,40,2\n"
-        "2,0.07,100,4\n3,0.14,80,4\n", encoding="utf-8")
+        "2,0.07,100,4\n3,0.08,98.8,4\n4,0.09,97.5,4\n"
+        "5,0.13,130,4\n6,0.14,80,4\n", encoding="utf-8")
     curve_sha = digest(curve_path)
     source_binding = "a" * 64
     checkpoint_sha = digest(base / "shipping-assembled.matter")
@@ -97,7 +98,7 @@ def make_bct_capacity_fixture(base: Path, *, complete: bool = True) -> tuple[dic
         "assembled_matter_checkpoint_sha256": checkpoint_sha,
         "assembled_rigid_sidecar_sha256": rigid_sha,
         "nominal_curve_sha256": curve_sha, "nominal_peak_sample_index": "2",
-        "nominal_accepted_sample_count": "4", "nominal_terminal_stroke_fraction": "0.7",
+        "nominal_accepted_sample_count": "7", "nominal_terminal_stroke_fraction": "0.7",
         "nominal_full_stroke_completed": "true" if complete else "false",
         "nominal_rate_sensitivity_passed": "true",
         "mesh_status": "qualified", "mesh_report_file": "mesh-study.json",
@@ -136,7 +137,13 @@ def make_bct_capacity_fixture(base: Path, *, complete: bool = True) -> tuple[dic
              "platen_reaction_samples": "2", "platen_mean_force_y_N": "40"},
         ])
         previous = 0.00025
-        for stroke, force in ((0.07, 100.0), (0.14, 80.0)):
+        if prefix.startswith("half_speed"):
+            slow_samples = ((0.07, 101.0), (0.08, 99.8), (0.09, 98.5),
+                            (0.13, 135.0), (0.14, 80.8))
+        else:
+            slow_samples = ((0.07, 100.0), (0.08, 98.8), (0.09, 97.5),
+                            (0.13, 130.0), (0.14, 80.0))
+        for stroke, force in slow_samples:
             duration = (stroke - previous) / rate
             branch_rows.append({
                 "phase": f"{prefix}_slow_compression", "accepted": "1",
@@ -159,7 +166,7 @@ def make_bct_capacity_fixture(base: Path, *, complete: bool = True) -> tuple[dic
         "assembled_matter_checkpoint_sha256": checkpoint_sha,
         "assembled_rigid_sidecar_sha256": rigid_sha,
         "nominal_curve_sha256": curve_sha, "nominal_peak_sample_index": 2,
-        "nominal_accepted_sample_count": 4,
+        "nominal_accepted_sample_count": 7,
         "nominal_terminal_stroke_fraction": 0.7,
         "nominal_full_stroke_completed": True, "nominal_rate_sensitivity_passed": True,
         "inside_height_m": 0.2, "mesh_report_sha256": mesh_sha, "time_report_sha256": time_sha,
@@ -201,9 +208,11 @@ def make_bct_capacity_fixture(base: Path, *, complete: bool = True) -> tuple[dic
         "shipping_capacity_binding": binding,
         "samples": [
             {"sample_index": i, "phase": "shipping_compression_nominal", "accepted": True,
-             "stroke_m": stroke, "force_N": force}
-            for i, (stroke, force) in enumerate(((0.0, 0.0), (0.00025, 40.0),
-                                                  (0.07, 100.0), (0.14, 80.0)))
+             "stroke_m": stroke, "force_N": force, "contact_samples": contacts}
+            for i, (stroke, force, contacts) in enumerate((
+                (0.0, 0.0, 0.0), (0.00025, 40.0, 2.0),
+                (0.07, 100.0, 4.0), (0.08, 98.8, 4.0), (0.09, 97.5, 4.0),
+                (0.13, 130.0, 4.0), (0.14, 80.0, 4.0)))
         ],
     }
     manifest = {

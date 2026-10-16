@@ -1,0 +1,2914 @@
+{
+  "schema": "numi.cardboard.native590-591-root-adjudication.v1",
+  "verdict": "ACTIVATION_ACCEPTED_SUBSEQUENT_FULL_CONTACT_HISTORY_FAILED",
+  "cases": [
+    {
+      "case": "native/activation-legacy-control-off-590",
+      "exit_code": 1,
+      "accepted_controls": [
+        1199,
+        1200,
+        1201
+      ],
+      "failed_control": 1202,
+      "failed_newton": 7,
+      "accepted_state_vector_hashes_preserved_on_failure": true,
+      "accepted_cursor_preserved_on_failure": true,
+      "failed_status": {
+        "code": 10,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 7,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 20,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          6.5596754e-07,
+          null,
+          0.0078125,
+          8
+        ]
+      },
+      "failed_certificate": {
+        "nonlinear": [
+          0.0100003555,
+          0,
+          0,
+          0
+        ],
+        "contact": [
+          1.48129429e-05,
+          3.97238182e-06,
+          2.74982755e-13,
+          1.0098131e-06
+        ],
+        "transport": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "validity": [
+          0.9998914,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_records": [
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 0,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0299510937,
+              "trial_l2": 2.2315824e-05,
+              "trial_alpha": 1,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 1,
+              "environment_line_search_alpha": 1,
+              "minimum_J": 0.999954045,
+              "line_search_raw": [
+                1,
+                0.999954045,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 1,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 1,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 1,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 2.2315824e-05,
+              "trial_l2": 1.69095001e-05,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.999939859,
+              "line_search_raw": [
+                0.25,
+                0.999939859,
+                3,
+                1
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 7,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 7,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 2,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.69095001e-05,
+              "trial_l2": 1.52016469e-06,
+              "trial_alpha": 1,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 1,
+              "environment_line_search_alpha": 1,
+              "minimum_J": 0.999891996,
+              "line_search_raw": [
+                1,
+                0.999891996,
+                1,
+                2
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 9,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 9,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 3,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.52016469e-06,
+              "trial_l2": 1.13093779e-06,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.999891758,
+              "line_search_raw": [
+                0.25,
+                0.999891758,
+                3,
+                3
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 4,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.13093779e-06,
+              "trial_l2": 1.03037269e-06,
+              "trial_alpha": 0.0625,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.0625,
+              "environment_line_search_alpha": 0.0625,
+              "minimum_J": 0.999891639,
+              "line_search_raw": [
+                0.0625,
+                0.999891639,
+                5,
+                4
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 5,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.03037269e-06,
+              "trial_l2": 9.05889067e-07,
+              "trial_alpha": 0.125,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.125,
+              "environment_line_search_alpha": 0.125,
+              "minimum_J": 0.999891579,
+              "line_search_raw": [
+                0.125,
+                0.999891579,
+                4,
+                5
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 6,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 9.05889067e-07,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0.25,
+                0.9998914,
+                3,
+                6
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 7,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 6.5596754e-07,
+              "trial_l2": null,
+              "trial_alpha": 0.0078125,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "last_tested_trial_rejected",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                7
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 6,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 78,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  16,
+                  99,
+                  1,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 8,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                8
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 9,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                9
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 10,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                10
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 11,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                11
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 12,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                12
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 13,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                13
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 14,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                14
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 15,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                15
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "native/activation-full-residual-control-on-591",
+      "exit_code": 1,
+      "accepted_controls": [
+        1199,
+        1200,
+        1201
+      ],
+      "failed_control": 1202,
+      "failed_newton": 7,
+      "accepted_state_vector_hashes_preserved_on_failure": true,
+      "accepted_cursor_preserved_on_failure": true,
+      "failed_status": {
+        "code": 10,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 7,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 20,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          6.5596754e-07,
+          null,
+          0.0078125,
+          8
+        ]
+      },
+      "failed_certificate": {
+        "nonlinear": [
+          0.0100003555,
+          0,
+          0,
+          0
+        ],
+        "contact": [
+          1.48129429e-05,
+          3.97238182e-06,
+          2.74982755e-13,
+          1.0098131e-06
+        ],
+        "transport": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "validity": [
+          0.9998914,
+          0,
+          0,
+          0
+        ]
+      },
+      "trace_records": [
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 0,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0299510937,
+              "trial_l2": 2.2315824e-05,
+              "trial_alpha": 1,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 1,
+              "environment_line_search_alpha": 1,
+              "minimum_J": 0.999954045,
+              "line_search_raw": [
+                1,
+                0.999954045,
+                1,
+                0
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 1,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 1,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 1,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 2.2315824e-05,
+              "trial_l2": 1.69095001e-05,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.999939859,
+              "line_search_raw": [
+                0.25,
+                0.999939859,
+                3,
+                1
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 7,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 7,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 2,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.69095001e-05,
+              "trial_l2": 1.52016469e-06,
+              "trial_alpha": 1,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 1,
+              "environment_line_search_alpha": 1,
+              "minimum_J": 0.999891996,
+              "line_search_raw": [
+                1,
+                0.999891996,
+                1,
+                2
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 9,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 9,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 3,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.52016469e-06,
+              "trial_l2": 1.13093779e-06,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.999891758,
+              "line_search_raw": [
+                0.25,
+                0.999891758,
+                3,
+                3
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 4,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.13093779e-06,
+              "trial_l2": 1.03037269e-06,
+              "trial_alpha": 0.0625,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.0625,
+              "environment_line_search_alpha": 0.0625,
+              "minimum_J": 0.999891639,
+              "line_search_raw": [
+                0.0625,
+                0.999891639,
+                5,
+                4
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 5,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 1.03037269e-06,
+              "trial_l2": 9.05889067e-07,
+              "trial_alpha": 0.125,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.125,
+              "environment_line_search_alpha": 0.125,
+              "minimum_J": 0.999891579,
+              "line_search_raw": [
+                0.125,
+                0.999891579,
+                4,
+                5
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 6,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 9.05889067e-07,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0.25,
+              "accepted": true,
+              "certified_noop": false,
+              "trial_outcome": "selected_trial_accepted",
+              "last_trial_status_role": "unused_tail_after_selected_accept",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0.25,
+              "environment_line_search_alpha": 0.25,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0.25,
+                0.9998914,
+                3,
+                6
+              ],
+              "solver_status_code": 0,
+              "solver_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "trial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 7,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 6.5596754e-07,
+              "trial_l2": null,
+              "trial_alpha": 0.0078125,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "last_tested_trial_rejected",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "healthy_at_armijo_entry",
+              "base_residual_interpretation": "complete_assembled_free_dof_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                7
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 6,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 78,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  16,
+                  99,
+                  1,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 8,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                8
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 9,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                9
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 10,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                10
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 11,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                11
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 12,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                12
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 13,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                13
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 14,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                14
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "schema": 3,
+          "root": 1202,
+          "newton_iteration": 15,
+          "direction_kind": "newton",
+          "semantics": {
+            "base_l2": "raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry",
+            "trial_l2": "selected residual if accepted, otherwise last tested residual",
+            "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+            "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently",
+            "base_status": "captured immediately before this Armijo trial loop",
+            "trial_status": "last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status"
+          },
+          "environments": [
+            {
+              "base_l2": 0.0100003555,
+              "trial_l2": 6.5596754e-07,
+              "trial_alpha": 0,
+              "accepted": false,
+              "certified_noop": false,
+              "trial_outcome": "blocked_by_pretrial_solver_status",
+              "last_trial_status_role": "last_tested_trial_status",
+              "base_health": "invalid_pretrial_solver_status",
+              "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+              "selected_alpha": 0,
+              "environment_line_search_alpha": 0,
+              "minimum_J": 0.9998914,
+              "line_search_raw": [
+                0,
+                0.9998914,
+                0,
+                15
+              ],
+              "solver_status_code": 10,
+              "solver_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              },
+              "trial_status": {
+                "code": 0,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 0,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 0,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "pretrial_status": {
+                "code": 10,
+                "environment": 0,
+                "object_index": 0,
+                "failing_index": 7,
+                "completed_microsteps": 0,
+                "fgmres_iterations": 20,
+                "contact_count": 0,
+                "event_count": 0,
+                "diagnostics": [
+                  6.5596754e-07,
+                  null,
+                  0.0078125,
+                  8
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "activation_host_scene_observation": {
+    "schema": "numi.cardboard.free_body_activation_scene_commit.v1",
+    "evidence_role": "host_scene_and_published_readback_not_raw_mtlbuffer",
+    "control_step": 1199,
+    "attempt_index": 0,
+    "body_stride_bytes": 128,
+    "input_scene_source": "runner.sceneBodies_before_step_and_batch.initialSceneBodies",
+    "input_scene_count": 5,
+    "input_scene_file": "activation-transaction-000000-scene-input.bin",
+    "input_scene_sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+    "kinematic_targets_source": "ShippingRigidWorldRunner.step_batch.kinematicTargets",
+    "kinematic_targets_count": 5,
+    "kinematic_targets_file": "activation-transaction-000000-kinematic-targets.bin",
+    "kinematic_targets_sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+    "metalworld_published_scene_present": true,
+    "metalworld_published_scene_assessment": "published_readback_available",
+    "metalworld_raw_buffer_readback": "not_exposed_by_StepResult_API",
+    "metalworld_published_scene_count": 5,
+    "metalworld_published_scene_source": "MetalWorldResult.finalSceneBodies",
+    "metalworld_published_scene_file": "activation-transaction-000000-metalworld-scene-output.bin",
+    "metalworld_published_scene_sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+    "runner_scene_after_count": 5,
+    "runner_scene_after_file": "activation-transaction-000000-runner-scene-after.bin",
+    "runner_scene_after_sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+    "runner_scene_unchanged_from_input": false,
+    "published_scene_matches_host_commit": true,
+    "accepted_steps_before": 0,
+    "accepted_steps_after": 1,
+    "full_residual_mode_selected": true,
+    "full_residual_mode_skipped": false,
+    "metalworld_diagnostics_succeeded": true,
+    "matter_accepted": true,
+    "matter_status_code": 0,
+    "matter_before_present": true,
+    "matter_before_file": "transaction-000000-before.bin",
+    "matter_before_sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+    "matter_before_status_code": 0,
+    "matter_after_snapshot_available": true,
+    "matter_after_present": true,
+    "matter_after_file": "transaction-000000-after.bin",
+    "matter_after_sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+    "matter_after_status_code": 0,
+    "final_q_count": 0,
+    "final_q_file": "activation-transaction-000000-metalworld-final-q.bin",
+    "final_q_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_v_count": 0,
+    "final_v_file": "activation-transaction-000000-metalworld-final-v.bin",
+    "final_v_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "common_transaction_files_identical": [
+    "transaction-000000-after.bin",
+    "transaction-000000-before.bin",
+    "transaction-000000.json",
+    "transaction-000001-after.bin",
+    "transaction-000001-before.bin",
+    "transaction-000001.json",
+    "transaction-000002-after.bin",
+    "transaction-000002-before.bin",
+    "transaction-000002.json",
+    "transaction-000003-after.bin",
+    "transaction-000003-before.bin",
+    "transaction-000003.json"
+  ],
+  "classification": "Native coupled rigid/FEM/cohesive fixture; no shipping box qualification",
+  "limits": [
+    "1199 activation is accepted with full residual mode selected and published host scene committed.",
+    "1200 and1201 accepted;1202 Newton7 has no accepted private trial and fails.",
+    "Accepted Matter vector hashes and accepted cursor remain unchanged after failure; diagnostic status and certificates change as expected.",
+    "Later freebody host scene and raw transient Metal body buffer are not covered by activation-only1199 sidecar; extended fixture observer requested separately.",
+    "Private-stage cause is not identified by null norm alone. Earlier per-feature barrier Armijo fixture does not establish this cause; full-contact policy selects feasibility-only contact vetting.",
+    "Legacy-off and on fixtures produce identical Matter transaction outputs on these actions; this is not a general policy-equivalence proof."
+  ],
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T14:14:59.270662+00:00"
+}

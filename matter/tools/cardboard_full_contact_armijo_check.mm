@@ -67,6 +67,7 @@ bool extendedBudget = false;
 bool accuratePaper = false;
 bool compensatedMaterialArithmetic = false;
 bool regionalContactPreconditioner = false;
+bool fullContactActivationResidualArmijo = false;
 std::uint32_t authoredNewtonIterations = 0u;
 
 std::string diagnosticStateOutputPath;
@@ -113,6 +114,311 @@ std::string sha256DiagnosticFile(const std::filesystem::path& path) {
         result.push_back(hex[value & 15u]);
     }
     return result;
+}
+
+template <typename T>
+std::string writeActivationBinarySidecar(
+        const std::filesystem::path& path, const std::vector<T>& values) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    if (std::filesystem::exists(path))
+        throw std::runtime_error("refusing to replace activation sidecar");
+    std::ofstream output(path, std::ios::binary | std::ios::out);
+    if (!output) throw std::runtime_error("could not create activation sidecar");
+    if (!values.empty())
+        output.write(reinterpret_cast<const char*>(values.data()),
+                     static_cast<std::streamsize>(values.size() * sizeof(T)));
+    output.flush();
+    if (!output.good()) throw std::runtime_error("incomplete activation sidecar");
+    return sha256DiagnosticFile(path);
+}
+
+std::string freeBodyControlSceneStem(
+        const std::uint32_t control, const std::uint64_t attempt) {
+    std::ostringstream stem;
+    stem << "free-body-control-" << std::setw(6) << std::setfill('0')
+         << control << "-attempt-" << std::setw(6) << attempt;
+    return stem.str();
+}
+
+void writeFreeBodyControlSceneEvidence(
+        const std::uint64_t attempt, const std::uint32_t control,
+        const std::vector<MRBodyStateGPU>& inputScene,
+        const std::vector<MRBodyStateGPU>& kinematicTargets,
+        const std::vector<MRABABodyWrenchGPU>& wrenches,
+        const numi::cardboard::ShippingRigidWorldRunner::StepResult* step,
+        const bool stepReturned,
+        const std::vector<MRBodyStateGPU>& hostAfter,
+        const std::uint64_t acceptedStepsBefore,
+        const std::uint64_t acceptedStepsAfter,
+        const RuntimeStateSnapshot& before,
+        const RuntimeStateSnapshot* after,
+        const std::string& trace, const char* stage) {
+    if (diagnosticStateOutputPath.empty())
+        throw std::runtime_error(
+            "free-body scene evidence requires diagnostic output");
+    const std::filesystem::path root(diagnosticStateOutputPath);
+    const std::string stem = freeBodyControlSceneStem(control, attempt);
+    const auto metaPath = root / (stem + "-scene-attempt.json");
+    if (std::filesystem::exists(metaPath))
+        throw std::runtime_error(
+            "refusing to replace free-body control scene metadata");
+    const auto inputPath = root / (stem + "-scene-before.bin");
+    const auto targetsPath = root / (stem + "-kinematic-targets.bin");
+    const auto wrenchPath = root / (stem + "-wrenches.bin");
+    const auto hostPath = root / (stem + "-runner-scene-after.bin");
+    const auto publishedPath = root / (stem + "-metalworld-published-scene.bin");
+    const auto tracePath = root / (stem + "-stderr-trace.txt");
+    static_assert(std::is_trivially_copyable_v<MRBodyStateGPU>);
+    static_assert(std::is_trivially_copyable_v<MRABABodyWrenchGPU>);
+    const auto inputHash = writeActivationBinarySidecar(inputPath, inputScene);
+    const auto targetsHash =
+        writeActivationBinarySidecar(targetsPath, kinematicTargets);
+    const auto wrenchHash = writeActivationBinarySidecar(wrenchPath, wrenches);
+    const auto hostHash = writeActivationBinarySidecar(hostPath, hostAfter);
+    const std::vector<char> traceBytes(trace.begin(), trace.end());
+    const auto traceHash = writeActivationBinarySidecar(tracePath, traceBytes);
+
+    const bool hostSameInput = inputScene.size() == hostAfter.size() &&
+        (inputScene.empty() ||
+         std::memcmp(inputScene.data(), hostAfter.data(),
+                     inputScene.size() * sizeof(MRBodyStateGPU)) == 0);
+    if (stepReturned && step == nullptr)
+        throw std::runtime_error(
+            "returned free-body step is missing its StepResult");
+    const bool publishedVectorAvailable = stepReturned && step != nullptr;
+    const bool publishedNonempty = publishedVectorAvailable &&
+        !step->result.finalSceneBodies.empty();
+    const std::string publishedHash = publishedVectorAvailable
+        ? writeActivationBinarySidecar(
+              publishedPath, step->result.finalSceneBodies)
+        : std::string{};
+    const bool publishedMatchesHost = publishedVectorAvailable &&
+        step->result.finalSceneBodies.size() == hostAfter.size() &&
+        (hostAfter.empty() ||
+         std::memcmp(step->result.finalSceneBodies.data(), hostAfter.data(),
+                     hostAfter.size() * sizeof(MRBodyStateGPU)) == 0);
+
+    const std::string transactionStem = indexedDiagnosticStem(attempt);
+    const auto matterBeforePath =
+        root / (transactionStem + "-before.bin");
+    const auto matterAfterPath =
+        root / (transactionStem + "-after.bin");
+    const bool matterBeforeFile = std::filesystem::is_regular_file(
+        matterBeforePath);
+    const bool matterAfterSnapshot = after != nullptr && after->available;
+    const bool matterAfterFile = matterAfterSnapshot &&
+        std::filesystem::is_regular_file(matterAfterPath);
+    const int beforeStatus = before.statuses.empty()
+        ? -1 : before.statuses.front().code;
+    const int afterStatus = !matterAfterSnapshot || after->statuses.empty()
+        ? -1 : after->statuses.front().code;
+    const std::string traceText(trace.begin(), trace.end());
+    const bool fullResidualSelected =
+        traceText.find("fem_full_contact_residual_armijo_enabled=") !=
+            std::string::npos;
+    const bool fullResidualSkipped =
+        traceText.find("fem_full_contact_residual_armijo_skipped=") !=
+            std::string::npos;
+
+    std::ofstream out(metaPath, std::ios::out);
+    if (!out)
+        throw std::runtime_error(
+            "could not create free-body control scene metadata");
+    out << "{\"schema\":\"numi.cardboard.free_body_control_scene_attempt.v1\""
+        << ",\"evidence_role\":\"host_scene_and_published_readback;raw_mtl_unknown\""
+        << ",\"control_step\":" << control
+        << ",\"attempt_index\":" << attempt
+        << ",\"attempt_stem\":\"" << stem << "\""
+        << ",\"capture_stage\":\"" << stage << "\""
+        << ",\"step_returned\":" << (stepReturned ? "true" : "false")
+        << ",\"scene_body_stride_bytes\":" << sizeof(MRBodyStateGPU)
+        << ",\"input_scene_count\":" << inputScene.size()
+        << ",\"input_scene_file\":\"" << inputPath.filename().string() << "\""
+        << ",\"input_scene_sha256\":\"" << inputHash << "\""
+        << ",\"kinematic_target_count\":" << kinematicTargets.size()
+        << ",\"kinematic_targets_file\":\"" << targetsPath.filename().string() << "\""
+        << ",\"kinematic_targets_sha256\":\"" << targetsHash << "\""
+        << ",\"wrench_count\":" << wrenches.size()
+        << ",\"wrench_stride_bytes\":" << sizeof(MRABABodyWrenchGPU)
+        << ",\"wrenches_file\":\"" << wrenchPath.filename().string() << "\""
+        << ",\"wrenches_sha256\":\"" << wrenchHash << "\""
+        << ",\"runner_scene_after_count\":" << hostAfter.size()
+        << ",\"runner_scene_after_file\":\"" << hostPath.filename().string() << "\""
+        << ",\"runner_scene_after_sha256\":\"" << hostHash << "\""
+        << ",\"runner_scene_changed_from_input\":" << (!hostSameInput ? "true" : "false")
+        << ",\"published_scene_readback_available\":"
+        << (stepReturned ? "true" : "false")
+        << ",\"published_scene_vector_available\":"
+        << (publishedVectorAvailable ? "true" : "false")
+        << ",\"published_scene_nonempty\":" << (publishedNonempty ? "true" : "false")
+        << ",\"published_scene_assessment\":\""
+        << (!publishedVectorAvailable ? "unknown_no_StepResult"
+              : (publishedNonempty ? "published_readback_available"
+                                   : "published_empty_vector")) << "\""
+        << ",\"published_scene_source\":\"MetalWorldResult.finalSceneBodies\""
+        << ",\"published_scene_count\":"
+        << (publishedVectorAvailable
+                ? std::to_string(step->result.finalSceneBodies.size()) : "null")
+        << ",\"published_scene_file\":"
+        << (publishedVectorAvailable
+                ? "\""+publishedPath.filename().string()+"\"" : "null")
+        << ",\"published_scene_sha256\":"
+        << (publishedVectorAvailable ? "\""+publishedHash+"\"" : "null")
+        << ",\"published_scene_matches_runner_commit\":"
+        << (publishedVectorAvailable
+                ? (publishedMatchesHost ? "true" : "false") : "null")
+        << ",\"metalworld_diagnostics_succeeded\":"
+        << (stepReturned
+                ? (step->diagnostics.succeeded() ? "true" : "false") : "null")
+        << ",\"matter_accepted\":"
+        << (stepReturned
+                ? (step->matterAcceptance.accepted ? "true" : "false") : "null")
+        << ",\"matter_status_code\":"
+        << (stepReturned ? std::to_string(step->matterAcceptance.statusCode) : "null")
+        << ",\"raw_mtl_buffer_readback\":\"unknown_not_exposed_by_StepResult_API\""
+        << ",\"accepted_steps_before\":" << acceptedStepsBefore
+        << ",\"accepted_steps_after\":" << acceptedStepsAfter
+        << ",\"before_matter_snapshot_available\":"
+        << (before.available ? "true" : "false")
+        << ",\"before_control_step\":"
+        << (before.available ? std::to_string(before.controlStep) : "null")
+        << ",\"before_physics_substep\":"
+        << (before.available ? std::to_string(before.physicsSubstep) : "null")
+        << ",\"before_status_code\":" << beforeStatus
+        << ",\"before_snapshot_present\":" << (matterBeforeFile ? "true" : "false")
+        << ",\"before_snapshot_file\":\"" << matterBeforePath.filename().string() << "\""
+        << ",\"before_snapshot_sha256\":"
+        << (matterBeforeFile ? "\""+sha256DiagnosticFile(matterBeforePath)+"\"" : "null")
+        << ",\"after_matter_snapshot_available\":"
+        << (matterAfterSnapshot ? "true" : "false")
+        << ",\"after_control_step\":"
+        << (matterAfterSnapshot ? std::to_string(after->controlStep) : "null")
+        << ",\"after_physics_substep\":"
+        << (matterAfterSnapshot ? std::to_string(after->physicsSubstep) : "null")
+        << ",\"after_status_code\":" << afterStatus
+        << ",\"after_snapshot_present\":" << (matterAfterFile ? "true" : "false")
+        << ",\"after_snapshot_file\":"
+        << (matterAfterFile ? "\""+matterAfterPath.filename().string()+"\"" : "null")
+        << ",\"after_snapshot_sha256\":"
+        << (matterAfterFile ? "\""+sha256DiagnosticFile(matterAfterPath)+"\"" : "null")
+        << ",\"full_residual_mode_selected\":" << (fullResidualSelected ? "true" : "false")
+        << ",\"full_residual_mode_skipped\":" << (fullResidualSkipped ? "true" : "false")
+        << ",\"trace_file\":\"" << tracePath.filename().string() << "\""
+        << ",\"trace_sha256\":\"" << traceHash << "\""
+        << "}\n";
+    out.flush();
+    if (!out)
+        throw std::runtime_error(
+            "free-body control scene metadata write failed");
+}
+
+void writeActivationSceneEvidence(
+        const std::uint64_t index, const std::uint32_t control,
+        const std::vector<MRBodyStateGPU>& input,
+        const std::vector<MRBodyStateGPU>& targets,
+        const numi::cardboard::ShippingRigidWorldRunner::StepResult& step,
+        const std::vector<MRBodyStateGPU>& hostAfter,
+        const std::uint64_t stepsBefore, const std::uint64_t stepsAfter,
+        const RuntimeStateSnapshot& before, const RuntimeStateSnapshot* after,
+        const bool fullResidualSelected, const bool fullResidualSkipped) {
+    if (diagnosticStateOutputPath.empty())
+        throw std::runtime_error("activation evidence requires diagnostic output");
+    const std::filesystem::path root(diagnosticStateOutputPath);
+    const std::string stem = "activation-" + indexedDiagnosticStem(index);
+    const auto inputPath=root/(stem+"-scene-input.bin");
+    const auto targetsPath=root/(stem+"-kinematic-targets.bin");
+    const auto outputPath=root/(stem+"-metalworld-scene-output.bin");
+    const auto hostPath=root/(stem+"-runner-scene-after.bin");
+    const auto qPath=root/(stem+"-metalworld-final-q.bin");
+    const auto vPath=root/(stem+"-metalworld-final-v.bin");
+    const auto metaPath=root/(stem+"-scene-commit.json");
+    if (std::filesystem::exists(metaPath))
+        throw std::runtime_error("refusing to replace activation metadata");
+    static_assert(std::is_trivially_copyable_v<MRBodyStateGPU>);
+    const auto inputHash=writeActivationBinarySidecar(inputPath,input);
+    const auto targetsHash=writeActivationBinarySidecar(targetsPath,targets);
+    const auto hostHash=writeActivationBinarySidecar(hostPath,hostAfter);
+    const auto qHash=writeActivationBinarySidecar(qPath,step.result.finalQ);
+    const auto vHash=writeActivationBinarySidecar(vPath,step.result.finalV);
+    const bool outputPresent=!step.result.finalSceneBodies.empty();
+    const auto outputHash=outputPresent
+        ? writeActivationBinarySidecar(outputPath,step.result.finalSceneBodies)
+        : std::string{};
+    const bool hostSameInput=input.size()==hostAfter.size() &&
+        (input.empty() || std::memcmp(input.data(),hostAfter.data(),
+            input.size()*sizeof(MRBodyStateGPU))==0);
+    const bool outputSameHost=outputPresent &&
+        step.result.finalSceneBodies.size()==hostAfter.size() &&
+        (hostAfter.empty() || std::memcmp(step.result.finalSceneBodies.data(),
+            hostAfter.data(),hostAfter.size()*sizeof(MRBodyStateGPU))==0);
+    const std::string tx=indexedDiagnosticStem(index);
+    const auto beforePath=root/(tx+"-before.bin");
+    const auto afterPath=root/(tx+"-after.bin");
+    const bool beforePresent=std::filesystem::is_regular_file(beforePath);
+    const bool afterSnapshotAvailable = after != nullptr && after->available;
+    const bool afterFilePresent = afterSnapshotAvailable &&
+        std::filesystem::is_regular_file(afterPath);
+    const int beforeStatus=before.statuses.empty()?-1:before.statuses.front().code;
+    const int afterStatus=!afterSnapshotAvailable || after->statuses.empty()
+        ? -1 : after->statuses.front().code;
+    std::ofstream out(metaPath,std::ios::out);
+    if (!out) throw std::runtime_error("could not create activation metadata");
+    out << "{\"schema\":\"numi.cardboard.free_body_activation_scene_commit.v1\""
+        << ",\"evidence_role\":\"host_scene_and_published_readback_not_raw_mtlbuffer\""
+        << ",\"control_step\":"<<control<<",\"attempt_index\":"<<index
+        << ",\"body_stride_bytes\":"<<sizeof(MRBodyStateGPU)
+        << ",\"input_scene_source\":\"runner.sceneBodies_before_step_and_batch.initialSceneBodies\""
+        << ",\"input_scene_count\":"<<input.size()
+        << ",\"input_scene_file\":\""<<inputPath.filename().string()<<"\""
+        << ",\"input_scene_sha256\":\""<<inputHash<<"\""
+        << ",\"kinematic_targets_source\":\"ShippingRigidWorldRunner.step_batch.kinematicTargets\""
+        << ",\"kinematic_targets_count\":"<<targets.size()
+        << ",\"kinematic_targets_file\":\""<<targetsPath.filename().string()<<"\""
+        << ",\"kinematic_targets_sha256\":\""<<targetsHash<<"\""
+        << ",\"metalworld_published_scene_present\":"<<(outputPresent?"true":"false")
+        << ",\"metalworld_published_scene_assessment\":\""
+        << (outputPresent ? "published_readback_available"
+                          : "unknown_no_published_scene_readback") << "\""
+        << ",\"metalworld_raw_buffer_readback\":\"not_exposed_by_StepResult_API\""
+        << ",\"metalworld_published_scene_count\":"<<step.result.finalSceneBodies.size()
+        << ",\"metalworld_published_scene_source\":\"MetalWorldResult.finalSceneBodies\""
+        << ",\"metalworld_published_scene_file\":"
+        << (outputPresent?"\""+outputPath.filename().string()+"\"":"null")
+        << ",\"metalworld_published_scene_sha256\":"
+        << (outputPresent?"\""+outputHash+"\"":"null")
+        << ",\"runner_scene_after_count\":"<<hostAfter.size()
+        << ",\"runner_scene_after_file\":\""<<hostPath.filename().string()<<"\""
+        << ",\"runner_scene_after_sha256\":\""<<hostHash<<"\""
+        << ",\"runner_scene_unchanged_from_input\":"<<(hostSameInput?"true":"false")
+        << ",\"published_scene_matches_host_commit\":"<<(outputSameHost?"true":"false")
+        << ",\"accepted_steps_before\":"<<stepsBefore
+        << ",\"accepted_steps_after\":"<<stepsAfter
+        << ",\"full_residual_mode_selected\":"<<(fullResidualSelected?"true":"false")
+        << ",\"full_residual_mode_skipped\":"<<(fullResidualSkipped?"true":"false")
+        << ",\"metalworld_diagnostics_succeeded\":"<<(step.diagnostics.succeeded()?"true":"false")
+        << ",\"matter_accepted\":"<<(step.matterAcceptance.accepted?"true":"false")
+        << ",\"matter_status_code\":"<<step.matterAcceptance.statusCode
+        << ",\"matter_before_present\":"<<(beforePresent?"true":"false")
+        << ",\"matter_before_file\":\""<<beforePath.filename().string()<<"\""
+        << ",\"matter_before_sha256\":"
+        << (beforePresent?"\""+sha256DiagnosticFile(beforePath)+"\"":"null")
+        << ",\"matter_before_status_code\":"<<beforeStatus
+        << ",\"matter_after_snapshot_available\":"
+        << (afterSnapshotAvailable?"true":"false")
+        << ",\"matter_after_present\":"<<(afterFilePresent?"true":"false")
+        << ",\"matter_after_file\":"
+        << (afterFilePresent ? "\""+afterPath.filename().string()+"\"" : "null")
+        << ",\"matter_after_sha256\":"
+        << (afterFilePresent?"\""+sha256DiagnosticFile(afterPath)+"\"":"null")
+        << ",\"matter_after_status_code\":"<<afterStatus
+        << ",\"final_q_count\":"<<step.result.finalQ.size()
+        << ",\"final_q_file\":\""<<qPath.filename().string()<<"\""
+        << ",\"final_q_sha256\":\""<<qHash<<"\""
+        << ",\"final_v_count\":"<<step.result.finalV.size()
+        << ",\"final_v_file\":\""<<vPath.filename().string()<<"\""
+        << ",\"final_v_sha256\":\""<<vHash<<"\"}\n";
+    out.flush();
+    if (!out) throw std::runtime_error("activation metadata write failed");
 }
 
 void writeRawDiagnosticSnapshot(const std::filesystem::path& path,
@@ -422,6 +728,26 @@ std::unique_ptr<DiagnosticStateOutput> diagnosticStateOutput;
 void require(const bool condition, const std::string& message) {
     ++checks;
     if (!condition) throw std::runtime_error(message);
+}
+
+std::uint32_t activationControlFromBase(const std::uint32_t controlStepBase) {
+    if (controlStepBase == 0u)
+        throw std::runtime_error(
+            "activation control base must be positive before subtracting one");
+    return controlStepBase - 1u;
+}
+
+void verifyActivationControlSelectorContract() {
+    require(activationControlFromBase(1200u) == 1199u,
+            "activation selector must target the intended control 1199");
+    bool rejectedZeroBase = false;
+    try {
+        (void)activationControlFromBase(0u);
+    } catch (const std::runtime_error&) {
+        rejectedZeroBase = true;
+    }
+    require(rejectedZeroBase,
+            "activation selector accepted base zero and risked underflow");
 }
 
 static_assert(NM_STATUS_INVALID_DISPATCH == 1u,
@@ -4345,6 +4671,135 @@ void runSparsePrivateParity(const MaterialProgram& bulk) {
 }
 
 #if defined(NUMI_CARDBOARD_METAL_WORLD)
+void verifyFreeBodyControlSceneEvidenceContract() {
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path() /
+        ("numi-freebody-scene-contract-" + std::to_string(getpid()));
+    require(std::filesystem::create_directory(root),
+            "scene evidence contract test directory is not fresh");
+    try {
+        diagnosticStateOutputPath = root.string();
+        std::vector<MRBodyStateGPU> beforeScene(5u);
+        beforeScene[0].position.x = 1.0f;
+        std::vector<MRBodyStateGPU> afterScene = beforeScene;
+        afterScene[4].position.z = -5.0e-6f;
+        std::vector<MRBodyStateGPU> targets(beforeScene.begin(),
+                                             beforeScene.begin() + 4);
+        std::vector<MRABABodyWrenchGPU> wrenches(5u);
+        RuntimeStateSnapshot before{};
+        before.available = true;
+        before.controlStep = 1200u;
+        before.physicsSubstep = 3u;
+        RuntimeStateSnapshot after{};
+        after.available = true;
+        after.controlStep = 1201u;
+        after.physicsSubstep = 4u;
+
+        const auto writeTransactionMarker = [&](const std::uint64_t attempt,
+                                                const char* suffix) {
+            const auto path = root /
+                (indexedDiagnosticStem(attempt) + suffix);
+            const std::vector<std::uint32_t> marker{
+                static_cast<std::uint32_t>(attempt), 0x5a17u};
+            writeActivationBinarySidecar(path, marker);
+        };
+        writeTransactionMarker(7u, "-before.bin");
+        writeTransactionMarker(7u, "-after.bin");
+        numi::cardboard::ShippingRigidWorldRunner::StepResult published{};
+        published.result.finalSceneBodies = afterScene;
+        published.matterAcceptance.accepted = true;
+        published.matterAcceptance.statusCode = 0;
+        const std::string trace =
+            "fem_full_contact_residual_armijo_enabled=1\n";
+        writeFreeBodyControlSceneEvidence(
+            7u, 1200u, beforeScene, targets, wrenches, &published, true,
+            afterScene, 11u, 12u, before, &after, trace, "accepted");
+
+        writeTransactionMarker(8u, "-before.bin");
+        writeTransactionMarker(8u, "-after.bin");
+        numi::cardboard::ShippingRigidWorldRunner::StepResult emptyPublished{};
+        emptyPublished.matterAcceptance.accepted = true;
+        emptyPublished.matterAcceptance.statusCode = 0;
+        writeFreeBodyControlSceneEvidence(
+            8u, 1201u, beforeScene, targets, wrenches, &emptyPublished, true,
+            beforeScene, 12u, 13u, before, &after,
+            "fem_full_contact_residual_armijo_enabled=1\n", "accepted");
+        const auto failedBefore = root /
+            (indexedDiagnosticStem(9u) + "-before.bin");
+        writeActivationBinarySidecar(failedBefore,
+                                     std::vector<std::uint32_t>{9u});
+        RuntimeStateSnapshot rejectedBefore{};
+        rejectedBefore.available = true;
+        rejectedBefore.controlStep = 1202u;
+        writeFreeBodyControlSceneEvidence(
+            9u, 1202u, beforeScene, targets, wrenches, nullptr, false,
+            beforeScene, 12u, 12u, rejectedBefore, nullptr,
+            "private_trial_status=6\n", "native_step_exception");
+
+        const auto acceptedMeta = root /
+            (freeBodyControlSceneStem(1200u, 7u) + "-scene-attempt.json");
+        const auto emptyMeta = root /
+            (freeBodyControlSceneStem(1201u, 8u) + "-scene-attempt.json");
+        const auto failedMeta = root /
+            (freeBodyControlSceneStem(1202u, 9u) + "-scene-attempt.json");
+        std::ifstream acceptedInput(acceptedMeta);
+        std::ifstream emptyInput(emptyMeta);
+        std::ifstream failedInput(failedMeta);
+        const std::string acceptedText(
+            (std::istreambuf_iterator<char>(acceptedInput)),
+            std::istreambuf_iterator<char>());
+        const std::string emptyText(
+            (std::istreambuf_iterator<char>(emptyInput)),
+            std::istreambuf_iterator<char>());
+        const std::string failedText(
+            (std::istreambuf_iterator<char>(failedInput)),
+            std::istreambuf_iterator<char>());
+        require(!acceptedInput.bad() && !emptyInput.bad() && !failedInput.bad(),
+                "scene evidence contract metadata read failed");
+        require(acceptedText.find("\"step_returned\":true") !=
+                    std::string::npos &&
+                acceptedText.find("\"published_scene_vector_available\":true") !=
+                    std::string::npos &&
+                acceptedText.find("\"published_scene_matches_runner_commit\":true") !=
+                    std::string::npos &&
+                acceptedText.find("\"runner_scene_changed_from_input\":true") !=
+                    std::string::npos,
+                "published scene/host commit evidence contract failed");
+        require(emptyText.find("\"step_returned\":true") !=
+                    std::string::npos &&
+                emptyText.find("\"published_scene_vector_available\":true") !=
+                    std::string::npos &&
+                emptyText.find("\"published_scene_nonempty\":false") !=
+                    std::string::npos &&
+                emptyText.find("\"published_scene_assessment\":\"published_empty_vector\"") !=
+                    std::string::npos &&
+                emptyText.find("\"published_scene_sha256\":\"") !=
+                    std::string::npos,
+                "empty returned scene vector was confused with missing StepResult");
+        require(failedText.find("\"step_returned\":false") !=
+                    std::string::npos &&
+                failedText.find("\"published_scene_assessment\":\"unknown_no_StepResult\"") !=
+                    std::string::npos &&
+                failedText.find("\"published_scene_vector_available\":false") !=
+                    std::string::npos &&
+                failedText.find("\"published_scene_sha256\":null") !=
+                    std::string::npos &&
+                failedText.find("\"raw_mtl_buffer_readback\":\"unknown_not_exposed_by_StepResult_API\"") !=
+                    std::string::npos,
+                "exception evidence incorrectly inferred unavailable readback");
+        require(acceptedMeta.filename() != failedMeta.filename() &&
+                    emptyMeta.filename() != failedMeta.filename() &&
+                    acceptedMeta.filename() != emptyMeta.filename(),
+                "control/attempt names are not unique");
+    } catch (...) {
+        diagnosticStateOutputPath.clear();
+        std::filesystem::remove_all(root);
+        throw;
+    }
+    diagnosticStateOutputPath.clear();
+    std::filesystem::remove_all(root);
+}
+
 struct SparseFreeBodyRun {
     std::vector<RuntimeStateSnapshot> accepted;
     std::vector<std::string> traces;
@@ -4438,6 +4893,16 @@ RuntimeStateSnapshot activateSparseFreeBodyMortar(
     }
     const std::uint64_t diagnosticIndex = diagnosticStateOutput
         ? diagnosticStateOutput->begin(controlStep, before) : 0u;
+    const std::vector<MRBodyStateGPU> inputSceneBodies = runner.sceneBodies();
+    const std::uint64_t acceptedStepsBefore = runner.acceptedSteps();
+    std::vector<MRBodyStateGPU> kinematicTargets;
+    kinematicTargets.reserve(inputSceneBodies.size());
+    if (runner.toolSceneBodyCount() > inputSceneBodies.size() ||
+        runner.freeBodyIndex() >= inputSceneBodies.size())
+        throw std::runtime_error("activation scene-body layout is incomplete");
+    kinematicTargets.insert(kinematicTargets.end(), inputSceneBodies.begin(),
+        inputSceneBodies.begin() + runner.toolSceneBodyCount());
+    kinematicTargets.push_back(inputSceneBodies.at(runner.freeBodyIndex()));
 
     NMCohesiveActivationCommandGPU command{};
     command.identity = {0u, 0u, kFaceId, 0u};
@@ -4504,15 +4969,40 @@ RuntimeStateSnapshot activateSparseFreeBodyMortar(
     if (activationStep.diagnostics.succeeded())
         ++nativeFEMTransactionsExecuted;
     const RuntimeStateSnapshot after = runtime.snapshot();
-    require(after.available,
-            "free-body activation completion snapshot unavailable: " +
-                after.message);
+    if (!fullContactActivationResidualArmijo)
+        require(after.available,
+                "free-body activation completion snapshot unavailable: " +
+                    after.message);
     if (diagnosticStateOutput)
         diagnosticStateOutput->finish(
-            diagnosticIndex, &after,
-            activationStep.matterAcceptance.accepted
-                ? "mortar_activation_accepted"
-                : "mortar_activation_rejected");
+            diagnosticIndex, after.available ? &after : nullptr,
+            !after.available
+                ? "mortar_activation_snapshot_unavailable"
+                : (activationStep.matterAcceptance.accepted
+                    ? "mortar_activation_accepted"
+                    : "mortar_activation_rejected"));
+    if (fullContactActivationResidualArmijo) {
+        const bool selected =
+            capturedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
+                std::string::npos;
+        const bool skipped =
+            capturedTrace.find("fem_full_contact_residual_armijo_skipped=") !=
+                std::string::npos;
+        writeActivationSceneEvidence(
+            diagnosticIndex, controlStep, inputSceneBodies, kinematicTargets,
+            activationStep, runner.sceneBodies(), acceptedStepsBefore,
+            runner.acceptedSteps(), before, after.available ? &after : nullptr,
+            selected, skipped);
+        retainFixtureTrace("activation", capturedTrace);
+        if (!selected || skipped)
+            throw std::runtime_error(
+                "activation control did not execute selected full-residual path: " +
+                    capturedTrace);
+        if (!after.available)
+            throw std::runtime_error(
+                "full-residual activation completion snapshot unavailable: " +
+                    after.message);
+    }
     require(activationStep.diagnostics.succeeded() &&
                 activationStep.matterAcceptance.accepted,
             "accepted-state mortar activation setup rejected: " +
@@ -4545,10 +5035,10 @@ RuntimeStateSnapshot activateSparseFreeBodyMortar(
     measuredAcceptedGapM = maximumAcceptedNodeGap;
     require(hasMortarParentContact(after, source),
             "accepted mortar setup lost uncovered-parent self-contact history");
-    // Activation commands are intentionally submitted in an ordinary
-    // accepted transaction. The bounded full-contact private Armijo slice
-    // rejects request-scoped activation features; callers restore this exact
-    // completed snapshot into the dense/sparse measurement runtimes below.
+    // Default mode submits activation through the legacy ordinary path. The
+    // opt-in diagnostic mode above requires the selected full-residual marker
+    // for this exact control. Callers restore the resulting accepted snapshot
+    // into the dense/sparse measurement runtimes below.
     return after;
 }
 
@@ -4561,6 +5051,11 @@ SparseFreeBodyRun runSparseFreeBodySequence(
         const std::uint32_t controlStepBase) {
     require(!regionalContactPreconditioner,
             "bounded free-BOX Armijo does not admit a regional FEM preconditioner");
+    const std::uint32_t activationControlStep =
+        activationControlFromBase(controlStepBase);
+    if (fullContactActivationResidualArmijo)
+        require(controlStepBase == 1200u && activationControlStep == 1199u,
+                "opt-in activation Armijo is bound to fixture control 1199");
     const std::string capacityText = std::to_string(sparseCapacity);
     ScopedEnvironmentValue fullContactSelector(
         "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all");
@@ -4644,16 +5139,23 @@ SparseFreeBodyRun runSparseFreeBodySequence(
     std::string activationTrace;
     float initialBodyZ = 0.0f;
     {
-        // The activation event is a separate, ordinary accepted transaction.
-        // It latches the true accepted FEM geometry without asking the
-        // full-contact private Armijo transaction to consume a request-scoped
-        // event that is outside that solver slice.
-        ScopedEnvironmentValue clearFullContactSelector(
-            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", nullptr);
-        ScopedEnvironmentValue clearSparseCapacity(
-            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", nullptr);
-        ScopedEnvironmentValue clearSparseParity(
-            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+        // Activation remains an ordinary accepted transaction. By default
+        // its selector is cleared as before; the explicit diagnostic option
+        // selects full-residual Armijo only for this activation control.
+        const std::string activationControlSelector =
+            std::to_string(activationControlStep);
+        ScopedEnvironmentValue activationFullContactSelector(
+            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+            fullContactActivationResidualArmijo
+                ? activationControlSelector.c_str() : nullptr);
+        ScopedEnvironmentValue activationSparseCapacity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
+            fullContactActivationResidualArmijo && sparse
+                ? capacityText.c_str() : nullptr);
+        ScopedEnvironmentValue activationSparseParity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+            fullContactActivationResidualArmijo && sparse && sparseCapacity > 1u
+                ? "1" : nullptr);
         Runtime activationRuntime;
         const RuntimeDiagnostics activationInitialized =
             activationRuntime.initialize(matterWorld, configuration);
@@ -4670,7 +5172,7 @@ SparseFreeBodyRun runSparseFreeBodySequence(
         initialBodyZ = activationRunner.sceneBodies().at(4u).position.z;
         activatedSnapshot = activateSparseFreeBodyMortar(
             source, activationRuntime, activationRunner,
-            controlStepBase - 1u, source.interfaceGapM,
+            activationControlStep, source.interfaceGapM,
             acceptedActivationGapM, activationTrace);
         activatedSceneBodies = activationRunner.sceneBodies();
         require(activationRunner.q().empty() && activationRunner.v().empty(),
@@ -4759,7 +5261,21 @@ SparseFreeBodyRun runSparseFreeBodySequence(
     for (std::uint32_t localStep = 0u; localStep < stepCount; ++localStep) {
         const std::span<const MRBodyStateGPU> kinematicTools(
             runner.sceneBodies().data(), runner.toolSceneBodyCount());
+        const std::vector<MRBodyStateGPU> sceneBefore =
+            fullContactActivationResidualArmijo
+                ? runner.sceneBodies() : std::vector<MRBodyStateGPU>{};
+        const std::vector<MRBodyStateGPU> targetsBefore =
+            fullContactActivationResidualArmijo
+                ? std::vector<MRBodyStateGPU>(
+                      kinematicTools.begin(), kinematicTools.end())
+                : std::vector<MRBodyStateGPU>{};
+        const std::vector<MRABABodyWrenchGPU> wrenchesBefore =
+            fullContactActivationResidualArmijo
+                ? wrenches : std::vector<MRABABodyWrenchGPU>{};
+        const std::uint64_t acceptedStepsBefore = runner.acceptedSteps();
         numi::cardboard::ShippingRigidWorldRunner::StepResult nativeStep;
+        bool nativeStepReturned = false;
+        bool sceneEvidenceAttempted = false;
         std::string trace;
         const std::uint32_t controlStep = controlStepBase + localStep;
         const std::string traceSelector = std::to_string(controlStep);
@@ -4781,16 +5297,35 @@ SparseFreeBodyRun runSparseFreeBodySequence(
                 diagnosticFinished = true;
             }
         };
+        const auto recordSceneEvidence = [&](const RuntimeStateSnapshot* after,
+                                             const char* stage) {
+            if (!fullContactActivationResidualArmijo || sceneEvidenceAttempted)
+                return;
+            sceneEvidenceAttempted = true;
+            writeFreeBodyControlSceneEvidence(
+                diagnosticIndex, controlStep, sceneBefore, targetsBefore,
+                wrenchesBefore, nativeStepReturned ? &nativeStep : nullptr,
+                nativeStepReturned, runner.sceneBodies(),
+                acceptedStepsBefore, runner.acceptedSteps(),
+                diagnosticBefore, after, trace, stage);
+        };
         try {
             {
                 ScopedEnvironmentValue trialTrace(
                     "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
                     traceSelector.c_str());
                 StderrCapture capture;
-                nativeStep = runner.step(
-                    kinematicTools, nullptr, 0u, nullptr, 0u,
-                    (__bridge void*)wrenchBuffer, 5u, 5u,
-                    controlStep, 0.0f, false);
+                try {
+                    nativeStep = runner.step(
+                        kinematicTools, nullptr, 0u, nullptr, 0u,
+                        (__bridge void*)wrenchBuffer, 5u, 5u,
+                        controlStep, 0.0f, false);
+                    nativeStepReturned = true;
+                } catch (...) {
+                    if (fullContactActivationResidualArmijo)
+                        trace = capture.finish();
+                    throw;
+                }
                 trace = capture.finish();
             }
             retainFixtureTrace(
@@ -4803,6 +5338,7 @@ SparseFreeBodyRun runSparseFreeBodySequence(
             if (!nativeStep.matterAcceptance.accepted) {
                 const RuntimeStateSnapshot rejected = runtime.snapshot();
                 finishDiagnostic(&rejected, "native_step_rejected");
+                recordSceneEvidence(&rejected, "matter_rejected");
                 std::ostringstream reason;
                 reason << "Matter rejected free-body step status="
                        << nativeStep.matterAcceptance.statusCode
@@ -4815,6 +5351,7 @@ SparseFreeBodyRun runSparseFreeBodySequence(
                     "free-body accepted snapshot is unavailable: " +
                         accepted.message);
             finishDiagnostic(&accepted, "snapshot_after_completion");
+            recordSceneEvidence(&accepted, "accepted");
             result.traces.push_back(std::move(trace));
             result.accepted.push_back(accepted);
         } catch (...) {
@@ -4824,6 +5361,15 @@ SparseFreeBodyRun runSparseFreeBodySequence(
             const RuntimeStateSnapshot failed = runtime.snapshot();
             finishDiagnostic(failed.available ? &failed : nullptr,
                              "native_step_exception");
+            const char* sceneFailureStage = !nativeStepReturned
+                ? "native_step_exception"
+                : (!nativeStep.diagnostics.succeeded()
+                    ? "diagnostics_failed"
+                    : (!nativeStep.matterAcceptance.accepted
+                        ? "matter_rejection_exception"
+                        : "exception_after_step_return"));
+            recordSceneEvidence(
+                failed.available ? &failed : nullptr, sceneFailureStage);
             throw;
         }
     }
@@ -6006,8 +6552,18 @@ void runPrescribedBoxTranslationAcceptance(const MaterialProgram& bulk) {
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
+#if defined(NUMI_CARDBOARD_METAL_WORLD)
+            if (argc == 2 &&
+                std::string(argv[1]) ==
+                    "--free-body-control-scene-evidence-contract") {
+                verifyFreeBodyControlSceneEvidenceContract();
+                std::cout << "free_body_control_scene_evidence_contract=pass"
+                          << " physical_transactions=0\n";
+                return 0;
+            }
+#endif
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--private-self-sweep-diagnostic|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--full-contact-activation-residual-armijo|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity|--same-parent-mortar-union-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR] [--first-failure-dispatch-root CONTROL]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -6022,6 +6578,7 @@ int main(int argc, const char* argv[]) {
             bool sparsePrivateHighPairAdmission = false;
             bool sparseFreeBodyParity = false;
             bool sparseFreeBodyOverflow = false;
+            bool fullContactActivationResidualArmijoOption = false;
             bool selfSurfaceScratchAliasParity = false;
             bool cohesiveScratchAliasParity = false;
             bool cohesiveTiledParity = false;
@@ -6054,6 +6611,8 @@ int main(int argc, const char* argv[]) {
                     sparseFreeBodyParity = true;
                 else if (option == "--sparse-free-body-overflow")
                     sparseFreeBodyOverflow = true;
+                else if (option == "--full-contact-activation-residual-armijo")
+                    fullContactActivationResidualArmijoOption = true;
                 else if (option == "--self-surface-scratch-alias-parity")
                     selfSurfaceScratchAliasParity = true;
                 else if (option == "--cohesive-scratch-alias-parity")
@@ -6102,6 +6661,12 @@ int main(int argc, const char* argv[]) {
                     authoredNewtonIterations = static_cast<std::uint32_t>(parsed);
                 } else throw std::runtime_error("unknown option: " + option);
             }
+            fullContactActivationResidualArmijo =
+                fullContactActivationResidualArmijoOption;
+            require(!fullContactActivationResidualArmijo ||
+                        (sparseFreeBodyParity && !cpuOnly &&
+                         !diagnosticStateOutputPath.empty()),
+                    "full-residual activation mode requires native sparse-free-body parity with diagnostic output");
             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
                                   privateSelfSweep || privateSelfSweepDiagnostic ||
@@ -6312,6 +6877,7 @@ int main(int argc, const char* argv[]) {
                     (compiled.objects[0].flags & NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) == 0u,
                 "compiled source did not enable self-contact and deformable contact");
             if (cpuOnly) {
+                verifyActivationControlSelectorContract();
                 verifyPostCommitFaultSignaturePolicy();
                 MeshAndWorld geometrySource = makeWorld(
                     bulk, false, true, kActivationGap);

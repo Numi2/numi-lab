@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/hardware_outcome.schema.json",
+  "title": "MetalRobo hardware episode outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scenario_schema",
+    "policy_id",
+    "robot_id",
+    "task_id",
+    "id",
+    "run_id",
+    "family_fingerprint",
+    "policy_fingerprint",
+    "task_fingerprint",
+    "embodiment_fingerprint",
+    "termination",
+    "success",
+    "scenario_values"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "scenario_schema": { "type": "string", "minLength": 1 },
+    "policy_id": { "type": "string", "minLength": 1 },
+    "robot_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "scenario_key": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "episode_counter": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "family_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "alignment_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "feedback_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "policy_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "task_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "embodiment_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$"
+    },
+    "termination": {
+      "enum": [
+        "success",
+        "horizon",
+        "policy",
+        "physics",
+        "safety",
+        "external"
+      ]
+    },
+    "success": { "type": "boolean" },
+    "failure_tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "physics_status": { "type": "integer", "minimum": 0 },
+    "step_count": { "type": "integer", "minimum": 0 },
+    "episode_return": { "type": "number" },
+    "task_margin": { "type": "number" },
+    "safety_margin": { "type": "number" },
+    "duration_seconds": { "type": "number", "minimum": 0 },
+    "minimum_visibility": { "type": "number" },
+    "integrated_contact_load": { "type": "number" },
+    "peak_contact_load": { "type": "number" },
+    "scenario_values": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["number", "null"]
+      }
+    },
+    "missing_value_mask": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "scenario_quantiles": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "uri", "content_hash"],
+        "properties": {
+          "kind": { "type": "string", "minLength": 1 },
+          "uri": { "type": "string", "minLength": 1 },
+          "content_hash": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

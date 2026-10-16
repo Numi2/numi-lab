@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.native598-command.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001",
+  "source_frozen_sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2",
+  "source_build_sha256": "aa26b10a93abd9a95992dcb588b10aeb2cc7285e427619f17b42049107a3bb75",
+  "full_build_source_count": 837,
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-contact-sample-compaction-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/shaders/cardboard_contact_sample_compaction_check.metallib"
+  ],
+  "prediction": "Require actual production contact tuple/residual/rigid/history parity and overflow failure; manufactured component only, no complete FEM or shipping trajectory qualification.",
+  "gpu_workers": 1
+}

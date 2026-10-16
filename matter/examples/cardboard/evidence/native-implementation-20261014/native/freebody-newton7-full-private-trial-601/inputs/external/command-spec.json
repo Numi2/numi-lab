@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.native601-command.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002",
+  "cases": [
+    [
+      "freebody-newton7-full-private-trial-601",
+      true
+    ]
+  ],
+  "material": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/matter/materials/starch2007_finite_glue_elastic.nmatter",
+  "policy": "Replay native591 unchanged solver/fixture/operator. Add source-bound private trial summary at control1202 Newton7 and first-failure dispatch observer at1202. Activation1199/controls1200-1201accepted; Newton7 fullprivate residual reported nonfinite for all8trials. Locate first failedstage and verify accepted histories+rollback against591. Diagnostic-only, no shippingqualification.",
+  "no_full_shipping_qualification": true
+}

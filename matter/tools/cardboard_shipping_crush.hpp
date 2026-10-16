@@ -446,6 +446,34 @@ private:
     std::optional<ShippingQualifiedCompressionPeak> qualified_;
 };
 
+// Map the detector's positive-contact ordinal back to the row identity in the
+// complete saved force curve (which also contains the zero-force origin).
+// Exact stroke/force/contact identity is required; ambiguous duplicate rows
+// fail closed instead of emitting a misleading full-curve index.
+inline std::optional<std::size_t> shippingCompressionCurveSampleIndex(
+    const std::span<const ShippingCompressionForceSample> curve,
+    const ShippingCompressionForceSample& selectedPeak) {
+    if (curve.empty() || !std::isfinite(selectedPeak.strokeM) ||
+        !std::isfinite(selectedPeak.forceN) ||
+        !std::isfinite(selectedPeak.contactSamples))
+        return std::nullopt;
+    const auto first = std::lower_bound(
+        curve.begin(), curve.end(), selectedPeak.strokeM,
+        [](const ShippingCompressionForceSample& sample, const double stroke) {
+            return sample.strokeM < stroke;
+        });
+    std::optional<std::size_t> match;
+    for (auto it = first; it != curve.end() && it->strokeM == selectedPeak.strokeM; ++it) {
+        if (it->forceN == selectedPeak.forceN &&
+            it->contactSamples == selectedPeak.contactSamples) {
+            if (match) return std::nullopt;
+            match = static_cast<std::size_t>(it - curve.begin());
+        }
+    }
+    return match;
+}
+
+
 inline std::vector<ShippingCompressionIncrement> makeShippingCompressionSchedule(
     const double insideHeightM,
     const ShippingCompressionProtocol& protocol) {

@@ -103,11 +103,30 @@ class TrueResidualCertificationContract(unittest.TestCase):
             cycle.index('"nm_fgmres_measure_true_residual"'),
         ]
         self.assertEqual(order, sorted(order))
-        self.assertIn("useCache =\n                        state.mixedSolverValue.executionBudgets.w == 1u", cycle)
+        self.assertRegex(cycle, r"const std::uint32_t useCache =\s*numi::matter::detail::femPrimaryOperatorCacheMode\(\s*state.mixedSolverValue.executionBudgets.w\)")
         self.assertIn("state.femAlgorithmicTangentCache", cycle)
         self.assertIn("state.femAlgorithmicTangentCacheValid", cycle)
-        self.assertIn('"nm_fem_cohesive_face_operator"', cycle)
-        self.assertIn('"nm_fgmres_add_cohesive_operator"', cycle)
+        cohesive = section(
+            RUNTIME,
+            "const auto encodeAddCohesiveOperator = [&](",
+            "const auto encodeFEMHumanAttachmentKinematics",
+        )
+        self.assertIn("if (state.cohesiveFacesPaged)", cohesive)
+        self.assertIn(
+            'dispatchThreads("nm_fem_apply_cohesive_operator_accumulator"',
+            cohesive,
+        )
+        self.assertIn(
+            'dispatchThreads("nm_fgmres_add_cohesive_operator"',
+            cohesive,
+        )
+        true_residual_cohesive = cycle.index(
+            "encodeAddCohesiveOperator(trueResidualOperatorMicro,"
+        )
+        self.assertLess(
+            true_residual_cohesive,
+            cycle.index('"nm_fgmres_measure_true_residual"'),
+        )
         self.assertIn("bindPrimalContactArguments(12u)", cycle)
         self.assertLess(cycle.rindex('"nm_fgmres_apply_free_rigid"'),
                         cycle.index('"nm_fgmres_measure_true_residual"'))

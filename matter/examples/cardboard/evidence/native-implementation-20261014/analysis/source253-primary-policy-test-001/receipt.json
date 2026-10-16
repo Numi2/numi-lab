@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+    "-B",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/matter/tools/test_cardboard_primary_cache_action.py"
+  ],
+  "exit_code": 0,
+  "native_GPU_execution": false
+}

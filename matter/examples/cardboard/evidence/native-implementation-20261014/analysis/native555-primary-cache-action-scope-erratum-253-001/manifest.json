@@ -1,0 +1,45 @@
+{
+  "inputs": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/control19-newton3-resume-diagnostic-555/diagnostics/capture-operator-fd-capture/capture": {
+      "sha256": "c0a111c510ef4c5891ace3bb58f65af48740733d7b46987be370561d1c22ab53",
+      "bytes": 39133086
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-qualification-checkpoint-proof-221-003/matter/src/runtime.mm": {
+      "sha256": "e8a0c78dc812b491781a8f3d72a4a42d1f70e18ab3b37eff6fe157eadb7e75e1",
+      "bytes": 1937324
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004/matter/src/runtime.mm": {
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d",
+      "bytes": 1989192
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-mp-root-independent-adjudication-002/report.json": {
+      "sha256": "01717d0a6b16a0f76278090e2424f93fdb871641782867363db628fb07365c37",
+      "bytes": 5272
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-factor2-erratum-004/report.json": {
+      "sha256": "f013f321eee3b011135f9e4348923566be274d4c5b3cd235fad073ea97e2f25b",
+      "bytes": 15725
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-operator-001/operator": {
+      "sha256": "8039bbcc472276b4e99dddeed4f188e2a6a1f0197f44666aa78c682868c9bd33",
+      "bytes": 116926
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-native-tangent-conditioning-251-003/report.json": {
+      "sha256": "9bdcf9b49e5c080fbf57e5a37bf4ac96e2d0e2f495ea18f6ae6b2d11ab32bb5f",
+      "bytes": 3671
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-003/frozen-source.json": {
+      "sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+      "bytes": 137049
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source253-primary-cache-fd-action-003/report.json": {
+      "sha256": "eaaf10713318217757469da3b46d6ee94e0a2c22213c04077a06abe670033697",
+      "bytes": 1984
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native596-command-001/command-spec.json": {
+      "sha256": "705e95bafaec24413d171b01c3947dd424ad5b8df0efcf78da4fcd217a59d194",
+      "bytes": 4791
+    }
+  },
+  "report_sha256": "66a0b79a2d918551285ab39b56048f258b516092b09f6142fbfd983ea54ca862"
+}

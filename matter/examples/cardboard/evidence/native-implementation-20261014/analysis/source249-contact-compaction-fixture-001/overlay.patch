@@ -1,0 +1,17 @@
+--- a/matter/tools/cardboard_contact_sample_compaction_check.mm
++++ b/matter/tools/cardboard_contact_sample_compaction_check.mm
+@@ -213,10 +213,11 @@
+     b.nodeRanges = makeBuffer(device, f.nodeRanges);
+     b.rigidIncidence = makeBuffer(device, f.rigidIncidence);
+     b.rigidRanges = makeBuffer(device, f.rigidRanges);
+-    const float sentinel = overflow ? 17.0f : 0.0f;
++    const nm_float4 initialResidual = overflow
++        ? nm_float4{17.0f, 18.0f, 19.0f, 0.0f}
++        : nm_float4{};
+     b.compactResidual = makeBuffer(device,
+-        std::vector<nm_float4>(Fixture::E * Fixture::N,
+-            nm_float4{sentinel, sentinel + 1.0f, sentinel + 2.0f, 0.0f}));
++        std::vector<nm_float4>(Fixture::E * Fixture::N, initialResidual));
+     b.denseResidual = makeBuffer(device,
+         std::vector<nm_float4>(Fixture::E * Fixture::N));
+     b.compactReactions = makeBuffer(device,

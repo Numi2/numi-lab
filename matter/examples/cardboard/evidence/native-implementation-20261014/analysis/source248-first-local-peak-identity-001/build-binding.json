@@ -1,0 +1,21 @@
+{
+  "artifacts_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/lib/libmetalrobo.dylib": "23eaa68eb7dbc1f1da0012a8e2c831d827f19637e8fd53e55ba89d9e221b0e46",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/numi-matter-cardboard-probe": "bf7529ca74d384cd681a4b42c74b2114a3077ed988f48838cf716f23ea03f498",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/numi-matter-cardboard-shipping-protocol-check": "1e7793f91ce347e8380bddf5d633b995002a366a98bbc97abf229b2a82579622",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/shaders/NumiMatter.metallib": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "limitation": "Compiler system headers and OS/driver are not archived.",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/source-build.json",
+  "source_build_record_sha256": "46035a34df044f270abb1ea6814487070af2b173fb2954686ae0c1a70369b2da",
+  "success": true,
+  "targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-shipping-protocol-check"
+  ]
+}

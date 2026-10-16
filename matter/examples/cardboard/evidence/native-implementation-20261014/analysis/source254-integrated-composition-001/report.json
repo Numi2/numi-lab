@@ -1,0 +1,220 @@
+{
+  "schema": "numi.cardboard.source254-composition.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-001",
+  "frozen_sha256": "20bc80e9f42ca0a0c21611cc8aa4c77885d8190229d3f940ea8d3c8b4f4fd837",
+  "configure_support_sha256": "507513a001d7a8ba9f6527d937b65c8ac107d8508eff53bf1a9ee03e873432d3",
+  "base": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-003",
+  "base_frozen_sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+  "source_files": 849,
+  "changed_files": [
+    "matter/CMakeLists.txt",
+    "matter/tools/bct_capacity_history_producer.py",
+    "matter/tools/cardboard_calibration_ensemble.py",
+    "matter/tools/cardboard_calibration_ensemble_test.py",
+    "matter/tools/cardboard_constituent_volume_damage.hpp",
+    "matter/tools/cardboard_constituent_volume_damage_check.cpp",
+    "matter/tools/cardboard_free_force_residual.hpp",
+    "matter/tools/cardboard_free_force_residual_check.cpp",
+    "matter/tools/cardboard_full_contact_armijo_check.mm",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_crush.hpp",
+    "matter/tools/cardboard_shipping_memory.hpp",
+    "matter/tools/cardboard_shipping_memory_check.cpp",
+    "matter/tools/cardboard_shipping_peak.py",
+    "matter/tools/cardboard_shipping_protocol_check.cpp",
+    "matter/tools/cardboard_stage_resolution_study.md",
+    "matter/tools/cardboard_stage_resolution_study.py",
+    "matter/tools/test_bct_capacity_history_producer.py",
+    "matter/tools/test_cardboard_probe_argument_admission.py",
+    "matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "layers": [
+    {
+      "label": "source248-volume-force-first-peak",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+      "ancestor_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-first-local-peak-248-001",
+      "donor_frozen_sha256": "a9cadaa59ea11a943f914c4845d663ad6754148dd0dc58fd2007f93b9baad7a5",
+      "changes": [
+        {
+          "path": "matter/CMakeLists.txt",
+          "ancestor_sha256": "ede9e278075676e8b41767935b6972cfaaa65982881d0c1d10ef09a1f0ad803e",
+          "donor_sha256": "3b9b6a1067524e7ca1f9148e2bc545d0b307df1860e5da12b671eb80ac87a68b",
+          "result_sha256": "6ba0474c108a6bdce8af811875eb672fc023fc672586f8a500cc5e83187c44f3",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/tools/bct_capacity_history_producer.py",
+          "ancestor_sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342",
+          "donor_sha256": "c650e7da4144ba327c340cdcc9f9f781a39c158a6516a259acea6d64f63dbd66",
+          "result_sha256": "c650e7da4144ba327c340cdcc9f9f781a39c158a6516a259acea6d64f63dbd66",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_calibration_ensemble.py",
+          "ancestor_sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+          "donor_sha256": "a51c98bcd1390dbf5df547945915504182012b15f831fb7f76613ad2c74861c2",
+          "result_sha256": "a51c98bcd1390dbf5df547945915504182012b15f831fb7f76613ad2c74861c2",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_calibration_ensemble_test.py",
+          "ancestor_sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7",
+          "donor_sha256": "37ac344b07f4abb69d46b1ea473bb69e0f52389f077aa951c7f5cfc5ec314b62",
+          "result_sha256": "37ac344b07f4abb69d46b1ea473bb69e0f52389f077aa951c7f5cfc5ec314b62",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_constituent_volume_damage.hpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "e54a91be1bbb4a2688bb9f575f53fc632aba5c33b72a18592e9fb5a3aed831cb",
+          "result_sha256": "e54a91be1bbb4a2688bb9f575f53fc632aba5c33b72a18592e9fb5a3aed831cb",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/cardboard_constituent_volume_damage_check.cpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "64b595f8133ce957163163a7cf723d0b547627238a0e354eb4b29a8f831c2287",
+          "result_sha256": "64b595f8133ce957163163a7cf723d0b547627238a0e354eb4b29a8f831c2287",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/cardboard_free_force_residual.hpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "4084b0ef3319af318d40da43a6db5f41796bb7d9506f0d0253c951f712210aa4",
+          "result_sha256": "4084b0ef3319af318d40da43a6db5f41796bb7d9506f0d0253c951f712210aa4",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/cardboard_free_force_residual_check.cpp",
+          "ancestor_sha256": null,
+          "donor_sha256": "306d64ed2439677d3863c9652a4fe895133eae32b28067d5b00710811cd9abad",
+          "result_sha256": "306d64ed2439677d3863c9652a4fe895133eae32b28067d5b00710811cd9abad",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/cardboard_probe.mm",
+          "ancestor_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+          "donor_sha256": "039377b7b7e7ba21f5b79b8e5a71e9b05a1ef0beb8cca74c26fa2702909cbabb",
+          "result_sha256": "039377b7b7e7ba21f5b79b8e5a71e9b05a1ef0beb8cca74c26fa2702909cbabb",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_crush.hpp",
+          "ancestor_sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3",
+          "donor_sha256": "cae850262041fc38a2256a7857452e82eb0d0d5f1fb352c3df59564397d3c5ee",
+          "result_sha256": "cae850262041fc38a2256a7857452e82eb0d0d5f1fb352c3df59564397d3c5ee",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_peak.py",
+          "ancestor_sha256": null,
+          "donor_sha256": "7a3e9b66e2076e8460967402b319927b164456976ddbd5f631b05252348a783d",
+          "result_sha256": "7a3e9b66e2076e8460967402b319927b164456976ddbd5f631b05252348a783d",
+          "mode": "new"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_protocol_check.cpp",
+          "ancestor_sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22",
+          "donor_sha256": "eabddb25e5da08f9a5025cffaf48607634be21d31b53319712eb423cbc19b752",
+          "result_sha256": "eabddb25e5da08f9a5025cffaf48607634be21d31b53319712eb423cbc19b752",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_stage_resolution_study.md",
+          "ancestor_sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827",
+          "donor_sha256": "b5919520ae3b5df987110f768e90dcb76cd86229167dc2db2603cd0732352ad3",
+          "result_sha256": "b5919520ae3b5df987110f768e90dcb76cd86229167dc2db2603cd0732352ad3",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_stage_resolution_study.py",
+          "ancestor_sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119",
+          "donor_sha256": "8ed9bc45cb72cfb88f5f46697f89ab0f9f1f9b3e457a214ae6b58035dc852fa7",
+          "result_sha256": "8ed9bc45cb72cfb88f5f46697f89ab0f9f1f9b3e457a214ae6b58035dc852fa7",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/test_bct_capacity_history_producer.py",
+          "ancestor_sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728",
+          "donor_sha256": "6b315505f249c9507045aeac35bcd639137e5281220fcc89cede2aef3c5496bd",
+          "result_sha256": "6b315505f249c9507045aeac35bcd639137e5281220fcc89cede2aef3c5496bd",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/test_cardboard_probe_argument_admission.py",
+          "ancestor_sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e",
+          "donor_sha256": "b06c0783e7902ffd4449914a202d36410fb2a9d339340f1a67606a040309470a",
+          "result_sha256": "b06c0783e7902ffd4449914a202d36410fb2a9d339340f1a67606a040309470a",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/test_cardboard_stage_resolution_study.py",
+          "ancestor_sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b",
+          "donor_sha256": "ff825640e28cc93a688c785d8db134fde31ea58c14ea64c1e4de374c06a665f9",
+          "result_sha256": "ff825640e28cc93a688c785d8db134fde31ea58c14ea64c1e4de374c06a665f9",
+          "mode": "direct"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": [
+        "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+        "apps/NumiHumanRestingSourceAllocation.hpp",
+        "apps/NumiHumanRestingVisual.hpp",
+        "tools/test_intercostal_rib_motion_attachment.mm",
+        "tools/test_resting_referenced_source_attachments.cpp"
+      ]
+    },
+    {
+      "label": "source250-contact-arena-plan",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+      "ancestor_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006",
+      "donor_frozen_sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646",
+      "changes": [
+        {
+          "path": "matter/tools/cardboard_probe.mm",
+          "ancestor_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+          "donor_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b",
+          "result_sha256": "78aef4b0403df2fc98694b31a6abdd7ee5cba7f73cfbb09ec1a9245f1ad45741",
+          "mode": "three_way_clean"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_memory.hpp",
+          "ancestor_sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+          "donor_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5",
+          "result_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5",
+          "mode": "direct"
+        },
+        {
+          "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+          "ancestor_sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9",
+          "donor_sha256": "dbbd92853c0ff3d59c755ff3c0f00187e43bd02a787951ce6150b9a04afb5f66",
+          "result_sha256": "dbbd92853c0ff3d59c755ff3c0f00187e43bd02a787951ce6150b9a04afb5f66",
+          "mode": "direct"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    },
+    {
+      "label": "source252-activation-host-scene-observer",
+      "ancestor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+      "ancestor_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+      "donor": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-freebody-scene-observer-252-002",
+      "donor_frozen_sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf",
+      "changes": [
+        {
+          "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+          "ancestor_sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e",
+          "donor_sha256": "4eae0dad075349b33a0506c5d29458b0c61b89a086e8bdcd1bd19d0ad0baab1c",
+          "result_sha256": "4eae0dad075349b33a0506c5d29458b0c61b89a086e8bdcd1bd19d0ad0baab1c",
+          "mode": "direct"
+        }
+      ],
+      "ancestor_selected_but_not_in_donor": []
+    }
+  ],
+  "GPU_execution": false,
+  "physical_operator_changed_by_this_composition": false,
+  "native_combined_source_qualified": false,
+  "created_at_utc": "2026-10-16T14:34:18.412131+00:00"
+}

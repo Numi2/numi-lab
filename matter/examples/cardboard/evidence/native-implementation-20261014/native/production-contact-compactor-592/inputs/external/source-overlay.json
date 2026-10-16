@@ -1,0 +1,85 @@
+{
+  "configure_support": {
+    "entry_count": 1034,
+    "historical_zero_byte_lock": {
+      "meaning": "preserved snapshot support placeholder; not a live build lock",
+      "path": "build-cardboard-native-worker/worker.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "manifest_sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b",
+    "mismatches": 0,
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007/configure-support-source.json"
+  },
+  "corrected_parent_map": {
+    "checker_sources_omitted_from_006_map": [
+      "matter/tools/cardboard_contact_sample_compaction_check.mm",
+      "matter/tools/cardboard_contact_sample_compaction_check.metal"
+    ],
+    "corrected_selected_hash_entries": 832,
+    "previous_selected_support_entries": 830,
+    "selected_hash_mismatches": 0,
+    "stale_hash_entries_in_006": [
+      {
+        "actual_006_sha256": "f080da6542ae1e4ea4e6cc3f3df83c732e9d26b35da326351445a0de14182436",
+        "old_manifest_sha256": "160796971b6edd05a5af9c92cccb0e8c64f7ba2ddd61c0c19032d24996620a85",
+        "path": "matter/CMakeLists.txt"
+      },
+      {
+        "actual_006_sha256": "347238d32bfe775ab29307bef48f89aa1863e0dbfd90f71251c016c7bc4f161d",
+        "old_manifest_sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538",
+        "path": "matter/src/metal/contact.metalinc"
+      },
+      {
+        "actual_006_sha256": "5e2f7ac02ed05b5c76f192d9577d9e53ab727ecb351ef8d2aceba60cd53096ec",
+        "old_manifest_sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be",
+        "path": "matter/src/metal/fem.metalinc"
+      },
+      {
+        "actual_006_sha256": "16d4bd84186cd9230620cc8cb4cacc8c18b0673556ea3826c4ce299c36502f11",
+        "old_manifest_sha256": "c1c25769c2115cd64ef9dd849cc4a987563f8d51e03638c52a1c7526b2c91c00",
+        "path": "matter/src/metal/fgmres.metalinc"
+      },
+      {
+        "actual_006_sha256": "054d3118cb598666e5ea6c59a53b1c96bb61c8776a3ba0a3762dd6ca3cd0d8f2",
+        "old_manifest_sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7",
+        "path": "matter/src/metal/identification_scheduler.metalinc"
+      },
+      {
+        "actual_006_sha256": "605b218283342bfa6ce21a0aad54dea5d25327413113a2bf96f9bed996fc78d0",
+        "old_manifest_sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681",
+        "path": "matter/src/metal/mixed_fem.metalinc"
+      },
+      {
+        "actual_006_sha256": "bd789585f14b9d929d92c8f08699d65fda6dad77bc7b5fc6f53032f63df761e7",
+        "old_manifest_sha256": "1bbdbfd99fa660e561be4f3e2dfe6fa6eead6ce3021fafb8067a228268835f46",
+        "path": "matter/src/runtime.mm"
+      }
+    ]
+  },
+  "frozen_source_sha256": "2fe9d0436f498f34a8bd67c51c30eca090cc24332a3e4de8d65df0aa28aae759",
+  "overlay_id": "source-shipping-contact-sample-pages-235-007",
+  "parent_frozen_source_sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006",
+  "runtime_delta": "adds NM_HUMAN_SUPPORT_TRACE_ROOT and NM_VASCULAR_TRACE_ROOT to capture-mode exclusions",
+  "schema": "numi.cardboard.source-overlay.v1",
+  "source_file_delta_from_006": [
+    "matter/src/runtime.mm"
+  ],
+  "source_file_delta_from_006_actual_tree": [
+    "matter/src/runtime.mm"
+  ],
+  "source_scope": "bounded compact main-contact sample storage for the explicitly admitted pure-FEM free-BOX/capsule layout; unsupported and diagnostic layouts remain dense/fail-closed",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-007",
+  "validation": {
+    "build_source_count": 833,
+    "changed_during_build": [],
+    "ctest_or_native_checker_execution": false,
+    "gpu_execution": false,
+    "source_bound_build_success": true,
+    "targets": [
+      "numi-matter-cardboard-probe",
+      "numi-matter-cardboard-contact-sample-compaction-check"
+    ]
+  }
+}

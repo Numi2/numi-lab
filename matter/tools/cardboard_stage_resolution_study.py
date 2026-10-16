@@ -18,6 +18,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cardboard_shipping_peak import first_local_peak_index
+
 
 SCHEMA = "numi.cardboard.stage-resolution-analysis.v1"
 PLAN_SCHEMA = "numi.cardboard.stage-resolution-plan.v1"
@@ -34,6 +37,20 @@ OPTIONAL_FILES = (
 )
 AXES = ("mesh_nx", "mesh_ny", "mesh_thickness", "time_step", "score_depth",
         "score_speed", "impact_time_step")
+FULL_BOX_ACCEPTANCE_POLICY = "numi.cardboard.full-box-native-acceptance-policy.v1"
+CERTIFICATE_POLICY_TEXT = (
+    "status and validity remain authoritative; residual, volume, and pressure use "
+    "their declared tolerances; correction is finite nonnegative telemetry only")
+FORCE_RESIDUAL_POLICY_TEXT = (
+    "final accepted RunState.residuals xyz divided by accepted dt at nodes with "
+    "restAndFixed.w == 0; observed residual in N, not force error")
+FORCE_COLUMNS = {
+    0: ("free_force_imbalance_l2_env0_N",
+        "free_force_imbalance_max_node_env0_N"),
+    1: ("free_force_imbalance_l2_env1_N",
+        "free_force_imbalance_max_node_env1_N"),
+}
+FORCE_RATIO_REL_TOL = 1.0e-6
 
 
 class StageStudyError(Exception):
@@ -97,6 +114,112 @@ class StageRun:
     actions: list[dict[str, str]]
     score_angles: list[dict[str, str]]
     optional_rows: dict[str, list[dict[str, str]]]
+
+
+def _native_policy(manifest: dict[str, Any]) -> dict[str, Any] | None:
+    solver = manifest.get("solver", {})
+    policy = solver.get("native_acceptance_policy") if isinstance(solver, dict) else None
+    return policy if isinstance(policy, dict) else None
+
+
+def _free_force_accuracy_gate(manifest: dict[str, Any],
+                              steps: list[dict[str, str]]) -> dict[str, Any]:
+    policy = _native_policy(manifest)
+    if policy is None or policy.get("schema") != FULL_BOX_ACCEPTANCE_POLICY:
+        return {"status": "inconclusive_missing_native_force_policy",
+                "declared_free_force_residual_bound_N": None,
+                "note": "legacy exports do not bind free-force residual semantics or a declared absolute residual bound"}
+    if (policy.get("certificate_semantics") != CERTIFICATE_POLICY_TEXT or
+            policy.get("force_residual_semantics") != FORCE_RESIDUAL_POLICY_TEXT):
+        return {"status": "invalid_native_force_policy",
+                "declared_free_force_residual_bound_N": None,
+                "reasons": ["unsupported_acceptance_policy_semantics"]}
+    env_count = policy.get("force_environment_count")
+    if not isinstance(env_count, int) or isinstance(env_count, bool) or env_count not in (1, 2):
+        return {"status": "invalid_native_force_policy",
+                "declared_free_force_residual_bound_N": None,
+                "reasons": ["invalid_force_environment_count"]}
+    bound = policy.get("max_free_force_residual_n")
+    if bound is not None:
+        if isinstance(bound, bool) or not isinstance(bound, (int, float)) or not math.isfinite(float(bound)) or float(bound) <= 0.0:
+            return {"status": "invalid_native_force_policy",
+                    "declared_free_force_residual_bound_N": None,
+                    "reasons": ["invalid_declared_free_force_residual_bound"]}
+        bound = float(bound)
+    accepted = [row for row in steps if row.get("accepted") == "1"]
+    if not accepted:
+        return {"status": "inconclusive_no_accepted_step_force_observations",
+                "declared_free_force_residual_bound_N": bound}
+    maxima = {env: {"l2_N": 0.0, "max_node_N": 0.0} for env in range(env_count)}
+    for ordinal, row in enumerate(accepted):
+        label = f"box-native-steps.csv row {ordinal + 2}"
+        for env in range(env_count):
+            l2_field, max_field = FORCE_COLUMNS[env]
+            try:
+                l2 = _finite(row, l2_field, label)
+                maximum = _finite(row, max_field, label)
+            except StageStudyError as exc:
+                return {"status": "inconclusive_missing_force_observations",
+                        "declared_free_force_residual_bound_N": bound,
+                        "reasons": [str(exc)]}
+            if l2 < 0.0 or maximum < 0.0 or maximum > l2 * (1.0 + 1.0e-6) + 1.0e-15:
+                return {"status": "invalid_force_observation",
+                        "declared_free_force_residual_bound_N": bound,
+                        "reasons": [f"invalid_l2_or_max_node_force:{ordinal}:{env}"]}
+            maxima[env]["l2_N"] = max(maxima[env]["l2_N"], l2)
+            maxima[env]["max_node_N"] = max(maxima[env]["max_node_N"], maximum)
+    if bound is None:
+        return {"status": "inconclusive_no_declared_force_bound",
+                "declared_free_force_residual_bound_N": None,
+                "maximum_observed_accepted_free_force_residual_N": maxima,
+                "note": "observed residuals are not an estimate of force error"}
+    exceeded = [
+        f"env{env}_{metric}_exceeds_bound"
+        for env, values in maxima.items()
+        for metric, value in values.items()
+        if value > bound
+    ]
+    return {
+        "status": "fail" if exceeded else "pass",
+        "declared_free_force_residual_bound_N": bound,
+        "maximum_observed_accepted_free_force_residual_N": maxima,
+        "reasons": exceeded,
+        "note": "compares measured final accepted free-node residual in N to the explicitly declared residual bound; this does not estimate force error",
+    }
+
+
+def _force_accuracy_pair(left: StageRun, right: StageRun) -> dict[str, Any]:
+    a = _free_force_accuracy_gate(left.manifest, left.steps)
+    b = _free_force_accuracy_gate(right.manifest, right.steps)
+    result = {"left": a, "right": b, "status": "inconclusive"}
+    bound_a = a.get("declared_free_force_residual_bound_N")
+    bound_b = b.get("declared_free_force_residual_bound_N")
+    if bound_a is None or bound_b is None:
+        result["reasons"] = ["both runs require the same explicit positive force-residual bound"]
+    elif not math.isclose(float(bound_a), float(bound_b), rel_tol=0.0, abs_tol=0.0):
+        result["status"] = "incompatible_force_bound"
+        result["reasons"] = ["declared force-residual bounds differ"]
+    elif a.get("status") == "fail" or b.get("status") == "fail":
+        result["status"] = "fail"
+        result["reasons"] = ["one or both runs exceed the declared force-residual bound"]
+    elif a.get("status") == b.get("status") == "pass":
+        result["status"] = "pass"
+        result["reasons"] = []
+    else:
+        result["reasons"] = ["one or both runs lack complete finite free-force observations"]
+    return result
+
+
+def _force_tolerance_ratio(run: StageRun) -> float:
+    solver = run.manifest.get("solver", {})
+    tolerance = solver.get("relative_residual_tolerance") if isinstance(solver, dict) else None
+    dt = solver.get("dt_s") if isinstance(solver, dict) else None
+    if (isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)) or
+            isinstance(dt, bool) or not isinstance(dt, (int, float)) or
+            not math.isfinite(float(tolerance)) or not math.isfinite(float(dt)) or
+            float(tolerance) <= 0.0 or float(dt) <= 0.0):
+        raise StageStudyError("relative residual tolerance and dt must be finite and positive")
+    return float(tolerance) / float(dt)
 
 
 def load_run(directory: Path) -> StageRun:
@@ -245,12 +368,24 @@ def load_run(directory: Path) -> StageRun:
         reasons.append("step_csv_missing_fields:" + ",".join(missing_cert))
     if steps and not missing_cert:
         solver = manifest.get("solver", {})
+        policy_value = solver.get("native_acceptance_policy")
+        policy = policy_value if isinstance(policy_value, dict) else None
+        policy_is_current = (
+            policy is not None and
+            policy.get("schema") == FULL_BOX_ACCEPTANCE_POLICY and
+            policy.get("certificate_semantics") == CERTIFICATE_POLICY_TEXT and
+            policy.get("force_residual_semantics") == FORCE_RESIDUAL_POLICY_TEXT)
+        if policy_value is not None and not policy_is_current:
+            disposition = "inconclusive_invalid_acceptance_policy"
+            reasons.append("unsupported_or_malformed_native_acceptance_policy")
         tolerances = {
             "certificate_residual_env0": solver.get("relative_residual_tolerance"),
-            "certificate_correction_env0": solver.get("relative_residual_tolerance"),
             "certificate_volume_env0": solver.get("volume_tolerance"),
             "certificate_pressure_env0": solver.get("pressure_tolerance"),
         }
+        if not policy_is_current:
+            # Historical manifests retain their original correction gate.
+            tolerances["certificate_correction_env0"] = solver.get("relative_residual_tolerance")
         expected_steps = 0
         failed_step_seen = False
         previous_index = -1
@@ -296,6 +431,11 @@ def load_run(directory: Path) -> StageRun:
                     if value < 0.0 or value > float(tolerance) * (1.0 + 1e-6):
                         disposition = "inconclusive_invalid_certificate"
                         reasons.append(f"certificate_outside_tolerance:{index}:{field}")
+                if policy_is_current:
+                    correction = _finite(row, "certificate_correction_env0", label)
+                    if correction < 0.0:
+                        disposition = "inconclusive_invalid_certificate"
+                        reasons.append(f"negative_certificate_correction:{index}")
                 expected_steps += 1
             except (ValueError, KeyError, StageStudyError) as exc:
                 disposition = "inconclusive_invalid_step_row"
@@ -347,9 +487,10 @@ def load_run(directory: Path) -> StageRun:
     elif disposition != "failed_prefix" and source_errors:
         disposition = "inconclusive_source_binding"
 
+    admission = {"status": disposition, "reasons": reasons}
+    admission["free_force_accuracy"] = _free_force_accuracy_gate(manifest, steps)
     return StageRun(path, manifest, result, native, files, source_bindings,
-                    {"status": disposition, "reasons": reasons},
-                    steps, actions, score_angles, optional_rows)
+                    admission, steps, actions, score_angles, optional_rows)
 
 
 def _material_identity(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -434,6 +575,7 @@ def _varying_identity(identity: dict[str, Any], axis: str) -> dict[str, Any]:
         pass  # mesh lives outside physical identity by design
     elif axis == "time_step":
         result["solver_controls"].pop("time_step", None)
+        result["solver_controls"].pop("relative_residual_tolerance", None)
         command = result.get("score_command")
         if isinstance(command, dict):
             # The probe's score-command digest includes the requested solver dt
@@ -536,13 +678,20 @@ def _compression_curve(run: StageRun, phase: str = "nominal") -> tuple[list[tupl
     if any(row.get("accepted") != "1" for row in selected):
         return [], {"status": "failed_or_rejected_stage_row"}
     curve: list[tuple[float, float]] = []
+    peak_rows: list[tuple[float, float, float]] = []
     reported_work = None
+    contacts_available = "platen_reaction_samples" in fields
     for index, row in enumerate(selected):
         stroke = _finite(row, "stroke_m", f"{name} row {index + 2}")
         force = _finite(row, "platen_mean_force_y_N", f"{name} row {index + 2}")
         if force < 0.0:
             return [], {"status": "invalid_negative_compression_force"}
         reported_work = _finite(row, "cumulative_platen_work_J", f"{name} row {index + 2}")
+        if contacts_available:
+            contacts = _finite(row, "platen_reaction_samples", f"{name} row {index + 2}")
+            if contacts < 0.0:
+                return [], {"status": "invalid_negative_contact_sample_count"}
+            peak_rows.append((stroke, force, contacts))
         if curve and stroke <= curve[-1][0]:
             if stroke == curve[-1][0]:
                 curve[-1] = (stroke, force)
@@ -551,9 +700,28 @@ def _compression_curve(run: StageRun, phase: str = "nominal") -> tuple[list[tupl
         curve.append((stroke, force))
     if len(curve) < 2 or curve[0][0] > 1e-12:
         return [], {"status": "inconclusive_incomplete_stroke_curve"}
+    first_peak = None
+    peak_status = "inconclusive_missing_contact_samples"
+    if contacts_available:
+        try:
+            index = first_local_peak_index(
+                (point[0] for point in peak_rows),
+                (point[1] for point in peak_rows),
+                (point[2] for point in peak_rows))
+        except ValueError:
+            return [], {"status": "invalid_compression_peak_observations"}
+        if index is None:
+            peak_status = "inconclusive_no_qualified_first_local_peak"
+        else:
+            stroke, force, contacts = peak_rows[index]
+            first_peak = {"sample_index": index, "stroke_m": stroke,
+                          "force_N": force, "contact_samples": contacts}
+            peak_status = "available"
     return curve, {"status": "available", "samples": len(curve),
                    "maximum_stroke_m": curve[-1][0],
-                   "reported_final_work_J": reported_work}
+                   "reported_final_work_J": reported_work,
+                   "first_local_peak_status": peak_status,
+                   "first_local_peak": first_peak}
 
 
 def _interp(curve: list[tuple[float, float]], x: float) -> float:
@@ -575,22 +743,33 @@ def _curve_work(curve: list[tuple[float, float]], stop: float) -> float:
 def _compare_force_curves(curve_a: list[tuple[float, float]],
                           curve_b: list[tuple[float, float]],
                           left_reported_work: float | None = None,
-                          right_reported_work: float | None = None) -> dict[str, Any]:
+                          right_reported_work: float | None = None,
+                          left_first_peak: dict[str, Any] | None = None,
+                          right_first_peak: dict[str, Any] | None = None) -> dict[str, Any]:
     common = min(curve_a[-1][0], curve_b[-1][0])
     knots = sorted({0.0, common, *(x for x, _ in curve_a if 0 < x < common),
                     *(x for x, _ in curve_b if 0 < x < common)})
     values_a = [_interp(curve_a, x) for x in knots]
     values_b = [_interp(curve_b, x) for x in knots]
-    peak_a, peak_b = max(values_a), max(values_b)
+    global_peak_a, global_peak_b = max(values_a), max(values_b)
+    peak_available = left_first_peak is not None and right_first_peak is not None
+    peak_a = float(left_first_peak["force_N"]) if left_first_peak else None
+    peak_b = float(right_first_peak["force_N"]) if right_first_peak else None
     rms_scale = math.sqrt(sum(v*v for v in values_a) / max(len(values_a), 1))
     rms = math.sqrt(sum((a-b)**2 for a,b in zip(values_a, values_b)) / max(len(knots), 1))
     wa, wb = _curve_work(curve_a, common), _curve_work(curve_b, common)
     return {
-        "status": "available", "common_stroke_m": common,
+        "status": "available" if peak_available else "inconclusive_missing_qualified_first_local_peak",
+        "common_stroke_m": common,
         "force_unit": "N",
         "load_normalization": "raw platen force; normalized curve RMS is divided by the left-run RMS force and not by board width",
+        "peak_definition": "first rising local peak followed by two accepted contact declines and at least one percent drop",
         "left_peak_force_N": peak_a, "right_peak_force_N": peak_b,
-        "relative_peak_force_difference": abs(peak_b-peak_a) / max(abs(peak_a), 1e-30),
+        "left_peak_stroke_m": left_first_peak["stroke_m"] if left_first_peak else None,
+        "right_peak_stroke_m": right_first_peak["stroke_m"] if right_first_peak else None,
+        "left_global_max_force_N": global_peak_a, "right_global_max_force_N": global_peak_b,
+        "relative_peak_force_difference": (abs(peak_b-peak_a) / max(abs(peak_a), 1e-30)
+                                           if peak_available else None),
         "normalized_force_curve_rms": rms / max(rms_scale, 1e-30),
         "left_work_J": wa, "right_work_J": wb,
         "relative_work_difference": abs(wb-wa) / max(abs(wa), 1e-30),
@@ -639,6 +818,7 @@ def _compression_branch_step_stats(run: StageRun) -> tuple[dict[str, Any], list[
         return {}, ["compression_branch_record_missing_actual_dt_or_count:" +
                     (",".join(missing) if missing else "shipping-compression.csv")]
     for branch in ("nominal", "half_speed"):
+        branch_reason_start = len(reasons)
         step_rows = [row for row in run.steps if row.get("stage") in (
             f"slow_compression_{branch}",
             f"compression_contact_approach_{branch}")]
@@ -731,15 +911,16 @@ def _compression_branch_step_stats(run: StageRun) -> tuple[dict[str, Any], list[
                 reasons.append(f"missing_or_invalid_declared_solver_dt:{branch}")
             elif max(dts) > declared_dt * (1.0 + 1.0e-6) + 1.0e-12:
                 reasons.append(f"accepted_compression_dt_exceeds_declared_solver_cap:{branch}")
-            stats[branch] = {
-                "stages": [f"compression_contact_approach_{branch}", f"slow_compression_{branch}"],
-                "accepted_native_substep_count": len(dts),
-                "accepted_duration_s": sum(dts),
-                "maximum_accepted_dt_s": max(dts),
-                "minimum_accepted_dt_s": min(dts),
-                "first_step_end_time_s": min(step_times),
-                "last_step_end_time_s": max(step_times),
-            }
+            if len(reasons) == branch_reason_start:
+                stats[branch] = {
+                    "stages": [f"compression_contact_approach_{branch}", f"slow_compression_{branch}"],
+                    "accepted_native_substep_count": len(dts),
+                    "accepted_duration_s": sum(dts),
+                    "maximum_accepted_dt_s": max(dts),
+                    "minimum_accepted_dt_s": min(dts),
+                    "first_step_end_time_s": min(step_times),
+                    "last_step_end_time_s": max(step_times),
+                }
     return stats, reasons
 
 
@@ -1090,7 +1271,8 @@ def _history_metrics(run: StageRun) -> dict[str, Any]:
     result: dict[str, Any] = {"status": "available_model_damage_indices_not_geometric_area"}
     for key in (
         "paper_status", "paper_area_weighted_damage_fraction",
-        "paper_reference_plane_area_m2", "starch_status",
+        "paper_reference_plane_area_m2", "paper_overlay_tetrahedra",
+        "starch_status",
         "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
         "hma_status", "hma_area_weighted_cohesive_damage_fraction", "hma_active_reference_area_m2",
     ):
@@ -1098,6 +1280,40 @@ def _history_metrics(run: StageRun) -> dict[str, Any]:
     result["geometric_crack_area_fraction"] = None
     result["geometric_debond_area_fraction"] = None
     result["area_fraction_status"] = "inconclusive_not_exported_by_probe"
+    volume_status = row.get("paper_volume_damage_status") or None
+    if result.get("paper_status") == "not_enabled" and volume_status is None:
+        volume_status = "not_enabled"
+    result["paper_volume_damage_status"] = volume_status
+    result["paper_constituent_volume_weighted_damage_index"] = None
+    result["paper_constituent_reference_volume_m3"] = None
+    result["paper_constituent_volume_fraction_above_damage_threshold"] = None
+    result["paper_damage_volume_threshold"] = None
+    result["paper_constituent_damage_tetrahedra"] = None
+    if volume_status == "available_constituent_volume_weighted_damage_index":
+        try:
+            index = float(row["paper_constituent_volume_weighted_damage_index"])
+            volume = float(row["paper_constituent_reference_volume_m3"])
+            fraction = float(row["paper_constituent_volume_fraction_above_damage_threshold"])
+            threshold = float(row["paper_damage_volume_threshold"])
+            tetrahedra = int(row["paper_constituent_damage_tetrahedra"])
+            mapped_tetrahedra = int(row["paper_overlay_tetrahedra"])
+        except (TypeError, ValueError, KeyError):
+            volume_status = "inconclusive_missing_or_invalid_volume_damage_fields"
+        else:
+            if (not all(math.isfinite(value) for value in (index, volume, fraction, threshold)) or
+                    not 0.0 <= index <= 1.0 or volume <= 0.0 or
+                    not 0.0 <= fraction <= 1.0 or
+                    not math.isclose(threshold, PAPER_DAMAGE_VOLUME_THRESHOLD,
+                                     rel_tol=0.0, abs_tol=1e-12) or
+                    tetrahedra <= 0 or mapped_tetrahedra != tetrahedra):
+                volume_status = "inconclusive_invalid_volume_damage_accounting"
+            else:
+                result["paper_constituent_volume_weighted_damage_index"] = index
+                result["paper_constituent_reference_volume_m3"] = volume
+                result["paper_constituent_volume_fraction_above_damage_threshold"] = fraction
+                result["paper_damage_volume_threshold"] = threshold
+                result["paper_constituent_damage_tetrahedra"] = tetrahedra
+    result["paper_volume_damage_status"] = volume_status
 
     fully_failed_fields = {
         "starch": ("starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
@@ -1193,20 +1409,115 @@ def _capacity_loss_debond_gate(history_a: dict[str, Any], history_b: dict[str, A
     }
 
 
+def _paper_constituent_damage_comparison(left: dict[str, Any],
+                                         right: dict[str, Any]) -> dict[str, Any]:
+    left_status = left.get("paper_volume_damage_status")
+    right_status = right.get("paper_volume_damage_status")
+    if left_status == right_status == "not_enabled":
+        return {"status": "not_enabled"}
+    expected = "available_constituent_volume_weighted_damage_index"
+    if left_status != expected or right_status != expected:
+        return {"status": "inconclusive_missing_or_invalid_constituent_volume_damage",
+                "left_status": left_status, "right_status": right_status}
+    try:
+        left_volume = float(left["paper_constituent_reference_volume_m3"])
+        right_volume = float(right["paper_constituent_reference_volume_m3"])
+        left_index = float(left["paper_constituent_volume_weighted_damage_index"])
+        right_index = float(right["paper_constituent_volume_weighted_damage_index"])
+        left_fraction = float(left["paper_constituent_volume_fraction_above_damage_threshold"])
+        right_fraction = float(right["paper_constituent_volume_fraction_above_damage_threshold"])
+        left_threshold = float(left["paper_damage_volume_threshold"])
+        right_threshold = float(right["paper_damage_volume_threshold"])
+    except (KeyError, TypeError, ValueError):
+        return {"status": "inconclusive_missing_constituent_volume_damage_values"}
+    if not all(math.isfinite(value) for value in (
+            left_volume, right_volume, left_index, right_index,
+            left_fraction, right_fraction, left_threshold, right_threshold)):
+        return {"status": "inconclusive_nonfinite_constituent_volume_damage"}
+    if left_volume <= 0.0 or right_volume <= 0.0:
+        return {"status": "inconclusive_nonpositive_reference_volume"}
+    if not math.isclose(left_threshold, right_threshold, rel_tol=0.0, abs_tol=1e-12):
+        return {"status": "incompatible_damage_threshold"}
+    if not math.isclose(left_volume, right_volume, rel_tol=1e-6, abs_tol=1e-12):
+        return {
+            "status": "incompatible_constituent_reference_volume",
+            "left_reference_volume_m3": left_volume,
+            "right_reference_volume_m3": right_volume,
+            "relative_tolerance": 1e-6,
+            "absolute_tolerance_m3": 1e-12,
+        }
+    return {
+        "status": "available",
+        "left_volume_weighted_damage_index": left_index,
+        "right_volume_weighted_damage_index": right_index,
+        "absolute_volume_weighted_damage_index_difference": abs(right_index - left_index),
+        "left_reference_volume_fraction_at_damage_threshold": left_fraction,
+        "right_reference_volume_fraction_at_damage_threshold": right_fraction,
+        "absolute_reference_volume_fraction_at_damage_threshold_difference": abs(right_fraction - left_fraction),
+        "absolute_volume_weighted_damage_index_difference_limit":
+            PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
+        "absolute_reference_volume_fraction_at_damage_threshold_difference_limit":
+            PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
+        "damage_threshold": left_threshold,
+        "left_reference_volume_m3": left_volume,
+        "right_reference_volume_m3": right_volume,
+        "overlay_tetrahedron_counts": [
+            left.get("paper_constituent_damage_tetrahedra"),
+            right.get("paper_constituent_damage_tetrahedra"),
+        ],
+        "definition": "per-tetrahedron four-plane area-weighted constitutive damage index averaged by exact mapped reference tetrahedron volume",
+        "not_geometric_crack_area": True,
+    }
+
+
 def _capacity_history_gates(report: dict[str, Any]) -> dict[str, Any]:
     damage = report.get("metrics", {}).get("damage_and_debond", {})
     left, right = damage.get("left", {}), damage.get("right", {})
-    # The existing paper index normalizes by a mesh-dependent sum of all tet
-    # cut-plane areas. It is not an objective crack-area fraction. A force-only
-    # match must not let an enabled but unmeasured localization field qualify.
-    paper = {
-        "status": ("not_enabled" if left.get("paper_status") == right.get("paper_status") == "not_enabled"
-                   else "inconclusive_missing_mesh_objective_paper_damage_fraction"),
-        "absolute_fraction_limit": 0.02,
-        "constitutive_damage_index_substituted_for_area": False,
-    }
+    comparison = damage.get("paper_constituent_volume_damage") or _paper_constituent_damage_comparison(
+        left, right)
+    if comparison.get("status") == "not_enabled":
+        paper_index = {"status": "not_enabled"}
+        paper_volume_fraction = {"status": "not_enabled"}
+    elif comparison.get("status") != "available":
+        paper_index = {
+            "status": "inconclusive_missing_mesh_comparable_volume_weighted_damage_index",
+            "comparison": comparison,
+            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
+            "not_geometric_crack_area": True,
+        }
+        paper_volume_fraction = {
+            "status": "inconclusive_missing_mesh_comparable_reference_volume_damage_fraction",
+            "comparison": comparison,
+            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
+            "not_geometric_open_or_crack_area": True,
+        }
+    else:
+        index_difference = comparison["absolute_volume_weighted_damage_index_difference"]
+        paper_index = {
+            "status": "pass" if index_difference <= PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE else "fail",
+            "metric": "constituent_volume_weighted_constitutive_damage_index",
+            "absolute_index_difference": index_difference,
+            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
+            "comparison": comparison,
+            "not_geometric_crack_area": True,
+        }
+        fraction_difference = comparison[
+            "absolute_reference_volume_fraction_at_damage_threshold_difference"]
+        paper_volume_fraction = {
+            "status": "pass" if fraction_difference <= PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE else "fail",
+            "metric": "reference_volume_fraction_of_tetrahedra_with_damage_index_at_or_above_threshold",
+            "damage_index_threshold": comparison["damage_threshold"],
+            "absolute_fraction_difference": fraction_difference,
+            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
+            "comparison": comparison,
+            "not_geometric_open_or_crack_area": True,
+        }
     debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
-    return {"paper_damage_fraction": paper, "irreversible_debond_fraction": debond}
+    return {
+        "paper_volume_weighted_damage_index": paper_index,
+        "paper_reference_volume_damage_fraction_at_threshold": paper_volume_fraction,
+        "irreversible_debond_fraction": debond,
+    }
 
 
 def _impact_histories(run: StageRun) -> tuple[dict[str, list[dict[str, float]]], dict[str, Any]]:
@@ -1342,6 +1653,26 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
         report["reasons"] = ["declared refinement axis has identical values"]
         return report
     if axis == "time_step":
+        try:
+            ratio_left = _force_tolerance_ratio(left)
+            ratio_right = _force_tolerance_ratio(right)
+        except StageStudyError as exc:
+            report["status"] = "inconclusive_invalid_time_force_policy"
+            report["reasons"] = [str(exc)]
+            return report
+        report["metrics"]["time_step_force_tolerance_ratio"] = {
+            "status": "available" if math.isclose(
+                ratio_left, ratio_right, rel_tol=FORCE_RATIO_REL_TOL, abs_tol=0.0) else "incompatible",
+            "left_relative_residual_tolerance_over_dt_s_inverse": ratio_left,
+            "right_relative_residual_tolerance_over_dt_s_inverse": ratio_right,
+            "relative_rounding_tolerance": FORCE_RATIO_REL_TOL,
+            "interpretation": "solver control consistency only; this ratio is not an absolute force bound",
+        }
+        if not math.isclose(ratio_left, ratio_right,
+                            rel_tol=FORCE_RATIO_REL_TOL, abs_tol=0.0):
+            report["status"] = "incompatible_time_force_tolerance_policy"
+            report["reasons"] = ["relative_residual_tolerance / dt_s differs between timestep levels"]
+            return report
         if scope not in ("compression", "all"):
             report["status"] = "incompatible_time_step_scope"
             report["reasons"] = ["timestep refinement admission currently requires the complete nominal and half-speed compression branches"]
@@ -1372,8 +1703,11 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
             report["reasons"] = ["comparison-axis values are not finite numeric scalars or declared timestep lists"]
             return report
 
-    metrics: dict[str, Any] = {}
+    metrics: dict[str, Any] = {
+        "free_force_accuracy": _force_accuracy_pair(left, right),
+    }
     if axis == "time_step":
+        metrics["time_step_force_tolerance_ratio"] = report["metrics"]["time_step_force_tolerance_ratio"]
         refinement = _time_step_refinement_admission(
             left, right, left_axis_value, right_axis_value)
         metrics["actual_compression_timestep_refinement"] = refinement
@@ -1392,7 +1726,8 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
         else:
             metrics["compression_force_work"] = _compare_force_curves(
                 curve_a, curve_b, status_a.get("reported_final_work_J"),
-                status_b.get("reported_final_work_J"))
+                status_b.get("reported_final_work_J"), status_a.get("first_local_peak"),
+                status_b.get("first_local_peak"))
     if scope in ("scoring", "assembly", "all"):
         metrics["accepted_grip_moment_curve"] = _compare_grip_moment_curves(left, right)
         if metrics["accepted_grip_moment_curve"].get("status") != "available":
@@ -1412,11 +1747,14 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
         "left": _history_metrics(left), "right": _history_metrics(right),
         "geometric_paper_crack_fraction_difference": None,
         "geometric_starch_debond_fraction_difference": None,
+        "paper_constituent_volume_damage": {},
         "fully_failed_cohesive_capacity_area": {},
         "status": "inconclusive_geometric_area_not_exported",
     }
     history_a = metrics["damage_and_debond"]["left"]
     history_b = metrics["damage_and_debond"]["right"]
+    metrics["damage_and_debond"]["paper_constituent_volume_damage"] = (
+        _paper_constituent_damage_comparison(history_a, history_b))
     area_a = history_a.get("fully_failed_cohesive_capacity_area", {})
     area_b = history_b.get("fully_failed_cohesive_capacity_area", {})
     if (history_a.get("fully_failed_cohesive_capacity_area_status") ==
@@ -1452,6 +1790,9 @@ def compare_runs(left_dir: Path, right_dir: Path, axis: str, scope: str = "all")
                    for value in capacity_differences.values())
             else "capacity_loss_area_available_geometric_open_area_unexported")
     report["missing_observables"].extend(("geometric paper crack area fraction", "geometric starch/HMA debond area fraction"))
+    if metrics["damage_and_debond"]["paper_constituent_volume_damage"].get("status") not in ("available", "not_enabled"):
+        report["missing_observables"].append(
+            "accepted paper constituent-volume-weighted damage index and thresholded reference-volume damage fraction")
     if (history_a.get("fully_failed_cohesive_capacity_area_status") !=
             "available_zero_tensile_shear_capacity_not_geometric_open_area" or
             history_b.get("fully_failed_cohesive_capacity_area_status") !=
@@ -1489,7 +1830,8 @@ def analyze_compression_rate(directory: Path) -> dict[str, Any]:
     _, half_status = _compression_curve(run, "half_speed")
     comparison = _compare_force_curves(
         nominal, half, nominal_status.get("reported_final_work_J"),
-        half_status.get("reported_final_work_J"))
+        half_status.get("reported_final_work_J"), nominal_status.get("first_local_peak"),
+        half_status.get("first_local_peak"))
     comparison["native_rate_gate"] = (run.native or {}).get("compression_rate_sensitivity")
     comparison["nominal_speed_m_per_s"] = (run.native or {}).get("compression_platen_speed_m_per_s")
     comparison["half_speed_m_per_s"] = (run.native or {}).get("compression_half_speed_platen_speed_m_per_s")
@@ -1617,6 +1959,9 @@ CAPACITY_SCHEMA = "numi.cardboard.shipping-capacity-qualification.v2"
 CAPACITY_PEAK_TOLERANCE = 0.02
 CAPACITY_CURVE_TOLERANCE = 0.05
 CAPACITY_WORK_TOLERANCE = 0.02
+PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE = 0.02
+PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE = 0.02
+PAPER_DAMAGE_VOLUME_THRESHOLD = 0.5
 
 
 def _capacity_case(run: StageRun) -> tuple[dict[str, Any] | None, list[str]]:
@@ -1644,8 +1989,10 @@ def _capacity_case(run: StageRun) -> tuple[dict[str, Any] | None, list[str]]:
     else:
         nominal_curve_sha = _sha(curve_path.read_bytes())
         try:
-            _, curve_rows = _rows(curve_path)
+            curve_fields, curve_rows = _rows(curve_path)
             curve_count = len(curve_rows)
+            if not {"sample_index", "stroke_m", "force_N", "contact_samples"}.issubset(curve_fields):
+                reasons.append("nominal_curve_missing_first_peak_columns")
             if curve_count < 3:
                 reasons.append("nominal_curve_has_too_few_accepted_samples")
         except (OSError, csv.Error, StageStudyError, ValueError):
@@ -1657,6 +2004,29 @@ def _capacity_case(run: StageRun) -> tuple[dict[str, Any] | None, list[str]]:
     peak_index = _safe_int(native.get("compression_peak_sample_index"))
     if peak_index < 0 or peak_index >= curve_count:
         reasons.append("compression_peak_index_outside_nominal_curve")
+    elif curve_path.is_file():
+        try:
+            _, peak_rows = _rows(curve_path)
+            expected_peak = first_local_peak_index(
+                (_finite(row, "stroke_m", curve_path.name) for row in peak_rows),
+                (_finite(row, "force_N", curve_path.name) for row in peak_rows),
+                (_finite(row, "contact_samples", curve_path.name) for row in peak_rows))
+            if expected_peak is None:
+                reasons.append("nominal_curve_has_no_qualified_first_local_peak")
+            elif peak_index != expected_peak:
+                reasons.append("native_peak_index_differs_from_first_qualified_local_peak")
+            else:
+                row = peak_rows[expected_peak]
+                if "compression_peak_stroke_m" in native and not math.isclose(
+                        _finite(native, "compression_peak_stroke_m", "box-native-result.json"),
+                        _finite(row, "stroke_m", curve_path.name), rel_tol=0.0, abs_tol=1e-12):
+                    reasons.append("native_peak_stroke_differs_from_first_local_peak")
+                if "compression_peak_contact_force_n" in native and not math.isclose(
+                        _finite(native, "compression_peak_contact_force_n", "box-native-result.json"),
+                        _finite(row, "force_N", curve_path.name), rel_tol=0.0, abs_tol=1e-9):
+                    reasons.append("native_peak_force_differs_from_first_local_peak")
+        except (KeyError, TypeError, ValueError, StageStudyError):
+            reasons.append("invalid_nominal_first_local_peak_data")
     try:
         expected_terminal_stroke = float(native["compression_stroke_m"])
         if not curve_path.is_file() or not math.isclose(
@@ -1718,7 +2088,11 @@ def _capacity_triplet_report(coarse: Path, middle: Path, fine: Path,
         for pair_index, pair in enumerate(pairs):
             if pair.get("status") != "descriptive_metrics_available_with_unresolved_observables":
                 reasons.append(f"adjacent_pair_{pair_index}_not_admitted")
-            metrics = pair.get("metrics", {}).get("compression_force_work", {})
+            pair_metrics = pair.get("metrics", {})
+            force_gate = pair_metrics.get("free_force_accuracy", {})
+            if force_gate.get("status") != "pass":
+                reasons.append(f"adjacent_pair_{pair_index}_free_force_accuracy_{force_gate.get('status', 'inconclusive')}")
+            metrics = pair_metrics.get("compression_force_work", {})
             if metrics.get("status") != "available":
                 reasons.append(f"adjacent_pair_{pair_index}_missing-compression-metrics")
             if metrics.get("comparison_is_complete_endpoint") is not True:
@@ -1770,6 +2144,7 @@ def _capacity_triplet_report(coarse: Path, middle: Path, fine: Path,
         "finest_pair_within_tolerance": threshold_pass,
         "accepted_damage_and_debond_gates": history_gates,
         "capacity_requires_damage_and_debond_observables": True,
+        "capacity_requires_declared_absolute_free_force_residual_bound": True,
         "adjacent_pair_differences_decrease": adjacent_differences_decrease,
         "coarse_middle_peak_difference": coarse_values[0] if math.isfinite(coarse_values[0]) else None,
         "coarse_middle_curve_rms": coarse_values[1] if math.isfinite(coarse_values[1]) else None,
@@ -1912,15 +2287,15 @@ def make_plan(reference_dir: Path) -> dict[str, Any]:
             "moment_curve": "box-grip-reactions.csv accepted total clamp/fixture wrench moment in N m, grouped by stage/action/score-line/environment; this is not the score punch contact moment",
             "work": "integral over accepted force/stroke or moment/rotation samples with a declared sign convention",
             "springback": "box-score-springback.csv held-to-released score-line angle changes after accepted clamp release and settle; endpoint shape residual and coverage flags must pass",
-            "damage": "accepted paper internal-state damage index with element crack-plane reference areas; not geometric crack area",
-            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; current CSV exports damage index only",
+            "damage": "accepted paper internal-state damage index with element crack-plane reference areas, plus a per-tetrahedron plane-area-averaged index weighted by exact mapped constituent reference volume; neither metric is geometric crack area",
+            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; the CSV exports irreversible zero-capacity reference-area fraction separately, while geometric open area remains unexported",
             "certificates": "accepted native step, status, certificate validity and residual/correction/volume/pressure fields for every step",
         },
         "available_metric_limits": {
             "shipping-compression.csv": "mean platen force in raw N versus accepted stroke and cumulative work, when complete; curve RMS difference is normalized by left-run RMS force, never by board width; actual timestep refinement is derived from accepted native rows and validated against macro observation duration/count/min/max dt",
             "box-grip-reactions.csv": "accepted grip wrench moments in raw N m, not width-normalized; moment-curve difference uses left-run RMS moment magnitude; score punch contact moment is not exported here",
             "box-score-springback.csv": "accepted endpoint shape-fit observations; the probe's engineering fit bound is not a published manufacturing tolerance",
-            "shipping_history_observables.csv": "area-weighted constitutive paper/cohesive degradation indices; not crack/debond area fractions",
+            "shipping-history-observables.csv": "paper plane-area-weighted damage index and constituent-volume-weighted damage index with exact mapped reference-volume denominator; cohesive damage and irreversible zero-capacity reference-area fractions. None is geometric crack/open-debond area",
             "shipping_contact_observations.csv": "contact impulses and mean forces; these are not substituted for a score-tool moment curve",
         },
         "qualification": "A plan or descriptive comparison is not material calibration, physical cardboard validation, or convergence proof. A convergence conclusion requires complete spatial and temporal triples, decreasing force/work, accepted grip-moment and released-springback differences when the scope includes scoring/assembly, full-stage observables, and admitted accepted histories.",

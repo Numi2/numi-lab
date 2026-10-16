@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = --numi-describe ]; then
+    printf '%s\n' 'Launch the coupled native Apple Metal resting Human scene from registered owner receipts, with accepted-state measurements and native recording.'
+    exit 0
+fi
+
+# Numi Human owns asset admission and the invocation receipt. Numi Lab owns
+# the native runtime; this capability only routes to those existing owners.
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+numi_python=${NUMI_HUMAN_PYTHON:-python3}
+if [ -n "${NUMI_HUMAN_ROOT:-}" ]; then
+    PYTHONPATH="$NUMI_HUMAN_ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
+    export PYTHONPATH
+fi
+exec "$numi_python" -m numilab_human.resting_run --lab "$numi_root" --build "$numi_build" "$@"

@@ -1,0 +1,65 @@
+{
+  "base_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+  "build_input_count": 835,
+  "build_receipt_sha256": "ca4b75bdecd0d93a2cf462ea4a6c3f5a1d42dca71e695c8b35f63df81e6e9c13",
+  "files": {
+    "README.md": {
+      "bytes": 1165,
+      "sha256": "9752dd1d95ce219afb7aa223920838f5a219e8e9b396bce11c4b8a5f2fc5ae9f"
+    },
+    "reproduction-commands.json": {
+      "bytes": 2617,
+      "sha256": "4b3e114f19a571aadd166987b83598ce51c81760f261d9dac951de85911e2242"
+    },
+    "retained-attempts.json": {
+      "bytes": 1447,
+      "sha256": "47f54ec2c43ac7df2d1a0e409029103ef3fbab0f3521c6fb118acb19b1cf3d27"
+    },
+    "source-build.json": {
+      "bytes": 103466,
+      "sha256": "ca4b75bdecd0d93a2cf462ea4a6c3f5a1d42dca71e695c8b35f63df81e6e9c13"
+    },
+    "source-integrity.json": {
+      "bytes": 103478,
+      "sha256": "ffbaaadb8f80a80b70fc41cfde829102b3fc27ba310b4cf3072d99c5c9252865"
+    },
+    "source242.patch": {
+      "bytes": 48975,
+      "sha256": "a9b3f3878d4e70a1548b7504e43455b4a8890c1b5fc42e3d3f9301710932c7cf"
+    },
+    "source246.patch": {
+      "bytes": 91787,
+      "sha256": "fbb0ff178f8c2ce1d9c1da8f5ba43b6b286b7884f257bf9ca225238e414b0f28"
+    },
+    "validation.json": {
+      "bytes": 1126,
+      "sha256": "73034586b74d895411d3ed5922f001c5a68973517e2dbe18fcaf004ce257e248"
+    },
+    "validation/ctest.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "validation/ctest.stdout": {
+      "bytes": 1162,
+      "sha256": "bec2aa8c42fcb23670fbb0ab6a261424c4eae3c0c571ada5fea81a27e71f90dc"
+    },
+    "validation/pycompile.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "validation/pycompile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "native_gpu_run": false,
+  "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source246-fullbox-force-accuracy-001",
+  "qualification": "CPU/source-bound build only",
+  "schema": "numi.cardboard.source246-package-manifest.v1",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001",
+  "snapshot_frozen_sha256": "43522c59e433a77882eb07f40eca3f2b7ef7253e140fec9d32c38d4438373a04",
+  "source242_patch_sha256": "a9b3f3878d4e70a1548b7504e43455b4a8890c1b5fc42e3d3f9301710932c7cf",
+  "source246_patch_sha256": "fbb0ff178f8c2ce1d9c1da8f5ba43b6b286b7884f257bf9ca225238e414b0f28",
+  "source_integrity_sha256": "ffbaaadb8f80a80b70fc41cfde829102b3fc27ba310b4cf3072d99c5c9252865"
+}

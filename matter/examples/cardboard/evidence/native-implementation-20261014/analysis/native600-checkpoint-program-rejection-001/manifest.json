@@ -1,0 +1,10 @@
+{
+  "inputs": {
+    "solver/primary-cache-strict-control19-final127-diagnostic-600/receipt.json": "6e3b536e19a477d54d52dbf69aa6f540ec5e8d5e143ff7c0ef4a429219297bfc",
+    "solver/primary-cache-strict-control19-final127-diagnostic-600/stderr.log": "0fe680bbb43f641a56445897852b2e8a071efbd06cbf585393ca181b941fe2f2",
+    "analysis/native600-command-001/command-spec.json": "3728a0353b4dd828e4f0b1c31347cb8b973009d8dae656b2cdff5b93a3b8d2b2",
+    "analysis/native600-command-001/receipt.json": "7f49daf2fa0f760da887e66135736d2d03e1d7a326f5c93bf542d3f5961658da",
+    "run_native600_primary_cached_strict_final127_diagnostic_001.py": "f651cb48d0e48dc8be75a9bc2c07bda071bd4a07a21d804cd541f30e4378386d"
+  },
+  "report_sha256": "7b160b8745435382230226a41d00b163d10802368e2df0278f879b9a6d4df325"
+}

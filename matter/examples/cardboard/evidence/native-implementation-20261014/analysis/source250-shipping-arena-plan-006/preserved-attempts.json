@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-003/report.json",
+    "sha256": "4af6631df749ce38b19e73ae2270773971fad3720b092563b12e19e550a13d5f",
+    "present": true
+  },
+  {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-004-failure.json",
+    "sha256": null,
+    "present": false
+  },
+  {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source250-shipping-arena-plan-005/report.json",
+    "sha256": "dc39d48334d239ad4b393622a13187e0ae14660b50b1520401b0119dc1bbd8ba",
+    "present": true
+  },
+  {
+    "path": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006-prep-failed-001",
+    "present": true,
+    "note": "first candidate-map preparation failure retained unchanged"
+  }
+]

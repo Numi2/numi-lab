@@ -1,0 +1,6 @@
+{
+  "error": "Frozen source map key is source_sha256; preliminary packager incorrectly guessed alternate map keys and stopped before reading files or writing any patch/report.",
+  "repair": "005 uses explicit source_sha256 key.",
+  "original_script_sha256": "8258dc84afbb334cb42aafef7dfd74e64e20e5ca69443af38d0f0425d75d77a8",
+  "at_utc": "2026-10-16T14:15:32.201630+00:00"
+}

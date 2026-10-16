@@ -1,0 +1,25 @@
+model,role,axis,quantity,value,unit,origin,notes
+hajali2009_liner_hill_asymmetric_transfer,liner,MD,Y_t,38.2,MPa,Table 3 tensile principal strength,Table 1 yield anchor also 38.2 MPa
+hajali2009_liner_hill_asymmetric_transfer,liner,CD,Y_t,18.4,MPa,Table 3 tensile principal strength,Table 1 yield anchor also 18.4 MPa
+hajali2009_liner_hill_asymmetric_transfer,liner,ZD,Y_t,12.55,MPa,Table 3 tensile principal strength,Beldie-derived relation not direct measurement
+hajali2009_liner_hill_asymmetric_transfer,liner,MD,Y_c,22.92,MPa,Table 3 compression calibration,Paper assumes 0.6 times tensile strength
+hajali2009_liner_hill_asymmetric_transfer,liner,CD,Y_c,11.02,MPa,Table 3 compression calibration,Paper assumes 0.6 times tensile strength
+hajali2009_liner_hill_asymmetric_transfer,liner,ZD,Y_c,7.52,MPa,Table 3 compression calibration,Beldie-derived relation and assumed compression
+hajali2009_liner_hill_asymmetric_transfer,liner,all,hill_F,2.263501055276255,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_liner_hill_asymmetric_transfer,liner,all,hill_G,1.0718517169019632,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_liner_hill_asymmetric_transfer,liner,all,hill_H,-0.7118517169019635,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_liner_hill_asymmetric_transfer,liner,MD,k11,0.4,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient
+hajali2009_liner_hill_asymmetric_transfer,liner,CD,k22,0.834202635524343,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient
+hajali2009_liner_hill_asymmetric_transfer,liner,ZD,k33,1.2215775197084004,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,MD,Y_t,15.65,MPa,Table 3 tensile principal strength,Table 1 instead reports 15.7 MPa
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,CD,Y_t,8.06,MPa,Table 3 tensile principal strength,Table 1 yield anchor also 8.06 MPa
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,ZD,Y_t,5.38,MPa,Table 3 tensile principal strength,Beldie-derived relation not direct measurement
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,MD,Y_c,9.391,MPa,Table 3 compression calibration,Paper assumes 0.6 times tensile strength
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,CD,Y_c,4.836,MPa,Table 3 compression calibration,Paper assumes 0.6 times tensile strength
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,ZD,Y_c,3.23,MPa,Table 3 compression calibration,Beldie-derived relation and assumed compression
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,all,hill_F,2.022186422311953,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,all,hill_G,1.0247200950109145,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,all,hill_H,-0.6646434136116964,one,Derived from tensile radii,Convex tensile Hill quadratic
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,MD,k11,0.39993610223642173,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,CD,k22,0.7767576509511992,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient
+hajali2009_medium_hill_asymmetric_transfer,medium_NSSC,ZD,k33,1.1618913071000265,one,Derived sigma_ref*(1/Yc-1/Yt),Compression ReLU coefficient

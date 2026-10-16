@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.pin_adhesion_fixture_profile.v1",
+  "version": 1,
+  "purpose": "Explicit native forward-tool geometry for an analogue pin-adhesion fixture; not a source-exact Emerson fixture reconstruction.",
+  "publication_protocol": {
+    "source_id": "johnson_popil_2015_article",
+    "section": "2.2 Pin Adhesion Method and Analysis",
+    "fixture": "Emerson model 06-00-55, C-flute",
+    "machine": "Instron model 1122 UTM, Series IX software",
+    "standard": "TAPPI T 821",
+    "specimen_dimensions_mm": {
+      "width": 50.0,
+      "length": 160.0
+    },
+    "dimension_orientation_relative_to_MD_CD": "not stated for this pin specimen",
+    "platen_approach_rate_mm_per_min": 12.5,
+    "load_mode": "out-of-plane tension selecting one facing",
+    "pin_count": 6,
+    "pin_series": {
+      "upper_platen": [1, 3, 5],
+      "lower_platen": [2, 4, 6],
+      "selected_facing": "bottom liner; article says the remaining corrugated structure stays with the other pin series"
+    },
+    "unreported_fixture_geometry": [
+      "pin or dowel diameter/cross-section",
+      "pin pitch and lateral registration relative to flute tips",
+      "pin end shape and engagement length",
+      "specimen centering tolerances",
+      "individual test specimen caliper and moisture state"
+    ],
+    "kinematic_interpretation": "The published 12.5 mm/min platen approach is treated as the relative opening rate. The prototype shares that displacement symmetrically between two stationary-in-other-axes platen pin sets, an explicit modeling choice."
+  },
+  "digitized_observable": {
+    "direct_plot_source_id": "johnson_popil_2016_author_presentation",
+    "slide_15": "Two illustrative load-displacement traces labeled White Glue Lines and Applicator roll too fast; the displayed curve window is partial and does not show the zero-displacement origin.",
+    "slide_16": "Summary markers for pin adhesion work/stiffness versus strength. Work axis prints N-m; the value is preserved as an unresolved source-axis number.",
+    "article_to_slide_value_correspondence": "not established point-for-point; never duplicate or merge article figure digitization with presentation-pixel data",
+    "article_and_presentation_independence": "same study context and likely overlapping specimen cohort; do not treat as independent datasets"
+  },
+  "engineering_prototype_geometry": {
+    "dimension_basis": "engineering_prototype",
+    "specimen_width_mm": 50.0,
+    "specimen_length_mm": 160.0,
+    "board_caliper_mm": 5.0,
+    "pin_diameter_mm": 1.0,
+    "pin_pitch_across_width_mm": 8.0,
+    "pin_count": 6,
+    "array_registration": "centered_on_specimen_width",
+    "pin_end_overhang_mm": 1.0,
+    "initial_surface_clearance_mm": 0.05,
+    "pin_shape_interpretation": "one round-ended capsule bar per alternating pin, with its long axis spanning the specimen length",
+    "series_to_face_assignment": "pins_1_3_5_remaining_board; pins_2_4_6_selected_bottom_facing",
+    "relative_opening_symmetry": "each pin set moves half the relative opening in opposite z directions",
+    "prohibited_interpretation": "chosen geometry values are not Emerson fixture dimensions, TAPPI tolerances, or measured/certified inputs"
+  },
+  "source_limits": [
+    "No raw force-displacement file is available; slide 15 is a sparse visual estimate from a presentation plot.",
+    "The article describes six specimens per defect type, but the slide traces do not identify specimen IDs or link to individual article replicates.",
+    "The article's plotted/data summary and presentation plots are kept as distinct source artifacts; any exact figure-to-figure correspondence remains unresolved.",
+    "Pin-adhesion response is a whole-fixture specimen observable and does not identify local starch traction, GIc, GIIc, or mixed-mode parameters.",
+    "Article sample orientation and crosshead displacement registration for the presented partial plot are not available; do not fit a free displacement offset to claim material calibration."
+  ]
+}

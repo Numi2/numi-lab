@@ -21,6 +21,16 @@ def main():
         ('restart-over-ceiling', ['--fgmres-restart', '17'], 1, None),
         ('invalid-newton', ['--newton-iterations', '0'], 1, None),
         ('invalid-material-budget', ['--material-iterations', '33'], 1, None),
+        ('force-bound-box', ['--box-blank', '--bend-angle', '0',
+                             '--max-free-force-residual-n', '0.01'], 0, None),
+        ('force-bound-without-box', ['--max-free-force-residual-n', '0.01'], 1,
+         '--max-free-force-residual-n requires a full-box run'),
+        ('force-bound-zero', ['--box-blank', '--bend-angle', '0',
+                              '--max-free-force-residual-n', '0'], 1,
+         '--max-free-force-residual-n requires a full-box run'),
+        ('force-bound-nan', ['--box-blank', '--bend-angle', '0',
+                             '--max-free-force-residual-n', 'nan'], 1,
+         'invalid number for --max-free-force-residual-n'),
     ]
     with tempfile.TemporaryDirectory(prefix='cardboard-argument-admission-') as temporary:
         for name, options, code, message in cases:
@@ -36,8 +46,11 @@ def main():
                 expected = {'schema': 'numi.cardboard.probe-argument-validation.v1',
                             'arguments_valid': True, 'file_inputs_validated': False,
                             'mesh_generated': False, 'native_runtime_created': False}
-                if json.loads(result.stdout) != expected:
+                payload = json.loads(result.stdout)
+                if any(payload.get(key) != value for key, value in expected.items()):
                     raise AssertionError((name, result.stdout))
+                if 'resolved' in payload and not isinstance(payload['resolved'], dict):
+                    raise AssertionError((name, 'resolved argument summary is malformed'))
             elif message and message not in result.stderr:
                 raise AssertionError((name, result.stderr))
     print(json.dumps({'schema': 'numi.cardboard.argument-admission-check.v1',

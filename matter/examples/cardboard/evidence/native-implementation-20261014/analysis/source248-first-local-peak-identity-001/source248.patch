@@ -1,0 +1,872 @@
+--- a/matter/tools/bct_capacity_history_producer.py
++++ b/matter/tools/bct_capacity_history_producer.py
+@@ -21,6 +21,7 @@
+ from typing import Any
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
++from cardboard_shipping_peak import first_local_peak_index
+ from cardboard_calibration_case_binding import (
+     CalibrationBindingError, canonical_sha256 as _binding_canonical_sha256,
+     validate_pre_run as _validate_pre_run_binding,
+@@ -388,6 +389,7 @@
+     samples = []
+     strokes: list[float] = []
+     forces: list[float] = []
++    contacts_by_row: list[float] = []
+     for index, row in enumerate(rows):
+         if row["sample_index"] != str(index):
+             raise ProducerError("native nominal curve sample indices are not contiguous")
+@@ -397,12 +399,15 @@
+             raise ProducerError("native nominal curve contains invalid values")
+         if strokes and stroke <= strokes[-1]:
+             raise ProducerError("native nominal curve stroke is not strictly increasing")
+-        strokes.append(stroke); forces.append(force)
++        strokes.append(stroke); forces.append(force); contacts_by_row.append(float(contacts))
+         samples.append({"sample_index": index, "phase": "shipping_compression_nominal",
+                         "accepted": True, "stroke_m": stroke, "force_N": force,
+                         "contact_samples": contacts})
+-    if forces.index(max(forces)) != peak_index:
+-        raise ProducerError("native capacity binding peak index differs from the first nominal curve maximum")
++    selected_peak_index = first_local_peak_index(strokes, forces, contacts_by_row)
++    if selected_peak_index is None:
++        raise ProducerError("native nominal curve has no qualified first local compression peak")
++    if selected_peak_index != peak_index:
++        raise ProducerError("native capacity binding peak index differs from the first qualified local peak")
+     return samples
+ 
+ 
+--- a/matter/tools/cardboard_calibration_ensemble.py
++++ b/matter/tools/cardboard_calibration_ensemble.py
+@@ -20,6 +20,7 @@
+ from typing import Any
+ 
+ import cardboard_source_data as source_data
++from cardboard_shipping_peak import first_local_peak_index
+ 
+ 
+ TOOL = Path(__file__).resolve()
+@@ -931,7 +932,7 @@
+     """Recheck the producer's full nominal/half-speed accepted branches."""
+     required = {"phase", "accepted", "stroke_m", "macro_observation_duration_s",
+                 "control_step_count", "control_step_dt_min_s", "control_step_dt_max_s",
+-                "platen_mean_force_y_N"}
++                "platen_mean_force_y_N", "platen_reaction_samples"}
+     try:
+         with path.open(newline="", encoding="utf-8") as stream:
+             reader = csv.DictReader(stream)
+@@ -950,6 +951,7 @@
+          "half_speed_6_25_mm_min_slow_compression", 6.25e-3 / 60.0),
+     )
+     curves: list[list[tuple[float, float]]] = []
++    selected_peaks: list[float] = []
+     for name, origin_phase, approach_phase, phase, expected_speed in branches:
+         origins = [row for row in rows if row.get("phase") == origin_phase]
+         approaches = [row for row in rows if row.get("phase") == approach_phase]
+@@ -963,6 +965,7 @@
+         if origin_stroke != 0.0 or origin_force != 0.0:
+             raise EnsembleError(f"BCT {name} does not start at the accepted zero-force stroke origin")
+         curve = [(origin_stroke, origin_force)]
++        curve_contacts = [0.0]
+         crossing = [row for row in approaches
+                     if _finite(row.get("platen_reaction_samples"), "BCT contact reaction sample count") > 0.0]
+         if len(crossing) != 1:
+@@ -973,16 +976,22 @@
+         crossing_duration = _finite(crossing_row.get("macro_observation_duration_s"), f"{name} contact duration")
+         if crossing_stroke <= 0.0 or crossing_force < 0.0 or crossing_duration <= 0.0:
+             raise EnsembleError(f"BCT {name} first-contact stroke sample is incomplete")
++        crossing_contacts = _finite(crossing_row.get("platen_reaction_samples"),
++                                     f"{name} contact sample count")
++        if crossing_contacts <= 0.0:
++            raise EnsembleError(f"BCT {name} first-contact record has no accepted contact samples")
+         curve.append((crossing_stroke, crossing_force))
++        curve_contacts.append(crossing_contacts)
+         elapsed = crossing_duration
+         for index, row in enumerate(branch_rows):
+             stroke = _finite(row.get("stroke_m"), f"{name} row {index} stroke")
+             force = _finite(row.get("platen_mean_force_y_N"), f"{name} row {index} force")
++            contacts = _finite(row.get("platen_reaction_samples"), f"{name} row {index} contact samples")
+             duration = _finite(row.get("macro_observation_duration_s"), f"{name} duration")
+             dt_min = _finite(row.get("control_step_dt_min_s"), f"{name} minimum dt")
+             dt_max = _finite(row.get("control_step_dt_max_s"), f"{name} maximum dt")
+             count_text = row.get("control_step_count", "")
+-            if (stroke <= curve[-1][0] or force < 0.0 or duration <= 0.0 or
++            if (stroke <= curve[-1][0] or force < 0.0 or contacts < 0.0 or duration <= 0.0 or
+                     dt_min <= 0.0 or dt_max < dt_min or
+                     re.fullmatch(r"[1-9][0-9]*", count_text) is None):
+                 raise EnsembleError(f"BCT {name} has a nonmonotone curve or invalid accepted timestep summary")
+@@ -992,6 +1001,12 @@
+                 raise EnsembleError(f"BCT {name} macro duration is inconsistent with its accepted dt bounds/count")
+             elapsed += duration
+             curve.append((stroke, force))
++            curve_contacts.append(contacts)
++        selected_peak = first_local_peak_index(
++            (point[0] for point in curve), (point[1] for point in curve), curve_contacts)
++        if selected_peak is None:
++            raise EnsembleError(f"BCT {name} branch has no qualified first local compression peak")
++        selected_peaks.append(curve[selected_peak][1])
+         final_fraction = curve[-1][0] / inside_height
+         if not math.isclose(final_fraction, 0.70, rel_tol=0.0, abs_tol=1e-9):
+             raise EnsembleError(f"BCT {name} accepted curve does not reach the complete 70-percent stroke endpoint")
+@@ -1025,7 +1040,7 @@
+ 
+     nominal_y = [at(nominal, x) for x in knots]
+     half_y = [at(half, x) for x in knots]
+-    nominal_peak, half_peak = max(nominal_y), max(half_y)
++    nominal_peak, half_peak = selected_peaks
+     work_nominal, work_half = integrate(nominal_y), integrate(half_y)
+     rms_nominal = math.sqrt(sum(value * value for value in nominal_y) / len(nominal_y))
+     rms_delta = math.sqrt(sum((a - b) ** 2 for a, b in zip(nominal_y, half_y)) / len(knots))
+@@ -1176,6 +1191,7 @@
+         raise EnsembleError("BCT nominal curve sample count does not match the capacity artifact")
+     forces: list[float] = []
+     strokes: list[float] = []
++    contacts_by_row: list[float] = []
+     for index, row in enumerate(curve_rows):
+         if row.get("sample_index") != str(index):
+             raise EnsembleError("BCT nominal curve sample indices are not contiguous from zero")
+@@ -1185,12 +1201,17 @@
+             raise EnsembleError("BCT nominal curve contains invalid stroke, force, or contact sample count")
+         if strokes and stroke <= strokes[-1]:
+             raise EnsembleError("BCT nominal curve stroke must increase strictly")
+-        strokes.append(stroke); forces.append(force)
++        contacts = _finite(row.get("contact_samples"), "BCT nominal contact samples")
++        if contacts < 0.0:
++            raise EnsembleError("BCT nominal curve contains a negative contact sample count")
++        strokes.append(stroke); forces.append(force); contacts_by_row.append(contacts)
+     if not math.isclose(strokes[-1] / inside_height, 0.70, rel_tol=0.0, abs_tol=1e-9):
+         raise EnsembleError("BCT nominal curve artifact does not end at 70 percent inside-height stroke")
+-    peak_index = forces.index(max(forces))
++    peak_index = first_local_peak_index(strokes, forces, contacts_by_row)
++    if peak_index is None:
++        raise EnsembleError("BCT nominal curve has no qualified first local compression peak")
+     if peak_index != _capacity_int(values, "nominal_peak_sample_index"):
+-        raise EnsembleError("BCT capacity peak sample index is not the first maximum in the bound nominal curve")
++        raise EnsembleError("BCT capacity peak sample index is not the first qualified local peak in the bound nominal curve")
+     samples = history.get("samples")
+     if not isinstance(samples, list) or len(samples) != len(curve_rows):
+         raise EnsembleError("BCT native history must contain the complete capacity curve sample-for-sample")
+@@ -1199,7 +1220,8 @@
+                 sample.get("phase") != "shipping_compression_nominal" or
+                 sample.get("sample_index") != index or
+                 _finite(sample.get("stroke_m"), "BCT history stroke") != stroke or
+-                _finite(sample.get("force_N"), "BCT history force") != force):
++                _finite(sample.get("force_N"), "BCT history force") != force or
++                _finite(sample.get("contact_samples"), "BCT history contact samples") != contacts_by_row[index]):
+             raise EnsembleError("BCT native history differs from the accepted source-bound nominal compression curve")
+     _verify_bct_rate_history(branch_path, inside_height, list(zip(strokes, forces)))
+ 
+--- a/matter/tools/cardboard_calibration_ensemble_test.py
++++ b/matter/tools/cardboard_calibration_ensemble_test.py
+@@ -57,7 +57,8 @@
+     curve_path.write_text(
+         "sample_index,stroke_m,force_N,contact_samples\n"
+         "0,0,0,0\n1,0.00025,40,2\n"
+-        "2,0.07,100,4\n3,0.14,80,4\n", encoding="utf-8")
++        "2,0.07,100,4\n3,0.08,98.8,4\n4,0.09,97.5,4\n"
++        "5,0.13,130,4\n6,0.14,80,4\n", encoding="utf-8")
+     curve_sha = digest(curve_path)
+     source_binding = "a" * 64
+     checkpoint_sha = digest(base / "shipping-assembled.matter")
+@@ -97,7 +98,7 @@
+         "assembled_matter_checkpoint_sha256": checkpoint_sha,
+         "assembled_rigid_sidecar_sha256": rigid_sha,
+         "nominal_curve_sha256": curve_sha, "nominal_peak_sample_index": "2",
+-        "nominal_accepted_sample_count": "4", "nominal_terminal_stroke_fraction": "0.7",
++        "nominal_accepted_sample_count": "7", "nominal_terminal_stroke_fraction": "0.7",
+         "nominal_full_stroke_completed": "true" if complete else "false",
+         "nominal_rate_sensitivity_passed": "true",
+         "mesh_status": "qualified", "mesh_report_file": "mesh-study.json",
+@@ -136,7 +137,13 @@
+              "platen_reaction_samples": "2", "platen_mean_force_y_N": "40"},
+         ])
+         previous = 0.00025
+-        for stroke, force in ((0.07, 100.0), (0.14, 80.0)):
++        if prefix.startswith("half_speed"):
++            slow_samples = ((0.07, 101.0), (0.08, 99.8), (0.09, 98.5),
++                            (0.13, 135.0), (0.14, 80.8))
++        else:
++            slow_samples = ((0.07, 100.0), (0.08, 98.8), (0.09, 97.5),
++                            (0.13, 130.0), (0.14, 80.0))
++        for stroke, force in slow_samples:
+             duration = (stroke - previous) / rate
+             branch_rows.append({
+                 "phase": f"{prefix}_slow_compression", "accepted": "1",
+@@ -159,7 +166,7 @@
+         "assembled_matter_checkpoint_sha256": checkpoint_sha,
+         "assembled_rigid_sidecar_sha256": rigid_sha,
+         "nominal_curve_sha256": curve_sha, "nominal_peak_sample_index": 2,
+-        "nominal_accepted_sample_count": 4,
++        "nominal_accepted_sample_count": 7,
+         "nominal_terminal_stroke_fraction": 0.7,
+         "nominal_full_stroke_completed": True, "nominal_rate_sensitivity_passed": True,
+         "inside_height_m": 0.2, "mesh_report_sha256": mesh_sha, "time_report_sha256": time_sha,
+@@ -201,9 +208,11 @@
+         "shipping_capacity_binding": binding,
+         "samples": [
+             {"sample_index": i, "phase": "shipping_compression_nominal", "accepted": True,
+-             "stroke_m": stroke, "force_N": force}
+-            for i, (stroke, force) in enumerate(((0.0, 0.0), (0.00025, 40.0),
+-                                                  (0.07, 100.0), (0.14, 80.0)))
++             "stroke_m": stroke, "force_N": force, "contact_samples": contacts}
++            for i, (stroke, force, contacts) in enumerate((
++                (0.0, 0.0, 0.0), (0.00025, 40.0, 2.0),
++                (0.07, 100.0, 4.0), (0.08, 98.8, 4.0), (0.09, 97.5, 4.0),
++                (0.13, 130.0, 4.0), (0.14, 80.0, 4.0)))
+         ],
+     }
+     manifest = {
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -9788,24 +9788,18 @@
+                         peakQualified = true;
+                         outcome.peakForceN = qualified->peak.forceN;
+                         outcome.peakStrokeM = qualified->peak.strokeM;
+-                        outcome.peakSampleIndex = qualified->peak.sampleIndex;
+-                        const auto peakCurve = std::lower_bound(
+-                            outcome.forceCurve.begin(), outcome.forceCurve.end(),
+-                            qualified->peak.strokeM,
+-                            [](const auto& sample, const double stroke) {
+-                                return sample.strokeM < stroke;
+-                            });
+-                        const std::size_t peakCurveIndex = static_cast<std::size_t>(
+-                            peakCurve - outcome.forceCurve.begin());
+-                        require(peakCurveIndex < outcome.workByCurveSampleJ.size() &&
+-                                    peakCurveIndex < outcome.kineticByCurveSampleJ.size() &&
+-                                    peakCurve != outcome.forceCurve.end() &&
+-                                    peakCurve->strokeM == qualified->peak.strokeM,
+-                                "compression peak does not map to its accepted work/kinetic trace");
++                        const auto peakCurveIndex =
++                            numi::cardboard::shippingCompressionCurveSampleIndex(
++                                outcome.forceCurve, qualified->peak);
++                        require(peakCurveIndex.has_value() &&
++                                    *peakCurveIndex < outcome.workByCurveSampleJ.size() &&
++                                    *peakCurveIndex < outcome.kineticByCurveSampleJ.size(),
++                                "native first-local peak does not map uniquely to the full accepted curve");
++                        outcome.peakSampleIndex = static_cast<std::uint64_t>(*peakCurveIndex);
+                         outcome.workAtPeakJ =
+-                            outcome.workByCurveSampleJ[peakCurveIndex];
++                            outcome.workByCurveSampleJ[*peakCurveIndex];
+                         outcome.kineticEnergyAtPeakJ =
+-                            outcome.kineticByCurveSampleJ[peakCurveIndex];
++                            outcome.kineticByCurveSampleJ[*peakCurveIndex];
+                         outcome.kineticWorkRatioAtPeak = outcome.workAtPeakJ > 0.0
+                             ? outcome.kineticEnergyAtPeakJ / outcome.workAtPeakJ
+                             : std::numeric_limits<double>::quiet_NaN();
+--- a/matter/tools/cardboard_shipping_crush.hpp
++++ b/matter/tools/cardboard_shipping_crush.hpp
+@@ -446,6 +446,34 @@
+     std::optional<ShippingQualifiedCompressionPeak> qualified_;
+ };
+ 
++// Map the detector's positive-contact ordinal back to the row identity in the
++// complete saved force curve (which also contains the zero-force origin).
++// Exact stroke/force/contact identity is required; ambiguous duplicate rows
++// fail closed instead of emitting a misleading full-curve index.
++inline std::optional<std::size_t> shippingCompressionCurveSampleIndex(
++    const std::span<const ShippingCompressionForceSample> curve,
++    const ShippingCompressionForceSample& selectedPeak) {
++    if (curve.empty() || !std::isfinite(selectedPeak.strokeM) ||
++        !std::isfinite(selectedPeak.forceN) ||
++        !std::isfinite(selectedPeak.contactSamples))
++        return std::nullopt;
++    const auto first = std::lower_bound(
++        curve.begin(), curve.end(), selectedPeak.strokeM,
++        [](const ShippingCompressionForceSample& sample, const double stroke) {
++            return sample.strokeM < stroke;
++        });
++    std::optional<std::size_t> match;
++    for (auto it = first; it != curve.end() && it->strokeM == selectedPeak.strokeM; ++it) {
++        if (it->forceN == selectedPeak.forceN &&
++            it->contactSamples == selectedPeak.contactSamples) {
++            if (match) return std::nullopt;
++            match = static_cast<std::size_t>(it - curve.begin());
++        }
++    }
++    return match;
++}
++
++
+ inline std::vector<ShippingCompressionIncrement> makeShippingCompressionSchedule(
+     const double insideHeightM,
+     const ShippingCompressionProtocol& protocol) {
+--- a/matter/tools/cardboard_shipping_protocol_check.cpp
++++ b/matter/tools/cardboard_shipping_protocol_check.cpp
+@@ -408,6 +408,31 @@
+                 firstPeak->peak.sampleIndex == 1u &&
+                 firstPeak->qualifyingDropFraction >= 0.01,
+             "compression peak detector did not include the first contact sample in the accepted curve");
++    ShippingFirstCompressionPeakDetector fullCurveDetector(0.01, 2u);
++    const std::array<ShippingCompressionForceSample, 7> firstPeakCurve{{
++        {0u, 0.0000, 0.0, 0.0}, {1u, 0.0010, 40.0, 2.0},
++        {2u, 0.0700, 100.0, 4.0}, {3u, 0.0800, 98.8, 4.0},
++        {4u, 0.0900, 97.5, 4.0}, {5u, 0.1300, 130.0, 4.0},
++        {6u, 0.1400, 80.0, 4.0}}};
++    std::optional<ShippingQualifiedCompressionPeak> qualifiedFirst;
++    for (std::size_t index = 1u; index < firstPeakCurve.size(); ++index) {
++        const auto& sample = firstPeakCurve[index];
++        qualifiedFirst = fullCurveDetector.observeAccepted(
++            sample.strokeM, sample.forceN, sample.contactSamples);
++        if (qualifiedFirst) break;
++    }
++    require(qualifiedFirst && qualifiedFirst->peak.sampleIndex == 1u &&
++                firstPeakCurve[5].forceN > qualifiedFirst->peak.forceN,
++            "native streaming detector fixture must distinguish local peak from later global maximum");
++    const auto fullCurvePeakIndex = shippingCompressionCurveSampleIndex(
++        firstPeakCurve, qualifiedFirst->peak);
++    require(fullCurvePeakIndex == std::optional<std::size_t>(2u) &&
++                *fullCurvePeakIndex != qualifiedFirst->peak.sampleIndex &&
++                firstPeakCurve[*fullCurvePeakIndex].forceN == 100.0,
++            "native first-local-peak identity must map to its full curve row including zero origin");
++    require(!shippingCompressionCurveSampleIndex(firstPeakCurve,
++                ShippingCompressionForceSample{99u, 0.0700, 100.0, 3.0}),
++            "native curve mapping must reject a force/contact mismatch");
+     const std::array<ShippingCompressionForceSample, 4> nominalCurve{{
+         {0u, 0.0, 0.0, 0.0}, {1u, 0.001, 10.0, 1.0},
+         {2u, 0.002, 20.0, 1.0}, {3u, 0.003, 10.0, 1.0}}};
+--- a/matter/tools/cardboard_stage_resolution_study.md
++++ b/matter/tools/cardboard_stage_resolution_study.md
+@@ -155,7 +155,12 @@
+ `capacity-qualification` producer uses one shared middle run across the mesh
+ and timestep triplets, stores both adjacent metric vectors, and rejects a
+ triplet if any peak/curve/work difference increases from coarse-to-middle to
+-middle-to-fine (at least one must strictly decrease). When the selected scope
++middle-to-fine (at least one must strictly decrease). Its peak-force metric is
++the first rising local peak followed by two accepted contact declines and at
++least a one-percent drop. The reported sample index addresses the complete
++accepted curve, including the zero-force origin. Later densification maxima
++remain in the full-curve and work comparisons, but do not replace that first
++local peak. When the selected scope
+ includes scoring or assembly, accepted grip moments and released springback
+ are included in the pair vectors; missing or failed observables stay
+ unresolved. The report always keeps `convergence_claim: false` because
+--- a/matter/tools/cardboard_stage_resolution_study.py
++++ b/matter/tools/cardboard_stage_resolution_study.py
+@@ -17,6 +17,9 @@
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import Any
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++from cardboard_shipping_peak import first_local_peak_index
+ 
+ 
+ SCHEMA = "numi.cardboard.stage-resolution-analysis.v1"
+@@ -675,13 +678,20 @@
+     if any(row.get("accepted") != "1" for row in selected):
+         return [], {"status": "failed_or_rejected_stage_row"}
+     curve: list[tuple[float, float]] = []
++    peak_rows: list[tuple[float, float, float]] = []
+     reported_work = None
++    contacts_available = "platen_reaction_samples" in fields
+     for index, row in enumerate(selected):
+         stroke = _finite(row, "stroke_m", f"{name} row {index + 2}")
+         force = _finite(row, "platen_mean_force_y_N", f"{name} row {index + 2}")
+         if force < 0.0:
+             return [], {"status": "invalid_negative_compression_force"}
+         reported_work = _finite(row, "cumulative_platen_work_J", f"{name} row {index + 2}")
++        if contacts_available:
++            contacts = _finite(row, "platen_reaction_samples", f"{name} row {index + 2}")
++            if contacts < 0.0:
++                return [], {"status": "invalid_negative_contact_sample_count"}
++            peak_rows.append((stroke, force, contacts))
+         if curve and stroke <= curve[-1][0]:
+             if stroke == curve[-1][0]:
+                 curve[-1] = (stroke, force)
+@@ -690,9 +700,28 @@
+         curve.append((stroke, force))
+     if len(curve) < 2 or curve[0][0] > 1e-12:
+         return [], {"status": "inconclusive_incomplete_stroke_curve"}
++    first_peak = None
++    peak_status = "inconclusive_missing_contact_samples"
++    if contacts_available:
++        try:
++            index = first_local_peak_index(
++                (point[0] for point in peak_rows),
++                (point[1] for point in peak_rows),
++                (point[2] for point in peak_rows))
++        except ValueError:
++            return [], {"status": "invalid_compression_peak_observations"}
++        if index is None:
++            peak_status = "inconclusive_no_qualified_first_local_peak"
++        else:
++            stroke, force, contacts = peak_rows[index]
++            first_peak = {"sample_index": index, "stroke_m": stroke,
++                          "force_N": force, "contact_samples": contacts}
++            peak_status = "available"
+     return curve, {"status": "available", "samples": len(curve),
+                    "maximum_stroke_m": curve[-1][0],
+-                   "reported_final_work_J": reported_work}
++                   "reported_final_work_J": reported_work,
++                   "first_local_peak_status": peak_status,
++                   "first_local_peak": first_peak}
+ 
+ 
+ def _interp(curve: list[tuple[float, float]], x: float) -> float:
+@@ -714,22 +743,33 @@
+ def _compare_force_curves(curve_a: list[tuple[float, float]],
+                           curve_b: list[tuple[float, float]],
+                           left_reported_work: float | None = None,
+-                          right_reported_work: float | None = None) -> dict[str, Any]:
++                          right_reported_work: float | None = None,
++                          left_first_peak: dict[str, Any] | None = None,
++                          right_first_peak: dict[str, Any] | None = None) -> dict[str, Any]:
+     common = min(curve_a[-1][0], curve_b[-1][0])
+     knots = sorted({0.0, common, *(x for x, _ in curve_a if 0 < x < common),
+                     *(x for x, _ in curve_b if 0 < x < common)})
+     values_a = [_interp(curve_a, x) for x in knots]
+     values_b = [_interp(curve_b, x) for x in knots]
+-    peak_a, peak_b = max(values_a), max(values_b)
++    global_peak_a, global_peak_b = max(values_a), max(values_b)
++    peak_available = left_first_peak is not None and right_first_peak is not None
++    peak_a = float(left_first_peak["force_N"]) if left_first_peak else None
++    peak_b = float(right_first_peak["force_N"]) if right_first_peak else None
+     rms_scale = math.sqrt(sum(v*v for v in values_a) / max(len(values_a), 1))
+     rms = math.sqrt(sum((a-b)**2 for a,b in zip(values_a, values_b)) / max(len(knots), 1))
+     wa, wb = _curve_work(curve_a, common), _curve_work(curve_b, common)
+     return {
+-        "status": "available", "common_stroke_m": common,
++        "status": "available" if peak_available else "inconclusive_missing_qualified_first_local_peak",
++        "common_stroke_m": common,
+         "force_unit": "N",
+         "load_normalization": "raw platen force; normalized curve RMS is divided by the left-run RMS force and not by board width",
++        "peak_definition": "first rising local peak followed by two accepted contact declines and at least one percent drop",
+         "left_peak_force_N": peak_a, "right_peak_force_N": peak_b,
+-        "relative_peak_force_difference": abs(peak_b-peak_a) / max(abs(peak_a), 1e-30),
++        "left_peak_stroke_m": left_first_peak["stroke_m"] if left_first_peak else None,
++        "right_peak_stroke_m": right_first_peak["stroke_m"] if right_first_peak else None,
++        "left_global_max_force_N": global_peak_a, "right_global_max_force_N": global_peak_b,
++        "relative_peak_force_difference": (abs(peak_b-peak_a) / max(abs(peak_a), 1e-30)
++                                           if peak_available else None),
+         "normalized_force_curve_rms": rms / max(rms_scale, 1e-30),
+         "left_work_J": wa, "right_work_J": wb,
+         "relative_work_difference": abs(wb-wa) / max(abs(wa), 1e-30),
+@@ -778,6 +818,7 @@
+         return {}, ["compression_branch_record_missing_actual_dt_or_count:" +
+                     (",".join(missing) if missing else "shipping-compression.csv")]
+     for branch in ("nominal", "half_speed"):
++        branch_reason_start = len(reasons)
+         step_rows = [row for row in run.steps if row.get("stage") in (
+             f"slow_compression_{branch}",
+             f"compression_contact_approach_{branch}")]
+@@ -870,15 +911,16 @@
+                 reasons.append(f"missing_or_invalid_declared_solver_dt:{branch}")
+             elif max(dts) > declared_dt * (1.0 + 1.0e-6) + 1.0e-12:
+                 reasons.append(f"accepted_compression_dt_exceeds_declared_solver_cap:{branch}")
+-            stats[branch] = {
+-                "stages": [f"compression_contact_approach_{branch}", f"slow_compression_{branch}"],
+-                "accepted_native_substep_count": len(dts),
+-                "accepted_duration_s": sum(dts),
+-                "maximum_accepted_dt_s": max(dts),
+-                "minimum_accepted_dt_s": min(dts),
+-                "first_step_end_time_s": min(step_times),
+-                "last_step_end_time_s": max(step_times),
+-            }
++            if len(reasons) == branch_reason_start:
++                stats[branch] = {
++                    "stages": [f"compression_contact_approach_{branch}", f"slow_compression_{branch}"],
++                    "accepted_native_substep_count": len(dts),
++                    "accepted_duration_s": sum(dts),
++                    "maximum_accepted_dt_s": max(dts),
++                    "minimum_accepted_dt_s": min(dts),
++                    "first_step_end_time_s": min(step_times),
++                    "last_step_end_time_s": max(step_times),
++                }
+     return stats, reasons
+ 
+ 
+@@ -1684,7 +1726,8 @@
+         else:
+             metrics["compression_force_work"] = _compare_force_curves(
+                 curve_a, curve_b, status_a.get("reported_final_work_J"),
+-                status_b.get("reported_final_work_J"))
++                status_b.get("reported_final_work_J"), status_a.get("first_local_peak"),
++                status_b.get("first_local_peak"))
+     if scope in ("scoring", "assembly", "all"):
+         metrics["accepted_grip_moment_curve"] = _compare_grip_moment_curves(left, right)
+         if metrics["accepted_grip_moment_curve"].get("status") != "available":
+@@ -1787,7 +1830,8 @@
+     _, half_status = _compression_curve(run, "half_speed")
+     comparison = _compare_force_curves(
+         nominal, half, nominal_status.get("reported_final_work_J"),
+-        half_status.get("reported_final_work_J"))
++        half_status.get("reported_final_work_J"), nominal_status.get("first_local_peak"),
++        half_status.get("first_local_peak"))
+     comparison["native_rate_gate"] = (run.native or {}).get("compression_rate_sensitivity")
+     comparison["nominal_speed_m_per_s"] = (run.native or {}).get("compression_platen_speed_m_per_s")
+     comparison["half_speed_m_per_s"] = (run.native or {}).get("compression_half_speed_platen_speed_m_per_s")
+@@ -1945,8 +1989,10 @@
+     else:
+         nominal_curve_sha = _sha(curve_path.read_bytes())
+         try:
+-            _, curve_rows = _rows(curve_path)
++            curve_fields, curve_rows = _rows(curve_path)
+             curve_count = len(curve_rows)
++            if not {"sample_index", "stroke_m", "force_N", "contact_samples"}.issubset(curve_fields):
++                reasons.append("nominal_curve_missing_first_peak_columns")
+             if curve_count < 3:
+                 reasons.append("nominal_curve_has_too_few_accepted_samples")
+         except (OSError, csv.Error, StageStudyError, ValueError):
+@@ -1958,6 +2004,29 @@
+     peak_index = _safe_int(native.get("compression_peak_sample_index"))
+     if peak_index < 0 or peak_index >= curve_count:
+         reasons.append("compression_peak_index_outside_nominal_curve")
++    elif curve_path.is_file():
++        try:
++            _, peak_rows = _rows(curve_path)
++            expected_peak = first_local_peak_index(
++                (_finite(row, "stroke_m", curve_path.name) for row in peak_rows),
++                (_finite(row, "force_N", curve_path.name) for row in peak_rows),
++                (_finite(row, "contact_samples", curve_path.name) for row in peak_rows))
++            if expected_peak is None:
++                reasons.append("nominal_curve_has_no_qualified_first_local_peak")
++            elif peak_index != expected_peak:
++                reasons.append("native_peak_index_differs_from_first_qualified_local_peak")
++            else:
++                row = peak_rows[expected_peak]
++                if "compression_peak_stroke_m" in native and not math.isclose(
++                        _finite(native, "compression_peak_stroke_m", "box-native-result.json"),
++                        _finite(row, "stroke_m", curve_path.name), rel_tol=0.0, abs_tol=1e-12):
++                    reasons.append("native_peak_stroke_differs_from_first_local_peak")
++                if "compression_peak_contact_force_n" in native and not math.isclose(
++                        _finite(native, "compression_peak_contact_force_n", "box-native-result.json"),
++                        _finite(row, "force_N", curve_path.name), rel_tol=0.0, abs_tol=1e-9):
++                    reasons.append("native_peak_force_differs_from_first_local_peak")
++        except (KeyError, TypeError, ValueError, StageStudyError):
++            reasons.append("invalid_nominal_first_local_peak_data")
+     try:
+         expected_terminal_stroke = float(native["compression_stroke_m"])
+         if not curve_path.is_file() or not math.isclose(
+--- a/matter/tools/test_bct_capacity_history_producer.py
++++ b/matter/tools/test_bct_capacity_history_producer.py
+@@ -144,7 +144,9 @@
+         "scene_bodies": [{"index": 0, "synthetic_test_only": True}],
+     })
+     curve_path = out / "shipping-compression-nominal-curve.csv"
+-    curve_rows = [(0.0, 0.0, 0), (0.00025, 40.0, 4), (0.07, 100.0, 4), (0.14, 80.0, 4)]
++    curve_rows = [(0.0, 0.0, 0), (0.00025, 40.0, 4), (0.07, 100.0, 4),
++                  (0.08, 98.8, 4), (0.09, 97.5, 4), (0.13, 130.0, 4),
++                  (0.14, 80.0, 4)]
+     with curve_path.open("w", newline="") as stream:
+         writer = csv.writer(stream); writer.writerow(["sample_index", "stroke_m", "force_N", "contact_samples"])
+         writer.writerows([[i, x, y, n] for i, (x, y, n) in enumerate(curve_rows)])
+@@ -168,7 +170,8 @@
+              "platen_mean_force_y_N": "40", "platen_reaction_samples": "4"},
+         ])
+         prev = 0.00025
+-        for stroke, force in ((0.07, 100.0), (0.14, 80.0)):
++        for stroke, force in ((0.07, 100.0), (0.08, 98.8), (0.09, 97.5),
++                              (0.13, 130.0), (0.14, 80.0)):
+             duration = (stroke - prev) / rate
+             branch_rows.append({"phase": f"{prefix}_slow_compression", "accepted": "1",
+                 "stroke_m": str(stroke), "macro_observation_duration_s": str(duration),
+@@ -187,7 +190,7 @@
+         "compiled_world_fingerprint": "222", "source_binding_sha256": source_binding,
+         "assembled_matter_checkpoint_sha256": checkpoint_sha,
+         "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
+-        "nominal_peak_sample_index": "2", "nominal_accepted_sample_count": "4",
++        "nominal_peak_sample_index": "2", "nominal_accepted_sample_count": "7",
+         "nominal_terminal_stroke_fraction": "0.7", "nominal_full_stroke_completed": "true",
+         "nominal_rate_sensitivity_passed": "true", "mesh_status": "qualified",
+         "mesh_report_file": mesh_path.name, "mesh_report_sha256": mesh_sha,
+@@ -212,7 +215,7 @@
+         "compiled_world_fingerprint": 222, "source_binding_sha256": source_binding,
+         "assembled_matter_checkpoint_sha256": checkpoint_sha,
+         "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
+-        "nominal_peak_sample_index": 2, "nominal_accepted_sample_count": 4,
++        "nominal_peak_sample_index": 2, "nominal_accepted_sample_count": 7,
+         "nominal_terminal_stroke_fraction": 0.7, "nominal_full_stroke_completed": True,
+         "nominal_rate_sensitivity_passed": True, "inside_height_m": 0.2,
+         "mesh_report_sha256": mesh_sha, "time_report_sha256": time_sha,
+@@ -317,6 +320,31 @@
+ 
+ 
+ class BCTProducerTests(unittest.TestCase):
++
++    def test_native_peak_binding_uses_first_qualified_local_peak_not_global_max(self) -> None:
++        with tempfile.TemporaryDirectory() as directory:
++            path = Path(directory) / "curve.csv"
++            path.write_text(
++                "sample_index,stroke_m,force_N,contact_samples\n"
++                "0,0,0,0\n1,0.001,40,2\n2,0.07,100,4\n"
++                "3,0.08,98.8,4\n4,0.09,97.5,4\n5,0.13,130,4\n6,0.14,80,4\n",
++                encoding="utf-8")
++            self.assertEqual(producer._load_curve(path, 7, 2)[2]["force_N"], 100.0)
++            with self.assertRaisesRegex(producer.ProducerError, "first qualified local peak"):
++                producer._load_curve(path, 7, 5)
++
++    def test_local_peak_requires_drop_and_resets_at_contact_gap(self) -> None:
++        no_qualified_peak = producer.first_local_peak_index(
++            [0.0, 0.01, 0.02, 0.03, 0.04],
++            [0.0, 40.0, 100.0, 99.5, 99.2],
++            [0.0, 2.0, 4.0, 4.0, 4.0])
++        self.assertIsNone(no_qualified_peak)
++        reset_peak = producer.first_local_peak_index(
++            [0.0, .01, .02, .03, .04, .05, .06, .07, .08],
++            [0.0, 40.0, 100.0, 98.8, 0.0, 70.0, 110.0, 108.8, 107.5],
++            [0.0, 2.0, 4.0, 4.0, 0.0, 4.0, 4.0, 4.0, 4.0])
++        self.assertEqual(reset_peak, 6)
++
+     def test_synthetic_complete_contract_wraps_without_mutating_native_run(self):
+         with tempfile.TemporaryDirectory() as temp:
+             base = Path(temp)
+--- a/matter/tools/test_cardboard_stage_resolution_study.py
++++ b/matter/tools/test_cardboard_stage_resolution_study.py
+@@ -102,8 +102,8 @@
+     native = {
+         "schema": "numi.cardboard.fefco0201-native-execution.v1", "status": native_status,
+         "compiled_world_fingerprint": 7,
+-        "native_steps_attempted": 2 * round(0.3 / dt),
+-        "native_steps_accepted": 2 * round(0.3 / dt) - (1 if failed else 0),
++        "native_steps_attempted": 2 * 6 * round(0.3 / dt),
++        "native_steps_accepted": 2 * 6 * round(0.3 / dt) - (1 if failed else 0),
+         "source_physics_fingerprint": 8, "device_program_fingerprint": 7,
+         "score_line_count": 12, "score_tool_and_anvil_withdrawn_before_folding": True,
+         "shipping_score_approach_steps_accepted": 4, "shipping_score_retract_steps_accepted": 4,
+@@ -114,7 +114,9 @@
+         "native_compression_rate_sensitivity_gate_passed": True,
+         "compression_stroke_m": 0.7,
+         "compression_stroke_fraction_of_inside_height": 0.70,
+-        "compression_peak_sample_index": 1,
++        "compression_peak_sample_index": 2,
++        "compression_peak_stroke_m": 0.35,
++        "compression_peak_contact_force_n": 100.0 * force_scale,
+         "shipping_source_material_binding_sha256": "a" * 64,
+         "assembled_checkpoint_sha256_for_capacity_binding": "b" * 64,
+         "assembled_rigid_sidecar_sha256_for_capacity_binding": "c" * 64,
+@@ -140,13 +142,18 @@
+     if old_step_schema:
+         fields = ["native_step", "stage", "action_index", "accepted", "status_env0"]
+     step_rows = []
+-    steps_per_branch = round(0.3 / dt)
++    substeps_per_sample = round(0.3 / dt)
++    steps_per_branch = 6 * substeps_per_sample
+     native_step_count = 2 * steps_per_branch
++    sample_dt = dt
+     for i in range(native_step_count):
+         branch = "nominal" if i < steps_per_branch else "half_speed"
+-        branch_local = i if branch == "nominal" else i - steps_per_branch
++        branch_offset = 0 if branch == "nominal" else steps_per_branch
++        local = i - branch_offset
++        stage = (f"compression_contact_approach_{branch}" if local < substeps_per_sample
++                 else f"slow_compression_{branch}")
+         row = {"native_step": i,
+-               "stage": f"slow_compression_{branch}",
++               "stage": stage,
+                "action_index": 0,
+                "accepted": 0 if failed and i == native_step_count - 1 else 1,
+                "status_env0": 10 if failed and i == native_step_count - 1 else 0}
+@@ -154,7 +161,7 @@
+             row.update({"status_env1": "NA", "fgmres_env0": 4, "certificate_valid_env0": 1,
+                         "certificate_residual_env0": 1e-8, "certificate_correction_env0": certificate_correction,
+                         "certificate_volume_env0": 1e-6, "certificate_pressure_env0": 1e-6,
+-                        "simulation_time_s": (i + 1) * dt, "dt_s": dt})
++                        "simulation_time_s": (i + 1) * sample_dt, "dt_s": sample_dt})
+             if include_force_fields:
+                 row.update({
+                     study.FORCE_COLUMNS[0][0]: force_l2,
+@@ -174,33 +181,54 @@
+     force_fields = ["native_step", "phase", "accepted", "stroke_m", "dt_s",
+                     "macro_observation_duration_s", "control_step_count",
+                     "control_step_dt_min_s", "control_step_dt_max_s",
+-                    "platen_mean_force_y_N", "cumulative_platen_work_J"]
++                    "platen_mean_force_y_N", "cumulative_platen_work_J",
++                    "platen_reaction_samples"]
+     force_rows = []
+-    for branch, scale in (("nominal", 1.0), ("half_speed", 1.01)):
++    nominal_samples = ((0.0, 0.0, 0.0), (0.00025, 40.0, 4.0),
++                       (0.35, 100.0, 4.0), (0.40, 98.8, 4.0),
++                       (0.50, 97.5, 4.0), (0.68, 130.0, 4.0),
++                       (0.70, 80.0, 4.0))
++    half_samples = ((0.0, 0.0, 0.0), (0.00025, 40.4, 4.0),
++                    (0.35, 101.0, 4.0), (0.40, 99.8, 4.0),
++                    (0.50, 98.5, 4.0), (0.68, 135.0, 4.0),
++                    (0.70, 80.8, 4.0))
++    for branch, samples in (("nominal", nominal_samples), ("half_speed", half_samples)):
+         branch_offset = 0 if branch == "nominal" else steps_per_branch
+-        for i, (stroke, force) in enumerate(((0.0, 0.0), (0.35, 10.0), (0.7, 8.0))):
+-            summary = {
+-                "native_step": branch_offset + steps_per_branch - 1,
+-                "phase": f"{branch}_slow_compression" if i == 2 else f"{branch}_contact_origin",
+-                "accepted": 1,
+-                "stroke_m": stroke, "dt_s": dt,
+-                "macro_observation_duration_s": 0.3 if i == 2 else "",
+-                "control_step_count": steps_per_branch if i == 2 else "",
+-                "control_step_dt_min_s": dt if i == 2 else "",
+-                "control_step_dt_max_s": dt if i == 2 else "",
+-                "platen_mean_force_y_N": force * scale * force_scale,
+-                "cumulative_platen_work_J": stroke * force * scale * force_scale,
+-            }
+-            force_rows.append(summary)
++        scale = force_scale
++        work = 0.0
++        previous_stroke = previous_force = 0.0
++        force_rows.append({
++            "native_step": max(0, branch_offset - 1),
++            "phase": f"{branch}_contact_origin", "accepted": 1,
++            "stroke_m": 0.0, "dt_s": sample_dt, "macro_observation_duration_s": 0.0,
++            "control_step_count": 0, "control_step_dt_min_s": 0.0,
++            "control_step_dt_max_s": 0.0, "platen_mean_force_y_N": 0.0,
++            "cumulative_platen_work_J": 0.0, "platen_reaction_samples": 0.0,
++        })
++        for sample_index, (stroke, raw_force, contacts) in enumerate(samples[1:], start=1):
++            force = raw_force * scale
++            duration = substeps_per_sample * sample_dt
++            work += 0.5 * (previous_force + force) * (stroke - previous_stroke)
++            endpoint = branch_offset + sample_index * substeps_per_sample - 1
++            force_rows.append({
++                "native_step": endpoint,
++                "phase": (f"{branch}_contact_approach" if sample_index == 1
++                          else f"{branch}_slow_compression"),
++                "accepted": 1, "stroke_m": stroke, "dt_s": sample_dt,
++                "macro_observation_duration_s": duration,
++                "control_step_count": substeps_per_sample,
++                "control_step_dt_min_s": sample_dt, "control_step_dt_max_s": sample_dt,
++                "platen_mean_force_y_N": force, "cumulative_platen_work_J": work,
++                "platen_reaction_samples": contacts,
++            })
++            previous_stroke, previous_force = stroke, force
+     write_csv(path / "shipping-compression.csv", force_fields, force_rows)
+     nominal_path = path / "shipping-compression-nominal-curve.csv"
+     write_csv(nominal_path,
+               ["sample_index", "stroke_m", "force_N", "contact_samples"],
+-              [{"sample_index": 0, "stroke_m": 0.0, "force_N": 0.0, "contact_samples": 0.0},
+-               {"sample_index": 1, "stroke_m": 0.35,
+-                "force_N": 10.0 * force_scale, "contact_samples": 1.0},
+-               {"sample_index": 2, "stroke_m": 0.7,
+-                "force_N": 8.0 * force_scale, "contact_samples": 1.0}])
++              [{"sample_index": i, "stroke_m": stroke, "force_N": force * force_scale,
++                "contact_samples": contacts}
++               for i, (stroke, force, contacts) in enumerate(nominal_samples)])
+     native["nominal_compression_curve_sha256"] = hashlib.sha256(
+         nominal_path.read_bytes()).hexdigest()
+     write_json(path / "box-native-result.json", native)
+@@ -217,7 +245,7 @@
+                    "hma_status", "hma_area_weighted_cohesive_damage_fraction", "hma_active_reference_area_m2",
+                    "hma_fully_failed_status", "hma_fully_failed_cohesive_area_m2",
+                    "hma_fully_failed_cohesive_area_fraction", "hma_fully_failed_faces"]
+-    hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * dt, "dt_s": dt, "stage": "final_accepted_state",
++    hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * sample_dt, "dt_s": dt, "stage": "final_accepted_state",
+              "accepted": 1, "paper_status": ("available_model_area_weighted_damage_index" if paper_damage_enabled else "not_enabled"),
+              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
+              "paper_overlay_tetrahedra": (10 if paper_damage_enabled else 0),
+@@ -276,7 +304,7 @@
+         "environment": 0, "score_line_index": score,
+         "held_native_step": 0, "held_time_s": dt,
+         "released_native_step": native_step_count - 1,
+-        "released_time_s": native_step_count * dt, "released_settled": 1,
++        "released_time_s": native_step_count * sample_dt, "released_settled": 1,
+         "held_turn_deg": 90.0,
+         "released_turn_deg": 90.0 + 0.1 * force_scale,
+         "springback_turn_deg": 0.1 * force_scale,
+@@ -414,6 +442,10 @@
+         self.assertEqual(report["status"], "descriptive_metrics_available_with_unresolved_observables")
+         force = report["metrics"]["compression_force_work"]
+         self.assertLess(force["relative_peak_force_difference"], 0.01)
++        self.assertAlmostEqual(force["left_peak_force_N"], 100.0)
++        self.assertAlmostEqual(force["left_global_max_force_N"], 130.0)
++        self.assertGreater(force["left_global_max_force_N"], force["left_peak_force_N"])
++        self.assertGreater(force["right_global_max_force_N"], force["right_peak_force_N"])
+         moments = report["metrics"]["accepted_grip_moment_curve"]
+         self.assertEqual(moments["status"], "available")
+         self.assertIn("not divided by board width", moments["load_normalization"])
+@@ -424,6 +456,17 @@
+         self.assertEqual(damage["status"], "capacity_loss_area_available_geometric_open_area_unexported")
+         self.assertAlmostEqual(
+             damage["fully_failed_cohesive_capacity_area"]["starch"]["absolute_difference"], 0.0)
++
++    def test_capacity_binding_rejects_later_global_max_as_peak(self) -> None:
++        run_dir = fake_box_run(self.root, "wrong-peak")
++        native_path = run_dir / "box-native-result.json"
++        native = json.loads(native_path.read_text())
++        native["compression_peak_sample_index"] = 5
++        native["compression_peak_stroke_m"] = 0.68
++        native["compression_peak_contact_force_n"] = 130.0
++        write_json(native_path, native)
++        _, reasons = study._capacity_case(study.load_run(run_dir))
++        self.assertIn("native_peak_index_differs_from_first_qualified_local_peak", reasons)
+ 
+     def test_fully_failed_cohesive_area_is_separate_from_geometric_open_area(self) -> None:
+         left = fake_box_run(self.root, "left", fully_failed_fraction=0.2)
+@@ -767,10 +810,10 @@
+             study.load_run(coarse), study.load_run(fine), 0.1, 0.05)
+         self.assertEqual(report["status"], "available")
+         for branch in ("nominal", "half_speed"):
+-            self.assertEqual(report["coarse"][branch]["accepted_native_substep_count"], 3)
+-            self.assertEqual(report["fine"][branch]["accepted_native_substep_count"], 6)
+-            self.assertAlmostEqual(report["coarse"][branch]["accepted_duration_s"], 0.3)
+-            self.assertAlmostEqual(report["fine"][branch]["accepted_duration_s"], 0.3)
++            self.assertEqual(report["coarse"][branch]["accepted_native_substep_count"], 18)
++            self.assertEqual(report["fine"][branch]["accepted_native_substep_count"], 36)
++            self.assertAlmostEqual(report["coarse"][branch]["accepted_duration_s"], 1.8)
++            self.assertAlmostEqual(report["fine"][branch]["accepted_duration_s"], 1.8)
+ 
+     def test_timestep_label_change_without_actual_refinement_is_rejected(self) -> None:
+         coarse = fake_box_run(self.root, "coarse", dt=0.1)
+@@ -783,10 +826,9 @@
+         report = study.compare_runs(coarse, mislabeled, "time_step", "compression")
+         self.assertEqual(report["status"], "incompatible_physical_schedule")
+         refinement = report["metrics"]["actual_compression_timestep_refinement"]
+-        self.assertIn("compression_branch_max_dt_did_not_decrease:nominal",
+-                      refinement["reasons"])
+-        self.assertIn("compression_branch_substep_count_did_not_increase:half_speed",
+-                      refinement["reasons"])
++        self.assertTrue(any(
++            reason.startswith("right:accepted_compression_dt_exceeds_declared_solver_cap:")
++            for reason in refinement["reasons"]))
+ 
+     def test_timestep_admission_rejects_missing_or_forged_actual_dt_summary(self) -> None:
+         fine = fake_box_run(self.root, "fine", dt=0.05)
+--- /dev/null
++++ b/matter/tools/cardboard_shipping_peak.py
+@@ -0,0 +1,51 @@
++from __future__ import annotations
++import math
++DEFAULT_REQUIRED_DROP_FRACTION = 0.01
++DEFAULT_REQUIRED_CONSECUTIVE_DECLINES = 2
++
++def first_local_peak_index(strokes_m, forces_n, contact_samples, *,
++                           required_drop_fraction=DEFAULT_REQUIRED_DROP_FRACTION,
++                           required_consecutive_declines=DEFAULT_REQUIRED_CONSECUTIVE_DECLINES):
++    strokes, forces, contacts = list(strokes_m), list(forces_n), list(contact_samples)
++    if not (len(strokes) == len(forces) == len(contacts)):
++        raise ValueError("compression peak inputs must have equal lengths")
++    if not (math.isfinite(required_drop_fraction) and 0.0 < required_drop_fraction < 1.0):
++        raise ValueError("required peak drop must be finite and between zero and one")
++    if isinstance(required_consecutive_declines, bool) or required_consecutive_declines < 2:
++        raise ValueError("peak detector requires at least two consecutive declines")
++    previous = previous_previous = candidate = None
++    have_previous = have_previous_previous = False
++    declines = 0
++    for index, (stroke, force, contact) in enumerate(zip(strokes, forces, contacts)):
++        try:
++            stroke, force, contact = float(stroke), float(force), float(contact)
++        except (TypeError, ValueError) as exc:
++            raise ValueError(f"compression peak row {index} is nonnumeric") from exc
++        if not all(map(math.isfinite, (stroke, force, contact))):
++            raise ValueError(f"compression peak row {index} is nonfinite")
++        if min(stroke, force, contact) < 0.0:
++            raise ValueError(f"compression peak row {index} is negative")
++        if contact <= 0.0 or force <= 0.0:
++            previous = previous_previous = candidate = None
++            have_previous = have_previous_previous = False
++            declines = 0
++            continue
++        current = (index, stroke, force, contact)
++        if candidate is not None:
++            if force > candidate[2]:
++                candidate = current
++                declines = 0
++            elif previous is not None and force < previous[2]:
++                declines += 1
++            else:
++                declines = 0
++            if declines >= required_consecutive_declines and 1.0 - force / candidate[2] >= required_drop_fraction:
++                return candidate[0]
++        elif have_previous_previous and have_previous and previous[2] > previous_previous[2] and force < previous[2]:
++            candidate = previous
++            declines = 1
++        previous_previous = previous
++        have_previous_previous = have_previous
++        previous = current
++        have_previous = True
++    return None

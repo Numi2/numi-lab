@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source254-upstream-reconciliation.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-integrated-measured-coupon-contact-254-002",
+  "source_frozen_sha256": "6b35572e45d27c534d8671dbad22106720542c13e7b8bfafca66c918862afbb1",
+  "configure_support_sha256": "664dde9afa712464e83df9cfa6f4d92fba53fc87567d0ce59e38cd95c2ba7758",
+  "upstream_revision": "b18cf2bb62ed492ab307ece760b4ec108fd37f69",
+  "updated_path": "apps/NumiHumanRestingVisual.hpp",
+  "before_sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a",
+  "after_sha256": "291a1215314ea7e73f92e2f30763b4537976c0d99ed274f5f93e2f8d1a4eade1",
+  "unchanged_selected_files": 848,
+  "first_composition_build_all_pass": true,
+  "new_build_pending": true,
+  "GPU_execution": false,
+  "at_utc": "2026-10-16T14:37:17.649833+00:00"
+}

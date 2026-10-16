@@ -1,0 +1,23 @@
+{
+  "changed_files": [
+    {
+      "base_sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e",
+      "candidate_sha256": "36e54718becf710ab8189122bf07d21f19490fa4443297a4fe734a2e66319c63",
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm"
+    }
+  ],
+  "created_at_utc": "2026-10-16T15:40:00Z",
+  "patch_sha256": "2819ffc78c715bb49b531032bf81acfe0585564363d8ce0b1128d458d3e9aa9d",
+  "schema": "numi.cardboard.source244.activation_full_residual_overlay.v2",
+  "scope": [
+    "Default activation selector clearing and settings remain unchanged.",
+    "Opt-in activation mode requires sparse-free-body parity plus diagnostic output and binds fixture base 1200 to activation control 1199; base zero is rejected.",
+    "Capture exact host input and targets, published MetalWorld scene output when present, runner host state, q/v result arrays, accepted-step counters and Matter snapshots.",
+    "Missing published scene readback and missing Matter after snapshot are represented as unknown/unavailable, not inferred from host state.",
+    "Raw MTLBuffer is unavailable from the public StepResult API; metadata states that the captured scene output is the published result vector.",
+    "Shipping probe selector behavior remains governed by its existing authored all-controls environment setting.",
+    "No physical operator, kernel, acceptance criterion, tolerance or native qualification change."
+  ],
+  "source_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004"
+}

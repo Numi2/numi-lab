@@ -1,0 +1,69 @@
+{
+  "schema": "numi.cardboard.source253-build-cpu.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002",
+  "source_frozen_sha256": "714a018486005c5fe8259bff4123efb3ad058557fe3c2eae69bd77b33f3fdcda",
+  "source_build_sha256": "fcb58940df34f77b4049a775b4cf402b832109b2a4b5cab9b01f48ff66c63cd7",
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/matter/tools/cardboard_source_bound_build.py",
+        "--source-snapshot",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002",
+        "--build-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source253-primary-cache-action-001",
+        "--cmake-source-relative",
+        ".",
+        "--jobs",
+        "2",
+        "--target",
+        "numi-matter-cardboard-probe",
+        "--target",
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "--target",
+        "numi-matter-cardboard-refined-graph-layout-check",
+        "--target",
+        "numi-matter-cardboard-contact-sample-compaction-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-refined-graph-layout-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+        "--cpu-only"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/venvs/cardboard-reference-185/bin/python3",
+        "-B",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "all_pass": false,
+  "all_inputs_unchanged": true,
+  "gpu_execution": false,
+  "native_composed_trajectory_qualified": false,
+  "at_utc": "2026-10-16T14:05:08.342023+00:00"
+}

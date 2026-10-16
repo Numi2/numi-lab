@@ -1,0 +1,37 @@
+{
+  "build_record_sha256": "02834a57270c7b24949e54a83f2ec5b0bfe0753c8b25d98380e0b795d1a90754",
+  "cases": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source247-contact-sample-integration-001/build-002/numi-matter-cardboard-shipping-contact-page-plan-check"
+      ],
+      "exit_code": 0,
+      "name": "shipping_contact_page_plan_cpu",
+      "stdout": "shipping_contact_page_plan_checks=30 pairs=6335568 pair_pages=97 pair_last=44112 cohesive_faces=260835 cohesive_pages=3 cohesive_last=86073 contact_page_bytes=11010064 cohesive_pages_bytes=25232256 persistent_subset_bytes=1381065984 serialized_peak_bytes=1406298240 conservative_overlap_peak_bytes=1417308304 full_pair_history_bytes=405476352 whole_process_admission=false production_paging_enabled=false physical_transactions=0\n",
+      "stdout_sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "name": "solver_environment_contract",
+      "stdout": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.383s\n\nOK\n",
+      "stdout_sha256": "f4a6fe577cb70025bf1bd882e5db34a278e53122da3dfda946127c6775099ba9"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0,
+      "name": "true_residual_contract",
+      "stdout": "test_capability_failure_is_fail_closed (__main__.TrueResidualCertificationContract) ... ok\ntest_cycle_cap_rejects_certification_not_silent_skips (__main__.TrueResidualCertificationContract) ... ok\ntest_explicit_opt_in_is_separate_from_observer_selectors (__main__.TrueResidualCertificationContract) ... ok\ntest_false_arnoldi_convergence_is_rejected_and_true_restart_is_used (__main__.TrueResidualCertificationContract) ... ok\ntest_free_box_true_residual_proxy_scope_keeps_bounds_and_composition_exact (__main__.TrueResidualCertificationContract) ... ok\ntest_native_box_fixture_uses_both_contact_blocks_and_tail_controls (__main__.TrueResidualCertificationContract) ... ok\ntest_native_kernel_fixture_covers_state_machine_and_failure_rollback (__main__.TrueResidualCertificationContract) ... ok\ntest_nonfinite_residual_is_not_certified (__main__.TrueResidualCertificationContract) ... ok\ntest_proxy_admission_checker_has_supported_and_fail_closed_cases (__main__.TrueResidualCertificationContract) ... ok\ntest_same_operator_action_precedes_true_residual_decision (__main__.TrueResidualCertificationContract) ... ok\ntest_true_absolute_gate_and_unresolved_finite_floor (__main__.TrueResidualCertificationContract) ... ok\ntest_true_residual_controls_latch_and_preserves_unmodified_thresholds (__main__.TrueResidualCertificationContract) ... ok\ntest_true_residual_refined_pure_arena_keeps_legacy_coupled_bounds (__main__.TrueResidualCertificationContract) ... ok\ntest_unhealthy_diagnostic_status_has_single_lane_writer (__main__.TrueResidualCertificationContract) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.008s\n\nOK\n",
+      "stdout_sha256": "0e0bf0b8c6441151d2f65f665aef601472b35864d3658b24e8c9bb2a9c263767"
+    }
+  ],
+  "native_gpu_execution": false,
+  "schema": "numi.cardboard.source247.cpu-validation.v2",
+  "snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001"
+}

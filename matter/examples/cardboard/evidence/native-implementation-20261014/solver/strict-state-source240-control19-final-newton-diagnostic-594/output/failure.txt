@@ -1,0 +1,1 @@
+coupon replay requires an exact source-bound diagnostic record or an output-free qualification source

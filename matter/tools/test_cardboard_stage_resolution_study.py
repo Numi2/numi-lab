@@ -38,7 +38,16 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
                  liner_hash: str = "liner-a", failed: bool = False,
                  old_step_schema: bool = False, force_scale: float = 1.0,
                  fully_failed_fraction: float = 0.25,
-                 paper_damage_enabled: bool = True) -> Path:
+                 paper_damage_enabled: bool = True,
+                 paper_volume_damage_observable: bool = True,
+                 paper_volume_damage_index: float = 0.1,
+                 paper_reference_volume_m3: float = 0.004,
+                 paper_reference_volume_fraction_above_threshold: float = 0.25,
+                 rtol: float | None = None, force_bound: float | None = 1.0,
+                 force_l2: float = 0.1, force_max_node: float = 0.05,
+                 include_force_fields: bool = True,
+                 native_policy: bool = True,
+                 certificate_correction: float = 1.0e-8) -> Path:
     path = root / name
     path.mkdir()
     materials = {}
@@ -68,7 +77,8 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
         "shipping_score_command": {"enabled": True, "selected_depth_ratio_of_caliper": score_depth,
                                    "tool_speed_m_per_s": 0.05,
                                    "source_command_sha256": f"score-{score_depth}"},
-        "solver": {"dt_s": dt, "relative_residual_tolerance": 1e-6,
+        "solver": {"dt_s": dt,
+                   "relative_residual_tolerance": rtol if rtol is not None else 1e-6,
                    "volume_tolerance": 1e-4, "pressure_tolerance": 1e-4,
                    "deformable_self_contact": True, "contact_slop_m": 1e-6,
                    "deformation_gradient": "persistent_reference_displacement",
@@ -77,6 +87,14 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
                    "fgmres_preconditioner": "scalar_diagonal", "line_search_steps": 8,
                    "maximum_rate_exponent": 0},
     }
+    if native_policy:
+        manifest["solver"]["native_acceptance_policy"] = {
+            "schema": study.FULL_BOX_ACCEPTANCE_POLICY,
+            "certificate_semantics": study.CERTIFICATE_POLICY_TEXT,
+            "force_residual_semantics": study.FORCE_RESIDUAL_POLICY_TEXT,
+            "max_free_force_residual_n": force_bound,
+            "force_environment_count": 2,
+        }
     write_json(path / "manifest.json", manifest)
     result = {"status": "complete", "compiled_world_fingerprint": 7}
     write_json(path / "result.json", result)
@@ -84,8 +102,8 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
     native = {
         "schema": "numi.cardboard.fefco0201-native-execution.v1", "status": native_status,
         "compiled_world_fingerprint": 7,
-        "native_steps_attempted": 2 * round(0.3 / dt),
-        "native_steps_accepted": 2 * round(0.3 / dt) - (1 if failed else 0),
+        "native_steps_attempted": 2 * 6 * round(0.3 / dt),
+        "native_steps_accepted": 2 * 6 * round(0.3 / dt) - (1 if failed else 0),
         "source_physics_fingerprint": 8, "device_program_fingerprint": 7,
         "score_line_count": 12, "score_tool_and_anvil_withdrawn_before_folding": True,
         "shipping_score_approach_steps_accepted": 4, "shipping_score_retract_steps_accepted": 4,
@@ -96,7 +114,9 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
         "native_compression_rate_sensitivity_gate_passed": True,
         "compression_stroke_m": 0.7,
         "compression_stroke_fraction_of_inside_height": 0.70,
-        "compression_peak_sample_index": 1,
+        "compression_peak_sample_index": 2,
+        "compression_peak_stroke_m": 0.35,
+        "compression_peak_contact_force_n": 100.0 * force_scale,
         "shipping_source_material_binding_sha256": "a" * 64,
         "assembled_checkpoint_sha256_for_capacity_binding": "b" * 64,
         "assembled_rigid_sidecar_sha256_for_capacity_binding": "c" * 64,
@@ -117,24 +137,38 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
               "fgmres_env0", "certificate_valid_env0", "certificate_residual_env0",
               "certificate_correction_env0", "certificate_volume_env0", "certificate_pressure_env0",
               "simulation_time_s", "dt_s"]
+    if include_force_fields and not old_step_schema:
+        fields.extend(study.FORCE_COLUMNS[0] + study.FORCE_COLUMNS[1])
     if old_step_schema:
         fields = ["native_step", "stage", "action_index", "accepted", "status_env0"]
     step_rows = []
-    steps_per_branch = round(0.3 / dt)
+    substeps_per_sample = round(0.3 / dt)
+    steps_per_branch = 6 * substeps_per_sample
     native_step_count = 2 * steps_per_branch
+    sample_dt = dt
     for i in range(native_step_count):
         branch = "nominal" if i < steps_per_branch else "half_speed"
-        branch_local = i if branch == "nominal" else i - steps_per_branch
+        branch_offset = 0 if branch == "nominal" else steps_per_branch
+        local = i - branch_offset
+        stage = (f"compression_contact_approach_{branch}" if local < substeps_per_sample
+                 else f"slow_compression_{branch}")
         row = {"native_step": i,
-               "stage": f"slow_compression_{branch}",
+               "stage": stage,
                "action_index": 0,
                "accepted": 0 if failed and i == native_step_count - 1 else 1,
                "status_env0": 10 if failed and i == native_step_count - 1 else 0}
         if not old_step_schema:
             row.update({"status_env1": "NA", "fgmres_env0": 4, "certificate_valid_env0": 1,
-                        "certificate_residual_env0": 1e-8, "certificate_correction_env0": 1e-8,
+                        "certificate_residual_env0": 1e-8, "certificate_correction_env0": certificate_correction,
                         "certificate_volume_env0": 1e-6, "certificate_pressure_env0": 1e-6,
-                        "simulation_time_s": (i + 1) * dt, "dt_s": dt})
+                        "simulation_time_s": (i + 1) * sample_dt, "dt_s": sample_dt})
+            if include_force_fields:
+                row.update({
+                    study.FORCE_COLUMNS[0][0]: force_l2,
+                    study.FORCE_COLUMNS[0][1]: force_max_node,
+                    study.FORCE_COLUMNS[1][0]: force_l2,
+                    study.FORCE_COLUMNS[1][1]: force_max_node,
+                })
         step_rows.append(row)
     write_csv(path / "box-native-steps.csv", fields, step_rows)
     action_fields = ["action_index", "status", "accepted_native_steps"]
@@ -147,47 +181,89 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
     force_fields = ["native_step", "phase", "accepted", "stroke_m", "dt_s",
                     "macro_observation_duration_s", "control_step_count",
                     "control_step_dt_min_s", "control_step_dt_max_s",
-                    "platen_mean_force_y_N", "cumulative_platen_work_J"]
+                    "platen_mean_force_y_N", "cumulative_platen_work_J",
+                    "platen_reaction_samples"]
     force_rows = []
-    for branch, scale in (("nominal", 1.0), ("half_speed", 1.01)):
+    nominal_samples = ((0.0, 0.0, 0.0), (0.00025, 40.0, 4.0),
+                       (0.35, 100.0, 4.0), (0.40, 98.8, 4.0),
+                       (0.50, 97.5, 4.0), (0.68, 130.0, 4.0),
+                       (0.70, 80.0, 4.0))
+    half_samples = ((0.0, 0.0, 0.0), (0.00025, 40.4, 4.0),
+                    (0.35, 101.0, 4.0), (0.40, 99.8, 4.0),
+                    (0.50, 98.5, 4.0), (0.68, 135.0, 4.0),
+                    (0.70, 80.8, 4.0))
+    for branch, samples in (("nominal", nominal_samples), ("half_speed", half_samples)):
         branch_offset = 0 if branch == "nominal" else steps_per_branch
-        for i, (stroke, force) in enumerate(((0.0, 0.0), (0.35, 10.0), (0.7, 8.0))):
-            summary = {
-                "native_step": branch_offset + steps_per_branch - 1,
-                "phase": f"{branch}_slow_compression" if i == 2 else f"{branch}_contact_origin",
-                "accepted": 1,
-                "stroke_m": stroke, "dt_s": dt,
-                "macro_observation_duration_s": 0.3 if i == 2 else "",
-                "control_step_count": steps_per_branch if i == 2 else "",
-                "control_step_dt_min_s": dt if i == 2 else "",
-                "control_step_dt_max_s": dt if i == 2 else "",
-                "platen_mean_force_y_N": force * scale * force_scale,
-                "cumulative_platen_work_J": stroke * force * scale * force_scale,
-            }
-            force_rows.append(summary)
+        scale = force_scale
+        work = 0.0
+        previous_stroke = previous_force = 0.0
+        force_rows.append({
+            "native_step": max(0, branch_offset - 1),
+            "phase": f"{branch}_contact_origin", "accepted": 1,
+            "stroke_m": 0.0, "dt_s": sample_dt, "macro_observation_duration_s": 0.0,
+            "control_step_count": 0, "control_step_dt_min_s": 0.0,
+            "control_step_dt_max_s": 0.0, "platen_mean_force_y_N": 0.0,
+            "cumulative_platen_work_J": 0.0, "platen_reaction_samples": 0.0,
+        })
+        for sample_index, (stroke, raw_force, contacts) in enumerate(samples[1:], start=1):
+            force = raw_force * scale
+            duration = substeps_per_sample * sample_dt
+            work += 0.5 * (previous_force + force) * (stroke - previous_stroke)
+            endpoint = branch_offset + sample_index * substeps_per_sample - 1
+            force_rows.append({
+                "native_step": endpoint,
+                "phase": (f"{branch}_contact_approach" if sample_index == 1
+                          else f"{branch}_slow_compression"),
+                "accepted": 1, "stroke_m": stroke, "dt_s": sample_dt,
+                "macro_observation_duration_s": duration,
+                "control_step_count": substeps_per_sample,
+                "control_step_dt_min_s": sample_dt, "control_step_dt_max_s": sample_dt,
+                "platen_mean_force_y_N": force, "cumulative_platen_work_J": work,
+                "platen_reaction_samples": contacts,
+            })
+            previous_stroke, previous_force = stroke, force
     write_csv(path / "shipping-compression.csv", force_fields, force_rows)
     nominal_path = path / "shipping-compression-nominal-curve.csv"
     write_csv(nominal_path,
               ["sample_index", "stroke_m", "force_N", "contact_samples"],
-              [{"sample_index": 0, "stroke_m": 0.0, "force_N": 0.0, "contact_samples": 0.0},
-               {"sample_index": 1, "stroke_m": 0.35,
-                "force_N": 10.0 * force_scale, "contact_samples": 1.0},
-               {"sample_index": 2, "stroke_m": 0.7,
-                "force_N": 8.0 * force_scale, "contact_samples": 1.0}])
+              [{"sample_index": i, "stroke_m": stroke, "force_N": force * force_scale,
+                "contact_samples": contacts}
+               for i, (stroke, force, contacts) in enumerate(nominal_samples)])
     native["nominal_compression_curve_sha256"] = hashlib.sha256(
         nominal_path.read_bytes()).hexdigest()
     write_json(path / "box-native-result.json", native)
     hist_fields = ["native_step", "simulation_time_s", "dt_s", "stage", "accepted",
                    "paper_status", "paper_area_weighted_damage_fraction", "paper_reference_plane_area_m2",
+                   "paper_overlay_tetrahedra", "paper_volume_damage_status",
+                   "paper_constituent_volume_weighted_damage_index",
+                   "paper_constituent_reference_volume_m3",
+                   "paper_constituent_volume_fraction_above_damage_threshold",
+                   "paper_damage_volume_threshold", "paper_constituent_damage_tetrahedra",
                    "starch_status", "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
                    "starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
                    "starch_fully_failed_cohesive_area_fraction", "starch_fully_failed_faces",
                    "hma_status", "hma_area_weighted_cohesive_damage_fraction", "hma_active_reference_area_m2",
                    "hma_fully_failed_status", "hma_fully_failed_cohesive_area_m2",
                    "hma_fully_failed_cohesive_area_fraction", "hma_fully_failed_faces"]
-    hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * dt, "dt_s": dt, "stage": "final_accepted_state",
+    hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * sample_dt, "dt_s": dt, "stage": "final_accepted_state",
              "accepted": 1, "paper_status": ("available_model_area_weighted_damage_index" if paper_damage_enabled else "not_enabled"),
              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
+             "paper_overlay_tetrahedra": (10 if paper_damage_enabled else 0),
+             "paper_volume_damage_status": (
+                 "available_constituent_volume_weighted_damage_index"
+                 if paper_damage_enabled and paper_volume_damage_observable
+                 else ("unavailable_invalid_or_incomplete_accepted_history"
+                       if paper_damage_enabled else "not_enabled")),
+             "paper_constituent_volume_weighted_damage_index": (
+                 paper_volume_damage_index if paper_damage_enabled and paper_volume_damage_observable else ""),
+             "paper_constituent_reference_volume_m3": (
+                 paper_reference_volume_m3 if paper_damage_enabled and paper_volume_damage_observable else ""),
+             "paper_constituent_volume_fraction_above_damage_threshold": (
+                 paper_reference_volume_fraction_above_threshold
+                 if paper_damage_enabled and paper_volume_damage_observable else ""),
+             "paper_damage_volume_threshold": 0.5,
+             "paper_constituent_damage_tetrahedra": (
+                 10 if paper_damage_enabled and paper_volume_damage_observable else 0),
              "starch_status": "available_area_weighted_cohesive_degradation_index",
              "starch_area_weighted_cohesive_damage_fraction": 0.2, "starch_active_reference_area_m2": 0.1,
              "starch_fully_failed_status": "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area",
@@ -228,7 +304,7 @@ def fake_box_run(root: Path, name: str, *, nx: int = 8, dt: float = 0.1,
         "environment": 0, "score_line_index": score,
         "held_native_step": 0, "held_time_s": dt,
         "released_native_step": native_step_count - 1,
-        "released_time_s": native_step_count * dt, "released_settled": 1,
+        "released_time_s": native_step_count * sample_dt, "released_settled": 1,
         "held_turn_deg": 90.0,
         "released_turn_deg": 90.0 + 0.1 * force_scale,
         "springback_turn_deg": 0.1 * force_scale,
@@ -272,6 +348,67 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    def test_native_policy_allows_finite_correction_above_residual_tolerance(self) -> None:
+        run_dir = fake_box_run(self.root, "native-policy", certificate_correction=2.0e-3)
+        run = study.load_run(run_dir)
+        self.assertEqual(run.admission["status"], "completed_candidate")
+        self.assertEqual(run.admission["free_force_accuracy"]["status"], "pass")
+        self.assertEqual(
+            run.admission["free_force_accuracy"]["declared_free_force_residual_bound_N"],
+            1.0)
+        self.assertNotIn("absolute_force_error_bound_N",
+                         run.admission["free_force_accuracy"])
+
+    def test_legacy_policy_preserves_historical_correction_tolerance_gate(self) -> None:
+        run_dir = fake_box_run(self.root, "legacy-policy", native_policy=False,
+                               certificate_correction=2.0e-3)
+        run = study.load_run(run_dir)
+        self.assertEqual(run.admission["status"], "inconclusive_invalid_certificate")
+        self.assertTrue(any("certificate_correction_env0" in item
+                            for item in run.admission["reasons"]))
+
+    def test_native_policy_rejects_nonfinite_correction_and_authoritative_residual(self) -> None:
+        nan_dir = fake_box_run(self.root, "nan-correction",
+                               certificate_correction=float("nan"))
+        nan_run = study.load_run(nan_dir)
+        self.assertEqual(nan_run.admission["status"], "inconclusive_invalid_step_row")
+        high_dir = fake_box_run(self.root, "high-residual")
+        step_path = high_dir / "box-native-steps.csv"
+        fields, rows = study._rows(step_path)
+        rows[0]["certificate_residual_env0"] = "0.01"
+        write_csv(step_path, fields, rows)
+        high_run = study.load_run(high_dir)
+        self.assertEqual(high_run.admission["status"], "inconclusive_invalid_certificate")
+
+    def test_declared_force_residual_bound_passes_fails_or_stays_inconclusive(self) -> None:
+        passing = fake_box_run(self.root, "force-pass", force_bound=0.2)
+        self.assertEqual(study.load_run(passing).admission["free_force_accuracy"]["status"], "pass")
+        exceeding = fake_box_run(self.root, "force-fail", force_bound=1.0,
+                                 force_l2=1.0 + 1.0e-12, force_max_node=0.05)
+        self.assertEqual(study.load_run(exceeding).admission["free_force_accuracy"]["status"], "fail")
+        missing_bound = fake_box_run(self.root, "force-no-bound", force_bound=None)
+        self.assertEqual(study.load_run(missing_bound).admission["free_force_accuracy"]["status"],
+                         "inconclusive_no_declared_force_bound")
+        missing_rows = fake_box_run(self.root, "force-no-observations",
+                                    include_force_fields=False)
+        self.assertEqual(study.load_run(missing_rows).admission["free_force_accuracy"]["status"],
+                         "inconclusive_missing_force_observations")
+
+    def test_time_refinement_requires_matching_rtol_over_dt_and_force_bound(self) -> None:
+        coarse = fake_box_run(self.root, "time-coarse", dt=0.1)
+        fine = fake_box_run(self.root, "time-fine", dt=0.05, rtol=5.0e-7)
+        report = study.compare_runs(coarse, fine, "time_step", "compression")
+        ratio = report["metrics"]["time_step_force_tolerance_ratio"]
+        self.assertEqual(ratio["status"], "available")
+        self.assertEqual(report["metrics"]["free_force_accuracy"]["status"], "pass")
+        incompatible = fake_box_run(self.root, "time-bad-ratio", dt=0.05, rtol=1.0e-6)
+        bad = study.compare_runs(coarse, incompatible, "time_step", "compression")
+        self.assertEqual(bad["status"], "incompatible_time_force_tolerance_policy")
+        no_bound = fake_box_run(self.root, "time-no-bound", dt=0.05, rtol=5.0e-7,
+                                force_bound=None)
+        inconclusive = study.compare_runs(coarse, no_bound, "time_step", "compression")
+        self.assertEqual(inconclusive["metrics"]["free_force_accuracy"]["status"], "inconclusive")
+
     def test_failed_prefix_is_never_baseline(self) -> None:
         failed = fake_box_run(self.root, "failed", failed=True)
         run = study.load_run(failed)
@@ -305,6 +442,10 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         self.assertEqual(report["status"], "descriptive_metrics_available_with_unresolved_observables")
         force = report["metrics"]["compression_force_work"]
         self.assertLess(force["relative_peak_force_difference"], 0.01)
+        self.assertAlmostEqual(force["left_peak_force_N"], 100.0)
+        self.assertAlmostEqual(force["left_global_max_force_N"], 130.0)
+        self.assertGreater(force["left_global_max_force_N"], force["left_peak_force_N"])
+        self.assertGreater(force["right_global_max_force_N"], force["right_peak_force_N"])
         moments = report["metrics"]["accepted_grip_moment_curve"]
         self.assertEqual(moments["status"], "available")
         self.assertIn("not divided by board width", moments["load_normalization"])
@@ -315,6 +456,17 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         self.assertEqual(damage["status"], "capacity_loss_area_available_geometric_open_area_unexported")
         self.assertAlmostEqual(
             damage["fully_failed_cohesive_capacity_area"]["starch"]["absolute_difference"], 0.0)
+
+    def test_capacity_binding_rejects_later_global_max_as_peak(self) -> None:
+        run_dir = fake_box_run(self.root, "wrong-peak")
+        native_path = run_dir / "box-native-result.json"
+        native = json.loads(native_path.read_text())
+        native["compression_peak_sample_index"] = 5
+        native["compression_peak_stroke_m"] = 0.68
+        native["compression_peak_contact_force_n"] = 130.0
+        write_json(native_path, native)
+        _, reasons = study._capacity_case(study.load_run(run_dir))
+        self.assertIn("native_peak_index_differs_from_first_qualified_local_peak", reasons)
 
     def test_fully_failed_cohesive_area_is_separate_from_geometric_open_area(self) -> None:
         left = fake_box_run(self.root, "left", fully_failed_fraction=0.2)
@@ -378,10 +530,89 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         failed = study.compare_runs(left, farther, "mesh_nx", "all")
         self.assertEqual(failed["metrics"]["damage_and_debond"]["constitutive_debond_fraction_gate"]["status"], "fail")
 
-    def test_capacity_rejects_force_match_with_unmeasured_enabled_paper_damage(self) -> None:
+    def test_thresholded_reference_volume_damage_fraction_uses_matching_volume_and_keeps_area_separate(self) -> None:
+        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
+        within = fake_box_run(self.root, "within", nx=16,
+                              paper_volume_damage_index=0.119,
+                              paper_reference_volume_m3=0.004000000001,
+                              paper_reference_volume_fraction_above_threshold=0.269)
+        report = study.compare_runs(left, within, "mesh_nx", "compression")
+        damage = report["metrics"]["damage_and_debond"]
+        comparison = damage["paper_constituent_volume_damage"]
+        self.assertEqual(comparison["status"], "available")
+        self.assertLessEqual(comparison["absolute_volume_weighted_damage_index_difference"], 0.02)
+        gates = study._capacity_history_gates(report)
+        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
+        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
+        self.assertEqual(damage["left"]["paper_area_weighted_damage_fraction"], "0.1")
+        self.assertEqual(damage["left"]["paper_constituent_volume_weighted_damage_index"], 0.1)
+        self.assertIsNone(damage["left"]["geometric_crack_area_fraction"])
+        # Thresholded reference-volume fraction is descriptive and never substitutes for the index gate.
+        right = fake_box_run(self.root, "threshold-only", nx=16,
+                             paper_volume_damage_index=0.1)
+        f = right / "shipping-history-observables.csv"
+        fields, rows = study._rows(f)
+        rows[0]["paper_constituent_volume_fraction_above_damage_threshold"] = 0.9
+        write_csv(f, fields, rows)
+        threshold_report = study.compare_runs(left, right, "mesh_nx", "compression")
+        threshold_gate = study._capacity_history_gates(threshold_report)
+        self.assertEqual(threshold_gate["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
+        self.assertEqual(threshold_gate["paper_volume_weighted_damage_index"]["status"], "pass")
+        self.assertEqual(
+            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
+            ["absolute_reference_volume_fraction_at_damage_threshold_difference"], 0.65)
+        # The mean-index difference is descriptive and does not masquerade as a fraction gate.
+        self.assertEqual(
+            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
+            ["absolute_volume_weighted_damage_index_difference"], 0.0)
+
+    def test_thresholded_reference_volume_damage_fraction_fails_above_two_points_and_rejects_volume_mismatch(self) -> None:
+        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
+        above_index = fake_box_run(self.root, "above-index", nx=16,
+                                   paper_volume_damage_index=0.121)
+        report = study.compare_runs(left, above_index, "mesh_nx", "compression")
+        gates = study._capacity_history_gates(report)
+        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "fail")
+        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
+        above_fraction = fake_box_run(
+            self.root, "above-fraction", nx=16, paper_volume_damage_index=0.1,
+            paper_reference_volume_fraction_above_threshold=0.271)
+        report = study.compare_runs(left, above_fraction, "mesh_nx", "compression")
+        gates = study._capacity_history_gates(report)
+        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
+        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
+        mismatch = fake_box_run(self.root, "mismatch", nx=16,
+                                paper_reference_volume_m3=0.0041)
+        report = study.compare_runs(left, mismatch, "mesh_nx", "compression")
+        comparison = report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
+        self.assertEqual(comparison["status"], "incompatible_constituent_reference_volume")
+        gates = study._capacity_history_gates(report)
+        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
+        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
+
+        malformed = fake_box_run(self.root, "bad-coverage", nx=16)
+        file = malformed / "shipping-history-observables.csv"
+        fields, rows = study._rows(file)
+        rows[0]["paper_overlay_tetrahedra"] = "9"
+        write_csv(file, fields, rows)
+        report = study.compare_runs(left, malformed, "mesh_nx", "compression")
+        gates = study._capacity_history_gates(report)
+        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
+
+        threshold = fake_box_run(self.root, "bad-threshold", nx=16)
+        file = threshold / "shipping-history-observables.csv"
+        fields, rows = study._rows(file)
+        rows[0]["paper_damage_volume_threshold"] = "0.6"
+        write_csv(file, fields, rows)
+        report = study.compare_runs(left, threshold, "mesh_nx", "compression")
+        gates = study._capacity_history_gates(report)
+        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
+
+    def test_capacity_rejects_force_match_with_missing_volume_damage_index(self) -> None:
         cases = [
             fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03),
-            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01),
+            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01,
+                         paper_volume_damage_observable=False),
             fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0),
             fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, force_scale=1.03),
             fake_box_run(self.root, "time-fine", nx=16, dt=0.075, force_scale=1.0),
@@ -392,7 +623,9 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         self.assertEqual(report["status"], "not_qualified")
         self.assertFalse(target.exists())
         self.assertTrue(report["mesh_study"]["finest_pair_within_tolerance"])
-        self.assertTrue(any("paper_damage_fraction_inconclusive" in reason
+        self.assertTrue(any("paper_volume_weighted_damage_index_inconclusive" in reason
+                            for reason in report["mesh_study"]["reasons"]))
+        self.assertTrue(any("paper_reference_volume_damage_fraction_at_threshold_inconclusive" in reason
                             for reason in report["mesh_study"]["reasons"]))
 
     def test_capacity_rejects_excessive_debond_difference_even_with_force_match(self) -> None:
@@ -459,9 +692,9 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         reference = fake_box_run(self.root, "shared-middle", nx=16, dt=0.15,
                                  force_scale=1.01, paper_damage_enabled=False)
         mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0, paper_damage_enabled=False)
-        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3,
+        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, rtol=2.0e-6,
                                    force_scale=1.03, paper_damage_enabled=False)
-        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075,
+        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075, rtol=5.0e-7,
                                  force_scale=1.0, paper_damage_enabled=False)
         evidence_path = self.root / "capacity" / "capacity.properties"
         report = study.create_capacity_qualification(
@@ -479,9 +712,9 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         reference = fake_box_run(self.root, "shared-middle", nx=16, dt=0.15,
                                  force_scale=1.01)
         mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0)
-        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3,
+        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, rtol=2.0e-6,
                                    force_scale=1.03)
-        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075,
+        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075, rtol=5.0e-7,
                                  force_scale=1.0, failed=True)
         evidence_path = self.root / "capacity" / "capacity.properties"
         report = study.create_capacity_qualification(
@@ -572,15 +805,15 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
 
     def test_timestep_admission_uses_actual_accepted_native_substeps(self) -> None:
         coarse = fake_box_run(self.root, "coarse", dt=0.1)
-        fine = fake_box_run(self.root, "fine", dt=0.05)
+        fine = fake_box_run(self.root, "fine", dt=0.05, rtol=5.0e-7)
         report = study._time_step_refinement_admission(
             study.load_run(coarse), study.load_run(fine), 0.1, 0.05)
         self.assertEqual(report["status"], "available")
         for branch in ("nominal", "half_speed"):
-            self.assertEqual(report["coarse"][branch]["accepted_native_substep_count"], 3)
-            self.assertEqual(report["fine"][branch]["accepted_native_substep_count"], 6)
-            self.assertAlmostEqual(report["coarse"][branch]["accepted_duration_s"], 0.3)
-            self.assertAlmostEqual(report["fine"][branch]["accepted_duration_s"], 0.3)
+            self.assertEqual(report["coarse"][branch]["accepted_native_substep_count"], 18)
+            self.assertEqual(report["fine"][branch]["accepted_native_substep_count"], 36)
+            self.assertAlmostEqual(report["coarse"][branch]["accepted_duration_s"], 1.8)
+            self.assertAlmostEqual(report["fine"][branch]["accepted_duration_s"], 1.8)
 
     def test_timestep_label_change_without_actual_refinement_is_rejected(self) -> None:
         coarse = fake_box_run(self.root, "coarse", dt=0.1)
@@ -588,14 +821,14 @@ class CardboardStageResolutionStudyTests(unittest.TestCase):
         manifest_path = mislabeled / "manifest.json"
         manifest = json.loads(manifest_path.read_text())
         manifest["solver"]["dt_s"] = 0.05
+        manifest["solver"]["relative_residual_tolerance"] = 5.0e-7
         write_json(manifest_path, manifest)
         report = study.compare_runs(coarse, mislabeled, "time_step", "compression")
         self.assertEqual(report["status"], "incompatible_physical_schedule")
         refinement = report["metrics"]["actual_compression_timestep_refinement"]
-        self.assertIn("compression_branch_max_dt_did_not_decrease:nominal",
-                      refinement["reasons"])
-        self.assertIn("compression_branch_substep_count_did_not_increase:half_speed",
-                      refinement["reasons"])
+        self.assertTrue(any(
+            reason.startswith("right:accepted_compression_dt_exceeds_declared_solver_cap:")
+            for reason in refinement["reasons"]))
 
     def test_timestep_admission_rejects_missing_or_forged_actual_dt_summary(self) -> None:
         fine = fake_box_run(self.root, "fine", dt=0.05)

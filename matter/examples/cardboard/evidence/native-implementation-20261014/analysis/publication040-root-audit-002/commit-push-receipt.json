@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.publication040-commit-push.v1",
+  "parent": "577ae2ff37d1a3834f8ffe851ec15d296226d41b",
+  "commit": "d9b91139f6d055fb1693649aed0924c30cb7342d",
+  "origin_main": "d9b91139f6d055fb1693649aed0924c30cb7342d",
+  "committed_paths": 5239,
+  "root_audit_sha256": "e8e8acd9803b1fe2de3d83194e2aacd8d6274298e350a1c1bf22d15860df7cc0",
+  "summary_sha256": "f4bbf96736052f9442e72f3be5f5b04c9e49d9c82956fda86503fc9234967c61",
+  "binding_sha256": "aa76c9709992a1a9f7174cf1032ce14a653798f7f909d43936fb5d3c47f86712",
+  "source_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "all_six_full_sequence_axes_open": true,
+  "canonical_native_trajectory_pending": true,
+  "active585_235_244_246_excluded": true,
+  "at_utc": "2026-10-16T13:34:41.642910+00:00"
+}

@@ -1,0 +1,1536 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -60,6 +60,16 @@
+ target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
+ 
+ include(CTest)
++add_executable(numi-matter-cardboard-constituent-volume-damage-check
++    tools/cardboard_constituent_volume_damage_check.cpp)
++target_compile_options(numi-matter-cardboard-constituent-volume-damage-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.cardboard_constituent_volume_damage
++        COMMAND numi-matter-cardboard-constituent-volume-damage-check)
++    set_tests_properties(matter.compiler.cardboard_constituent_volume_damage PROPERTIES
++        TIMEOUT 30 LABELS "matter;cardboard;damage;cpu;synthetic")
++endif()
+ add_executable(numi-matter-regional-graph-schwarz-layout-check
+     tools/regional_graph_schwarz_layout_check.cpp)
+ target_compile_options(numi-matter-regional-graph-schwarz-layout-check PRIVATE
+@@ -967,6 +977,18 @@
+         set_tests_properties(matter.metal.cardboard_coupled_free_box_operator PROPERTIES
+             TIMEOUT 180 LABELS "matter;cardboard;contact;native-kernel;synthetic")
+     endif()
++    add_executable(numi-matter-cardboard-free-force-residual-check
++        tools/cardboard_free_force_residual_check.cpp)
++    target_include_directories(numi-matter-cardboard-free-force-residual-check
++        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" tools)
++    target_compile_options(numi-matter-cardboard-free-force-residual-check
++        PRIVATE -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.compiler.cardboard_free_force_residual
++            COMMAND numi-matter-cardboard-free-force-residual-check)
++        set_tests_properties(matter.compiler.cardboard_free_force_residual
++            PROPERTIES LABELS "matter;cardboard;force-residual;cpu")
++    endif()
+     add_executable(numi-matter-cardboard-free-box-proxy-admission-check
+         tools/cardboard_free_box_true_residual_proxy_admission_check.cpp)
+     target_include_directories(numi-matter-cardboard-free-box-proxy-admission-check PRIVATE
+--- a/matter/tools/cardboard_constituent_volume_damage.hpp
++++ b/matter/tools/cardboard_constituent_volume_damage.hpp
+@@ -0,0 +1,86 @@
++#pragma once
++
++#include <array>
++#include <cmath>
++#include <cstddef>
++#include <cstdint>
++#include <limits>
++
++namespace numi::cardboard::damage_volume {
++
++inline constexpr double kPaperDamageVolumeThreshold = 0.5;
++
++struct PaperConstituentDamageVolume {
++    double damageVolumeIntegral = 0.0;
++    double referenceVolumeM3 = 0.0;
++    double volumeAtOrAboveThresholdM3 = 0.0;
++    std::uint64_t tetrahedronCount = 0u;
++
++    bool addTetrahedron(double referenceVolume,
++                        const std::array<double, 4>& planeAreas,
++                        const std::array<double, 4>& planeDamage,
++                        double threshold) {
++        if (!(std::isfinite(referenceVolume) && referenceVolume > 0.0 &&
++              std::isfinite(threshold) && threshold >= 0.0 && threshold <= 1.0) ||
++            tetrahedronCount == std::numeric_limits<std::uint64_t>::max()) {
++            return false;
++        }
++        double totalArea = 0.0;
++        double areaWeightedDamage = 0.0;
++        for (std::size_t plane = 0u; plane < planeAreas.size(); ++plane) {
++            const double area = planeAreas[plane];
++            const double damage = planeDamage[plane];
++            if (!(std::isfinite(area) && area > 0.0 &&
++                  std::isfinite(damage) && damage >= 0.0 && damage <= 1.0)) {
++                return false;
++            }
++            totalArea += area;
++            areaWeightedDamage += area * damage;
++            if (!(std::isfinite(totalArea) && std::isfinite(areaWeightedDamage))) {
++                return false;
++            }
++        }
++        if (!(totalArea > 0.0)) return false;
++        const double tetrahedronIndex = areaWeightedDamage / totalArea;
++        const double nextDamageVolume =
++            damageVolumeIntegral + referenceVolume * tetrahedronIndex;
++        const double nextReferenceVolume = referenceVolumeM3 + referenceVolume;
++        const double nextThresholdVolume = volumeAtOrAboveThresholdM3 +
++            (tetrahedronIndex >= threshold ? referenceVolume : 0.0);
++        if (!(std::isfinite(tetrahedronIndex) && tetrahedronIndex >= 0.0 &&
++              tetrahedronIndex <= 1.0 &&
++              std::isfinite(nextDamageVolume) &&
++              std::isfinite(nextReferenceVolume) &&
++              std::isfinite(nextThresholdVolume))) {
++            return false;
++        }
++        damageVolumeIntegral = nextDamageVolume;
++        referenceVolumeM3 = nextReferenceVolume;
++        volumeAtOrAboveThresholdM3 = nextThresholdVolume;
++        ++tetrahedronCount;
++        return true;
++    }
++
++    bool finish(double& volumeWeightedDamageIndex,
++                double& volumeFractionAtOrAboveThreshold) const {
++        if (tetrahedronCount == 0u ||
++            !(std::isfinite(damageVolumeIntegral) &&
++              std::isfinite(referenceVolumeM3) && referenceVolumeM3 > 0.0 &&
++              std::isfinite(volumeAtOrAboveThresholdM3) &&
++              volumeAtOrAboveThresholdM3 >= 0.0 &&
++              volumeAtOrAboveThresholdM3 <= referenceVolumeM3)) {
++            return false;
++        }
++        volumeWeightedDamageIndex = damageVolumeIntegral / referenceVolumeM3;
++        volumeFractionAtOrAboveThreshold =
++            volumeAtOrAboveThresholdM3 / referenceVolumeM3;
++        return std::isfinite(volumeWeightedDamageIndex) &&
++            volumeWeightedDamageIndex >= 0.0 &&
++            volumeWeightedDamageIndex <= 1.0 &&
++            std::isfinite(volumeFractionAtOrAboveThreshold) &&
++            volumeFractionAtOrAboveThreshold >= 0.0 &&
++            volumeFractionAtOrAboveThreshold <= 1.0;
++    }
++};
++
++} // namespace numi::cardboard::damage_volume
+--- a/matter/tools/cardboard_constituent_volume_damage_check.cpp
++++ b/matter/tools/cardboard_constituent_volume_damage_check.cpp
+@@ -0,0 +1,88 @@
++#include "cardboard_constituent_volume_damage.hpp"
++
++#include <array>
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++using numi::cardboard::damage_volume::PaperConstituentDamageVolume;
++
++namespace {
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++void near(double actual, double expected, double tolerance = 1e-14) {
++    require(std::isfinite(actual) && std::abs(actual - expected) <= tolerance,
++            "unexpected volume-damage result");
++}
++}
++
++int main() {
++    try {
++        const std::array<double, 4> areasA{1.0, 3.0, 2.0, 2.0};
++        const std::array<double, 4> damageA{0.0, 0.5, 1.0, 0.0};
++        const std::array<double, 4> equalAreas{1.0, 1.0, 1.0, 1.0};
++        const std::array<double, 4> damageB{0.75, 0.75, 0.75, 0.75};
++
++        PaperConstituentDamageVolume coarse;
++        require(coarse.addTetrahedron(1.0, areasA, damageA, 0.5),
++                "valid heterogeneous tet rejected");
++        require(coarse.addTetrahedron(3.0, equalAreas, damageB, 0.5),
++                "valid second tet rejected");
++        double index = -1.0;
++        double thresholdFraction = -1.0;
++        require(coarse.finish(index, thresholdFraction), "valid aggregate rejected");
++        near(index, 0.671875);
++        near(thresholdFraction, 0.75);
++        near(coarse.referenceVolumeM3, 4.0);
++        require(coarse.tetrahedronCount == 2u, "tetrahedron count mismatch");
++
++        // Subdivide the uniform volume-3 constituent into three equal reference
++        // volume cells. Both the volume-weighted index and thresholded volume
++        // fraction must remain invariant.
++        PaperConstituentDamageVolume refined;
++        require(refined.addTetrahedron(1.0, areasA, damageA, 0.5),
++                "refined heterogeneous tet rejected");
++        for (int i = 0; i < 3; ++i)
++            require(refined.addTetrahedron(1.0, equalAreas, damageB, 0.5),
++                    "subdivided uniform tet rejected");
++        double refinedIndex = -1.0;
++        double refinedThresholdFraction = -1.0;
++        require(refined.finish(refinedIndex, refinedThresholdFraction),
++                "refined aggregate rejected");
++        near(refinedIndex, index);
++        near(refinedThresholdFraction, thresholdFraction);
++
++        const std::array<double, 4> boundaryDamage{0.5, 0.5, 0.5, 0.5};
++        PaperConstituentDamageVolume boundary;
++        require(boundary.addTetrahedron(2.0, equalAreas, boundaryDamage, 0.5),
++                "threshold-boundary tet rejected");
++        double boundaryIndex = -1.0;
++        double boundaryFraction = -1.0;
++        require(boundary.finish(boundaryIndex, boundaryFraction),
++                "threshold-boundary aggregate rejected");
++        near(boundaryIndex, 0.5);
++        near(boundaryFraction, 1.0);
++
++        PaperConstituentDamageVolume empty;
++        require(!empty.finish(index, thresholdFraction), "empty aggregate admitted");
++        const std::array<double, 4> badArea{1.0, 0.0, 1.0, 1.0};
++        const std::array<double, 4> badDamage{0.0, 0.1, 1.0001, 0.0};
++        PaperConstituentDamageVolume invalid;
++        require(!invalid.addTetrahedron(1.0, badArea, damageA, 0.5),
++                "zero plane area admitted");
++        require(!invalid.addTetrahedron(1.0, equalAreas, badDamage, 0.5),
++                "out-of-range plane damage admitted");
++        require(!invalid.addTetrahedron(
++                    std::numeric_limits<double>::quiet_NaN(), equalAreas, damageA, 0.5),
++                "nonfinite reference volume admitted");
++        require(!invalid.addTetrahedron(1.0, equalAreas, damageA, 1.1),
++                "invalid threshold admitted");
++        std::cout << "constituent volume damage index: heterogeneous weighting, subdivision invariance, threshold boundary, and invalid-input checks passed; CPU observer only\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << error.what() << '\n';
++        return 1;
++    }
++}
+--- a/matter/tools/cardboard_free_force_residual.hpp
++++ b/matter/tools/cardboard_free_force_residual.hpp
+@@ -0,0 +1,66 @@
++#pragma once
++
++#include "numi/matter/shared.h"
++
++#include <algorithm>
++#include <cmath>
++#include <cstddef>
++#include <limits>
++#include <optional>
++#include <span>
++
++namespace numi::cardboard {
++
++struct FreeForceResidualBounds {
++    double l2Newtons = 0.0;
++    double maximumNodeNewtons = 0.0;
++    std::size_t freeNodeCount = 0u;
++};
++
++// The native FEM residual is an impulse (N s). Divide by this accepted step's
++// dt and include only currently free nodes. This is a measured residual, not
++// an estimate of force error.
++inline std::optional<FreeForceResidualBounds>
++calculateFreeForceResidualBounds(
++    const std::span<const nm_float4> residuals,
++    const std::span<const NMFEMNodeStateGPU> nodes,
++    const std::size_t environmentCount,
++    const std::size_t nodeCount,
++    const std::size_t environment,
++    const double dtSeconds) noexcept {
++    if (!std::isfinite(dtSeconds) || dtSeconds <= 0.0 ||
++        environmentCount == 0u || nodeCount == 0u ||
++        environment >= environmentCount ||
++        nodeCount > std::numeric_limits<std::size_t>::max() / environmentCount)
++        return std::nullopt;
++    const std::size_t total = environmentCount * nodeCount;
++    if (residuals.size() < total || nodes.size() < total)
++        return std::nullopt;
++    const std::size_t base = environment * nodeCount;
++    double sumSquared = 0.0;
++    FreeForceResidualBounds result;
++    for (std::size_t node = 0u; node < nodeCount; ++node) {
++        const float fixed = nodes[base + node].restAndFixed.w;
++        if (!std::isfinite(fixed)) return std::nullopt;
++        if (fixed != 0.0f) continue;
++        const nm_float4 residual = residuals[base + node];
++        if (!std::isfinite(residual.x) || !std::isfinite(residual.y) ||
++            !std::isfinite(residual.z))
++            return std::nullopt;
++        const double fx = static_cast<double>(residual.x) / dtSeconds;
++        const double fy = static_cast<double>(residual.y) / dtSeconds;
++        const double fz = static_cast<double>(residual.z) / dtSeconds;
++        const double magnitude = std::hypot(std::hypot(fx, fy), fz);
++        if (!std::isfinite(magnitude)) return std::nullopt;
++        sumSquared += magnitude * magnitude;
++        if (!std::isfinite(sumSquared)) return std::nullopt;
++        result.maximumNodeNewtons = std::max(result.maximumNodeNewtons, magnitude);
++        ++result.freeNodeCount;
++    }
++    if (result.freeNodeCount == 0u) return std::nullopt;
++    result.l2Newtons = std::sqrt(sumSquared);
++    if (!std::isfinite(result.l2Newtons)) return std::nullopt;
++    return result;
++}
++
++}  // namespace numi::cardboard
+--- a/matter/tools/cardboard_free_force_residual_check.cpp
++++ b/matter/tools/cardboard_free_force_residual_check.cpp
+@@ -0,0 +1,65 @@
++#include "cardboard_free_force_residual.hpp"
++
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <cstdlib>
++#include <iostream>
++#include <limits>
++#include <span>
++
++namespace {
++void check(bool condition, const char* message) {
++    if (!condition) {
++        std::cerr << message << '\n';
++        std::exit(1);
++    }
++}
++bool close(double a, double b) {
++    return std::abs(a - b) <= 1.0e-12 * std::max({1.0, std::abs(a), std::abs(b)});
++}
++}
++
++int main() {
++    std::array<nm_float4, 6> residuals{};
++    std::array<NMFEMNodeStateGPU, 6> nodes{};
++    residuals[0] = {1.5f, 2.0f, 0.0f, 99.0f};  // (3,4,0) N at dt=.5
++    residuals[1] = {1000.0f, 0.0f, 0.0f, 0.0f};
++    residuals[2] = {0.0f, 0.0f, 6.0f, 0.0f};  // 12 N
++    residuals[3] = {500.0f, 0.0f, 0.0f, 0.0f};
++    residuals[4] = {0.0f, 0.0f, 0.0f, 0.0f};
++    residuals[5] = {0.0f, 0.0f, 0.0f, 0.0f};
++    nodes[1].restAndFixed.w = 1.0f;
++    nodes[3].restAndFixed.w = 3.0f;
++
++    auto env0 = numi::cardboard::calculateFreeForceResidualBounds(
++        residuals, nodes, 2u, 3u, 0u, 0.5);
++    auto env1 = numi::cardboard::calculateFreeForceResidualBounds(
++        residuals, nodes, 2u, 3u, 1u, 0.5);
++    check(env0.has_value() && env0->freeNodeCount == 2u, "env0 free-node selection");
++    check(close(env0->l2Newtons, 13.0) && close(env0->maximumNodeNewtons, 12.0),
++          "env0 impulse-to-force reduction");
++    check(env1.has_value() && env1->freeNodeCount == 2u &&
++          close(env1->l2Newtons, 0.0) && close(env1->maximumNodeNewtons, 0.0),
++          "env1 stride and fixed-node masking");
++    check(!numi::cardboard::calculateFreeForceResidualBounds(
++              residuals, nodes, 2u, 3u, 2u, 0.5),
++          "out-of-range environment must fail");
++    check(!numi::cardboard::calculateFreeForceResidualBounds(
++              residuals, nodes, 2u, 3u, 0u, 0.0),
++          "zero dt must fail");
++    check(!numi::cardboard::calculateFreeForceResidualBounds(
++              std::span<const nm_float4>(residuals.data(), 5u), nodes, 2u, 3u, 0u, 0.5),
++          "truncated residual buffer must fail");
++    auto nonfinite = residuals;
++    nonfinite[0].y = std::numeric_limits<float>::quiet_NaN();
++    check(!numi::cardboard::calculateFreeForceResidualBounds(
++              nonfinite, nodes, 2u, 3u, 0u, 0.5),
++          "nonfinite free residual must fail");
++    std::array<NMFEMNodeStateGPU, 6> allFixed{};
++    for (auto& node : allFixed) node.restAndFixed.w = 1.0f;
++    check(!numi::cardboard::calculateFreeForceResidualBounds(
++              residuals, allFixed, 2u, 3u, 0u, 0.5),
++          "no free nodes must fail");
++    return 0;
++}
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -21,6 +21,8 @@
+ #include "cardboard_pin_adhesion_fixture.hpp"
+ #include "cardboard_starch_interface_mesh.hpp"
+ #include "cardboard_retained_matrix_damage_input.hpp"
++#include "cardboard_constituent_volume_damage.hpp"
++#include "cardboard_free_force_residual.hpp"
+ #include "cardboard_paper_material_selection.hpp"
+ #include "cardboard_paper_projection_scaling.hpp"
+ #include "cardboard_tooling.hpp"
+@@ -226,6 +228,7 @@
+     double bendAngleDegrees = 1.0;
+     double timestepSeconds = 1.0e-4;
+     double relativeResidualTolerance = 1.0e-4;
++    std::optional<double> maxFreeForceResidualN;
+     double lengthM = 0.036;
+     double widthM = 0.020;
+     double totalHeightM = 0.005;
+@@ -1230,6 +1233,7 @@
+         << "  --preset nagasawa2013|literature2009 (default literature2009)\n"
+         << "  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)\n"
+         << "  --residual-tolerance N tighten nonlinear residual threshold (default 1e-4)\n"
++        << "  --max-free-force-residual-n N declare an observed full-box free-force residual bound; no default and no solver change\n"
+         << "  --reference-displacement-gradient  opt in to immutable-reference FEM arithmetic\n"
+         << "  --scaled-paper-residuals  opt in to component-scaled 13-state Hill projection residuals\n"
+         << "  --safeguarded-paper-initializer  opt in to safeguarded scalar Hill initial guesses for liner and medium\n"
+@@ -1608,6 +1612,7 @@
+         else if (option == "--box-fixture-steps")
+             arguments.boxFixtureSteps = parseUnsigned(value, option);
+         else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
++        else if (option == "--max-free-force-residual-n") arguments.maxFreeForceResidualN = parseDouble(value, option);
+         else if (option == "--prescribed-tool-barrier-scale")
+             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
+         else if (option == "--newton-iterations") {
+@@ -2148,6 +2153,11 @@
+             "--bend-angle must lie in [0, 10] degrees");
+     require(arguments.relativeResidualTolerance > 0.0 && arguments.relativeResidualTolerance <= 1.0e-4,
+             "--residual-tolerance must lie in (0, 1e-4]; this probe permits tightening only");
++    if (arguments.maxFreeForceResidualN.has_value()) {
++        require(arguments.boxBlank && std::isfinite(*arguments.maxFreeForceResidualN) &&
++                    *arguments.maxFreeForceResidualN > 0.0,
++                "--max-free-force-residual-n requires a full-box run and a finite positive bound");
++    }
+     require(arguments.timestepSeconds > 0.0 &&
+                 arguments.timestepSeconds <= 0.01,
+             "--dt must lie in (0, 0.01] seconds");
+@@ -3941,8 +3951,21 @@
+            << "    \"gravity_m_s2\": ["
+            << mesh.world.gravity[0] << ',' << mesh.world.gravity[1] << ','
+            << mesh.world.gravity[2] << "],\n"
+-           << "    \"maximum_rate_exponent\": 0,\n"
+-           << "    \"runtime_execution\": "
++           << "    \"maximum_rate_exponent\": 0,\n";
++    if (arguments.boxBlank) {
++        output << "    \"native_acceptance_policy\": {\n"
++               << "      \"schema\": \"numi.cardboard.full-box-native-acceptance-policy.v1\",\n"
++               << "      \"certificate_semantics\": \"status and validity remain authoritative; residual, volume, and pressure use their declared tolerances; correction is finite nonnegative telemetry only\",\n"
++               << "      \"force_residual_semantics\": \"final accepted RunState.residuals xyz divided by accepted dt at nodes with restAndFixed.w == 0; observed residual in N, not force error\",\n"
++               << "      \"max_free_force_residual_n\": ";
++        if (arguments.maxFreeForceResidualN.has_value())
++            output << *arguments.maxFreeForceResidualN;
++        else
++            output << "null";
++        output << ",\n      \"force_environment_count\": "
++               << arguments.environmentCount << "\n    },\n";
++    }
++    output << "    \"runtime_execution\": "
+            << (arguments.compileOnly ? "false" : "true") << "\n"
+            << "  },\n"
+            << "  \"paper_projection_residual_scaling\": {\"enabled\": "
+@@ -6728,6 +6751,15 @@
+         std::numeric_limits<double>::quiet_NaN();
+     double paperReferencePlaneAreaM2 =
+         std::numeric_limits<double>::quiet_NaN();
++    std::string paperVolumeDamageStatus = "not_enabled";
++    double paperConstituentVolumeWeightedDamageIndex =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperConstituentReferenceVolumeM3 =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperConstituentVolumeFractionAboveDamageThreshold =
++        std::numeric_limits<double>::quiet_NaN();
++    double paperDamageVolumeThreshold = 0.5;
++    std::uint64_t paperConstituentDamageTetrahedra = 0u;
+     std::uint64_t paperOverlayTetrahedra = 0u;
+     std::string starchStatus = "not_enabled";
+     double starchAreaWeightedDamageFraction =
+@@ -6765,6 +6797,10 @@
+ 
+     if (!mesh.damageOverlayMappings.empty()) {
+         result.paperStatus = "unavailable";
++        result.paperVolumeDamageStatus =
++            "unavailable_invalid_or_incomplete_accepted_history";
++        result.paperDamageVolumeThreshold =
++            numi::cardboard::damage_volume::kPaperDamageVolumeThreshold;
+         if (mesh.damageOverlayMappings.size() !=
+                 mesh.damageOverlayMaterialIndices.size() ||
+             snapshot.femMaterialState.size() <
+@@ -6774,6 +6810,8 @@
+         double weightedDamage = 0.0;
+         double referenceArea = 0.0;
+         bool valid = true;
++        std::set<std::uint32_t> mappedTetrahedra;
++        numi::cardboard::damage_volume::PaperConstituentDamageVolume volumeDamage;
+         std::map<std::uint32_t, std::array<std::uint32_t, 8>> stateIndicesByMaterial;
+         for (std::size_t mappingIndex = 0u;
+              mappingIndex < mesh.damageOverlayMappings.size(); ++mappingIndex) {
+@@ -6781,10 +6819,13 @@
+             const std::uint32_t tetIndex = mapping.elementIndex;
+             if (tetIndex >= world.fem.tetrahedra.size() ||
+                 tetIndex >= tetrahedronCount ||
++                !mappedTetrahedra.insert(tetIndex).second ||
+                 mesh.damageOverlayMaterialIndices[mappingIndex] >=
+                     world.materials.size() ||
+                 world.fem.tetrahedra[tetIndex].identity.x !=
+-                    mesh.damageOverlayMaterialIndices[mappingIndex]) {
++                    mesh.damageOverlayMaterialIndices[mappingIndex] ||
++                !(std::isfinite(mapping.referenceVolumeM3) &&
++                  mapping.referenceVolumeM3 > 0.0)) {
+                 valid = false;
+                 break;
+             }
+@@ -6815,6 +6856,8 @@
+                     stateIndices).first;
+             }
+             const auto& stateIndices = stateIndicesIt->second;
++            std::array<double, 4> tetPlaneAreas{};
++            std::array<double, 4> tetPlaneDamage{};
+             const std::size_t stateBase =
+                 (static_cast<std::size_t>(environment) * tetrahedronCount +
+                  tetIndex) * stride;
+@@ -6853,19 +6896,44 @@
+                 }
+                 if (!valid) break;
+                 const double damage = mapping.damageCap * (1.0 - planeSurvival);
++                if (!(std::isfinite(damage) && damage >= 0.0 && damage <= 1.0)) {
++                    valid = false;
++                    break;
++                }
++                tetPlaneAreas[plane] = area;
++                tetPlaneDamage[plane] = damage;
+                 weightedDamage += area * damage;
+                 referenceArea += area;
+             }
+             if (!valid) break;
++            if (!volumeDamage.addTetrahedron(
++                    mapping.referenceVolumeM3, tetPlaneAreas, tetPlaneDamage,
++                    result.paperDamageVolumeThreshold)) {
++                valid = false;
++                break;
++            }
+             ++result.paperOverlayTetrahedra;
+         }
+-        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage)) {
++        double volumeWeightedDamageIndex = std::numeric_limits<double>::quiet_NaN();
++        double volumeFractionAboveThreshold = std::numeric_limits<double>::quiet_NaN();
++        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage) &&
++            volumeDamage.finish(volumeWeightedDamageIndex, volumeFractionAboveThreshold)) {
+             result.paperStatus = "available_model_area_weighted_damage_index";
+             result.paperAreaWeightedDamageFraction = weightedDamage / referenceArea;
+             result.paperReferencePlaneAreaM2 = referenceArea;
++            result.paperVolumeDamageStatus =
++                "available_constituent_volume_weighted_damage_index";
++            result.paperConstituentVolumeWeightedDamageIndex = volumeWeightedDamageIndex;
++            result.paperConstituentReferenceVolumeM3 = volumeDamage.referenceVolumeM3;
++            result.paperConstituentVolumeFractionAboveDamageThreshold =
++                volumeFractionAboveThreshold;
++            result.paperConstituentDamageTetrahedra = volumeDamage.tetrahedronCount;
+         } else {
+             result.paperStatus = "unavailable_invalid_or_incomplete_accepted_history";
++            result.paperVolumeDamageStatus =
++                "unavailable_invalid_or_incomplete_accepted_history";
+             result.paperOverlayTetrahedra = 0u;
++            result.paperConstituentDamageTetrahedra = 0u;
+         }
+     }
+ 
+@@ -6958,6 +7026,9 @@
+ void writeShippingHistoryAreaHeader(std::ostream& output) {
+     output << "native_step,simulation_time_s,dt_s,stage,accepted,"
+               "paper_status,paper_area_weighted_damage_fraction,paper_reference_plane_area_m2,paper_overlay_tetrahedra,"
++              "paper_volume_damage_status,paper_constituent_volume_weighted_damage_index,"
++              "paper_constituent_reference_volume_m3,paper_constituent_volume_fraction_above_damage_threshold,"
++              "paper_damage_volume_threshold,paper_constituent_damage_tetrahedra,"
+               "starch_status,starch_area_weighted_cohesive_damage_fraction,starch_active_reference_area_m2,starch_active_faces,"
+               "starch_fully_failed_status,starch_fully_failed_cohesive_area_m2,"
+               "starch_fully_failed_cohesive_area_fraction,starch_fully_failed_faces,"
+@@ -6981,6 +7052,17 @@
+     if (std::isfinite(values.paperReferencePlaneAreaM2))
+         output << values.paperReferencePlaneAreaM2;
+     output << ',' << values.paperOverlayTetrahedra << ','
++        << values.paperVolumeDamageStatus << ',';
++    if (std::isfinite(values.paperConstituentVolumeWeightedDamageIndex))
++        output << values.paperConstituentVolumeWeightedDamageIndex;
++    output << ',';
++    if (std::isfinite(values.paperConstituentReferenceVolumeM3))
++        output << values.paperConstituentReferenceVolumeM3;
++    output << ',';
++    if (std::isfinite(values.paperConstituentVolumeFractionAboveDamageThreshold))
++        output << values.paperConstituentVolumeFractionAboveDamageThreshold;
++    output << ',' << values.paperDamageVolumeThreshold << ','
++        << values.paperConstituentDamageTetrahedra << ','
+         << values.starchStatus << ',';
+     if (std::isfinite(values.starchAreaWeightedDamageFraction))
+         output << values.starchAreaWeightedDamageFraction;
+@@ -7155,7 +7237,7 @@
+     std::ofstream springbackOutput;
+     require(stepOutput.good() && angleOutput.good(),
+             "cannot create native box observation files");
+-    stepOutput << "native_step,stage,action_index,accepted,status_env0,status_env1,fgmres_env0,fgmres_env1,certificate_valid_env0,certificate_residual_env0,certificate_correction_env0,certificate_volume_env0,certificate_pressure_env0,simulation_time_s,dt_s,error\n";
++    stepOutput << "native_step,stage,action_index,accepted,status_env0,status_env1,fgmres_env0,fgmres_env1,certificate_valid_env0,certificate_residual_env0,certificate_correction_env0,certificate_volume_env0,certificate_pressure_env0,simulation_time_s,dt_s,error,free_force_imbalance_l2_env0_N,free_force_imbalance_max_node_env0_N,free_force_imbalance_l2_env1_N,free_force_imbalance_max_node_env1_N\n" << std::setprecision(17);
+     angleOutput << "native_step,stage,action_index,environment,step_accepted,score_line_index,score_kind,fit_valid,fold_turn_deg,interior_angle_deg,source_target_fold_deg,relative_target_fold_deg,sample_count\n"
+                 << std::setprecision(17);
+     if (arguments.shippingBox) {
+@@ -7649,7 +7731,31 @@
+             << cert0.nonlinear.z << ',' << cert0.nonlinear.w << ','
+             << boxSimulationTimeSeconds << ',' << attemptedTimestep << ',' << '"';
+         for (const char c : error) stepOutput << (c == '"' ? '\'' : c);
+-        stepOutput << "\"\n";
++        stepOutput << "\"";
++        const auto force0 = accepted && state.has_value()
++            ? numi::cardboard::calculateFreeForceResidualBounds(
++                  state->residuals, currentSnapshot.femNodes,
++                  arguments.environmentCount, nodeCount, 0u, attemptedTimestep)
++            : std::nullopt;
++        const auto force1 = accepted && state.has_value() && arguments.environmentCount > 1u
++            ? numi::cardboard::calculateFreeForceResidualBounds(
++                  state->residuals, currentSnapshot.femNodes,
++                  arguments.environmentCount, nodeCount, 1u, attemptedTimestep)
++            : std::nullopt;
++        if (accepted) {
++            require(force0.has_value() &&
++                        (arguments.environmentCount == 1u || force1.has_value()),
++                    "accepted full-box step lacks a finite free-node force residual");
++        }
++        const auto writeForce = [&](const std::optional<numi::cardboard::FreeForceResidualBounds>& value) {
++            if (value.has_value())
++                stepOutput << ',' << value->l2Newtons << ',' << value->maximumNodeNewtons;
++            else
++                stepOutput << ",NA,NA";
++        };
++        writeForce(force0);
++        writeForce(force1);
++        stepOutput << "\n";
+ 
+         if (arguments.shippingBox && accepted &&
+             (stepIndex == 0u || stepIndex % 32u == 0u)) {
+@@ -11644,6 +11750,9 @@
+            << "  \"compression_force_curve_file\": \"shipping-compression.csv\",\n"
+            << "  \"history_observables_file\": \"shipping-history-observables.csv\",\n"
+            << "  \"paper_damage_observable_definition\": \"Each explicit retained-matrix overlay tetrahedron contributes its four authored reference crack-plane cut areas. For each plane, damage is damageCap*(1-survivalNormal*survivalShear), where survival(mode)=onset/(onset+acceptedExcess)*exp(-acceptedExcess/softening); the reported index is reference-area-weighted. This is a constitutive damage index, not a measured or binary geometric crack area.\",\n"
++           << "  \"paper_constituent_volume_damage_definition\": \"For each mapped retained-matrix overlay tetrahedron, first average its four plane damage indices by their authored reference cut areas, then weight that tetrahedron index by its exact mapped reference volume; denominator is the sum of the mapped reference tetrahedron volumes. This is a constitutive volume-weighted damage index, not geometric crack area.\",\n"
++           << "  \"paper_constituent_volume_fraction_threshold\": 0.5,\n"
++           << "  \"paper_constituent_volume_fraction_definition\": \"Reference volume fraction of mapped overlay tetrahedra whose per-tetrahedron area-weighted damage index is greater than or equal to 0.5. Descriptive thresholded damage observable; not geometric fracture area.\",\n"
+            << "  \"cohesive_degradation_observable_definition\": \"For active accepted mixed-mode starch/HMA faces, the reported fraction is sum(referenceFaceArea*acceptedFaceDamage)/sum(referenceFaceArea). It is an area-weighted cohesive degradation index, not geometric open/debond area; dormant faces are excluded until accepted activation.\",\n"
+            << "  \"cohesive_failed_capacity_area_definition\": \"Reference-area integral of indicator(accepted mixedPointHistory[q].w == 1) with the native three equal quadrature weights; fully_failed_faces counts only faces with all three points failed. Face maximum state.x is not used for this integral. This is lost cohesive capacity, not geometric open area.\",\n"
+            << "  \"compression_work_method\": \"trapezoidal integral from a zero-force contact origin through the first accepted contact-crossing increment and subsequent accepted platen stroke\",\n"
+--- a/matter/tools/cardboard_stage_resolution_study.md
++++ b/matter/tools/cardboard_stage_resolution_study.md
+@@ -15,9 +15,15 @@
+ `box-score-angles.csv`. The per-step CSV must provide accepted state, native
+ status, certificate validity, residual, correction, volume and pressure
+ residuals, simulation time and timestep. Each row must be accepted with zero
+-native status and each exported certificate value must satisfy the matching
+-manifest tolerance. Row counts and source/world fingerprints must agree with
+-the native result. Old exports without the new certificate columns remain
++native status. Residual, volume and pressure certificates must satisfy their
++manifest tolerances. For exports declaring the
++numi.cardboard.full-box-native-acceptance-policy.v1 policy, correction is
++required to be finite and nonnegative telemetry, but is not compared with the
++relative-residual tolerance; native status, certificate validity and the
++authoritative residual, volume and pressure checks remain in force. Historical
++manifests without that explicit policy retain the historical correction
++tolerance. Row counts and source/world fingerprints must agree with the native
++result. Old exports without the new certificate columns remain
+ inconclusive; preflight-only results are explicitly not physics baselines;
+ rejected steps, failed statuses, incomplete stage branches and truncated
+ histories remain failed prefixes.
+@@ -50,7 +56,16 @@
+ duration, minimum dt, and maximum dt must match those rows. The timestep pair
+ must preserve each branch duration while the finer run has a strictly smaller
+ maximum accepted dt and a larger accepted substep count. Manifest labels alone
+-do not establish timestep refinement. Score-depth
++do not establish timestep refinement. The timestep pair also requires the same
++relative_residual_tolerance / dt_s control ratio and an explicit matching
++--max-free-force-residual-n bound. The control ratio is not an absolute Newton
++force bound. The probe records the maximum accepted free-node residual in N by
++dividing each accepted final FEM residual impulse (RunState.residuals xyz, in
++N s) by that step's dt and selecting nodes whose restAndFixed.w == 0. The
++declared bound is compared with those observed L2 and maximum-node residuals
++across every accepted step and environment. This is a measured residual check,
++not a bound on force error or a claim of calibration; without the explicit
++bound, timestep force-accuracy admission is inconclusive. Score-depth
+ comparisons are separately labeled sensitivity runs and require a fresh flat
+ blank; they are never treated as convergence levels. Compression nominal vs
+ half-speed is a within-run rate-sensitivity comparison, not timestep
+@@ -80,12 +95,16 @@
+ manufacturing tolerance. The score-angle CSV remains action-relative and is
+ not substituted for released springback.
+ 
+-The accepted-history CSV exports area-weighted constitutive paper and cohesive
+-degradation indices; it does not export geometric paper crack area or a
+-thresholded open/debond area. Those indices are reported separately and do
+-not satisfy the missing geometric fractions. Therefore the full-stage gate
+-remains inconclusive until those native observables are available, even if
+-force/work comparisons can be computed.
++The accepted-history CSV keeps the existing area-weighted paper constitutive
++damage index and adds two distinct measures over the mapped paper constituent:
++a per-tetrahedron four-plane area-weighted index averaged by exact reference
++tetrahedron volume, and the reference-volume fraction of tetrahedra whose index
++is at least 0.5. The volume-weighted index uses the sum of mapped reference
++tetrahedron volumes as its denominator. Both measures are numerical constitutive
++damage observables, not geometric crack area; the thresholded volume fraction
++is the numerical area-independent damage fraction used by the capacity gate. The CSV still does not
++export geometric paper crack area or geometric open/debond area, so full-stage
++geometry gates remain inconclusive until those observables are available.
+ 
+ For mixed-mode cohesive faces, the newer history export also reports the
+ reference-area integral of fully failed accepted quadrature points, divided by
+@@ -166,10 +185,16 @@
+ Legacy maximum-face-damage exports and incompatible activation coverage are not
+ admitted.
+ 
+-Capacity qualification now requires accepted paper-damage and irreversible-debond
+-comparisons as well as decreasing force, curve and work differences. A force-only
+-match cannot qualify Fpeak while an enabled paper localization field remains
+-unmeasured. The current per-tet area-weighted damage index is retained but is not
+-substituted for a mesh-objective fractured-area fraction. Its missing observable
+-keeps the damage-enabled capacity gate inconclusive. Explicitly disabled mechanisms
+-may be not applicable; that does not qualify a damage-enabled cardboard model.
++Capacity qualification requires the accepted reference-volume fraction of
++mapped paper tetrahedra whose per-tetrahedron area-weighted index is at least
++0.5, the volume-weighted mean damage index, the irreversible-debond capacity
++comparison, and decreasing force, curve and work differences. Both paper
++observables must be available on each mesh; total mapped reference volume and
++the fixed 0.5 threshold must match. Their adjacent-mesh absolute differences
++must each be at most 0.02. The mean is an index, not a fraction; the thresholded
++observable is a reference-volume fraction. The existing plane-area-weighted index
++is retained separately.
++Neither constitutive index is substituted for geometric crack area: that
++observable remains unavailable and the full-stage geometry gate remains open.
++Explicitly disabled mechanisms may be not applicable; that does not qualify a
++damage-enabled cardboard model.
+--- a/matter/tools/cardboard_stage_resolution_study.py
++++ b/matter/tools/cardboard_stage_resolution_study.py
+@@ -34,6 +34,20 @@
+ )
+ AXES = ("mesh_nx", "mesh_ny", "mesh_thickness", "time_step", "score_depth",
+         "score_speed", "impact_time_step")
++FULL_BOX_ACCEPTANCE_POLICY = "numi.cardboard.full-box-native-acceptance-policy.v1"
++CERTIFICATE_POLICY_TEXT = (
++    "status and validity remain authoritative; residual, volume, and pressure use "
++    "their declared tolerances; correction is finite nonnegative telemetry only")
++FORCE_RESIDUAL_POLICY_TEXT = (
++    "final accepted RunState.residuals xyz divided by accepted dt at nodes with "
++    "restAndFixed.w == 0; observed residual in N, not force error")
++FORCE_COLUMNS = {
++    0: ("free_force_imbalance_l2_env0_N",
++        "free_force_imbalance_max_node_env0_N"),
++    1: ("free_force_imbalance_l2_env1_N",
++        "free_force_imbalance_max_node_env1_N"),
++}
++FORCE_RATIO_REL_TOL = 1.0e-6
+ 
+ 
+ class StageStudyError(Exception):
+@@ -97,6 +111,112 @@
+     actions: list[dict[str, str]]
+     score_angles: list[dict[str, str]]
+     optional_rows: dict[str, list[dict[str, str]]]
++
++
++def _native_policy(manifest: dict[str, Any]) -> dict[str, Any] | None:
++    solver = manifest.get("solver", {})
++    policy = solver.get("native_acceptance_policy") if isinstance(solver, dict) else None
++    return policy if isinstance(policy, dict) else None
++
++
++def _free_force_accuracy_gate(manifest: dict[str, Any],
++                              steps: list[dict[str, str]]) -> dict[str, Any]:
++    policy = _native_policy(manifest)
++    if policy is None or policy.get("schema") != FULL_BOX_ACCEPTANCE_POLICY:
++        return {"status": "inconclusive_missing_native_force_policy",
++                "declared_free_force_residual_bound_N": None,
++                "note": "legacy exports do not bind free-force residual semantics or a declared absolute residual bound"}
++    if (policy.get("certificate_semantics") != CERTIFICATE_POLICY_TEXT or
++            policy.get("force_residual_semantics") != FORCE_RESIDUAL_POLICY_TEXT):
++        return {"status": "invalid_native_force_policy",
++                "declared_free_force_residual_bound_N": None,
++                "reasons": ["unsupported_acceptance_policy_semantics"]}
++    env_count = policy.get("force_environment_count")
++    if not isinstance(env_count, int) or isinstance(env_count, bool) or env_count not in (1, 2):
++        return {"status": "invalid_native_force_policy",
++                "declared_free_force_residual_bound_N": None,
++                "reasons": ["invalid_force_environment_count"]}
++    bound = policy.get("max_free_force_residual_n")
++    if bound is not None:
++        if isinstance(bound, bool) or not isinstance(bound, (int, float)) or not math.isfinite(float(bound)) or float(bound) <= 0.0:
++            return {"status": "invalid_native_force_policy",
++                    "declared_free_force_residual_bound_N": None,
++                    "reasons": ["invalid_declared_free_force_residual_bound"]}
++        bound = float(bound)
++    accepted = [row for row in steps if row.get("accepted") == "1"]
++    if not accepted:
++        return {"status": "inconclusive_no_accepted_step_force_observations",
++                "declared_free_force_residual_bound_N": bound}
++    maxima = {env: {"l2_N": 0.0, "max_node_N": 0.0} for env in range(env_count)}
++    for ordinal, row in enumerate(accepted):
++        label = f"box-native-steps.csv row {ordinal + 2}"
++        for env in range(env_count):
++            l2_field, max_field = FORCE_COLUMNS[env]
++            try:
++                l2 = _finite(row, l2_field, label)
++                maximum = _finite(row, max_field, label)
++            except StageStudyError as exc:
++                return {"status": "inconclusive_missing_force_observations",
++                        "declared_free_force_residual_bound_N": bound,
++                        "reasons": [str(exc)]}
++            if l2 < 0.0 or maximum < 0.0 or maximum > l2 * (1.0 + 1.0e-6) + 1.0e-15:
++                return {"status": "invalid_force_observation",
++                        "declared_free_force_residual_bound_N": bound,
++                        "reasons": [f"invalid_l2_or_max_node_force:{ordinal}:{env}"]}
++            maxima[env]["l2_N"] = max(maxima[env]["l2_N"], l2)
++            maxima[env]["max_node_N"] = max(maxima[env]["max_node_N"], maximum)
++    if bound is None:
++        return {"status": "inconclusive_no_declared_force_bound",
++                "declared_free_force_residual_bound_N": None,
++                "maximum_observed_accepted_free_force_residual_N": maxima,
++                "note": "observed residuals are not an estimate of force error"}
++    exceeded = [
++        f"env{env}_{metric}_exceeds_bound"
++        for env, values in maxima.items()
++        for metric, value in values.items()
++        if value > bound
++    ]
++    return {
++        "status": "fail" if exceeded else "pass",
++        "declared_free_force_residual_bound_N": bound,
++        "maximum_observed_accepted_free_force_residual_N": maxima,
++        "reasons": exceeded,
++        "note": "compares measured final accepted free-node residual in N to the explicitly declared residual bound; this does not estimate force error",
++    }
++
++
++def _force_accuracy_pair(left: StageRun, right: StageRun) -> dict[str, Any]:
++    a = _free_force_accuracy_gate(left.manifest, left.steps)
++    b = _free_force_accuracy_gate(right.manifest, right.steps)
++    result = {"left": a, "right": b, "status": "inconclusive"}
++    bound_a = a.get("declared_free_force_residual_bound_N")
++    bound_b = b.get("declared_free_force_residual_bound_N")
++    if bound_a is None or bound_b is None:
++        result["reasons"] = ["both runs require the same explicit positive force-residual bound"]
++    elif not math.isclose(float(bound_a), float(bound_b), rel_tol=0.0, abs_tol=0.0):
++        result["status"] = "incompatible_force_bound"
++        result["reasons"] = ["declared force-residual bounds differ"]
++    elif a.get("status") == "fail" or b.get("status") == "fail":
++        result["status"] = "fail"
++        result["reasons"] = ["one or both runs exceed the declared force-residual bound"]
++    elif a.get("status") == b.get("status") == "pass":
++        result["status"] = "pass"
++        result["reasons"] = []
++    else:
++        result["reasons"] = ["one or both runs lack complete finite free-force observations"]
++    return result
++
++
++def _force_tolerance_ratio(run: StageRun) -> float:
++    solver = run.manifest.get("solver", {})
++    tolerance = solver.get("relative_residual_tolerance") if isinstance(solver, dict) else None
++    dt = solver.get("dt_s") if isinstance(solver, dict) else None
++    if (isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)) or
++            isinstance(dt, bool) or not isinstance(dt, (int, float)) or
++            not math.isfinite(float(tolerance)) or not math.isfinite(float(dt)) or
++            float(tolerance) <= 0.0 or float(dt) <= 0.0):
++        raise StageStudyError("relative residual tolerance and dt must be finite and positive")
++    return float(tolerance) / float(dt)
+ 
+ 
+ def load_run(directory: Path) -> StageRun:
+@@ -245,12 +365,24 @@
+         reasons.append("step_csv_missing_fields:" + ",".join(missing_cert))
+     if steps and not missing_cert:
+         solver = manifest.get("solver", {})
++        policy_value = solver.get("native_acceptance_policy")
++        policy = policy_value if isinstance(policy_value, dict) else None
++        policy_is_current = (
++            policy is not None and
++            policy.get("schema") == FULL_BOX_ACCEPTANCE_POLICY and
++            policy.get("certificate_semantics") == CERTIFICATE_POLICY_TEXT and
++            policy.get("force_residual_semantics") == FORCE_RESIDUAL_POLICY_TEXT)
++        if policy_value is not None and not policy_is_current:
++            disposition = "inconclusive_invalid_acceptance_policy"
++            reasons.append("unsupported_or_malformed_native_acceptance_policy")
+         tolerances = {
+             "certificate_residual_env0": solver.get("relative_residual_tolerance"),
+-            "certificate_correction_env0": solver.get("relative_residual_tolerance"),
+             "certificate_volume_env0": solver.get("volume_tolerance"),
+             "certificate_pressure_env0": solver.get("pressure_tolerance"),
+         }
++        if not policy_is_current:
++            # Historical manifests retain their original correction gate.
++            tolerances["certificate_correction_env0"] = solver.get("relative_residual_tolerance")
+         expected_steps = 0
+         failed_step_seen = False
+         previous_index = -1
+@@ -296,6 +428,11 @@
+                     if value < 0.0 or value > float(tolerance) * (1.0 + 1e-6):
+                         disposition = "inconclusive_invalid_certificate"
+                         reasons.append(f"certificate_outside_tolerance:{index}:{field}")
++                if policy_is_current:
++                    correction = _finite(row, "certificate_correction_env0", label)
++                    if correction < 0.0:
++                        disposition = "inconclusive_invalid_certificate"
++                        reasons.append(f"negative_certificate_correction:{index}")
+                 expected_steps += 1
+             except (ValueError, KeyError, StageStudyError) as exc:
+                 disposition = "inconclusive_invalid_step_row"
+@@ -347,9 +484,10 @@
+     elif disposition != "failed_prefix" and source_errors:
+         disposition = "inconclusive_source_binding"
+ 
++    admission = {"status": disposition, "reasons": reasons}
++    admission["free_force_accuracy"] = _free_force_accuracy_gate(manifest, steps)
+     return StageRun(path, manifest, result, native, files, source_bindings,
+-                    {"status": disposition, "reasons": reasons},
+-                    steps, actions, score_angles, optional_rows)
++                    admission, steps, actions, score_angles, optional_rows)
+ 
+ 
+ def _material_identity(manifest: dict[str, Any]) -> dict[str, Any]:
+@@ -434,6 +572,7 @@
+         pass  # mesh lives outside physical identity by design
+     elif axis == "time_step":
+         result["solver_controls"].pop("time_step", None)
++        result["solver_controls"].pop("relative_residual_tolerance", None)
+         command = result.get("score_command")
+         if isinstance(command, dict):
+             # The probe's score-command digest includes the requested solver dt
+@@ -1090,7 +1229,8 @@
+     result: dict[str, Any] = {"status": "available_model_damage_indices_not_geometric_area"}
+     for key in (
+         "paper_status", "paper_area_weighted_damage_fraction",
+-        "paper_reference_plane_area_m2", "starch_status",
++        "paper_reference_plane_area_m2", "paper_overlay_tetrahedra",
++        "starch_status",
+         "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
+         "hma_status", "hma_area_weighted_cohesive_damage_fraction", "hma_active_reference_area_m2",
+     ):
+@@ -1098,6 +1238,40 @@
+     result["geometric_crack_area_fraction"] = None
+     result["geometric_debond_area_fraction"] = None
+     result["area_fraction_status"] = "inconclusive_not_exported_by_probe"
++    volume_status = row.get("paper_volume_damage_status") or None
++    if result.get("paper_status") == "not_enabled" and volume_status is None:
++        volume_status = "not_enabled"
++    result["paper_volume_damage_status"] = volume_status
++    result["paper_constituent_volume_weighted_damage_index"] = None
++    result["paper_constituent_reference_volume_m3"] = None
++    result["paper_constituent_volume_fraction_above_damage_threshold"] = None
++    result["paper_damage_volume_threshold"] = None
++    result["paper_constituent_damage_tetrahedra"] = None
++    if volume_status == "available_constituent_volume_weighted_damage_index":
++        try:
++            index = float(row["paper_constituent_volume_weighted_damage_index"])
++            volume = float(row["paper_constituent_reference_volume_m3"])
++            fraction = float(row["paper_constituent_volume_fraction_above_damage_threshold"])
++            threshold = float(row["paper_damage_volume_threshold"])
++            tetrahedra = int(row["paper_constituent_damage_tetrahedra"])
++            mapped_tetrahedra = int(row["paper_overlay_tetrahedra"])
++        except (TypeError, ValueError, KeyError):
++            volume_status = "inconclusive_missing_or_invalid_volume_damage_fields"
++        else:
++            if (not all(math.isfinite(value) for value in (index, volume, fraction, threshold)) or
++                    not 0.0 <= index <= 1.0 or volume <= 0.0 or
++                    not 0.0 <= fraction <= 1.0 or
++                    not math.isclose(threshold, PAPER_DAMAGE_VOLUME_THRESHOLD,
++                                     rel_tol=0.0, abs_tol=1e-12) or
++                    tetrahedra <= 0 or mapped_tetrahedra != tetrahedra):
++                volume_status = "inconclusive_invalid_volume_damage_accounting"
++            else:
++                result["paper_constituent_volume_weighted_damage_index"] = index
++                result["paper_constituent_reference_volume_m3"] = volume
++                result["paper_constituent_volume_fraction_above_damage_threshold"] = fraction
++                result["paper_damage_volume_threshold"] = threshold
++                result["paper_constituent_damage_tetrahedra"] = tetrahedra
++    result["paper_volume_damage_status"] = volume_status
+ 
+     fully_failed_fields = {
+         "starch": ("starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
+@@ -1193,20 +1367,115 @@
+     }
+ 
+ 
++def _paper_constituent_damage_comparison(left: dict[str, Any],
++                                         right: dict[str, Any]) -> dict[str, Any]:
++    left_status = left.get("paper_volume_damage_status")
++    right_status = right.get("paper_volume_damage_status")
++    if left_status == right_status == "not_enabled":
++        return {"status": "not_enabled"}
++    expected = "available_constituent_volume_weighted_damage_index"
++    if left_status != expected or right_status != expected:
++        return {"status": "inconclusive_missing_or_invalid_constituent_volume_damage",
++                "left_status": left_status, "right_status": right_status}
++    try:
++        left_volume = float(left["paper_constituent_reference_volume_m3"])
++        right_volume = float(right["paper_constituent_reference_volume_m3"])
++        left_index = float(left["paper_constituent_volume_weighted_damage_index"])
++        right_index = float(right["paper_constituent_volume_weighted_damage_index"])
++        left_fraction = float(left["paper_constituent_volume_fraction_above_damage_threshold"])
++        right_fraction = float(right["paper_constituent_volume_fraction_above_damage_threshold"])
++        left_threshold = float(left["paper_damage_volume_threshold"])
++        right_threshold = float(right["paper_damage_volume_threshold"])
++    except (KeyError, TypeError, ValueError):
++        return {"status": "inconclusive_missing_constituent_volume_damage_values"}
++    if not all(math.isfinite(value) for value in (
++            left_volume, right_volume, left_index, right_index,
++            left_fraction, right_fraction, left_threshold, right_threshold)):
++        return {"status": "inconclusive_nonfinite_constituent_volume_damage"}
++    if left_volume <= 0.0 or right_volume <= 0.0:
++        return {"status": "inconclusive_nonpositive_reference_volume"}
++    if not math.isclose(left_threshold, right_threshold, rel_tol=0.0, abs_tol=1e-12):
++        return {"status": "incompatible_damage_threshold"}
++    if not math.isclose(left_volume, right_volume, rel_tol=1e-6, abs_tol=1e-12):
++        return {
++            "status": "incompatible_constituent_reference_volume",
++            "left_reference_volume_m3": left_volume,
++            "right_reference_volume_m3": right_volume,
++            "relative_tolerance": 1e-6,
++            "absolute_tolerance_m3": 1e-12,
++        }
++    return {
++        "status": "available",
++        "left_volume_weighted_damage_index": left_index,
++        "right_volume_weighted_damage_index": right_index,
++        "absolute_volume_weighted_damage_index_difference": abs(right_index - left_index),
++        "left_reference_volume_fraction_at_damage_threshold": left_fraction,
++        "right_reference_volume_fraction_at_damage_threshold": right_fraction,
++        "absolute_reference_volume_fraction_at_damage_threshold_difference": abs(right_fraction - left_fraction),
++        "absolute_volume_weighted_damage_index_difference_limit":
++            PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++        "absolute_reference_volume_fraction_at_damage_threshold_difference_limit":
++            PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++        "damage_threshold": left_threshold,
++        "left_reference_volume_m3": left_volume,
++        "right_reference_volume_m3": right_volume,
++        "overlay_tetrahedron_counts": [
++            left.get("paper_constituent_damage_tetrahedra"),
++            right.get("paper_constituent_damage_tetrahedra"),
++        ],
++        "definition": "per-tetrahedron four-plane area-weighted constitutive damage index averaged by exact mapped reference tetrahedron volume",
++        "not_geometric_crack_area": True,
++    }
++
++
+ def _capacity_history_gates(report: dict[str, Any]) -> dict[str, Any]:
+     damage = report.get("metrics", {}).get("damage_and_debond", {})
+     left, right = damage.get("left", {}), damage.get("right", {})
+-    # The existing paper index normalizes by a mesh-dependent sum of all tet
+-    # cut-plane areas. It is not an objective crack-area fraction. A force-only
+-    # match must not let an enabled but unmeasured localization field qualify.
+-    paper = {
+-        "status": ("not_enabled" if left.get("paper_status") == right.get("paper_status") == "not_enabled"
+-                   else "inconclusive_missing_mesh_objective_paper_damage_fraction"),
+-        "absolute_fraction_limit": 0.02,
+-        "constitutive_damage_index_substituted_for_area": False,
++    comparison = damage.get("paper_constituent_volume_damage") or _paper_constituent_damage_comparison(
++        left, right)
++    if comparison.get("status") == "not_enabled":
++        paper_index = {"status": "not_enabled"}
++        paper_volume_fraction = {"status": "not_enabled"}
++    elif comparison.get("status") != "available":
++        paper_index = {
++            "status": "inconclusive_missing_mesh_comparable_volume_weighted_damage_index",
++            "comparison": comparison,
++            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++            "not_geometric_crack_area": True,
++        }
++        paper_volume_fraction = {
++            "status": "inconclusive_missing_mesh_comparable_reference_volume_damage_fraction",
++            "comparison": comparison,
++            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++            "not_geometric_open_or_crack_area": True,
++        }
++    else:
++        index_difference = comparison["absolute_volume_weighted_damage_index_difference"]
++        paper_index = {
++            "status": "pass" if index_difference <= PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE else "fail",
++            "metric": "constituent_volume_weighted_constitutive_damage_index",
++            "absolute_index_difference": index_difference,
++            "absolute_index_difference_limit": PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE,
++            "comparison": comparison,
++            "not_geometric_crack_area": True,
++        }
++        fraction_difference = comparison[
++            "absolute_reference_volume_fraction_at_damage_threshold_difference"]
++        paper_volume_fraction = {
++            "status": "pass" if fraction_difference <= PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE else "fail",
++            "metric": "reference_volume_fraction_of_tetrahedra_with_damage_index_at_or_above_threshold",
++            "damage_index_threshold": comparison["damage_threshold"],
++            "absolute_fraction_difference": fraction_difference,
++            "absolute_fraction_difference_limit": PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE,
++            "comparison": comparison,
++            "not_geometric_open_or_crack_area": True,
++        }
++    debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
++    return {
++        "paper_volume_weighted_damage_index": paper_index,
++        "paper_reference_volume_damage_fraction_at_threshold": paper_volume_fraction,
++        "irreversible_debond_fraction": debond,
+     }
+-    debond = damage.get("constitutive_debond_fraction_gate") or {"status": "inconclusive"}
+-    return {"paper_damage_fraction": paper, "irreversible_debond_fraction": debond}
+ 
+ 
+ def _impact_histories(run: StageRun) -> tuple[dict[str, list[dict[str, float]]], dict[str, Any]]:
+@@ -1342,6 +1611,26 @@
+         report["reasons"] = ["declared refinement axis has identical values"]
+         return report
+     if axis == "time_step":
++        try:
++            ratio_left = _force_tolerance_ratio(left)
++            ratio_right = _force_tolerance_ratio(right)
++        except StageStudyError as exc:
++            report["status"] = "inconclusive_invalid_time_force_policy"
++            report["reasons"] = [str(exc)]
++            return report
++        report["metrics"]["time_step_force_tolerance_ratio"] = {
++            "status": "available" if math.isclose(
++                ratio_left, ratio_right, rel_tol=FORCE_RATIO_REL_TOL, abs_tol=0.0) else "incompatible",
++            "left_relative_residual_tolerance_over_dt_s_inverse": ratio_left,
++            "right_relative_residual_tolerance_over_dt_s_inverse": ratio_right,
++            "relative_rounding_tolerance": FORCE_RATIO_REL_TOL,
++            "interpretation": "solver control consistency only; this ratio is not an absolute force bound",
++        }
++        if not math.isclose(ratio_left, ratio_right,
++                            rel_tol=FORCE_RATIO_REL_TOL, abs_tol=0.0):
++            report["status"] = "incompatible_time_force_tolerance_policy"
++            report["reasons"] = ["relative_residual_tolerance / dt_s differs between timestep levels"]
++            return report
+         if scope not in ("compression", "all"):
+             report["status"] = "incompatible_time_step_scope"
+             report["reasons"] = ["timestep refinement admission currently requires the complete nominal and half-speed compression branches"]
+@@ -1372,8 +1661,11 @@
+             report["reasons"] = ["comparison-axis values are not finite numeric scalars or declared timestep lists"]
+             return report
+ 
+-    metrics: dict[str, Any] = {}
++    metrics: dict[str, Any] = {
++        "free_force_accuracy": _force_accuracy_pair(left, right),
++    }
+     if axis == "time_step":
++        metrics["time_step_force_tolerance_ratio"] = report["metrics"]["time_step_force_tolerance_ratio"]
+         refinement = _time_step_refinement_admission(
+             left, right, left_axis_value, right_axis_value)
+         metrics["actual_compression_timestep_refinement"] = refinement
+@@ -1412,11 +1704,14 @@
+         "left": _history_metrics(left), "right": _history_metrics(right),
+         "geometric_paper_crack_fraction_difference": None,
+         "geometric_starch_debond_fraction_difference": None,
++        "paper_constituent_volume_damage": {},
+         "fully_failed_cohesive_capacity_area": {},
+         "status": "inconclusive_geometric_area_not_exported",
+     }
+     history_a = metrics["damage_and_debond"]["left"]
+     history_b = metrics["damage_and_debond"]["right"]
++    metrics["damage_and_debond"]["paper_constituent_volume_damage"] = (
++        _paper_constituent_damage_comparison(history_a, history_b))
+     area_a = history_a.get("fully_failed_cohesive_capacity_area", {})
+     area_b = history_b.get("fully_failed_cohesive_capacity_area", {})
+     if (history_a.get("fully_failed_cohesive_capacity_area_status") ==
+@@ -1452,6 +1747,9 @@
+                    for value in capacity_differences.values())
+             else "capacity_loss_area_available_geometric_open_area_unexported")
+     report["missing_observables"].extend(("geometric paper crack area fraction", "geometric starch/HMA debond area fraction"))
++    if metrics["damage_and_debond"]["paper_constituent_volume_damage"].get("status") not in ("available", "not_enabled"):
++        report["missing_observables"].append(
++            "accepted paper constituent-volume-weighted damage index and thresholded reference-volume damage fraction")
+     if (history_a.get("fully_failed_cohesive_capacity_area_status") !=
+             "available_zero_tensile_shear_capacity_not_geometric_open_area" or
+             history_b.get("fully_failed_cohesive_capacity_area_status") !=
+@@ -1617,6 +1915,9 @@
+ CAPACITY_PEAK_TOLERANCE = 0.02
+ CAPACITY_CURVE_TOLERANCE = 0.05
+ CAPACITY_WORK_TOLERANCE = 0.02
++PAPER_VOLUME_WEIGHTED_DAMAGE_INDEX_TOLERANCE = 0.02
++PAPER_REFERENCE_VOLUME_DAMAGE_FRACTION_TOLERANCE = 0.02
++PAPER_DAMAGE_VOLUME_THRESHOLD = 0.5
+ 
+ 
+ def _capacity_case(run: StageRun) -> tuple[dict[str, Any] | None, list[str]]:
+@@ -1718,7 +2019,11 @@
+         for pair_index, pair in enumerate(pairs):
+             if pair.get("status") != "descriptive_metrics_available_with_unresolved_observables":
+                 reasons.append(f"adjacent_pair_{pair_index}_not_admitted")
+-            metrics = pair.get("metrics", {}).get("compression_force_work", {})
++            pair_metrics = pair.get("metrics", {})
++            force_gate = pair_metrics.get("free_force_accuracy", {})
++            if force_gate.get("status") != "pass":
++                reasons.append(f"adjacent_pair_{pair_index}_free_force_accuracy_{force_gate.get('status', 'inconclusive')}")
++            metrics = pair_metrics.get("compression_force_work", {})
+             if metrics.get("status") != "available":
+                 reasons.append(f"adjacent_pair_{pair_index}_missing-compression-metrics")
+             if metrics.get("comparison_is_complete_endpoint") is not True:
+@@ -1770,6 +2075,7 @@
+         "finest_pair_within_tolerance": threshold_pass,
+         "accepted_damage_and_debond_gates": history_gates,
+         "capacity_requires_damage_and_debond_observables": True,
++        "capacity_requires_declared_absolute_free_force_residual_bound": True,
+         "adjacent_pair_differences_decrease": adjacent_differences_decrease,
+         "coarse_middle_peak_difference": coarse_values[0] if math.isfinite(coarse_values[0]) else None,
+         "coarse_middle_curve_rms": coarse_values[1] if math.isfinite(coarse_values[1]) else None,
+@@ -1912,15 +2218,15 @@
+             "moment_curve": "box-grip-reactions.csv accepted total clamp/fixture wrench moment in N m, grouped by stage/action/score-line/environment; this is not the score punch contact moment",
+             "work": "integral over accepted force/stroke or moment/rotation samples with a declared sign convention",
+             "springback": "box-score-springback.csv held-to-released score-line angle changes after accepted clamp release and settle; endpoint shape residual and coverage flags must pass",
+-            "damage": "accepted paper internal-state damage index with element crack-plane reference areas; not geometric crack area",
+-            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; current CSV exports damage index only",
++            "damage": "accepted paper internal-state damage index with element crack-plane reference areas, plus a per-tetrahedron plane-area-averaged index weighted by exact mapped constituent reference volume; neither metric is geometric crack area",
++            "debond": "accepted cohesive face reference area and damage/opening, with geometric-debond threshold explicitly declared; the CSV exports irreversible zero-capacity reference-area fraction separately, while geometric open area remains unexported",
+             "certificates": "accepted native step, status, certificate validity and residual/correction/volume/pressure fields for every step",
+         },
+         "available_metric_limits": {
+             "shipping-compression.csv": "mean platen force in raw N versus accepted stroke and cumulative work, when complete; curve RMS difference is normalized by left-run RMS force, never by board width; actual timestep refinement is derived from accepted native rows and validated against macro observation duration/count/min/max dt",
+             "box-grip-reactions.csv": "accepted grip wrench moments in raw N m, not width-normalized; moment-curve difference uses left-run RMS moment magnitude; score punch contact moment is not exported here",
+             "box-score-springback.csv": "accepted endpoint shape-fit observations; the probe's engineering fit bound is not a published manufacturing tolerance",
+-            "shipping_history_observables.csv": "area-weighted constitutive paper/cohesive degradation indices; not crack/debond area fractions",
++            "shipping-history-observables.csv": "paper plane-area-weighted damage index and constituent-volume-weighted damage index with exact mapped reference-volume denominator; cohesive damage and irreversible zero-capacity reference-area fractions. None is geometric crack/open-debond area",
+             "shipping_contact_observations.csv": "contact impulses and mean forces; these are not substituted for a score-tool moment curve",
+         },
+         "qualification": "A plan or descriptive comparison is not material calibration, physical cardboard validation, or convergence proof. A convergence conclusion requires complete spatial and temporal triples, decreasing force/work, accepted grip-moment and released-springback differences when the scope includes scoring/assembly, full-stage observables, and admitted accepted histories.",
+--- a/matter/tools/test_cardboard_probe_argument_admission.py
++++ b/matter/tools/test_cardboard_probe_argument_admission.py
+@@ -21,6 +21,16 @@
+         ('restart-over-ceiling', ['--fgmres-restart', '17'], 1, None),
+         ('invalid-newton', ['--newton-iterations', '0'], 1, None),
+         ('invalid-material-budget', ['--material-iterations', '33'], 1, None),
++        ('force-bound-box', ['--box-blank', '--bend-angle', '0',
++                             '--max-free-force-residual-n', '0.01'], 0, None),
++        ('force-bound-without-box', ['--max-free-force-residual-n', '0.01'], 1,
++         '--max-free-force-residual-n requires a full-box run'),
++        ('force-bound-zero', ['--box-blank', '--bend-angle', '0',
++                              '--max-free-force-residual-n', '0'], 1,
++         '--max-free-force-residual-n requires a full-box run'),
++        ('force-bound-nan', ['--box-blank', '--bend-angle', '0',
++                             '--max-free-force-residual-n', 'nan'], 1,
++         'invalid number for --max-free-force-residual-n'),
+     ]
+     with tempfile.TemporaryDirectory(prefix='cardboard-argument-admission-') as temporary:
+         for name, options, code, message in cases:
+@@ -36,8 +46,11 @@
+                 expected = {'schema': 'numi.cardboard.probe-argument-validation.v1',
+                             'arguments_valid': True, 'file_inputs_validated': False,
+                             'mesh_generated': False, 'native_runtime_created': False}
+-                if json.loads(result.stdout) != expected:
++                payload = json.loads(result.stdout)
++                if any(payload.get(key) != value for key, value in expected.items()):
+                     raise AssertionError((name, result.stdout))
++                if 'resolved' in payload and not isinstance(payload['resolved'], dict):
++                    raise AssertionError((name, 'resolved argument summary is malformed'))
+             elif message and message not in result.stderr:
+                 raise AssertionError((name, result.stderr))
+     print(json.dumps({'schema': 'numi.cardboard.argument-admission-check.v1',
+--- a/matter/tools/test_cardboard_stage_resolution_study.py
++++ b/matter/tools/test_cardboard_stage_resolution_study.py
+@@ -38,7 +38,16 @@
+                  liner_hash: str = "liner-a", failed: bool = False,
+                  old_step_schema: bool = False, force_scale: float = 1.0,
+                  fully_failed_fraction: float = 0.25,
+-                 paper_damage_enabled: bool = True) -> Path:
++                 paper_damage_enabled: bool = True,
++                 paper_volume_damage_observable: bool = True,
++                 paper_volume_damage_index: float = 0.1,
++                 paper_reference_volume_m3: float = 0.004,
++                 paper_reference_volume_fraction_above_threshold: float = 0.25,
++                 rtol: float | None = None, force_bound: float | None = 1.0,
++                 force_l2: float = 0.1, force_max_node: float = 0.05,
++                 include_force_fields: bool = True,
++                 native_policy: bool = True,
++                 certificate_correction: float = 1.0e-8) -> Path:
+     path = root / name
+     path.mkdir()
+     materials = {}
+@@ -68,7 +77,8 @@
+         "shipping_score_command": {"enabled": True, "selected_depth_ratio_of_caliper": score_depth,
+                                    "tool_speed_m_per_s": 0.05,
+                                    "source_command_sha256": f"score-{score_depth}"},
+-        "solver": {"dt_s": dt, "relative_residual_tolerance": 1e-6,
++        "solver": {"dt_s": dt,
++                   "relative_residual_tolerance": rtol if rtol is not None else 1e-6,
+                    "volume_tolerance": 1e-4, "pressure_tolerance": 1e-4,
+                    "deformable_self_contact": True, "contact_slop_m": 1e-6,
+                    "deformation_gradient": "persistent_reference_displacement",
+@@ -77,6 +87,14 @@
+                    "fgmres_preconditioner": "scalar_diagonal", "line_search_steps": 8,
+                    "maximum_rate_exponent": 0},
+     }
++    if native_policy:
++        manifest["solver"]["native_acceptance_policy"] = {
++            "schema": study.FULL_BOX_ACCEPTANCE_POLICY,
++            "certificate_semantics": study.CERTIFICATE_POLICY_TEXT,
++            "force_residual_semantics": study.FORCE_RESIDUAL_POLICY_TEXT,
++            "max_free_force_residual_n": force_bound,
++            "force_environment_count": 2,
++        }
+     write_json(path / "manifest.json", manifest)
+     result = {"status": "complete", "compiled_world_fingerprint": 7}
+     write_json(path / "result.json", result)
+@@ -117,6 +135,8 @@
+               "fgmres_env0", "certificate_valid_env0", "certificate_residual_env0",
+               "certificate_correction_env0", "certificate_volume_env0", "certificate_pressure_env0",
+               "simulation_time_s", "dt_s"]
++    if include_force_fields and not old_step_schema:
++        fields.extend(study.FORCE_COLUMNS[0] + study.FORCE_COLUMNS[1])
+     if old_step_schema:
+         fields = ["native_step", "stage", "action_index", "accepted", "status_env0"]
+     step_rows = []
+@@ -132,9 +152,16 @@
+                "status_env0": 10 if failed and i == native_step_count - 1 else 0}
+         if not old_step_schema:
+             row.update({"status_env1": "NA", "fgmres_env0": 4, "certificate_valid_env0": 1,
+-                        "certificate_residual_env0": 1e-8, "certificate_correction_env0": 1e-8,
++                        "certificate_residual_env0": 1e-8, "certificate_correction_env0": certificate_correction,
+                         "certificate_volume_env0": 1e-6, "certificate_pressure_env0": 1e-6,
+                         "simulation_time_s": (i + 1) * dt, "dt_s": dt})
++            if include_force_fields:
++                row.update({
++                    study.FORCE_COLUMNS[0][0]: force_l2,
++                    study.FORCE_COLUMNS[0][1]: force_max_node,
++                    study.FORCE_COLUMNS[1][0]: force_l2,
++                    study.FORCE_COLUMNS[1][1]: force_max_node,
++                })
+         step_rows.append(row)
+     write_csv(path / "box-native-steps.csv", fields, step_rows)
+     action_fields = ["action_index", "status", "accepted_native_steps"]
+@@ -179,6 +206,11 @@
+     write_json(path / "box-native-result.json", native)
+     hist_fields = ["native_step", "simulation_time_s", "dt_s", "stage", "accepted",
+                    "paper_status", "paper_area_weighted_damage_fraction", "paper_reference_plane_area_m2",
++                   "paper_overlay_tetrahedra", "paper_volume_damage_status",
++                   "paper_constituent_volume_weighted_damage_index",
++                   "paper_constituent_reference_volume_m3",
++                   "paper_constituent_volume_fraction_above_damage_threshold",
++                   "paper_damage_volume_threshold", "paper_constituent_damage_tetrahedra",
+                    "starch_status", "starch_area_weighted_cohesive_damage_fraction", "starch_active_reference_area_m2",
+                    "starch_fully_failed_status", "starch_fully_failed_cohesive_area_m2",
+                    "starch_fully_failed_cohesive_area_fraction", "starch_fully_failed_faces",
+@@ -188,6 +220,22 @@
+     hist = [{"native_step": native_step_count - 1, "simulation_time_s": native_step_count * dt, "dt_s": dt, "stage": "final_accepted_state",
+              "accepted": 1, "paper_status": ("available_model_area_weighted_damage_index" if paper_damage_enabled else "not_enabled"),
+              "paper_area_weighted_damage_fraction": 0.1, "paper_reference_plane_area_m2": 0.5,
++             "paper_overlay_tetrahedra": (10 if paper_damage_enabled else 0),
++             "paper_volume_damage_status": (
++                 "available_constituent_volume_weighted_damage_index"
++                 if paper_damage_enabled and paper_volume_damage_observable
++                 else ("unavailable_invalid_or_incomplete_accepted_history"
++                       if paper_damage_enabled else "not_enabled")),
++             "paper_constituent_volume_weighted_damage_index": (
++                 paper_volume_damage_index if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_constituent_reference_volume_m3": (
++                 paper_reference_volume_m3 if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_constituent_volume_fraction_above_damage_threshold": (
++                 paper_reference_volume_fraction_above_threshold
++                 if paper_damage_enabled and paper_volume_damage_observable else ""),
++             "paper_damage_volume_threshold": 0.5,
++             "paper_constituent_damage_tetrahedra": (
++                 10 if paper_damage_enabled and paper_volume_damage_observable else 0),
+              "starch_status": "available_area_weighted_cohesive_degradation_index",
+              "starch_area_weighted_cohesive_damage_fraction": 0.2, "starch_active_reference_area_m2": 0.1,
+              "starch_fully_failed_status": "available_quadrature_zero_tensile_shear_capacity_fraction_not_geometric_open_area",
+@@ -272,6 +320,67 @@
+     def tearDown(self) -> None:
+         self.temp.cleanup()
+ 
++    def test_native_policy_allows_finite_correction_above_residual_tolerance(self) -> None:
++        run_dir = fake_box_run(self.root, "native-policy", certificate_correction=2.0e-3)
++        run = study.load_run(run_dir)
++        self.assertEqual(run.admission["status"], "completed_candidate")
++        self.assertEqual(run.admission["free_force_accuracy"]["status"], "pass")
++        self.assertEqual(
++            run.admission["free_force_accuracy"]["declared_free_force_residual_bound_N"],
++            1.0)
++        self.assertNotIn("absolute_force_error_bound_N",
++                         run.admission["free_force_accuracy"])
++
++    def test_legacy_policy_preserves_historical_correction_tolerance_gate(self) -> None:
++        run_dir = fake_box_run(self.root, "legacy-policy", native_policy=False,
++                               certificate_correction=2.0e-3)
++        run = study.load_run(run_dir)
++        self.assertEqual(run.admission["status"], "inconclusive_invalid_certificate")
++        self.assertTrue(any("certificate_correction_env0" in item
++                            for item in run.admission["reasons"]))
++
++    def test_native_policy_rejects_nonfinite_correction_and_authoritative_residual(self) -> None:
++        nan_dir = fake_box_run(self.root, "nan-correction",
++                               certificate_correction=float("nan"))
++        nan_run = study.load_run(nan_dir)
++        self.assertEqual(nan_run.admission["status"], "inconclusive_invalid_step_row")
++        high_dir = fake_box_run(self.root, "high-residual")
++        step_path = high_dir / "box-native-steps.csv"
++        fields, rows = study._rows(step_path)
++        rows[0]["certificate_residual_env0"] = "0.01"
++        write_csv(step_path, fields, rows)
++        high_run = study.load_run(high_dir)
++        self.assertEqual(high_run.admission["status"], "inconclusive_invalid_certificate")
++
++    def test_declared_force_residual_bound_passes_fails_or_stays_inconclusive(self) -> None:
++        passing = fake_box_run(self.root, "force-pass", force_bound=0.2)
++        self.assertEqual(study.load_run(passing).admission["free_force_accuracy"]["status"], "pass")
++        exceeding = fake_box_run(self.root, "force-fail", force_bound=1.0,
++                                 force_l2=1.0 + 1.0e-12, force_max_node=0.05)
++        self.assertEqual(study.load_run(exceeding).admission["free_force_accuracy"]["status"], "fail")
++        missing_bound = fake_box_run(self.root, "force-no-bound", force_bound=None)
++        self.assertEqual(study.load_run(missing_bound).admission["free_force_accuracy"]["status"],
++                         "inconclusive_no_declared_force_bound")
++        missing_rows = fake_box_run(self.root, "force-no-observations",
++                                    include_force_fields=False)
++        self.assertEqual(study.load_run(missing_rows).admission["free_force_accuracy"]["status"],
++                         "inconclusive_missing_force_observations")
++
++    def test_time_refinement_requires_matching_rtol_over_dt_and_force_bound(self) -> None:
++        coarse = fake_box_run(self.root, "time-coarse", dt=0.1)
++        fine = fake_box_run(self.root, "time-fine", dt=0.05, rtol=5.0e-7)
++        report = study.compare_runs(coarse, fine, "time_step", "compression")
++        ratio = report["metrics"]["time_step_force_tolerance_ratio"]
++        self.assertEqual(ratio["status"], "available")
++        self.assertEqual(report["metrics"]["free_force_accuracy"]["status"], "pass")
++        incompatible = fake_box_run(self.root, "time-bad-ratio", dt=0.05, rtol=1.0e-6)
++        bad = study.compare_runs(coarse, incompatible, "time_step", "compression")
++        self.assertEqual(bad["status"], "incompatible_time_force_tolerance_policy")
++        no_bound = fake_box_run(self.root, "time-no-bound", dt=0.05, rtol=5.0e-7,
++                                force_bound=None)
++        inconclusive = study.compare_runs(coarse, no_bound, "time_step", "compression")
++        self.assertEqual(inconclusive["metrics"]["free_force_accuracy"]["status"], "inconclusive")
++
+     def test_failed_prefix_is_never_baseline(self) -> None:
+         failed = fake_box_run(self.root, "failed", failed=True)
+         run = study.load_run(failed)
+@@ -378,10 +487,89 @@
+         failed = study.compare_runs(left, farther, "mesh_nx", "all")
+         self.assertEqual(failed["metrics"]["damage_and_debond"]["constitutive_debond_fraction_gate"]["status"], "fail")
+ 
+-    def test_capacity_rejects_force_match_with_unmeasured_enabled_paper_damage(self) -> None:
++    def test_thresholded_reference_volume_damage_fraction_uses_matching_volume_and_keeps_area_separate(self) -> None:
++        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
++        within = fake_box_run(self.root, "within", nx=16,
++                              paper_volume_damage_index=0.119,
++                              paper_reference_volume_m3=0.004000000001,
++                              paper_reference_volume_fraction_above_threshold=0.269)
++        report = study.compare_runs(left, within, "mesh_nx", "compression")
++        damage = report["metrics"]["damage_and_debond"]
++        comparison = damage["paper_constituent_volume_damage"]
++        self.assertEqual(comparison["status"], "available")
++        self.assertLessEqual(comparison["absolute_volume_weighted_damage_index_difference"], 0.02)
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(damage["left"]["paper_area_weighted_damage_fraction"], "0.1")
++        self.assertEqual(damage["left"]["paper_constituent_volume_weighted_damage_index"], 0.1)
++        self.assertIsNone(damage["left"]["geometric_crack_area_fraction"])
++        # Thresholded reference-volume fraction is descriptive and never substitutes for the index gate.
++        right = fake_box_run(self.root, "threshold-only", nx=16,
++                             paper_volume_damage_index=0.1)
++        f = right / "shipping-history-observables.csv"
++        fields, rows = study._rows(f)
++        rows[0]["paper_constituent_volume_fraction_above_damage_threshold"] = 0.9
++        write_csv(f, fields, rows)
++        threshold_report = study.compare_runs(left, right, "mesh_nx", "compression")
++        threshold_gate = study._capacity_history_gates(threshold_report)
++        self.assertEqual(threshold_gate["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
++        self.assertEqual(threshold_gate["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(
++            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++            ["absolute_reference_volume_fraction_at_damage_threshold_difference"], 0.65)
++        # The mean-index difference is descriptive and does not masquerade as a fraction gate.
++        self.assertEqual(
++            threshold_report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++            ["absolute_volume_weighted_damage_index_difference"], 0.0)
++
++    def test_thresholded_reference_volume_damage_fraction_fails_above_two_points_and_rejects_volume_mismatch(self) -> None:
++        left = fake_box_run(self.root, "left", paper_volume_damage_index=0.1)
++        above_index = fake_box_run(self.root, "above-index", nx=16,
++                                   paper_volume_damage_index=0.121)
++        report = study.compare_runs(left, above_index, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "fail")
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "pass")
++        above_fraction = fake_box_run(
++            self.root, "above-fraction", nx=16, paper_volume_damage_index=0.1,
++            paper_reference_volume_fraction_above_threshold=0.271)
++        report = study.compare_runs(left, above_fraction, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertEqual(gates["paper_volume_weighted_damage_index"]["status"], "pass")
++        self.assertEqual(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"], "fail")
++        mismatch = fake_box_run(self.root, "mismatch", nx=16,
++                                paper_reference_volume_m3=0.0041)
++        report = study.compare_runs(left, mismatch, "mesh_nx", "compression")
++        comparison = report["metrics"]["damage_and_debond"]["paper_constituent_volume_damage"]
++        self.assertEqual(comparison["status"], "incompatible_constituent_reference_volume")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
++        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
++
++        malformed = fake_box_run(self.root, "bad-coverage", nx=16)
++        file = malformed / "shipping-history-observables.csv"
++        fields, rows = study._rows(file)
++        rows[0]["paper_overlay_tetrahedra"] = "9"
++        write_csv(file, fields, rows)
++        report = study.compare_runs(left, malformed, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_volume_weighted_damage_index"]["status"].startswith("inconclusive"))
++
++        threshold = fake_box_run(self.root, "bad-threshold", nx=16)
++        file = threshold / "shipping-history-observables.csv"
++        fields, rows = study._rows(file)
++        rows[0]["paper_damage_volume_threshold"] = "0.6"
++        write_csv(file, fields, rows)
++        report = study.compare_runs(left, threshold, "mesh_nx", "compression")
++        gates = study._capacity_history_gates(report)
++        self.assertTrue(gates["paper_reference_volume_damage_fraction_at_threshold"]["status"].startswith("inconclusive"))
++
++    def test_capacity_rejects_force_match_with_missing_volume_damage_index(self) -> None:
+         cases = [
+             fake_box_run(self.root, "mesh-coarse", nx=8, force_scale=1.03),
+-            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01),
++            fake_box_run(self.root, "middle", nx=16, dt=0.15, force_scale=1.01,
++                         paper_volume_damage_observable=False),
+             fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0),
+             fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, force_scale=1.03),
+             fake_box_run(self.root, "time-fine", nx=16, dt=0.075, force_scale=1.0),
+@@ -392,7 +580,9 @@
+         self.assertEqual(report["status"], "not_qualified")
+         self.assertFalse(target.exists())
+         self.assertTrue(report["mesh_study"]["finest_pair_within_tolerance"])
+-        self.assertTrue(any("paper_damage_fraction_inconclusive" in reason
++        self.assertTrue(any("paper_volume_weighted_damage_index_inconclusive" in reason
++                            for reason in report["mesh_study"]["reasons"]))
++        self.assertTrue(any("paper_reference_volume_damage_fraction_at_threshold_inconclusive" in reason
+                             for reason in report["mesh_study"]["reasons"]))
+ 
+     def test_capacity_rejects_excessive_debond_difference_even_with_force_match(self) -> None:
+@@ -459,9 +649,9 @@
+         reference = fake_box_run(self.root, "shared-middle", nx=16, dt=0.15,
+                                  force_scale=1.01, paper_damage_enabled=False)
+         mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0, paper_damage_enabled=False)
+-        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3,
++        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, rtol=2.0e-6,
+                                    force_scale=1.03, paper_damage_enabled=False)
+-        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075,
++        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075, rtol=5.0e-7,
+                                  force_scale=1.0, paper_damage_enabled=False)
+         evidence_path = self.root / "capacity" / "capacity.properties"
+         report = study.create_capacity_qualification(
+@@ -479,9 +669,9 @@
+         reference = fake_box_run(self.root, "shared-middle", nx=16, dt=0.15,
+                                  force_scale=1.01)
+         mesh_fine = fake_box_run(self.root, "mesh-fine", nx=32, force_scale=1.0)
+-        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3,
++        time_coarse = fake_box_run(self.root, "time-coarse", nx=16, dt=0.3, rtol=2.0e-6,
+                                    force_scale=1.03)
+-        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075,
++        time_fine = fake_box_run(self.root, "time-fine", nx=16, dt=0.075, rtol=5.0e-7,
+                                  force_scale=1.0, failed=True)
+         evidence_path = self.root / "capacity" / "capacity.properties"
+         report = study.create_capacity_qualification(
+@@ -572,7 +762,7 @@
+ 
+     def test_timestep_admission_uses_actual_accepted_native_substeps(self) -> None:
+         coarse = fake_box_run(self.root, "coarse", dt=0.1)
+-        fine = fake_box_run(self.root, "fine", dt=0.05)
++        fine = fake_box_run(self.root, "fine", dt=0.05, rtol=5.0e-7)
+         report = study._time_step_refinement_admission(
+             study.load_run(coarse), study.load_run(fine), 0.1, 0.05)
+         self.assertEqual(report["status"], "available")
+@@ -588,6 +778,7 @@
+         manifest_path = mislabeled / "manifest.json"
+         manifest = json.loads(manifest_path.read_text())
+         manifest["solver"]["dt_s"] = 0.05
++        manifest["solver"]["relative_residual_tolerance"] = 5.0e-7
+         write_json(manifest_path, manifest)
+         report = study.compare_runs(coarse, mislabeled, "time_step", "compression")
+         self.assertEqual(report["status"], "incompatible_physical_schedule")

@@ -1,0 +1,211 @@
+{
+  "schema": "numi.cardboard.native596-598-root-adjudication.v1",
+  "results": {
+    "596": {
+      "verdict": "PASS_DIAGNOSTIC_PRODUCTION_SUFFIX_PARITY_TARGET_STILL_FAILS",
+      "controls": [
+        16,
+        17,
+        18,
+        19
+      ],
+      "observation_rows_exact": 8,
+      "production_files_exact": [
+        "accepted_step_000017_bent.obj",
+        "accepted_step_000017_held_reference.obj",
+        "accepted_step_000018_bent.obj",
+        "accepted_step_000018_held_reference.obj",
+        "accepted_step_000019_bent.obj",
+        "accepted_step_000019_held_reference.obj",
+        "accepted_step_000020_held_reference.obj",
+        "compiled.nmatterpack",
+        "manifest.json",
+        "material_state_000020_bent.json",
+        "mesh.json",
+        "rejected_step_diagnostic_000020_bent.obj"
+      ],
+      "rejected_conditioning_bins_exact": [
+        "AP.bin",
+        "P.bin",
+        "candidate_nodes.bin",
+        "effective_P.bin",
+        "factor_valid.bin",
+        "linearization_F_high.bin",
+        "linearization_F_low.bin",
+        "linearization_accepted_material_history.bin",
+        "linearization_scheduler_exponents.bin",
+        "node_block_inverse.bin",
+        "pivoted_RAP.bin",
+        "pivots.bin",
+        "restart_Aq.bin",
+        "restart_Aq_by_environment.bin",
+        "restart_attempt_counts_by_environment.bin",
+        "restart_factor_valid_by_environment.bin",
+        "restart_generations_by_environment.bin",
+        "restart_mode_scales_by_environment.bin",
+        "restart_mode_valid_by_environment.bin",
+        "restart_pivoted_RAP.bin",
+        "restart_pivoted_RAP_by_environment.bin",
+        "restart_pivots.bin",
+        "restart_pivots_by_environment.bin",
+        "restart_q.bin",
+        "restart_q_by_environment.bin",
+        "restart_raw_norm_squared_by_environment.bin",
+        "restart_target_scales_by_environment.bin"
+      ],
+      "capture_sha256": "d73993d528900ed570c6a1a66c61dbb127180e441dad25cce9c6300185b8fe8b",
+      "capture_bytes": 39995860,
+      "scope": "Actual strict-policy control19 Newton127. Raw cached matrices are captured, but this old observer action is uncached; cached native action parity is not measured.",
+      "target_failed": true
+    },
+    "597": {
+      "verdict": "PASS_OBSERVER_PARITY_FIRST_FAILURE_LOCALIZED",
+      "production_transaction_files_exact": [
+        "transaction-000000-after.bin",
+        "transaction-000000-before.bin",
+        "transaction-000000.json",
+        "transaction-000001-after.bin",
+        "transaction-000001-before.bin",
+        "transaction-000001.json",
+        "transaction-000002-after.bin",
+        "transaction-000002-before.bin",
+        "transaction-000002.json",
+        "transaction-000003-after.bin",
+        "transaction-000003-before.bin",
+        "transaction-000003.json"
+      ],
+      "accepted_controls": [
+        1199,
+        1200,
+        1201
+      ],
+      "failed_control": 1202,
+      "failed_newton": 7,
+      "all_array_hashes_verified": 48,
+      "trials": [
+        {
+          "trial": 0,
+          "tested_alpha": 1.0,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 1,
+          "tested_alpha": 0.5,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 2,
+          "tested_alpha": 0.25,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 3,
+          "tested_alpha": 0.125,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 4,
+          "tested_alpha": 0.0625,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 5,
+          "tested_alpha": 0.03125,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 6,
+          "tested_alpha": 0.015625,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        },
+        {
+          "trial": 7,
+          "tested_alpha": 0.0078125,
+          "first_failed_stage": "deformable_self_narrowphase",
+          "status_code": 6,
+          "failed_index": 78,
+          "diagnostics": [
+            16.0,
+            99.0,
+            1.0,
+            0.0
+          ],
+          "trial_residual_is_nonfinite": true
+        }
+      ],
+      "interpretation": "All8 trials pass geometry, bulk, cohesive, rigid contact, and private segment deformable_sweep_ccd. First failure is deformable_self_narrowphase for parent primitives16/99, valid mortar partitions but uncertified findMortarComplementContact. Individual feature cause remains open; no tolerance/contact bypass is justified.",
+      "physical_history_completed": false
+    },
+    "598": {
+      "verdict": "PASS_PRODUCTION_CONTACT_KERNEL_COMPONENT_PARITY_AND_OVERFLOW",
+      "stdout": "production_contact_sample_compaction=PASS E=2 P=7 active_per_env=4 FEM/rigid/history_bitwise_parity=PASS overflow_prefix_rejected=PASS physical_transactions=0",
+      "physical_transactions": 0,
+      "scope": "Manufactured E2/P7/4active-per-env production contact-sample compaction. Corrected fixture zero-seeds both paths; overflow sentinels unchanged. No full-runtime/shipping memory qualification."
+    }
+  },
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T14:23:10.442672+00:00"
+}

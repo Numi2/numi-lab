@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.serialized-native-queue.v1",
+  "wait_for": "solver/strict-state-source240-control19-final-newton-diagnostic-596/receipt.json",
+  "scripts": {
+    "run_native597_freebody_trial_summary_001.py": "354baa7fcd34d5b7687b50ba77e5f2e460d7975030bebcbc7d4caed0bb12a604",
+    "run_native598_contact_compactor_fixture_fixed_001.py": "5df14545bbd50389e123fdaac2a4cdab0ed99ffaef0cc440fb0cf4ef38930bfa",
+    "run_native599_primary_cache_action_diagnostic_001.py": "a6d4cee0bf091bcc3be052c8e492a72a9c5fc9c4a3d01163bed1237204f2e529"
+  },
+  "gpu_workers": 1,
+  "independent_checks_continue_after_recorded_failures": true,
+  "launched_at_utc": "2026-10-16T14:08:54.429036+00:00"
+}

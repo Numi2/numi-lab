@@ -1,0 +1,163 @@
+{
+  "schema": "numi.cardboard.publication040-root-audit.v1",
+  "verdict": "PASS_WITH_SIX_FULL_SEQUENCE_AXES_OPEN",
+  "parent": "577ae2ff37d1a3834f8ffe851ec15d296226d41b",
+  "paths": 5239,
+  "payloads": 5208,
+  "historical_records_exact": 2062,
+  "new_records": 82,
+  "original_bytes": 642526559,
+  "stored_bytes": 301493018,
+  "source_count": 836,
+  "configure_support_count": 1034,
+  "source_changed": [
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/deformable_limit_trace_json.hpp",
+    "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp",
+    "matter/include/numi/matter/detail/true_residual_arena_plan.hpp",
+    "matter/include/numi/matter/matter.hpp",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/constitutive_impl.cpp",
+    "matter/src/metal/common.metalinc",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/regional_graph_schwarz.hpp",
+    "matter/src/runtime.mm",
+    "matter/src/validation_impl.cpp",
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+    "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+    "matter/tools/cardboard_full_contact_armijo_check.mm",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_refined_graph_layout_check.cpp",
+    "matter/tools/cardboard_solver_environment.py",
+    "matter/tools/fgmres_true_residual_native_check.mm",
+    "matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp",
+    "matter/tools/pure_fem_cgls_arena_8192_check.mm",
+    "matter/tools/test_cardboard_shipping_resolution_controls.py",
+    "matter/tools/test_cardboard_solver_environment.py",
+    "matter/tools/test_deformable_limit_trace_serializer.py",
+    "matter/tools/test_true_residual_certification_contract.py",
+    "matter/tools/true_residual_arena_plan_check.cpp"
+  ],
+  "source_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "summary_sha256": "f4bbf96736052f9442e72f3be5f5b04c9e49d9c82956fda86503fc9234967c61",
+  "binding_sha256": "aa76c9709992a1a9f7174cf1032ce14a653798f7f909d43936fb5d3c47f86712",
+  "variant_checks": [
+    {
+      "name": "source-constituent-volume-damage-242-001",
+      "selected": 836,
+      "support": 1034,
+      "delta": 15,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-deformable-contact-trial-trace-236-001",
+      "selected": 821,
+      "support": 1034,
+      "delta": 29,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-deformable-contact-trial-trace-236-002",
+      "selected": 823,
+      "support": 1034,
+      "delta": 29,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-first-failure-dispatch-233-001",
+      "selected": 821,
+      "support": 1034,
+      "delta": 30,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-refined-coupon-arenas-238-001",
+      "selected": 832,
+      "support": 1034,
+      "delta": 11,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-refined-regional-graph-240-001",
+      "selected": 833,
+      "support": 1034,
+      "delta": 10,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-refined-regional-graph-240-002",
+      "selected": 834,
+      "support": 1034,
+      "delta": 10,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-refined-regional-graph-240-003",
+      "selected": 834,
+      "support": 1034,
+      "delta": 10,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-refined-regional-graph-240-004",
+      "selected": 834,
+      "support": 1034,
+      "delta": 9,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-shipping-resolution-controls-239-001",
+      "selected": 833,
+      "support": 1034,
+      "delta": 12,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-shipping-resolution-controls-239-002",
+      "selected": 833,
+      "support": 1034,
+      "delta": 11,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-shipping-resolution-controls-239-003",
+      "selected": 833,
+      "support": 1034,
+      "delta": 11,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-strict-local-projection-main-237-001",
+      "selected": 832,
+      "support": 1034,
+      "delta": 17,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-strict-local-projection-upstream-232",
+      "selected": 830,
+      "support": 1034,
+      "delta": 18,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-strict-refined-contact-observers-241-004",
+      "selected": 836,
+      "support": 1034,
+      "delta": 0,
+      "all_declared_inputs_reconstructible": true
+    },
+    {
+      "name": "source-true-residual-native-reporting-243-001",
+      "selected": 834,
+      "support": 1034,
+      "delta": 8,
+      "all_declared_inputs_reconstructible": true
+    }
+  ],
+  "all_six_statuses_open": true,
+  "canonical_native_trajectory_pending": true,
+  "active585_235_244_246_excluded": true,
+  "at_utc": "2026-10-16T13:34:05.333433+00:00"
+}

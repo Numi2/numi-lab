@@ -1,0 +1,468 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -5113,8 +5113,18 @@
+     input.tetrahedronCount = dispatch.tetrahedronCount;
+     input.cohesiveFaceCount = dispatch.cohesiveFaceCount;
+     input.contactPairCount = dispatch.contactPairCount;
+-    input.activeContactCapacity = std::min<std::uint64_t>(
+-        dispatch.reservedMixed1, dispatch.contactPairCount);
++    // reservedMixed1 is the compiler-emitted sum of the FEM object's
++    // activeContacts capacities after the zero-means-full default is resolved.
++    // Bind that exact dispatch value; do not infer capacity from the mesh size.
++    input.activeContactCapacity = dispatch.reservedMixed1;
++    input.rigidContactSampleCapacity = dispatch.contactPairCount;
++    id<MTLDevice> memoryPlanDevice = MTLCreateSystemDefaultDevice();
++    input.maxBufferLength = memoryPlanDevice == nil ? 0u :
++        static_cast<std::uint64_t>(memoryPlanDevice.maxBufferLength);
++    if (arguments.shippingBox &&
++        input.activeContactCapacity != input.contactPairCount)
++        input.runtimeConfigurationFailure =
++            "shipping activeContacts must equal the full pair domain until compact-sample native parity is sealed";
+     input.deformableContactCapacity = dispatch.deformableContactCapacity;
+     input.compactImmutableSurfaceMap =
+         (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
+@@ -5186,7 +5196,8 @@
+     input.sparsePrivateContactBoundedFreeBoxScope =
+         shippingSparsePrivateBoundedFreeBoxLayout(
+             dispatch, compiled.world.contact.rigidProxies);
+-    if (sparseOptions.error != nullptr)
++    if (sparseOptions.error != nullptr &&
++        input.runtimeConfigurationFailure.empty())
+         input.runtimeConfigurationFailure = sparseOptions.error;
+ 
+     const char* fullContactSelector = std::getenv(
+@@ -5854,7 +5865,61 @@
+                    numi::cardboard::kShippingPeakMemoryLimitBytes ? "true" : "false");
+     if (budget) {
+         output << ",\n  \"estimated_arena_budget\": {\n"
+-               << "    \"evidence_class\": \"checked pre-allocation envelope; baseline factor rounded above case032 measured resident-to-static-floor ratio, optional arenas use runtime caps\",\n"
++               << "    \"evidence_class\": \"case032-anchored modeled allocation envelope; whole runtime arena inventory is incomplete\",\n"
++               << "    \"whole_runtime_allocation_inventory_complete\": false,\n"
++               << "    \"complete_allocation_admission_passed\": false,\n"
++               << "    \"complete_allocation_admission_blockers\": ["
++               << "\"case032-derived noncontact remainder is an anchored envelope rather than a per-buffer inventory\","
++               << "\"UploadPlan staging lifetimes are represented by a host-size reserve rather than enumerated buffers\","
++               << "\"not every persistent/transient Metal allocation has an individual maxBufferLength check\","
++               << "\"actual unified-memory peak and runtime allocation success remain unmeasured\"],\n"
++               << "    \"compiled_active_contact_capacity\": "
++               << world.dispatch.reservedMixed1 << ",\n"
++               << "    \"rigid_contact_sample_capacity_modeled\": "
++               << budget->rigidContactSampleCapacity << ",\n"
++               << "    \"rigid_contact_sample_bytes\": "
++               << budget->rigidContactSampleBytes << ",\n"
++               << "    \"rigid_contact_canonical_history_bytes\": "
++               << budget->rigidContactCanonicalHistoryBytes << ",\n"
++               << "    \"rigid_contact_pair_map_bytes\": "
++               << budget->rigidContactPairMapBytes << ",\n"
++               << "    \"rigid_contact_max_buffer_length_bytes\": "
++               << budget->rigidContactMaxBufferLength << ",\n"
++               << "    \"compiled_active_contact_capacity_origin\": \"dispatch.reservedMixed1; compiler resolves source activeContacts=0 to the full eligible pair domain\",\n"
++               << "    \"shipping_sample_capacity_policy\": \"full pair domain; compacted main samples are excluded until parity is qualified\",\n"
++               << "    \"rigid_contact_buffer_extents_valid\": "
++               << (budget->rigidContactBufferExtentsValid ? "true" : "false") << ",\n"
++               << "    \"rigid_contact_buffers_within_max_buffer_length\": "
++               << (budget->rigidContactBuffersWithinMaxBufferLength ? "true" : "false") << ",\n"
++               << "    \"rigid_contact_buffer_plan\": [";
++        numi::cardboard::ShippingMemoryBudgetInput contactPlanInput;
++        contactPlanInput.environmentCount = world.dispatch.environmentCount;
++        contactPlanInput.contactPairCount = world.dispatch.contactPairCount;
++        contactPlanInput.activeContactCapacity = budget->rigidContactActiveCapacity;
++        contactPlanInput.rigidContactSampleCapacity = budget->rigidContactSampleCapacity;
++        contactPlanInput.rigidContactSampleCompactionParityQualified = false;
++        contactPlanInput.maxBufferLength = budget->rigidContactMaxBufferLength;
++        const auto contactPlan = numi::cardboard::planShippingRigidContactArena(
++            contactPlanInput);
++        for (std::size_t i = 0u; i < contactPlan.buffers.size(); ++i) {
++            const auto& b = contactPlan.buffers[i];
++            if (i != 0u) output << ',';
++            output << "{\"name\":\"" << b.name
++                   << "\",\"logical_count\":" << b.logicalCount
++                   << ",\"element_bytes\":" << b.elementBytes
++                   << ",\"allocated_bytes\":" << b.allocatedBytes
++                   << ",\"within_device_max\":"
++                   << (b.withinMaxBufferLength ? "true" : "false")
++                   << ",\"storage\":\""
++                   << (std::string(b.name) == "contact_sample_configuration"
++                           ? "shared" : "private")
++                   << "\",\"lifetime\":\"runtime resident\"}";
++        }
++        output << "],\n"
++               << "    \"rigid_contact_plan_admitted\": "
++               << (contactPlan.admitted ? "true" : "false") << ",\n"
++               << "    \"rigid_contact_plan_failure\": \""
++               << (contactPlan.failure == nullptr ? "" : contactPlan.failure) << "\",\n"
+                << "    \"measured_base_and_contact_envelope_bytes\": "
+                << budget->measuredBaseAndContactEnvelopeBytes << ",\n"
+                << "    \"static_fem_solver_floor_bytes\": "
+@@ -5925,6 +5990,8 @@
+                << budget->estimatedPeakDomainBytes << ",\n"
+                << "    \"limit_bytes\": " << budget->limitBytes << ",\n"
+                << "    \"admission_passed_before_native_initialization\": "
++               << (budget->withinLimit ? "true" : "false") << ",\n"
++               << "    \"modeled_envelope_fit_only_not_complete_admission\": "
+                << (budget->withinLimit ? "true" : "false") << ",\n"
+                << "    \"shared_upload_and_readback_reserves_counted_once\": true,\n"
+                << "    \"accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints + accepted inside-clearance transient scratch concurrent with the live world; upload staging and one snapshot readback are counted once\"\n  }";
+--- a/matter/tools/cardboard_shipping_memory.hpp
++++ b/matter/tools/cardboard_shipping_memory.hpp
+@@ -11,6 +11,7 @@
+ #include "cardboard_cohesive_armijo_tiles.hpp"
+ 
+ #include <algorithm>
++#include <array>
+ #include <bit>
+ #include <cmath>
+ #include <cstddef>
+@@ -83,7 +84,13 @@
+     std::uint64_t tetrahedronCount = 0u;
+     std::uint64_t cohesiveFaceCount = 0u;
+     std::uint64_t contactPairCount = 0u;
++    // Exact effective activeContacts count from the compiled dispatch.
+     std::uint64_t activeContactCapacity = 0u;
++    // Exact sample capacity; zero preserves legacy full-pair behavior.
++    std::uint64_t rigidContactSampleCapacity = 0u;
++    bool rigidContactSampleCompactionParityQualified = false;
++    // Live MTLDevice value; zero means the device limit is unmeasured.
++    std::uint64_t maxBufferLength = 0u;
+     std::uint64_t deformableContactCapacity = 0u;
+     // Runtime allocates the padded six-corners-per-candidate key/payload sort
+     // buffers only when NM_CONTACT_NODE_INCIDENCE_SORT=1 is selected.
+@@ -150,6 +157,15 @@
+     std::uint64_t persistentContactBytes = 0u;
+     std::uint64_t deformableNodeIncidenceSortBytes = 0u;
+     std::uint64_t rigidContactRuntimeBytes = 0u;
++    std::uint64_t rigidContactActiveCapacity = 0u;
++    std::uint64_t rigidContactSampleCapacity = 0u;
++    std::uint64_t rigidContactMaxBufferLength = 0u;
++    std::uint64_t rigidContactSampleBytes = 0u;
++    std::uint64_t rigidContactCanonicalHistoryBytes = 0u;
++    std::uint64_t rigidContactPairMapBytes = 0u;
++    bool rigidContactBufferExtentsValid = false;
++    bool rigidContactBuffersWithinMaxBufferLength = false;
++    bool wholeRuntimeAllocationInventoryComplete = false;
+     std::uint64_t measuredBaseAndContactEnvelopeBytes = 0u;
+     std::uint64_t cohesiveRuntimeBytes = 0u;
+     std::uint64_t regionalGalerkinBytes = 0u;
+@@ -643,20 +659,123 @@
+     // Per-environment contact samples, accepted/candidate/checkpoint friction
+     // history, active maps, rigid state/reaction workspaces, and body-proxy
+     // reductions remain mutable and are not shared.
++    const std::uint64_t requestedSamples =
++        input.rigidContactSampleCapacity == 0u ? pairCount : input.rigidContactSampleCapacity;
++    const std::uint64_t modeledSamples =
++        requestedSamples < pairCount && input.rigidContactSampleCompactionParityQualified
++            ? requestedSamples : pairCount;
+     constexpr std::uint64_t perEnvironmentPairBytes =
+-        sizeof(NMContactSampleGPU) + 3u * sizeof(nm_float4) +
+-        sizeof(std::uint32_t);
++        3u * sizeof(nm_float4) + sizeof(std::uint32_t);
+     std::uint64_t repeated = shippingMemoryCheckedMultiply3(
+         environments, pairCount, perEnvironmentPairBytes);
+     repeated = shippingMemoryCheckedAdd(repeated,
++        shippingMemoryCheckedMultiply3(environments, modeledSamples,
++                                       sizeof(NMContactSampleGPU)));
++    const std::uint64_t activeCapacity = input.activeContactCapacity == 0u
++        ? pairCount : input.activeContactCapacity;
++    repeated = shippingMemoryCheckedAdd(repeated,
+         shippingMemoryCheckedMultiply3(
+-            environments, input.activeContactCapacity, sizeof(std::uint32_t)));
++            environments, activeCapacity, sizeof(std::uint32_t)));
++    // The contact sample page-complete word is per environment; its two-word
++    // mode/capacity configuration is shared and lives with persistent arenas.
++    repeated = shippingMemoryCheckedAdd(repeated,
++        shippingMemoryCheckedMultiply(environments, sizeof(std::uint32_t)));
++    shared = shippingMemoryCheckedAdd(shared, 2u * sizeof(std::uint32_t));
+     repeated = shippingMemoryCheckedAdd(repeated,
+         shippingMemoryCheckedMultiply3(
+             environments, proxyCount,
+             4u * sizeof(NMRigidStateGPU) +
+                 3u * sizeof(NMRigidReactionGPU)));
+     return shippingMemoryCheckedAdd(shared, repeated);
++}
++
++struct ShippingPlannedMetalBuffer {
++    const char* name = nullptr;
++    std::uint64_t logicalCount = 0u, elementBytes = 0u, allocatedBytes = 0u;
++    bool withinMaxBufferLength = false;
++};
++struct ShippingRigidContactArenaPlan {
++    static constexpr std::size_t kBufferCount = 11u;
++    std::array<ShippingPlannedMetalBuffer,kBufferCount> buffers{};
++    std::uint64_t pairCount=0u, activeContactCapacity=0u, sampleCapacity=0u, persistentBytes=0u;
++    bool parityQualifiedCompaction=false, perBufferLimitKnown=false;
++    bool extentsValid=false, allBuffersWithinMaxBufferLength=false, admitted=false;
++    const char* failure="uninitialized";
++};
++inline bool shippingPlannedBuffer(const char* name,std::uint64_t count,
++    std::uint64_t elementBytes,std::uint64_t maxBufferLength,
++    ShippingPlannedMetalBuffer& out) {
++    if(!elementBytes) return false;
++    const auto raw=shippingMemoryCheckedMultiply(count,elementBytes);
++    const auto bytes=std::max<std::uint64_t>({16u,elementBytes,raw});
++    out={name,count,elementBytes,bytes,maxBufferLength!=0u&&bytes<=maxBufferLength};
++    return true;
++}
++// Exact main rigid-contact extents. Pair maps and all three canonical histories
++// remain full-P; only the sample buffer may shrink after native parity is bound.
++inline ShippingRigidContactArenaPlan planShippingRigidContactArena(
++    const ShippingMemoryBudgetInput& input) {
++    ShippingRigidContactArenaPlan p{};
++    p.pairCount=input.contactPairCount;
++    p.activeContactCapacity=input.activeContactCapacity==0u
++        ? input.contactPairCount : input.activeContactCapacity;
++    const auto requested=input.rigidContactSampleCapacity==0u
++        ? input.contactPairCount : input.rigidContactSampleCapacity;
++    if(!input.environmentCount || input.contactPairCount>UINT32_MAX ||
++       p.activeContactCapacity>input.contactPairCount || requested>input.contactPairCount) {
++        p.failure="invalid_contact_or_environment_count"; return p;
++    }
++    if(requested<input.contactPairCount&&!input.rigidContactSampleCompactionParityQualified) {
++        p.failure="reduced_main_sample_capacity_lacks_native_parity"; return p;
++    }
++    if(requested<p.activeContactCapacity) {
++        p.failure="sample_capacity_below_active_contact_capacity"; return p;
++    }
++    p.sampleCapacity=requested;
++    p.parityQualifiedCompaction=requested<input.contactPairCount;
++    p.perBufferLimitKnown=input.maxBufferLength!=0u;
++    std::uint64_t ep=0u,es=0u,ea=0u;
++    try {
++        ep=shippingMemoryCheckedMultiply(input.environmentCount,input.contactPairCount);
++        es=shippingMemoryCheckedMultiply(input.environmentCount,p.sampleCapacity);
++        ea=shippingMemoryCheckedMultiply(input.environmentCount,p.activeContactCapacity);
++        const std::array<std::array<std::uint64_t,2>,11> shapes{{
++            {{input.contactPairCount,sizeof(NMContactPairGPU)}},
++            {{es,sizeof(NMContactSampleGPU)}},
++            {{input.contactPairCount,sizeof(std::uint32_t)}},
++            {{ea,sizeof(std::uint32_t)}},
++            {{input.contactPairCount,sizeof(std::uint32_t)}},
++            {{ep,sizeof(nm_float4)}},{{ep,sizeof(nm_float4)}},{{ep,sizeof(nm_float4)}},
++            {{input.environmentCount,sizeof(std::uint32_t)}},
++            {{input.environmentCount,sizeof(std::uint32_t)}},
++            {{2u,sizeof(std::uint32_t)}}
++        }};
++        constexpr std::array<const char*,11> names{{
++            "contact_pair_table","contact_samples","contact_sample_slots_by_pair",
++            "contact_active_pair_ids","contact_active_slots_by_pair",
++            "contact_history_accepted","contact_history_candidate",
++            "contact_history_checkpoint","contact_active_counts",
++            "contact_sample_page_complete","contact_sample_configuration"
++        }};
++        bool all=p.perBufferLimitKnown;
++        for(std::size_t i=0;i<shapes.size();++i) {
++            auto& b=p.buffers[i];
++            if(!shippingPlannedBuffer(names[i],shapes[i][0],shapes[i][1],input.maxBufferLength,b)) {
++                p.failure="contact_buffer_size_overflow";return p;
++            }
++            p.persistentBytes=shippingMemoryCheckedAdd(p.persistentBytes,b.allocatedBytes);
++            all=all&&b.withinMaxBufferLength;
++        }
++        p.extentsValid=true;
++        p.allBuffersWithinMaxBufferLength=all;
++    } catch(const std::overflow_error&) {
++        p.failure="contact_buffer_arithmetic_overflow";return p;
++    }
++    if(!p.perBufferLimitKnown) {p.failure="device_max_buffer_length_unavailable";return p;}
++    if(!p.allBuffersWithinMaxBufferLength) {
++        p.failure="contact_buffer_exceeds_device_max_buffer_length";return p;
++    }
++    p.admitted=true;p.failure=nullptr;return p;
+ }
+ 
+ inline ShippingStaticMemoryLowerBound estimateShippingStaticMemoryLowerBound(
+@@ -796,6 +915,27 @@
+         persistentContactBase, result.deformableNodeIncidenceSortBytes);
+     const std::uint64_t persistentContact = result.persistentContactBytes;
+     result.rigidContactRuntimeBytes = shippingRigidContactRuntimeBytes(input);
++    const auto rigidArena=planShippingRigidContactArena(input);
++    result.rigidContactActiveCapacity=rigidArena.activeContactCapacity;
++    result.rigidContactSampleCapacity=rigidArena.sampleCapacity;
++    result.rigidContactMaxBufferLength=input.maxBufferLength;
++    if(rigidArena.extentsValid) for(const auto& b:rigidArena.buffers) {
++        const std::string name=b.name==nullptr ? "" : b.name;
++        if(name=="contact_samples") result.rigidContactSampleBytes=b.allocatedBytes;
++        if(name=="contact_history_accepted"||name=="contact_history_candidate"||
++           name=="contact_history_checkpoint")
++            result.rigidContactCanonicalHistoryBytes=shippingMemoryCheckedAdd(
++                result.rigidContactCanonicalHistoryBytes,b.allocatedBytes);
++        if(name=="contact_sample_slots_by_pair"||name=="contact_active_slots_by_pair")
++            result.rigidContactPairMapBytes=shippingMemoryCheckedAdd(
++                result.rigidContactPairMapBytes,b.allocatedBytes);
++    }
++    result.rigidContactBufferExtentsValid=rigidArena.extentsValid;
++    result.rigidContactBuffersWithinMaxBufferLength=
++        rigidArena.admitted&&rigidArena.allBuffersWithinMaxBufferLength;
++    // Whole allocation inventory remains incomplete: this model still has an
++    // anchored noncontact remainder and omits some transient runtime lifetimes.
++    result.wholeRuntimeAllocationInventoryComplete=false;
+     // Case032 predates the separate final-candidate constrained-node contact
+     // force channel. Account for its exact new private allocation separately
+     // rather than rewriting that historical measurement.
+--- a/matter/tools/cardboard_shipping_memory_check.cpp
++++ b/matter/tools/cardboard_shipping_memory_check.cpp
+@@ -119,6 +119,132 @@
+     require(malformedSparseOptions.sparsePrivateContactCapacity == 0u &&
+                 !malformedSparseOptions.runtimeConfigurationFailure.empty(),
+             "malformed prebuild sparse option did not fail closed with its parse error");
++}
++
++void checkExactRigidContactPlanAndCompactionFailClosed() {
++    ShippingMemoryBudgetInput x;
++    x.environmentCount=1u;x.nodeCount=528444u;x.tetrahedronCount=1477728u;
++    x.contactPairCount=6335568u;x.activeContactCapacity=6335568u;
++    x.rigidContactSampleCapacity=6335568u;x.maxBufferLength=14302248960ull;
++    const auto p=planShippingRigidContactArena(x);
++    const std::array<const char*,11> expectedNames{{
++        "contact_pair_table", "contact_samples",
++        "contact_sample_slots_by_pair", "contact_active_pair_ids",
++        "contact_active_slots_by_pair", "contact_history_accepted",
++        "contact_history_candidate", "contact_history_checkpoint",
++        "contact_active_counts", "contact_sample_page_complete",
++        "contact_sample_configuration"}};
++    const std::array<std::uint64_t,11> expectedElements{{
++        sizeof(NMContactPairGPU), sizeof(NMContactSampleGPU),
++        sizeof(std::uint32_t), sizeof(std::uint32_t), sizeof(std::uint32_t),
++        sizeof(nm_float4), sizeof(nm_float4), sizeof(nm_float4),
++        sizeof(std::uint32_t), sizeof(std::uint32_t), sizeof(std::uint32_t)}};
++    const auto verifyCheckedBytesRows = [&](
++        const ShippingRigidContactArenaPlan& plan,
++        const std::array<std::uint64_t,11>& counts,
++        const std::uint64_t maxBufferLength) {
++        std::uint64_t sum=0u;
++        for(std::size_t i=0;i<plan.buffers.size();++i) {
++            const auto& row=plan.buffers[i];
++            const auto raw=shippingMemoryCheckedMultiply(counts[i],expectedElements[i]);
++            const auto checked=std::max<std::uint64_t>(
++                {16u,expectedElements[i],raw});
++            require(row.name!=nullptr&&std::string(row.name)==expectedNames[i]&&
++                    row.logicalCount==counts[i]&&
++                    row.elementBytes==expectedElements[i]&&
++                    row.allocatedBytes==checked&&
++                    row.withinMaxBufferLength==(maxBufferLength!=0u&&
++                                                    checked<=maxBufferLength),
++                "contact row differs from its runtime checkedBytes typed allocation");
++            sum=shippingMemoryCheckedAdd(sum,checked);
++        }
++        return sum;
++    };
++    const std::array<std::uint64_t,11> shippingCounts{{
++        x.contactPairCount, x.environmentCount*p.sampleCapacity,
++        x.contactPairCount, x.environmentCount*p.activeContactCapacity,
++        x.contactPairCount, x.environmentCount*x.contactPairCount,
++        x.environmentCount*x.contactPairCount,
++        x.environmentCount*x.contactPairCount, x.environmentCount,
++        x.environmentCount, 2u}};
++    require(verifyCheckedBytesRows(p,shippingCounts,x.maxBufferLength)==
++                p.persistentBytes,
++            "one of the eleven contact rows or the checkedBytes sum is wrong");
++    require(p.admitted&&p.allBuffersWithinMaxBufferLength&&
++        p.sampleCapacity==6335568u&&p.buffers[1].allocatedBytes==1013690880ull,
++        "full-P shipping contact plan disagrees with runtime");
++    std::uint64_t h=0u;for(std::size_t i=5;i<=7;i++)
++        h=shippingMemoryCheckedAdd(h,p.buffers[i].allocatedBytes);
++    require(h==304107264ull&&p.buffers[2].allocatedBytes==25342272ull&&
++        p.buffers[4].allocatedBytes==25342272ull,
++        "compaction incorrectly shrank canonical histories or pair maps");
++    auto compact=x;compact.activeContactCapacity=131072u;
++    compact.rigidContactSampleCapacity=131072u;
++    const auto noProof=planShippingRigidContactArena(compact);
++    require(!noProof.admitted&&std::string(noProof.failure)==
++        "reduced_main_sample_capacity_lacks_native_parity",
++        "unqualified main sample compaction was admitted");
++    compact.rigidContactSampleCompactionParityQualified=true;
++    const auto qualified=planShippingRigidContactArena(compact);
++    require(qualified.admitted&&qualified.sampleCapacity==131072u&&
++        qualified.buffers[0].logicalCount==6335568u&&
++        qualified.buffers[2].logicalCount==6335568u&&
++        qualified.buffers[5].logicalCount==6335568u,
++        "sample-only compaction changed full pair-domain maps/history");
++    require(p.buffers[8].logicalCount==1u &&
++                p.buffers[9].allocatedBytes==16u &&
++                p.buffers[10].allocatedBytes==16u,
++            "sample completion/configuration buffers are omitted");
++    std::uint64_t listed=0u;
++    for(const auto& b:p.buffers)
++        listed=shippingMemoryCheckedAdd(listed,b.allocatedBytes);
++    require(listed==p.persistentBytes,
++            "contact persistent total differs from the complete listed buffer set");
++    auto two=x;two.environmentCount=2u;two.activeContactCapacity=6335568u;
++    two.rigidContactSampleCapacity=6335568u;
++    const auto twoEnv=planShippingRigidContactArena(two);
++    require(twoEnv.admitted&&twoEnv.buffers[1].logicalCount==12671136u&&
++                twoEnv.buffers[5].logicalCount==12671136u,
++            "environment-major contact extents are not scaled exactly");
++    auto twoCounts=shippingCounts;
++    twoCounts[1]=2u*p.sampleCapacity;
++    twoCounts[3]=2u*p.activeContactCapacity;
++    for(std::size_t i=5;i<=7;++i) twoCounts[i]=2u*x.contactPairCount;
++    twoCounts[8]=2u;twoCounts[9]=2u;
++    require(verifyCheckedBytesRows(twoEnv,twoCounts,x.maxBufferLength)==
++                twoEnv.persistentBytes,
++            "two-environment checkedBytes rows differ from runtime allocation");
++    auto small=x;small.maxBufferLength=1013690879ull;
++    const auto over=planShippingRigidContactArena(small);
++    require(!over.admitted&&std::string(over.failure)==
++        "contact_buffer_exceeds_device_max_buffer_length",
++        "per-buffer Metal maximum was ignored");
++    small=x;small.maxBufferLength=0u;
++    require(!planShippingRigidContactArena(small).admitted,
++        "unknown per-buffer Metal maximum was admitted");
++    auto zero=x;zero.contactPairCount=0u;zero.activeContactCapacity=0u;
++    zero.rigidContactSampleCapacity=0u;
++    const auto zeroPlan=planShippingRigidContactArena(zero);
++    const std::array<std::uint64_t,11> zeroCounts{{0u,0u,0u,0u,0u,0u,0u,0u,1u,1u,2u}};
++    require(zeroPlan.extentsValid&&zeroPlan.admitted&&
++                verifyCheckedBytesRows(zeroPlan,zeroCounts,zero.maxBufferLength)==
++                    zeroPlan.persistentBytes&&zeroPlan.buffers[0].allocatedBytes==
++                std::max<std::uint64_t>(16u,sizeof(NMContactPairGPU))&&
++                zeroPlan.buffers[1].allocatedBytes==
++                std::max<std::uint64_t>(16u,sizeof(NMContactSampleGPU))&&
++                zeroPlan.buffers[9].allocatedBytes==16u&&
++                zeroPlan.buffers[10].allocatedBytes==16u,
++            "zero-count typed buffers do not match checkedBytes sentinels");
++    auto overflow=x;overflow.environmentCount=std::numeric_limits<std::uint64_t>::max();
++    require(!planShippingRigidContactArena(overflow).admitted&&
++                std::string(planShippingRigidContactArena(overflow).failure)==
++                    "contact_buffer_arithmetic_overflow",
++        "overflowing environment product did not fail closed");
++    overflow=x;overflow.contactPairCount=static_cast<std::uint64_t>(UINT32_MAX)+1u;
++    require(!planShippingRigidContactArena(overflow).admitted&&
++                std::string(planShippingRigidContactArena(overflow).failure)==
++                    "invalid_contact_or_environment_count",
++        "out-of-ABI contact identities did not fail closed");
+ }
+ 
+ void checkTiledCohesivePreflight() {
+@@ -316,6 +442,7 @@
+ }
+ 
+ void run() {
++    checkExactRigidContactPlanAndCompactionFailClosed();
+     checkDeformableIncidenceSortMemoryAccounting();
+     checkSelectedRequiredRigidArenaIsOneAllocation();
+     checkTiledCohesivePreflight();
+@@ -447,7 +574,7 @@
+                 requiredFullDefaultCapacityBudget.requiredFullContactArmijoBytes ==
+                     7'260'122'128ull &&
+                 requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes ==
+-                    31'115'178'266ull &&
++                    31'115'178'264ull &&
+                 !requiredFullDefaultCapacityBudget.sparsePrivateContactRequested,
+             "dense default changed its prepared-node pair domain or complete private arena inventory");
+ 
+@@ -678,10 +805,11 @@
+         8u * kShippingReferenceTetrahedra;
+     measured.fgmresRestart = kShippingFgmresRestartCeiling;
+     const auto measuredBudget = estimateShippingMemoryBudget(measured);
+-    require(measuredBudget.measuredBaseAndContactEnvelopeBytes ==
+-                kShippingCase032RuntimeResidentBytes +
+-                    kShippingReferenceNodes * sizeof(nm_float4),
+-            "reference decomposition must retain case032 plus the new contact-force readback arena");
++    const auto measuredReferenceAnchor = kShippingCase032RuntimeResidentBytes +
++        kShippingReferenceNodes * sizeof(nm_float4);
++    require(measuredBudget.measuredBaseAndContactEnvelopeBytes >= measuredReferenceAnchor &&
++                measuredBudget.measuredBaseAndContactEnvelopeBytes - measuredReferenceAnchor <= 1u,
++            "reference decomposition must conservatively retain case032 plus the new contact-force readback arena");
+     require(measuredBudget.constraintContactForceReadbackBytes ==
+                 kShippingReferenceNodes * sizeof(nm_float4),
+             "new contact-force readback arena size differs from runtime allocation");

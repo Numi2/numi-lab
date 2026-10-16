@@ -21,6 +21,8 @@
 #include "cardboard_pin_adhesion_fixture.hpp"
 #include "cardboard_starch_interface_mesh.hpp"
 #include "cardboard_retained_matrix_damage_input.hpp"
+#include "cardboard_constituent_volume_damage.hpp"
+#include "cardboard_free_force_residual.hpp"
 #include "cardboard_paper_material_selection.hpp"
 #include "cardboard_paper_projection_scaling.hpp"
 #include "cardboard_tooling.hpp"
@@ -226,6 +228,7 @@ struct Arguments {
     double bendAngleDegrees = 1.0;
     double timestepSeconds = 1.0e-4;
     double relativeResidualTolerance = 1.0e-4;
+    std::optional<double> maxFreeForceResidualN;
     double lengthM = 0.036;
     double widthM = 0.020;
     double totalHeightM = 0.005;
@@ -1230,6 +1233,7 @@ void printUsage() {
         << "  --preset nagasawa2013|literature2009 (default literature2009)\n"
         << "  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)\n"
         << "  --residual-tolerance N tighten nonlinear residual threshold (default 1e-4)\n"
+        << "  --max-free-force-residual-n N declare an observed full-box free-force residual bound; no default and no solver change\n"
         << "  --reference-displacement-gradient  opt in to immutable-reference FEM arithmetic\n"
         << "  --scaled-paper-residuals  opt in to component-scaled 13-state Hill projection residuals\n"
         << "  --safeguarded-paper-initializer  opt in to safeguarded scalar Hill initial guesses for liner and medium\n"
@@ -1608,6 +1612,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--box-fixture-steps")
             arguments.boxFixtureSteps = parseUnsigned(value, option);
         else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
+        else if (option == "--max-free-force-residual-n") arguments.maxFreeForceResidualN = parseDouble(value, option);
         else if (option == "--prescribed-tool-barrier-scale")
             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
         else if (option == "--newton-iterations") {
@@ -2148,6 +2153,11 @@ Arguments parseArguments(const int argc, const char* argv[]) {
             "--bend-angle must lie in [0, 10] degrees");
     require(arguments.relativeResidualTolerance > 0.0 && arguments.relativeResidualTolerance <= 1.0e-4,
             "--residual-tolerance must lie in (0, 1e-4]; this probe permits tightening only");
+    if (arguments.maxFreeForceResidualN.has_value()) {
+        require(arguments.boxBlank && std::isfinite(*arguments.maxFreeForceResidualN) &&
+                    *arguments.maxFreeForceResidualN > 0.0,
+                "--max-free-force-residual-n requires a full-box run and a finite positive bound");
+    }
     require(arguments.timestepSeconds > 0.0 &&
                 arguments.timestepSeconds <= 0.01,
             "--dt must lie in (0, 0.01] seconds");
@@ -3941,8 +3951,21 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"gravity_m_s2\": ["
            << mesh.world.gravity[0] << ',' << mesh.world.gravity[1] << ','
            << mesh.world.gravity[2] << "],\n"
-           << "    \"maximum_rate_exponent\": 0,\n"
-           << "    \"runtime_execution\": "
+           << "    \"maximum_rate_exponent\": 0,\n";
+    if (arguments.boxBlank) {
+        output << "    \"native_acceptance_policy\": {\n"
+               << "      \"schema\": \"numi.cardboard.full-box-native-acceptance-policy.v1\",\n"
+               << "      \"certificate_semantics\": \"status and validity remain authoritative; residual, volume, and pressure use their declared tolerances; correction is finite nonnegative telemetry only\",\n"
+               << "      \"force_residual_semantics\": \"final accepted RunState.residuals xyz divided by accepted dt at nodes with restAndFixed.w == 0; observed residual in N, not force error\",\n"
+               << "      \"max_free_force_residual_n\": ";
+        if (arguments.maxFreeForceResidualN.has_value())
+            output << *arguments.maxFreeForceResidualN;
+        else
+            output << "null";
+        output << ",\n      \"force_environment_count\": "
+               << arguments.environmentCount << "\n    },\n";
+    }
+    output << "    \"runtime_execution\": "
            << (arguments.compileOnly ? "false" : "true") << "\n"
            << "  },\n"
            << "  \"paper_projection_residual_scaling\": {\"enabled\": "
@@ -5113,8 +5136,18 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     input.tetrahedronCount = dispatch.tetrahedronCount;
     input.cohesiveFaceCount = dispatch.cohesiveFaceCount;
     input.contactPairCount = dispatch.contactPairCount;
-    input.activeContactCapacity = std::min<std::uint64_t>(
-        dispatch.reservedMixed1, dispatch.contactPairCount);
+    // reservedMixed1 is the compiler-emitted sum of the FEM object's
+    // activeContacts capacities after the zero-means-full default is resolved.
+    // Bind that exact dispatch value; do not infer capacity from the mesh size.
+    input.activeContactCapacity = dispatch.reservedMixed1;
+    input.rigidContactSampleCapacity = dispatch.contactPairCount;
+    id<MTLDevice> memoryPlanDevice = MTLCreateSystemDefaultDevice();
+    input.maxBufferLength = memoryPlanDevice == nil ? 0u :
+        static_cast<std::uint64_t>(memoryPlanDevice.maxBufferLength);
+    if (arguments.shippingBox &&
+        input.activeContactCapacity != input.contactPairCount)
+        input.runtimeConfigurationFailure =
+            "shipping activeContacts must equal the full pair domain until compact-sample native parity is sealed";
     input.deformableContactCapacity = dispatch.deformableContactCapacity;
     input.compactImmutableSurfaceMap =
         (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
@@ -5186,7 +5219,8 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     input.sparsePrivateContactBoundedFreeBoxScope =
         shippingSparsePrivateBoundedFreeBoxLayout(
             dispatch, compiled.world.contact.rigidProxies);
-    if (sparseOptions.error != nullptr)
+    if (sparseOptions.error != nullptr &&
+        input.runtimeConfigurationFailure.empty())
         input.runtimeConfigurationFailure = sparseOptions.error;
 
     const char* fullContactSelector = std::getenv(
@@ -5854,7 +5888,61 @@ void writeShippingMemoryReport(
                    numi::cardboard::kShippingPeakMemoryLimitBytes ? "true" : "false");
     if (budget) {
         output << ",\n  \"estimated_arena_budget\": {\n"
-               << "    \"evidence_class\": \"checked pre-allocation envelope; baseline factor rounded above case032 measured resident-to-static-floor ratio, optional arenas use runtime caps\",\n"
+               << "    \"evidence_class\": \"case032-anchored modeled allocation envelope; whole runtime arena inventory is incomplete\",\n"
+               << "    \"whole_runtime_allocation_inventory_complete\": false,\n"
+               << "    \"complete_allocation_admission_passed\": false,\n"
+               << "    \"complete_allocation_admission_blockers\": ["
+               << "\"case032-derived noncontact remainder is an anchored envelope rather than a per-buffer inventory\","
+               << "\"UploadPlan staging lifetimes are represented by a host-size reserve rather than enumerated buffers\","
+               << "\"not every persistent/transient Metal allocation has an individual maxBufferLength check\","
+               << "\"actual unified-memory peak and runtime allocation success remain unmeasured\"],\n"
+               << "    \"compiled_active_contact_capacity\": "
+               << world.dispatch.reservedMixed1 << ",\n"
+               << "    \"rigid_contact_sample_capacity_modeled\": "
+               << budget->rigidContactSampleCapacity << ",\n"
+               << "    \"rigid_contact_sample_bytes\": "
+               << budget->rigidContactSampleBytes << ",\n"
+               << "    \"rigid_contact_canonical_history_bytes\": "
+               << budget->rigidContactCanonicalHistoryBytes << ",\n"
+               << "    \"rigid_contact_pair_map_bytes\": "
+               << budget->rigidContactPairMapBytes << ",\n"
+               << "    \"rigid_contact_max_buffer_length_bytes\": "
+               << budget->rigidContactMaxBufferLength << ",\n"
+               << "    \"compiled_active_contact_capacity_origin\": \"dispatch.reservedMixed1; compiler resolves source activeContacts=0 to the full eligible pair domain\",\n"
+               << "    \"shipping_sample_capacity_policy\": \"full pair domain; compacted main samples are excluded until parity is qualified\",\n"
+               << "    \"rigid_contact_buffer_extents_valid\": "
+               << (budget->rigidContactBufferExtentsValid ? "true" : "false") << ",\n"
+               << "    \"rigid_contact_buffers_within_max_buffer_length\": "
+               << (budget->rigidContactBuffersWithinMaxBufferLength ? "true" : "false") << ",\n"
+               << "    \"rigid_contact_buffer_plan\": [";
+        numi::cardboard::ShippingMemoryBudgetInput contactPlanInput;
+        contactPlanInput.environmentCount = world.dispatch.environmentCount;
+        contactPlanInput.contactPairCount = world.dispatch.contactPairCount;
+        contactPlanInput.activeContactCapacity = budget->rigidContactActiveCapacity;
+        contactPlanInput.rigidContactSampleCapacity = budget->rigidContactSampleCapacity;
+        contactPlanInput.rigidContactSampleCompactionParityQualified = false;
+        contactPlanInput.maxBufferLength = budget->rigidContactMaxBufferLength;
+        const auto contactPlan = numi::cardboard::planShippingRigidContactArena(
+            contactPlanInput);
+        for (std::size_t i = 0u; i < contactPlan.buffers.size(); ++i) {
+            const auto& b = contactPlan.buffers[i];
+            if (i != 0u) output << ',';
+            output << "{\"name\":\"" << b.name
+                   << "\",\"logical_count\":" << b.logicalCount
+                   << ",\"element_bytes\":" << b.elementBytes
+                   << ",\"allocated_bytes\":" << b.allocatedBytes
+                   << ",\"within_device_max\":"
+                   << (b.withinMaxBufferLength ? "true" : "false")
+                   << ",\"storage\":\""
+                   << (std::string(b.name) == "contact_sample_configuration"
+                           ? "shared" : "private")
+                   << "\",\"lifetime\":\"runtime resident\"}";
+        }
+        output << "],\n"
+               << "    \"rigid_contact_plan_admitted\": "
+               << (contactPlan.admitted ? "true" : "false") << ",\n"
+               << "    \"rigid_contact_plan_failure\": \""
+               << (contactPlan.failure == nullptr ? "" : contactPlan.failure) << "\",\n"
                << "    \"measured_base_and_contact_envelope_bytes\": "
                << budget->measuredBaseAndContactEnvelopeBytes << ",\n"
                << "    \"static_fem_solver_floor_bytes\": "
@@ -5925,6 +6013,8 @@ void writeShippingMemoryReport(
                << budget->estimatedPeakDomainBytes << ",\n"
                << "    \"limit_bytes\": " << budget->limitBytes << ",\n"
                << "    \"admission_passed_before_native_initialization\": "
+               << (budget->withinLimit ? "true" : "false") << ",\n"
+               << "    \"modeled_envelope_fit_only_not_complete_admission\": "
                << (budget->withinLimit ? "true" : "false") << ",\n"
                << "    \"shared_upload_and_readback_reserves_counted_once\": true,\n"
                << "    \"accounting_basis\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints + accepted inside-clearance transient scratch concurrent with the live world; upload staging and one snapshot readback are counted once\"\n  }";
@@ -6728,6 +6818,15 @@ struct ShippingHistoryAreaObservables {
         std::numeric_limits<double>::quiet_NaN();
     double paperReferencePlaneAreaM2 =
         std::numeric_limits<double>::quiet_NaN();
+    std::string paperVolumeDamageStatus = "not_enabled";
+    double paperConstituentVolumeWeightedDamageIndex =
+        std::numeric_limits<double>::quiet_NaN();
+    double paperConstituentReferenceVolumeM3 =
+        std::numeric_limits<double>::quiet_NaN();
+    double paperConstituentVolumeFractionAboveDamageThreshold =
+        std::numeric_limits<double>::quiet_NaN();
+    double paperDamageVolumeThreshold = 0.5;
+    std::uint64_t paperConstituentDamageTetrahedra = 0u;
     std::uint64_t paperOverlayTetrahedra = 0u;
     std::string starchStatus = "not_enabled";
     double starchAreaWeightedDamageFraction =
@@ -6765,6 +6864,10 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
 
     if (!mesh.damageOverlayMappings.empty()) {
         result.paperStatus = "unavailable";
+        result.paperVolumeDamageStatus =
+            "unavailable_invalid_or_incomplete_accepted_history";
+        result.paperDamageVolumeThreshold =
+            numi::cardboard::damage_volume::kPaperDamageVolumeThreshold;
         if (mesh.damageOverlayMappings.size() !=
                 mesh.damageOverlayMaterialIndices.size() ||
             snapshot.femMaterialState.size() <
@@ -6774,6 +6877,8 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
         double weightedDamage = 0.0;
         double referenceArea = 0.0;
         bool valid = true;
+        std::set<std::uint32_t> mappedTetrahedra;
+        numi::cardboard::damage_volume::PaperConstituentDamageVolume volumeDamage;
         std::map<std::uint32_t, std::array<std::uint32_t, 8>> stateIndicesByMaterial;
         for (std::size_t mappingIndex = 0u;
              mappingIndex < mesh.damageOverlayMappings.size(); ++mappingIndex) {
@@ -6781,10 +6886,13 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
             const std::uint32_t tetIndex = mapping.elementIndex;
             if (tetIndex >= world.fem.tetrahedra.size() ||
                 tetIndex >= tetrahedronCount ||
+                !mappedTetrahedra.insert(tetIndex).second ||
                 mesh.damageOverlayMaterialIndices[mappingIndex] >=
                     world.materials.size() ||
                 world.fem.tetrahedra[tetIndex].identity.x !=
-                    mesh.damageOverlayMaterialIndices[mappingIndex]) {
+                    mesh.damageOverlayMaterialIndices[mappingIndex] ||
+                !(std::isfinite(mapping.referenceVolumeM3) &&
+                  mapping.referenceVolumeM3 > 0.0)) {
                 valid = false;
                 break;
             }
@@ -6815,6 +6923,8 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
                     stateIndices).first;
             }
             const auto& stateIndices = stateIndicesIt->second;
+            std::array<double, 4> tetPlaneAreas{};
+            std::array<double, 4> tetPlaneDamage{};
             const std::size_t stateBase =
                 (static_cast<std::size_t>(environment) * tetrahedronCount +
                  tetIndex) * stride;
@@ -6853,19 +6963,44 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
                 }
                 if (!valid) break;
                 const double damage = mapping.damageCap * (1.0 - planeSurvival);
+                if (!(std::isfinite(damage) && damage >= 0.0 && damage <= 1.0)) {
+                    valid = false;
+                    break;
+                }
+                tetPlaneAreas[plane] = area;
+                tetPlaneDamage[plane] = damage;
                 weightedDamage += area * damage;
                 referenceArea += area;
             }
             if (!valid) break;
+            if (!volumeDamage.addTetrahedron(
+                    mapping.referenceVolumeM3, tetPlaneAreas, tetPlaneDamage,
+                    result.paperDamageVolumeThreshold)) {
+                valid = false;
+                break;
+            }
             ++result.paperOverlayTetrahedra;
         }
-        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage)) {
+        double volumeWeightedDamageIndex = std::numeric_limits<double>::quiet_NaN();
+        double volumeFractionAboveThreshold = std::numeric_limits<double>::quiet_NaN();
+        if (valid && referenceArea > 0.0 && std::isfinite(weightedDamage) &&
+            volumeDamage.finish(volumeWeightedDamageIndex, volumeFractionAboveThreshold)) {
             result.paperStatus = "available_model_area_weighted_damage_index";
             result.paperAreaWeightedDamageFraction = weightedDamage / referenceArea;
             result.paperReferencePlaneAreaM2 = referenceArea;
+            result.paperVolumeDamageStatus =
+                "available_constituent_volume_weighted_damage_index";
+            result.paperConstituentVolumeWeightedDamageIndex = volumeWeightedDamageIndex;
+            result.paperConstituentReferenceVolumeM3 = volumeDamage.referenceVolumeM3;
+            result.paperConstituentVolumeFractionAboveDamageThreshold =
+                volumeFractionAboveThreshold;
+            result.paperConstituentDamageTetrahedra = volumeDamage.tetrahedronCount;
         } else {
             result.paperStatus = "unavailable_invalid_or_incomplete_accepted_history";
+            result.paperVolumeDamageStatus =
+                "unavailable_invalid_or_incomplete_accepted_history";
             result.paperOverlayTetrahedra = 0u;
+            result.paperConstituentDamageTetrahedra = 0u;
         }
     }
 
@@ -6958,6 +7093,9 @@ ShippingHistoryAreaObservables shippingHistoryAreaObservables(
 void writeShippingHistoryAreaHeader(std::ostream& output) {
     output << "native_step,simulation_time_s,dt_s,stage,accepted,"
               "paper_status,paper_area_weighted_damage_fraction,paper_reference_plane_area_m2,paper_overlay_tetrahedra,"
+              "paper_volume_damage_status,paper_constituent_volume_weighted_damage_index,"
+              "paper_constituent_reference_volume_m3,paper_constituent_volume_fraction_above_damage_threshold,"
+              "paper_damage_volume_threshold,paper_constituent_damage_tetrahedra,"
               "starch_status,starch_area_weighted_cohesive_damage_fraction,starch_active_reference_area_m2,starch_active_faces,"
               "starch_fully_failed_status,starch_fully_failed_cohesive_area_m2,"
               "starch_fully_failed_cohesive_area_fraction,starch_fully_failed_faces,"
@@ -6981,6 +7119,17 @@ void writeShippingHistoryAreaRow(
     if (std::isfinite(values.paperReferencePlaneAreaM2))
         output << values.paperReferencePlaneAreaM2;
     output << ',' << values.paperOverlayTetrahedra << ','
+        << values.paperVolumeDamageStatus << ',';
+    if (std::isfinite(values.paperConstituentVolumeWeightedDamageIndex))
+        output << values.paperConstituentVolumeWeightedDamageIndex;
+    output << ',';
+    if (std::isfinite(values.paperConstituentReferenceVolumeM3))
+        output << values.paperConstituentReferenceVolumeM3;
+    output << ',';
+    if (std::isfinite(values.paperConstituentVolumeFractionAboveDamageThreshold))
+        output << values.paperConstituentVolumeFractionAboveDamageThreshold;
+    output << ',' << values.paperDamageVolumeThreshold << ','
+        << values.paperConstituentDamageTetrahedra << ','
         << values.starchStatus << ',';
     if (std::isfinite(values.starchAreaWeightedDamageFraction))
         output << values.starchAreaWeightedDamageFraction;
@@ -7155,7 +7304,7 @@ int executeBoxAssemblyNative(
     std::ofstream springbackOutput;
     require(stepOutput.good() && angleOutput.good(),
             "cannot create native box observation files");
-    stepOutput << "native_step,stage,action_index,accepted,status_env0,status_env1,fgmres_env0,fgmres_env1,certificate_valid_env0,certificate_residual_env0,certificate_correction_env0,certificate_volume_env0,certificate_pressure_env0,simulation_time_s,dt_s,error\n";
+    stepOutput << "native_step,stage,action_index,accepted,status_env0,status_env1,fgmres_env0,fgmres_env1,certificate_valid_env0,certificate_residual_env0,certificate_correction_env0,certificate_volume_env0,certificate_pressure_env0,simulation_time_s,dt_s,error,free_force_imbalance_l2_env0_N,free_force_imbalance_max_node_env0_N,free_force_imbalance_l2_env1_N,free_force_imbalance_max_node_env1_N\n" << std::setprecision(17);
     angleOutput << "native_step,stage,action_index,environment,step_accepted,score_line_index,score_kind,fit_valid,fold_turn_deg,interior_angle_deg,source_target_fold_deg,relative_target_fold_deg,sample_count\n"
                 << std::setprecision(17);
     if (arguments.shippingBox) {
@@ -7649,7 +7798,31 @@ int executeBoxAssemblyNative(
             << cert0.nonlinear.z << ',' << cert0.nonlinear.w << ','
             << boxSimulationTimeSeconds << ',' << attemptedTimestep << ',' << '"';
         for (const char c : error) stepOutput << (c == '"' ? '\'' : c);
-        stepOutput << "\"\n";
+        stepOutput << "\"";
+        const auto force0 = accepted && state.has_value()
+            ? numi::cardboard::calculateFreeForceResidualBounds(
+                  state->residuals, currentSnapshot.femNodes,
+                  arguments.environmentCount, nodeCount, 0u, attemptedTimestep)
+            : std::nullopt;
+        const auto force1 = accepted && state.has_value() && arguments.environmentCount > 1u
+            ? numi::cardboard::calculateFreeForceResidualBounds(
+                  state->residuals, currentSnapshot.femNodes,
+                  arguments.environmentCount, nodeCount, 1u, attemptedTimestep)
+            : std::nullopt;
+        if (accepted) {
+            require(force0.has_value() &&
+                        (arguments.environmentCount == 1u || force1.has_value()),
+                    "accepted full-box step lacks a finite free-node force residual");
+        }
+        const auto writeForce = [&](const std::optional<numi::cardboard::FreeForceResidualBounds>& value) {
+            if (value.has_value())
+                stepOutput << ',' << value->l2Newtons << ',' << value->maximumNodeNewtons;
+            else
+                stepOutput << ",NA,NA";
+        };
+        writeForce(force0);
+        writeForce(force1);
+        stepOutput << "\n";
 
         if (arguments.shippingBox && accepted &&
             (stepIndex == 0u || stepIndex % 32u == 0u)) {
@@ -9682,24 +9855,18 @@ int executeBoxAssemblyNative(
                         peakQualified = true;
                         outcome.peakForceN = qualified->peak.forceN;
                         outcome.peakStrokeM = qualified->peak.strokeM;
-                        outcome.peakSampleIndex = qualified->peak.sampleIndex;
-                        const auto peakCurve = std::lower_bound(
-                            outcome.forceCurve.begin(), outcome.forceCurve.end(),
-                            qualified->peak.strokeM,
-                            [](const auto& sample, const double stroke) {
-                                return sample.strokeM < stroke;
-                            });
-                        const std::size_t peakCurveIndex = static_cast<std::size_t>(
-                            peakCurve - outcome.forceCurve.begin());
-                        require(peakCurveIndex < outcome.workByCurveSampleJ.size() &&
-                                    peakCurveIndex < outcome.kineticByCurveSampleJ.size() &&
-                                    peakCurve != outcome.forceCurve.end() &&
-                                    peakCurve->strokeM == qualified->peak.strokeM,
-                                "compression peak does not map to its accepted work/kinetic trace");
+                        const auto peakCurveIndex =
+                            numi::cardboard::shippingCompressionCurveSampleIndex(
+                                outcome.forceCurve, qualified->peak);
+                        require(peakCurveIndex.has_value() &&
+                                    *peakCurveIndex < outcome.workByCurveSampleJ.size() &&
+                                    *peakCurveIndex < outcome.kineticByCurveSampleJ.size(),
+                                "native first-local peak does not map uniquely to the full accepted curve");
+                        outcome.peakSampleIndex = static_cast<std::uint64_t>(*peakCurveIndex);
                         outcome.workAtPeakJ =
-                            outcome.workByCurveSampleJ[peakCurveIndex];
+                            outcome.workByCurveSampleJ[*peakCurveIndex];
                         outcome.kineticEnergyAtPeakJ =
-                            outcome.kineticByCurveSampleJ[peakCurveIndex];
+                            outcome.kineticByCurveSampleJ[*peakCurveIndex];
                         outcome.kineticWorkRatioAtPeak = outcome.workAtPeakJ > 0.0
                             ? outcome.kineticEnergyAtPeakJ / outcome.workAtPeakJ
                             : std::numeric_limits<double>::quiet_NaN();
@@ -11644,6 +11811,9 @@ int executeBoxAssemblyNative(
            << "  \"compression_force_curve_file\": \"shipping-compression.csv\",\n"
            << "  \"history_observables_file\": \"shipping-history-observables.csv\",\n"
            << "  \"paper_damage_observable_definition\": \"Each explicit retained-matrix overlay tetrahedron contributes its four authored reference crack-plane cut areas. For each plane, damage is damageCap*(1-survivalNormal*survivalShear), where survival(mode)=onset/(onset+acceptedExcess)*exp(-acceptedExcess/softening); the reported index is reference-area-weighted. This is a constitutive damage index, not a measured or binary geometric crack area.\",\n"
+           << "  \"paper_constituent_volume_damage_definition\": \"For each mapped retained-matrix overlay tetrahedron, first average its four plane damage indices by their authored reference cut areas, then weight that tetrahedron index by its exact mapped reference volume; denominator is the sum of the mapped reference tetrahedron volumes. This is a constitutive volume-weighted damage index, not geometric crack area.\",\n"
+           << "  \"paper_constituent_volume_fraction_threshold\": 0.5,\n"
+           << "  \"paper_constituent_volume_fraction_definition\": \"Reference volume fraction of mapped overlay tetrahedra whose per-tetrahedron area-weighted damage index is greater than or equal to 0.5. Descriptive thresholded damage observable; not geometric fracture area.\",\n"
            << "  \"cohesive_degradation_observable_definition\": \"For active accepted mixed-mode starch/HMA faces, the reported fraction is sum(referenceFaceArea*acceptedFaceDamage)/sum(referenceFaceArea). It is an area-weighted cohesive degradation index, not geometric open/debond area; dormant faces are excluded until accepted activation.\",\n"
            << "  \"cohesive_failed_capacity_area_definition\": \"Reference-area integral of indicator(accepted mixedPointHistory[q].w == 1) with the native three equal quadrature weights; fully_failed_faces counts only faces with all three points failed. Face maximum state.x is not used for this integral. This is lost cohesive capacity, not geometric open area.\",\n"
            << "  \"compression_work_method\": \"trapezoidal integral from a zero-force contact origin through the first accepted contact-crossing increment and subsequent accepted platen stroke\",\n"

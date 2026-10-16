@@ -1,0 +1,157 @@
+{
+  "inputs": {
+    "native/activation-legacy-control-off-590/receipt.json": {
+      "sha256": "963c5244a916c42c601c9803f9695a0ba6175e03c5adc234ee89af0b64064733",
+      "bytes": 305
+    },
+    "native/activation-legacy-control-off-590/stderr.log": {
+      "sha256": "8cd0cfa42139a247e0d5a6c9084316cd36cb6800ef5de7b321c534f7affef7d4",
+      "bytes": 31428
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000000-after.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000000-before.bin": {
+      "sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000000.json": {
+      "sha256": "873a0aed90d432ce37083778bbb32debc739751fda0b7bc0a4ec7088b7eb5d82",
+      "bytes": 6556
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000001-after.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000001-before.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000001.json": {
+      "sha256": "1b0cd61d427cab070ecf006f70ed2eb1a5bc4d48b59bdbbd8d30202bb4811472",
+      "bytes": 6684
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000002-after.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000002-before.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000002.json": {
+      "sha256": "7c6d7069f382f99a4309da3255f456850fb4ded5e9fd5142d6fab4994f2a7abd",
+      "bytes": 6698
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000003-after.bin": {
+      "sha256": "14a3a62f910792c06151f8ef8107ff0e782e296b34133141f5e6196025ab6729",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000003-before.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-legacy-control-off-590/output/dense/transaction-000003.json": {
+      "sha256": "faa8ce4683e9e3dc97b780127a1941d6c1b11ad3b424118196a2ac2b728e188a",
+      "bytes": 6664
+    },
+    "native/activation-full-residual-control-on-591/receipt.json": {
+      "sha256": "79bc2de7c2e1acd286c9423caf69c18ebdffe90b4e1211d297e329b2f7f4325f",
+      "bytes": 305
+    },
+    "native/activation-full-residual-control-on-591/stderr.log": {
+      "sha256": "8cd0cfa42139a247e0d5a6c9084316cd36cb6800ef5de7b321c534f7affef7d4",
+      "bytes": 31428
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000-after.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000-before.bin": {
+      "sha256": "4f46cb0731cef39b4f7ec1254fdda3e0f2a91c4342e3dafda684e32c1d75be0e",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000000.json": {
+      "sha256": "873a0aed90d432ce37083778bbb32debc739751fda0b7bc0a4ec7088b7eb5d82",
+      "bytes": 6556
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001-after.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001-before.bin": {
+      "sha256": "40153699820462c8054a9bc5e8cb2e5eac4d8a6b2ad033d2e24b466872ef1d7d",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000001.json": {
+      "sha256": "1b0cd61d427cab070ecf006f70ed2eb1a5bc4d48b59bdbbd8d30202bb4811472",
+      "bytes": 6684
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002-after.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002-before.bin": {
+      "sha256": "e63eb6ec95b7691b579ce4a61adfe510ee1b34a763f498d17f2f80d078fae92b",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000002.json": {
+      "sha256": "7c6d7069f382f99a4309da3255f456850fb4ded5e9fd5142d6fab4994f2a7abd",
+      "bytes": 6698
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003-after.bin": {
+      "sha256": "14a3a62f910792c06151f8ef8107ff0e782e296b34133141f5e6196025ab6729",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003-before.bin": {
+      "sha256": "8df832a577fe2a640c78df49921e7a195482e3f397005f6585d435d72d0cb4fd",
+      "bytes": 904335
+    },
+    "native/activation-full-residual-control-on-591/output/dense/transaction-000003.json": {
+      "sha256": "faa8ce4683e9e3dc97b780127a1941d6c1b11ad3b424118196a2ac2b728e188a",
+      "bytes": 6664
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-scene-input.bin": {
+      "sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+      "bytes": 640
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-kinematic-targets.bin": {
+      "sha256": "6432e2d7d53b3b2729bb6e719b76d34a66919651e649217146b9613fa86a1d84",
+      "bytes": 640
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-metalworld-scene-output.bin": {
+      "sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+      "bytes": 640
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-runner-scene-after.bin": {
+      "sha256": "07456ce5ddef5e86b6b0296f8e4e403e93f86f110e6f8812dae03c62df86b8de",
+      "bytes": 640
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-metalworld-final-q.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-metalworld-final-v.bin": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "native/activation-full-residual-control-on-591/output/dense/activation-transaction-000000-scene-commit.json": {
+      "sha256": "296ee2a391b9c7ef956749745b7a398537a9f108f05f8d93152849c9cd8916bc",
+      "bytes": 2503
+    },
+    "snapshots/source-activation-full-residual-armijo-244-002/frozen-source.json": {
+      "sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4",
+      "bytes": 131357
+    },
+    "build-source244-activation-002/source-build.json": {
+      "sha256": "39bef01c8cd0b62d708ffae18a5d03c4ef5e2ed2061bccc68e1c55f03d0dcbcf",
+      "bytes": 102370
+    },
+    "adjudicate_native590_591_full_contact_001.py": {
+      "sha256": "3857f62fffd307117c050854da115b625324e83ba92a069ab17f95825867842b",
+      "bytes": 4657
+    }
+  },
+  "report_sha256": "a3e9d99be4f096b6603eba5ce08b707783e0f1fcaa9f7b97cabbcb164668ad34"
+}

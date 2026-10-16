@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/activation-legacy-control-off-590",
+      "full_activation_residual": false,
+      "exit_code": 1,
+      "receipt_sha256": "963c5244a916c42c601c9803f9695a0ba6175e03c5adc234ee89af0b64064733",
+      "stdout_sha256": "c25bca3d089418c70deecba768ee807a2aa3d4a3bd3f1b85cf8cf4d0c0dc7d19"
+    },
+    {
+      "case": "/Users/n/cardboard-implementation-20261014-host-macmini/native/activation-full-residual-control-on-591",
+      "full_activation_residual": true,
+      "exit_code": 1,
+      "receipt_sha256": "79bc2de7c2e1acd286c9423caf69c18ebdffe90b4e1211d297e329b2f7f4325f",
+      "stdout_sha256": "c25bca3d089418c70deecba768ee807a2aa3d4a3bd3f1b85cf8cf4d0c0dc7d19"
+    }
+  ],
+  "no_result_assumed": true,
+  "at_utc": "2026-10-16T13:49:57.834834+00:00"
+}

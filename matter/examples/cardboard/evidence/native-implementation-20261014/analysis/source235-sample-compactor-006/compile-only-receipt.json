@@ -1,0 +1,61 @@
+[
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/include",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/include",
+      "-c",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/cardboard_contact_sample_compaction_check.metal",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/build/checker.air"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/cardboard_contact_sample_compaction_check.metal:1:\nIn file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/matter_kernels.metal:4:\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3289:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3298:9: note: uninitialized use occurs here\n    if (sharedValid == 0u) return;\n        ^~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3289:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3279:33: note: initialize the variable 'sharedValid' to silence this warning\n    threadgroup uint sharedValid;\n                                ^\n                                 = 0\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3735:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3752:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3735:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3615:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n2 warnings generated.\n"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/build/checker.air",
+      "-o",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/build/checker.metallib"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "clang++",
+      "-std=c++17",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/include",
+      "-I",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/include",
+      "-fsyntax-only",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/cardboard_contact_sample_compaction_check.mm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.primary-cache-action-scope-erratum.v1",
+  "verdict": "ADDITIVE_SCOPE_CORRECTION_NATIVE_CACHED_ACTION_UNQUALIFIED",
+  "finding": "The FD observer forces mode0 and binds dummy cache buffers even when primary FGMRES uses strict cached mode1. Its production_A_delta_v_impulse_Ns field is the uncached evaluator action. Separately captured cache matrices do not change that consumed path.",
+  "source_excerpts": {
+    "source221_runtime": {
+      "start_line": 13116,
+      "text": "                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];\n                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];\n                    const std::uint32_t useCache = 0u;"
+    },
+    "source241_runtime": {
+      "start_line": 13492,
+      "text": "                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];\n                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];\n                    const std::uint32_t useCache = 0u;"
+    }
+  },
+  "unmodified_prior_reports": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-mp-root-independent-adjudication-002/report.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-global-ideal-fd-mp-factor2-erratum-004/report.json",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-operator-001/operator",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/native555-cached-native-tangent-conditioning-251-003/report.json"
+  ],
+  "numerical_results_retained": {
+    "uncached_direct_evaluator_vs_independent_MP_relative_l2": 1.1972403495e-05,
+    "CPU_reconstructed_cached_matrix_vs_uncached_evaluator_relative_l2": 0.0005972716290133718,
+    "FP64_reference_derivatives_and_independent_MP_IFT_checks_unchanged": true,
+    "captured555_production_suffix_observer_parity_unchanged": true
+  },
+  "withdrawn_inference": "The uncached1.197e-5 comparison does not validate the production cached GPU action or its native finite-difference agreement. The .000597 comparison is cached CPU reconstruction versus direct GPU evaluation, not a cached-kernel arithmetic error.",
+  "affected_derived_scope": [
+    "555 material/operator/MP summaries",
+    "565 same uncached FD path",
+    "596 running source240 same uncached observer path",
+    "publication039/040 narrative where these numbers are called production cached-operator agreement"
+  ],
+  "corrective_implementation": "source253 FD observer shares the primary cache policy, actual cache and validity buffers; header explicitly binds operator cache mode and labels the independent direct local stress/tangent probe. Legacy missing-policy captures receive an unqualified primary-cache classification.",
+  "corrected_native_capture_pending": true,
+  "solver_correctness_full_verdict": "OPEN",
+  "numerical_convergence_full_verdict": "OPEN",
+  "no_physical_operator_or_tolerance_changed_by_this_erratum": true,
+  "at_utc": "2026-10-16T14:07:11.846753+00:00"
+}

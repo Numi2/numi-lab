@@ -1,0 +1,13 @@
+Test project /Users/n/cardboard-implementation-20261014-host-macmini/build-source250-shipping-arena-006
+    Start 212: matter.compiler.cardboard_shipping_memory
+1/1 Test #212: matter.compiler.cardboard_shipping_memory ...   Passed    0.02 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+cardboard    =   0.02 sec*proc (1 test)
+cpu          =   0.02 sec*proc (1 test)
+matter       =   0.02 sec*proc (1 test)
+shipping     =   0.02 sec*proc (1 test)
+
+Total Test time (real) =   0.03 sec

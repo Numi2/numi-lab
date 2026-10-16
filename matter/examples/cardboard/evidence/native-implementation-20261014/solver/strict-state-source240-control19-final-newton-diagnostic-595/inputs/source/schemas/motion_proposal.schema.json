@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://numi-lab.dev/schemas/motion_proposal.schema.json",
+  "title": "Numi Lab motion proposal evidence",
+  "type": "object",
+  "required": [
+    "format", "status", "model_role", "model_repository",
+    "model_revision", "prompt", "seed", "selected_provider",
+    "skeleton", "fps", "frame_count", "motion_proposal"
+  ],
+  "properties": {
+    "format": { "const": "numi.motion-proposal.v1" },
+    "status": { "const": "runtime-qualified" },
+    "model_role": { "type": "string", "minLength": 1 },
+    "model_repository": { "type": "string", "minLength": 1 },
+    "model_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "prompt": { "type": "string" },
+    "seed": { "type": "integer" },
+    "selected_provider": { "enum": ["coreml", "cpu"] },
+    "skeleton": {
+      "type": "object",
+      "required": ["id", "joint_names", "joint_parents", "coordinate_system"],
+      "properties": {
+        "id": { "const": "cskel27" },
+        "joint_names": {
+          "type": "array", "minItems": 27, "maxItems": 27,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "joint_parents": {
+          "type": "array", "minItems": 27, "maxItems": 27,
+          "items": { "type": "integer", "minimum": -1, "maximum": 26 }
+        },
+        "coordinate_system": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fps": { "const": 20 },
+    "frame_count": { "const": 40 },
+    "motion_proposal": {
+      "type": "object",
+      "required": ["path", "sha256", "arrays_fingerprint", "shapes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "arrays_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "shapes": { "type": "object", "minProperties": 1 }
+      }
+    }
+  }
+}

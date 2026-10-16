@@ -1,0 +1,218 @@
+#pragma once
+
+#include "metalrobo/ArticulatedActuation.hpp"
+#include "metalrobo/ArticulatedRigidCollision.hpp"
+#include "metalrobo/FreeBodyDynamics.hpp"
+
+#include <array>
+#include <cstdint>
+#include <limits>
+#include <span>
+#include <vector>
+
+namespace metalrobo {
+
+enum class ArticulatedRigidWorldFailure : std::uint32_t {
+    none = 0u,
+    invalidConfiguration,
+    actuation,
+    articulatedFreeDynamics,
+    rigidFreeDynamics,
+    collision,
+    jointLimitCompilation,
+    coupledSolve,
+    velocityPublication,
+    articulatedIntegration,
+    rigidIntegration,
+    graspEvidence,
+};
+
+// Optional physics-derived grasp classifier. It never creates a weld or
+// changes dynamics. A body qualifies only after both configured jaw bodies
+// carry compressive impulses with opposing normals and bounded post-solve
+// tangential slip for the requested dwell.
+struct ArticulatedRigidGraspConfig {
+    bool enabled = false;
+    std::uint32_t jawBodyA = MR_INVALID_INDEX;
+    std::uint32_t jawBodyB = MR_INVALID_INDEX;
+    double minimumNormalImpulse = 1.0e-8;
+    double minimumFriction = 0.05;
+    double maximumTangentialSlipSpeed = 0.02;
+    double maximumOpposingNormalDot = -0.2;
+    std::uint32_t requiredConsecutiveSteps = 3u;
+    // Distinct, load-bearing stable contact keys per jaw and their maximum
+    // world-space separation. Defaults preserve the legacy point-pinch
+    // classifier; finite jaw patches can require a nonzero wrench lever arm.
+    std::uint32_t minimumContactCountPerJaw = 1u;
+    double minimumContactSpanPerJaw = 0.0;
+};
+
+struct ArticulatedRigidWorldConfig {
+    // The articulation timestep and gravity are authoritative. The composed
+    // step copies them into rigid prediction, collision stabilization, and
+    // joint-limit compilation so those phases cannot drift.
+    ArticulatedDynamicsConfig dynamics{};
+    ArticulatedActuationConfig actuation{};
+    FreeBodyIntegratorConfig rigidFreeMotion{
+        .timestep = 1.0 / 1000.0,
+        .gravity = {0.0f, 0.0f, -9.81f, 0.0f},
+        .integrator = FreeBodyIntegrator::symplecticEuler,
+        .nonlinearIterations = 12u,
+        .nonlinearTolerance = 1.0e-12,
+    };
+    ArticulatedJointLimitConfig jointLimits{};
+    ArticulatedRigidCollisionConfig collision{};
+    QualityContactSolverConfig quality{};
+    ArticulatedRigidGraspConfig grasp{};
+    // Optional deterministic deepest-point conditioning across compound
+    // primitive witnesses belonging to the same articulated/rigid body pair.
+    // The physical default preserves every assembled witness. Small,
+    // explicitly characterized compound assets may opt into a lower cap.
+    std::uint32_t maximumContactsPerBodyPair =
+        std::numeric_limits<std::uint32_t>::max();
+    std::uint64_t contactCacheMaximumAge = 8u;
+    std::uint64_t jointLimitCacheMaximumAge = 8u;
+};
+
+struct ArticulatedRigidContactCacheEntry {
+    ArticulatedRigidIslandContactWarmStart warmStart{};
+    std::uint64_t lastSeenStep = 0u;
+};
+
+struct ArticulatedRigidJointLimitCacheEntry {
+    std::uint64_t stableKey = 0u;
+    double impulse = 0.0;
+    std::uint64_t lastSeenStep = 0u;
+};
+
+struct ArticulatedRigidGraspCacheEntry {
+    std::uint32_t rigidBody = MR_INVALID_INDEX;
+    // Hash of the model/jaws, grasp thresholds, rigid slot, and all
+    // participating shape generations. Dwell never transfers across a
+    // replaced object or changed grasp configuration.
+    std::uint64_t identity = 0u;
+    std::uint32_t consecutiveQualifiedSteps = 0u;
+    bool grasped = false;
+    std::uint64_t lastSeenStep = 0u;
+};
+
+struct ArticulatedRigidWorldCache {
+    PersistentManifoldCache manifolds;
+    std::vector<ArticulatedRigidContactCacheEntry> contactImpulses;
+    std::vector<ArticulatedRigidJointLimitCacheEntry>
+        jointLimitImpulses;
+    std::vector<ArticulatedRigidGraspCacheEntry> graspEvidence;
+    std::uint64_t step = 0u;
+};
+
+struct ArticulatedRigidGraspEvidence {
+    std::uint32_t rigidBody = MR_INVALID_INDEX;
+    bool jawAContact = false;
+    bool jawBContact = false;
+    bool qualifiedThisStep = false;
+    bool grasped = false;
+    std::uint32_t consecutiveQualifiedSteps = 0u;
+    // Counts are deduplicated by full stable contact key. Spans are the
+    // maximum pairwise world-space distance within each jaw's witnesses.
+    std::uint32_t jawAContactCount = 0u;
+    std::uint32_t jawBContactCount = 0u;
+    double jawANormalImpulse = 0.0;
+    double jawBNormalImpulse = 0.0;
+    double jawAFriction = 0.0;
+    double jawBFriction = 0.0;
+    double jawAContactSpan = 0.0;
+    double jawBContactSpan = 0.0;
+    // Inclusive scene and articulated-shape bounds over each jaw's distinct
+    // load-bearing witnesses. MR_INVALID_INDEX means no such witness.
+    std::uint32_t jawAMinimumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMaximumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMinimumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMaximumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMinimumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMaximumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMinimumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMaximumArticulatedShape = MR_INVALID_INDEX;
+    double normalDot = 1.0;
+    double maximumTangentialSlipSpeed = 0.0;
+};
+
+struct ArticulatedRigidWorldStepDiagnostics {
+    MRStepStatusCode code = MR_STEP_SUCCESS;
+    ArticulatedRigidWorldFailure failure =
+        ArticulatedRigidWorldFailure::none;
+    ArticulatedActuationDiagnostics actuation{};
+    ArticulatedDynamicsDiagnostics articulatedFreeDynamics{};
+    FreeBodyIntegratorDiagnostics rigidFreeDynamics{};
+    ArticulatedRigidIslandCollisionDiagnostics collision{};
+    ArticulatedJointLimitDiagnostics jointLimitCompilation{};
+    CoupledArticulatedRigidContactDiagnostics coupledSolve{};
+    ArticulatedDynamicsDiagnostics articulatedIntegration{};
+    FreeBodyIntegratorDiagnostics rigidIntegration{};
+    std::uint32_t contactCount = 0u;
+    std::uint32_t articulatedDynamicContactCount = 0u;
+    std::uint32_t articulatedPrescribedContactCount = 0u;
+    std::uint32_t dynamicDynamicContactCount = 0u;
+    std::uint32_t dynamicPrescribedContactCount = 0u;
+    std::uint32_t jointLimitCount = 0u;
+    std::uint32_t matchedContactWarmStarts = 0u;
+    std::uint32_t matchedJointLimitWarmStarts = 0u;
+    std::uint32_t graspedBodyCount = 0u;
+    double maximumPenetration = 0.0;
+    double maximumNormalImpulse = 0.0;
+    double maximumJointLimitImpulse = 0.0;
+    double maximumVelocityCorrection = 0.0;
+    std::vector<ArticulatedRigidGraspEvidence> graspEvidence;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return code == MR_STEP_SUCCESS;
+    }
+};
+
+// One transactional semi-implicit step for exactly one articulation and one
+// or more independent scene bodies. Scene bodies may be dynamic, static, or
+// kinematic, but at least one must be dynamic:
+//
+//   articulated + scene free/prescribed velocity prediction
+//   -> one collision stream for articulation-scene and scene-scene pairs
+//   -> simultaneous exact-cone contact + joint-limit solve
+//   -> one articulation and scene configuration integration
+//
+// rigidShapes index rigidBodies and rigidMaterials locally. Static and
+// kinematic endpoints contribute their prescribed point velocity but receive
+// no solver degrees of freedom. q, v, rigidBodies, every cache stream, and the
+// cache step are unchanged on any failure.
+[[nodiscard]] ArticulatedRigidWorldStepDiagnostics
+stepArticulatedRigidWorldCpu(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<double> q,
+    std::span<double> v,
+    std::span<const double> generalizedForce,
+    std::span<const ArticulatedBodyWrench> articulatedWrenches,
+    std::span<const MRBodyPropertiesGPU> rigidProperties,
+    std::span<MRBodyStateGPU> rigidBodies,
+    std::span<const MRShapeGPU> rigidShapes,
+    std::span<const MRMaterialGPU> rigidMaterials,
+    std::span<const BodyWrench> rigidWrenches,
+    const ArticulatedRigidWorldConfig& config,
+    ArticulatedRigidWorldCache& cache
+);
+
+[[nodiscard]] ArticulatedRigidWorldStepDiagnostics
+stepControlledArticulatedRigidWorldCpu(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<double> q,
+    std::span<double> v,
+    std::span<const ArticulatedDofCommand> commands,
+    std::span<const ArticulatedBodyWrench> articulatedWrenches,
+    std::span<const MRBodyPropertiesGPU> rigidProperties,
+    std::span<MRBodyStateGPU> rigidBodies,
+    std::span<const MRShapeGPU> rigidShapes,
+    std::span<const MRMaterialGPU> rigidMaterials,
+    std::span<const BodyWrench> rigidWrenches,
+    const ArticulatedRigidWorldConfig& config,
+    ArticulatedRigidWorldCache& cache
+);
+
+} // namespace metalrobo

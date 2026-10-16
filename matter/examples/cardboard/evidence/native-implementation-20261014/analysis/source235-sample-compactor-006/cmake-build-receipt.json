@@ -1,0 +1,28 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "-S",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter",
+      "-B",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build",
+      "-DBUILD_TESTING=ON"
+    ],
+    "returncode": 0,
+    "stdout": "-- The CXX compiler identification is AppleClang 21.0.0.21000101\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- The OBJCXX compiler identification is AppleClang 21.0.0.21000101\n-- Detecting OBJCXX compiler ABI info\n-- Detecting OBJCXX compiler ABI info - done\n-- Check for working OBJCXX compiler: /usr/bin/clang++ - skipped\n-- Configuring done (0.9s)\n-- Generating done (0.2s)\n-- Build files have been written to: /Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build\n",
+    "stderr": "Error: $HOME must be set to run brew.\nError: $HOME must be set to run brew.\nError: $HOME must be set to run brew.\n"
+  },
+  {
+    "argv": [
+      "cmake",
+      "--build",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source235-sample-compactor-006/cmake-build",
+      "--target",
+      "numi-matter-cardboard-contact-sample-compaction-check",
+      "-j2"
+    ],
+    "returncode": 0,
+    "stdout": "[  0%] Generating shaders/cardboard_contact_sample_compaction_check.metallib\n[  0%] Built target numi_cardboard_contact_sample_compaction_shaders\n[100%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-contact-sample-compaction-check.dir/tools/cardboard_contact_sample_compaction_check.mm.o\n[100%] Linking OBJCXX executable numi-matter-cardboard-contact-sample-compaction-check\n[100%] Built target numi-matter-cardboard-contact-sample-compaction-check\n",
+    "stderr": "In file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/cardboard_contact_sample_compaction_check.metal:1:\nIn file included from /Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/matter_kernels.metal:4:\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3289:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3298:9: note: uninitialized use occurs here\n    if (sharedValid == 0u) return;\n        ^~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3289:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3279:33: note: initialize the variable 'sharedValid' to silence this warning\n    threadgroup uint sharedValid;\n                                ^\n                                 = 0\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3735:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3752:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3735:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-contact-sample-pages-235-006/matter/tools/../src/metal/fgmres.metalinc:3615:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n2 warnings generated.\n"
+  }
+]

@@ -515,8 +515,8 @@ inline float3 coupledRigidPointDirection(
     // geometry or contribute a rigid KKT direction.
     if (!(rigid.linearVelocityAndInverseMass.w > 0.0f))
         return float3(0.0f);
-    const NMContactSampleGPU sample = contact.samples[
-        environment * dispatch.contactPairCount + pairIndex];
+    const NMContactSampleGPU sample = primalContactSample(
+        dispatch, contact, environment, pairIndex);
     float3 mappedAngular = angular;
     if (proxy.shapeKind == NM_RIGID_BOX &&
         sample.barrierHessianRow0.w > 0.0f) {
@@ -620,8 +620,8 @@ inline float3 coupledFreeBoxAngularBarrierCorrection(
     const NMContactPairGPU pair = contact.pairs[pairIndex];
     if (pair.rigidProxy >= dispatch.rigidProxyCount) return float3(0.0f);
     const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
-    const NMContactSampleGPU sample = contact.samples[
-        environment * dispatch.contactPairCount + pairIndex];
+    const NMContactSampleGPU sample = primalContactSample(
+        dispatch, contact, environment, pairIndex);
     if (sample.barrierHessianRow0.w <= 0.0f ||
         !(sample.barrierHessianRow1.w > 0.0f) ||
         proxy.shapeKind != NM_RIGID_BOX ||
@@ -1146,7 +1146,6 @@ inline float3 fgmresContactDiagonal(
         return diagonal;
 
     const NMIncidenceRangeGPU rigidRange = contact.nodeRanges[unifiedNode];
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint incidence = 0u; incidence < rigidRange.count; ++incidence) {
         const uint pairIndex = contact.nodeIncidence[
             rigidRange.first + incidence];
@@ -1154,8 +1153,8 @@ inline float3 fgmresContactDiagonal(
         const NMContactPairGPU pair = contact.pairs[pairIndex];
         if (expectedObject != NM_INVALID_INDEX &&
             pair.objectIndex != expectedObject) continue;
-        const NMContactSampleGPU sample = contact.samples[
-            sampleBase + pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         diagonal += fgmresPSDSpatialDiagonal(
             sample.barrierHessianRow0,
@@ -4496,8 +4495,8 @@ kernel void nm_contact_accumulate_rigid_residual(
         const NMContactPairGPU pair = contact.pairs[pairIndex];
         if (pair.rigidProxy >= dispatch.rigidProxyCount) continue;
         const NMRigidProxyGPU proxy = contact.rigidProxies[pair.rigidProxy];
-        const NMContactSampleGPU sample = contact.samples[
-            environment * dispatch.contactPairCount + pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u &&
             dof < articulatedNv) {
@@ -4790,8 +4789,8 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
         if (pairIndex >= dispatch.contactPairCount) continue;
         const NMContactPairGPU pair = contact.pairs[pairIndex];
         if (pair.rigidProxy >= dispatch.rigidProxyCount) continue;
-        const NMContactSampleGPU sample = contact.samples[
-            environment * dispatch.contactPairCount + pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         float3 continuumDirection = float3(0.0f);
         if (pair.continuumNode < dispatch.gridNodeCount) {
@@ -5245,14 +5244,13 @@ kernel void nm_fgmres_gather_nodes(
             ? pressureOperator / float(activeElements) : 0.0f);
     const uint unifiedNode = dispatch.gridNodeCount + node;
     const NMIncidenceRangeGPU contactRange = contact.nodeRanges[unifiedNode];
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint incidence = 0u; incidence < contactRange.count; ++incidence) {
         const uint pairIndex = contact.nodeIncidence[
             contactRange.first + incidence];
         if (pairIndex >= dispatch.contactPairCount ||
             contact.pairs[pairIndex].objectIndex != objectIndex) continue;
-        const NMContactSampleGPU sample =
-            contact.samples[sampleBase + pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
             const float3 rigidDirection = coupledRigidPointDirection(
                 dispatch, contact, coupledPointJacobians,
@@ -6498,11 +6496,11 @@ kernel void nm_mpm_build_implicit_residual(
     if (!(node.positionAndMass.w > 0.0f)) return;
     float3 rightHandSide = float3(0.0f);
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint local = 0u; local < range.count; ++local) {
         const uint pair = contactIncidence[range.first + local];
         if (pair >= dispatch.contactPairCount) continue;
-        const NMContactSampleGPU sample = samples[sampleBase + pair];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pair);
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
             rightHandSide -= sample.impulseAndNormal.xyz;
     }
@@ -6761,11 +6759,11 @@ kernel void nm_fgmres_apply_mpm(
     const float3 nodeDirection = direction[row].xyz;
     float3 value = nodes[nodeGlobal].positionAndMass.w * nodeDirection;
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint local = 0u; local < range.count; ++local) {
         const uint pair = contactIncidence[range.first + local];
         if (pair >= dispatch.contactPairCount) continue;
-        const NMContactSampleGPU sample = samples[sampleBase + pair];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pair);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         const float3 rigidDirection = coupledRigidPointDirection(
             dispatch, contact, coupledPointJacobians, environment, pair,

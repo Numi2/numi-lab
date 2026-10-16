@@ -1,0 +1,90 @@
+{
+  "at_utc": "2026-10-16T13:37:39.301768+00:00",
+  "build_log_sha256": "5ba7977c7299565a7537d450b9382c075deded13915c468a51c4bf85a7c8ab12",
+  "build_report": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-build-002/report.json",
+  "build_report_sha256": "669de3d4416b775699efc697422b691c83217f275b6c6b20b21c2877d1adce82",
+  "build_source": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/source-build.json",
+  "build_source_sha256": "39bef01c8cd0b62d708ffae18a5d03c4ef5e2ed2061bccc68e1c55f03d0dcbcf",
+  "built_targets": [
+    "numi-matter-cardboard-full-contact-armijo-check"
+  ],
+  "changed_file_map": [
+    {
+      "base_sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e",
+      "candidate_sha256": "36e54718becf710ab8189122bf07d21f19490fa4443297a4fe734a2e66319c63",
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm"
+    }
+  ],
+  "checker_binary": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+  "checker_sha256": "0946f5ed970778f08319b417fab1694cfc390f21391c393ff7e9d0484b49502e",
+  "configure_support_file_count": 1034,
+  "cpu_only_command": [
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "--cpu-only"
+  ],
+  "cpu_only_contract": "PASS; selector contract function called and base=0 rejection required before success",
+  "cpu_only_exit_code": 0,
+  "cpu_only_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cpu_only_stdout_sha256": "71d3d245d348d83e99e6e627a20d6688e1d8fa4858913fb572b77fef1841d608",
+  "limitations": [
+    "No GPU execution yet.",
+    "No physical qualification.",
+    "Diagnostic captures are host input/targets and published host readback, not raw MTLBuffer contents.",
+    "Checker fixture covers activation control 1199 and subsequent sparse/dense parity only."
+  ],
+  "native_fem_transactions": 0,
+  "native_run": false,
+  "off_command": "<checker> <material.nmatter> --sparse-free-body-parity --diagnostic-state-output <fresh-off-dir>",
+  "on_command": "<checker> <material.nmatter> --sparse-free-body-parity --diagnostic-state-output <fresh-on-dir> --full-contact-activation-residual-armijo",
+  "overlay_manifest_sha256": "3b721f308075b056fccfea224d300fd80f3ae1abde27d619491eebf05e970b52",
+  "overlay_patch_sha256": "2819ffc78c715bb49b531032bf81acfe0585564363d8ce0b1128d458d3e9aa9d",
+  "pair_policy": "Identical binary, source, material, inherited environment and arguments; the only changed option is the opt-in flag. Each output path must be new.",
+  "parent_frozen_sha256": "f64e6c5b12a0d69b944e002eb4c499533ac9b6cd6b852a96d869ce053c41c1db",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-refined-contact-observers-241-004",
+  "physical_qualification": false,
+  "probe_target": "not rebuilt; byte-identical to source241 parent by frozen source map",
+  "schema": "numi.cardboard.source244.activation-review-and-build.v2",
+  "source_evidence": [
+    {
+      "claim": "admitted shipping box mode sets full-contact residual selector to all",
+      "line": 13789,
+      "path": "matter/tools/cardboard_probe.mm"
+    },
+    {
+      "claim": "all/numeric selector is matched to request.controlStep",
+      "lines": "8199-8222",
+      "path": "matter/src/runtime.mm"
+    },
+    {
+      "claim": "full-contact scope checks capsule/BOX/contact/cohesive arenas with no activation-command exclusion",
+      "lines": "11531-11579",
+      "path": "matter/src/runtime.mm"
+    },
+    {
+      "claim": "MetalWorldResult exposes finalSceneBodies vector, no raw MTLBuffer",
+      "lines": "964-970",
+      "path": "include/metalrobo/MetalWorld.hpp"
+    }
+  ],
+  "source_file_count": 836,
+  "source_frozen_sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4",
+  "source_review": [
+    "CLI admission requires sparse-free-body parity, native mode, and diagnostic output.",
+    "The opted-in fixture call uses controlStepBase 1200 and explicitly pins selected activation to 1199; helper rejects zero before subtraction.",
+    "Default activation still clears selector and sparse-private environment settings before Runtime initialization. The new path is opt-in only.",
+    "Selected/skipped trace marker, activation scene files, accepted-step counters, Matter snapshots, and trace are recorded before selected-marker/snapshot failures are raised.",
+    "When no MetalWorld finalSceneBodies vector is returned, metadata labels the device scene as unknown. Runner scene state is a separately named host value; it is not used to assert device rollback.",
+    "The public MetalWorldResult/StepResult API provides finalSceneBodies as a vector and does not expose the underlying MTLBuffer. The sidecar is byte-exact published result data when present, not raw device-buffer capture.",
+    "Shipping box mode sets NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT=all only after admission and rejects conflicting residual selectors. Runtime matches full-contact selection to request.controlStep; the scope validates required arenas/contact types and has no activation-specific exclusion.",
+    "No solver kernel, physical operator, tolerance, or acceptance criterion changed."
+  ],
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "superseded_iteration": {
+    "candidate_sha256": "670d71350b9ba4bd481b87ce5616b141dbf0b1ef2cf2b96a6994a46372d86dc7",
+    "overlay_manifest_sha256": "78c3789bd09681185543a2ab54ba1b061da2a132d9a0d99ed79b32dd3889a3a3",
+    "package": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source244-activation-full-residual-control-001",
+    "patch_sha256": "d8693e434279fcdc369be6e8ca7ab1434a48dbb50edf66714821b7f6be107dd8",
+    "status": "preserved; no build or native run; superseded by 002 after adding base-zero guard and explicit unavailable after-snapshot/readback states"
+  }
+}

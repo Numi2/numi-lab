@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.source250-audit-manifest.v1",
+  "files": {
+    "build-command.json": "d1f85f3f6bec40bec9c247b6a0274dd757ce75843b0268c5b97d0a846a16b597",
+    "focused-corrections.json": "73948546ebbc67d3cc5d33651793533e4cea1d8be1e2137af874e50db0537b15",
+    "preserved-attempts.json": "9d49201f48aff9e7d61529354315fa9e020df6daa95fd97354d5f2225a8a186c",
+    "probe_help.log": "6b05092fb5b10614dd2eb392a7b53ae1a0f376654d350a44230d8556bb37db43",
+    "report.json": "8281cf6bd9c1d099c8d49c5630a25bbe2a5f629c61771396206701a14a88dd1b",
+    "shipping_memory_ctest.log": "b1e2f9ed23f6083d6c6d9b14f44412b536aeeaff28e73954ebe5fa8e78e30f21",
+    "shipping_memory_helper.log": "7997af31757b9f4a26560db9d48a54a7c2f0e382f48ff25600a16df91a0402eb",
+    "source-overlay.json": "59bbe8a2677421535824c36ece7ace59ebd3579cf4a2058679511e1cfdf00abf",
+    "source-overlay.patch": "02913f425dc60ddb2487cf5fc75366d9955c905e3b171315f80ae2d4289b6b28"
+  }
+}

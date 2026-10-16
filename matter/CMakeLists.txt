@@ -60,6 +60,16 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-cardboard-constituent-volume-damage-check
+    tools/cardboard_constituent_volume_damage_check.cpp)
+target_compile_options(numi-matter-cardboard-constituent-volume-damage-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_constituent_volume_damage
+        COMMAND numi-matter-cardboard-constituent-volume-damage-check)
+    set_tests_properties(matter.compiler.cardboard_constituent_volume_damage PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;damage;cpu;synthetic")
+endif()
 add_executable(numi-matter-regional-graph-schwarz-layout-check
     tools/regional_graph_schwarz_layout_check.cpp)
 target_compile_options(numi-matter-regional-graph-schwarz-layout-check PRIVATE
@@ -912,6 +922,53 @@ if(APPLE)
         set_tests_properties(matter.compiler.cardboard_full_contact_scratch_budget
             PROPERTIES TIMEOUT 10 LABELS "matter;cardboard;contact;memory;cpu")
     endif()
+    add_executable(numi-matter-cardboard-shipping-contact-page-plan-check
+        tools/cardboard_shipping_contact_page_plan_check.cpp)
+    target_include_directories(numi-matter-cardboard-shipping-contact-page-plan-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-cardboard-shipping-contact-page-plan-check
+        PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_shipping_contact_page_plan
+            COMMAND numi-matter-cardboard-shipping-contact-page-plan-check)
+        set_tests_properties(matter.compiler.cardboard_shipping_contact_page_plan
+            PROPERTIES TIMEOUT 20 LABELS "matter;cardboard;contact;pages;cpu")
+    endif()
+    add_executable(numi-matter-cardboard-cohesive-page-runtime-kernel-check
+        tools/cardboard_cohesive_page_runtime_kernel_check.mm)
+    target_include_directories(numi-matter-cardboard-cohesive-page-runtime-kernel-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-cardboard-cohesive-page-runtime-kernel-check
+        PRIVATE "-framework Foundation" "-framework Metal")
+    target_compile_options(numi-matter-cardboard-cohesive-page-runtime-kernel-check
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_cohesive_page_runtime_kernels
+            COMMAND numi-matter-cardboard-cohesive-page-runtime-kernel-check
+                "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumiMatter.metallib")
+        set_tests_properties(matter.compiler.cardboard_cohesive_page_runtime_kernels
+            PROPERTIES TIMEOUT 30 LABELS "matter;cardboard;cohesive;pages;metal")
+    endif()
+
+    add_executable(numi-matter-cardboard-shipping-contact-page-native-check
+        tools/cardboard_shipping_contact_page_native_check.mm)
+    target_include_directories(numi-matter-cardboard-shipping-contact-page-native-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-cardboard-shipping-contact-page-native-check
+        PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-shipping-contact-page-native-check
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_shipping_contact_page_coverage
+            COMMAND numi-matter-cardboard-shipping-contact-page-native-check)
+        set_tests_properties(matter.metal.cardboard_shipping_contact_page_coverage
+            PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE
+                LABELS "matter;cardboard;contact;pages;native")
+    endif()
+
     add_executable(numi-matter-cardboard-full-contact-armijo-check tools/cardboard_full_contact_armijo_check.mm)
     target_link_libraries(numi-matter-cardboard-full-contact-armijo-check PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
@@ -966,6 +1023,18 @@ if(APPLE)
             COMMAND numi-matter-cardboard-coupled-free-box-operator-check)
         set_tests_properties(matter.metal.cardboard_coupled_free_box_operator PROPERTIES
             TIMEOUT 180 LABELS "matter;cardboard;contact;native-kernel;synthetic")
+    endif()
+    add_executable(numi-matter-cardboard-free-force-residual-check
+        tools/cardboard_free_force_residual_check.cpp)
+    target_include_directories(numi-matter-cardboard-free-force-residual-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" tools)
+    target_compile_options(numi-matter-cardboard-free-force-residual-check
+        PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_free_force_residual
+            COMMAND numi-matter-cardboard-free-force-residual-check)
+        set_tests_properties(matter.compiler.cardboard_free_force_residual
+            PROPERTIES LABELS "matter;cardboard;force-residual;cpu")
     endif()
     add_executable(numi-matter-cardboard-free-box-proxy-admission-check
         tools/cardboard_free_box_true_residual_proxy_admission_check.cpp)
@@ -1196,6 +1265,46 @@ if(APPLE)
         add_test(NAME matter.metal.cardboard_contact_geometry COMMAND numi-matter-cardboard-contact-geometry-check)
         set_tests_properties(matter.metal.cardboard_contact_geometry PROPERTIES
             LABELS "matter;cardboard;contact;native-geometry" TIMEOUT 60 RUN_SERIAL TRUE)
+    endif()
+    # Native checker for production compact-sample mapping and canonical-order
+    # consumers. It is built here but only runs when explicitly selected.
+    set(NUMI_CARDBOARD_SAMPLE_COMPACTION_AIR "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_sample_compaction_check.air")
+    set(NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_sample_compaction_check.metallib")
+    set(NUMI_CARDBOARD_SAMPLE_COMPACTION_DEPFILE "${NUMI_MATTER_SHADER_DIR}/cardboard_contact_sample_compaction_check.d")
+    add_custom_command(OUTPUT "${NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -MMD -MF "${NUMI_CARDBOARD_SAMPLE_COMPACTION_DEPFILE}" -MT "${NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB}"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_contact_sample_compaction_check.metal" -o "${NUMI_CARDBOARD_SAMPLE_COMPACTION_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_SAMPLE_COMPACTION_AIR}" -o "${NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB}"
+        DEPENDS tools/cardboard_contact_sample_compaction_check.metal src/matter_kernels.metal
+            ${NUMI_CARDBOARD_PRODUCTION_METAL_DEPENDENCIES}
+            include/numi/matter/shared.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        DEPFILE "${NUMI_CARDBOARD_SAMPLE_COMPACTION_DEPFILE}"
+        VERBATIM)
+    add_custom_target(numi_cardboard_contact_sample_compaction_shaders
+        DEPENDS "${NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB}")
+    add_executable(numi-matter-cardboard-contact-sample-compaction-check
+        tools/cardboard_contact_sample_compaction_check.mm)
+    add_dependencies(numi-matter-cardboard-contact-sample-compaction-check
+        numi_cardboard_contact_sample_compaction_shaders)
+    target_include_directories(numi-matter-cardboard-contact-sample-compaction-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-cardboard-contact-sample-compaction-check
+        PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-contact-sample-compaction-check
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_contact_sample_compaction
+            COMMAND numi-matter-cardboard-contact-sample-compaction-check
+                "${NUMI_CARDBOARD_SAMPLE_COMPACTION_METALLIB}")
+        set_tests_properties(matter.metal.cardboard_contact_sample_compaction
+            PROPERTIES LABELS "matter;cardboard;contact;sample-pages"
+                TIMEOUT 120 RUN_SERIAL TRUE)
     endif()
     add_executable(numi-matter-cardboard-paper-gpu-check tools/cardboard_paper_gpu_check.mm)
     add_dependencies(numi-matter-cardboard-paper-gpu-check numi_cardboard_paper_shaders)

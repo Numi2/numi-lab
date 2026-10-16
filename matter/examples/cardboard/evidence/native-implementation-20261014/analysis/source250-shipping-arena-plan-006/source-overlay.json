@@ -1,0 +1,37 @@
+{
+  "schema": "numi.cardboard.source-overlay.v1",
+  "base_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "base_frozen_manifest_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-006",
+  "candidate_frozen_manifest_sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646",
+  "changed_files": [
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "base_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+      "candidate_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory.hpp",
+      "base_sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+      "candidate_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "base_sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9",
+      "candidate_sha256": "dbbd92853c0ff3d59c755ff3c0f00187e43bd02a787951ce6150b9a04afb5f66"
+    }
+  ],
+  "source_file_count": 842,
+  "configure_support_file_count": 1034,
+  "physical_operator_changed": false,
+  "count_gates_changed": false,
+  "sample_compaction_parity_claimed": false,
+  "whole_runtime_allocation_inventory_complete": false,
+  "complete_shipping_admission": false,
+  "notes": [
+    "Adds an exact checked 11-row plan and binds activeContacts from compiled dispatch.reservedMixed1.",
+    "All 11 canonical pair/sample/map/history/count/page/config rows are tested at E=1, E=2, and zero-count shapes using max(16, elementBytes, count*elementBytes), with checked arithmetic, device maximum checks, and exact plan summation.",
+    "The plan is scoped to those 11 rows. Separate contact-node/proxy/body incidence and range buffers are outside this table and the rest of the runtime allocation inventory remains incomplete.",
+    "No physical operator, acceptance threshold, or shipping cap was changed; complete memory admission remains false."
+  ]
+}

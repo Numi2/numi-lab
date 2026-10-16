@@ -1,0 +1,6 @@
+{
+  "error": "Audit file selector omitted initial.obj and result.json but required32; all30 actually selected production files matched before count assertion.",
+  "repair": "002 includes both omitted files and requires32.",
+  "native_artifacts_unchanged": true,
+  "at_utc": "2026-10-16T14:24:44.733180+00:00"
+}

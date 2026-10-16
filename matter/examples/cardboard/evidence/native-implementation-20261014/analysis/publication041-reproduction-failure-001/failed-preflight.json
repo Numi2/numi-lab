@@ -1,0 +1,6 @@
+{
+  "schema": "numi.cardboard.preserved-preparation-failure.v1",
+  "failure": "A mirrored source-build.json in analysis/source246 points to actual artifacts outside its own directory; direct relative_to(build_record_parent) failed. Partial archive preparation is retained and is not publishable.",
+  "repair": "Record external artifact paths explicitly relative to task root in reproduction002; do not change build evidence.",
+  "at_utc": "2026-10-16T14:39:37.072362+00:00"
+}

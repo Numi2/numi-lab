@@ -1,0 +1,81 @@
+{
+  "schema": "numi.cardboard.captured-native-tangent-linear-conditioning.v1",
+  "classification": "offline CPU matrix assembly and sparse direct solves from immutable captured native tangent; no production solver change or FEM history",
+  "control": 19,
+  "newton": 127,
+  "environment": 0,
+  "nodes": 882,
+  "tetrahedra": 1920,
+  "free_rows": 2538,
+  "matrix_nnz": 71046,
+  "dt_s": 4.999999873689376e-05,
+  "checks": {
+    "assembled_vs_native_action": {
+      "absolute_l2_Ns": 1.716878528579829e-10,
+      "relative_l2": 0.00031526193436020304,
+      "maximum_absolute_Ns": 7.398876972964405e-11
+    }
+  },
+  "native_rhs_l2_Ns": 5.442486610391968e-07,
+  "native_correction_l2_m_s": 0.48328470772916493,
+  "native_correction_FP64_matrix_defect": {
+    "absolute_l2_Ns": 7.9839426377724e-09,
+    "relative_l2": 0.014669659678220866,
+    "maximum_absolute_Ns": 1.8361034552323266e-09
+  },
+  "FP64_direct_solve_defect": {
+    "absolute_l2_Ns": 2.45128844449886e-18,
+    "relative_l2": 4.503986173927065e-12,
+    "maximum_absolute_Ns": 7.475309777799904e-19
+  },
+  "FP64_direct_solution_l2_m_s": 0.4830087116771255,
+  "native_solution_relative_error": 0.0007575651988601544,
+  "matrix_1norm_kg": 0.4803934266898208,
+  "inverse_1norm_estimate_per_kg": 22085277.15747127,
+  "condition_1norm_estimate": 10609621.973072048,
+  "condition_times_FP32_epsilon": 1.2647655010223389,
+  "rounded_FP64_solution_residual": {
+    "absolute_l2_Ns": 3.264929666946875e-10,
+    "relative_l2": 0.0005998966833860038,
+    "maximum_absolute_Ns": 1.2532583320157594e-10
+  },
+  "FP32_CPU_sparseLU_defect_against_FP64_matrix": {
+    "absolute_l2_Ns": 1.4011252846738467e-09,
+    "relative_l2": 0.0025744211882827903,
+    "maximum_absolute_Ns": 9.245665252359714e-10
+  },
+  "FP32_CPU_iterative_refinement_against_FP64_matrix": [
+    {
+      "iteration": 0,
+      "absolute_l2_Ns": 1.4011252846738467e-09,
+      "relative_l2": 0.0025744211882827903,
+      "maximum_absolute_Ns": 9.245665252359714e-10
+    },
+    {
+      "iteration": 1,
+      "absolute_l2_Ns": 1.907253502123151e-12,
+      "relative_l2": 3.504378859621651e-06,
+      "maximum_absolute_Ns": 1.5196761482583264e-12
+    },
+    {
+      "iteration": 2,
+      "absolute_l2_Ns": 3.586198925397977e-15,
+      "relative_l2": 6.589265499616358e-09,
+      "maximum_absolute_Ns": 2.848058290373481e-15
+    },
+    {
+      "iteration": 3,
+      "absolute_l2_Ns": 5.4130204685645805e-18,
+      "relative_l2": 9.94585904580615e-12,
+      "maximum_absolute_Ns": 4.1477809627710936e-18
+    },
+    {
+      "iteration": 4,
+      "absolute_l2_Ns": 1.0602914411542122e-18,
+      "relative_l2": 1.948174643424341e-12,
+      "maximum_absolute_Ns": 4.922981959221595e-19
+    }
+  ],
+  "limits": "Condition estimate is operator- and captured-state-specific. CPU direct solve/iterative refinement do not qualify native solver or nonlinear descent. Assembly uses captured cached tangent, exact captured FP32 frames, rest volumes, masses and free constraints; public material identity unchanged.",
+  "at_utc": "2026-10-16T14:19:29.005576+00:00"
+}

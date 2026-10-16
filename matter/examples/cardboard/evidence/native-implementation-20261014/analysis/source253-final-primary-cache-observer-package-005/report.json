@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.primary-cache-observer-final-package.v1",
+  "source": "snapshots/source-primary-cache-fd-action-253-003",
+  "source_map_sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289",
+  "base": "snapshots/source-contact-compaction-fixture-249-001",
+  "all_declared_source_entries_verified": 844,
+  "changes": [
+    {
+      "path": "matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp",
+      "before_sha256": null,
+      "after_sha256": "70efef721dee2e9923d87b92875cd23fb3bfecbc682c9dfdd89ad5a86064715b",
+      "bytes": 379
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c",
+      "after_sha256": "6673e21ad676e863a1471d03fe06141acfa48d110df7b8e8dbcf8799acb0cb88",
+      "bytes": 2007783
+    },
+    {
+      "path": "matter/tools/cardboard_cached_operator_audit.py",
+      "before_sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+      "after_sha256": "f99db5f17d6b6f76847ac808277298d80ca767fa92bf33d1816cabd9e756f3f3",
+      "bytes": 55520
+    },
+    {
+      "path": "matter/tools/test_cardboard_primary_cache_action.py",
+      "before_sha256": null,
+      "after_sha256": "f6e1fe1891db70323bb77a5d36de8988774f6bca3d234772bc80c7a576df02f1",
+      "bytes": 2961
+    },
+    {
+      "path": "matter/tools/test_true_residual_certification_contract.py",
+      "before_sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513",
+      "after_sha256": "b1e801f4e101b8fb303b07e50ab8ed7c02b488b0be4f75a988b9ebd4f95db775",
+      "bytes": 19462
+    }
+  ],
+  "production_operator_and_acceptance_unchanged": true,
+  "diagnostic_action_fixed": "FD observer now binds the actual cache and the same shared cache-mode policy as primary FGMRES; the local direct constitutive probe remains explicitly distinct.",
+  "legacy_capture_action_classification": "Explicit policy metadata absent: cached production parity is unestablished; historical numeric results retained.",
+  "CPU_validation": "source253-build-002 all10 checks PASS and source253-primary-cache-fd-action-003 four focused checks PASS.",
+  "GPU_validation": "native599 queued separately; no native result assumed here.",
+  "at_utc": "2026-10-16T14:15:32.659157+00:00"
+}

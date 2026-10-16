@@ -1,0 +1,5 @@
+{
+  "error": "Initial CPU reference invocation omitted PYTHONPATH for frozen source tools; ModuleNotFoundError cardboard_bilinear_fp64_reference occurred before creating outputs or executing replay.",
+  "repair": "Source-bound launch002 supplies exact frozen source253-003 tools directory; native artifacts untouched.",
+  "at_utc": "2026-10-16T14:19:49.538946+00:00"
+}

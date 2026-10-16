@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import cardboard_source_data as source_data
+from cardboard_shipping_peak import first_local_peak_index
 
 
 TOOL = Path(__file__).resolve()
@@ -931,7 +932,7 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
     """Recheck the producer's full nominal/half-speed accepted branches."""
     required = {"phase", "accepted", "stroke_m", "macro_observation_duration_s",
                 "control_step_count", "control_step_dt_min_s", "control_step_dt_max_s",
-                "platen_mean_force_y_N"}
+                "platen_mean_force_y_N", "platen_reaction_samples"}
     try:
         with path.open(newline="", encoding="utf-8") as stream:
             reader = csv.DictReader(stream)
@@ -950,6 +951,7 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
          "half_speed_6_25_mm_min_slow_compression", 6.25e-3 / 60.0),
     )
     curves: list[list[tuple[float, float]]] = []
+    selected_peaks: list[float] = []
     for name, origin_phase, approach_phase, phase, expected_speed in branches:
         origins = [row for row in rows if row.get("phase") == origin_phase]
         approaches = [row for row in rows if row.get("phase") == approach_phase]
@@ -963,6 +965,7 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
         if origin_stroke != 0.0 or origin_force != 0.0:
             raise EnsembleError(f"BCT {name} does not start at the accepted zero-force stroke origin")
         curve = [(origin_stroke, origin_force)]
+        curve_contacts = [0.0]
         crossing = [row for row in approaches
                     if _finite(row.get("platen_reaction_samples"), "BCT contact reaction sample count") > 0.0]
         if len(crossing) != 1:
@@ -973,16 +976,22 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
         crossing_duration = _finite(crossing_row.get("macro_observation_duration_s"), f"{name} contact duration")
         if crossing_stroke <= 0.0 or crossing_force < 0.0 or crossing_duration <= 0.0:
             raise EnsembleError(f"BCT {name} first-contact stroke sample is incomplete")
+        crossing_contacts = _finite(crossing_row.get("platen_reaction_samples"),
+                                     f"{name} contact sample count")
+        if crossing_contacts <= 0.0:
+            raise EnsembleError(f"BCT {name} first-contact record has no accepted contact samples")
         curve.append((crossing_stroke, crossing_force))
+        curve_contacts.append(crossing_contacts)
         elapsed = crossing_duration
         for index, row in enumerate(branch_rows):
             stroke = _finite(row.get("stroke_m"), f"{name} row {index} stroke")
             force = _finite(row.get("platen_mean_force_y_N"), f"{name} row {index} force")
+            contacts = _finite(row.get("platen_reaction_samples"), f"{name} row {index} contact samples")
             duration = _finite(row.get("macro_observation_duration_s"), f"{name} duration")
             dt_min = _finite(row.get("control_step_dt_min_s"), f"{name} minimum dt")
             dt_max = _finite(row.get("control_step_dt_max_s"), f"{name} maximum dt")
             count_text = row.get("control_step_count", "")
-            if (stroke <= curve[-1][0] or force < 0.0 or duration <= 0.0 or
+            if (stroke <= curve[-1][0] or force < 0.0 or contacts < 0.0 or duration <= 0.0 or
                     dt_min <= 0.0 or dt_max < dt_min or
                     re.fullmatch(r"[1-9][0-9]*", count_text) is None):
                 raise EnsembleError(f"BCT {name} has a nonmonotone curve or invalid accepted timestep summary")
@@ -992,6 +1001,12 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
                 raise EnsembleError(f"BCT {name} macro duration is inconsistent with its accepted dt bounds/count")
             elapsed += duration
             curve.append((stroke, force))
+            curve_contacts.append(contacts)
+        selected_peak = first_local_peak_index(
+            (point[0] for point in curve), (point[1] for point in curve), curve_contacts)
+        if selected_peak is None:
+            raise EnsembleError(f"BCT {name} branch has no qualified first local compression peak")
+        selected_peaks.append(curve[selected_peak][1])
         final_fraction = curve[-1][0] / inside_height
         if not math.isclose(final_fraction, 0.70, rel_tol=0.0, abs_tol=1e-9):
             raise EnsembleError(f"BCT {name} accepted curve does not reach the complete 70-percent stroke endpoint")
@@ -1025,7 +1040,7 @@ def _verify_bct_rate_history(path: Path, inside_height: float,
 
     nominal_y = [at(nominal, x) for x in knots]
     half_y = [at(half, x) for x in knots]
-    nominal_peak, half_peak = max(nominal_y), max(half_y)
+    nominal_peak, half_peak = selected_peaks
     work_nominal, work_half = integrate(nominal_y), integrate(half_y)
     rms_nominal = math.sqrt(sum(value * value for value in nominal_y) / len(nominal_y))
     rms_delta = math.sqrt(sum((a - b) ** 2 for a, b in zip(nominal_y, half_y)) / len(knots))
@@ -1176,6 +1191,7 @@ def _verify_bct_capacity_evidence(history: dict[str, Any], cert: dict[str, Any],
         raise EnsembleError("BCT nominal curve sample count does not match the capacity artifact")
     forces: list[float] = []
     strokes: list[float] = []
+    contacts_by_row: list[float] = []
     for index, row in enumerate(curve_rows):
         if row.get("sample_index") != str(index):
             raise EnsembleError("BCT nominal curve sample indices are not contiguous from zero")
@@ -1185,12 +1201,17 @@ def _verify_bct_capacity_evidence(history: dict[str, Any], cert: dict[str, Any],
             raise EnsembleError("BCT nominal curve contains invalid stroke, force, or contact sample count")
         if strokes and stroke <= strokes[-1]:
             raise EnsembleError("BCT nominal curve stroke must increase strictly")
-        strokes.append(stroke); forces.append(force)
+        contacts = _finite(row.get("contact_samples"), "BCT nominal contact samples")
+        if contacts < 0.0:
+            raise EnsembleError("BCT nominal curve contains a negative contact sample count")
+        strokes.append(stroke); forces.append(force); contacts_by_row.append(contacts)
     if not math.isclose(strokes[-1] / inside_height, 0.70, rel_tol=0.0, abs_tol=1e-9):
         raise EnsembleError("BCT nominal curve artifact does not end at 70 percent inside-height stroke")
-    peak_index = forces.index(max(forces))
+    peak_index = first_local_peak_index(strokes, forces, contacts_by_row)
+    if peak_index is None:
+        raise EnsembleError("BCT nominal curve has no qualified first local compression peak")
     if peak_index != _capacity_int(values, "nominal_peak_sample_index"):
-        raise EnsembleError("BCT capacity peak sample index is not the first maximum in the bound nominal curve")
+        raise EnsembleError("BCT capacity peak sample index is not the first qualified local peak in the bound nominal curve")
     samples = history.get("samples")
     if not isinstance(samples, list) or len(samples) != len(curve_rows):
         raise EnsembleError("BCT native history must contain the complete capacity curve sample-for-sample")
@@ -1199,7 +1220,8 @@ def _verify_bct_capacity_evidence(history: dict[str, Any], cert: dict[str, Any],
                 sample.get("phase") != "shipping_compression_nominal" or
                 sample.get("sample_index") != index or
                 _finite(sample.get("stroke_m"), "BCT history stroke") != stroke or
-                _finite(sample.get("force_N"), "BCT history force") != force):
+                _finite(sample.get("force_N"), "BCT history force") != force or
+                _finite(sample.get("contact_samples"), "BCT history contact samples") != contacts_by_row[index]):
             raise EnsembleError("BCT native history differs from the accepted source-bound nominal compression curve")
     _verify_bct_rate_history(branch_path, inside_height, list(zip(strokes, forces)))
 

@@ -1,0 +1,10 @@
+{
+  "inputs": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001/frozen-source.json": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2"
+  },
+  "artifacts": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-primary-cache-fd-action-253-002/frozen-source.json": "714a018486005c5fe8259bff4123efb3ad058557fe3c2eae69bd77b33f3fdcda",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source253-primary-cache-fd-action-002/report.json": "68ae6cd5bc5b76393c32d0a45cb2d6f1d52872311cc9bb0159e2087aa10428f1",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source253-primary-cache-fd-action-002/source253.patch": "736ec230820d91768ba7e9df4118f6150341afe5432b244fbed93f6d5d901a46"
+  }
+}

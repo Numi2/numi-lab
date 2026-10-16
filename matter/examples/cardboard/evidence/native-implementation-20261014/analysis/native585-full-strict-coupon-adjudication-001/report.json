@@ -1,0 +1,2822 @@
+{
+  "schema": "numi.cardboard.native585-full-strict-coupon-adjudication.v1",
+  "verdict": "FAIL_COMPLETE_HISTORY_NOT_REACHED",
+  "accepted_active_controls": 19,
+  "requested_controls": 60,
+  "first_rejected_control": 19,
+  "outer_residual_required": 5e-07,
+  "outer_residual_observed": 5.442345809569815e-07,
+  "newton_budget": 128,
+  "restart_ceiling": 16,
+  "fgmres_budget": 1024,
+  "final_active_observation": {
+    "step": "19",
+    "time_s": "0.00099999997473787516",
+    "environment": "0",
+    "arm": "bent",
+    "target_angle_deg": "0.3125",
+    "status_code": "10",
+    "object_index": "0",
+    "failing_index": "4294967295",
+    "completed_microsteps": "0",
+    "fgmres_iterations": "1024",
+    "status_diagnostic_x": "5.4423458095698152e-07",
+    "status_diagnostic_y": "5.500500606103742e-07",
+    "status_diagnostic_z": "0",
+    "status_diagnostic_w": "0",
+    "min_J": "0.98961670976517646",
+    "max_J": "1.0056787396834894",
+    "max_node_displacement_m": "4.1135948214136161e-05",
+    "reaction_x_N": "",
+    "reaction_y_N": "",
+    "reaction_z_N": "",
+    "reaction_moment_y_Nm": "",
+    "mechanical_constraint_reaction_x_N": "",
+    "mechanical_constraint_reaction_y_N": "",
+    "mechanical_constraint_reaction_z_N": "",
+    "contact_reaction_x_N": "",
+    "contact_reaction_y_N": "",
+    "contact_reaction_z_N": "",
+    "mechanical_constraint_moment_y_Nm": "",
+    "contact_moment_y_Nm": "",
+    "phase": "loading",
+    "max_free_displacement_m": "4.1135948214136161e-05",
+    "max_free_speed_m_s": "0.040124276244351963",
+    "kinetic_energy_J": "5.7999094060089555e-08",
+    "max_material_state_change": "0.11257532984018326",
+    "certificate_residual": "5.4423458095698152e-07",
+    "certificate_correction": "5.500500606103742e-07",
+    "certificate_volume": "0",
+    "certificate_pressure": "0",
+    "certificate_raw_accepted_flag": "0",
+    "step_accepted": "0",
+    "right_grip_constrained": "1",
+    "measured_right_grip_angle_deg": "0.29685778716764633",
+    "current_fixed_nodes": "36",
+    "free_force_imbalance_l2_N": "0.010884691777050677",
+    "free_force_imbalance_max_N": "0.0045091296928808939"
+  },
+  "common_accepted_observations_byte_value_identical": true,
+  "common_accepted_observation_rows": 38,
+  "common_accepted_geometry": [
+    {
+      "path": "accepted_step_000001_bent.obj",
+      "identical": true,
+      "sha256": "427b7b0a4a6a5311306e79227ed02fd1e9f80b7d13c9929b961eac71a68247af",
+      "baseline_sha256": "427b7b0a4a6a5311306e79227ed02fd1e9f80b7d13c9929b961eac71a68247af"
+    },
+    {
+      "path": "accepted_step_000001_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000002_bent.obj",
+      "identical": true,
+      "sha256": "eeb315e5f9273dfe4de0592d7a6f935e8564a175c9caca3eca6c7742afe2b73d",
+      "baseline_sha256": "eeb315e5f9273dfe4de0592d7a6f935e8564a175c9caca3eca6c7742afe2b73d"
+    },
+    {
+      "path": "accepted_step_000002_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000003_bent.obj",
+      "identical": true,
+      "sha256": "13bbd22c78c565de0663cf7d3d5e2497c0d6914acbee9b3217f3ce042722df82",
+      "baseline_sha256": "13bbd22c78c565de0663cf7d3d5e2497c0d6914acbee9b3217f3ce042722df82"
+    },
+    {
+      "path": "accepted_step_000003_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000004_bent.obj",
+      "identical": true,
+      "sha256": "b6bdc6cb0af85fdd7f6163f6a37b795ad5b6971f9757db6ff2c2a10686aa0b89",
+      "baseline_sha256": "b6bdc6cb0af85fdd7f6163f6a37b795ad5b6971f9757db6ff2c2a10686aa0b89"
+    },
+    {
+      "path": "accepted_step_000004_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000005_bent.obj",
+      "identical": true,
+      "sha256": "3947690492ca313d47b8eb7472d9d9e4118013710a7af6d6a6566f9c06ec5626",
+      "baseline_sha256": "3947690492ca313d47b8eb7472d9d9e4118013710a7af6d6a6566f9c06ec5626"
+    },
+    {
+      "path": "accepted_step_000005_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000006_bent.obj",
+      "identical": true,
+      "sha256": "e8625d2a1782fc3236ee7b07378db65537e97155dc18d87ec8b5367132fbbc22",
+      "baseline_sha256": "e8625d2a1782fc3236ee7b07378db65537e97155dc18d87ec8b5367132fbbc22"
+    },
+    {
+      "path": "accepted_step_000006_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000007_bent.obj",
+      "identical": true,
+      "sha256": "031d6a394aee882a6b4025fa498d65f6cf776589f2d21e6c0b99e5e24d5e6ad2",
+      "baseline_sha256": "031d6a394aee882a6b4025fa498d65f6cf776589f2d21e6c0b99e5e24d5e6ad2"
+    },
+    {
+      "path": "accepted_step_000007_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000008_bent.obj",
+      "identical": true,
+      "sha256": "96675a5b99fb381cdc9e91fff3b25be410b4c6e50ef226cd1284fdc953e19025",
+      "baseline_sha256": "96675a5b99fb381cdc9e91fff3b25be410b4c6e50ef226cd1284fdc953e19025"
+    },
+    {
+      "path": "accepted_step_000008_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000009_bent.obj",
+      "identical": true,
+      "sha256": "eb99877caf50f686ea1f29d89bcda9f216c5564e5db71acc8f23dff2665fe43b",
+      "baseline_sha256": "eb99877caf50f686ea1f29d89bcda9f216c5564e5db71acc8f23dff2665fe43b"
+    },
+    {
+      "path": "accepted_step_000009_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000010_bent.obj",
+      "identical": true,
+      "sha256": "651ab0e3c1d7b4ba3c043679e9576c6f031c79b769e7fb87631b8a35666f62da",
+      "baseline_sha256": "651ab0e3c1d7b4ba3c043679e9576c6f031c79b769e7fb87631b8a35666f62da"
+    },
+    {
+      "path": "accepted_step_000010_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000011_bent.obj",
+      "identical": true,
+      "sha256": "f41d8808edafbb1e7cda830c0322aef719f5d105bab3530b8fa022c6e9487330",
+      "baseline_sha256": "f41d8808edafbb1e7cda830c0322aef719f5d105bab3530b8fa022c6e9487330"
+    },
+    {
+      "path": "accepted_step_000011_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000012_bent.obj",
+      "identical": true,
+      "sha256": "4b41a1d26410c815492a0ce038c71f34d7451207c50093113d70e823ead02f1b",
+      "baseline_sha256": "4b41a1d26410c815492a0ce038c71f34d7451207c50093113d70e823ead02f1b"
+    },
+    {
+      "path": "accepted_step_000012_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000013_bent.obj",
+      "identical": true,
+      "sha256": "774d45e2c9bbb163a2b7cdc01d36f57a156679847f52b7cc30ac23e2b5c98b39",
+      "baseline_sha256": "774d45e2c9bbb163a2b7cdc01d36f57a156679847f52b7cc30ac23e2b5c98b39"
+    },
+    {
+      "path": "accepted_step_000013_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000014_bent.obj",
+      "identical": true,
+      "sha256": "4e129f3f0e4509da159f1d3f8298ee935bd5b544badda578ed294043f258459f",
+      "baseline_sha256": "4e129f3f0e4509da159f1d3f8298ee935bd5b544badda578ed294043f258459f"
+    },
+    {
+      "path": "accepted_step_000014_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000015_bent.obj",
+      "identical": true,
+      "sha256": "624c122395e0be4ed1ad50855a2a334e5405c893cb1f15e0ef7ac881e5216136",
+      "baseline_sha256": "624c122395e0be4ed1ad50855a2a334e5405c893cb1f15e0ef7ac881e5216136"
+    },
+    {
+      "path": "accepted_step_000015_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000016_bent.obj",
+      "identical": true,
+      "sha256": "2c42c8f8a9a035f2d026fc19f4788e0c64a826c7abbc64ee9af3b7c4f28e85bd",
+      "baseline_sha256": "2c42c8f8a9a035f2d026fc19f4788e0c64a826c7abbc64ee9af3b7c4f28e85bd"
+    },
+    {
+      "path": "accepted_step_000016_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000017_bent.obj",
+      "identical": true,
+      "sha256": "4283a10f3d67f329bc3d75d5f27647ed7d809218efae12971da8bb666cc2c6a2",
+      "baseline_sha256": "4283a10f3d67f329bc3d75d5f27647ed7d809218efae12971da8bb666cc2c6a2"
+    },
+    {
+      "path": "accepted_step_000017_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000018_bent.obj",
+      "identical": true,
+      "sha256": "3c909be8936d77d670ca3f569bf693713e8e3b5dfb30cace264968f40a557eb9",
+      "baseline_sha256": "3c909be8936d77d670ca3f569bf693713e8e3b5dfb30cace264968f40a557eb9"
+    },
+    {
+      "path": "accepted_step_000018_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000019_bent.obj",
+      "identical": true,
+      "sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14",
+      "baseline_sha256": "7b26d777dfee55784f985e6ad632c51c985429585239ca2ebb3e40e308654f14"
+    },
+    {
+      "path": "accepted_step_000019_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "path": "accepted_step_000020_held_reference.obj",
+      "identical": true,
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    }
+  ],
+  "manifest_differences": [
+    {
+      "path": "/compensated_source_paper_projection/compiled_world_fingerprint",
+      "before": 11370556961095180869,
+      "after": 12979837952240062725
+    },
+    {
+      "path": "/compiled_world_fingerprint",
+      "before": 11370556961095180869,
+      "after": 12979837952240062725
+    },
+    {
+      "path": "/solver/newton_iteration_budget",
+      "before": 64,
+      "after": 128
+    }
+  ],
+  "root19_first_cycle_rhs_l2_by_newton": {
+    "0": 0.00123110402,
+    "1": 0.000127015286,
+    "2": 3.40387051e-05,
+    "3": 2.77100662e-05,
+    "4": 7.78198864e-06,
+    "5": 7.77787955e-06,
+    "6": 3.69032909e-06,
+    "7": 3.67603047e-06,
+    "8": 3.67377106e-06,
+    "9": 3.67374309e-06,
+    "10": 3.67371877e-06,
+    "11": 3.67338566e-06,
+    "12": 1.09661585e-06,
+    "13": 1.09547102e-06,
+    "14": 1.09517828e-06,
+    "15": 1.09511541e-06,
+    "16": 1.0950871e-06,
+    "17": 1.09505356e-06,
+    "18": 1.09501173e-06,
+    "19": 9.31930117e-07,
+    "20": 9.31213037e-07,
+    "21": 9.31032105e-07,
+    "22": 9.3090722e-07,
+    "23": 8.19877414e-07,
+    "24": 8.19390493e-07,
+    "25": 8.19346269e-07,
+    "26": 8.19255547e-07,
+    "27": 8.19249237e-07,
+    "28": 8.19240881e-07,
+    "29": 7.64176093e-07,
+    "30": 7.63787455e-07,
+    "31": 7.6371515e-07,
+    "32": 7.63678315e-07,
+    "33": 7.63677406e-07,
+    "34": 7.63326227e-07,
+    "35": 7.63138416e-07,
+    "36": 7.63128583e-07,
+    "37": 7.63100161e-07,
+    "38": 7.63096693e-07,
+    "39": 7.63066566e-07,
+    "40": 7.25080099e-07,
+    "41": 7.24726647e-07,
+    "42": 7.24666336e-07,
+    "43": 7.24663209e-07,
+    "44": 7.24634219e-07,
+    "45": 7.24631718e-07,
+    "46": 6.95884353e-07,
+    "47": 6.95712572e-07,
+    "48": 6.95610595e-07,
+    "49": 6.95573704e-07,
+    "50": 6.95555286e-07,
+    "51": 6.95549431e-07,
+    "52": 6.95539313e-07,
+    "53": 6.95536244e-07,
+    "54": 6.95533572e-07,
+    "55": 6.71894952e-07,
+    "56": 6.71832936e-07,
+    "57": 6.71706061e-07,
+    "58": 6.71514897e-07,
+    "59": 6.71495002e-07,
+    "60": 6.71491932e-07,
+    "61": 6.51687401e-07,
+    "62": 6.51547282e-07,
+    "63": 6.51465314e-07,
+    "64": 6.51450648e-07,
+    "65": 6.51450307e-07,
+    "66": 6.51422056e-07,
+    "67": 6.51416428e-07,
+    "68": 6.51387325e-07,
+    "69": 6.51382834e-07,
+    "70": 6.51365326e-07,
+    "71": 6.5100545e-07,
+    "72": 6.50959805e-07,
+    "73": 6.50902393e-07,
+    "74": 6.50897391e-07,
+    "75": 6.3367429e-07,
+    "76": 6.33559182e-07,
+    "77": 6.33443733e-07,
+    "78": 6.33412412e-07,
+    "79": 6.18789784e-07,
+    "80": 6.18647846e-07,
+    "81": 6.18619879e-07,
+    "82": 6.18568151e-07,
+    "83": 6.18548313e-07,
+    "84": 6.18542401e-07,
+    "85": 6.18539161e-07,
+    "86": 6.1852603e-07,
+    "87": 6.05325511e-07,
+    "88": 6.05101604e-07,
+    "89": 6.05093874e-07,
+    "90": 6.05088417e-07,
+    "91": 6.05079492e-07,
+    "92": 6.05077105e-07,
+    "93": 5.93471952e-07,
+    "94": 5.93319385e-07,
+    "95": 5.9331677e-07,
+    "96": 5.8275964e-07,
+    "97": 5.82594737e-07,
+    "98": 5.82572056e-07,
+    "99": 5.82567338e-07,
+    "100": 5.82561142e-07,
+    "101": 5.82547898e-07,
+    "102": 5.82541759e-07,
+    "103": 5.82541304e-07,
+    "104": 5.82540963e-07,
+    "105": 5.82520101e-07,
+    "106": 5.8251004e-07,
+    "107": 5.71299552e-07,
+    "108": 5.71061094e-07,
+    "109": 5.70845714e-07,
+    "110": 5.70823488e-07,
+    "111": 5.70794725e-07,
+    "112": 5.70788643e-07,
+    "113": 5.70763063e-07,
+    "114": 5.61068362e-07,
+    "115": 5.61000036e-07,
+    "116": 5.60993271e-07,
+    "117": 5.60974968e-07,
+    "118": 5.60974399e-07,
+    "119": 5.60973945e-07,
+    "120": 5.51962273e-07,
+    "121": 5.51773383e-07,
+    "122": 5.51750588e-07,
+    "123": 5.51746723e-07,
+    "124": 5.51739561e-07,
+    "125": 5.44381692e-07,
+    "126": 5.44271586e-07,
+    "127": 5.44248678e-07
+  },
+  "root19_last_inner_cycles_by_newton": {
+    "0": {
+      "true_l2": 0.000129037042,
+      "rhs_l2": 0.00123110402,
+      "diagnostics": [
+        0.000129037042,
+        0.00123110402,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "1": {
+      "true_l2": 1.1061893e-05,
+      "rhs_l2": 0.000127015286,
+      "diagnostics": [
+        1.1061893e-05,
+        0.000127015286,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "2": {
+      "true_l2": 1.79937751e-06,
+      "rhs_l2": 3.40387051e-05,
+      "diagnostics": [
+        1.79937751e-06,
+        3.40387051e-05,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "3": {
+      "true_l2": 7.43068767e-07,
+      "rhs_l2": 2.77100662e-05,
+      "diagnostics": [
+        7.43068767e-07,
+        2.77100662e-05,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "4": {
+      "true_l2": 1.14443409e-07,
+      "rhs_l2": 7.78198864e-06,
+      "diagnostics": [
+        1.14443409e-07,
+        7.78198864e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "5": {
+      "true_l2": 1.13406664e-07,
+      "rhs_l2": 7.77787955e-06,
+      "diagnostics": [
+        1.13406664e-07,
+        7.77787955e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "6": {
+      "true_l2": 5.1143985e-08,
+      "rhs_l2": 3.69032909e-06,
+      "diagnostics": [
+        5.1143985e-08,
+        3.69032909e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "7": {
+      "true_l2": 4.39947563e-08,
+      "rhs_l2": 3.67603047e-06,
+      "diagnostics": [
+        4.39947563e-08,
+        3.67603047e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "8": {
+      "true_l2": 4.59958756e-08,
+      "rhs_l2": 3.67377106e-06,
+      "diagnostics": [
+        4.59958756e-08,
+        3.67377106e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "9": {
+      "true_l2": 4.44327846e-08,
+      "rhs_l2": 3.67374309e-06,
+      "diagnostics": [
+        4.44327846e-08,
+        3.67374309e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "10": {
+      "true_l2": 4.38027463e-08,
+      "rhs_l2": 3.67371877e-06,
+      "diagnostics": [
+        4.38027463e-08,
+        3.67371877e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "11": {
+      "true_l2": 4.63487808e-08,
+      "rhs_l2": 3.67338566e-06,
+      "diagnostics": [
+        4.63487808e-08,
+        3.67338566e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "12": {
+      "true_l2": 1.62007705e-08,
+      "rhs_l2": 1.09661585e-06,
+      "diagnostics": [
+        1.62007705e-08,
+        1.09661585e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "13": {
+      "true_l2": 1.33395837e-08,
+      "rhs_l2": 1.09547102e-06,
+      "diagnostics": [
+        1.33395837e-08,
+        1.09547102e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "14": {
+      "true_l2": 1.17591599e-08,
+      "rhs_l2": 1.09517828e-06,
+      "diagnostics": [
+        1.17591599e-08,
+        1.09517828e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "15": {
+      "true_l2": 1.68276362e-08,
+      "rhs_l2": 1.09511541e-06,
+      "diagnostics": [
+        1.68276362e-08,
+        1.09511541e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "16": {
+      "true_l2": 1.59864637e-08,
+      "rhs_l2": 1.0950871e-06,
+      "diagnostics": [
+        1.59864637e-08,
+        1.0950871e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "17": {
+      "true_l2": 1.55651279e-08,
+      "rhs_l2": 1.09505356e-06,
+      "diagnostics": [
+        1.55651279e-08,
+        1.09505356e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "18": {
+      "true_l2": 1.57900555e-08,
+      "rhs_l2": 1.09501173e-06,
+      "diagnostics": [
+        1.57900555e-08,
+        1.09501173e-06,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "19": {
+      "true_l2": 1.44610599e-08,
+      "rhs_l2": 9.31930117e-07,
+      "diagnostics": [
+        1.44610599e-08,
+        9.31930117e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "20": {
+      "true_l2": 1.2261518e-08,
+      "rhs_l2": 9.31213037e-07,
+      "diagnostics": [
+        1.2261518e-08,
+        9.31213037e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "21": {
+      "true_l2": 1.21123813e-08,
+      "rhs_l2": 9.31032105e-07,
+      "diagnostics": [
+        1.21123813e-08,
+        9.31032105e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "22": {
+      "true_l2": 1.0873884e-08,
+      "rhs_l2": 9.3090722e-07,
+      "diagnostics": [
+        1.0873884e-08,
+        9.3090722e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "23": {
+      "true_l2": 9.27511046e-09,
+      "rhs_l2": 8.19877414e-07,
+      "diagnostics": [
+        9.27511046e-09,
+        8.19877414e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "24": {
+      "true_l2": 1.26614372e-08,
+      "rhs_l2": 8.19390493e-07,
+      "diagnostics": [
+        1.26614372e-08,
+        8.19390493e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "25": {
+      "true_l2": 1.12578888e-08,
+      "rhs_l2": 8.19346269e-07,
+      "diagnostics": [
+        1.12578888e-08,
+        8.19346269e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "26": {
+      "true_l2": 1.08063345e-08,
+      "rhs_l2": 8.19255547e-07,
+      "diagnostics": [
+        1.08063345e-08,
+        8.19255547e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "27": {
+      "true_l2": 1.10352412e-08,
+      "rhs_l2": 8.19249237e-07,
+      "diagnostics": [
+        1.10352412e-08,
+        8.19249237e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "28": {
+      "true_l2": 1.22020838e-08,
+      "rhs_l2": 8.19240881e-07,
+      "diagnostics": [
+        1.22020838e-08,
+        8.19240881e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "29": {
+      "true_l2": 1.12958602e-08,
+      "rhs_l2": 7.64176093e-07,
+      "diagnostics": [
+        1.12958602e-08,
+        7.64176093e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "30": {
+      "true_l2": 1.13452971e-08,
+      "rhs_l2": 7.63787455e-07,
+      "diagnostics": [
+        1.13452971e-08,
+        7.63787455e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "31": {
+      "true_l2": 1.15212977e-08,
+      "rhs_l2": 7.6371515e-07,
+      "diagnostics": [
+        1.15212977e-08,
+        7.6371515e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "32": {
+      "true_l2": 8.91696406e-09,
+      "rhs_l2": 7.63678315e-07,
+      "diagnostics": [
+        8.91696406e-09,
+        7.63678315e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "33": {
+      "true_l2": 9.05125219e-09,
+      "rhs_l2": 7.63677406e-07,
+      "diagnostics": [
+        9.05125219e-09,
+        7.63677406e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "34": {
+      "true_l2": 1.02671285e-08,
+      "rhs_l2": 7.63326227e-07,
+      "diagnostics": [
+        1.02671285e-08,
+        7.63326227e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "35": {
+      "true_l2": 1.08779137e-08,
+      "rhs_l2": 7.63138416e-07,
+      "diagnostics": [
+        1.08779137e-08,
+        7.63138416e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "36": {
+      "true_l2": 1.0123582e-08,
+      "rhs_l2": 7.63128583e-07,
+      "diagnostics": [
+        1.0123582e-08,
+        7.63128583e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "37": {
+      "true_l2": 1.05796101e-08,
+      "rhs_l2": 7.63100161e-07,
+      "diagnostics": [
+        1.05796101e-08,
+        7.63100161e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "38": {
+      "true_l2": 1.17065717e-08,
+      "rhs_l2": 7.63096693e-07,
+      "diagnostics": [
+        1.17065717e-08,
+        7.63096693e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "39": {
+      "true_l2": 9.76486003e-09,
+      "rhs_l2": 7.63066566e-07,
+      "diagnostics": [
+        9.76486003e-09,
+        7.63066566e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "40": {
+      "true_l2": 1.10613563e-08,
+      "rhs_l2": 7.25080099e-07,
+      "diagnostics": [
+        1.10613563e-08,
+        7.25080099e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "41": {
+      "true_l2": 1.08172724e-08,
+      "rhs_l2": 7.24726647e-07,
+      "diagnostics": [
+        1.08172724e-08,
+        7.24726647e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "42": {
+      "true_l2": 9.58640278e-09,
+      "rhs_l2": 7.24666336e-07,
+      "diagnostics": [
+        9.58640278e-09,
+        7.24666336e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "43": {
+      "true_l2": 1.12304468e-08,
+      "rhs_l2": 7.24663209e-07,
+      "diagnostics": [
+        1.12304468e-08,
+        7.24663209e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "44": {
+      "true_l2": 1.02573861e-08,
+      "rhs_l2": 7.24634219e-07,
+      "diagnostics": [
+        1.02573861e-08,
+        7.24634219e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "45": {
+      "true_l2": 9.39843581e-09,
+      "rhs_l2": 7.24631718e-07,
+      "diagnostics": [
+        9.39843581e-09,
+        7.24631718e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "46": {
+      "true_l2": 9.9499804e-09,
+      "rhs_l2": 6.95884353e-07,
+      "diagnostics": [
+        9.9499804e-09,
+        6.95884353e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "47": {
+      "true_l2": 1.03907132e-08,
+      "rhs_l2": 6.95712572e-07,
+      "diagnostics": [
+        1.03907132e-08,
+        6.95712572e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "48": {
+      "true_l2": 9.34609812e-09,
+      "rhs_l2": 6.95610595e-07,
+      "diagnostics": [
+        9.34609812e-09,
+        6.95610595e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "49": {
+      "true_l2": 9.76939418e-09,
+      "rhs_l2": 6.95573704e-07,
+      "diagnostics": [
+        9.76939418e-09,
+        6.95573704e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "50": {
+      "true_l2": 1.02070201e-08,
+      "rhs_l2": 6.95555286e-07,
+      "diagnostics": [
+        1.02070201e-08,
+        6.95555286e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "51": {
+      "true_l2": 1.04221236e-08,
+      "rhs_l2": 6.95549431e-07,
+      "diagnostics": [
+        1.04221236e-08,
+        6.95549431e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "52": {
+      "true_l2": 9.21305698e-09,
+      "rhs_l2": 6.95539313e-07,
+      "diagnostics": [
+        9.21305698e-09,
+        6.95539313e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "53": {
+      "true_l2": 9.95358285e-09,
+      "rhs_l2": 6.95536244e-07,
+      "diagnostics": [
+        9.95358285e-09,
+        6.95536244e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "54": {
+      "true_l2": 9.80506343e-09,
+      "rhs_l2": 6.95533572e-07,
+      "diagnostics": [
+        9.80506343e-09,
+        6.95533572e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "55": {
+      "true_l2": 9.19256227e-09,
+      "rhs_l2": 6.71894952e-07,
+      "diagnostics": [
+        9.19256227e-09,
+        6.71894952e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "56": {
+      "true_l2": 7.46076267e-09,
+      "rhs_l2": 6.71832936e-07,
+      "diagnostics": [
+        7.46076267e-09,
+        6.71832936e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "57": {
+      "true_l2": 8.45586179e-09,
+      "rhs_l2": 6.71706061e-07,
+      "diagnostics": [
+        8.45586179e-09,
+        6.71706061e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "58": {
+      "true_l2": 7.96668598e-09,
+      "rhs_l2": 6.71514897e-07,
+      "diagnostics": [
+        7.96668598e-09,
+        6.71514897e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "59": {
+      "true_l2": 7.6614235e-09,
+      "rhs_l2": 6.71495002e-07,
+      "diagnostics": [
+        7.6614235e-09,
+        6.71495002e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "60": {
+      "true_l2": 7.57070229e-09,
+      "rhs_l2": 6.71491932e-07,
+      "diagnostics": [
+        7.57070229e-09,
+        6.71491932e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "61": {
+      "true_l2": 7.67677033e-09,
+      "rhs_l2": 6.51687401e-07,
+      "diagnostics": [
+        7.67677033e-09,
+        6.51687401e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "62": {
+      "true_l2": 6.83893564e-09,
+      "rhs_l2": 6.51547282e-07,
+      "diagnostics": [
+        6.83893564e-09,
+        6.51547282e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "63": {
+      "true_l2": 9.9006332e-09,
+      "rhs_l2": 6.51465314e-07,
+      "diagnostics": [
+        9.9006332e-09,
+        6.51465314e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "64": {
+      "true_l2": 9.41454648e-09,
+      "rhs_l2": 6.51450648e-07,
+      "diagnostics": [
+        9.41454648e-09,
+        6.51450648e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "65": {
+      "true_l2": 8.10191736e-09,
+      "rhs_l2": 6.51450307e-07,
+      "diagnostics": [
+        8.10191736e-09,
+        6.51450307e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "66": {
+      "true_l2": 9.52892343e-09,
+      "rhs_l2": 6.51422056e-07,
+      "diagnostics": [
+        9.52892343e-09,
+        6.51422056e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "67": {
+      "true_l2": 8.52316528e-09,
+      "rhs_l2": 6.51416428e-07,
+      "diagnostics": [
+        8.52316528e-09,
+        6.51416428e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "68": {
+      "true_l2": 6.76932155e-09,
+      "rhs_l2": 6.51387325e-07,
+      "diagnostics": [
+        6.76932155e-09,
+        6.51387325e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "69": {
+      "true_l2": 8.96563179e-09,
+      "rhs_l2": 6.51382834e-07,
+      "diagnostics": [
+        8.96563179e-09,
+        6.51382834e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "70": {
+      "true_l2": 6.50836341e-07,
+      "rhs_l2": 6.51365326e-07,
+      "diagnostics": [
+        6.50836341e-07,
+        6.51365326e-07,
+        0,
+        16
+      ],
+      "restart_cycle": 63
+    },
+    "71": {
+      "true_l2": 8.82513795e-09,
+      "rhs_l2": 6.5100545e-07,
+      "diagnostics": [
+        8.82513795e-09,
+        6.5100545e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "72": {
+      "true_l2": 8.91451979e-09,
+      "rhs_l2": 6.50959805e-07,
+      "diagnostics": [
+        8.91451979e-09,
+        6.50959805e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "73": {
+      "true_l2": 9.46282697e-09,
+      "rhs_l2": 6.50902393e-07,
+      "diagnostics": [
+        9.46282697e-09,
+        6.50902393e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "74": {
+      "true_l2": 9.75950876e-09,
+      "rhs_l2": 6.50897391e-07,
+      "diagnostics": [
+        9.75950876e-09,
+        6.50897391e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "75": {
+      "true_l2": 9.28375066e-09,
+      "rhs_l2": 6.3367429e-07,
+      "diagnostics": [
+        9.28375066e-09,
+        6.3367429e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "76": {
+      "true_l2": 9.8326467e-09,
+      "rhs_l2": 6.33559182e-07,
+      "diagnostics": [
+        9.8326467e-09,
+        6.33559182e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "77": {
+      "true_l2": 9.73204806e-09,
+      "rhs_l2": 6.33443733e-07,
+      "diagnostics": [
+        9.73204806e-09,
+        6.33443733e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "78": {
+      "true_l2": 9.69900871e-09,
+      "rhs_l2": 6.33412412e-07,
+      "diagnostics": [
+        9.69900871e-09,
+        6.33412412e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "79": {
+      "true_l2": 9.58898116e-09,
+      "rhs_l2": 6.18789784e-07,
+      "diagnostics": [
+        9.58898116e-09,
+        6.18789784e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "80": {
+      "true_l2": 9.3121848e-09,
+      "rhs_l2": 6.18647846e-07,
+      "diagnostics": [
+        9.3121848e-09,
+        6.18647846e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "81": {
+      "true_l2": 9.23166699e-09,
+      "rhs_l2": 6.18619879e-07,
+      "diagnostics": [
+        9.23166699e-09,
+        6.18619879e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "82": {
+      "true_l2": 9.11666209e-09,
+      "rhs_l2": 6.18568151e-07,
+      "diagnostics": [
+        9.11666209e-09,
+        6.18568151e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "83": {
+      "true_l2": 8.36395131e-09,
+      "rhs_l2": 6.18548313e-07,
+      "diagnostics": [
+        8.36395131e-09,
+        6.18548313e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "84": {
+      "true_l2": 8.80624373e-09,
+      "rhs_l2": 6.18542401e-07,
+      "diagnostics": [
+        8.80624373e-09,
+        6.18542401e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "85": {
+      "true_l2": 9.3531165e-09,
+      "rhs_l2": 6.18539161e-07,
+      "diagnostics": [
+        9.3531165e-09,
+        6.18539161e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "86": {
+      "true_l2": 9.02417518e-09,
+      "rhs_l2": 6.1852603e-07,
+      "diagnostics": [
+        9.02417518e-09,
+        6.1852603e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "87": {
+      "true_l2": 9.4012913e-09,
+      "rhs_l2": 6.05325511e-07,
+      "diagnostics": [
+        9.4012913e-09,
+        6.05325511e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "88": {
+      "true_l2": 5.81180393e-09,
+      "rhs_l2": 6.05101604e-07,
+      "diagnostics": [
+        5.81180393e-09,
+        6.05101604e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "89": {
+      "true_l2": 7.55971641e-09,
+      "rhs_l2": 6.05093874e-07,
+      "diagnostics": [
+        7.55971641e-09,
+        6.05093874e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "90": {
+      "true_l2": 7.77845699e-09,
+      "rhs_l2": 6.05088417e-07,
+      "diagnostics": [
+        7.77845699e-09,
+        6.05088417e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "91": {
+      "true_l2": 8.88262708e-09,
+      "rhs_l2": 6.05079492e-07,
+      "diagnostics": [
+        8.88262708e-09,
+        6.05079492e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "92": {
+      "true_l2": 7.71948994e-09,
+      "rhs_l2": 6.05077105e-07,
+      "diagnostics": [
+        7.71948994e-09,
+        6.05077105e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "93": {
+      "true_l2": 8.38701997e-09,
+      "rhs_l2": 5.93471952e-07,
+      "diagnostics": [
+        8.38701997e-09,
+        5.93471952e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "94": {
+      "true_l2": 8.71853434e-09,
+      "rhs_l2": 5.93319385e-07,
+      "diagnostics": [
+        8.71853434e-09,
+        5.93319385e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "95": {
+      "true_l2": 9.19359078e-09,
+      "rhs_l2": 5.9331677e-07,
+      "diagnostics": [
+        9.19359078e-09,
+        5.9331677e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "96": {
+      "true_l2": 8.0635898e-09,
+      "rhs_l2": 5.8275964e-07,
+      "diagnostics": [
+        8.0635898e-09,
+        5.8275964e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "97": {
+      "true_l2": 8.59669758e-09,
+      "rhs_l2": 5.82594737e-07,
+      "diagnostics": [
+        8.59669758e-09,
+        5.82594737e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "98": {
+      "true_l2": 9.02740016e-09,
+      "rhs_l2": 5.82572056e-07,
+      "diagnostics": [
+        9.02740016e-09,
+        5.82572056e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "99": {
+      "true_l2": 7.67063835e-09,
+      "rhs_l2": 5.82567338e-07,
+      "diagnostics": [
+        7.67063835e-09,
+        5.82567338e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "100": {
+      "true_l2": 6.81226675e-09,
+      "rhs_l2": 5.82561142e-07,
+      "diagnostics": [
+        6.81226675e-09,
+        5.82561142e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "101": {
+      "true_l2": 7.79044473e-09,
+      "rhs_l2": 5.82547898e-07,
+      "diagnostics": [
+        7.79044473e-09,
+        5.82547898e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "102": {
+      "true_l2": 7.75504283e-09,
+      "rhs_l2": 5.82541759e-07,
+      "diagnostics": [
+        7.75504283e-09,
+        5.82541759e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "103": {
+      "true_l2": 8.58135607e-09,
+      "rhs_l2": 5.82541304e-07,
+      "diagnostics": [
+        8.58135607e-09,
+        5.82541304e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "104": {
+      "true_l2": 8.90754581e-09,
+      "rhs_l2": 5.82540963e-07,
+      "diagnostics": [
+        8.90754581e-09,
+        5.82540963e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "105": {
+      "true_l2": 7.95051225e-09,
+      "rhs_l2": 5.82520101e-07,
+      "diagnostics": [
+        7.95051225e-09,
+        5.82520101e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "106": {
+      "true_l2": 8.58789306e-09,
+      "rhs_l2": 5.8251004e-07,
+      "diagnostics": [
+        8.58789306e-09,
+        5.8251004e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "107": {
+      "true_l2": 7.49166773e-09,
+      "rhs_l2": 5.71299552e-07,
+      "diagnostics": [
+        7.49166773e-09,
+        5.71299552e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "108": {
+      "true_l2": 8.44804227e-09,
+      "rhs_l2": 5.71061094e-07,
+      "diagnostics": [
+        8.44804227e-09,
+        5.71061094e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "109": {
+      "true_l2": 8.49392379e-09,
+      "rhs_l2": 5.70845714e-07,
+      "diagnostics": [
+        8.49392379e-09,
+        5.70845714e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "110": {
+      "true_l2": 8.7080041e-09,
+      "rhs_l2": 5.70823488e-07,
+      "diagnostics": [
+        8.7080041e-09,
+        5.70823488e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "111": {
+      "true_l2": 7.93585908e-09,
+      "rhs_l2": 5.70794725e-07,
+      "diagnostics": [
+        7.93585908e-09,
+        5.70794725e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "112": {
+      "true_l2": 7.41168549e-09,
+      "rhs_l2": 5.70788643e-07,
+      "diagnostics": [
+        7.41168549e-09,
+        5.70788643e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "113": {
+      "true_l2": 8.74973516e-09,
+      "rhs_l2": 5.70763063e-07,
+      "diagnostics": [
+        8.74973516e-09,
+        5.70763063e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "114": {
+      "true_l2": 8.09257195e-09,
+      "rhs_l2": 5.61068362e-07,
+      "diagnostics": [
+        8.09257195e-09,
+        5.61068362e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "115": {
+      "true_l2": 7.95565303e-09,
+      "rhs_l2": 5.61000036e-07,
+      "diagnostics": [
+        7.95565303e-09,
+        5.61000036e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "116": {
+      "true_l2": 8.11533507e-09,
+      "rhs_l2": 5.60993271e-07,
+      "diagnostics": [
+        8.11533507e-09,
+        5.60993271e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "117": {
+      "true_l2": 8.45333759e-09,
+      "rhs_l2": 5.60974968e-07,
+      "diagnostics": [
+        8.45333759e-09,
+        5.60974968e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "118": {
+      "true_l2": 8.70696937e-09,
+      "rhs_l2": 5.60974399e-07,
+      "diagnostics": [
+        8.70696937e-09,
+        5.60974399e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "119": {
+      "true_l2": 8.27774294e-09,
+      "rhs_l2": 5.60973945e-07,
+      "diagnostics": [
+        8.27774294e-09,
+        5.60973945e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "120": {
+      "true_l2": 7.590919e-09,
+      "rhs_l2": 5.51962273e-07,
+      "diagnostics": [
+        7.590919e-09,
+        5.51962273e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "121": {
+      "true_l2": 8.49512727e-09,
+      "rhs_l2": 5.51773383e-07,
+      "diagnostics": [
+        8.49512727e-09,
+        5.51773383e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "122": {
+      "true_l2": 8.51335091e-09,
+      "rhs_l2": 5.51750588e-07,
+      "diagnostics": [
+        8.51335091e-09,
+        5.51750588e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "123": {
+      "true_l2": 5.63566527e-09,
+      "rhs_l2": 5.51746723e-07,
+      "diagnostics": [
+        5.63566527e-09,
+        5.51746723e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "124": {
+      "true_l2": 8.52950688e-09,
+      "rhs_l2": 5.51739561e-07,
+      "diagnostics": [
+        8.52950688e-09,
+        5.51739561e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "125": {
+      "true_l2": 8.1921403e-09,
+      "rhs_l2": 5.44381692e-07,
+      "diagnostics": [
+        8.1921403e-09,
+        5.44381692e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "126": {
+      "true_l2": 8.21521429e-09,
+      "rhs_l2": 5.44271586e-07,
+      "diagnostics": [
+        8.21521429e-09,
+        5.44271586e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    },
+    "127": {
+      "true_l2": 7.99063393e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "restart_cycle": 63
+    }
+  },
+  "final_newton127_restart_trace": [
+    {
+      "restart": 0,
+      "true_l2": 4.80336439e-07,
+      "arnoldi_estimate": 4.80343942e-07,
+      "true_max_abs": 1.75041166e-07,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        4.80336439e-07,
+        5.44248678e-07,
+        0,
+        16
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 1,
+      "true_l2": 1.02276026e-07,
+      "arnoldi_estimate": 1.01404609e-07,
+      "true_max_abs": 3.77955374e-08,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        1.02276026e-07,
+        5.44248678e-07,
+        0,
+        16
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 2,
+      "true_l2": 1.80433357e-08,
+      "arnoldi_estimate": 1.80224369e-08,
+      "true_max_abs": 4.47511717e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        1.80433357e-08,
+        5.44248678e-07,
+        0,
+        16
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 3,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.95765409e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        14
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 4,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 5,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 6,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 7,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 8,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 9,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 10,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 11,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 12,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 13,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 14,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 15,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 16,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 17,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 18,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 19,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 20,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 21,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 22,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 23,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 24,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 25,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 26,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 27,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 28,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 29,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 30,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 31,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 32,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 33,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 34,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 35,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 36,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 37,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 38,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 39,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 40,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 41,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 42,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 43,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 44,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 45,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 46,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 47,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 48,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 49,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 50,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 51,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 52,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 53,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 54,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 55,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 56,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 57,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 58,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 59,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 60,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 61,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 62,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    },
+    {
+      "restart": 63,
+      "true_l2": 7.99063393e-09,
+      "arnoldi_estimate": 7.99063393e-09,
+      "true_max_abs": 1.83509208e-09,
+      "rhs_l2": 5.44248678e-07,
+      "diagnostics": [
+        7.99063393e-09,
+        5.44248678e-07,
+        1,
+        0
+      ],
+      "solver_status_code": 0,
+      "operator_status_code": 0
+    }
+  ],
+  "final_true_inner_over_rhs": 0.014681953770404934,
+  "final_inner_stagnates_last_restarts": true,
+  "accepted_prefix_not_resolution_evidence": true,
+  "all_six_full_sequence_axes_open": true,
+  "limits": "R falls with more Newton work but complete60controlhistory still fails. Final inner true residual stagnates; neither tolerance relaxation nor blind work increase is justified by this run. Exact failed candidate replay requested separately.",
+  "at_utc": "2026-10-16T13:54:15.411817+00:00"
+}

@@ -1,0 +1,72 @@
+{
+  "all_exit_zero": true,
+  "build_record_sha256": "aa26b10a93abd9a95992dcb588b10aeb2cc7285e427619f17b42049107a3bb75",
+  "cases": [
+    {
+      "argv": [
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-shipping-contact-page-plan-check"
+      ],
+      "exit_code": 0,
+      "name": "shipping_contact_page_plan_cpu",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "shipping_contact_page_plan_checks=30 pairs=6335568 pair_pages=97 pair_last=44112 cohesive_faces=260835 cohesive_pages=3 cohesive_last=86073 contact_page_bytes=11010064 cohesive_pages_bytes=25232256 persistent_subset_bytes=1381065984 serialized_peak_bytes=1406298240 conservative_overlap_peak_bytes=1417308304 full_pair_history_bytes=405476352 whole_process_admission=false production_paging_enabled=false physical_transactions=0\n",
+      "stdout_sha256": "f565155eb6846ed4c558ffad5a119ad74a8d8a4acba39b3529b16b9e7826338f"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001/matter/tools/test_cardboard_solver_environment.py"
+      ],
+      "exit_code": 0,
+      "name": "solver_environment_contract",
+      "stderr": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.894s\n\nOK\n",
+      "stderr_sha256": "d55dbce944988e7ba25e02bbe649510c69b3732335dac56afe21feac75d8f2e6",
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001/matter/tools/test_true_residual_certification_contract.py"
+      ],
+      "exit_code": 0,
+      "name": "true_residual_contract",
+      "stderr": "test_capability_failure_is_fail_closed (__main__.TrueResidualCertificationContract) ... ok\ntest_cycle_cap_rejects_certification_not_silent_skips (__main__.TrueResidualCertificationContract) ... ok\ntest_explicit_opt_in_is_separate_from_observer_selectors (__main__.TrueResidualCertificationContract) ... ok\ntest_false_arnoldi_convergence_is_rejected_and_true_restart_is_used (__main__.TrueResidualCertificationContract) ... ok\ntest_free_box_true_residual_proxy_scope_keeps_bounds_and_composition_exact (__main__.TrueResidualCertificationContract) ... ok\ntest_native_box_fixture_uses_both_contact_blocks_and_tail_controls (__main__.TrueResidualCertificationContract) ... ok\ntest_native_kernel_fixture_covers_state_machine_and_failure_rollback (__main__.TrueResidualCertificationContract) ... ok\ntest_nonfinite_residual_is_not_certified (__main__.TrueResidualCertificationContract) ... ok\ntest_proxy_admission_checker_has_supported_and_fail_closed_cases (__main__.TrueResidualCertificationContract) ... ok\ntest_same_operator_action_precedes_true_residual_decision (__main__.TrueResidualCertificationContract) ... ok\ntest_true_absolute_gate_and_unresolved_finite_floor (__main__.TrueResidualCertificationContract) ... ok\ntest_true_residual_controls_latch_and_preserves_unmodified_thresholds (__main__.TrueResidualCertificationContract) ... ok\ntest_true_residual_refined_pure_arena_keeps_legacy_coupled_bounds (__main__.TrueResidualCertificationContract) ... ok\ntest_unhealthy_diagnostic_status_has_single_lane_writer (__main__.TrueResidualCertificationContract) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.007s\n\nOK\n",
+      "stderr_sha256": "8fcc887e8bab00890c72789c43e4bb30ba310c59bdc62a292ab5a48983ab67bb",
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001/matter/tools/test_deformable_limit_trace_serializer.py"
+      ],
+      "exit_code": 0,
+      "name": "deformable_trace_serializer_contract",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "PASS: production barrier writer round-trips with per-alpha absent and present\n",
+      "stdout_sha256": "2d84bc448bf91fc8daffe6d3e6801ed8e2933834d8d4e911786a2c1d5f46f11f"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001/matter/tools/test_cardboard_shipping_resolution_controls.py",
+        "--probe",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe"
+      ],
+      "exit_code": 0,
+      "name": "shipping_resolution_cli_contract",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "{\"schema\": \"numi.cardboard.shipping-resolution-cli-checks.v1\", \"checks\": 29, \"physical_steps\": 0, \"shipping_mesh_or_convergence_qualified\": false, \"commands\": [{\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--nx\", \"8\", \"--ny\", \"16\", \"--thickness-slices\", \"1\", \"--dt\", \".000025\", \"--newton-iterations\", \"14\", \"--fgmres-iterations\", \"1024\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--nx\", \"16\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--nx\", \"32\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--ny\", \"32\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--ny\", \"64\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--thickness-slices\", \"2\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--thickness-slices\", \"4\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--dt\", \"1.25e-05\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--dt\", \"6.25e-06\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--newton-iterations\", \"64\", \"--fgmres-iterations\", \"512\"], \"exit_code\": 0}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--nx\", \"0\"], \"exit_code\": 1}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--ny\", \"0\"], \"exit_code\": 1}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--thickness-slices\", \"0\"], \"exit_code\": 1}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--dt\", \"-1\"], \"exit_code\": 1}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--newton-iterations\", \"129\"], \"exit_code\": 1}, {\"argv\": [\"/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source249-contact-compaction-fixture-001/build-001/numi-matter-cardboard-probe\", \"--shipping-box\", \"--shipping-preflight-only\", \"--validate-only\", \"--output\", \"/tmp/numi-cardboard-validation-unused\", \"--fgmres-iterations\", \"2048\"], \"exit_code\": 1}]}\n",
+      "stdout_sha256": "154c6fb1f2638f0fe9bd4a052f86596038fee813d1f90da60829e8237fcf5a77"
+    }
+  ],
+  "created_at_utc": "2026-10-16T13:55:21.922436+00:00",
+  "native_gpu_execution": false,
+  "physical_transactions": 0,
+  "schema": "numi.cardboard.source249.cpu-validation.v1",
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-contact-compaction-fixture-249-001"
+}

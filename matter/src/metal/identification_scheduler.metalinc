@@ -393,6 +393,11 @@ kernel void nm_scheduler_observe(
     device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
     device const NMMatterStatusGPU* statuses [[buffer(10)]],
     device NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const uint* sampleStorageMode [[buffer(12)]],
+    device const uint* samplePageComplete [[buffer(13)]],
+    device const uint* sampleSlotsByPair [[buffer(14)]],
+    device const uint* sampleCounts [[buffer(15)]],
+    device const uint* sampleCapacity [[buffer(16)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -407,9 +412,11 @@ kernel void nm_scheduler_observe(
     const NMContinuumObjectGPU object = objects[objectIndex];
     float contactSpeed = 0.0f;
     float slipImpulse = 0.0f;
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u) {
-        const NMContactSampleGPU sample = samples[sampleBase + pair];
+        const NMContactSampleGPU sample = contactSampleAt(
+            dispatch, samples, sampleStorageMode, samplePageComplete,
+            sampleSlotsByPair, sampleCounts, sampleCapacity,
+            environment, pair);
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u &&
             sample.identity.z == objectIndex) {
             contactSpeed = max(contactSpeed, max(-sample.normalAndVelocity.w, 0.0f));
@@ -778,6 +785,11 @@ kernel void nm_finalize_status(
     device const NMSchedulerStateGPU* schedulers [[buffer(1)]],
     device const NMContactSampleGPU* samples [[buffer(2)]],
     device NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const uint* sampleStorageMode [[buffer(4)]],
+    device const uint* samplePageComplete [[buffer(5)]],
+    device const uint* sampleSlotsByPair [[buffer(6)]],
+    device const uint* sampleCounts [[buffer(7)]],
+    device const uint* sampleCapacity [[buffer(8)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -805,11 +817,14 @@ kernel void nm_finalize_status(
             ++contactedObjects;
         }
     }
-    const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint pairIndex = 0u;
          pairIndex < dispatch.contactPairCount;
          ++pairIndex) {
-        if ((samples[sampleBase + pairIndex].identity.w & NM_CONTACT_VALID) != 0u) {
+        const NMContactSampleGPU sample = contactSampleAt(
+            dispatch, samples, sampleStorageMode, samplePageComplete,
+            sampleSlotsByPair, sampleCounts, sampleCapacity,
+            environment, pairIndex);
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
             ++contacts;
         }
     }

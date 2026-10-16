@@ -1,0 +1,34 @@
+{
+  "attempts": [
+    {
+      "command": [
+        "/opt/homebrew/bin/ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-001",
+        "--output-on-failure",
+        "-R",
+        "cardboard_(free_force_residual|constituent_volume_damage|argument_admission)"
+      ],
+      "exit_code": 8,
+      "id": "first-ctest-argument-admission",
+      "observed_assertion": "AssertionError: ('checkpoint0', '{\\\"schema\\\":\\\"numi.cardboard.probe-argument-validation.v1\\\",\\\"arguments_valid\\\":true, ... ,\\\"resolved\\\":{...}}')",
+      "preserved": true,
+      "result": "failed 1/3: the legacy test expected an exact JSON object, but the current probe includes an additional resolved metadata object; no product behavior failure"
+    },
+    {
+      "command": [
+        "/opt/homebrew/bin/ctest",
+        "--test-dir",
+        "/Users/n/cardboard-implementation-20261014-host-macmini/build-source246-force-accuracy-002",
+        "--output-on-failure",
+        "-R",
+        "cardboard_(free_force_residual|constituent_volume_damage|argument_admission|stage_resolution)"
+      ],
+      "exit_code": 0,
+      "id": "corrected-ctest-final-build",
+      "preserved": true,
+      "result": "4/4 tests pass; argument-admission test now checks stable required fields and validates resolved metadata shape"
+    }
+  ],
+  "schema": "numi.cardboard.source246-retained-attempts.v1"
+}

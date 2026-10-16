@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.native590591-command.v1",
+  "source": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002",
+  "build": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source244-activation-002",
+  "cases": [
+    [
+      "activation-legacy-control-off-590",
+      false
+    ],
+    [
+      "activation-full-residual-control-on-591",
+      true
+    ]
+  ],
+  "material": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-activation-full-residual-armijo-244-002/matter/materials/starch2007_finite_glue_elastic.nmatter",
+  "policy": "Only activation full-residual selector flag changes. These are algorithm/control comparisons, not observer-on/off parity; do not require different solver policies to produce identical outcomes. Capture host bodies, published GPU readback if available, runner commit state and snapshots; unavailable raw body-buffer state remains unknown.",
+  "no_full_shipping_qualification": true
+}

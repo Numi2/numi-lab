@@ -1,0 +1,13 @@
+{
+  "inputs_sha256": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-control19-final-newton-diagnostic-596/diagnostics/capture-operator-fd-capture/capture": "d73993d528900ed570c6a1a66c61dbb127180e441dad25cce9c6300185b8fe8b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source198-strict-layer-replay-preparation-001/strict_layers.py": "45a986d399afc3c36770ef65eb4a2bf9abbef138813e9353d4c223089863252b",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-stable-green-reference-206-buildfix-002/matter/tools/cardboard_cached_operator_audit.py": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99",
+    "/Users/n/cardboard-implementation-20261014-host-macmini/analyze_captured_native_tangent_conditioning_251_003.py": "2be8d292b91c1d7816739a45e5ed0811bf2ab32d3bc121f4cd13a0d385d6418e"
+  },
+  "artifacts": {
+    "report.json": "d5a82df3968af0dff0075add3753869e8d194414f742d94b518c9fda95f43d52",
+    "arrays.npz": "b75220fbe8c00151a9d0463074c464e6cb6be222126e9abed9b3459e4d1f71aa",
+    "native_cached_operator_FP64.npz": "349f55da899879de80dcda01e7376450b8107ef6789cac60a93d44b17b445a36"
+  }
+}

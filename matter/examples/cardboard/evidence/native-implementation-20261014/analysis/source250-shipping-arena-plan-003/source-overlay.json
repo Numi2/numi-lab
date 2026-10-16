@@ -1,0 +1,24 @@
+{
+  "candidate_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-arena-plan-250-003",
+  "changed_files": [
+    {
+      "base_sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c",
+      "candidate_sha256": "5745ecbc16be72c0faf0a3cd80e8a7e2fef65d47cd28a713175dc81bbd4cd2f5",
+      "path": "matter/tools/cardboard_shipping_memory.hpp"
+    },
+    {
+      "base_sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9",
+      "candidate_sha256": "b2b0d5e7dfd890ed85c0bd2a6c5efcb767b1516ea81df52cd0710a9a2a493b89",
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp"
+    },
+    {
+      "base_sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df",
+      "candidate_sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b",
+      "path": "matter/tools/cardboard_probe.mm"
+    }
+  ],
+  "gpu_execution": false,
+  "parent_frozen_sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914",
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-strict-contact-sample-pages-247-001",
+  "schema": "numi.cardboard.source-overlay.v1"
+}

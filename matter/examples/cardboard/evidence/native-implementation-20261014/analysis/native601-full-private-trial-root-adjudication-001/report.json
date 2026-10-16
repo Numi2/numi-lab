@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.native601-full-private-trial-root-adjudication.v1",
+  "verdict": "PASS_OBSERVER_PRODUCTION_TRANSACTION_PARITY_TARGET_STILL_FAILS",
+  "production_transaction_files_exact": [
+    "transaction-000000-after.bin",
+    "transaction-000000-before.bin",
+    "transaction-000000.json",
+    "transaction-000001-after.bin",
+    "transaction-000001-before.bin",
+    "transaction-000001.json",
+    "transaction-000002-after.bin",
+    "transaction-000002-before.bin",
+    "transaction-000002.json",
+    "transaction-000003-after.bin",
+    "transaction-000003-before.bin",
+    "transaction-000003.json"
+  ],
+  "arrays_hash_verified": 129,
+  "capture_bytes": 19682936,
+  "capture_json_sha256": "9e04539ce17fce72992e3d15b648f7c5a51652eb8dfb04fdade2b9746e7ea539",
+  "capture_binary_sha256": "db9f8e0fc68ddc4d7141cfa9d5a7bca459ee7f0db8c1dbab869982fe32d91f7e",
+  "wall_seconds": 5.496491583995521,
+  "native_exit_code": 1,
+  "scope": "Same-history private trial0 before/after geometry at control1202 Newton7. All fixture transaction files are unchanged from591; the full accepted fixture is still incomplete. Individual mortar CCD feature certification is not identified by this payload.",
+  "all_six_full_sequence_axes_open": true,
+  "at_utc": "2026-10-16T14:35:27.038651+00:00"
+}

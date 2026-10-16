@@ -1,0 +1,3382 @@
+{
+  "schema": "numi.cardboard.failed-reproduction-preparation.v1",
+  "failed_script": "/Users/n/cardboard-implementation-20261014-host-macmini/prepare_publication041_reproduction_001.py",
+  "script_sha256": "2388ecee14c32fd555cdf108293721e127d5efb9cb391d8e5b0ef13e2d491105",
+  "partial_root": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/publication041-reproduction-001",
+  "partial_files": {
+    "failed-preflight.json": {
+      "bytes": 476,
+      "sha256": "b4aa64843c8dfbf98e1808daec1d52b4101684313f44f0be85869197490a4f30"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/frozen-source.json": {
+      "bytes": 127868,
+      "sha256": "258f9b543d18b7316636d9df7cf73b3028f9cafbbf7946697cfd03103da847c0"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/CMakeLists.txt": {
+      "bytes": 125506,
+      "sha256": "160796971b6edd05a5af9c92cccb0e8c64f7ba2ddd61c0c19032d24996620a85"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 828898,
+      "sha256": "b96e9703d22f952c64f72f35aa21733c6b9d2128f2f3bd3257566b8642b15292"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 28286,
+      "sha256": "270ddea97c534f59907170fd6de6fc0377da12796eac0e4e9d3498175f99c12e"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18841,
+      "sha256": "c43c2540151576f443ea7359e252438541d43e61f03a042e36a548f5f180b8ef"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58368,
+      "sha256": "5f45dc4d14f17a66ea5113043b23ac098aac605d371424dafa2baf2927fcfc71"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/runtime.mm": {
+      "bytes": 1949197,
+      "sha256": "24525fe32f7e92da763b0ece420db9f01aeda76f11dc26675391aa115689678e"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409600,
+      "sha256": "c1c25769c2115cd64ef9dd849cc4a987563f8d51e03638c52a1c7526b2c91c00"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 439790,
+      "sha256": "1f6f91a70c3c738f50c4d4fc86e429a2fc841028a81094700355b5e5d33ee538"
+    },
+    "source-variants/source-legacy-program-primary-cache-observer-256-002/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/frozen-source.json": {
+      "bytes": 138328,
+      "sha256": "b881ac0565a8dd31a6531d6bd6a59a16133711a3a07ccfe61a14c377cdb35bda"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 834378,
+      "sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 57793,
+      "sha256": "b2b0d5e7dfd890ed85c0bd2a6c5efcb767b1516ea81df52cd0710a9a2a493b89"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-shipping-arena-plan-250-003/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/frozen-source.json": {
+      "bytes": 138576,
+      "sha256": "b7c530e3431236743a7232cc385ca44b21a4184e30251a0b83eaf909c364be8f"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 834378,
+      "sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 57910,
+      "sha256": "8545d1bbdb1bef3bee24da83ed7b21a39565d04f45145e371977839b6c066a83"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-shipping-arena-plan-250-005/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-integrated-measured-coupon-contact-254-002/frozen-source.json": {
+      "bytes": 148826,
+      "sha256": "6b35572e45d27c534d8671dbad22106720542c13e7b8bfafca66c918862afbb1"
+    },
+    "source-variants/source-integrated-measured-coupon-contact-254-002/configure-support-source.json": {
+      "bytes": 148493,
+      "sha256": "664dde9afa712464e83df9cfa6f4d92fba53fc87567d0ce59e38cd95c2ba7758"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/frozen-source.json": {
+      "bytes": 138576,
+      "sha256": "b7c530e3431236743a7232cc385ca44b21a4184e30251a0b83eaf909c364be8f"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 834378,
+      "sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-shipping-arena-plan-250-006-prep-failed-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/frozen-source.json": {
+      "bytes": 138266,
+      "sha256": "a9cadaa59ea11a943f914c4845d663ad6754148dd0dc58fd2007f93b9baad7a5"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/CMakeLists.txt": {
+      "bytes": 127483,
+      "sha256": "3b9b6a1067524e7ca1f9148e2bc545d0b307df1860e5da12b671eb80ac87a68b"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 836594,
+      "sha256": "039377b7b7e7ba21f5b79b8e5a71e9b05a1ef0beb8cca74c26fa2702909cbabb"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18790,
+      "sha256": "a581da07622070dbe5063f48c601a469b83e869e938325662a4f4a2a94330e6d"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 18201,
+      "sha256": "76f8b9161d40825065a57a8337adb61ffa72b4c077ebce3e8aa7605fe9da7d47"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/runtime.mm": {
+      "bytes": 1989192,
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 410443,
+      "sha256": "1dbf191fc2462c2593ed67f32bf1af0bad772a79a1bc4322475f246429f372a3"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 445186,
+      "sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6"
+    },
+    "source-variants/source-shipping-first-local-peak-248-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/CMakeLists.txt": {
+      "bytes": 128380,
+      "sha256": "261dbab3210fe44d7895f2b3409a18a1f1a6fb630f96f30df19de395e326c586"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/runtime.mm": {
+      "bytes": 1944590,
+      "sha256": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409623,
+      "sha256": "cbce76306cf58573741fcdb13c999a12fbf688bba16b75637982377ea15138d0"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 256912,
+      "sha256": "4e753fd130ff5484fb8e4ecfbfd9185ee2f25d4262e6757efd1350e35d6e855f"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 446796,
+      "sha256": "6daab7a789363b3036cbbf42e273c9ba747597d9a00f360bae6e45405d941330"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-002/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/CMakeLists.txt": {
+      "bytes": 128380,
+      "sha256": "261dbab3210fe44d7895f2b3409a18a1f1a6fb630f96f30df19de395e326c586"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/runtime.mm": {
+      "bytes": 1944590,
+      "sha256": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409711,
+      "sha256": "68efd367f6406903d65ab3f5b45f6d7c087872d1ec0a875fe5a1f114780c7cfc"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 457109,
+      "sha256": "4c056f29bcb04780f2b234fbfcd8939b359b9d5fa239fc1bc48dbd12343ee971"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-005/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/frozen-source.json": {
+      "bytes": 136403,
+      "sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-strict-contact-sample-pages-247-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/frozen-source.json": {
+      "bytes": 132484,
+      "sha256": "09d96dd6f4e47ca28ac71cc4efc24884ac01f4ac9a99990c610d7599ae0c8fdf"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/CMakeLists.txt": {
+      "bytes": 126210,
+      "sha256": "ede9e278075676e8b41767935b6972cfaaa65982881d0c1d10ef09a1f0ad803e"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18790,
+      "sha256": "a581da07622070dbe5063f48c601a469b83e869e938325662a4f4a2a94330e6d"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 18201,
+      "sha256": "76f8b9161d40825065a57a8337adb61ffa72b4c077ebce3e8aa7605fe9da7d47"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/runtime.mm": {
+      "bytes": 1989192,
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 410443,
+      "sha256": "1dbf191fc2462c2593ed67f32bf1af0bad772a79a1bc4322475f246429f372a3"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 445186,
+      "sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6"
+    },
+    "source-variants/source-freebody-scene-observer-252-002/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/CMakeLists.txt": {
+      "bytes": 128380,
+      "sha256": "261dbab3210fe44d7895f2b3409a18a1f1a6fb630f96f30df19de395e326c586"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/runtime.mm": {
+      "bytes": 1944590,
+      "sha256": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409711,
+      "sha256": "68efd367f6406903d65ab3f5b45f6d7c087872d1ec0a875fe5a1f114780c7cfc"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 457109,
+      "sha256": "4c056f29bcb04780f2b234fbfcd8939b359b9d5fa239fc1bc48dbd12343ee971"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-004/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/CMakeLists.txt": {
+      "bytes": 128380,
+      "sha256": "261dbab3210fe44d7895f2b3409a18a1f1a6fb630f96f30df19de395e326c586"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/runtime.mm": {
+      "bytes": 1944590,
+      "sha256": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409623,
+      "sha256": "cbce76306cf58573741fcdb13c999a12fbf688bba16b75637982377ea15138d0"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 257508,
+      "sha256": "fc1361d919615b0112bc620f5b947cc57cf7dfd86c5677ee03cf61d81c574179"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 454357,
+      "sha256": "1e1ede411a5a26fc9a747c3f20dc857e63ddc7af7cfffae6fbc7fa929e2236f9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-003/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/frozen-source.json": {
+      "bytes": 136552,
+      "sha256": "a06587ac4ce299370ee68646d57d49aef3b9f69cd3051d07db9de2912d7c8ba2"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-contact-compaction-fixture-249-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/frozen-source.json": {
+      "bytes": 134393,
+      "sha256": "43522c59e433a77882eb07f40eca3f2b7ef7253e140fec9d32c38d4438373a04"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/CMakeLists.txt": {
+      "bytes": 127483,
+      "sha256": "3b9b6a1067524e7ca1f9148e2bc545d0b307df1860e5da12b671eb80ac87a68b"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 133895,
+      "sha256": "ac411b9a7d4d23e298efff47e13f2ccf61fbe3acc647b8ae1dd97a8a9cf262eb"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 836982,
+      "sha256": "098c4d124852ad8ee82426bdaba5b233d02057630894d12b3319ed4d3d320530"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 52195,
+      "sha256": "aa211f14a423b989acd05d339844ae828fa94fead1e3532b3db1cffc47f40bd3"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 11691,
+      "sha256": "05c24fc93d9750d021626b52c5aa53f1118148bc60b690c4beee7fb5e5cf41e2"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18790,
+      "sha256": "a581da07622070dbe5063f48c601a469b83e869e938325662a4f4a2a94330e6d"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 18201,
+      "sha256": "76f8b9161d40825065a57a8337adb61ffa72b4c077ebce3e8aa7605fe9da7d47"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/runtime.mm": {
+      "bytes": 1989192,
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 410443,
+      "sha256": "1dbf191fc2462c2593ed67f32bf1af0bad772a79a1bc4322475f246429f372a3"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 445186,
+      "sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6"
+    },
+    "source-variants/source-fullbox-force-accuracy-246-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/frozen-source.json": {
+      "bytes": 136403,
+      "sha256": "3c37f9a249f1a5b9f801bdccb4031bff6d5e01ea83caa32fc30d41b4664b6914"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 834378,
+      "sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 57912,
+      "sha256": "185b5e460bdb743e44c95e692abd42e01462058ffb019df899bfbe10f4b5f9cb"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-shipping-arena-plan-250-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/frozen-source.json": {
+      "bytes": 139286,
+      "sha256": "72ffa7b67a9799cd8e17d8679358d29c0da38af72086c4a291846d154392c646"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 834378,
+      "sha256": "acfef802468c4dcb45b61e61006b4cf776e564c466d17f67304d2538f3fa115b"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/matter/src/runtime.mm": {
+      "bytes": 2006191,
+      "sha256": "d5feeba5ccef00cda8efb849c3cdfcf19c1dd23f89c4db926650004621686e4c"
+    },
+    "source-variants/source-shipping-arena-plan-250-006/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/frozen-source.json": {
+      "bytes": 131357,
+      "sha256": "80dd260b4e2e5d6c617cac932d8eec2f3c021d8c318b2f93ceb8a563e7bb24a4"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/CMakeLists.txt": {
+      "bytes": 126210,
+      "sha256": "ede9e278075676e8b41767935b6972cfaaa65982881d0c1d10ef09a1f0ad803e"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 348692,
+      "sha256": "36e54718becf710ab8189122bf07d21f19490fa4443297a4fe734a2e66319c63"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18790,
+      "sha256": "a581da07622070dbe5063f48c601a469b83e869e938325662a4f4a2a94330e6d"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 18201,
+      "sha256": "76f8b9161d40825065a57a8337adb61ffa72b4c077ebce3e8aa7605fe9da7d47"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/runtime.mm": {
+      "bytes": 1989192,
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 410443,
+      "sha256": "1dbf191fc2462c2593ed67f32bf1af0bad772a79a1bc4322475f246429f372a3"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 445186,
+      "sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6"
+    },
+    "source-variants/source-activation-full-residual-armijo-244-002/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-integrated-measured-coupon-contact-254-001/frozen-source.json": {
+      "bytes": 148059,
+      "sha256": "20bc80e9f42ca0a0c21611cc8aa4c77885d8190229d3f940ea8d3c8b4f4fd837"
+    },
+    "source-variants/source-integrated-measured-coupon-contact-254-001/configure-support-source.json": {
+      "bytes": 148493,
+      "sha256": "507513a001d7a8ba9f6527d937b65c8ac107d8508eff53bf1a9ee03e873432d3"
+    },
+    "source-variants/source-integrated-measured-coupon-contact-254-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/CMakeLists.txt": {
+      "bytes": 131384,
+      "sha256": "f080da6542ae1e4ea4e6cc3f3df83c732e9d26b35da326351445a0de14182436"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/runtime.mm": {
+      "bytes": 1961905,
+      "sha256": "bd789585f14b9d929d92c8f08699d65fda6dad77bc7b5fc6f53032f63df761e7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409435,
+      "sha256": "16d4bd84186cd9230620cc8cb4cacc8c18b0673556ea3826c4ce299c36502f11"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 457124,
+      "sha256": "347238d32bfe775ab29307bef48f89aa1863e0dbfd90f71251c016c7bc4f161d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-006/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/frozen-source.json": {
+      "bytes": 120593,
+      "sha256": "dc6e332ceda2033e258147bc4b4df174f207cf1511c8ea0221c7e945839b57b8"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/CMakeLists.txt": {
+      "bytes": 128380,
+      "sha256": "261dbab3210fe44d7895f2b3409a18a1f1a6fb630f96f30df19de395e326c586"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/runtime.mm": {
+      "bytes": 1944590,
+      "sha256": "f6409ed720b2587c0da4717b2dee1944a290dba9316805284465ac5ecfcafb38"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409623,
+      "sha256": "cbce76306cf58573741fcdb13c999a12fbf688bba16b75637982377ea15138d0"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 256912,
+      "sha256": "4e753fd130ff5484fb8e4ecfbfd9185ee2f25d4262e6757efd1350e35d6e855f"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 446796,
+      "sha256": "6daab7a789363b3036cbbf42e273c9ba747597d9a00f360bae6e45405d941330"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-001/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/frozen-source.json": {
+      "bytes": 137052,
+      "sha256": "714a018486005c5fe8259bff4123efb3ad058557fe3c2eae69bd77b33f3fdcda"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 19411,
+      "sha256": "8ce5020e40d66bb218759c993c34a91570871665cd566725ec71841ce542d513"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-primary-cache-fd-action-253-002/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/frozen-source.json": {
+      "bytes": 137049,
+      "sha256": "0ea56b99f98a0dc371e50299db10e01ba41be5150c51c5e876d2bef044141289"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/configure-support-source.json": {
+      "bytes": 148448,
+      "sha256": "6769d5731b7a3f118c7ef318175b4fb08396151f8ec312848ef9bce191f11fe3"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/CMakeLists.txt": {
+      "bytes": 132088,
+      "sha256": "916f4b4ef1c35b9de4027494e007ea5902a27f602e05dd96c261ec07e51ae93a"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 336757,
+      "sha256": "03f014fa2cd398e3d56f647a27c53c5f39fbbe3d3521c872a30dfaad16cba47e"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-primary-cache-fd-action-253-003/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/frozen-source.json": {
+      "bytes": 121694,
+      "sha256": "2fe9d0436f498f34a8bd67c51c30eca090cc24332a3e4de8d65df0aa28aae759"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/configure-support-source.json": {
+      "bytes": 148412,
+      "sha256": "36ab208b5339cc742e7da329791349b3deaa2b26cb3c42f97cbb7a1a2d07490b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/CMakeLists.txt": {
+      "bytes": 131384,
+      "sha256": "f080da6542ae1e4ea4e6cc3f3df83c732e9d26b35da326351445a0de14182436"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_solver_environment.py": {
+      "bytes": 38026,
+      "sha256": "b7020413e093d290e9254d46814755ddbe7fad3f7c9098ce3f51a40622544473"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 825377,
+      "sha256": "3cb067a16f96f3f5a5ad7f6fa203f83fd51b03fe74822e2c4ad2210608e1308b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "bytes": 73589,
+      "sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/pure_fem_cgls_arena_8192_check.mm": {
+      "bytes": 11887,
+      "sha256": "b744f3cca665752886b36755c6dcde83f9c36bd0b003bd614867c99e88ab3753"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/fgmres_true_residual_native_check.mm": {
+      "bytes": 27975,
+      "sha256": "382679e0fa3bb1c34b99da306bb65ac4d20c9542c4272e078ed0e3322e6d3421"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_bilinear15_projection_policy_check.cpp": {
+      "bytes": 10331,
+      "sha256": "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/true_residual_arena_plan_check.cpp": {
+      "bytes": 2274,
+      "sha256": "58c045338d31bec08e5b085598aaa2394b47047e8239d2c43bf723bededad61c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 331965,
+      "sha256": "1db145ef8679a79dc2eafc74fd416f7a5ee67c7b343e46b7f8a150980b19a233"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18593,
+      "sha256": "65ee84b5e90b3886b6e6f6d552be5850bddd3568479a596197987bda0ec9953e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_contact_sample_compaction_check.mm": {
+      "bytes": 26191,
+      "sha256": "d3290240a2ecb167f4813b50f5396887bd4febb712cc3f1ae2e60f62a73896dd"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/pure_fem_armijo_cgls_arena_plan_check.cpp": {
+      "bytes": 3262,
+      "sha256": "6f6e9427ca4311abfd007bdd2534eb4c6e945670de65f111def812dadffc53f2"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 17695,
+      "sha256": "b28b7aac83ddb9a403334867cffe9fc1fd2d9b913a80fac53b337ccdd0a99604"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/include/numi/matter/matter.hpp": {
+      "bytes": 108241,
+      "sha256": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+      "bytes": 5858,
+      "sha256": "23390d78713cff5fbe67d999970d0949a28884dd2b2d940702831653b0031aa3"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+      "bytes": 8394,
+      "sha256": "c0322d4df2d9974fa13e2923573b08a5615fb7b929b3d5faff43760a7ad00a8a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/constitutive_impl.cpp": {
+      "bytes": 73050,
+      "sha256": "f907a680f2ddfd0d1082ad97dc117869f678ea8ff0deb638dea4634f27704260"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/regional_graph_schwarz.hpp": {
+      "bytes": 17700,
+      "sha256": "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/runtime.mm": {
+      "bytes": 1961978,
+      "sha256": "11757034e2d6c5f1fc82261fb372b2e719aa1897499d8a52b98477f11fee18dc"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 409435,
+      "sha256": "16d4bd84186cd9230620cc8cb4cacc8c18b0673556ea3826c4ce299c36502f11"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/metal/common.metalinc": {
+      "bytes": 102970,
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 457124,
+      "sha256": "347238d32bfe775ab29307bef48f89aa1863e0dbfd90f71251c016c7bc4f161d"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "source-variants/source-shipping-contact-sample-pages-235-007/delta/apps/NumiHumanRestingIntercostalRibAttachment.hpp": {
+      "bytes": 13881,
+      "sha256": "66506587ef00d842d0cc686010f2ccd5bc39b5d639f7c7cb974b5d2ce9bb5adb"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/frozen-source.json": {
+      "bytes": 132435,
+      "sha256": "55e0216920a330b7479d05f03e23bf3d73dc4c6317d188bddcdd46cf710d8cc8"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/configure-support-source.json": {
+      "bytes": 148869,
+      "sha256": "ca47d215c82d0f608c737d5c533861091abc91eee73233cf01b72676004d9dc8"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/CMakeLists.txt": {
+      "bytes": 126210,
+      "sha256": "ede9e278075676e8b41767935b6972cfaaa65982881d0c1d10ef09a1f0ad803e"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/bct_capacity_history_producer.py": {
+      "bytes": 50951,
+      "sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_stage_resolution_study.py": {
+      "bytes": 115616,
+      "sha256": "058889979500796f7119b55eb90b0760005de880df3d4a0ae58c24ad8f78b119"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_calibration_ensemble_test.py": {
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_probe.mm": {
+      "bytes": 829666,
+      "sha256": "dac72165c1b113376ea13af25c0eb6e82dd9394fbe87a56057f3fb2d8a4df1df"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/test_cardboard_stage_resolution_study.py": {
+      "bytes": 39245,
+      "sha256": "f76970a205934e53a608b8983ecc6458130b73e01b7169d54833cb994f04653b"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_cached_operator_audit.py": {
+      "bytes": 53660,
+      "sha256": "2e2cefa8393fa137883b61bd61ce084da7460f1f9280652e33af831bb90ada99"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_shipping_protocol_check.cpp": {
+      "bytes": 40217,
+      "sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/test_bct_capacity_history_producer.py": {
+      "bytes": 22129,
+      "sha256": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_stage_resolution_study.md": {
+      "bytes": 9839,
+      "sha256": "2da56b5165edd4c51ee53ee98d81f2d393896b17a514a30cc3713e7e90afe827"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/test_true_residual_certification_contract.py": {
+      "bytes": 18790,
+      "sha256": "a581da07622070dbe5063f48c601a469b83e869e938325662a4f4a2a94330e6d"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_shipping_memory.hpp": {
+      "bytes": 73105,
+      "sha256": "64bbbd65df8d9bd81338e3d7456945f34331305adae965ffac6d050e2d93d59c"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_calibration_ensemble.py": {
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/test_cardboard_solver_environment.py": {
+      "bytes": 18201,
+      "sha256": "76f8b9161d40825065a57a8337adb61ffa72b4c077ebce3e8aa7605fe9da7d47"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_shipping_memory_check.cpp": {
+      "bytes": 53549,
+      "sha256": "36c65e77108785484a647add007fc80e22479b9ec7b4bb5372502c297fc6cdf9"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/cardboard_shipping_crush.hpp": {
+      "bytes": 23743,
+      "sha256": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/tools/test_cardboard_probe_argument_admission.py": {
+      "bytes": 2614,
+      "sha256": "43c592ce89c21fb4cc3ee37542e6e0887b7e39192dceebaf8ef32fb47c5b712e"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/runtime.mm": {
+      "bytes": 1989192,
+      "sha256": "b4ca1cf51c24ca42e8d6ab25b811b98dab929d1570ec17ed04fec77b2f48796d"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/metal/mixed_fem.metalinc": {
+      "bytes": 46773,
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/metal/fgmres.metalinc": {
+      "bytes": 410443,
+      "sha256": "1dbf191fc2462c2593ed67f32bf1af0bad772a79a1bc4322475f246429f372a3"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/metal/identification_scheduler.metalinc": {
+      "bytes": 37743,
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/metal/fem.metalinc": {
+      "bytes": 252230,
+      "sha256": "ceb13c0a910ed5e85f6b5dfce8293f46e97c9a810470325eec1531ac1b7bd2be"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/matter/src/metal/contact.metalinc": {
+      "bytes": 445186,
+      "sha256": "058a9271d53fb7a2ad5e40fbac2b751eecaeef038473dd28382cbc2f3d5a6fe6"
+    },
+    "source-variants/source-freebody-scene-observer-252-001/delta/apps/NumiHumanRestingVisual.hpp": {
+      "bytes": 191345,
+      "sha256": "beadcc281b0b4eb124f9ed5a2a730c0d0611a9b5a15cbb9b225b53a4afb8703a"
+    },
+    "builds/build-source246-force-accuracy-001/provenance-command-1.log": {
+      "bytes": 18226,
+      "sha256": "07522fc6d559ee973d6c09324be57006a461f356433d000c798086efcf9e6bae"
+    },
+    "builds/build-source246-force-accuracy-001/provenance-command-0.log": {
+      "bytes": 1339,
+      "sha256": "01b5e0e9ffb39c2131e15255e8585329cb17a537a888748d55b8d872065a4374"
+    },
+    "builds/build-source246-force-accuracy-001/source-build.json": {
+      "bytes": 103466,
+      "sha256": "f2c20808062703862f8f75089bdb4da4b1974eff66731cea56a5b77249ae1143"
+    },
+    "builds/build-source246-force-accuracy-001/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135848,
+      "sha256": "824a117d5ba63d4c2f617fc32e4fd1ccf30abdbaa181e4da6ce2ce0d4cae9e37"
+    },
+    "builds/build-source246-force-accuracy-001/matter/numi-matter-cardboard-free-force-residual-check": {
+      "bytes": 36432,
+      "sha256": "5188ea7d11753c4427b6583c464419831840a0d54ea0846758eb29c0b08b1004"
+    },
+    "builds/build-source246-force-accuracy-001/matter/numi-matter-cardboard-constituent-volume-damage-check": {
+      "bytes": 36504,
+      "sha256": "c92ea9abb55d49c7e3a77ff99e159b6b4352fd4f449c80801581309370ff677c"
+    },
+    "builds/build-source246-force-accuracy-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source246-force-accuracy-001/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source246-force-accuracy-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source246-force-accuracy-001/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source246-force-accuracy-001/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source246-force-accuracy-001/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "be4806c03bf80d2e2632010a2684879ff951739bd5080a2590478ea4b15d3864"
+    },
+    "builds/analysis__source246-fullbox-force-accuracy-001/source-build.json": {
+      "bytes": 103466,
+      "sha256": "ca4b75bdecd0d93a2cf462ea4a6c3f5a1d42dca71e695c8b35f63df81e6e9c13"
+    },
+    "builds/build-source254-integrated-001/provenance-command-1.log": {
+      "bytes": 23186,
+      "sha256": "38d34960206e339164a4ae8b06ba259b5d41e5307a766d9e9873f546cf9380c8"
+    },
+    "builds/build-source254-integrated-001/provenance-command-0.log": {
+      "bytes": 1335,
+      "sha256": "008b5da6834ed7da795dfd5da97a9a10b24ccaea193aa38a762bd4716c5b0d6a"
+    },
+    "builds/build-source254-integrated-001/source-build.json": {
+      "bytes": 106586,
+      "sha256": "4fca1b3f977fa56adda633c4284fb2e291b28e62091444c3020705c3261b76cf"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-shipping-memory-check": {
+      "bytes": 196712,
+      "sha256": "cf7431110b8d7776429082c415d372e1d7069646ecf87a88d2510d851ecd9572"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-probe": {
+      "bytes": 3152664,
+      "sha256": "63d13d86713df91ef93a5d3dcc8c523579ec585b862454fe673b194eb909e890"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-refined-graph-layout-check": {
+      "bytes": 99632,
+      "sha256": "8b7eef8176134887204fd48c4d9037e8d1b65a073643995fbe1cf874b95813ed"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-contact-sample-compaction-check": {
+      "bytes": 92120,
+      "sha256": "2a2a85a99a941740b94cccf5885fa9ad08f53f20aaa4021b7c5dd249c332c77a"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-free-force-residual-check": {
+      "bytes": 36432,
+      "sha256": "5188ea7d11753c4427b6583c464419831840a0d54ea0846758eb29c0b08b1004"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-shipping-protocol-check": {
+      "bytes": 255120,
+      "sha256": "1e7793f91ce347e8380bddf5d633b995002a366a98bbc97abf229b2a82579622"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-constituent-volume-damage-check": {
+      "bytes": 36504,
+      "sha256": "c92ea9abb55d49c7e3a77ff99e159b6b4352fd4f449c80801581309370ff677c"
+    },
+    "builds/build-source254-integrated-001/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2091472,
+      "sha256": "933f22f5c4d541646727614711646a17f2247eb7907b1bf6a7d0f72f2fec17fa"
+    },
+    "builds/build-source254-integrated-001/matter/shaders/cardboard_contact_sample_compaction_check.metallib": {
+      "bytes": 7145403,
+      "sha256": "1595d35453f1391bb93ebfed3ffb93277332e3d90cf9de9f1a1108373ecdb8ec"
+    },
+    "builds/build-source254-integrated-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source254-integrated-001/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source254-integrated-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source254-integrated-001/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source254-integrated-001/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source254-integrated-001/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "d8503247698047a4fcc48c012b52dc407c916e0620ce2e6497da6c119db6061b"
+    },
+    "builds/build-source253-primary-cache-action-001/provenance-command-1.log": {
+      "bytes": 21820,
+      "sha256": "034778a4e385450ba14d21346b9528666c8303fdca9be955ec6494a18b656c8c"
+    },
+    "builds/build-source253-primary-cache-action-001/provenance-command-0.log": {
+      "bytes": 1345,
+      "sha256": "1164d109e3d1855c801b65718930013151cad276ea4a0f58983db039e74455cb"
+    },
+    "builds/build-source253-primary-cache-action-001/source-build.json": {
+      "bytes": 104750,
+      "sha256": "fcb58940df34f77b4049a775b4cf402b832109b2a4b5cab9b01f48ff66c63cd7"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-probe": {
+      "bytes": 3134872,
+      "sha256": "6fb95a81951f7b982ad29f02535d64a3914d063d71fb3b8fb8cdd921ae3b4657"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-refined-graph-layout-check": {
+      "bytes": 99632,
+      "sha256": "8b7eef8176134887204fd48c4d9037e8d1b65a073643995fbe1cf874b95813ed"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-contact-sample-compaction-check": {
+      "bytes": 92120,
+      "sha256": "2a2a85a99a941740b94cccf5885fa9ad08f53f20aaa4021b7c5dd249c332c77a"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2020928,
+      "sha256": "63ebff9c4de9a8185117b4be69139337da31c47e876195853b9fbe0750f9c4ec"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/shaders/cardboard_contact_sample_compaction_check.metallib": {
+      "bytes": 7145403,
+      "sha256": "1595d35453f1391bb93ebfed3ffb93277332e3d90cf9de9f1a1108373ecdb8ec"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source253-primary-cache-action-001/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source253-primary-cache-action-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source253-primary-cache-action-001/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source253-primary-cache-action-001/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source253-primary-cache-action-001/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "8cc468b77b3c351e119c490a3131ce19bf45000f667c674493396ae91ae4e2b3"
+    },
+    "builds/build-source252-freebody-001/provenance-command-1.log": {
+      "bytes": 17758,
+      "sha256": "f5fa593bae2660f7d1e3c02f788e788fdfbcc3caf58e90b7e8efacb45bb8d3dd"
+    },
+    "builds/build-source252-freebody-001/provenance-command-0.log": {
+      "bytes": 1333,
+      "sha256": "8ea786b4f2dc28727700b70c2bdbd1cfc39a2d8e7f15b005b594702e0f241011"
+    },
+    "builds/build-source252-freebody-001/source-build.json": {
+      "bytes": 102326,
+      "sha256": "a5ffe338235921860f1e01f44ddf4f1ea18993289ec03955210368fc550eeceb"
+    },
+    "builds/build-source252-freebody-001/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2075632,
+      "sha256": "f23f7641f3e7f54edc72e62da78228bf67c640af933d2a347c022092850c2c63"
+    },
+    "builds/build-source252-freebody-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source252-freebody-001/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source252-freebody-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source252-freebody-001/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source252-freebody-001/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source252-freebody-001/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "8688e13356189176040f8089a399cfd149b40b69e42ab8c01aa89ee489c620a0"
+    },
+    "builds/build-source250-shipping-arena-005/provenance-command-1.log": {
+      "bytes": 17868,
+      "sha256": "7194ef0f96462b4fbdc06a3e632647d52baa8e3bb9572f6d1bc15bedb6a0d81e"
+    },
+    "builds/build-source250-shipping-arena-005/provenance-command-0.log": {
+      "bytes": 1339,
+      "sha256": "97ff2e5a1c5d0efa21042e5b9e746aeac041a33d54d3ae3bd8dbaa8ca92f2d5b"
+    },
+    "builds/build-source250-shipping-arena-005/source-build.json": {
+      "bytes": 103451,
+      "sha256": "00800623c40ce2daea41906fd8a4f1c382795a24d47940ef57d8ca0703a0a118"
+    },
+    "builds/build-source250-shipping-arena-005/matter/numi-matter-cardboard-shipping-memory-check": {
+      "bytes": 179512,
+      "sha256": "a20bd9bdca077baeba45d8e40ec535aba7246b33bbc57ee710632ce40bddec01"
+    },
+    "builds/build-source250-shipping-arena-005/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135688,
+      "sha256": "cbbefc64fa796a62bd58b0126a1b2c8eeb206aea8337642a1ea6fe8561d870f1"
+    },
+    "builds/build-source250-shipping-arena-005/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source250-shipping-arena-005/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source250-shipping-arena-005/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source250-shipping-arena-005/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source250-shipping-arena-005/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source250-shipping-arena-005/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "29bac13f25ec20edfeb821989a9aceee977d92b1536d92d83f45b0ee58befb7c"
+    },
+    "builds/build-source248-first-local-peak-001/provenance-command-0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "builds/build-source248-first-local-peak-001/source-build.json": {
+      "bytes": 101126,
+      "sha256": "0bad26a7fac4e3339193299e58bac25d31e059168348a62da3fb4b48b3577dba"
+    },
+    "builds/build-source250-shipping-arena-003/provenance-command-1.log": {
+      "bytes": 17868,
+      "sha256": "d69422d6e309f921cd6e09fcfa4b3f01c6fa7e54e53fc3a0160ee7c24c3e114d"
+    },
+    "builds/build-source250-shipping-arena-003/provenance-command-0.log": {
+      "bytes": 1339,
+      "sha256": "7458dedc0575e1d650fd63ae1e522499fd493e8e8ebe9bd4b06bc903c5c740e5"
+    },
+    "builds/build-source250-shipping-arena-003/source-build.json": {
+      "bytes": 103451,
+      "sha256": "8b36abba8e8bdddf5f496f30e14c440f35255301d529411e191d0214753a93e1"
+    },
+    "builds/build-source250-shipping-arena-003/matter/numi-matter-cardboard-shipping-memory-check": {
+      "bytes": 179512,
+      "sha256": "1b8d32657a55359ae8394981a73efa611cce0a9851eafbc458318ea06b65945a"
+    },
+    "builds/build-source250-shipping-arena-003/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135688,
+      "sha256": "b12573fb0a05fc35505bca12dc168fe44254fbb8384a48b37ce16fa63b4a6f3c"
+    },
+    "builds/build-source250-shipping-arena-003/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source250-shipping-arena-003/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source250-shipping-arena-003/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source250-shipping-arena-003/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source250-shipping-arena-003/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source250-shipping-arena-003/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "b1c31887c7fc50b06c2edf4a2102ae98ddd10e4ff9f9cde4880868fcfb664924"
+    },
+    "builds/build-source246-force-accuracy-002/provenance-command-1.log": {
+      "bytes": 18226,
+      "sha256": "e2190dcbf8987d2543c121d585463c71a67276c7a842e6247172f939bab4176e"
+    },
+    "builds/build-source246-force-accuracy-002/provenance-command-0.log": {
+      "bytes": 1339,
+      "sha256": "d2827c9f12e0519407a7447f609aa78f831d72cedf6c6ac27ac42ba1a494888a"
+    },
+    "builds/build-source246-force-accuracy-002/source-build.json": {
+      "bytes": 103466,
+      "sha256": "ca4b75bdecd0d93a2cf462ea4a6c3f5a1d42dca71e695c8b35f63df81e6e9c13"
+    },
+    "builds/build-source246-force-accuracy-002/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135848,
+      "sha256": "3361c7573546a75194d20260cfecc92945413164579d0313bf5772a4a2ae7f88"
+    },
+    "builds/build-source246-force-accuracy-002/matter/numi-matter-cardboard-free-force-residual-check": {
+      "bytes": 36432,
+      "sha256": "5188ea7d11753c4427b6583c464419831840a0d54ea0846758eb29c0b08b1004"
+    },
+    "builds/build-source246-force-accuracy-002/matter/numi-matter-cardboard-constituent-volume-damage-check": {
+      "bytes": 36504,
+      "sha256": "c92ea9abb55d49c7e3a77ff99e159b6b4352fd4f449c80801581309370ff677c"
+    },
+    "builds/build-source246-force-accuracy-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source246-force-accuracy-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source246-force-accuracy-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source246-force-accuracy-002/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source246-force-accuracy-002/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source246-force-accuracy-002/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "bbd58229132c6e37250a2ce04b296a67ce172b085ca023e7e9f3b226e535d564"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/provenance-command-1.log": {
+      "bytes": 17902,
+      "sha256": "43a92aff7813eb036b01ec2c715790bacb7660381afdb3b9c2482b37d32eb037"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/provenance-command-0.log": {
+      "bytes": 1354,
+      "sha256": "af837c777817e65fc93c8911461274090030997f552e5440ed68bf69a6f87560"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/source-build.json": {
+      "bytes": 102526,
+      "sha256": "fdd2a791daa28678eadc55052a35a6e299a248bcf5341eb90f4d58b84a0d7397"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/matter/numi-matter-cardboard-probe": {
+      "bytes": 3098648,
+      "sha256": "0dfecc4988f4c2a9acf3fd2b999a7943eb82fec10fb470588ca266d4c57230f4"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7050955,
+      "sha256": "fd4122ade5962ef03c53e43247a75774b5f4e2c83ec1a34144e627f7c46c4b2a"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source256-legacy-program-cache-observer-001/lib/libmetalrobo.dylib": {
+      "bytes": 8541712,
+      "sha256": "50809039a0920a627624f4bdb8ef8413556531217f9d58f5dc9e8654c41f70ed"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/numi-matter-cardboard-probe": {
+      "bytes": 3258296,
+      "sha256": "4a166d95ae65ccdb67efb21af23e297ffcd196af6ce35716480c24336aa468b7"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/numi-matter-cardboard-contact-sample-compaction-check": {
+      "bytes": 92120,
+      "sha256": "ccc34fc4bccce5e71157f845558718fbf799cbeb89da5f835d68e7a04373f53a"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/provenance-command-1.log": {
+      "bytes": 7913,
+      "sha256": "b0d4635c0af2a3cbf1d863446dcd24f0e74af85e6059d5093a487820fc5b5260"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/provenance-command-0.log": {
+      "bytes": 683,
+      "sha256": "a577259df320dea665ed6061eea0b346862e2ceb51b52081c4e62c589c43514c"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/source-build.json": {
+      "bytes": 102463,
+      "sha256": "4418188007412b5fc875efe2fa55f116ddf8b9af805b908830471cd7384256a7"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/shaders/cardboard_contact_sample_compaction_check.metallib": {
+      "bytes": 7137155,
+      "sha256": "6ea7f46b4054ecb6497aeff1b9f3e9f4ed80c31331361bad0111362600ea5c28"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/analysis__source235-sample-compactor-007__build/shaders/NumiMatter.metallib": {
+      "bytes": 7128047,
+      "sha256": "6164739be9b8813f7b0520b3b957c1a81c3d2e8283e1aa6d3fcfce50f64c8b99"
+    },
+    "builds/build-source253-primary-cache-action-002/provenance-command-1.log": {
+      "bytes": 21820,
+      "sha256": "a332878e8fc678bc4e08aae2502f75d14c67cacf5b4bb55cbe5ea0e95297de0d"
+    },
+    "builds/build-source253-primary-cache-action-002/provenance-command-0.log": {
+      "bytes": 1345,
+      "sha256": "c77b8c1b66cd2c466fda97a00940e98d4361b00a8b428ddab3eab0e87db8b043"
+    },
+    "builds/build-source253-primary-cache-action-002/source-build.json": {
+      "bytes": 104750,
+      "sha256": "1b838291f7362318f3b4e3ae4dbd2b78351e1d3a338fc6773d95e19547a44c5b"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/numi-matter-cardboard-probe": {
+      "bytes": 3134872,
+      "sha256": "5b08fd7ca31d92001dc276efb90ecd3409a7b3fd439c510e181d996cd670bb65"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/numi-matter-cardboard-refined-graph-layout-check": {
+      "bytes": 99632,
+      "sha256": "8b7eef8176134887204fd48c4d9037e8d1b65a073643995fbe1cf874b95813ed"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/numi-matter-cardboard-contact-sample-compaction-check": {
+      "bytes": 92120,
+      "sha256": "2a2a85a99a941740b94cccf5885fa9ad08f53f20aaa4021b7c5dd249c332c77a"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2020928,
+      "sha256": "da2b28300da093e737d12f581b2b23a692bbe823ba69cce746d65bccb8048e96"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/shaders/cardboard_contact_sample_compaction_check.metallib": {
+      "bytes": 7145403,
+      "sha256": "1595d35453f1391bb93ebfed3ffb93277332e3d90cf9de9f1a1108373ecdb8ec"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source253-primary-cache-action-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source253-primary-cache-action-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source253-primary-cache-action-002/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source253-primary-cache-action-002/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source253-primary-cache-action-002/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "ef1c1e660bc718c6781a489a3564a236dd1ff42d77136c8a02e3c893a3c12376"
+    },
+    "builds/build-source252-freebody-002/provenance-command-1.log": {
+      "bytes": 17758,
+      "sha256": "c528daa86c76b7c1d7e8cc92314d92eccab94292e1781639d299bf779ad2e6de"
+    },
+    "builds/build-source252-freebody-002/provenance-command-0.log": {
+      "bytes": 1333,
+      "sha256": "1e4fadc9b6ca42a2c77f3c092eb863d7514ddb1fdeb860285191c9615f6b16a9"
+    },
+    "builds/build-source252-freebody-002/source-build.json": {
+      "bytes": 102326,
+      "sha256": "562ca858314108964c0e3398ca7b363efcac5814d6fdfe702f5655e3d18701a5"
+    },
+    "builds/build-source252-freebody-002/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2091984,
+      "sha256": "a65a485d081e5154c7d293743727b2e9ab7790d61b2363ad98b6f5917bb244ba"
+    },
+    "builds/build-source252-freebody-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source252-freebody-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source252-freebody-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source252-freebody-002/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source252-freebody-002/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source252-freebody-002/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "775cfa3e0ade825f9f95da0c99ecda4a2f79f85d8c97d64792401c58150b6a6e"
+    },
+    "builds/build-source250-shipping-arena-006/provenance-command-1.log": {
+      "bytes": 17868,
+      "sha256": "4b6564b58d3b33a659f89939d1b716c6df61ad1e2bc2c7b1331f7a53f1654ea9"
+    },
+    "builds/build-source250-shipping-arena-006/provenance-command-0.log": {
+      "bytes": 1339,
+      "sha256": "6392051f46e1a7eb2301de336a6023f7230e47872761b420787581c0259b1e76"
+    },
+    "builds/build-source250-shipping-arena-006/source-build.json": {
+      "bytes": 103451,
+      "sha256": "4d773fc8e23ba4b293711b2eff090030ed576b3b7a3494c49095dcb52bd25411"
+    },
+    "builds/build-source250-shipping-arena-006/matter/numi-matter-cardboard-shipping-memory-check": {
+      "bytes": 196712,
+      "sha256": "cf7431110b8d7776429082c415d372e1d7069646ecf87a88d2510d851ecd9572"
+    },
+    "builds/build-source250-shipping-arena-006/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135688,
+      "sha256": "c9c8d2186b03b8ea78d7b2527fd489e2933120fd54250f11b1f065a5ddb3535c"
+    },
+    "builds/build-source250-shipping-arena-006/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source250-shipping-arena-006/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7136295,
+      "sha256": "030bbf25b6d24606e803324e48fc189b3ccada5e733cbda482e20ca4c4d9a7dc"
+    },
+    "builds/build-source250-shipping-arena-006/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source250-shipping-arena-006/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source250-shipping-arena-006/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source250-shipping-arena-006/lib/libmetalrobo.dylib": {
+      "bytes": 8594368,
+      "sha256": "da13f2910f4c771a7bb61c5dc9f04f620faf83544089b042142010b666f68a5f"
+    },
+    "builds/build-source244-activation-002/provenance-command-1.log": {
+      "bytes": 17886,
+      "sha256": "eee9ef06a2ad2bf33142891f90b8aca5af5f0b8acd819fec1cbb8863081f0373"
+    },
+    "builds/build-source244-activation-002/provenance-command-0.log": {
+      "bytes": 1335,
+      "sha256": "8a2a9630c179cc9c90d99b29fb15fe8935d8feb89101829f05836a240c94f949"
+    },
+    "builds/build-source244-activation-002/source-build.json": {
+      "bytes": 102370,
+      "sha256": "39bef01c8cd0b62d708ffae18a5d03c4ef5e2ed2061bccc68e1c55f03d0dcbcf"
+    },
+    "builds/build-source244-activation-002/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 2039792,
+      "sha256": "0946f5ed970778f08319b417fab1694cfc390f21391c393ff7e9d0484b49502e"
+    },
+    "builds/build-source244-activation-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source244-activation-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source244-activation-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source244-activation-002/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source244-activation-002/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source244-activation-002/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "2fbbb42ee31d7d7581d0a4a31986b3327491ab435d8f04b363ee81eb7b2409c9"
+    },
+    "builds/build-source248-first-local-peak-002/provenance-command-1.log": {
+      "bytes": 17972,
+      "sha256": "0964c0f410095dfbb4b58efdc78868a2ae3a649aa288fe3ed0bb4197f9789478"
+    },
+    "builds/build-source248-first-local-peak-002/provenance-command-0.log": {
+      "bytes": 1341,
+      "sha256": "ae62e10d1306673eea064a6a3ea23fe25892ec611288272f3cf9b5e4ceb2fc9c"
+    },
+    "builds/build-source248-first-local-peak-002/source-build.json": {
+      "bytes": 103255,
+      "sha256": "46035a34df044f270abb1ea6814487070af2b173fb2954686ae0c1a70369b2da"
+    },
+    "builds/build-source248-first-local-peak-002/matter/numi-matter-cardboard-probe": {
+      "bytes": 3135848,
+      "sha256": "bf7529ca74d384cd681a4b42c74b2114a3077ed988f48838cf716f23ea03f498"
+    },
+    "builds/build-source248-first-local-peak-002/matter/numi-matter-cardboard-shipping-protocol-check": {
+      "bytes": 255120,
+      "sha256": "1e7793f91ce347e8380bddf5d633b995002a366a98bbc97abf229b2a82579622"
+    },
+    "builds/build-source248-first-local-peak-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "builds/build-source248-first-local-peak-002/matter/shaders/NumiMatter.metallib": {
+      "bytes": 7058771,
+      "sha256": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd"
+    },
+    "builds/build-source248-first-local-peak-002/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "builds/build-source248-first-local-peak-002/shaders/MetalRobo.metallib": {
+      "bytes": 5300911,
+      "sha256": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6"
+    },
+    "builds/build-source248-first-local-peak-002/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "builds/build-source248-first-local-peak-002/lib/libmetalrobo.dylib": {
+      "bytes": 8578400,
+      "sha256": "23eaa68eb7dbc1f1da0012a8e2c831d827f19637e8fd53e55ba89d9e221b0e46"
+    },
+    "commands/adjudicate_native599_cache_observer_002.py": {
+      "bytes": 2341,
+      "sha256": "931133315e015b0a2c9bcec18fca141f1fd4bc448beda01725fc75138c4875eb"
+    },
+    "commands/run_native585_source240_full_strict_coupon_001.py": {
+      "bytes": 4873,
+      "sha256": "8220cced30a7ddaebee537ebcc7bc5f2c79744a3157861aca1eaf144499a1d78"
+    },
+    "commands/archive_publication040_002.py": {
+      "bytes": 11980,
+      "sha256": "29f1c2e2aca61f4586325e69024975f7bc021b2d717505c019449dca87ddd8a4"
+    },
+    "commands/build_source254_integrated_002.py": {
+      "bytes": 2387,
+      "sha256": "638dc412a60f89271e2267e4fcd0e272c338138c3312f975908c12d309ad72ea"
+    },
+    "commands/audit_publication040_001.py": {
+      "bytes": 6339,
+      "sha256": "1398366be7d5b129e97bb640ebdff5c82e9eda8d3bc5083e72f7083cb918ff31"
+    },
+    "commands/adjudicate_native601_full_private_trial_001.py": {
+      "bytes": 2232,
+      "sha256": "124ec436e09931ae8d120932944bc42a1767e52ad003ee40d61c11d2e6644383"
+    },
+    "commands/analyze_native596_globalization_directions_001.py": {
+      "bytes": 5593,
+      "sha256": "e6964a76ebba41ba8d4a7d1c41c3670f38bec77e5ff5ff73eab8f4acd4fcb233"
+    },
+    "commands/build_source253_primary_cache_action_002.py": {
+      "bytes": 2914,
+      "sha256": "1b5b7a55bc3806417d0492717d93d0b4f2432dc451bcf40bae3d2cc5c8d08c4c"
+    },
+    "commands/adjudicate_native585_full_strict_coupon_001.py": {
+      "bytes": 4705,
+      "sha256": "cb734385c9828708c51fb77e8314a3f58c4e10ccaa4fe222d724a9540a5fb47d"
+    },
+    "commands/build_source256_narrow_cached_observer_001.py": {
+      "bytes": 1646,
+      "sha256": "1c66bec7b10e1368913f77a1d853ca32842b1a6dec6dbce12fafbd6901358e48"
+    },
+    "commands/run_native590_591_activation_full_residual_001.py": {
+      "bytes": 3258,
+      "sha256": "6079162046c77b550088a3141187edea8d5e4b66ad66ad1f23cd22e6d7e75c72"
+    },
+    "commands/adjudicate_native588_parity_001.py": {
+      "bytes": 2432,
+      "sha256": "5e2ab5c2c526368d4d2c07da7ef297de718ea2949ffd07b2e81818c25888ce32"
+    },
+    "commands/run_native589_corrected_metadata_002.py": {
+      "bytes": 3489,
+      "sha256": "98a4b69a1cef7d9d680a732b07a4272a0315a66dbc77ce3ea3665d91d3268d6f"
+    },
+    "commands/reconcile_source254_upstream_002.py": {
+      "bytes": 2479,
+      "sha256": "f1e150434a15965279b14262f513fa920f3cf17c7f1330c3000ca10dfe8d8f5b"
+    },
+    "commands/prepare_source253_primary_cache_fd_action_001.py": {
+      "bytes": 10689,
+      "sha256": "e9f3051c2df9264ad049947266d25f26455dfbcca72cd420ecf514d90a5e4d62"
+    },
+    "commands/prepare_source256_narrow_cached_observer_002.py": {
+      "bytes": 4563,
+      "sha256": "4650a415995129788ea854d7a7840291e2053a03f2fcc3b686aad95b444e15c7"
+    },
+    "commands/prepare_publication040_reproduction_002.py": {
+      "bytes": 6773,
+      "sha256": "b8fda1e1a9c1c5f1647c489dd90d23e6ce229978822977728be5f8e4ee517f24"
+    },
+    "commands/publish_publication040_001.py": {
+      "bytes": 3454,
+      "sha256": "ff662105befee4c9a05ea39a3953e456eef5871b83e3ddab9a2067873497820b"
+    },
+    "commands/run_native592_contact_compactor_001.py": {
+      "bytes": 3087,
+      "sha256": "fddb6201fe32592a413b0adff0887f02bb9bd023bdb3f3c6f20f8f31d023f842"
+    },
+    "commands/run_native588_composed241_regression_001.py": {
+      "bytes": 3891,
+      "sha256": "876013b927445b2ccffede221e48862a23438ebbc6284fff8a4090a1493d05f9"
+    },
+    "commands/adjudicate_native590_591_full_contact_002.py": {
+      "bytes": 4783,
+      "sha256": "0b0a1d551ac4b68ef0e2697da2c98387a9f52ee49b5f9b276a8c1ff20f0c29b6"
+    },
+    "commands/adjudicate_native596_598_001.py": {
+      "bytes": 5812,
+      "sha256": "711641e36c2fd6c0c12b9d1b292ed7f7cb025c076d797923e92b98752590c264"
+    },
+    "commands/run_native593_strict_final127_diagnostic_001.py": {
+      "bytes": 5604,
+      "sha256": "3ac342fae86602c01558f982dd6084efb005b663340d610f2994bba20eb61576"
+    },
+    "commands/prepare_source253_primary_cache_fd_action_003.py": {
+      "bytes": 2259,
+      "sha256": "1bdfd7e130993a5e77dc7f44a43e613e94c658129f5f4c69b368b7b487a1b94e"
+    },
+    "commands/adjudicate_native590_591_full_contact_001.py": {
+      "bytes": 4657,
+      "sha256": "3857f62fffd307117c050854da115b625324e83ba92a069ab17f95825867842b"
+    },
+    "commands/build_source244_activation_002.py": {
+      "bytes": 4651,
+      "sha256": "4337af9617607505fb9ee25fd3eb82384eeb6855cdeb22d48b08c450945dc094"
+    },
+    "commands/package_source253_final_primary_cache_observer_005.py": {
+      "bytes": 3109,
+      "sha256": "9c7cd05d2cc4eca98cefd207a91757fbf1dba8cec17e33c274af82cddb575034"
+    },
+    "commands/run_native599_primary_cache_action_diagnostic_001.py": {
+      "bytes": 4113,
+      "sha256": "a6d4cee0bf091bcc3be052c8e492a72a9c5fc9c4a3d01163bed1237204f2e529"
+    },
+    "commands/run_native588_592_serial_queue_001.py": {
+      "bytes": 2450,
+      "sha256": "96ad50bed365e9396280ad371064c9b98fd51ffba39e40053a2b97c511e8d054"
+    },
+    "commands/run_native595_strict_final127_diagnostic_001.py": {
+      "bytes": 5744,
+      "sha256": "bb478b6932a03085f2e0f15635583205fe4aeb05192fb5a3f1ef3d872186c952"
+    },
+    "commands/run_native589_corrected_metadata_001.py": {
+      "bytes": 3140,
+      "sha256": "538d882a9932ba85740ec43e461242b868b5249efadec16eaab1191048021559"
+    },
+    "commands/run_native597_freebody_trial_summary_001.py": {
+      "bytes": 3445,
+      "sha256": "354baa7fcd34d5b7687b50ba77e5f2e460d7975030bebcbc7d4caed0bb12a604"
+    },
+    "commands/prepare_source256_narrow_cached_observer_001.py": {
+      "bytes": 4019,
+      "sha256": "dc4e5fe72022d3eeef2321b7e52e50038a3cb479e1f2d2cb70b726eabf4771d7"
+    },
+    "commands/prepare_source253_primary_cache_fd_action_002.py": {
+      "bytes": 10689,
+      "sha256": "dcf027148c40c50e483bc3043273841393247e7d07a39c648bc65c9d9e543944"
+    },
+    "commands/prepare_publication040_reproduction_001.py": {
+      "bytes": 5953,
+      "sha256": "379d8927394950f5f1752bc7939e1302f4908a1ec61e03b2edc29b536b8a9742"
+    },
+    "commands/publish_publication040_002.py": {
+      "bytes": 3454,
+      "sha256": "ac1776ca5c14ba25805c3a9556badb4163205abeb3102a5a75ba69fd87157291"
+    },
+    "commands/package_source253_final_primary_cache_observer_004.py": {
+      "bytes": 3148,
+      "sha256": "8258dc84afbb334cb42aafef7dfd74e64e20e5ca69443af38d0f0425d75d77a8"
+    },
+    "commands/run_native597_599_serial_queue_001.py": {
+      "bytes": 2400,
+      "sha256": "5883236e61476d8153d0a00c9561a6bb66c282ee9e0abfc9c6caccf0a372ea6b"
+    },
+    "commands/run_native601_full_private_trial_001.py": {
+      "bytes": 3494,
+      "sha256": "b075e7f537b49af3710701323a1d9659c9a93084b406d49455eb583aad48dbe8"
+    },
+    "commands/build_source253_primary_cache_action_001.py": {
+      "bytes": 2914,
+      "sha256": "39e730fbc01198e486618477cbc514db7e674fde2dc515372b26f3b296849ecf"
+    },
+    "commands/run_native594_strict_final127_diagnostic_001.py": {
+      "bytes": 5668,
+      "sha256": "f1237a96592a1abfe7fb07a860df9ab3dc7ccb2a2efd75e023717cf9b3c54369"
+    },
+    "commands/run_native598_contact_compactor_fixture_fixed_001.py": {
+      "bytes": 3122,
+      "sha256": "5df14545bbd50389e123fdaac2a4cdab0ed99ffaef0cc440fb0cf4ef38930bfa"
+    },
+    "commands/run_native596_strict_final127_diagnostic_001.py": {
+      "bytes": 5743,
+      "sha256": "684c56f56c137b65aa18bf72a1dc56afc1f00bbf160e57eefec06bacdbf5b309"
+    },
+    "commands/adjudicate_native599_cache_observer_001.py": {
+      "bytes": 2313,
+      "sha256": "e4e3bcb93372f5fadc5586f9ee07744ca4e9100a0ab9b766254a4322f8a193a5"
+    },
+    "commands/prepare_source254_composition_001.py": {
+      "bytes": 4996,
+      "sha256": "37c12be8df3dd68191c883e18fd8708b6c2147b69db5b89be66b52f150bd2d01"
+    },
+    "commands/archive_publication040_001.py": {
+      "bytes": 11845,
+      "sha256": "58f3b006eea45b3aba041d2b352d4f7149ca577aa29e70fd0b621a2bdf5f17cc"
+    },
+    "commands/extend_publication040_support_004.py": {
+      "bytes": 5235,
+      "sha256": "26cea478f505e256be00db4a6a5f06978b4b7f61d46824f48bab45bc85cca945"
+    },
+    "commands/run_native600_primary_cached_strict_final127_diagnostic_001.py": {
+      "bytes": 5953,
+      "sha256": "f651cb48d0e48dc8be75a9bc2c07bda071bd4a07a21d804cd541f30e4378386d"
+    },
+    "commands/build_source254_integrated_001.py": {
+      "bytes": 3597,
+      "sha256": "eefa0088320274356523ed2fc29f01b9f98c831412c2d934a1c085b271b7168d"
+    },
+    "commands/audit_publication040_002.py": {
+      "bytes": 6592,
+      "sha256": "ea7c3abedb03bcf22076a31342a472c0e8f7877010bd578222e44a1dc104d802"
+    }
+  },
+  "retention": "All partial copies remain in task root. This source-bound index and failed-preflight retain failure identity without republishing duplicate reproduction bytes. Successful package002 independently archives the exact source/binaries.",
+  "at_utc": "2026-10-16T14:40:02.813718+00:00"
+}

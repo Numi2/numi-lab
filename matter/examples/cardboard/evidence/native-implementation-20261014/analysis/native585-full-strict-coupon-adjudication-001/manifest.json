@@ -1,0 +1,41 @@
+{
+  "inputs": {
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-newton128-full-coupon-585/receipt.json": {
+      "sha256": "c0d1ff77d26c3dec490e5f0b3d78f36f58c47ee2c6d65d98a01e55168fc01528",
+      "bytes": 306
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-newton128-full-coupon-585/output/result.json": {
+      "sha256": "878b2b22ad1b8434fe274743959c11ecc48f05571523b2dd278e9523c34112f8",
+      "bytes": 701
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-newton128-full-coupon-585/output/manifest.json": {
+      "sha256": "f84c848ccb88b2a42b8faa0493d5bdb2094a03a6f6f91fc666431e9c010c588b",
+      "bytes": 11953
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-newton128-full-coupon-585/output/observations.csv": {
+      "sha256": "1fc96891551ed93ead2f83ab888e058f8ec4f43abf3617628a0af4f25d4a3ff4",
+      "bytes": 19927
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source240-newton128-full-coupon-585/stderr.log": {
+      "sha256": "8db79bf88f23258636c2a2b1c63a297051d4ed73a5ad197864723a84a31f64ec",
+      "bytes": 174257422
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/output/manifest.json": {
+      "sha256": "b61f9216179e572d3991795d2eb83d75ca168e397d97a6d92d446926ebd49c42",
+      "bytes": 11952
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/solver/strict-state-source232-full-coupon-578/output/observations.csv": {
+      "sha256": "10e64269b3ea86481633969da794c56ea24c8a70fbffa96551b5eeeb11894112",
+      "bytes": 19926
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-refined-regional-graph-240-003/frozen-source.json": {
+      "sha256": "bcb37b35391f2dc9ab04492cba44306825540028edb354b219493412ad638644",
+      "bytes": 127132
+    },
+    "/Users/n/cardboard-implementation-20261014-host-macmini/build-source240-refined-regional-graph-003/source-build.json": {
+      "sha256": "04087ebb2983861913b5dfb1c985f314f62a515281a8bcd00e4ca1f6fab1f92d",
+      "bytes": 102480
+    }
+  },
+  "report_sha256": "e5b11eb041e628c7d71f1b78f9d0cbc469bd31fe4069ec724bd62e39bfc9e993"
+}

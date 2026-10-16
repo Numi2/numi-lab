@@ -1,0 +1,170 @@
+{
+  "ctest_bound_rerun": {
+    "exit_code": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "2595b4035baf9f132d7b954bcfc0663cc50964a52d3a644583dffa2ac9974c26",
+    "tests_passed": 3
+  },
+  "ctest_unbound_attempt": {
+    "exit_code": 8,
+    "reason": "required NUMI_CARDBOARD_REPO_ROOT omitted; retained failure",
+    "stderr_sha256": "18e00877dc1071c85cd4f479d451bebeef8309022e46cf8c63b0bed5151984a4",
+    "stdout_sha256": "83783a4ed958107f9d20b2dec5149237bd2ebfc6ce40e693444ef22de54ad2f2"
+  },
+  "frozen_source_sha256": "a9cadaa59ea11a943f914c4845d663ad6754148dd0dc58fd2007f93b9baad7a5",
+  "native_or_gpu_run": false,
+  "parent_frozen_sha256": "43522c59e433a77882eb07f40eca3f2b7ef7253e140fec9d32c38d4438373a04",
+  "parent_map_count": 835,
+  "parent_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-fullbox-force-accuracy-246-001",
+  "patch_bytes": 51419,
+  "patch_path": "/Users/n/cardboard-implementation-20261014-host-macmini/analysis/source248-first-local-peak-identity-001/source248.patch",
+  "patch_sha256": "e2ccfbcad393c738506510f9f84d07df1c466946c4e9413fc5846c52e9602c51",
+  "py_compile": {
+    "exit_code": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "qualification_boundary": "CPU contracts and source-bound compile only. No native/GPU physical execution and no physical capacity or full-box qualification.",
+  "schema": "numi.cardboard.source248.first-local-peak.identity.v1",
+  "scope": "First qualified local compression peak identity in native full curve, BCT producer, calibration ensemble, and stage-resolution tooling. Physical operator, material/tolerance settings, solver behavior, and qualification thresholds are unchanged.",
+  "source_added": [
+    "matter/tools/cardboard_shipping_peak.py"
+  ],
+  "source_build_failed_attempt": {
+    "error": "[Errno 2] No such file or directory: 'cmake'",
+    "limitation": "Compiler system headers and OS/driver are not archived.",
+    "retained": true,
+    "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-001/source-build.json",
+    "source_build_record_sha256": "0bad26a7fac4e3339193299e58bac25d31e059168348a62da3fb4b48b3577dba",
+    "success": false
+  },
+  "source_build_record": {
+    "artifacts_sha256": {
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/lib/libmetalrobo.dylib": "23eaa68eb7dbc1f1da0012a8e2c831d827f19637e8fd53e55ba89d9e221b0e46",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/numi-matter-cardboard-probe": "bf7529ca74d384cd681a4b42c74b2114a3077ed988f48838cf716f23ea03f498",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/numi-matter-cardboard-shipping-protocol-check": "1e7793f91ce347e8380bddf5d633b995002a366a98bbc97abf229b2a82579622",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/shaders/NumiMatter.metallib": "903ec0a4ac21500470fa487feb92ca5e7cfb96dd5311fde12436da56a7721cbd",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/MetalRobo.metallib": "50f394859b86267387fad3f7dcc1a5b0ee94242a6eecce1144c173551ec511b6",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+      "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "limitation": "Compiler system headers and OS/driver are not archived.",
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "source_build_record": "/Users/n/cardboard-implementation-20261014-host-macmini/build-source248-first-local-peak-002/source-build.json",
+    "source_build_record_sha256": "46035a34df044f270abb1ea6814487070af2b173fb2954686ae0c1a70369b2da",
+    "success": true,
+    "targets": [
+      "numi-matter-cardboard-probe",
+      "numi-matter-cardboard-shipping-protocol-check"
+    ]
+  },
+  "source_change_records": [
+    {
+      "after": "c650e7da4144ba327c340cdcc9f9f781a39c158a6516a259acea6d64f63dbd66",
+      "before": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342",
+      "kind": "modified",
+      "path": "matter/tools/bct_capacity_history_producer.py"
+    },
+    {
+      "after": "a51c98bcd1390dbf5df547945915504182012b15f831fb7f76613ad2c74861c2",
+      "before": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_calibration_ensemble.py"
+    },
+    {
+      "after": "37ac344b07f4abb69d46b1ea473bb69e0f52389f077aa951c7f5cfc5ec314b62",
+      "before": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_calibration_ensemble_test.py"
+    },
+    {
+      "after": "039377b7b7e7ba21f5b79b8e5a71e9b05a1ef0beb8cca74c26fa2702909cbabb",
+      "before": "098c4d124852ad8ee82426bdaba5b233d02057630894d12b3319ed4d3d320530",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_probe.mm"
+    },
+    {
+      "after": "cae850262041fc38a2256a7857452e82eb0d0d5f1fb352c3df59564397d3c5ee",
+      "before": "d159ccab53f945f40c65a0aaf338e47f097b61cc4a5fd88979e69a6c5a32a9e3",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_shipping_crush.hpp"
+    },
+    {
+      "after": "7a3e9b66e2076e8460967402b319927b164456976ddbd5f631b05252348a783d",
+      "before": null,
+      "kind": "added",
+      "path": "matter/tools/cardboard_shipping_peak.py"
+    },
+    {
+      "after": "eabddb25e5da08f9a5025cffaf48607634be21d31b53319712eb423cbc19b752",
+      "before": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_shipping_protocol_check.cpp"
+    },
+    {
+      "after": "b5919520ae3b5df987110f768e90dcb76cd86229167dc2db2603cd0732352ad3",
+      "before": "05c24fc93d9750d021626b52c5aa53f1118148bc60b690c4beee7fb5e5cf41e2",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_stage_resolution_study.md"
+    },
+    {
+      "after": "8ed9bc45cb72cfb88f5f46697f89ab0f9f1f9b3e457a214ae6b58035dc852fa7",
+      "before": "ac411b9a7d4d23e298efff47e13f2ccf61fbe3acc647b8ae1dd97a8a9cf262eb",
+      "kind": "modified",
+      "path": "matter/tools/cardboard_stage_resolution_study.py"
+    },
+    {
+      "after": "6b315505f249c9507045aeac35bcd639137e5281220fcc89cede2aef3c5496bd",
+      "before": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728",
+      "kind": "modified",
+      "path": "matter/tools/test_bct_capacity_history_producer.py"
+    },
+    {
+      "after": "ff825640e28cc93a688c785d8db134fde31ea58c14ea64c1e4de374c06a665f9",
+      "before": "aa211f14a423b989acd05d339844ae828fa94fead1e3532b3db1cffc47f40bd3",
+      "kind": "modified",
+      "path": "matter/tools/test_cardboard_stage_resolution_study.py"
+    }
+  ],
+  "source_changed_from_parent": [
+    "matter/tools/bct_capacity_history_producer.py",
+    "matter/tools/cardboard_calibration_ensemble.py",
+    "matter/tools/cardboard_calibration_ensemble_test.py",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_shipping_crush.hpp",
+    "matter/tools/cardboard_shipping_protocol_check.cpp",
+    "matter/tools/cardboard_stage_resolution_study.md",
+    "matter/tools/cardboard_stage_resolution_study.py",
+    "matter/tools/test_bct_capacity_history_producer.py",
+    "matter/tools/test_cardboard_stage_resolution_study.py"
+  ],
+  "source_map_count": 836,
+  "source_map_matches_build_map": true,
+  "source_removed": [],
+  "source_snapshot": "/Users/n/cardboard-implementation-20261014-host-macmini/snapshots/source-shipping-first-local-peak-248-001",
+  "tests": [
+    {
+      "count": 6,
+      "name": "producer",
+      "result": "passed",
+      "stderr_sha256": "5167c4a6138e366b6d65f89302ce05c91edc42d244c1dc8786d30beb0f33c5e7",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "count": 27,
+      "name": "ensemble",
+      "result": "passed",
+      "stderr_sha256": "7c076aa434a8c480403a9659b5729c2d187f14a0815a58f8a8b7fe434b6aa28b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "count": 39,
+      "name": "stage",
+      "result": "passed",
+      "stderr_sha256": "975be49f73e9634f66aad6d5b07eb58d2e5ac0a6a9c80e459ed95e640c7cb8b9",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "unchanged_parent_paths": 825
+}
