@@ -1,0 +1,23 @@
+{
+  "description": "inferred upper posterior thorax harness D-ring fixture candidate; nearest accepted skin vertex to COM-relative target(-0.10,+0.16,0)m; reference fixture, not measured anatomy",
+  "capture_vertex_index": 28390,
+  "body_index": 20,
+  "body_local_site_m": [
+    -0.05459734828352807,
+    0.14110308292600787,
+    -0.002797657669904901
+  ],
+  "accepted_world_m": [
+    -0.022202348336577415,
+    -0.30067795515060425,
+    0.04308338835835457
+  ],
+  "requested_body_local_target_m": [
+    -0.1,
+    0.16,
+    0.0
+  ],
+  "distance_from_target_m": 0.04925770139000159,
+  "pose_precision": "body20 pose transcribed to 8 decimal digits; use receipt exactpose to finalbind",
+  "capture_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/pons323-348-current972-existing-owner-rebind-001/native-run-002/accepted-geometry/step-0.mrvpack"
+}

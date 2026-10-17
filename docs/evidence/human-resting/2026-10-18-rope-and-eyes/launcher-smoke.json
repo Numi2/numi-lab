@@ -1,0 +1,11 @@
+{
+  "launcher_sha256": "67105eceb12ccf59503e46d9c18423907c0117d1562e4d0485e7c8fa9bbace8b",
+  "python_syntax_compilation": "PASS",
+  "verification_only": "PASS",
+  "existing_output_rejected": true,
+  "unpinned_binary_rejected": true,
+  "foreign_failure_receipt_rejected": true,
+  "non_failure_output_escape_rejected": true,
+  "native_simulation_executed": false,
+  "host": "ssh numi"
+}

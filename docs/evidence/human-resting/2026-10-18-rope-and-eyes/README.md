@@ -31,7 +31,18 @@ The run then stopped at the whole-mesh presentation audit: bone semantic 51004 /
 Exact build/launch/assets/logs/video/receipts remain on SSH Numi:
 
 - `/Users/n/numi-human-rope-abi41-build-20261018-013/build-report-abi41.json`
-- `/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/launch.sh`
-- The same attempt directory contains `invocation.json` and `native-run/` traces, movie and failure receipt. Earlier failed attempts remain alongside it.
+- `/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/launch.sh`
+- The same `native-run/` directory contains `invocation.json`, traces, movie and failure receipt. Earlier failed attempts remain alongside it.
 
 The included compact reports distinguish GPU visual dispatch tests, static source-preservation checks and scene execution. Storage deduplication recovered 1,505,935,360 bytes by verified identical-file hardlinks, preserving every path and byte. No five-minute coupled qualification, physiological range qualification, clinical validation or performance qualification is claimed here.
+
+
+## Fresh replay outputs
+
+Run tools/launch_human_rope.py INVOCATION --output NEW_DIRECTORY --exclusive-wrapper /Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py with the qualified Numi Python. It verifies declared asset hashes, the active binary and configured rope source, remaps output paths into a fresh directory, rejects escaping paths and existing outputs, records launcher/wrapper hashes, and uses the existing exclusive-job wrapper. --verify-only checks preparation without launching physics. See launcher-smoke.json; these are launcher checks, not simulation evidence.
+
+Historical attempt006 retains an obsolete build011 asset-map entry while its actual argv and binary hash identify build012. Its initial-pose description omits the loaded NHEQ projection; the execution log records it. Its failure-receipt environment points into attempt003. The historical record is retained with these limitations; the fresh launcher correctly rejects it. A corrected run must pin the actual binary, projected initialization and its own failure-receipt output.
+
+rib49-repair/ retains the local repair instrument, compiled-face ancestry and source-preservation report. It retires two faces around a 13.43 nm source edge, preserving all allocated positions/normals and other bone index streams. Its early ad-hoc manifest is not the owner-compiled native asset. The existing precision constructor reproduced the same payload bytes exactly; composed-owner validation and paired tendon emission are tracked separately from native admission. The report candidate-manifest hash predates the frozen metadata correction; payload SHA remains 01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd.
+
+The second verified deduplication recovered another 921,905,232 bytes. The two retained manifests account for 2,427,840,592 bytes recovered while preserving every existing file path and content.

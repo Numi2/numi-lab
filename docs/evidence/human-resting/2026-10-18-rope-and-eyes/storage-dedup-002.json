@@ -1,0 +1,37 @@
+{
+  "method": "exact SHA-256 hardlinks; all paths and bytes retained",
+  "files": [
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run/accepted-geometry/step-0.mrvpack",
+      "sha256": "c1709a08eb9e2f35ac729275686bece60788b32cfcc19a434f71b8e1bc9bb4a3",
+      "size": 296804352
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/common-field-map-f32.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "size": 69593328
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/resting-human.mrvpack",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run/resting-human.mrvpack",
+      "sha256": "d32bdd0ba65258cdc7afa0ebc0bbd8c55b53f1f02c3e2175ec352da029aa20b8",
+      "size": 296804352
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/skin-source-influences.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-influences.bin",
+      "sha256": "48b1597546a64636cf73e9b6f9413a274368494819a2eff5fca70dc2a073d240",
+      "size": 255729600
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/skin-source-vertex-map.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run/skin-source-vertex-map.bin",
+      "sha256": "5b2557226a5609abc0e9f4e406b40e99ab1f24243900206621088795bcbfc1da",
+      "size": 2973600
+    }
+  ],
+  "before_available_bytes": 14185566208,
+  "after_available_bytes": 15107436544
+}

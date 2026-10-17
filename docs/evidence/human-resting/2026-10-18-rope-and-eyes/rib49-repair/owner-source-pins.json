@@ -1,0 +1,12 @@
+{
+  "source_checkout": "/Users/n/numi-human-final-integration-publish-1397",
+  "revision": "4c521bbc2305e56a3e17bb7decedef5d93f92a65",
+  "module_sha256": {
+    "/Users/n/numi-human-final-integration-publish-1397/src/numilab_human/composed_bone_body_frame.py": "1d1a73b291629a5cd06027e4a50ccb1341b334ca766b4421ea1ab6791c20258c",
+    "/Users/n/numi-human-final-integration-publish-1397/src/numilab_human/cardiac_cavity_geometry.py": "f6e98744dad9e23cd3b505efc02e7faa618fccce81d2ee08b07f948ef182fb72"
+  },
+  "generator_sha256": "81b76252f9944e382718d0109de8a760753ad51a2c3320ddd22be1217abaa0cd",
+  "frozen_manifest_sha256": "4b48b2c82aac1c5badbc67f2d7978e9827bd4af0d515f334a58ff0f5a6119788",
+  "payload_sha256": "01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd",
+  "scope": "Reproducible passive mesh index repair. Runtime admission remains separately measured; full upstream BodyParts3D per-face parent CSR is unavailable and is not invented."
+}
