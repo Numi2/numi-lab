@@ -59,7 +59,9 @@ void write(NSString* p,NSData* b) {
 }
 int main(int argc,char** argv) {
     @autoreleasepool { try {
-        need(argc==6,"usage: numi_human_resting_skin_replay SOURCE_RECEIPT SHA256 POSE_RECEIPT SHA256 OUTPUT_DIRECTORY");
+        need(argc==6||argc==7,"usage: numi_human_resting_skin_replay SOURCE_RECEIPT SHA256 POSE_RECEIPT SHA256 OUTPUT_DIRECTORY [--retain-source-cardiac-context]");
+        const bool retainSourceCardiacContext=argc==7;
+        if(retainSourceCardiacContext)need(std::strcmp(argv[6],"--retain-source-cardiac-context")==0,"unknown replay option");
         NSString* rp=@(argv[1]);NSString* pp=@(argv[3]);NSString* out=@(argv[5]);
         NSData* rb=read(rp,8u*1024u*1024u);NSData* pb=read(pp,8u*1024u*1024u);
         need(sha(rb)==argv[2]&&sha(pb)==argv[4],"source or pose receipt hash mismatch");
@@ -160,7 +162,11 @@ int main(int argc,char** argv) {
         NSData* normalIncidents=completeMapping?pinned(m[@"normal_incident_triangles"],512u*1024u*1024u):nil;
         NSData* airwayRanges=completeMapping?pinned(m[@"airway_normal_ranges"],128u*1024u*1024u):nil;
         NSData* airwayIncidents=completeMapping?pinned(m[@"airway_normal_incident_triangles"],512u*1024u*1024u):nil;
-        NSDictionary* cardiacInputs=pose[@"accepted_cardiac_geometry_buffers"];
+        need(!retainSourceCardiacContext||completeMapping,"source-cardiac context requires complete anatomy mapping");
+        NSDictionary* poseCardiacInputs=pose[@"accepted_cardiac_geometry_buffers"];
+        NSDictionary* sourceCardiacInputs=source[@"accepted_cardiac_geometry_buffers"];
+        NSDictionary* cardiacInputs=retainSourceCardiacContext?sourceCardiacInputs:poseCardiacInputs;
+        if(completeMapping)need([cardiacInputs isKindOfClass:[NSDictionary class]],"selected receipt lacks accepted cardiac geometry buffers");
         NSData* cardiac=completeMapping?pinned(cardiacInputs[@"cardiac_q"],16):nil;
         NSData* wall=completeMapping?pinned(cardiacInputs[@"cardiac_wall_q"],16):nil;
         NSData* common=completeMapping?pinned(cardiacInputs[@"common_coordinates"],64):nil;
@@ -243,17 +249,26 @@ int main(int argc,char** argv) {
         need(![[NSFileManager defaultManager] fileExistsAtPath:out],"refusing to overwrite replay directory");
         need([[NSFileManager defaultManager] createDirectoryAtPath:out withIntermediateDirectories:NO attributes:nil error:nil],"cannot create replay output directory");
         NSData* vb=[NSData dataWithBytes:verticesGPU.contents length:verticesGPU.length];NSString* vp=[out stringByAppendingPathComponent:completeMapping?@"anatomy-vertices.bin":@"skin-vertices.bin"];write(vp,vb);
-        NSDictionary* report=@{@"status":completeMapping?@"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY":@"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY",
+        NSDictionary* cardiacContext=@{@"mode":retainSourceCardiacContext?@"held_source_receipt_buffers":@"pose_receipt_buffers",
+            @"source_receipt":@{@"path":rp,@"sha256":@(argv[2])},
+            @"pose_receipt":@{@"path":pp,@"sha256":@(argv[4])},
+            @"cardiac_geometry_held_source_fixed":@(retainSourceCardiacContext),
+            @"counterfactual":@(retainSourceCardiacContext),
+            @"non_cardiac_motion_only":@(retainSourceCardiacContext),
+            @"motion_scope":retainSourceCardiacContext?@"accepted body and respiratory motion from pose receipt; cardiac geometry buffers held at source receipt":@"accepted body, respiratory, and cardiac geometry buffers from pose receipt",
+            @"buffers":completeMapping?cardiacInputs:@{}};
+        NSDictionary* report=@{@"status":retainSourceCardiacContext?@"PASS_SOURCE_CARDIAC_HELD_COUNTERFACTUAL_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY":(completeMapping?@"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY":@"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY"),
             @"complete_mapping":@(completeMapping),
+            @"cardiac_context":cardiacContext,
             @"source_receipt":@{@"path":rp,@"sha256":@(argv[2])},@"pose_receipt":@{@"path":pp,@"sha256":@(argv[4])},
             @"vertex_map":m[@"vertex_map"],@"influences":m[@"influences"],@"anatomy_parameters":m[@"anatomy_parameters"],@"kernel":kernel,@"kernel_mode":m[@"kernel_mode"],
             @"influence_first_index":@(base),@"influence_layout":m[@"influence_layout"],@"vertex_count":@(count),
             @"output":@{@"path":vp,@"sha256":@(sha(vb).c_str()),@"bytes":@(vb.length),@"record_type":@"MRVisualVertexGPUV2",@"stride_bytes":@(sizeof(MRVisualVertexGPUV2))},
             @"device":device.name,@"gpu_seconds":@(command.GPUEndTime-command.GPUStartTime),
-            @"physical_stepping":@NO,@"anatomical_admission":@NO,@"meaning":@"Current uploaded source geometry replayed counterfactually at a retained accepted pose through the unchanged native viewer Metal kernel. Requires native capture parity and geometry gates; no new accepted physical state is claimed."};
+            @"physical_stepping":@NO,@"anatomical_admission":@NO,@"meaning":retainSourceCardiacContext?@"Counterfactual replay of current uploaded source geometry through the unchanged native viewer Metal kernel using accepted body and respiratory state from the pose receipt while holding cardiac geometry buffers at the source receipt. This is non-cardiac-motion-only evidence; it does not claim cardiac motion, physical stepping, or anatomical admission.":@"Current uploaded source geometry replayed at a retained accepted pose through the unchanged native viewer Metal kernel. Requires native capture parity and geometry gates; no new accepted physical state is claimed."};
         NSData* reportBytes=[NSJSONSerialization dataWithJSONObject:report options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:nil];
         need(reportBytes!=nil,"cannot serialize replay receipt");write([out stringByAppendingPathComponent:@"receipt.json"],reportBytes);
-        std::cout<<(completeMapping?"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY vertices=":"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY vertices=")<<count<<" gpu_seconds="<<command.GPUEndTime-command.GPUStartTime<<"\n";
+        std::cout<<(retainSourceCardiacContext?"PASS_SOURCE_CARDIAC_HELD_COUNTERFACTUAL_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY vertices=":(completeMapping?"PASS_EXISTING_NATIVE_GEOMETRY_KERNEL_REPLAY_ONLY vertices=":"PASS_EXISTING_NATIVE_SKIN_KERNEL_REPLAY_ONLY vertices="))<<count<<" gpu_seconds="<<command.GPUEndTime-command.GPUStartTime<<"\n";
         return 0;
     }catch(const std::exception& e){std::cerr<<"numi_human_resting_skin_replay: "<<e.what()<<"\n";return 1;} }
 }
