@@ -23,7 +23,9 @@ int main(int argc,char** argv){@autoreleasepool{try{
  structure(engine,"MRArticulatedBodyPoseGPU")+"\n"+structure(engine,"MRArticulatedPointWorldGPU")+"\n"+
  structure(read(argv[4]),"MRNumiHumanStandContactGPU")+"\n"+structure(read(argv[2]),"MRHumanRestingRopeGPU")+"\n"+read(argv[1]);
  auto device=MTLCreateSystemDefaultDevice();require(device!=nil,"Metal unavailable");NSError* error=nil;
- auto lib=[device newLibraryWithSource:[NSString stringWithUTF8String:source.c_str()] options:nil error:&error];
+ auto options=[MTLCompileOptions new];options.mathMode=MTLMathModeSafe;
+ options.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;options.languageVersion=MTLLanguageVersion4_0;
+ auto lib=[device newLibraryWithSource:[NSString stringWithUTF8String:source.c_str()] options:options error:&error];
  if(!lib)throw std::runtime_error(error.localizedDescription.UTF8String);
  auto pipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_rope_support"] error:&error];require(pipeline!=nil,"pipeline unavailable");
  MRHumanRestingRopeGPU cfg{};cfg.indices={1,0,7,7};cfg.strides={1,1,5,60};cfg.counts={1,1,4,1};
@@ -59,7 +61,13 @@ int main(int argc,char** argv){@autoreleasepool{try{
  double delta=component(cfg.anchorAndLength,a)-component(output[0].position,a);r0+=delta*delta;r1+=(delta-eps*v)*(delta-eps*v);}
  require(std::abs((std::sqrt(r0)-std::sqrt(r1))/eps-power)<1e-5,"gap derivative / virtual work mismatch");
  const auto saved=planes[1];run();require(std::memcmp(&saved,&planes[1],sizeof(saved))==0,"restored accepted pose did not replay");
+ body.position={16777216,0,0,1};body.orientation={0,0,0,1};
+ std::memcpy(buffers[1].contents,&body,sizeof(body));
+ cfg.anchorAndLength={16777216,0,2,2};cfg.bodyLocalSite={.2f,0,0,0};run();
+ const auto* compensated=static_cast<const mr_float4*>(buffers[4].contents);
+ require(near(compensated[0].x,.2f),"sub-ULP rigid site offset discarded");
+ require(near(planes[1].planeNormal.x,-.2f/std::sqrt(4.04f)),"rope normal ignored compensated position");
  auto* mutableContacts=static_cast<MRNumiHumanStandContactGPU*>(buffers[6].contents);mutableContacts[1].frictionSlopAndStabilization.x=.5f;run();
  require(!std::isfinite(planes[1].planeNormal.x),"frictional tether silently admitted");
- std::cout<<"PASS rope rigid transport, affine J, slack/taut gap, virtual work, isolation, replay, invalid friction on "<<device.name.UTF8String<<"\n";return 0;
+ std::cout<<"PASS rope rigid transport, affine J, slack/taut gap, virtual work, isolation, replay, compensated position, invalid friction on "<<device.name.UTF8String<<"\n";return 0;
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}}}
