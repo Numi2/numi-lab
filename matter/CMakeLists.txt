@@ -1168,6 +1168,8 @@ if(APPLE)
             -o "${NUMI_HUMAN_RESPIRATION_METALLIB}"
         DEPENDS src/human_respiration.metal include/numi/matter/human_respiration.h
             src/NumiHumanRestingCommonField.metalinc
+            src/NumiHumanRestingRope.metalinc
+            ../include/metalrobo/numi_human_resting_rope_gpu.h
             ../src/metal/PairedSourceGeometry.metalinc
             ../include/metalrobo/compensated_geometry_gpu.h
             include/numi/matter/shared.h ../src/metal/MujocoMuscleReference.metal
