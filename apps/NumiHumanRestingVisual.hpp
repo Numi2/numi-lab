@@ -1,7 +1,10 @@
 #pragma once
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingInspectionLayers.hpp"
+#include "NumiHumanRestingOcularWindow.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
+#include "NumiHumanRestingRopeSupport.hpp"
+#include "NumiHumanRestingRopeVisual.hpp"
 #include "NumiHumanRestingBedSurface.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include "NumiHumanAcceptedGeometryCadence.hpp"
@@ -23,6 +26,8 @@ static_assert(alignof(MRHumanRestingSurfaceFailureGPU)==16);
 class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
+    std::unique_ptr<NumiHumanRestingRopeSupport> ropeSupport;
+    std::unique_ptr<NumiHumanRestingRopeVisual> ropeVisual;
     MRHumanRestingBedGPU bedParameters{};
     id<MTLBuffer> bedHeights=nil;
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
@@ -37,12 +42,12 @@ class NumiHumanRestingVisual {
     id<MTLComputePipelineState> skinTissueLayerPipeline=nil;
     unsigned skinTissueLayerCount=0;
 
-
     id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
     id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline,skinAuditReducePipeline;
     std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
     static constexpr unsigned meshAuditGroupCount=64,skinAuditGroupThreads=256;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumeAuditPartialPipeline, volumeAuditReducePipeline;
+    id<MTLLibrary> ropeRuntimeLibrary=nil;
     id<MTLComputePipelineState> skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
     id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
@@ -933,6 +938,43 @@ public:
         const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
+        const bool ropeConfigured=NumiHumanRestingRopeSupport::configuredFromEnvironment();
+        std::optional<NumiHumanRestingRopeSupport::Config> ropeConfig;
+        std::optional<NumiHumanRestingRopeVisual::Layout> ropeVisualLayout;
+        MRHumanRestingRopeGPU ropeVisualParameters{};
+        std::uint32_t ropeContactIndex=MR_INVALID_INDEX,ropeQueryIndex=MR_INVALID_INDEX;
+        if(ropeConfigured) {
+            ropeConfig=NumiHumanRestingRopeSupport::readConfig();
+            const char* anchorFromSite=std::getenv("NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE");
+            require(!anchorFromSite||std::strcmp(anchorFromSite,"0")==0||
+                    std::strcmp(anchorFromSite,"1")==0,
+                "NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE must be 0 or 1");
+            if(anchorFromSite&&std::strcmp(anchorFromSite,"1")==0) {
+                require(ropeConfig->globalBodyIndex<initialBodies.size(),
+                    "rope harness body index is outside the initial pose");
+                const auto offsetAndLength=ropeConfig->anchorAndLength;
+                const auto& body=initialBodies.at(ropeConfig->globalBodyIndex);
+                const auto localSite=mr_float4{ropeConfig->bodyLocalSite[0],
+                    ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+                const auto siteOffset=rotatePoint(body.orientation,localSite);
+                const auto siteWorld=addPoint(body.position,siteOffset);
+                ropeConfig->anchorAndLength={siteWorld.x+offsetAndLength[0],
+                    siteWorld.y+offsetAndLength[1],siteWorld.z+offsetAndLength[2],
+                    offsetAndLength[3]};
+                std::cout<<std::setprecision(9)
+                    <<"rope_harness_reference=idealized_torso_site body_index="
+                    <<ropeConfig->globalBodyIndex<<" local_site_m=["
+                    <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                    <<ropeConfig->bodyLocalSite[2]<<"] site_world_m=["
+                    <<siteWorld.x<<','<<siteWorld.y<<','<<siteWorld.z
+                    <<"] anchor_offset_world_m=["<<offsetAndLength[0]<<','
+                    <<offsetAndLength[1]<<','<<offsetAndLength[2]
+                    <<"] anchor_world_m=["<<ropeConfig->anchorAndLength[0]<<','
+                    <<ropeConfig->anchorAndLength[1]<<','<<ropeConfig->anchorAndLength[2]
+                    <<"] length_m="<<ropeConfig->anchorAndLength[3]
+                    <<" mechanics=single_existing_unilateral_contact idealized_reference_fixture=1\n";
+            }
+        }
         if(bedSurface)bedParameters=bedSurface->gpu;
         const char* influenceLayoutSetting =
             std::getenv("NUMI_HUMAN_SKIN_INFLUENCE_TILE32");
@@ -988,6 +1030,111 @@ public:
         pack.materials.push_back(makeMaterial({.18f,.52f,.92f,1},{0,0,0,0},.48f)); // right ventricle
         pack.materials.push_back(makeMaterial({.88f,.22f,.18f,1},{0,0,0,0},.48f)); // left atrium
         pack.materials.push_back(makeMaterial({.72f,.08f,.10f,1},{0,0,0,0},.48f)); // left ventricle
+        const auto ocularSurfaceInventory =
+            numi_human_resting_ocular_window::inspectCanonicalExteriorSet(pack,kOrganSurfaceSemantic);
+        require(ocularSurfaceInventory.state !=
+                numi_human_resting_ocular_window::CanonicalExteriorSetState::partial,
+            "registered ocular exterior is partial; refusing ambiguous Skin window construction");
+        require(ocularSurfaceInventory.state !=
+                numi_human_resting_ocular_window::CanonicalExteriorSetState::ambiguous,
+            "registered ocular exterior identities or geometry ranges are ambiguous");
+        const bool ocularFeatureEnabled = ocularSurfaceInventory.state ==
+            numi_human_resting_ocular_window::CanonicalExteriorSetState::complete;
+        std::cout << "resting_ocular_skin_window_source_set="
+            << (ocularFeatureEnabled ? "complete" : "absent")
+            << " canonical_surfaces=" << ocularSurfaceInventory.presentSurfaceCount << "/"
+            << ocularSurfaceInventory.expectedSurfaceCount << "\n";
+        std::array<unsigned,8> ocularMaterials{};
+        ocularMaterials.fill(MR_INVALID_INDEX);
+        const auto ocularSourcePackContentHash=pack.contentHash;
+        std::vector<numi_human_resting_ocular_window::Report> ocularWindowReports;
+        std::vector<numi_human_resting_ocular_window::Report> ocularBackingReports;
+        ocularWindowReports.reserve(ocularFeatureEnabled ? 2u : 0u);
+        ocularBackingReports.reserve(ocularFeatureEnabled ? 2u : 0u);
+        if(ocularFeatureEnabled) {
+            const auto ocularSourceInstance=std::find_if(pack.instances.begin(),pack.instances.end(),
+                [](const auto& instance){return instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==381u;});
+            require(ocularSourceInstance!=pack.instances.end()&&ocularSourceInstance->geometry.y>0,
+                "registered ocular source material is unavailable");
+            const auto ocularSourceMaterialIndex=pack.primitives.at(ocularSourceInstance->geometry.x).geometry.z;
+            require(ocularSourceMaterialIndex<pack.materials.size(),"registered ocular source material is out of range");
+            const auto ocularMaterialTemplate=pack.materials.at(ocularSourceMaterialIndex);
+            const auto appendOcularMaterial=[&](mr_float4 color,float roughness,float clearcoat,float coatRoughness) {
+                auto material=ocularMaterialTemplate;
+                material.baseColorAndOpacity=color;
+                material.emissionAndStrength={0,0,0,0};
+                material.surface.x=roughness;
+                material.surface.y=0.0f;
+                material.coatingAndAlphaCutoff.x=clearcoat;
+                material.coatingAndAlphaCutoff.y=coatRoughness;
+                material.flags.x=MR_VISUAL_ALPHA_OPAQUE;
+                const unsigned index=unsigned(pack.materials.size());
+                pack.materials.push_back(material);
+                return index;
+            };
+            ocularMaterials={{
+                appendOcularMaterial({.13f,.035f,.026f,1},.62f,.05f,.32f), // choroid
+                appendOcularMaterial({.72f,.82f,.90f,1},.035f,1.0f,.025f), // opaque clear-coat cornea approximation
+                appendOcularMaterial({.24f,.105f,.038f,1},.26f,.28f,.10f), // warm brown iris presentation
+                appendOcularMaterial({.008f,.006f,.005f,1},.16f,.18f,.06f), // dark lens backing; no pupil mesh exists
+                appendOcularMaterial({.91f,.89f,.82f,1},.24f,.22f,.12f), // ivory sclera
+                appendOcularMaterial({.60f,.49f,.39f,1},.48f,.10f,.22f), // suspensory ligament
+                appendOcularMaterial({.54f,.63f,.69f,1},.08f,.75f,.035f), // vitreous approximation
+                appendOcularMaterial({.62f,.70f,.74f,1},.10f,.60f,.04f), // anterior chamber approximation
+            }};
+            for(const auto& windowSpec:std::array<std::array<std::uint32_t,4>,2>{{
+                    {{386u,383u,384u,kNumiHumanRightScleraWindowStableID}},
+                    {{395u,392u,393u,kNumiHumanLeftScleraWindowStableID}}}}) {
+                auto report=numi_human_resting_ocular_window::buildScleraWindow(
+                    pack,kOrganSurfaceSemantic,windowSpec[0],windowSpec[1],windowSpec[2],windowSpec[3]);
+                require(numi_human_resting_ocular_window::facePartitionComplete(report),
+                    "sclera Skin window did not preserve a complete source-face partition");
+                ocularWindowReports.push_back(std::move(report));
+            }
+            const auto canonicalLensPresent = [&](std::uint32_t stableID) {
+                unsigned primitiveCount=0u,instanceCount=0u,instanceIndex=0u;
+                for(unsigned i=0u;i<pack.primitives.size();++i) {
+                    const auto& primitive=pack.primitives[i];
+                    if(primitive.identity.x==kOrganSurfaceSemantic&&primitive.identity.w==stableID) {
+                        ++primitiveCount;
+                        require(primitive.geometry.w<pack.instances.size(),
+                            "canonical lens primitive references a missing instance");
+                    }
+                }
+                for(unsigned i=0u;i<pack.instances.size();++i) {
+                    const auto& instance=pack.instances[i];
+                    if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==stableID) {
+                        ++instanceCount;
+                        instanceIndex=i;
+                    }
+                }
+                require((primitiveCount==0u&&instanceCount==0u)||(primitiveCount==1u&&instanceCount==1u),
+                    "canonical lens source identity is partial or ambiguous");
+                if(primitiveCount==0u) return false;
+                const auto& primitive=*std::find_if(pack.primitives.begin(),pack.primitives.end(),
+                    [&](const auto& value){return value.identity.x==kOrganSurfaceSemantic&&value.identity.w==stableID;});
+                require(primitive.geometry.w==instanceIndex&&primitive.geometry.y>0u&&
+                    primitive.geometry.y%3u==0u&&primitive.geometry.z<pack.materials.size(),
+                    "canonical lens source range is invalid");
+                return true;
+            };
+            const bool rightLensPresent=canonicalLensPresent(385u);
+            const bool leftLensPresent=canonicalLensPresent(394u);
+            require(rightLensPresent==leftLensPresent,
+                "posterior lens backing requires both canonical lens surfaces or neither");
+            if(rightLensPresent) {
+                for(const auto& backingSpec:std::array<std::array<std::uint32_t,6>,2>{{
+                        {{386u,383u,384u,385u,kNumiHumanRightPosteriorLensBackingStableID,0u}},
+                        {{395u,392u,393u,394u,kNumiHumanLeftPosteriorLensBackingStableID,0u}}}}) {
+                    auto report=numi_human_resting_ocular_window::buildPosteriorLensBacking(
+                        pack,kOrganSurfaceSemantic,backingSpec[0],backingSpec[1],backingSpec[2],
+                        backingSpec[3],backingSpec[4]);
+                    require(numi_human_resting_ocular_window::facePartitionComplete(report),
+                        "posterior lens backing did not preserve its source-face partition");
+                    ocularBackingReports.push_back(std::move(report));
+                }
+            }
+        }
         auto anatomyGPU=functional.gpu;
         float posteriorSkin=INFINITY,anteriorSkin=-INFINITY;
         std::array<mr_float4,24> ribLo,ribHi;
@@ -1270,9 +1417,29 @@ public:
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
+            const auto ocularAppearance=numiHumanRestingOcularAppearance(
+                semantic,instance.identity.w,kOrganSurfaceSemantic);
+            if(ocularFeatureEnabled&&ocularAppearance!=NumiHumanRestingOcularAppearance::none) {
+                unsigned materialIndex=MR_INVALID_INDEX;
+                switch(ocularAppearance) {
+                    case NumiHumanRestingOcularAppearance::choroid: materialIndex=ocularMaterials[0];break;
+                    case NumiHumanRestingOcularAppearance::cornea: materialIndex=ocularMaterials[1];break;
+                    case NumiHumanRestingOcularAppearance::iris: materialIndex=ocularMaterials[2];break;
+                    case NumiHumanRestingOcularAppearance::lens: materialIndex=ocularMaterials[3];break;
+                    case NumiHumanRestingOcularAppearance::sclera: materialIndex=ocularMaterials[4];break;
+                    case NumiHumanRestingOcularAppearance::suspensoryLigament: materialIndex=ocularMaterials[5];break;
+                    case NumiHumanRestingOcularAppearance::vitreous: materialIndex=ocularMaterials[6];break;
+                    case NumiHumanRestingOcularAppearance::anteriorChamber: materialIndex=ocularMaterials[7];break;
+                    case NumiHumanRestingOcularAppearance::none: break;
+                }
+                require(materialIndex!=MR_INVALID_INDEX,"ocular source has no presentation material");
+                for(unsigned primitiveIndex=instance.geometry.x;
+                    primitiveIndex<instance.geometry.x+instance.geometry.y;++primitiveIndex)
+                    pack.primitives.at(primitiveIndex).geometry.z=materialIndex;
+            }
             visibleLayers.push_back(numiHumanRestingInspectionLayerMask(
                 semantic,instance.identity.w,visibility,kOrganSurfaceSemantic,
-                functional.retiredInspectionStableIDs));
+                functional.retiredInspectionStableIDs,ocularFeatureEnabled));
             if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
             if(deformation==11&&instance.identity.w==31) {
@@ -1705,6 +1872,102 @@ public:
                 pack.vertices[v].tangent=tangent;
             }
         }
+        if(ocularFeatureEnabled) {
+            const std::size_t ocularSourceVertexCount=pack.vertices.size();
+            const std::size_t ocularSourceIndexCount=pack.indices.size();
+            const auto ocularVertexPrefixSHA=loadedKneeSHA256Hex(loadedKneeSHA256(
+                pack.vertices.data(),pack.vertices.size()*sizeof(MRVisualVertexGPUV2)));
+            const auto ocularIndexPrefixSHA=loadedKneeSHA256Hex(loadedKneeSHA256(
+                pack.indices.data(),pack.indices.size()*sizeof(std::uint32_t)));
+            NSMutableArray* ocularWindowRows=[NSMutableArray arrayWithCapacity:ocularWindowReports.size()];
+            for(const auto& report:ocularWindowReports) {
+                const std::size_t firstDerivedIndex=pack.indices.size();
+                const std::size_t firstDerivedPrimitive=pack.primitives.size();
+                const std::size_t firstDerivedInstance=pack.instances.size();
+                numi_human_resting_ocular_window::appendSkinWindowClone(pack,report,ocularMaterials[4]);
+                visibleLayers.push_back(numiHumanRestingScleraWindowLayerMask());
+                NSMutableArray* retainedFaces=[NSMutableArray arrayWithCapacity:report.retainedSourceFaceOrdinals.size()];
+                for(const auto face:report.retainedSourceFaceOrdinals)[retainedFaces addObject:@(face)];
+                NSMutableArray* maskedFaces=[NSMutableArray arrayWithCapacity:report.maskedSourceFaceOrdinals.size()];
+                for(const auto face:report.maskedSourceFaceOrdinals)[maskedFaces addObject:@(face)];
+                [ocularWindowRows addObject:@{
+                    @"source_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.sourceSurfaceStableID)},
+                    @"derived_skin_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.derivedStableID)},
+                    @"cornea_stable_id":@(report.corneaStableID),@"iris_stable_id":@(report.irisStableID),
+                    @"source_primitive_index":@(report.sourcePrimitiveIndex),
+                    @"source_instance_index":@(report.sourceInstanceIndex),
+                    @"derived_primitive_index":@(firstDerivedPrimitive),
+                    @"derived_instance_index":@(firstDerivedInstance),
+                    @"derived_first_index":@(firstDerivedIndex),
+                    @"source_face_count":@(report.sourceFaceCount),
+                    @"masked_source_face_ordinals":maskedFaces,
+                    @"retained_source_face_ordinals":retainedFaces,
+                    @"retained_index_count":@(report.retainedIndices.size()),
+                    @"coordinate_axis_source":@"sclera-to-cornea centroid; cap limited to projected cornea hull and front of actual iris",
+                    @"vertices":@"reuses original mapped source vertex slots; no new vertices, weights, mass, or blood state"}];
+            }
+            NSMutableArray* ocularBackingRows=[NSMutableArray arrayWithCapacity:ocularBackingReports.size()];
+            for(const auto& report:ocularBackingReports) {
+                const std::size_t firstDerivedIndex=pack.indices.size();
+                const std::size_t firstDerivedPrimitive=pack.primitives.size();
+                const std::size_t firstDerivedInstance=pack.instances.size();
+                numi_human_resting_ocular_window::appendSkinWindowClone(pack,report,ocularMaterials[3]);
+                visibleLayers.push_back(numiHumanRestingPosteriorLensBackingLayerMask());
+                NSMutableArray* retainedFaces=[NSMutableArray arrayWithCapacity:report.retainedSourceFaceOrdinals.size()];
+                for(const auto face:report.retainedSourceFaceOrdinals)[retainedFaces addObject:@(face)];
+                NSMutableArray* maskedFaces=[NSMutableArray arrayWithCapacity:report.maskedSourceFaceOrdinals.size()];
+                for(const auto face:report.maskedSourceFaceOrdinals)[maskedFaces addObject:@(face)];
+                [ocularBackingRows addObject:@{
+                    @"source_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.sourceSurfaceStableID)},
+                    @"derived_skin_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.derivedStableID)},
+                    @"cornea_stable_id":@(report.corneaStableID),@"iris_stable_id":@(report.irisStableID),
+                    @"source_primitive_index":@(report.sourcePrimitiveIndex),
+                    @"source_instance_index":@(report.sourceInstanceIndex),
+                    @"derived_primitive_index":@(firstDerivedPrimitive),
+                    @"derived_instance_index":@(firstDerivedInstance),
+                    @"derived_first_index":@(firstDerivedIndex),
+                    @"source_face_count":@(report.sourceFaceCount),
+                    @"masked_source_face_ordinals":maskedFaces,
+                    @"retained_source_face_ordinals":retainedFaces,
+                    @"retained_index_count":@(report.retainedIndices.size()),
+                    @"coordinate_axis_source":@"actual cornea-to-sclera axis; retained source-lens face centroids lie behind and within the iris outline, outside its projected triangles",
+                    @"presentation_approximation":@"dark posterior source-face backing visible only through the iris opening; not a pupil or replacement lens",
+                    @"vertices":@"reuses original mapped source vertex slots; no new vertices, weights, mass, or blood state"}];
+            }
+            require(pack.vertices.size()==ocularSourceVertexCount&&pack.indices.size()>=ocularSourceIndexCount&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(pack.vertices.data(),
+                    ocularSourceVertexCount*sizeof(MRVisualVertexGPUV2)))==ocularVertexPrefixSHA&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(pack.indices.data(),
+                    ocularSourceIndexCount*sizeof(std::uint32_t)))==ocularIndexPrefixSHA,
+                "presentation-only sclera windows changed the original vertex/index prefix");
+            const auto ocularWindowReceiptPath=output/"resting-ocular-sclera-window.json";
+            require(!std::filesystem::exists(ocularWindowReceiptPath),
+                "refusing to overwrite an existing ocular window source-face map");
+            NSDictionary* ocularWindowReceipt=@{
+                @"schema":@"numi.human.resting_ocular_skin_window.v2",
+                @"presentation_only":@YES,@"physical_state_created":@NO,
+                @"source_pack_content_hash":loadedKneeNSString(ocularSourcePackContentHash),
+                @"source_vertex_prefix_count":@(ocularSourceVertexCount),
+                @"source_vertex_prefix_sha256":loadedKneeNSString(ocularVertexPrefixSHA),
+                @"source_index_prefix_count":@(ocularSourceIndexCount),
+                @"source_index_prefix_sha256":loadedKneeNSString(ocularIndexPrefixSHA),
+                @"derived_index_suffix_count":@(pack.indices.size()-ocularSourceIndexCount),
+                @"source_face_partition":@"each original sclera and backing-lens face is retained or masked exactly once; clone faces map ordinally to their canonical source primitive",
+                @"windows":ocularWindowRows,@"posterior_lens_backings":ocularBackingRows};
+            NSError* ocularWindowError=nil;
+            NSData* ocularWindowJSON=[NSJSONSerialization dataWithJSONObject:ocularWindowReceipt
+                options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&ocularWindowError];
+            require(ocularWindowJSON!=nil,"ocular window source-face map serialization failed");
+            require([ocularWindowJSON writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(ocularWindowReceiptPath.string())]
+                options:NSDataWritingAtomic error:&ocularWindowError],"ocular window source-face map write failed");
+            pack.preprocessingProvenance+="/presentation_only_skin_sclera_windows_and_posterior_lens_backings_v2";
+            std::cout<<"resting_ocular_skin_windows="<<ocularWindowReports.size()<<" derived_typed_ids="
+                <<kNumiHumanRightScleraWindowStableID<<","<<kNumiHumanLeftScleraWindowStableID
+                <<" posterior_backings="<<ocularBackingReports.size()<<" backing_typed_ids="
+                <<kNumiHumanRightPosteriorLensBackingStableID<<","<<kNumiHumanLeftPosteriorLensBackingStableID
+                <<" source_vertices_unchanged=true source_index_prefix_unchanged=true physical_state_created=false"
+                <<" receipt="<<ocularWindowReceiptPath.string()<<"\n";
+        }
         require(std::isfinite(posteriorSkin)&&anteriorSkin-posteriorSkin>.05f,
             "registered skin has no usable anterior/posterior thorax extent");
         if(commonCardiacGeometry) {
@@ -1737,6 +2000,58 @@ public:
                 hi.x=std::max(hi.x,p.x);hi.y=std::max(hi.y,p.y);hi.z=std::max(hi.z,p.z);
             }
             primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        if(ropeConfig) {
+            // Reframe only rope mode from the mapped, face-referenced source skin
+            // and the fixed ceiling anchor; organs and the contact plane are not
+            // camera-framing bounds.
+            require(ropeConfig->globalBodyIndex<initialBodies.size(),
+                "rope presentation body is outside the accepted initial pose");
+            const auto skinInstance=std::find_if(pack.instances.begin(),pack.instances.end(),
+                [](const auto& candidate){return candidate.identity.x==kSkinShellSemantic;});
+            require(skinInstance!=pack.instances.end()&&skinInstance->geometry.y>0,
+                "rope framing has no mapped source skin surface");
+            std::vector<unsigned> referencedSkinVertices;
+            for(unsigned pindex=skinInstance->geometry.x;
+                pindex<skinInstance->geometry.x+skinInstance->geometry.y;++pindex) {
+                const auto& primitive=pack.primitives.at(pindex);
+                require(primitive.geometry.y%3u==0u,"mapped skin has a partial source triangle");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)
+                    referencedSkinVertices.push_back(pack.indices.at(j));
+            }
+            std::sort(referencedSkinVertices.begin(),referencedSkinVertices.end());
+            referencedSkinVertices.erase(std::unique(referencedSkinVertices.begin(),
+                referencedSkinVertices.end()),referencedSkinVertices.end());
+            require(!referencedSkinVertices.empty(),
+                "rope framing has no referenced mapped skin vertices");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1.0f};
+            mr_float4 hi{-INFINITY,-INFINITY,-INFINITY,1.0f};
+            const auto includePoint=[&](mr_float4 point,float radius) {
+                lo.x=std::min(lo.x,point.x-radius);lo.y=std::min(lo.y,point.y-radius);
+                lo.z=std::min(lo.z,point.z-radius);
+                hi.x=std::max(hi.x,point.x+radius);hi.y=std::max(hi.y,point.y+radius);
+                hi.z=std::max(hi.z,point.z+radius);
+            };
+            for(const auto vertex:referencedSkinVertices)
+                includePoint(pack.vertices.at(vertex).position,0.0f);
+            const auto& body=initialBodies.at(ropeConfig->globalBodyIndex);
+            const mr_float4 localSite{ropeConfig->bodyLocalSite[0],
+                ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+            const auto site=addPoint(body.position,rotatePoint(body.orientation,localSite));
+            const mr_float4 anchor{ropeConfig->anchorAndLength[0],
+                ropeConfig->anchorAndLength[1],ropeConfig->anchorAndLength[2],1.0f};
+            includePoint(site,0.022f);
+            includePoint(anchor,0.070f);
+            lo.z-=0.12f; // visual-only slack sag envelope
+            const float width=hi.x-lo.x,height=hi.z-lo.z;
+            require(std::isfinite(width)&&std::isfinite(height)&&width>0.0f&&height>0.0f,
+                "rope framing skin/anchor bounds are degenerate");
+            framing.center={.5f*(lo.x+hi.x),.5f*(lo.y+hi.y),
+                .5f*(lo.z+hi.z),1.0f};
+            const float margin=std::max(0.05f*height,0.04f);
+            // The source viewer's normalized focal is 0.72; this distance aims
+            // for about 75% vertical occupancy while preserving horizontal fit.
+            framing.distance=std::max(0.96f*height+margin,0.96f*width+margin);
         }
         require(support.header.groundNormalX==0&&support.header.groundNormalY==0&&support.header.groundNormalZ==1,
                 "resting visible bed must match the native +Z support plane");
@@ -1800,6 +2115,22 @@ public:
         bed.identity=primitive.identity;bed.geometry={unsigned(pack.primitives.size()),1,0,0};
         pack.primitives.push_back(primitive);pack.instances.push_back(bed);
         visibleLayers.push_back(127u);
+        if(ropeConfig) {
+            const auto articulation=model.articulations.at(0);
+            require(ropeConfig->globalBodyIndex>=articulation.firstBody&&
+                    ropeConfig->globalBodyIndex-articulation.firstBody<articulation.bodyCount,
+                "rope visual body is outside the accepted presentation articulation");
+            ropeVisualParameters.indices={0u,0u,ropeConfig->globalBodyIndex,articulation.firstBody};
+            ropeVisualParameters.counts={1u,articulation.bodyCount,articulation.nv,1u};
+            ropeVisualParameters.anchorAndLength={ropeConfig->anchorAndLength[0],
+                ropeConfig->anchorAndLength[1],ropeConfig->anchorAndLength[2],ropeConfig->anchorAndLength[3]};
+            ropeVisualParameters.bodyLocalSite={ropeConfig->bodyLocalSite[0],
+                ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+            ropeVisualLayout=NumiHumanRestingRopeVisual::appendGeometry(pack,ropeVisualParameters);
+            visibleLayers.push_back(127u);
+            pack.preprocessingProvenance+="/presentation_only_gpu_rope_visual";
+        }
+        maps.resize(pack.vertices.size());
         pack.preprocessingProvenance+=bedSurface
             ? "/accepted_native_body_skinning_no_truncated_weights/fixed_world_contoured_contact_bed"
             : "/accepted_native_body_skinning_no_truncated_weights/visible_native_contact_plane";
@@ -1812,9 +2143,15 @@ public:
         const auto c=framing.center;
         const auto& thorax=initialBodies.at(functional.gpu.bodyAndFlags.x);
         const auto chest=addPoint(thorax.position,rotatePoint(thorax.orientation,functional.gpu.chamberCenterAndVolume[3]));
-        const std::array<mr_float4,4> cameras{{{c.x,c.y-.2f*distance,c.z+distance,0},
+        const mr_float4 primaryCamera=ropeConfig
+            ?mr_float4{c.x,c.y-distance,c.z+.1f*distance,0}
+            :mr_float4{c.x,c.y-.2f*distance,c.z+distance,0};
+        const mr_float4 wholeBodyCamera=ropeConfig
+            ?mr_float4{c.x+.35f*distance,c.y-distance,c.z+.1f*distance,0}
+            :mr_float4{c.x+.55f*distance,c.y-.5f*distance,c.z+distance,0};
+        const std::array<mr_float4,4> cameras{{primaryCamera,
             {c.x+distance,c.y,c.z+.2f*distance,0},{chest.x,chest.y-.12f,chest.z+.65f,0},
-            {c.x+.55f*distance,c.y-.5f*distance,c.z+distance,0}}};
+            wholeBodyCamera}};
         const std::array<mr_float4,4> targets{c,c,chest,c};
         mr_float4 heartLocal{};
         for(const auto& center:functional.gpu.chamberCenterAndVolume)heartLocal=addPoint(heartLocal,center);
@@ -1827,7 +2164,7 @@ public:
         const std::array refs{metalrobo::VisualAssetReferenceV3{packPath,pack.contentHash,0,kSkinShellSemantic,1}};
         metalrobo::VisualSceneManifestV3 manifest;
         require(metalrobo::compileVisualSceneManifestV3(world,refs,metalrobo::makeNeutralStudioEnvironmentV2(),
-            makeHumanAnatomyLightRig(framing.center,cameras[3],framing.distance),manifest,&error),error);
+            makeHumanAnatomyLightRig(framing.center,ropeConfig?cameras[0]:cameras[3],framing.distance),manifest,&error),error);
         metalrobo::MetalHybridRendererConfig config;config.width=size;config.height=size;
         config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
         auto rc=renderer->compile(std::move(manifest.renderScene),metalrobo::VisualRendererProfileV1::sensorFast(),1);require(rc.succeeded(),rc.message);
@@ -2145,7 +2482,23 @@ public:
         }
 
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
-        const auto supportQueries=makeMetalMujocoVisualQueries(model,&support);
+        auto supportQueries=makeMetalMujocoVisualQueries(model,&support);
+        if(ropeConfig) {
+            NumiHumanRestingRopeSupport::prepareContacts(
+                supportQueries.supportContacts,ropeContactIndex,ropeConfig->globalBodyIndex);
+            require(ropeContactIndex<supportQueries.supportContacts.size(),
+                "rope support row selection is outside the existing contact set");
+            ropeQueryIndex=supportQueries.supportContacts[ropeContactIndex].pointQueryIndex;
+            std::cout<<"resting_rope_requested=true contact_index="<<ropeContactIndex
+                <<" body_index="<<ropeConfig->globalBodyIndex
+                <<" point_query_index="<<ropeQueryIndex
+                <<" friction=0 static_support_seeds=0 body_local_site_m=["
+                <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                <<ropeConfig->bodyLocalSite[2]<<"] anchor_xyz_length_m=["
+                <<ropeConfig->anchorAndLength[0]<<','<<ropeConfig->anchorAndLength[1]<<','
+                <<ropeConfig->anchorAndLength[2]<<','<<ropeConfig->anchorAndLength[3]
+                <<"] force_owner=existing_unilateral_metal_contact\n";
+        }
         std::vector<MRHumanRestingSupportRegionGPU> regions;
         std::vector<unsigned> seeds;
         for(const auto& row:supportQueries.supportContacts) {
@@ -2310,6 +2663,51 @@ public:
             static_cast<const std::uint8_t*>(skinSourceBytes.bytes),skinSourceBytes.length))
             <<" math_mode=safe compile=load_time pipeline=nm_human_resting_skin\n";
 #endif
+        if(ropeConfig) {
+#ifdef NUMI_HUMAN_RESTING_ROPE_SOURCE
+#ifndef NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256
+#error "Runtime rope source requires its configure-time SHA-256 pin"
+#endif
+            NSData* ropeSourceBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_ROPE_SOURCE)];
+            require(ropeSourceBytes!=nil&&ropeSourceBytes.length>0&&ropeSourceBytes.length<=1024u*1024u,
+                "resting rope runtime source is absent or exceeds its bounded load size");
+            const auto ropeSourceDigest=loadedKneeSHA256Hex(loadedKneeSHA256(
+                static_cast<const std::uint8_t*>(ropeSourceBytes.bytes),ropeSourceBytes.length));
+            require(ropeSourceDigest==NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256,
+                "resting rope runtime source differs from its configure-time SHA-256 pin");
+            NSString* ropeSource=[[NSString alloc] initWithData:ropeSourceBytes encoding:NSUTF8StringEncoding];
+            require(ropeSource!=nil,"resting rope runtime source is not UTF-8");
+            MTLCompileOptions* ropeOptions=[MTLCompileOptions new];
+            ropeOptions.mathMode=MTLMathModeSafe;
+            ropeOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+            ropeOptions.languageVersion=MTLLanguageVersion4_0;
+            ropeRuntimeLibrary=[device newLibraryWithSource:ropeSource options:ropeOptions error:&e];
+            require(ropeRuntimeLibrary!=nil,e.localizedDescription.UTF8String!=nullptr?
+                e.localizedDescription.UTF8String:"resting rope runtime source compilation failed");
+            std::cout<<"resting_rope_source_sha256="<<ropeSourceDigest
+                <<" math_mode=safe compile=load_time library=force_and_optional_visual\n";
+#else
+            require(false,"rope mode requires a build pinned to NUMI_HUMAN_RESTING_ROPE_SOURCE");
+#endif
+        }
+        if(ropeConfig) {
+#ifdef NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256
+            const auto articulation=model.articulations.at(0);
+            const auto baseProgram=skinSupport->program();
+            ropeSupport=std::make_unique<NumiHumanRestingRopeSupport>(
+                device,ropeRuntimeLibrary,baseProgram,*ropeConfig,ropeContactIndex,ropeQueryIndex,
+                articulation.firstBody,articulation.bodyCount,articulation.nv,
+                NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256);
+            require(ropeVisualLayout.has_value(),"rope mode did not append its presentation geometry");
+            ropeVisual=std::make_unique<NumiHumanRestingRopeVisual>(
+                device,ropeRuntimeLibrary,ropeVisualParameters,*ropeVisualLayout);
+            std::cout<<"resting_rope_callback=abi2 wrapped_full_skin=1 gpu_kernel=nm_human_resting_rope_support"
+                <<" visual_kernel=nm_human_resting_rope_visual visible_layers=all"
+                <<" body_pose_and_jacobian_source=existing_four_body_probes per_step_cpu_readback=0\n";
+#else
+            require(false,"rope callback requires a configure-time source SHA-256 pin");
+#endif
+        }
         const auto skinFunction = numiHumanRestingMakeSkinInfluenceFunction(
             skinLibrary, @"nm_human_resting_skin",
             {false, true, skinInfluenceLayout}, &e);
@@ -2443,6 +2841,8 @@ public:
             e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
             e.dispatchThreads(e.context,airwayCount,64);
         }
+        if(self.ropeVisual&&
+           !self.ropeVisual->encode(lease,self.coupled.presentationBodies))return false;
         if(lease.encoder->splitCommandEncoder&&
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
         const mr_uint4 volumeAuditDimensions={self.volumeAuditGroupCount,self.auditCount,0u,0u};
@@ -2743,6 +3143,9 @@ public:
         skinSupport->configureMotionObserver(outputPath, cadenceSteps,
                                              timestepSeconds);
     }
-    metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){return skinSupport->program();}
+    metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){
+        return ropeSupport?ropeSupport->program():skinSupport->program();
+    }
+    id<MTLLibrary> ropeSourceLibrary() const { return ropeRuntimeLibrary; }
     ~NumiHumanRestingVisual(){[window finishRecording];}
 };

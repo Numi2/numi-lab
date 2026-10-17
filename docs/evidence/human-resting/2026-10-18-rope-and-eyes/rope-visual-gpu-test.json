@@ -1,0 +1,70 @@
+{
+  "checks": [
+    "runtime library source compiled on target Metal device",
+    "GPU kernel dispatched against accepted-body-state-layout MRBodyStateGPU array",
+    "fixed anchor ring stayed at world anchor",
+    "rope endpoint matched COM plus rotated body-local force site",
+    "harness torus center matched same endpoint",
+    "all dynamic positions/normals/tangents finite and normal/tangent magnitudes unit",
+    "same-pose GPU replay byte-identical",
+    "slack-length change altered visual sag while preserving endpoints",
+    "taut rope midpoint matched anchor-endpoint chord",
+    "leading/trailing guard vertices unchanged"
+  ],
+  "commands": {
+    "compile": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -I include -I apps tools/test_human_resting_rope_visual.mm -framework Foundation -framework Metal -o <artifact>/test_human_resting_rope_visual",
+    "run": "/Users/n/numi-human-prep-venv-20261005/bin/python3 /Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py -- /bin/sh -c exec <artifact>/test_human_resting_rope_visual <runtime_source>"
+  },
+  "created_utc": "2026-10-17T23:03:53.457403+00:00",
+  "device": "Apple M6",
+  "failed_attempts_preserved": {
+    "first_dispatched_assertion": "visual-dispatch-test-003/run.log: harness test averaged one minor circle instead of the full torus",
+    "initial_msl_compile": "visual-dispatch-test-001/run.log: MSL reserved-word error for identifier vertex"
+  },
+  "generator_reproduction": {
+    "byte_identical_to_runtime_source": true,
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python3 /Users/n/numi-lab-native-replay-publish-20261017/tools/build_human_rope_runtime_source.py --repo /Users/n/numi-lab-native-replay-publish-20261017 --output /Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-004/generator-repro-15dc5bfe/rope.metal --visual-kernel /Users/n/numi-lab-native-replay-publish-20261017/matter/src/NumiHumanRestingRopeVisual.metalinc --visual-header /Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingRopeVisual.hpp",
+    "generator_path": "/Users/n/numi-lab-native-replay-publish-20261017/tools/build_human_rope_runtime_source.py",
+    "generator_revision": "15dc5bfe00abfbd0c76b66bf47468a18c4c79dad",
+    "generator_sha256": "b0678ced871be67ace1535e2ff582cbeb258e49d810a4cfabe7d6334b98df2e2",
+    "output": {
+      "bytes": 11637,
+      "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-004/generator-repro-15dc5bfe/rope.metal",
+      "sha256": "c9a7efb7a9d783ae4ec3705dd56b206919a6977af82c57118a0294a0b2fcb21e"
+    },
+    "output_manifest": {
+      "bytes": 2828,
+      "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-004/generator-repro-15dc5bfe/rope.metal.manifest.json",
+      "sha256": "a2860e031ab928d7cd13a011cd6e7da94e5a53af04efbc541f6ad4f6fa4e5f4f"
+    }
+  },
+  "limitations": [
+    "kernel dispatch fixture, not an integrated rendered scene capture",
+    "native scene rendering and final camera/ceiling-plate fit remain with the scene integration run"
+  ],
+  "result": "PASS visual dispatch on Apple M6; endpoint=2.2,-1.3,4.1 anchor=0.4,1,0.5 slack-sag-delta=0.28232",
+  "runtime_source": {
+    "manifest": {
+      "bytes": 2803,
+      "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-003/rope.metal.manifest.json",
+      "sha256": "670b035c4508eacb17cdc9f6890a15439db0f8f1b0894b23495ab9853a45c8c7"
+    },
+    "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-003/rope.metal",
+    "sha256": "c9a7efb7a9d783ae4ec3705dd56b206919a6977af82c57118a0294a0b2fcb21e"
+  },
+  "runtime_source_sha256": "c9a7efb7a9d783ae4ec3705dd56b206919a6977af82c57118a0294a0b2fcb21e",
+  "schema": "numi.human.rope.visual-dispatch-report.v1",
+  "status": "pass",
+  "superseded_invalid_source": {
+    "failure_log": {
+      "bytes": 1335,
+      "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/visual-dispatch-test-001/run.log",
+      "sha256": "c72d3053b666ebc1fd7a9d29878c03028fc367c689cf02d482edc523108582fb"
+    },
+    "path": "/Users/n/numi-human-rope-runtime-source-20261018-002/rope.metal",
+    "sha256": "aa8160b1cdf63fbea33e756b4713d565d2ded78b838852b4fcd76d263f140085",
+    "status": "invalid for runtime dispatch; MSL compilation rejected the reserved identifier vertex"
+  },
+  "test_binary_sha256": "15ca00ca555252415a9b499149308f10f7cd394eac13bbe12ef86fb8020b1039",
+  "test_source_sha256": "50b4f687a093d348c06ef2f7579e447ef7832276fa9a4473773b7424683f2976"
+}

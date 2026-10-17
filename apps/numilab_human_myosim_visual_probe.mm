@@ -5567,6 +5567,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 (restingProgram != nullptr && restingReleaseInitialization &&
                  supportGeometryProgram != nullptr && seedPoseQ.size() == model.world.nq),
             "an authored resting posture requires released full-skin GPU contact");
+    const char* ropeAnchorSetting=std::getenv("NUMI_HUMAN_ROPE_ANCHOR");
+    const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
+    const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
+    require(!ropeModeRequested||(ropeAnchorSetting!=nullptr&&ropeSiteSetting!=nullptr&&
+                preserveRestingInitialPosture&&restingReleaseInitialization&&
+                supportGeometryProgram!=nullptr&&supportGeometryProgram->valid()&&
+                supportGeometryProgram->usePerContactSupportPlanes),
+            "rope mode requires an authored upright posture and the pinned released support callback");
     require(!acceptedComMomentumAudit || restingProgram != nullptr,
             "accepted COM momentum audit requires the resting owner");
     if (!hipCapsuleTerms.empty()) {
@@ -5813,6 +5821,33 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
     if (preserveRestingInitialPosture) {
+        std::vector<double> seedQDouble(seedPoseQ.begin(),seedPoseQ.end());
+        const std::vector<float> packedSeedQ=packMetalConfiguration(seedQDouble);
+        std::size_t changedQCount=0u,changedFromPackedSeedCount=0u;
+        double maxAbsDeltaFromSeed=0.0,maxAbsDeltaFromPackedSeed=0.0;
+        std::ostringstream changedQ;
+        changedQ<<std::setprecision(10);
+        for(std::size_t i=0u;i<q.size()&&i<seedPoseQ.size();++i) {
+            const double fromSeed=std::abs(double(q[i])-double(seedPoseQ[i]));
+            const double fromPacked=i<packedSeedQ.size()
+                ? std::abs(double(q[i])-double(packedSeedQ[i]))
+                : std::numeric_limits<double>::infinity();
+            maxAbsDeltaFromSeed=std::max(maxAbsDeltaFromSeed,fromSeed);
+            maxAbsDeltaFromPackedSeed=std::max(maxAbsDeltaFromPackedSeed,fromPacked);
+            if(fromSeed>0.0) {
+                ++changedQCount;
+                if(fromPacked>0.0)++changedFromPackedSeedCount;
+                if(changedQCount<=128u)
+                    changedQ<<" ["<<i<<":"<<seedPoseQ[i]<<"->"<<q[i]
+                        <<";packed_seed="<<(i<packedSeedQ.size()?packedSeedQ[i]:0.0f)<<"]";
+            }
+        }
+        std::cout<<"resting_initialization_posture_delta"
+            <<" changed_q_count="<<changedQCount
+            <<" changed_from_packed_seed_count="<<changedFromPackedSeedCount
+            <<" max_abs_delta_from_seed="<<maxAbsDeltaFromSeed
+            <<" max_abs_delta_from_packed_seed="<<maxAbsDeltaFromPackedSeed
+            <<" changed_q_indices="<<changedQ.str()<<std::endl;
         require(q.size() == seedPoseQ.size() &&
                     std::equal(q.begin(), q.end(), seedPoseQ.begin()),
                 "resting initialization changed the authored posture");
@@ -5845,6 +5880,31 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             compiledActivation.supportNormalForce
         );
+    if(ropeModeRequested) {
+        require(queries.supportContacts.size()==MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
+                "rope mode requires the existing 32 support-contact rows");
+        std::uint32_t ropeContactIndex=MR_INVALID_INDEX;
+        unsigned ropeContactMatches=0u;
+        for(std::uint32_t i=0u;i<queries.supportContacts.size();++i) {
+            auto& contact=queries.supportContacts[i];
+            contact.frictionSlopAndStabilization.w=0.0f;
+            if(contact.bodyIndex==20u) {
+                if(ropeContactIndex==MR_INVALID_INDEX)ropeContactIndex=i;
+                ++ropeContactMatches;
+            }
+        }
+        require(ropeContactMatches>0u,
+                "rope mode requires at least one existing body-20 contact row");
+        queries.supportContacts[ropeContactIndex].frictionSlopAndStabilization.x=0.0f;
+        require(std::all_of(compiledActivation.supportNormalForce.begin(),
+                    compiledActivation.supportNormalForce.end(),
+                    [](double force){return force==0.0;}),
+                "rope posture retained a nonzero source contact-support seed");
+        std::cout<<"rope_native_contact_replacement=existing_contact_index="
+            <<ropeContactIndex<<" global_body=20 contact_count=32"
+            <<" static_support_seeds_all_zero=1 selected_friction=0 other_contact_friction=preserved"
+            <<" support_contact_force_owner=existing_unilateral_gpu_contact\n";
+    }
     if (supportGeometryProgram && supportGeometryProgram->usePerContactSupportPlanes) {
         for (auto& contact : queries.supportContacts) {
             contact.planePoint={supportContacts.header.groundPointX,
@@ -8038,26 +8098,55 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         "accepted standing friction witness has incomplete source contact impulses");
                 double maximumFrictionUtilization = 0.0;
                 double maximumTangentForce = 0.0;
+                double maximumFrictionlessTangentImpulse = 0.0;
+                double maximumFrictionlessTangentTolerance = 0.0;
                 std::uint32_t saturatedFrictionContacts = 0u;
+                std::uint32_t frictionlessContactCount = 0u;
+                std::size_t maximumFrictionlessContact = 0u;
                 for (std::size_t contact = 0u;
                      haveFrictionWitness &&
                      contact < horizonInput.stand.contacts.size(); ++contact) {
-                    const double normalImpulse = std::max(0.0,
-                        double(segmentResult.standContactImpulses[3u * contact]));
-                    const double tangentImpulse = std::hypot(
-                        double(segmentResult.standContactImpulses[3u * contact + 1u]),
-                        double(segmentResult.standContactImpulses[3u * contact + 2u]));
+                    const double rawNormalImpulse =
+                        double(segmentResult.standContactImpulses[3u * contact]);
+                    const double rawTangent0Impulse =
+                        double(segmentResult.standContactImpulses[3u * contact + 1u]);
+                    const double rawTangent1Impulse =
+                        double(segmentResult.standContactImpulses[3u * contact + 2u]);
                     const double friction = horizonInput.stand.contacts[contact]
                         .frictionSlopAndStabilization.x;
-                    require(std::isfinite(normalImpulse) &&
-                                std::isfinite(tangentImpulse) &&
-                                std::isfinite(friction) && friction > 0.0,
-                            "accepted standing friction witness is nonfinite");
+                    require(std::isfinite(rawNormalImpulse) &&
+                                std::isfinite(rawTangent0Impulse) &&
+                                std::isfinite(rawTangent1Impulse) &&
+                                std::isfinite(friction) && friction >= 0.0,
+                            "accepted standing contact impulse or friction is nonfinite/negative");
+                    const double normalImpulse = std::max(0.0, rawNormalImpulse);
+                    const double tangentImpulse = std::hypot(
+                        rawTangent0Impulse, rawTangent1Impulse);
+                    require(std::isfinite(tangentImpulse),
+                            "accepted standing tangent impulse magnitude is nonfinite");
                     maximumTangentForce = std::max(maximumTangentForce,
                         tangentImpulse / timestepSeconds);
+                    if (friction == 0.0) {
+                        ++frictionlessContactCount;
+                        const double tangentTolerance =
+                            std::max(1.0e-12, normalImpulse * 1.0e-6);
+                        if (tangentImpulse > maximumFrictionlessTangentImpulse) {
+                            maximumFrictionlessTangentImpulse = tangentImpulse;
+                            maximumFrictionlessTangentTolerance = tangentTolerance;
+                            maximumFrictionlessContact = contact;
+                        }
+                        require(tangentImpulse <= tangentTolerance,
+                            "accepted frictionless contact has tangent impulse above tolerance: contact=" +
+                            std::to_string(contact) + " tangent_ns=" +
+                            std::to_string(tangentImpulse) + " tolerance_ns=" +
+                            std::to_string(tangentTolerance));
+                        continue;
+                    }
                     if (normalImpulse > 1.0e-9) {
                         const double utilization = tangentImpulse /
                             (friction * normalImpulse);
+                        require(std::isfinite(utilization),
+                            "accepted standing friction utilization is nonfinite");
                         maximumFrictionUtilization = std::max(
                             maximumFrictionUtilization, utilization);
                         saturatedFrictionContacts += utilization >= 0.98;
@@ -8094,6 +8183,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << saturatedFrictionContacts
                           << " maximum_tangent_force_n="
                           << maximumTangentForce
+                          << " frictionless_contact_count="
+                          << frictionlessContactCount
+                          << " maximum_frictionless_tangent_impulse_ns="
+                          << maximumFrictionlessTangentImpulse
+                          << " maximum_frictionless_tangent_tolerance_ns="
+                          << maximumFrictionlessTangentTolerance
+                          << " maximum_frictionless_contact_index="
+                          << maximumFrictionlessContact
                           << " muscle_feedback_max_excitation_delta=" << maximumExcitationCorrection
                           << (standBrainController != nullptr
                                   ? " brain_muscle_excitation_min=" +
@@ -22982,6 +23079,77 @@ int main(int argc, char** argv) {
                     << " nq=" << poseQ.size()
                     << " qualification=posture_only_fresh_dynamics_not_checkpoint_restart\n";
             }
+            const bool ropeDefaultPoseLaunch=
+                std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr||
+                std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr;
+            if(ropeDefaultPoseLaunch) {
+                require(std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
+                        std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr&&
+                        restingInitialPosture.empty()&&!requestedRootPose.has_value()&&
+                        requestedPoseCoordinates.empty()&&poseQ.size()>=7u&&
+                        jointEqualityPayload.has_value(),
+                    "rope construction launch requires source default q and NHEQ");
+                overriddenPoseQ.assign(poseQ.begin(),poseQ.end());
+                const float sourceRootZ=overriddenPoseQ[2];
+                overriddenPoseQ[2]=sourceRootZ+0.35f;
+                require(std::isfinite(overriddenPoseQ[2]),
+                    "rope construction root lift is non-finite");
+                std::vector<double> equalityProjectedPose(
+                    overriddenPoseQ.begin(),overriddenPoseQ.end());
+                double maximumEqualityProjection=0.0;
+                const auto equalityProjection=
+                    metalrobo::projectNumiHumanJointEqualities(
+                        jointEqualityPayload->payload.records,equalityProjectedPose,
+                        &maximumEqualityProjection);
+                require(equalityProjection.succeeded(),
+                    std::string("rope initial posture equality projection failed: ")+
+                        metalrobo::numiHumanJointEqualityStatusName(
+                            equalityProjection.status));
+                std::vector<float> projectedPoseF32;
+                projectedPoseF32.reserve(equalityProjectedPose.size());
+                for(const double value:equalityProjectedPose) {
+                    require(std::isfinite(value)&&std::isfinite(static_cast<float>(value)),
+                        "rope initial equality projection produced a nonfinite q");
+                    projectedPoseF32.push_back(static_cast<float>(value));
+                }
+                require(projectedPoseF32.size()==overriddenPoseQ.size()&&
+                            std::equal(projectedPoseF32.begin(),
+                                projectedPoseF32.begin()+7,overriddenPoseQ.begin()),
+                    "rope initial equality projection altered the lifted floating root");
+                std::size_t changedByEquality=0u;
+                std::ostringstream projectedDofs;
+                projectedDofs<<std::setprecision(10);
+                for(std::size_t qi=0u;qi<projectedPoseF32.size();++qi) {
+                    if(projectedPoseF32[qi]==overriddenPoseQ[qi])continue;
+                    ++changedByEquality;
+                    const auto dof=std::find_if(rigid.model.dofs.begin(),
+                        rigid.model.dofs.end(),[qi](const MRDofPropertiesGPU& d) {
+                            return d.qIndex==qi;
+                        });
+                    std::string jointName="unnamed",dofName="unnamed";
+                    if(dof!=rigid.model.dofs.end()) {
+                        if(dof->jointIndex<rigid.model.jointNames.size())
+                            jointName=rigid.model.jointNames[dof->jointIndex];
+                        if(dof->vIndex<rigid.model.dofNames.size())
+                            dofName=rigid.model.dofNames[dof->vIndex];
+                    }
+                    projectedDofs<<" [q"<<qi<<" "<<jointName<<"/"<<dofName
+                        <<":"<<overriddenPoseQ[qi]<<"->"<<projectedPoseF32[qi]<<"]";
+                }
+                std::cout<<std::setprecision(12)
+                    <<"rope_initial_equality_projection=applied"
+                    <<" max_correction="<<maximumEqualityProjection
+                    <<" changed_q_count="<<changedByEquality
+                    <<" q_changes="<<projectedDofs.str()
+                    <<" boundary=existing_loaded_NHEQ_projector\n";
+                overriddenPoseQ=std::move(projectedPoseF32);
+                poseQ=overriddenPoseQ;
+                std::cout<<std::setprecision(9)<<"rope_initial_pose=source_default_q"
+                    <<" root_translation_z_source_m="<<sourceRootZ
+                    <<" root_lift_m=0.35 root_translation_z_initial_m="
+                    <<overriddenPoseQ[2]<<" other_q=existing_NHEQ_projected_source_default"
+                    <<" idealized_torso_harness_reference=1\n";
+            }
             if(!inspectTerminalState.empty()) {
                 require(!restingScene&&!muscleStepSeconds&&!requestedRootPose&&requestedPoseCoordinates.empty(),
                     "terminal-state inspection cannot change or advance the retained physical state");
@@ -23074,7 +23242,7 @@ int main(int argc, char** argv) {
             if(restingScene.has_value()) {
                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&
-                    (requestedRootPose.has_value()||!restingInitialPosture.empty())&&tendonPayloadPath.has_value()&&
+                    (requestedRootPose.has_value()||!restingInitialPosture.empty()||ropeDefaultPoseLaunch)&&tendonPayloadPath.has_value()&&
                     !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
                     "resting scene requires an explicit supported root or admitted construction posture, native contact/equality/tendon payloads and bounded native steps");
                 std::vector<metalrobo::NumiHumanRestingFixedBoundReceiptRecord>
@@ -24105,7 +24273,7 @@ int main(int argc, char** argv) {
                                                     linearizationStageVelocities[stage][dof];
                                         qAuditSupportPointSlip[contact][stage] =
                                             tangentialSlip(pointVelocity,acceptedContactBasis(
-                                                result,contact,queries.supportContacts.size(),!restingBedSurface.empty(),
+                                                result,contact,queries.supportContacts.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),
                                                 {supportContactPayload->header.groundNormalX,
                                                  supportContactPayload->header.groundNormalY,
                                                  supportContactPayload->header.groundNormalZ}));
@@ -24460,7 +24628,7 @@ int main(int argc, char** argv) {
                                             static_cast<std::uint32_t>(nv),
                                             result.standPreviousVelocity, acceptedContactBasis(
                                                 result,contact,queries.supportContacts.size(),
-                                                !restingBedSurface.empty(),groundNormal)[0]);
+                                                (!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),groundNormal)[0]);
                                     const auto& point =
                                         result.pointWorld[contactQuery.pointQueryIndex].position;
                                     const auto& low =
@@ -24567,7 +24735,7 @@ int main(int argc, char** argv) {
                             for (std::size_t contact = 0u;
                                  contact < supportContactPayload->records.size(); ++contact) {
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
-                                    supportContactPayload->records.size(),!restingBedSurface.empty(),referencePlaneNormal);
+                                    supportContactPayload->records.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
                                 const double normalComponent =
                                     result.standContactImpulses[3u * contact];
                                 const double tangent0Component =
@@ -24697,7 +24865,7 @@ int main(int argc, char** argv) {
                                     result.standContactImpulses[3u * contact + 1u],
                                     result.standContactImpulses[3u * contact + 2u]};
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
-                                    supportContactPayload->records.size(),!restingBedSurface.empty(),referencePlaneNormal);
+                                    supportContactPayload->records.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
                                 const auto& normal=impulseBasis[0];
                                 const auto& tangent0=impulseBasis[1];const auto& tangent1=impulseBasis[2];
                                 std::array<double, 3u> contactWorld{};
@@ -24813,7 +24981,10 @@ int main(int argc, char** argv) {
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
                     restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow,
-                    sourceMtpPassiveStiffnessNmPerRad, !restingInitialPosture.empty());
+                    sourceMtpPassiveStiffnessNmPerRad,
+                    (!restingInitialPosture.empty()||
+                     (std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
+                      std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)));
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();

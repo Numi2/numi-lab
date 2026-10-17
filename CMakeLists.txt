@@ -1788,6 +1788,16 @@ if(BUILD_TESTING)
         COMMAND metalrobo_numi_human_retired_inspection_layers_test)
     set_tests_properties(numi_human_retired_inspection_layers PROPERTIES
         LABELS "numi-human;anatomy;inspection-layers;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_resting_eyes_layer_test
+        tools/test_human_resting_eyes_layer.cpp)
+    target_include_directories(metalrobo_numi_human_resting_eyes_layer_test PRIVATE apps)
+    target_compile_features(metalrobo_numi_human_resting_eyes_layer_test PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_resting_eyes_layer_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_resting_eyes_layer
+        COMMAND metalrobo_numi_human_resting_eyes_layer_test)
+    set_tests_properties(numi_human_resting_eyes_layer PROPERTIES
+        LABELS "numi-human;anatomy;inspection-layers;eyes;cpu" TIMEOUT 30)
     add_executable(metalrobo_numi_human_accepted_geometry_cadence_test
         tests/numi_human_accepted_geometry_cadence_test.cpp)
     target_compile_options(metalrobo_numi_human_accepted_geometry_cadence_test PRIVATE
@@ -2249,6 +2259,32 @@ if(NUMI_HUMAN_RESTING_SKIN_SOURCE)
         target_compile_definitions(${NUMI_HUMAN_PRESENTATION_TARGET} PRIVATE
             NUMI_HUMAN_RESTING_SKIN_SOURCE="${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}"
             NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256="${NUMI_HUMAN_RESTING_SKIN_SOURCE_DIGEST}")
+    endforeach()
+endif()
+
+# Optional source-built rope extension uses the same accepted-state contact owner.
+# Generate with tools/build_human_rope_runtime_source.py, including visual inputs.
+set(NUMI_HUMAN_RESTING_ROPE_SOURCE "" CACHE FILEPATH
+    "Optional runtime Metal rope source; binary pins its SHA-256")
+if(NUMI_HUMAN_RESTING_ROPE_SOURCE)
+    get_filename_component(NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE
+        "${NUMI_HUMAN_RESTING_ROPE_SOURCE}" ABSOLUTE)
+    if(NOT EXISTS "${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}" OR
+       IS_DIRECTORY "${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}")
+        message(FATAL_ERROR "Resting rope source must be an existing regular source file")
+    endif()
+    file(SIZE "${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_ROPE_SOURCE_BYTES)
+    if(NUMI_HUMAN_RESTING_ROPE_SOURCE_BYTES LESS 1 OR
+       NUMI_HUMAN_RESTING_ROPE_SOURCE_BYTES GREATER 1048576)
+        message(FATAL_ERROR "Resting rope source must contain 1 to 1048576 bytes")
+    endif()
+    file(SHA256 "${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_ROPE_SOURCE_DIGEST)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}")
+    foreach(NUMI_HUMAN_PRESENTATION_TARGET metalrobo_numilab_human_myosim_visual_probe numi-human-native)
+        target_compile_definitions(${NUMI_HUMAN_PRESENTATION_TARGET} PRIVATE
+            NUMI_HUMAN_RESTING_ROPE_SOURCE="${NUMI_HUMAN_RESTING_ROPE_SOURCE_ABSOLUTE}"
+            NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256="${NUMI_HUMAN_RESTING_ROPE_SOURCE_DIGEST}")
     endforeach()
 endif()
 

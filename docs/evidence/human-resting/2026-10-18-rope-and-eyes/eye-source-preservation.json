@@ -1,0 +1,11 @@
+{
+  "accepted_source_pack_content_hash": "sha256:722617b771b98fcf3280bf0802175f610ad1bfadaeac29d8690cf55d23f9406b",
+  "selected_source_vertex_bytes_sha256": "5fc131c453638ceb1edae077f84f3b0ad10c0350748cca0fdb0cda22234c2351",
+  "reloaded_preview_vertex_bytes_sha256": "5fc131c453638ceb1edae077f84f3b0ad10c0350748cca0fdb0cda22234c2351",
+  "source_face_slot_sequence_sha256": "afad0d08e10d551d0f3fba3d6a0623462bb61c6b233888ad9d6f5db2a48489f6",
+  "reloaded_face_source_slot_sequence_sha256": "afad0d08e10d551d0f3fba3d6a0623462bb61c6b233888ad9d6f5db2a48489f6",
+  "vertices_byte_identical": true,
+  "source_face_order_identical": true,
+  "corneas_in_skin_preview": false,
+  "presentation_only": true
+}

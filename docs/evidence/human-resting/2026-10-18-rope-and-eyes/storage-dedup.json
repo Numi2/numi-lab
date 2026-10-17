@@ -1,0 +1,69 @@
+{
+  "method": "exact SHA-256 verified immutable generated-file hardlinks; all paths and bytes retained",
+  "exited_attempts": [
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/native-run",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run"
+  ],
+  "before_available_bytes": 13644767232,
+  "after_available_bytes": 15150702592,
+  "logical_duplicate_bytes": 1505931360,
+  "files": [
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/skin-source-influences.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-influences.bin",
+      "sha256": "48b1597546a64636cf73e9b6f9413a274368494819a2eff5fca70dc2a073d240",
+      "size": 255729600
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/skin-source-vertex-map.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-vertex-map.bin",
+      "sha256": "f5d0bd7b2cb96c2b865a8802c616874d30e4827f9f2668e421c536270a1bc943",
+      "size": 2973600
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/accepted-geometry/step-0.mrvpack",
+      "sha256": "283ea90c446e8a109ca39f3935a97e3f788e769cbca5e9b7178473fd6d78a459",
+      "size": 296804352
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run/common-field-map-f32.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "size": 69593328
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run/resting-human.mrvpack",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/resting-human.mrvpack",
+      "sha256": "0d600353a0f65d3bae494212f627a048e7f92e499d11e66cda8eabddb4ec41ff",
+      "size": 296804352
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run/skin-source-influences.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-influences.bin",
+      "sha256": "48b1597546a64636cf73e9b6f9413a274368494819a2eff5fca70dc2a073d240",
+      "size": 255729600
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-004/native-run/skin-source-vertex-map.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-vertex-map.bin",
+      "sha256": "f5d0bd7b2cb96c2b865a8802c616874d30e4827f9f2668e421c536270a1bc943",
+      "size": 2973600
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run/common-field-map-f32.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-003/native-run/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "size": 69593328
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-005/native-run/skin-source-influences.bin",
+      "canonical": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-002/native-run/skin-source-influences.bin",
+      "sha256": "48b1597546a64636cf73e9b6f9413a274368494819a2eff5fca70dc2a073d240",
+      "size": 255729600
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "accepted_source_pack": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/pons323-348-current972-existing-owner-rebind-001/native-run-002/accepted-geometry/step-0.mrvpack",
+  "accepted_source_pack_content_hash": "sha256:722617b771b98fcf3280bf0802175f610ad1bfadaeac29d8690cf55d23f9406b",
+  "accepted_source_pack_file_sha256": "80fadf29f92ffff1ec7a3e22c70f645b003738720844689668a7081ed0232e7f",
+  "backing_face_selection": "actual source lens triangle centroids inside the iris projected outline, uncovered by projected source iris triangles, and at least 1e-7 m behind the iris centroid plane",
+  "build": {
+    "binary": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/build-004/native-skin-eyes-inspection",
+    "binary_sha256": "65fecfb42934092b8b775da3a7f4c2008f559904879b06d1044101d61e15cc4e",
+    "plan_sha256": "afb98a9e0ef109163a402cc39b0678f36b099020fd7d9c5b3e7cd2803216a908",
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/bodyparts3d_skin_eyes_inspection.mm",
+    "source_sha256": "c65f875b90e660fbf68b490bb6d149b578c024ee6ba61158eefb7b102632ded3"
+  },
+  "derived_posterior_backing_ids": [
+    "0xfffffe03",
+    "0xfffffe04"
+  ],
+  "frames": {
+    "dorsal": {
+      "covered_pixels": 155375,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/render-003/dorsal.ppm",
+      "sha256": "e85c0da0ac71ff11fee65e9cd33a766b646ba7538aa6640350e1a4264b22e9cf"
+    },
+    "palmar": {
+      "covered_pixels": 253540,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/render-003/palmar.ppm",
+      "sha256": "6aa77fbb36e6be68a1a6ef6770418fc4baf85698bb71a5bbbfe1325c1e0f6af7"
+    },
+    "palmar_oblique": {
+      "covered_pixels": 228994,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/render-003/palmar_oblique.ppm",
+      "sha256": "701153b353ffed1fd3661654fdba5d19184e8cbe7ab85b0f3df61c4a69edf5a7"
+    }
+  },
+  "geometry_preservation_report_sha256": "f8e5c7a0494401e35dcf05ec454ec2c9dce5fd170f5b12da4a466cace00c13e0",
+  "left_backing_faces": {
+    "selected_source_face_count": 44,
+    "source_face_count": 1606,
+    "source_stable_id": 394
+  },
+  "opaque_renderer_optics_approximation": "dark posterior backing only; not a pupil mesh and not a replacement lens/cornea",
+  "physical_or_native_runtime_claim": false,
+  "preview_pack": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/native-hand-surface-inspection-20261018-001/ocular-source-window-preview-008/render-003/accepted-skin-inspection.mrvpack",
+  "preview_pack_sha256": "3271ab41ba8b3bfebc66c8d82414666667f539004a4e33c6f0238b79ab8fca1b",
+  "right_backing_faces": {
+    "selected_source_face_count": 42,
+    "source_face_count": 1598,
+    "source_stable_id": 385
+  },
+  "runtime_source_sha256": {
+    "inspection_layers": "18fef903c126a0bf8ddb1fec0f3753cf5ac4317253d9011b28034a2a25ece498",
+    "ocular_window": "a6ffc51b4924d38cd71c87edb0e3339001e9db1c6667055284cea8f81678dbc7",
+    "visual": "78f84ee119e341f363e0dfc8b0944eab7ef134134023dac48e108738338a8336"
+  },
+  "schema": "numi.human.accepted-eye-static-presentation-preview.v1",
+  "source_face_order_preserved": true,
+  "source_face_slot_sequence_sha256": "afad0d08e10d551d0f3fba3d6a0623462bb61c6b233888ad9d6f5db2a48489f6",
+  "source_frame": "accepted step-0 bodyparts3d skin and ocular source surfaces",
+  "source_iris_ids": [
+    384,
+    393
+  ],
+  "source_lens_ids": [
+    385,
+    394
+  ],
+  "source_lens_skin_visibility": "original lenses remain in Organ; only selected derived face subsets are added to Skin",
+  "source_vertex_bytes_preserved": true,
+  "status": "PASS_STATIC_PRESENTATION_ONLY",
+  "unit_test": {
+    "command": "clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -Iinclude -Iapps tools/test_human_resting_eyes_layer.cpp",
+    "output": "6-surface eye readiness is all-or-none; source irises and derived sclera/backing faces are Skin-visible",
+    "result": "PASS",
+    "test_source_sha256": "201cca29657c7ba6c8a8458ff7f1ef881debb260942f974f03ae5ac8b09dec3d"
+  },
+  "vertex_bytes_sha256": "5fc131c453638ceb1edae077f84f3b0ad10c0350748cca0fdb0cda22234c2351"
+}

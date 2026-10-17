@@ -1,0 +1,5 @@
+PASS
+command: /usr/bin/clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -Iinclude -Iapps tools/test_human_resting_eyes_layer.cpp -o /tmp/test_human_resting_eyes_layer
+run: /tmp/test_human_resting_eyes_layer
+6-surface eye readiness is all-or-none; source irises and derived sclera/backing faces are Skin-visible
+git diff --check: PASS
