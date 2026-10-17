@@ -6546,3 +6546,23 @@ if(APPLE AND BUILD_TESTING)
     set_tests_properties(numi_human_skin_tissue_layer PROPERTIES
         LABELS "numi-human;skin;gpu" TIMEOUT 30)
 endif()
+
+if(APPLE AND BUILD_TESTING)
+    add_executable(metalrobo_numi_human_rope_support_test
+        tools/test_human_rope_support.mm)
+    target_include_directories(metalrobo_numi_human_rope_support_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_rope_support_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_rope_support_test
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_rope_support_test
+        PRIVATE "-framework Foundation" "-framework Metal")
+    add_test(NAME numi_human_rope_support
+        COMMAND metalrobo_numi_human_rope_support_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/src/NumiHumanRestingRope.metalinc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_resting_rope_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h")
+    set_tests_properties(numi_human_rope_support PROPERTIES
+        LABELS "numi-human;rope;gpu" TIMEOUT 30)
+endif()

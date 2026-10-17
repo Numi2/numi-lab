@@ -1,0 +1,60 @@
+// BEGIN resting rope support
+// A moving tangent plane of the sphere |p-anchor|<=L supplies exactly the
+// unilateral gap L-|p-anchor| and its gradient. The existing articulated
+// contact solver owns all impulses; mu=0 admits no artificial tangential load.
+kernel void nm_human_resting_rope_support(
+    constant MRHumanRestingRopeGPU& cfg [[buffer(0)]],
+    device const MRArticulatedBodyPoseGPU* bodies [[buffer(1)]],
+    device const float4* bodyLow [[buffer(2)]],
+    device MRArticulatedPointWorldGPU* points [[buffer(3)]],
+    device float4* pointLow [[buffer(4)]],
+    device float* jacobians [[buffer(5)]],
+    device MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
+    uint env [[thread_position_in_grid]]) {
+    if (env>=cfg.counts.x) return;
+    // ABI2 per-contact planes are currently restricted to one environment.
+    const uint body=cfg.indices.z-cfg.indices.w;
+    const uint query=cfg.indices.y;
+    const uint pointIndex=env*cfg.strides.z+query;
+    const uint poseIndex=env*cfg.strides.x+body;
+    const uint dofs=cfg.counts.z;
+    const uint probe=cfg.strides.y+4u*body;
+    const auto pose=bodies[poseIndex];
+    const auto contact=contacts[cfg.indices.x];
+    const float qnorm=dot(pose.orientation,pose.orientation);
+    bool valid=cfg.counts.w==1u && cfg.counts.x==1u &&
+        cfg.indices.z>=cfg.indices.w && body<cfg.counts.y &&
+        cfg.anchorAndLength.w>0.0f && all(isfinite(cfg.anchorAndLength)) &&
+        all(isfinite(cfg.bodyLocalSite)) && cfg.bodyLocalSite.w==0.0f &&
+        all(isfinite(pose.position)) && all(isfinite(pose.orientation)) &&
+        all(isfinite(bodyLow[poseIndex])) && qnorm>1e-12f &&
+        contact.bodyIndex==cfg.indices.z && contact.pointQueryIndex==query &&
+        contact.frictionSlopAndStabilization.x==0.0f &&
+        contact.frictionSlopAndStabilization.w==0.0f;
+    const float4 q=pose.orientation*rsqrt(qnorm);
+    const float3 local=cfg.bodyLocalSite.xyz;
+    const float3 offset=local+2.0f*cross(q.xyz,cross(q.xyz,local)+q.w*local);
+    // Error-free two-sum for body COM plus rigid site, retaining body low bits.
+    const float3 high=pose.position.xyz+offset;
+    const float3 virtualOffset=high-pose.position.xyz;
+    const float3 low=(pose.position.xyz-(high-virtualOffset))+
+        (offset-virtualOffset)+bodyLow[poseIndex].xyz;
+    const float3 toward=(cfg.anchorAndLength.xyz-high)-low;
+    const float radius=length(toward);
+    valid=valid && all(isfinite(high)) && all(isfinite(low)) && radius>1e-8f;
+    const float3 normal=toward/radius;
+    const float3 plane=cfg.anchorAndLength.xyz-cfg.anchorAndLength.w*normal;
+    points[pointIndex].position=valid?float4(high,1):float4(NAN,NAN,NAN,1);
+    pointLow[pointIndex]=valid?float4(low,0):float4(NAN,NAN,NAN,0);
+    contacts[cfg.indices.x].planePoint=valid?float4(plane,0):float4(NAN);
+    contacts[cfg.indices.x].planeNormal=valid?float4(normal,0):float4(NAN);
+    for(uint axis=0;axis<3u;++axis) for(uint dof=0;dof<dofs;++dof) {
+        const uint base=env*cfg.strides.w;
+        const float j0=jacobians[base+(3u*probe+axis)*dofs+dof];
+        const float jx=jacobians[base+(3u*(probe+1u)+axis)*dofs+dof];
+        const float jy=jacobians[base+(3u*(probe+2u)+axis)*dofs+dof];
+        const float jz=jacobians[base+(3u*(probe+3u)+axis)*dofs+dof];
+        const float value=j0+local.x*(jx-j0)+local.y*(jy-j0)+local.z*(jz-j0);
+        jacobians[base+(3u*query+axis)*dofs+dof]=valid?value:NAN;
+    }
+}
