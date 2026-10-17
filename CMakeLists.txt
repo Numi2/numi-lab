@@ -6527,3 +6527,22 @@ if(APPLE)
             LABELS "human;resting;admission" TIMEOUT 30)
     endif()
 endif()
+
+if(APPLE AND BUILD_TESTING)
+    add_executable(metalrobo_numi_human_skin_tissue_layer_test
+        tools/test_human_skin_tissue_layer.mm)
+    target_include_directories(metalrobo_numi_human_skin_tissue_layer_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_skin_tissue_layer_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_skin_tissue_layer_test
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_skin_tissue_layer_test
+        PRIVATE "-framework Foundation" "-framework Metal")
+    add_test(NAME numi_human_skin_tissue_layer
+        COMMAND metalrobo_numi_human_skin_tissue_layer_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/src/human_respiration.metal"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/visual_platform_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_resting_visual_gpu.h")
+    set_tests_properties(numi_human_skin_tissue_layer PROPERTIES
+        LABELS "numi-human;skin;gpu" TIMEOUT 30)
+endif()

@@ -1394,3 +1394,40 @@ kernel void nm_human_resting_capture_vertices(
     uint i [[thread_position_in_grid]]) {
     if(i<vertexCount)destination[i]=source[i];
 }
+
+
+// BEGIN material-frame skin tissue layer
+// Dispatch only after the existing outer-skin update has completed. Loader
+// validation requires distinct output IDs, no output among any parent IDs,
+// source-pinned parents, normalized barycentrics, and finite source offsets.
+// Thus one dispatch has no inter-thread read/write dependency. Rejected steps
+// cannot advance this map: it consumes accepted outer vertices and has no clock.
+kernel void nm_human_resting_skin_tissue_layer(
+    constant uint& count [[buffer(0)]],
+    device const MRHumanRestingSkinLayerVertexGPU* mapping [[buffer(1)]],
+    device MRVisualVertexGPUV2* vertices [[buffer(2)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=count)return;
+    const auto m=mapping[i];
+    const float3 a=vertices[m.parentAndOutput.x].position.xyz;
+    const float3 b=vertices[m.parentAndOutput.y].position.xyz;
+    const float3 c=vertices[m.parentAndOutput.z].position.xyz;
+    const float3 edge=b-a,crossed=cross(edge,c-a);
+    const float edgeSquared=dot(edge,edge),areaSquared=dot(crossed,crossed);
+    const bool valid=all(isfinite(a))&&all(isfinite(b))&&all(isfinite(c))&&
+        edgeSquared>0.0f&&areaSquared>0.0f&&isfinite(edgeSquared)&&isfinite(areaSquared);
+    const float3 tangent=valid?edge*rsqrt(edgeSquared):float3(NAN);
+    const float3 normal=valid?crossed*rsqrt(areaSquared):float3(NAN);
+    const float3 bitangent=cross(normal,tangent);
+    const float3 position=m.barycentric.x*a+m.barycentric.y*b+m.barycentric.z*c+
+        tangent*m.offset.x+bitangent*m.offset.y+normal*m.offset.z;
+    const float3 movedNormal=tangent*m.normal.x+bitangent*m.normal.y+normal*m.normal.z;
+    const float normalSquared=dot(movedNormal,movedNormal);
+    auto output=vertices[m.parentAndOutput.w];
+    output.position=float4(position,1);
+    output.normalAndTangentSign=float4(
+        normalSquared>0.0f&&isfinite(normalSquared)?movedNormal*rsqrt(normalSquared):float3(NAN),1);
+    output.tangent=float4(tangent,0);
+    vertices[m.parentAndOutput.w]=output;
+}
+// END material-frame skin tissue layer

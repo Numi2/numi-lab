@@ -17,6 +17,16 @@ typedef struct MR_ALIGN16 MRHumanRestingInfluence {
     mr_uint4 body;
 } MRHumanRestingInfluence;
 
+// Optional hidden skin sheet, transported from the already accepted outer
+// material surface. No body, force, mass, blood, or controller state is added.
+// Source XYZ/normal offsets are in the outer triangle orthonormal frame.
+typedef struct MR_ALIGN16 MRHumanRestingSkinLayerVertexGPU {
+    mr_uint4 parentAndOutput; // outer triangle vertex IDs xyz, output vertex ID w
+    mr_float4 barycentric;   // normalized nonnegative xyz, w reserved
+    mr_float4 offset;        // source tangent/bitangent/normal offset in metres
+    mr_float4 normal;        // source normal in the same orthonormal frame
+} MRHumanRestingSkinLayerVertexGPU;
+
 // Reduced source-bound ventricular myocardium map. Displacements are stored
 // per unit CVSim q for RV/LV channels and per metre for volume closure. The
 // material-volume polynomial uses normalized qRV/.4, qLV/.2, closure/.01.

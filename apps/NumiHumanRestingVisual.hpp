@@ -33,6 +33,11 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
     id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
     id<MTLBuffer> airwayNormalRanges, airwayIncidentTriangles;
+    id<MTLBuffer> skinTissueLayerMap=nil;
+    id<MTLComputePipelineState> skinTissueLayerPipeline=nil;
+    unsigned skinTissueLayerCount=0;
+
+
     id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
     id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline,skinAuditReducePipeline;
     std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
@@ -924,7 +929,8 @@ public:
         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true,
         const NumiHumanRestingBedSurface* bedSurface=nullptr,
-        const LoadedTorsoAnatomy* torsoAnatomy=nullptr):
+        const LoadedTorsoAnatomy* torsoAnatomy=nullptr,
+        const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         if(bedSurface)bedParameters=bedSurface->gpu;
@@ -2101,6 +2107,43 @@ public:
         }
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+        if(skinTissueLayers&&!skinTissueLayers->empty()) {
+            // Prepared source material bindings only; no per-step CPU skin
+            // update or independent state. Unbound scenes retain their owner.
+            require(skinTissueLayers->size()<=std::numeric_limits<unsigned>::max(),
+                "skin tissue layer count exceeds native bounds");
+            std::set<unsigned> outputs,parents;
+            for(const auto& row:*skinTissueLayers) {
+                const unsigned ids[]={row.parentAndOutput.x,row.parentAndOutput.y,
+                    row.parentAndOutput.z,row.parentAndOutput.w};
+                for(const auto id:ids)require(id<maps.size()&&maps[id].deformationKind==3,
+                    "skin layer binding is outside the source skin allocation");
+                require(ids[0]!=ids[1]&&ids[1]!=ids[2]&&ids[0]!=ids[2]&&outputs.insert(ids[3]).second,
+                    "skin layer repeats a material parent or output");
+                parents.insert(ids[0]);parents.insert(ids[1]);parents.insert(ids[2]);
+                const float values[]={row.barycentric.x,row.barycentric.y,row.barycentric.z,
+                    row.offset.x,row.offset.y,row.offset.z,row.normal.x,row.normal.y,row.normal.z};
+                for(const auto value:values)require(std::isfinite(value),
+                    "skin layer material field is nonfinite");
+                require(row.barycentric.x>=0&&row.barycentric.y>=0&&row.barycentric.z>=0&&
+                    std::abs(row.barycentric.x+row.barycentric.y+row.barycentric.z-1.0f)<=1e-6f,
+                    "skin layer material parents are not a partition of unity");
+                require(std::abs(row.normal.x*row.normal.x+row.normal.y*row.normal.y+
+                    row.normal.z*row.normal.z-1.0f)<=1e-5f,
+                    "skin layer reference normal is not unit");
+            }
+            for(const auto output:outputs)require(!parents.contains(output),
+                "skin layer output aliases an outer material parent");
+            skinTissueLayerCount=unsigned(skinTissueLayers->size());
+            skinTissueLayerMap=[device newBufferWithBytes:skinTissueLayers->data()
+                length:skinTissueLayers->size()*sizeof(MRHumanRestingSkinLayerVertexGPU)
+                options:MTLResourceStorageModeShared];
+            skinTissueLayerPipeline=[device newComputePipelineStateWithFunction:
+                [lib newFunctionWithName:@"nm_human_resting_skin_tissue_layer"] error:&e];
+            require(skinTissueLayerMap&&skinTissueLayerPipeline,
+                "native skin tissue-layer pipeline is unavailable");
+        }
+
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
         const auto supportQueries=makeMetalMujocoVisualQueries(model,&support);
         std::vector<MRHumanRestingSupportRegionGPU> regions;
@@ -2369,6 +2412,17 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.commonFieldMapBuffer,0,11);
         e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
         e.dispatchThreads(e.context,lease.meshVertexCount,64);
+        if(self.skinTissueLayerCount) {
+            // The hidden tissue uses this same accepted outer geometry. A
+            // rejected physical step cannot advance a separate skin history.
+            if(lease.encoder->splitCommandEncoder&&
+               !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
+            e.setPipeline(e.context,(__bridge void*)self.skinTissueLayerPipeline);
+            e.setBytes(e.context,&self.skinTissueLayerCount,sizeof(self.skinTissueLayerCount),0);
+            e.setBuffer(e.context,(__bridge void*)self.skinTissueLayerMap,0,1);
+            e.setBuffer(e.context,lease.meshVertices,0,2);
+            e.dispatchThreads(e.context,self.skinTissueLayerCount,64);
+        }
         const unsigned normalVertexCount=self.commonCardiacGeometry?self.commonFieldNormalVertexCount:self.cardiacWallVertexCount;
         if(normalVertexCount) {
             e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
