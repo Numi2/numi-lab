@@ -9,6 +9,7 @@
 #include "NumiHumanRestingSupportGeometry.metalinc"
 #include "metalrobo/numi_human_resting_rope_gpu.h"
 #include "NumiHumanRestingRope.metalinc"
+#include "NumiHumanRestingRopeVisual.metalinc"
 
 constant bool kGasTransportSubcycling [[function_constant(40)]];
 constant bool kUseGasTransportSubcycling =

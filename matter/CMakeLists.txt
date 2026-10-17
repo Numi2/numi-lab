@@ -1169,7 +1169,9 @@ if(APPLE)
         DEPENDS src/human_respiration.metal include/numi/matter/human_respiration.h
             src/NumiHumanRestingCommonField.metalinc
             src/NumiHumanRestingRope.metalinc
+            src/NumiHumanRestingRopeVisual.metalinc
             ../include/metalrobo/numi_human_resting_rope_gpu.h
+            ../include/metalrobo/numi_human_resting_rope_visual_gpu.h
             ../src/metal/PairedSourceGeometry.metalinc
             ../include/metalrobo/compensated_geometry_gpu.h
             include/numi/matter/shared.h ../src/metal/MujocoMuscleReference.metal

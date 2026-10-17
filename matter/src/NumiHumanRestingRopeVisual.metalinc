@@ -1,0 +1,100 @@
+#include "metalrobo/numi_human_resting_rope_visual_gpu.h"
+
+inline float3 nmRestingRopeRotate(float4 q, float3 v) {
+    return v + 2.0f * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+inline void nmRestingRopeFrame(float3 tangent, thread float3& u, thread float3& v) {
+    const float3 reference = fabs(tangent.z) < 0.88f
+        ? float3(0.0f, 0.0f, 1.0f)
+        : float3(1.0f, 0.0f, 0.0f);
+    u = normalize(cross(reference, tangent));
+    v = normalize(cross(tangent, u));
+}
+
+kernel void nm_human_resting_rope_visual(
+    constant MRHumanRestingRopeGPU& rope [[buffer(0)]],
+    constant MRHumanRestingRopeVisualGPU& visual [[buffer(1)]],
+    device const MRBodyStateGPU* bodies [[buffer(2)]],
+    device MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    uint vertexIndex [[thread_position_in_grid]]) {
+    const uint ropeVertexCount = visual.counts.x;
+    const uint harnessVertexCount = visual.counts.w;
+    if (vertexIndex >= ropeVertexCount + harnessVertexCount) return;
+    const uint bodyIndex = rope.indices.z;
+    const MRBodyStateGPU body = bodies[bodyIndex];
+    const float q2 = dot(body.orientation, body.orientation);
+    if (!(q2 > 1.0e-12f) || !isfinite(q2) ||
+        !all(isfinite(body.position)) || !all(isfinite(body.orientation)) ||
+        !all(isfinite(rope.anchorAndLength)) ||
+        !(rope.anchorAndLength.w > 0.0f)) return;
+
+    const float4 q = body.orientation * rsqrt(q2);
+    const float3 anchor = rope.anchorAndLength.xyz;
+    const float3 endpoint = body.position.xyz +
+        nmRestingRopeRotate(q, rope.bodyLocalSite.xyz);
+    const float3 chord = endpoint - anchor;
+    const float chordLength = length(chord);
+    if (!(chordLength > 1.0e-7f) || !isfinite(chordLength)) return;
+    const float3 chordDirection = chord / chordLength;
+    float3 sagDirection = float3(0.0f, 0.0f, -1.0f) -
+        chordDirection * dot(float3(0.0f, 0.0f, -1.0f), chordDirection);
+    if (dot(sagDirection, sagDirection) < 1.0e-8f) {
+        sagDirection = cross(chordDirection, float3(1.0f, 0.0f, 0.0f));
+        if (dot(sagDirection, sagDirection) < 1.0e-8f)
+            sagDirection = cross(chordDirection, float3(0.0f, 1.0f, 0.0f));
+    }
+    sagDirection = normalize(sagDirection);
+    const float sag = min(visual.radiiAndSag.w,
+        0.35f * sqrt(max(rope.anchorAndLength.w * rope.anchorAndLength.w -
+                          chordLength * chordLength, 0.0f)));
+
+    if (vertexIndex < ropeVertexCount) {
+        const uint sides = visual.ranges.z;
+        if (sides < 3u || visual.ranges.y < 2u) return;
+        const uint ring = vertexIndex / sides;
+        const uint side = vertexIndex % sides;
+        const float t = float(ring) / float(visual.ranges.y - 1u);
+        const float theta = 6.283185307179586f * float(side) / float(sides);
+        const float along = 4.0f * sag * t * (1.0f - t);
+        const float3 center = anchor + chord * t + sagDirection * along;
+        const float3 derivative = chord + sagDirection *
+            (4.0f * sag * (1.0f - 2.0f * t));
+        const float derivativeLength = length(derivative);
+        if (!(derivativeLength > 1.0e-8f)) return;
+        const float3 tangent = derivative / derivativeLength;
+        float3 u, v;
+        nmRestingRopeFrame(tangent, u, v);
+        const float3 radial = cos(theta) * u + sin(theta) * v;
+        auto out = vertices[visual.ranges.x + vertexIndex];
+        out.position = float4(center + visual.radiiAndSag.x * radial, 1.0f);
+        out.normalAndTangentSign = float4(radial, 1.0f);
+        out.tangent = float4(tangent, 0.0f);
+        vertices[visual.ranges.x + vertexIndex] = out;
+        return;
+    }
+
+    const uint local = vertexIndex - ropeVertexCount;
+    const uint majorSegments = visual.counts.y;
+    const uint minorSegments = visual.counts.z;
+    if (majorSegments < 3u || minorSegments < 3u ||
+        local >= majorSegments * minorSegments) return;
+    float3 u, v;
+    nmRestingRopeFrame(chordDirection, u, v);
+    const uint major = local / minorSegments;
+    const uint minor = local % minorSegments;
+    const float theta = 6.283185307179586f * float(major) / float(majorSegments);
+    const float phi = 6.283185307179586f * float(minor) / float(minorSegments);
+    const float3 majorDirection = cos(theta) * u + sin(theta) * v;
+    const float3 around = -sin(theta) * u + cos(theta) * v;
+    const float3 normal = cos(phi) * majorDirection + sin(phi) * chordDirection;
+    const float3 position = endpoint +
+        (visual.radiiAndSag.y + visual.radiiAndSag.z * cos(phi)) * majorDirection +
+        visual.radiiAndSag.z * sin(phi) * chordDirection;
+    const uint outIndex = visual.ranges.w + local;
+    auto out = vertices[outIndex];
+    out.position = float4(position, 1.0f);
+    out.normalAndTangentSign = float4(normal, 1.0f);
+    out.tangent = float4(around, 0.0f);
+    vertices[outIndex] = out;
+}

@@ -6566,3 +6566,31 @@ if(APPLE AND BUILD_TESTING)
     set_tests_properties(numi_human_rope_support PROPERTIES
         LABELS "numi-human;rope;gpu" TIMEOUT 30)
 endif()
+
+if(APPLE AND BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(NUMI_HUMAN_ROPE_TEST_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/numi-human-rope-test.metal")
+    add_custom_command(OUTPUT "${NUMI_HUMAN_ROPE_TEST_SOURCE}"
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/build_human_rope_runtime_source.py"
+            --repo "${CMAKE_CURRENT_SOURCE_DIR}" --output "${NUMI_HUMAN_ROPE_TEST_SOURCE}"
+            --visual-kernel "${CMAKE_CURRENT_SOURCE_DIR}/matter/src/NumiHumanRestingRopeVisual.metalinc"
+            --visual-header "${CMAKE_CURRENT_SOURCE_DIR}/apps/NumiHumanRestingRopeVisual.hpp"
+        DEPENDS tools/build_human_rope_runtime_source.py
+            include/metalrobo/engine_types.h include/metalrobo/numi_human_stand_gpu.h
+            include/metalrobo/numi_human_resting_rope_gpu.h
+            include/metalrobo/numi_human_resting_rope_visual_gpu.h
+            include/metalrobo/visual_platform_types.h
+            matter/src/NumiHumanRestingRope.metalinc
+            matter/src/NumiHumanRestingRopeVisual.metalinc apps/NumiHumanRestingRopeVisual.hpp
+        VERBATIM)
+    add_custom_target(numi_human_rope_test_source DEPENDS "${NUMI_HUMAN_ROPE_TEST_SOURCE}")
+    add_executable(metalrobo_numi_human_rope_visual_test tools/test_human_resting_rope_visual.mm)
+    target_include_directories(metalrobo_numi_human_rope_visual_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_rope_visual_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_rope_visual_test PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_rope_visual_test PRIVATE "-framework Foundation" "-framework Metal")
+    add_dependencies(metalrobo_numi_human_rope_visual_test numi_human_rope_test_source)
+    add_test(NAME numi_human_rope_visual
+        COMMAND metalrobo_numi_human_rope_visual_test "${NUMI_HUMAN_ROPE_TEST_SOURCE}")
+    set_tests_properties(numi_human_rope_visual PROPERTIES LABELS "numi-human;rope;gpu;visual" TIMEOUT 30)
+endif()
