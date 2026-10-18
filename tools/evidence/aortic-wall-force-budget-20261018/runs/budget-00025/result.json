@@ -1,0 +1,8 @@
+{
+  "schema": "numi.aortic_wall.force_budget_result.v1",
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 2.4109749794006348,
+  "launcher_log_sha256": "ca96847828a7daf069d7935bf07f665255c74152e2ce23193e6267d8f390099b",
+  "physical_run_result": "ACCEPTED_EIGHT_CONSECUTIVE_STEPS"
+}

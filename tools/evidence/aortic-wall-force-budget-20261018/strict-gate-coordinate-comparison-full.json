@@ -1,0 +1,886 @@
+{
+  "schema": "numi.aortic_wall.coordinate_translation_comparison.v1",
+  "scope": "wall-only diagnostic; not anatomic/full-scene qualification",
+  "source": {
+    "payload_sha256": "1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108",
+    "stable_id": 9,
+    "body_index": 7,
+    "coordinate_source": "registered BodyParts3D external-surface section; annular proxy derived from contour",
+    "translation_m": [
+      -0.0337308123118,
+      0.109181105836,
+      -0.00946897922608
+    ],
+    "inverse_anatomical_registration": {
+      "operation": "add coordinate_translation_m to diagnostic-frame points",
+      "translation_m": [
+        -0.0337308123118,
+        0.109181105836,
+        -0.00946897922608
+      ]
+    }
+  },
+  "fixed_physics": {
+    "pressure_pa": 11223.5,
+    "frame_timestep_s": 0.00025,
+    "newton_iterations": 12,
+    "fgmres_iterations": 64,
+    "relative_residual_gate": 1e-07,
+    "wall_nodes": 216,
+    "tetrahedra": 576,
+    "proximal_fixed_nodes": 12,
+    "shear_modulus_pa": 130000,
+    "lame_lambda_pa": 1300000,
+    "density_kg_m3": 1066,
+    "wall_thickness_m": 0.0012,
+    "external_net_force_n": 3.69535679278e-15,
+    "external_load": "same frozen nodal sidewall pressure plus closed-end resultant as source-frame baseline",
+    "reference_mode": "identity/unprestressed control in all three cases"
+  },
+  "interpretation": "Pure translation changed the first microstep from a code-10 residual rejection at 4.17371922e-7 to an accepted code-0 step at 9.99744998e-8, under the unchanged 1e-7 gate. The sequential centered run accepted step 0 but rejected step 1 at 1.07705631e-7 and rolled back; local coordinates are a demonstrated sensitivity/fix for the first-step precision issue, not a stable multi-step wall result.",
+  "cases": [
+    {
+      "case": "aortic-wall-only-control-027",
+      "app_source_sha256": "b70787a21e8a439fd9119ddcf750f6f0d4746f816695a9d708eb1f4654ac78d2",
+      "binary_sha256": "209e47a9090f46b56e87fb2827683af2d04071f13fe4955d2aec3f7ef5606cf7",
+      "wall_header_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4",
+      "contour_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3",
+      "runtime_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+      "matter_shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+      "outcome": {
+        "log": "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-only-control-027/build/native-002/launcher.log",
+        "log_sha256": "cf93a3805586e0c43890e48b6fe60c4f61d575d1cb920668789a7ca900dcc74e",
+        "final_line_search_history": [
+          {
+            "control_step": 0,
+            "newton_iteration": 0,
+            "alpha": 1,
+            "candidate_min_j": 0.975288212,
+            "reassembled_residual": 0.00133281457,
+            "correction_ratio": 1.98003018
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 1,
+            "alpha": 1,
+            "candidate_min_j": 0.975586355,
+            "reassembled_residual": 0.000420202035,
+            "correction_ratio": 0.273596406
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 2,
+            "alpha": 1,
+            "candidate_min_j": 0.975609958,
+            "reassembled_residual": 4.94320266e-05,
+            "correction_ratio": 0.0549803376
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 3,
+            "alpha": 1,
+            "candidate_min_j": 0.975639164,
+            "reassembled_residual": 3.05010599e-06,
+            "correction_ratio": 0.0106876139
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 4,
+            "alpha": 1,
+            "candidate_min_j": 0.97563839,
+            "reassembled_residual": 3.83608466e-07,
+            "correction_ratio": 0.000223049108
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 5,
+            "alpha": 1,
+            "candidate_min_j": 0.975640953,
+            "reassembled_residual": 3.71297972e-07,
+            "correction_ratio": 0.000143812125
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 6,
+            "alpha": 1,
+            "candidate_min_j": 0.975638628,
+            "reassembled_residual": 3.54789734e-07,
+            "correction_ratio": 6.55994954e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 7,
+            "alpha": 1,
+            "candidate_min_j": 0.97563976,
+            "reassembled_residual": 3.62781918e-07,
+            "correction_ratio": 3.75506643e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 8,
+            "alpha": 1,
+            "candidate_min_j": 0.975639403,
+            "reassembled_residual": 4.19356724e-07,
+            "correction_ratio": 3.84303894e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 9,
+            "alpha": 1,
+            "candidate_min_j": 0.975640118,
+            "reassembled_residual": 3.94340731e-07,
+            "correction_ratio": 3.85933999e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 10,
+            "alpha": 1,
+            "candidate_min_j": 0.975638151,
+            "reassembled_residual": 3.49065829e-07,
+            "correction_ratio": 3.28723727e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 11,
+            "alpha": 1,
+            "candidate_min_j": 0.975640893,
+            "reassembled_residual": 3.80739749e-07,
+            "correction_ratio": 3.58885227e-05
+          }
+        ],
+        "terminal_certificates": [
+          {
+            "schema": 1,
+            "root": 0,
+            "environment_count": 1,
+            "object_count": 1,
+            "microtick": 0,
+            "last_iteration": 11,
+            "capture_order": "immediately_after_nm_mixed_certify_before_candidate_masks_or_commit",
+            "status_authority": "raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority",
+            "objects": [
+              {
+                "nonlinear": [
+                  4.17371922e-07,
+                  3.58885627e-05,
+                  0,
+                  0
+                ],
+                "contact": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "transport": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "validity": [
+                  0.975640893,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            ],
+            "status": [
+              {
+                "code": 10,
+                "object_index": 0,
+                "failing_index": 4294967295,
+                "completed_microsteps_at_certificate": 0,
+                "fgmres_iterations_microstep_max": 29,
+                "diagnostics": [
+                  4.17371922e-07,
+                  3.58885627e-05,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "fgmres": [
+              {
+                "diagnostics": [
+                  5.96689498e-09,
+                  3.80739749e-07,
+                  1,
+                  0
+                ],
+                "nonlinear": [
+                  0.00133281457,
+                  3.80739749e-07,
+                  3.58885227e-05,
+                  0
+                ]
+              }
+            ]
+          }
+        ],
+        "reported": {
+          "source_payload_sha256": "1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108",
+          "source_stable_id": "9",
+          "source_body": "7",
+          "wall_only": "true",
+          "reference_mode": "identity_unprestressed_control",
+          "vascular_compartments": "0",
+          "vascular_cavities": "0",
+          "fem_nodes": "216",
+          "fem_tetrahedra": "576",
+          "fixed_proximal_nodes": "12",
+          "pressure_pa": "11223.5",
+          "sidewall_pressure_area_m2": "0.00492018858533",
+          "closed_end_resultant_n": "2.0234291025",
+          "external_net_force_n": "3.69535679278e-15",
+          "timestep_s": "0.000250000011874",
+          "solver_newton_iterations": "12",
+          "solver_fgmres_iterations": "64",
+          "solver_relative_residual": "1e-07",
+          "snapshot_fem_minimum_j": "0.999997843555",
+          "snapshot_fem_maximum_j": "1.00000179469",
+          "matter_status_code": "10",
+          "completed_microsteps": "0",
+          "fgmres_iterations": "29",
+          "max_nodal_displacement_m": "0",
+          "mean_radial_growth_m": "-2.96766873554e-10",
+          "max_radial_growth_m": "4.68838268555e-10",
+          "result": "RECORDED_NATIVE_REJECTION"
+        },
+        "wall_steps": []
+      }
+    },
+    {
+      "case": "aortic-wall-only-control-028",
+      "app_source_sha256": "5ffdffb87addaab61419b5d5d22d990675a75951973fcf8bed010fd8bbb11c29",
+      "binary_sha256": "9d56b217571b9fcbdfdeea17b85848d703e3d5a4072f0264f71301c0878e3e28",
+      "wall_header_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4",
+      "contour_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3",
+      "runtime_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+      "matter_shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+      "outcome": {
+        "log": "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-only-control-028/build/native-001/launcher.log",
+        "log_sha256": "bfdbba4e691c61b076c89074a73459b6e161553e79eb1b9fc1a535e2d06c4474",
+        "final_line_search_history": [
+          {
+            "control_step": 0,
+            "newton_iteration": 0,
+            "alpha": 1,
+            "candidate_min_j": 0.975288212,
+            "reassembled_residual": 0.00133281003,
+            "correction_ratio": 1.98002911
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 1,
+            "alpha": 1,
+            "candidate_min_j": 0.97558707,
+            "reassembled_residual": 0.00042019182,
+            "correction_ratio": 0.273597032
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 2,
+            "alpha": 1,
+            "candidate_min_j": 0.975609303,
+            "reassembled_residual": 4.94215819e-05,
+            "correction_ratio": 0.0550180525
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 3,
+            "alpha": 1,
+            "candidate_min_j": 0.975639462,
+            "reassembled_residual": 3.02815329e-06,
+            "correction_ratio": 0.0106675765
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 4,
+            "alpha": 1,
+            "candidate_min_j": 0.975639284,
+            "reassembled_residual": 1.51882276e-07,
+            "correction_ratio": 0.000257165811
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 5,
+            "alpha": 1,
+            "candidate_min_j": 0.97563976,
+            "reassembled_residual": 1.12901212e-07,
+            "correction_ratio": 0.000141931931
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 6,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 1.11168234e-07,
+            "correction_ratio": 5.63975445e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 7,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 8,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 9,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 10,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 11,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          }
+        ],
+        "terminal_certificates": [
+          {
+            "schema": 1,
+            "root": 0,
+            "environment_count": 1,
+            "object_count": 1,
+            "microtick": 0,
+            "last_iteration": 11,
+            "capture_order": "immediately_after_nm_mixed_certify_before_candidate_masks_or_commit",
+            "status_authority": "raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority",
+            "objects": [
+              {
+                "nonlinear": [
+                  9.99744998e-08,
+                  0,
+                  0,
+                  0
+                ],
+                "contact": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "transport": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "validity": [
+                  0.975639701,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            ],
+            "status": [
+              {
+                "code": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps_at_certificate": 0,
+                "fgmres_iterations_microstep_max": 29,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "fgmres": [
+              {
+                "diagnostics": [
+                  9.99744998e-08,
+                  9.99744998e-08,
+                  1,
+                  0
+                ],
+                "nonlinear": [
+                  0.00133281003,
+                  9.99744998e-08,
+                  0,
+                  1
+                ]
+              }
+            ]
+          }
+        ],
+        "reported": {
+          "source_payload_sha256": "1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108",
+          "source_stable_id": "9",
+          "source_body": "7",
+          "wall_only": "true",
+          "reference_mode": "identity_unprestressed_control",
+          "coordinate_control": "wall_centroid_translated_to_local_origin",
+          "coordinate_translation_m": "-0.0337308123118,0.109181105836,-0.00946897922608",
+          "inverse_registration_translation_m": "-0.0337308123118,0.109181105836,-0.00946897922608",
+          "translated_double_bounds_min_m": "-0.00888463525761,-0.0510810558656,-0.00896537835634",
+          "translated_double_bounds_max_m": "0.00901655429496,0.0510810558656,0.00895147322749",
+          "compiled_float32_bounds_min_m": "-0.00888463482261,-0.0510810576379,-0.00896537862718",
+          "compiled_float32_bounds_max_m": "0.00901655387133,0.0510810576379,0.00895147304982",
+          "vascular_compartments": "0",
+          "vascular_cavities": "0",
+          "fem_nodes": "216",
+          "fem_tetrahedra": "576",
+          "fixed_proximal_nodes": "12",
+          "pressure_pa": "11223.5",
+          "sidewall_pressure_area_m2": "0.00492018858533",
+          "closed_end_resultant_n": "2.0234291025",
+          "external_net_force_n": "3.69535679278e-15",
+          "timestep_s": "0.000250000011874",
+          "solver_newton_iterations": "12",
+          "solver_fgmres_iterations": "64",
+          "solver_relative_residual": "1e-07",
+          "snapshot_fem_minimum_j": "0.975639734195",
+          "snapshot_fem_maximum_j": "1.02063264175",
+          "matter_status_code": "0",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "29",
+          "max_nodal_displacement_m": "0.000553695250638",
+          "mean_radial_growth_m": "0.000325516218369",
+          "max_radial_growth_m": "0.000430196424249",
+          "result": "ACCEPTED_ONE_STEP"
+        },
+        "wall_steps": []
+      }
+    },
+    {
+      "case": "aortic-wall-only-control-030",
+      "app_source_sha256": "127bb40caa434974daa69451bbee88411810e46d7768b2a9371e8c9b2a94ddcf",
+      "binary_sha256": "77875a3953acaab00aae28c593646d40e54dfe710a268e85d7d0f42eb623bf3b",
+      "wall_header_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4",
+      "contour_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3",
+      "runtime_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+      "matter_shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+      "outcome": {
+        "log": "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-only-control-030/build/native-001/launcher.log",
+        "log_sha256": "75b2a83b0bb7e3155695e505b43b896da4b6c3c7812bd2147f10af12d25c085f",
+        "final_line_search_history": [
+          {
+            "control_step": 0,
+            "newton_iteration": 0,
+            "alpha": 1,
+            "candidate_min_j": 0.975288212,
+            "reassembled_residual": 0.00133281003,
+            "correction_ratio": 1.98002911
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 1,
+            "alpha": 1,
+            "candidate_min_j": 0.97558707,
+            "reassembled_residual": 0.00042019182,
+            "correction_ratio": 0.273597032
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 2,
+            "alpha": 1,
+            "candidate_min_j": 0.975609303,
+            "reassembled_residual": 4.94215819e-05,
+            "correction_ratio": 0.0550180525
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 3,
+            "alpha": 1,
+            "candidate_min_j": 0.975639462,
+            "reassembled_residual": 3.02815329e-06,
+            "correction_ratio": 0.0106675765
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 4,
+            "alpha": 1,
+            "candidate_min_j": 0.975639284,
+            "reassembled_residual": 1.51882276e-07,
+            "correction_ratio": 0.000257165811
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 5,
+            "alpha": 1,
+            "candidate_min_j": 0.97563976,
+            "reassembled_residual": 1.12901212e-07,
+            "correction_ratio": 0.000141931931
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 6,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 1.11168234e-07,
+            "correction_ratio": 5.63975445e-05
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 7,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 8,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 9,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 10,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 0,
+            "newton_iteration": 11,
+            "alpha": 1,
+            "candidate_min_j": 0.975639701,
+            "reassembled_residual": 9.99744998e-08,
+            "correction_ratio": 0
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 0,
+            "alpha": 1,
+            "candidate_min_j": 0.947307825,
+            "reassembled_residual": 0.00135387992,
+            "correction_ratio": 2.70765758
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 1,
+            "alpha": 1,
+            "candidate_min_j": 0.948870242,
+            "reassembled_residual": 0.00065572263,
+            "correction_ratio": 0.0361244343
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 2,
+            "alpha": 1,
+            "candidate_min_j": 0.950900018,
+            "reassembled_residual": 7.93030267e-05,
+            "correction_ratio": 0.103458293
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 3,
+            "alpha": 1,
+            "candidate_min_j": 0.950918913,
+            "reassembled_residual": 4.92714935e-06,
+            "correction_ratio": 0.0131847011
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 4,
+            "alpha": 1,
+            "candidate_min_j": 0.950918853,
+            "reassembled_residual": 1.93875636e-07,
+            "correction_ratio": 0.000425040838
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 5,
+            "alpha": 1,
+            "candidate_min_j": 0.950918734,
+            "reassembled_residual": 1.47548775e-07,
+            "correction_ratio": 0.000110625595
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 6,
+            "alpha": 1,
+            "candidate_min_j": 0.950919449,
+            "reassembled_residual": 1.17735283e-07,
+            "correction_ratio": 7.61945921e-05
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 7,
+            "alpha": 1,
+            "candidate_min_j": 0.950918734,
+            "reassembled_residual": 1.24023174e-07,
+            "correction_ratio": 3.09836141e-05
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 8,
+            "alpha": 1,
+            "candidate_min_j": 0.950919449,
+            "reassembled_residual": 1.28258066e-07,
+            "correction_ratio": 1.86255402e-05
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 9,
+            "alpha": 1,
+            "candidate_min_j": 0.950919747,
+            "reassembled_residual": 1.29574715e-07,
+            "correction_ratio": 1.71282991e-05
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 10,
+            "alpha": 1,
+            "candidate_min_j": 0.950918913,
+            "reassembled_residual": 1.32047063e-07,
+            "correction_ratio": 9.92469995e-06
+          },
+          {
+            "control_step": 1,
+            "newton_iteration": 11,
+            "alpha": 1,
+            "candidate_min_j": 0.950919032,
+            "reassembled_residual": 1.38086307e-07,
+            "correction_ratio": 9.38579251e-06
+          }
+        ],
+        "terminal_certificates": [
+          {
+            "schema": 1,
+            "root": 0,
+            "environment_count": 1,
+            "object_count": 1,
+            "microtick": 0,
+            "last_iteration": 11,
+            "capture_order": "immediately_after_nm_mixed_certify_before_candidate_masks_or_commit",
+            "status_authority": "raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority",
+            "objects": [
+              {
+                "nonlinear": [
+                  9.99744998e-08,
+                  0,
+                  0,
+                  0
+                ],
+                "contact": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "transport": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "validity": [
+                  0.975639701,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            ],
+            "status": [
+              {
+                "code": 0,
+                "object_index": 4294967295,
+                "failing_index": 4294967295,
+                "completed_microsteps_at_certificate": 0,
+                "fgmres_iterations_microstep_max": 29,
+                "diagnostics": [
+                  null,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "fgmres": [
+              {
+                "diagnostics": [
+                  9.99744998e-08,
+                  9.99744998e-08,
+                  1,
+                  0
+                ],
+                "nonlinear": [
+                  0.00133281003,
+                  9.99744998e-08,
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "schema": 1,
+            "root": 1,
+            "environment_count": 1,
+            "object_count": 1,
+            "microtick": 0,
+            "last_iteration": 11,
+            "capture_order": "immediately_after_nm_mixed_certify_before_candidate_masks_or_commit",
+            "status_authority": "raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority",
+            "objects": [
+              {
+                "nonlinear": [
+                  1.07705631e-07,
+                  9.38579251e-06,
+                  0,
+                  0
+                ],
+                "contact": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "transport": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "validity": [
+                  0.950919032,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            ],
+            "status": [
+              {
+                "code": 10,
+                "object_index": 0,
+                "failing_index": 4294967295,
+                "completed_microsteps_at_certificate": 0,
+                "fgmres_iterations_microstep_max": 38,
+                "diagnostics": [
+                  1.07705631e-07,
+                  9.38579251e-06,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "fgmres": [
+              {
+                "diagnostics": [
+                  3.07003467e-09,
+                  1.38086307e-07,
+                  1,
+                  0
+                ],
+                "nonlinear": [
+                  0.00135387992,
+                  1.38086307e-07,
+                  9.38579251e-06,
+                  0
+                ]
+              }
+            ]
+          }
+        ],
+        "reported": {
+          "source_payload_sha256": "1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108",
+          "source_stable_id": "9",
+          "source_body": "7",
+          "wall_only": "true",
+          "reference_mode": "identity_unprestressed_control",
+          "coordinate_control": "wall_centroid_translated_to_local_origin",
+          "coordinate_translation_m": "-0.0337308123118,0.109181105836,-0.00946897922608",
+          "inverse_registration_translation_m": "-0.0337308123118,0.109181105836,-0.00946897922608",
+          "translated_double_bounds_min_m": "-0.00888463525761,-0.0510810558656,-0.00896537835634",
+          "translated_double_bounds_max_m": "0.00901655429496,0.0510810558656,0.00895147322749",
+          "compiled_float32_bounds_min_m": "-0.00888463482261,-0.0510810576379,-0.00896537862718",
+          "compiled_float32_bounds_max_m": "0.00901655387133,0.0510810576379,0.00895147304982",
+          "vascular_compartments": "0",
+          "vascular_cavities": "0",
+          "fem_nodes": "216",
+          "fem_tetrahedra": "576",
+          "fixed_proximal_nodes": "12",
+          "pressure_pa": "11223.5",
+          "sidewall_pressure_area_m2": "0.00492018858533",
+          "closed_end_resultant_n": "2.0234291025",
+          "external_net_force_n": "3.69535679278e-15",
+          "timestep_s": "0.000250000011874",
+          "solver_newton_iterations": "12",
+          "solver_fgmres_iterations": "64",
+          "solver_relative_residual": "1e-07",
+          "snapshot_fem_minimum_j": "0.975639734195",
+          "snapshot_fem_maximum_j": "1.02063264175",
+          "matter_status_code": "10",
+          "completed_microsteps": "0",
+          "fgmres_iterations": "38",
+          "max_nodal_displacement_m": "0.000553695250638",
+          "mean_radial_growth_m": "0.000325516218369",
+          "max_radial_growth_m": "0.000430196424249",
+          "requested_consecutive_steps": "8",
+          "accepted_consecutive_steps": "1",
+          "last_matter_status_code": "10",
+          "cumulative_accepted_frozen_load_external_work_j": "0.0200570399546",
+          "accepted_simulated_time_s": "0.000250000011874",
+          "result": "RECORDED_NATIVE_REJECTION"
+        },
+        "wall_steps": [
+          {
+            "control_step": 0,
+            "accepted": true,
+            "matter_status_code": 0,
+            "snapshot_min_j": 0.975639734195,
+            "snapshot_max_j": 1.02063264175,
+            "max_displacement_from_prior_m": 0.000553695250638,
+            "frozen_load_external_work_j": 0.0200570399546,
+            "cumulative_accepted_external_work_j": 0.0200570399546,
+            "fgmres_iterations": 29
+          },
+          {
+            "control_step": 1,
+            "accepted": false,
+            "matter_status_code": 10,
+            "snapshot_min_j": 0.975639734195,
+            "snapshot_max_j": 1.02063264175,
+            "max_displacement_from_prior_m": 0,
+            "frozen_load_external_work_j": 0,
+            "cumulative_accepted_external_work_j": 0.0200570399546,
+            "fgmres_iterations": 38
+          }
+        ]
+      }
+    }
+  ]
+}

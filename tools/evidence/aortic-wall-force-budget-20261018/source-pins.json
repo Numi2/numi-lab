@@ -1,0 +1,82 @@
+{
+  "schema": "numi.aortic_wall.force_budget_source_pins.v1",
+  "source_files": {
+    "NumiHumanRestingAorticWall.hpp": "a5bd68a800dede03701d691bd61f91e803112f138fbaf2bc3852a62343e5076b",
+    "actual_nha_contour.inc": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3",
+    "wall_probe.mm": "283701c45eeb902692352cbe059e825916fec07683713ad6660fda82e93a2c88"
+  },
+  "binary_sha256": "91244169c88a54619d84aba90cd1f5b506b0a26c8b376419b190dc66e4d87eb1",
+  "object_sha256": "03e0e5a7cd1dfed412e2d1076abc222555cae4d194f5fc1e3ca3bf31615100ba",
+  "runtime_library": {
+    "path": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/libmetalrobo.dylib",
+    "sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673"
+  },
+  "matter_shader": {
+    "path": "/Users/numi/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+    "sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8"
+  },
+  "compile_command": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "-std=c++23",
+    "-O3",
+    "-DNDEBUG",
+    "-fobjc-arc",
+    "-x",
+    "objective-c++",
+    "-DNUMI_MATTER_TEST_SOURCE_LOADER=1",
+    "-DNUMI_MATTER_METALLIB=\"/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-budget-033/build/unused-default-matter.metallib\"",
+    "-I",
+    "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include",
+    "-I",
+    "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include",
+    "-I",
+    "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/src",
+    "-I",
+    "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-source/src",
+    "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-budget-033/source/wall_probe.mm",
+    "-c",
+    "-o",
+    "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-budget-033/build/wall_probe.o"
+  ],
+  "link_command": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-budget-033/build/wall_probe.o",
+    "-L/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/numi/numi-human-separation-20261018/C/humanmatter-extension-181/aortic-wall-budget-033/build/wall_probe"
+  ],
+  "model_parameters": {
+    "pressure_pa": 11223.5,
+    "timestep_s": 0.00025,
+    "newton_iterations": 12,
+    "fgmres_iterations": 64,
+    "wall_thickness_m": 0.0012,
+    "density_kg_m3": 1066.0,
+    "shear_modulus_pa": 130000.0,
+    "lame_lambda_pa": 1300000.0,
+    "nodes": 216,
+    "tetrahedra": 576,
+    "fixed_proximal_nodes": 12
+  },
+  "source_identity": {
+    "nhanatomy_sha256": "1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108",
+    "stable_id": 9,
+    "source_body": 7,
+    "surface": "BodyParts3D external surface section; not patent lumen"
+  },
+  "native_build_source_note": {
+    "header_build_input_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4",
+    "published_header_sha256": "a5bd68a800dede03701d691bd61f91e803112f138fbaf2bc3852a62343e5076b",
+    "difference": "top-of-file explanatory comments only; no code change; accepted native runs were completed before this documentation-only edit; no rerun claimed"
+  }
+}

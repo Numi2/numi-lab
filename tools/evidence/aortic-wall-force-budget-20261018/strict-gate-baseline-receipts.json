@@ -1,0 +1,122 @@
+{
+  "schema": "numi.aortic_wall.strict_gate_failure_receipts.v1",
+  "strict_gate_parameter": 1e-07,
+  "interpretation": "Historical strict-gate outcomes retained; budget experiments do not overwrite these.",
+  "source_comparison_sha256": "3bdf115bd59fbbd6c3be038532fb7b844be8fba18f637733de2d0f74253ee4d1",
+  "cases": [
+    {
+      "case": "aortic-wall-only-control-027",
+      "app_source_sha256": "b70787a21e8a439fd9119ddcf750f6f0d4746f816695a9d708eb1f4654ac78d2",
+      "binary_sha256": "209e47a9090f46b56e87fb2827683af2d04071f13fe4955d2aec3f7ef5606cf7",
+      "solver_gate": "1e-07",
+      "accepted_steps": null,
+      "terminal_status_code": "10",
+      "terminal_certificates": [
+        {
+          "status_code": 10,
+          "status_diagnostics_xyzw": [
+            4.17371922e-07,
+            3.58885627e-05,
+            0,
+            0
+          ],
+          "nonlinear_certificate": [
+            4.17371922e-07,
+            3.58885627e-05,
+            0,
+            0
+          ],
+          "jacobian_validity": [
+            0.975640893,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "case": "aortic-wall-only-control-028",
+      "app_source_sha256": "5ffdffb87addaab61419b5d5d22d990675a75951973fcf8bed010fd8bbb11c29",
+      "binary_sha256": "9d56b217571b9fcbdfdeea17b85848d703e3d5a4072f0264f71301c0878e3e28",
+      "solver_gate": "1e-07",
+      "accepted_steps": null,
+      "terminal_status_code": "0",
+      "terminal_certificates": [
+        {
+          "status_code": 0,
+          "status_diagnostics_xyzw": [
+            null,
+            0,
+            0,
+            0
+          ],
+          "nonlinear_certificate": [
+            9.99744998e-08,
+            0,
+            0,
+            0
+          ],
+          "jacobian_validity": [
+            0.975639701,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "case": "aortic-wall-only-control-030",
+      "app_source_sha256": "127bb40caa434974daa69451bbee88411810e46d7768b2a9371e8c9b2a94ddcf",
+      "binary_sha256": "77875a3953acaab00aae28c593646d40e54dfe710a268e85d7d0f42eb623bf3b",
+      "solver_gate": "1e-07",
+      "accepted_steps": "1",
+      "terminal_status_code": "10",
+      "terminal_certificates": [
+        {
+          "status_code": 0,
+          "status_diagnostics_xyzw": [
+            null,
+            0,
+            0,
+            0
+          ],
+          "nonlinear_certificate": [
+            9.99744998e-08,
+            0,
+            0,
+            0
+          ],
+          "jacobian_validity": [
+            0.975639701,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "status_code": 10,
+          "status_diagnostics_xyzw": [
+            1.07705631e-07,
+            9.38579251e-06,
+            0,
+            0
+          ],
+          "nonlinear_certificate": [
+            1.07705631e-07,
+            9.38579251e-06,
+            0,
+            0
+          ],
+          "jacobian_validity": [
+            0.950919032,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    }
+  ]
+}
