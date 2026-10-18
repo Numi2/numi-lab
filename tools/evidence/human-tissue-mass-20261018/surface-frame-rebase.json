@@ -1,0 +1,15 @@
+{
+  "scope": "Load-time surface-frame preservation after existing tissue mass partition; not native tissue mechanics or anatomy qualification",
+  "device": "ssh numi",
+  "validation": {
+    "status": "PASS",
+    "rotated_frame_cases": 64,
+    "binding_channels": 6,
+    "maximum_world_position_error_m": 5.57521e-08
+  },
+  "compile_command": "clang++ -std=c++20 -O2 -Iinclude tools/test_tissue_mass_surface_rebase.cpp -o /tmp/numi-surface-rebase-test",
+  "sources_sha256": {
+    "include/metalrobo/NumiHumanSurfaceFrameRebase.hpp": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659",
+    "tools/test_tissue_mass_surface_rebase.cpp": "a93db3859debfa1f8bf220107bee66563da0fc00266d9223d53752f9d87c1375"
+  }
+}
