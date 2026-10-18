@@ -1,0 +1,37 @@
+// Reduced high-shear Newtonian blood proxy for existing MPM constitutive bytecode.
+// Density and viscosity are population/reference values, not subject-specific calibration.
+// The bulk parameter is a numerical weak-compressibility penalty, NOT measured blood bulk modulus.
+// Valid rheology is limited to high shear; aggregation, cells, clotting and low-shear pooling are omitted.
+material blood_high_shear_newtonian_proxy {
+    parameter density : kg/m^3 = 1050.6 in [1047.5, 1053.7];
+    parameter eta_high_shear : Pa*s = 0.004 in [0.003, 0.005];
+    parameter numerical_bulk_proxy : MPa = 2.5 in [1.0, 5.0];
+
+    model generic;
+    energy = 0.5 * numerical_bulk_proxy * pow(J() - 1, 2);
+
+    // Let Q = Fdot * adj(F), so Ddev = dev(sym(Q))/J.
+    // This is the Rayleigh potential eta*J*(Ddev:Ddev). The existing
+    // derivative compiler emits Pvisc=2*eta*J*Ddev*F^-T; viscous power is 2*potential.
+    dissipation = (eta_high_shear / J()) * (
+        (1.0 / 3.0) * (
+            pow((((Fdot(0,0) * (F(1,1) * F(2,2) - F(1,2) * F(2,1))) + (Fdot(0,1) * (F(1,2) * F(2,0) - F(1,0) * F(2,2))) + (Fdot(0,2) * (F(1,0) * F(2,1) - F(1,1) * F(2,0)))) - ((Fdot(1,0) * (F(0,2) * F(2,1) - F(0,1) * F(2,2))) + (Fdot(1,1) * (F(0,0) * F(2,2) - F(0,2) * F(2,0))) + (Fdot(1,2) * (F(0,1) * F(2,0) - F(0,0) * F(2,1))))), 2) +
+            pow((((Fdot(1,0) * (F(0,2) * F(2,1) - F(0,1) * F(2,2))) + (Fdot(1,1) * (F(0,0) * F(2,2) - F(0,2) * F(2,0))) + (Fdot(1,2) * (F(0,1) * F(2,0) - F(0,0) * F(2,1)))) - ((Fdot(2,0) * (F(0,1) * F(1,2) - F(0,2) * F(1,1))) + (Fdot(2,1) * (F(0,2) * F(1,0) - F(0,0) * F(1,2))) + (Fdot(2,2) * (F(0,0) * F(1,1) - F(0,1) * F(1,0))))), 2) +
+            pow((((Fdot(2,0) * (F(0,1) * F(1,2) - F(0,2) * F(1,1))) + (Fdot(2,1) * (F(0,2) * F(1,0) - F(0,0) * F(1,2))) + (Fdot(2,2) * (F(0,0) * F(1,1) - F(0,1) * F(1,0)))) - ((Fdot(0,0) * (F(1,1) * F(2,2) - F(1,2) * F(2,1))) + (Fdot(0,1) * (F(1,2) * F(2,0) - F(1,0) * F(2,2))) + (Fdot(0,2) * (F(1,0) * F(2,1) - F(1,1) * F(2,0))))), 2)
+        ) +
+        (1.0 / 2.0) * (
+            pow((((Fdot(0,0) * (F(0,2) * F(2,1) - F(0,1) * F(2,2))) + (Fdot(0,1) * (F(0,0) * F(2,2) - F(0,2) * F(2,0))) + (Fdot(0,2) * (F(0,1) * F(2,0) - F(0,0) * F(2,1)))) + ((Fdot(1,0) * (F(1,1) * F(2,2) - F(1,2) * F(2,1))) + (Fdot(1,1) * (F(1,2) * F(2,0) - F(1,0) * F(2,2))) + (Fdot(1,2) * (F(1,0) * F(2,1) - F(1,1) * F(2,0))))), 2) +
+            pow((((Fdot(0,0) * (F(0,1) * F(1,2) - F(0,2) * F(1,1))) + (Fdot(0,1) * (F(0,2) * F(1,0) - F(0,0) * F(1,2))) + (Fdot(0,2) * (F(0,0) * F(1,1) - F(0,1) * F(1,0)))) + ((Fdot(2,0) * (F(1,1) * F(2,2) - F(1,2) * F(2,1))) + (Fdot(2,1) * (F(1,2) * F(2,0) - F(1,0) * F(2,2))) + (Fdot(2,2) * (F(1,0) * F(2,1) - F(1,1) * F(2,0))))), 2) +
+            pow((((Fdot(1,0) * (F(0,1) * F(1,2) - F(0,2) * F(1,1))) + (Fdot(1,1) * (F(0,2) * F(1,0) - F(0,0) * F(1,2))) + (Fdot(1,2) * (F(0,0) * F(1,1) - F(0,1) * F(1,0)))) + ((Fdot(2,0) * (F(0,2) * F(2,1) - F(0,1) * F(2,2))) + (Fdot(2,1) * (F(0,0) * F(2,2) - F(0,2) * F(2,0))) + (Fdot(2,2) * (F(0,1) * F(2,0) - F(0,0) * F(2,1))))), 2)
+        )
+    );
+
+    valid = min(J() - 0.2, 4.0 - J());
+    supports mpm;
+    limits {
+        minimum_J = 0.2;
+        maximum_J = 4.0;
+        maximum_stress = 1e9;
+        maximum_energy_density = 1e9;
+    }
+}

@@ -1,0 +1,112 @@
+{
+  "schema": "numi.matter.blood_newtonian_existing_stateful_cpu_evidence.v1",
+  "source_snapshot_commit": "8b2e74abb39d02e23b2cbde2db498f6ff41213f9",
+  "modified_existing_target": "numi-matter-stateful-check (matter.compiler.stateful_roundtrip)",
+  "source_pins": {
+    "matter/tools/stateful_check.cpp": "31b992c8f13303b4788f89a36967ab5227268fd953a6c34bff28bafcc7e31b4f",
+    "matter/CMakeLists.txt": "5783128eff27f2252d797c8b7f995824d3e7cde6bf00be1a5bf03f4facf1fbac",
+    "matter/materials/blood_high_shear_newtonian_proxy.nmatter": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2"
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O0",
+    "-I/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "-I/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/src",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-DNUMI_MATTER_STATEFUL_MATERIAL=\"/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/damageable_silicone.nmatter\"",
+    "-DNUMI_MATTER_BLOOD_MATERIAL=\"/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter\"",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/compiler_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/matter.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/language_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/constitutive_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/vascular_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/fingerprint_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/validation_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/package_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/surgical_tissue.cpp",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/tools/stateful_check.cpp",
+    "-o",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/bin/numi-matter-stateful-check-blood"
+  ],
+  "dependency_scan_argv": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O0",
+    "-I/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "-I/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/src",
+    "-DNUMI_MATTER_STATEFUL_MATERIAL=\"/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/damageable_silicone.nmatter\"",
+    "-DNUMI_MATTER_BLOOD_MATERIAL=\"/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter\"",
+    "-M",
+    "-MT",
+    "stateful_check_blood",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/compiler_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/matter.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/language_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/constitutive_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/vascular_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/fingerprint_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/validation_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/package_impl.cpp",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/surgical_tissue.cpp",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/tools/stateful_check.cpp"
+  ],
+  "dependency_file": {
+    "path": "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/dependencies.d",
+    "sha256": "36342e7435311ddd17ba68b6a6e864c6600b5bf05c86ad1716a0c4f6838a6946",
+    "dependency_count": 1063
+  },
+  "project_source_and_header_sha256": {
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/include/numi/matter/matter.hpp": "93ce39abc6c158ee9c984839e55a4bcf4e908012df09fd5b7487ab97b6df1502",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/compiler_impl.cpp": "4a4f2f0080577288ba5ff884a28ae1c4f9139ab868be40d5f4e2365de9d88bf7",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/constitutive_impl.cpp": "e4bc877aa8c19b8f464c8005ea3cf85ceb29320b9101df0876f6656e1eec260e",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/fem_reference_geometry.hpp": "29984e3d7cad38b82253320feca1ffeb8df58b66ca48102755856ffcad125e67",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/fingerprint_impl.cpp": "e10dd46df3c4617d50b3854fcdc3f11af9c369575785e422e8741acdd2f62115",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/language_impl.cpp": "e3d92454fbf003b2eae2989888579dee07169f17ec38833e3b02424d1c8dcc43",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/matter.cpp": "fb9db95c09f457713cb8df4b5f1a2ad46fd88121f61968ec6fc19aaf0ada67ec",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/package_impl.cpp": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/surgical_tissue.cpp": "3e6ff5ae889ca3ed496b5be762bc7af34f38c5eeac853b74aa0287aa06d01c52",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/validation_impl.cpp": "fcc6ce268dce9fff97f79224590c841361c641de649223ac65c2505f6ead0305",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-204/patchroot/matter/src/vascular_impl.cpp": "255560baffedbf4b1206eacd83c6b4da0f461da61e985a9648d290f96ac2ad75",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/accepted_state_proof_gpu.h": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/detail.hpp": "0098b405fdb683542cd0ca5a95982264093ef9589f76adc6d9c132288efe28b0",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/human_equality_gpu.h": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/human_limits_gpu.h": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/physical_state_digest_gpu.h": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/sha256_gpu.h": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/shared.h": "e05373980b6262cdb03ec95477ac4563fb70ce81babceb6843fc67d0b1e96bf6",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/surgical_tissue.hpp": "b11cf8c2753b9bff79391ae5a69abb83cba8292b666ab850f4b14782ccf44087",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/vascular.hpp": "149e556aa04bb6de5a15dfaa6fac9d41875b67bc9fab8aac0caf9b3d6b69acb0",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/CMakeLists.txt": "5783128eff27f2252d797c8b7f995824d3e7cde6bf00be1a5bf03f4facf1fbac",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/damageable_silicone.nmatter": "cbbda90510ace4982f3d975c1190a65348117cd092dde0ad6577ff40640b3c4b",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/tools/stateful_check.cpp": "31b992c8f13303b4788f89a36967ab5227268fd953a6c34bff28bafcc7e31b4f"
+  },
+  "binary": {
+    "path": "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/bin/numi-matter-stateful-check-blood",
+    "sha256": "45029f4b16c37bc971979c4797b0797dd6c89a973f00ff9892df57827511ac8e"
+  },
+  "build": {
+    "log": "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/build.log",
+    "exit_code": 0
+  },
+  "run": {
+    "argv": [
+      "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/bin/numi-matter-stateful-check-blood"
+    ],
+    "log": "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/run.log",
+    "exit_code": 0,
+    "stdout": "{\"schema\":\"numi.matter.blood_newtonian_bytecode_cpu_check.v1\",\"result\":\"pass\",\"viscosity_Pa_s\":0.004,\"density_rise_at_30kPa\":[0.0309278,0.0121458,0.00603616],\"numerical_bulk_proxy_Pa\":[1e+06,2.5e+06,5e+06],\"mpm_cfl_exponent\":7,\"scope\":\"CPU constitutive bytecode only; no GPU liquid transfer or rollback test\"}\n{\"schema\":\"numi.matter.stateful-compiler.v1\",\"fingerprint\":8973917896904243881,\"state_stride\":2,\"particles\":2,\"tetrahedra\":1}\n"
+  },
+  "scope": "Existing stateful compiler test target plus a blood Newtonian constitutive-bytecode CPU check; no GPU MPM liquid transfer, density evolution, or rollback test."
+}

@@ -668,6 +668,7 @@ target_compile_definitions(
     numi-matter-stateful-check
     PRIVATE
         NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/damageable_silicone.nmatter"
+        NUMI_MATTER_BLOOD_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/blood_high_shear_newtonian_proxy.nmatter"
 )
 target_compile_options(
     numi-matter-stateful-check

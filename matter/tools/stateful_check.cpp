@@ -16,6 +16,9 @@
 #ifndef NUMI_MATTER_STATEFUL_MATERIAL
 #define NUMI_MATTER_STATEFUL_MATERIAL ""
 #endif
+#ifndef NUMI_MATTER_BLOOD_MATERIAL
+#define NUMI_MATTER_BLOOD_MATERIAL ""
+#endif
 
 namespace {
 
@@ -967,6 +970,298 @@ void verifyDormantMPMCapacitySlot() {
     );
 }
 
+using Matrix3 = std::array<float, 9>;
+
+[[nodiscard]] float determinant3(const Matrix3& a) {
+    return a[0] * (a[4] * a[8] - a[5] * a[7])
+        - a[1] * (a[3] * a[8] - a[5] * a[6])
+        + a[2] * (a[3] * a[7] - a[4] * a[6]);
+}
+
+[[nodiscard]] Matrix3 inverse3(const Matrix3& a) {
+    const float j = determinant3(a);
+    require(std::abs(j) > 1.0e-6f, "test deformation is singular");
+    return {
+        (a[4] * a[8] - a[5] * a[7]) / j,
+        (a[2] * a[7] - a[1] * a[8]) / j,
+        (a[1] * a[5] - a[2] * a[4]) / j,
+        (a[5] * a[6] - a[3] * a[8]) / j,
+        (a[0] * a[8] - a[2] * a[6]) / j,
+        (a[2] * a[3] - a[0] * a[5]) / j,
+        (a[3] * a[7] - a[4] * a[6]) / j,
+        (a[1] * a[6] - a[0] * a[7]) / j,
+        (a[0] * a[4] - a[1] * a[3]) / j,
+    };
+}
+
+[[nodiscard]] Matrix3 multiply3(const Matrix3& a, const Matrix3& b) {
+    Matrix3 result{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            for (std::size_t k = 0u; k < 3u; ++k) {
+                result[3u * row + column] +=
+                    a[3u * row + k] * b[3u * k + column];
+            }
+        }
+    }
+    return result;
+}
+
+[[nodiscard]] Matrix3 transpose3(const Matrix3& a) {
+    Matrix3 result{};
+    for (std::size_t row = 0u; row < 3u; ++row)
+        for (std::size_t column = 0u; column < 3u; ++column)
+            result[3u * row + column] = a[3u * column + row];
+    return result;
+}
+
+[[nodiscard]] Matrix3 expectedNewtonianPK1(
+    const Matrix3& f,
+    const Matrix3& fdot,
+    const float eta
+) {
+    const float j = determinant3(f);
+    const Matrix3 finv = inverse3(f);
+    Matrix3 adj = finv;
+    for (float& value : adj) value *= j;
+    const Matrix3 q = multiply3(fdot, adj);
+    // q is Fdot*adj(F); dev(sym(q))/J is the spatial deviatoric rate.
+    Matrix3 ddev{};
+    const float trace = q[0] + q[4] + q[8];
+    for (std::size_t i = 0; i < 9u; ++i)
+        ddev[i] = 0.5f * (q[i] + q[(i % 3u) * 3u + i / 3u]);
+    const float mean = trace / 3.0f;
+    ddev[0] -= mean;
+    ddev[4] -= mean;
+    ddev[8] -= mean;
+    const Matrix3 finvT = transpose3(finv);
+    Matrix3 result = multiply3(ddev, finvT);
+    const float scale = 2.0f * eta;
+    for (float& value : result) value *= scale;
+    return result;
+}
+
+[[nodiscard]] float expectedRayleighPotential(
+    const Matrix3& f,
+    const Matrix3& fdot,
+    const float eta
+) {
+    const float j = determinant3(f);
+    const Matrix3 finv = inverse3(f);
+    Matrix3 adj = finv;
+    for (float& value : adj) value *= j;
+    const Matrix3 q = multiply3(fdot, adj);
+    Matrix3 ddev{};
+    const float trace = q[0] + q[4] + q[8];
+    for (std::size_t i = 0; i < 9u; ++i)
+        ddev[i] = 0.5f * (q[i] + q[(i % 3u) * 3u + i / 3u]);
+    const float mean = trace / 3.0f;
+    ddev[0] -= mean;
+    ddev[4] -= mean;
+    ddev[8] -= mean;
+    float norm2 = 0.0f;
+    for (float value : ddev) norm2 += value * value;
+    return eta * norm2 / j;
+}
+
+void verifyBloodNewtonianBytecode() {
+    using namespace numi::matter;
+    const auto parsed = parseMatterFile(NUMI_MATTER_BLOOD_MATERIAL);
+    if (!parsed.succeeded()) {
+        for (const auto& diagnostic : parsed.diagnostics)
+            std::cerr << "blood material parse: " << diagnostic.line << ":"
+                << diagnostic.column << " " << diagnostic.message << '\n';
+        throw std::runtime_error("blood proxy material did not parse");
+    }
+    WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.materials.push_back(parsed.material);
+    ObjectSource object;
+    object.name = "blood_receiver_constitutive_cpu_fixture";
+    object.materialIndex = 0u;
+    object.representation = Representation::mpm;
+    object.characteristicLength = 0.005;
+    object.mpmGridMinimum = {0.0, 0.0, 0.0};
+    object.mpmGridMaximum = {0.01, 0.01, 0.01};
+    object.deformableContact = false;
+    object.deformableSelfContact = false;
+    ParticleSource particle;
+    particle.position = {0.0025, 0.0025, 0.0025};
+    particle.mass = 1050.6 * 1.25e-7;
+    particle.referenceVolume = 1.25e-7;
+    object.particles.push_back(particle);
+    source.objects.push_back(object);
+    CompileOptions options;
+    options.cfl = 0.35;
+    options.maximumRateExponent = 8u;
+    options.emitSpecializedMetal = false;
+    const CompileResult compiled = compileWorld(source, options);
+    if (!compiled.succeeded()) {
+        for (const auto& diagnostic : compiled.diagnostics)
+            std::cerr << "blood material compile: " << diagnostic.line << ":"
+                << diagnostic.column << " " << diagnostic.message << '\n';
+        throw std::runtime_error("blood proxy material did not compile");
+    }
+    std::string validationError;
+    require(
+        validateCompiledWorldLayout(compiled.world, &validationError),
+        "blood proxy world failed cooked validation: " + validationError
+    );
+    require(compiled.world.materials.size() == 1u, "blood proxy world has wrong material count");
+    const NMMaterialGPU& material = compiled.world.materials.front();
+    require(
+        material.stressProgramOffset != NM_INVALID_INDEX &&
+            material.viscousStressProgramOffset != NM_INVALID_INDEX &&
+            material.viscousTangentProgramOffset != NM_INVALID_INDEX &&
+            material.dissipationProgram != NM_INVALID_INDEX,
+        "blood proxy lacks compiled stored-energy or viscous bytecode"
+    );
+    require(
+        compiled.world.objects.front().solver.x == 7u,
+        "blood proxy CFL exponent does not reflect the 1-5 MPa numerical bulk bound"
+    );
+    std::vector<float> parameters;
+    parameters.reserve(compiled.world.parameters.size());
+    for (const NMParameterRangeGPU parameter : compiled.world.parameters)
+        parameters.push_back(parameter.valueAndBounds.x);
+    constexpr float eta = 0.004f;
+    const std::array<float, 2> noState{0.0f, 0.0f};
+    const std::array<float, 9> zero{};
+    require(parameters.size() == 3u, "blood proxy parameter layout changed");
+    const auto evalAt = [&](const std::vector<float>& values, const std::uint32_t program,
+                            const Matrix3& f, const Matrix3& d) {
+        return evaluateProgram(
+            compiled.world, program, values, noState, f, zero, d, 1.0e-4f, 310.15f
+        );
+    };
+    const auto eval = [&](const std::uint32_t program, const Matrix3& f, const Matrix3& d) {
+        return evalAt(parameters, program, f, d);
+    };
+    const auto evalStressAt = [&](const std::vector<float>& values, const std::uint32_t first,
+                                  const Matrix3& f, const Matrix3& d) {
+        Matrix3 result{};
+        for (std::uint32_t i = 0u; i < 9u; ++i)
+            result[i] = evalAt(values, first + i, f, d);
+        return result;
+    };
+    const auto evalStress = [&](const std::uint32_t first, const Matrix3& f, const Matrix3& d) {
+        return evalStressAt(parameters, first, f, d);
+    };
+    const Matrix3 identity{1,0,0, 0,1,0, 0,0,1};
+    const Matrix3 simpleShearRate{0,2,0, 0,0,0, 0,0,0};
+    const Matrix3 simpleShearF{1,0.4f,0, 0,1,0, 0,0,1};
+    const Matrix3 shearStress = evalStress(material.viscousStressProgramOffset, identity, simpleShearRate);
+    require(
+        std::abs(shearStress[1] - eta * 2.0f) < 2.0e-6f &&
+            std::abs(shearStress[3] - eta * 2.0f) < 2.0e-6f,
+        "simple-shear PK1 stress does not equal mu*shear-rate"
+    );
+    const float shearPhi = eval(material.dissipationProgram, identity, simpleShearRate);
+    require(
+        std::abs(shearPhi - eta * 2.0f) < 2.0e-6f,
+        "simple-shear Rayleigh potential has the wrong value"
+    );
+    const Matrix3 staticShearStress = evalStress(material.stressProgramOffset, simpleShearF, zero);
+    for (float value : staticShearStress)
+        require(std::abs(value) < 2.0e-3f, "volumetric-only energy added equilibrium shear stress");
+
+    const float angle = 0.73f;
+    const float omega = 3.0f;
+    const float c = std::cos(angle), s = std::sin(angle);
+    const Matrix3 rotation{c,-s,0, s,c,0, 0,0,1};
+    const Matrix3 spin{0,-omega,0, omega,0,0, 0,0,0};
+    const Matrix3 rigidRotationRate = multiply3(spin, rotation);
+    const float rotationPhi = eval(material.dissipationProgram, rotation, rigidRotationRate);
+    const Matrix3 rotationStress = evalStress(
+        material.viscousStressProgramOffset, rotation, rigidRotationRate
+    );
+    require(std::abs(rotationPhi) < 1.0e-6f, "rigid rotation generated viscous dissipation");
+    for (float value : rotationStress)
+        require(std::abs(value) < 1.0e-5f, "rigid rotation generated objective viscous stress");
+
+    const Matrix3 generalF{1.1f,0.12f,-0.08f, 0.04f,0.93f,0.17f, -0.03f,0.09f,1.04f};
+    const Matrix3 generalRate{0.7f,-0.4f,0.2f, 0.1f,-0.3f,0.6f, -0.5f,0.25f,0.15f};
+    const Matrix3 actualGeneral = evalStress(
+        material.viscousStressProgramOffset, generalF, generalRate
+    );
+    const Matrix3 expectedGeneral = expectedNewtonianPK1(generalF, generalRate, eta);
+    const float expectedPhi = expectedRayleighPotential(generalF, generalRate, eta);
+    const float actualPhi = eval(material.dissipationProgram, generalF, generalRate);
+    require(expectedPhi >= 0.0f && actualPhi >= 0.0f, "Newtonian dissipation is negative");
+    require(
+        std::abs(actualPhi - expectedPhi) <= 3.0e-5f * std::max(expectedPhi, 1.0e-8f),
+        "compiled Rayleigh potential differs from objective Newtonian reference"
+    );
+    for (std::size_t i = 0u; i < 9u; ++i)
+        require(
+            std::abs(actualGeneral[i] - expectedGeneral[i]) <=
+                3.0e-4f * std::max(std::abs(expectedGeneral[i]), 1.0e-5f),
+            "compiled PK1 viscous stress differs from objective Newtonian reference"
+        );
+    float power = 0.0f;
+    for (std::size_t i = 0u; i < 9u; ++i)
+        power += actualGeneral[i] * generalRate[i];
+    require(power >= 0.0f, "Newtonian viscous power is negative");
+    require(
+        std::abs(power - 2.0f * actualPhi) <= 8.0e-5f * std::max(power, 1.0e-6f),
+        "quadratic Rayleigh potential power is not twice the potential"
+    );
+
+    const Matrix3 compression{1,0,0, 0,1,0, 0,0,0.99f};
+    const Matrix3 elasticCompression = evalStress(material.stressProgramOffset, compression, zero);
+    require(
+        elasticCompression[8] < 0.0f &&
+            std::abs(elasticCompression[8] + 25000.0f) < 100.0f,
+        "numerical bulk proxy has wrong compression pressure sign or magnitude"
+    );
+
+    // Exact hydrostatic EOS sensitivity for this W=K/2*(J-1)^2 penalty:
+    // p=K*(1-J), so rho/rho0=1/J. This is a numerical weak-compressibility
+    // bound, not a measured blood equation of state.
+    constexpr float pressureBound = 30000.0f;
+    constexpr std::array<float, 3> bulkCases{1.0e6f, 2.5e6f, 5.0e6f};
+    constexpr std::array<float, 3> expectedDensityRise{0.0309278f, 0.0121457f, 0.0060362f};
+    for (std::size_t i = 0u; i < bulkCases.size(); ++i) {
+        std::vector<float> caseParameters = parameters;
+        caseParameters[2] = bulkCases[i];
+        const float j = 1.0f - pressureBound / bulkCases[i];
+        const Matrix3 pressureF{1,0,0, 0,1,0, 0,0,j};
+        const Matrix3 stress = evalStressAt(caseParameters, material.stressProgramOffset, pressureF, zero);
+        const float densityRise = 1.0f / j - 1.0f;
+        require(
+            std::abs(stress[8] + pressureBound) < 2.0f &&
+                std::abs(densityRise - expectedDensityRise[i]) < 2.0e-5f,
+            "weak-compressibility pressure/density sensitivity changed"
+        );
+    }
+
+    const float rhoLower = compiled.world.parameters[0].valueAndBounds.y;
+    const float kUpper = compiled.world.parameters[2].valueAndBounds.z;
+    const float waveSpeedBound = std::sqrt(kUpper / rhoLower);
+    const float stableDt = options.cfl * 0.005f / waveSpeedBound;
+    const float frameTicks = static_cast<float>(source.frameTimestep) / stableDt;
+    const unsigned cflExponent = static_cast<unsigned>(std::ceil(std::log2(frameTicks)));
+    require(
+        cflExponent == 7u && compiled.world.objects.front().solver.x == cflExponent,
+        "numerical-bulk upper bound no longer drives the expected MPM CFL subdivision"
+    );
+
+    std::cout
+        << "{\"schema\":\"numi.matter.blood_newtonian_bytecode_cpu_check.v1\""
+        << ",\"result\":\"pass\""
+        << ",\"viscosity_Pa_s\":" << eta
+        << ",\"density_rise_at_30kPa\":["
+        << (1.0f / (1.0f - pressureBound / bulkCases[0]) - 1.0f) << ","
+        << (1.0f / (1.0f - pressureBound / bulkCases[1]) - 1.0f) << ","
+        << (1.0f / (1.0f - pressureBound / bulkCases[2]) - 1.0f) << "]"
+        << ",\"numerical_bulk_proxy_Pa\":[" << bulkCases[0] << ","
+        << bulkCases[1] << "," << bulkCases[2] << "]"
+        << ",\"mpm_cfl_exponent\":" << cflExponent
+        << ",\"scope\":\"CPU constitutive bytecode only; no GPU liquid transfer or rollback test\"}\n";
+}
+
 } // namespace
 
 int main() {
@@ -974,6 +1269,7 @@ int main() {
         verifyAdaptiveLayout();
         verifyLearnedMaterialRoundTrip();
         verifyDormantMPMCapacitySlot();
+        verifyBloodNewtonianBytecode();
         const auto world = compileStatefulWorld();
         std::cout
             << "{\"schema\":\"numi.matter.stateful-compiler.v1\""
