@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "bytes": 12219,
+      "path": "apps/NumiHumanSharedTissueRollbackProbe.hpp",
+      "sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3"
+    },
+    {
+      "bytes": 1805555,
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1"
+    },
+    {
+      "bytes": 694,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/README.md",
+      "sha256": "147fe542cbdcb7ae644b5b8f98764d813a25db47c8016e8893f96b211cb2460a"
+    },
+    {
+      "bytes": 605,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/baseline-trace-comparison.json",
+      "sha256": "65fc65cbcf2afe2625ab089d421bf79a696eebfde269fbff94d2e61f77dd52fd"
+    },
+    {
+      "bytes": 9508,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/build-015.json",
+      "sha256": "064b41e7ba10b8a6905af414377586ed9fbafdda2dc1954256e32660761546d5"
+    },
+    {
+      "bytes": 1791,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/failed-run-004.json",
+      "sha256": "41e88b3579a1f4f6aba09948fc3109a61acc8314403d8c285c06e38e5f27537b"
+    },
+    {
+      "bytes": 4985,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/failed-runs-001-003.json",
+      "sha256": "9a00e14d0bc6bc3bae8e51c8c034b849c608958eca3c0bb0b411503d5fda6b4f"
+    },
+    {
+      "bytes": 17029,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/invocation-005.json",
+      "sha256": "a96f45a04a9689dbf674c9fc7d7a79ff041d7391f3b05cd0f027520af465c97d"
+    },
+    {
+      "bytes": 850,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/native-log-fingerprint-005.json",
+      "sha256": "0d0eb5f05850f90cf8ba13495d390228dbe2c4a934a4a7171b2e383a78053eec"
+    },
+    {
+      "bytes": 2032,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/native-receipt-005.json",
+      "sha256": "3fe9f6f436f24e26c1c61ffe27ef7e4ddfcf4c244304d51733111fbf0b4da2be"
+    },
+    {
+      "bytes": 899,
+      "path": "tools/evidence/human-shared-tissue-rollback-20261019/source-pins.json",
+      "sha256": "80cc196389d8d884ff303dce11f43d9d6a915ffbb80c579f0d221b404dadfc9a"
+    }
+  ],
+  "schema": "numi.artifact.sha256_manifest.v1"
+}

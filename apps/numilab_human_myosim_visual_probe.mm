@@ -4,6 +4,7 @@
 #include "NumiHumanInferredACL.hpp"
 #include "NumiHumanReducedPassiveFascia.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
+#include "NumiHumanSharedTissueRollbackProbe.hpp"
 #include "NumiHumanPassiveCoordinateRemap.hpp"
 #include "NumiHumanSeparationBodyRemap.hpp"
 #include "NumiHumanSeparationSupport.hpp"
@@ -5883,9 +5884,28 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     auto* eventRollbackProbe =
         numi::human::event_rollback::Probe::fromProgram(restingProgram);
     const bool organEventRollbackTest = eventRollbackProbe != nullptr;
-    void* restingCouplingContext = eventRollbackProbe != nullptr
-        ? eventRollbackProbe->delegateContext()
-        : (restingProgram != nullptr ? restingProgram->context : nullptr);
+    auto* sharedTissueRollbackProbe =
+        numi::human::shared_tissue_rollback::Probe::fromProgram(restingProgram);
+    const bool sharedTissueRollbackTest = sharedTissueRollbackProbe != nullptr;
+    require(!(organEventRollbackTest && sharedTissueRollbackTest),
+            "organ and intact shared-tissue rollback probes are mutually exclusive");
+    void* restingCouplingContext = sharedTissueRollbackProbe != nullptr
+        ? sharedTissueRollbackProbe->delegateContext()
+        : eventRollbackProbe != nullptr
+            ? eventRollbackProbe->delegateContext()
+            : (restingProgram != nullptr ? restingProgram->context : nullptr);
+    require(!sharedTissueRollbackTest ||
+                (sharedTissueRollbackProbe->rejectStep() == 1u && stepCount == 2u &&
+                 !verifyDeterminism && organReleaseStep == MR_INVALID_INDEX &&
+                 organCaudalReleaseQ.empty() && separationReleaseEqualityQ.empty() &&
+                 separationCrossingReleaseRows.empty() && sourceBodyIndexMap.empty() &&
+                 sourceQIndexMap.empty() && sourceVIndexMap.empty() &&
+                 continuumTransaction != nullptr &&
+                 continuumTransaction->restingSharedPassiveOwner &&
+                 continuumTransaction->restingCouplingOwnsScheduling &&
+                 continuumTransaction->runtime != nullptr &&
+                 continuumTransaction->adapter != nullptr),
+            "shared-tissue rollback probe requires the intact two-step shared owner");
     require(!organEventRollbackTest ||
                 (eventRollbackProbe->releaseStep() == organReleaseStep &&
                  !verifyDeterminism && organCaudalReleaseQ.size() == 6u &&
@@ -7877,7 +7897,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            &mergeStandStatus,
                                            &lastAuthoritativeSubmissionSteps,
                                            useSegmentedAuthoritativeHorizon,
-                                           captureExactContinuumSteps,
+                                           captureExactContinuumSteps, sharedTissueRollbackTest,
+                                           sharedTissueRollbackProbe,
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
@@ -8156,6 +8177,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         double energyGeometryDelta = 0.0, energyProjectionDelta = 0.0;
         bool rollbackPredecessorSaved = false;
         bool rollbackEventVerified = false;
+        bool sharedTissueRollbackVerified = false;
         std::uint64_t rollbackFingerprintBefore = 0u;
         std::uint64_t rollbackGenerationBefore = 0u;
         std::uint32_t rollbackFullEqualityCount = 0u;
@@ -8169,6 +8191,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     maximumSubmissionSteps);
             if(organReleaseStep!=MR_INVALID_INDEX&&completedSteps<organReleaseStep)
                 segmentSteps=std::min(segmentSteps,organReleaseStep-completedSteps);
+            if (sharedTissueRollbackTest && completedSteps < sharedTissueRollbackProbe->rejectStep())
+                segmentSteps=std::min(segmentSteps,
+                    sharedTissueRollbackProbe->rejectStep()-completedSteps);
+            if (sharedTissueRollbackTest &&
+                completedSteps == sharedTissueRollbackProbe->rejectStep())
+                segmentSteps = 1u;
             if (organEventRollbackTest &&
                 completedSteps == organReleaseStep)
                 segmentSteps = 1u;
@@ -8181,7 +8209,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 !residentResting || acceptedComMomentumAudit ||
                 completedSteps + segmentSteps == requestedSteps ||
                 (organEventRollbackTest &&
-                 completedSteps + segmentSteps == organReleaseStep);
+                 completedSteps + segmentSteps == organReleaseStep) ||
+                (sharedTissueRollbackTest &&
+                 completedSteps + segmentSteps == sharedTissueRollbackProbe->rejectStep());
             const bool residentStep=residentResting&&completedSteps!=0;
             horizonInput.residentContinuation=residentStep?restingContinuation:
                 metalrobo::MetalArticulatedOperatorResidentStateContinuation{};
@@ -8376,6 +8406,126 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << segmentResult.standStatuses.front()
                                  .jointEqualityCounts.x
                           << " retry_without_reset=1" << std::endl;
+            } else if (sharedTissueRollbackTest &&
+                       completedSteps == sharedTissueRollbackProbe->rejectStep()) {
+                require(segmentSteps == 1u && completedSteps == 1u &&
+                            !sharedTissueRollbackVerified &&
+                            sharedTissueRollbackProbe->injectedCount() == 0u &&
+                            horizonInput.stand.stepIndexOffset == 1u &&
+                            horizonInput.stand.stepCount == 1u &&
+                            horizonInput.stand.authoritativeStepCount == 2u &&
+                            horizonInput.residentContinuation.valid() &&
+                            !horizonInput.stand.jointEqualityPrefixRelease.configured(),
+                        "intact shared-tissue rejection input is not the accepted step-1 continuation");
+                const auto eventInput = horizonInput;
+                const std::vector<MRNumiHumanJointEqualityGPU> equalityRowsBefore(
+                    eventInput.stand.jointEqualities.begin(),
+                    eventInput.stand.jointEqualities.end());
+                const auto eventFingerprint =
+                    eventInput.residentContinuation.previousTransactionFingerprint;
+                const auto eventGeneration =
+                    eventInput.residentContinuation.previousPhysicsGeneration;
+                auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+                    restingCouplingContext);
+                auto* sharedTransaction = continuumTransaction;
+                require(eventFingerprint != 0u && eventGeneration != 0u &&
+                            sharedTransaction->runtime == &coupled.physiology.runtime &&
+                            sharedTransaction->adapter != nullptr,
+                        "intact shared-tissue predecessor token or owner bindings are unavailable");
+                numi::human::transaction_probe::PhysicalSnapshot physicalSnapshot(
+                    coupled.physiology.device, model, eventInput);
+                const auto beforePhysical =
+                    numi::human::transaction_probe::observePhysicalState(
+                        context, physicalSnapshot, eventFingerprint, eventGeneration);
+                const auto beforeMatter = coupled.physiology.runtime.snapshot();
+                const auto beforeAdapter = sharedTransaction->adapter->snapshot();
+                const auto beforeMemory =
+                    numi::human::transaction_probe::captureCouplingMemory(coupled);
+                require(beforeMatter.available && beforeAdapter.available &&
+                            (beforeAdapter.passiveLigamentCount > 0u ||
+                             beforeAdapter.passiveRoutedBandCount > 0u),
+                        "shared-tissue rollback probe lacks accepted Matter or passive adapter history");
+
+                metalrobo::MetalArticulatedOperatorResult rejectedResult;
+                const auto rejectedDiagnostics = context.run(
+                    model, eventInput, rejectedResult);
+                rejectedAttemptMilliseconds = rejectedDiagnostics.elapsedMilliseconds;
+                require(sharedTissueRollbackProbe->injectedCount() == 1u &&
+                            sharedTissueRollbackProbe->acceptedPublicationCount() == 1u &&
+                            rejectedDiagnostics.dispatched &&
+                            !rejectedDiagnostics.succeeded() &&
+                            !rejectedDiagnostics.published &&
+                            rejectedDiagnostics.firstStandGPUStatusCode ==
+                                MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+                            rejectedDiagnostics.completedStandSteps == 1u &&
+                            rejectedDiagnostics.residentStateGeneration == 0u &&
+                            rejectedDiagnostics.residentStateTransactionFingerprint == 0u,
+                        "shared late body-gate rejection did not preserve the prior resident token");
+
+                const auto afterPhysical =
+                    numi::human::transaction_probe::observePhysicalState(
+                        context, physicalSnapshot, eventFingerprint, eventGeneration);
+                const auto afterMatter = coupled.physiology.runtime.snapshot();
+                const auto afterAdapter = sharedTransaction->adapter->snapshot();
+                const auto afterMemory =
+                    numi::human::transaction_probe::captureCouplingMemory(coupled);
+                const bool physicalUnchanged =
+                    numi::human::transaction_probe::samePhysicalState(
+                        beforePhysical, afterPhysical);
+                const bool matterAndVascularUnchanged =
+                    numi::human::transaction_probe::sameMatterAcceptedState(
+                        beforeMatter, afterMatter) &&
+                    numi::human::transaction_probe::sameMatterCirculation(
+                        beforeMatter, afterMatter);
+                const bool adapterHistoryUnchanged =
+                    numi::human::transaction_probe::sameTendonAdapterAcceptedHistory(
+                        beforeAdapter, afterAdapter);
+                const bool controllerAndPresentationUnchanged =
+                    numi::human::transaction_probe::sameAcceptedCouplingMemory(
+                        beforeMemory, afterMemory);
+                require(physicalUnchanged && matterAndVascularUnchanged &&
+                            adapterHistoryUnchanged &&
+                            controllerAndPresentationUnchanged,
+                        "intact shared rejection changed accepted body, FEM, circulation, Brain, respiration, or presentation state");
+
+                // Retry the same immutable one-step input using the same context.
+                segmentDiagnostics = context.run(model, eventInput, segmentResult);
+                require(segmentDiagnostics.succeeded() && segmentDiagnostics.dispatched &&
+                            segmentDiagnostics.published &&
+                            segmentDiagnostics.completedStandSteps == 2u &&
+                            segmentDiagnostics.residentStateTransactionFingerprint ==
+                                eventFingerprint &&
+                            segmentDiagnostics.residentStateGeneration == eventGeneration + 1u &&
+                            segmentResult.standStatuses.size() == 1u &&
+                            segmentResult.standStatuses.front().code ==
+                                MR_NUMI_HUMAN_STAND_SUCCESS &&
+                            eventInput.stand.stepIndexOffset == 1u &&
+                            eventInput.stand.stepCount == 1u &&
+                            eventInput.stand.jointEqualities.size() == equalityRowsBefore.size() &&
+                            std::memcmp(eventInput.stand.jointEqualities.data(),
+                                        equalityRowsBefore.data(),
+                                        equalityRowsBefore.size() *
+                                            sizeof(MRNumiHumanJointEqualityGPU)) == 0 &&
+                            sharedTissueRollbackProbe->injectedCount() == 1u &&
+                            sharedTissueRollbackProbe->acceptedPublicationCount() == 2u &&
+                            sharedTissueRollbackProbe->bodySnapshotCount() == 2u &&
+                            sharedTissueRollbackProbe->bodyPropertiesRestoredForRetry() &&
+                            sharedTissueRollbackProbe->dofPropertiesRestoredForRetry(),
+                        "same-context intact shared-tissue retry failed or changed immutable input/property state");
+                sharedTissueRollbackVerified = true;
+                std::cout << "shared_tissue_late_reject_retry=passed"
+                          << " reject_step=1 rejected_gpu_status="
+                          << rejectedDiagnostics.firstStandGPUStatusCode
+                          << " q_v_root_muscle_unchanged=" << physicalUnchanged
+                          << " matter_vascular_unchanged=" << matterAndVascularUnchanged
+                          << " passive_adapter_history_unchanged=" << adapterHistoryUnchanged
+                          << " brain_respiration_presentation_unchanged="
+                          << controllerAndPresentationUnchanged
+                          << " body_properties_restored="
+                          << sharedTissueRollbackProbe->bodyPropertiesRestoredForRetry()
+                          << " dof_properties_restored="
+                          << sharedTissueRollbackProbe->dofPropertiesRestoredForRetry()
+                          << " same_context_retry=1" << std::endl;
             } else {
                 segmentDiagnostics = context.run(
                     model, horizonInput, segmentResult);
@@ -9446,6 +9596,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         eventRollbackProbe->releaseAcceptedPublicationCount() == 2u &&
                         eventRollbackProbe->bodyPropertiesBytesUnchanged(),
                     "deferred organ event rollback fixture did not complete the failure, exact retry, and mass-restore check");
+        if (sharedTissueRollbackTest)
+            require(sharedTissueRollbackVerified &&
+                        sharedTissueRollbackProbe->injectedCount() == 1u &&
+                        sharedTissueRollbackProbe->acceptedPublicationCount() == 2u,
+                    "intact shared-tissue rollback fixture did not complete one late rejection and exact retry");
         require(haveStatus && horizonResult.standStatuses.size() == 1u,
                 "segmented Human horizon published no status");
         aggregateStatus.completedSteps = requestedSteps;
@@ -10103,7 +10258,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   borrowedTendonStatus->tendonFailureCount == 0u);
         // Completed GPU rejection is an encoded attempt, not an encoding abort.
         const std::uint32_t expectedRejectedAuditPasses =
-            organEventRollbackTest ? eventRollbackProbe->injectedCount() : 0u;
+            organEventRollbackTest ? eventRollbackProbe->injectedCount() :
+            (sharedTissueRollbackTest ? sharedTissueRollbackProbe->injectedCount() : 0u);
         const std::uint32_t expectedInitialAuditPasses =
             stepCount + expectedRejectedAuditPasses;
         tendonBorrowedConsumerVerified =
@@ -10211,8 +10367,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         // Runtime stores the zero-based last accepted request index.
         const bool clockMatches=z.controlStep==0u && stepCount>0u &&
             a.controlStep==stepCount-1u && a.physicsSubstep==0u;
-        const bool passesMatch=continuumTransaction->acceptedAdapter.encodedPassCount-
-                    continuumTransaction->initialAdapter.encodedPassCount==stepCount;
+        const std::uint32_t terminalRejectedAuditAttempts =
+            organEventRollbackTest ? eventRollbackProbe->injectedCount() :
+            (sharedTissueRollbackTest ? sharedTissueRollbackProbe->injectedCount() : 0u);
+        const std::uint32_t expectedAdapterAttempts =
+            stepCount + terminalRejectedAuditAttempts;
+        const std::uint32_t actualAdapterAttempts =
+            continuumTransaction->acceptedAdapter.encodedPassCount -
+            continuumTransaction->initialAdapter.encodedPassCount;
+        const bool passesMatch=actualAdapterAttempts==expectedAdapterAttempts;
         require(a.femNodes.size()==z.femNodes.size()&&!a.femNodes.empty(),
             "resting FEM terminal node extent changed");
         const auto det=[](const auto& nodes,const auto& t){
@@ -10242,10 +10405,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             require(std::isfinite(f),"resting FEM accepted reaction nonfinite");
             maxReaction=std::max(maxReaction,f);
         }
-        require(clockMatches && passesMatch,"resting FEM accepted cursors disagree with physical steps");
-        std::cout<<"resting_FEM_terminal_audit=passed expected_steps="<<stepCount<<" initial_control="<<z.controlStep<<" final_control="<<a.controlStep<<" initial_substep="<<z.physicsSubstep<<" final_substep="<<a.physicsSubstep<<" accepted_steps="<<continuumTransaction->acceptedAdapter.encodedPassCount-continuumTransaction->initialAdapter.encodedPassCount
-            <<" adapter_passes="<<continuumTransaction->acceptedAdapter.encodedPassCount-
-                  continuumTransaction->initialAdapter.encodedPassCount
+        require(clockMatches && passesMatch,
+            "resting FEM cursor audit mismatch: clock_matches=" +
+                std::to_string(clockMatches) + " initial_control=" +
+                std::to_string(z.controlStep) + " final_control=" +
+                std::to_string(a.controlStep) + " expected_final_control=" +
+                std::to_string(stepCount - 1u) + " final_substep=" +
+                std::to_string(a.physicsSubstep) + " adapter_attempts=" +
+                std::to_string(actualAdapterAttempts) + " expected_adapter_attempts=" +
+                std::to_string(expectedAdapterAttempts) + " rejected_attempts=" +
+                std::to_string(terminalRejectedAuditAttempts));
+        std::cout<<"resting_FEM_terminal_audit=passed expected_steps="<<stepCount<<" initial_control="<<z.controlStep<<" final_control="<<a.controlStep<<" initial_substep="<<z.physicsSubstep<<" final_substep="<<a.physicsSubstep<<" accepted_steps="<<stepCount
+            <<" adapter_passes="<<actualAdapterAttempts
+            <<" expected_adapter_passes="<<expectedAdapterAttempts
             <<" min_J="<<minJ<<" max_J="<<maxJ<<" max_displacement_m="<<maxDisplacement
             <<" max_anchor_reaction_N="<<maxReaction<<" capture=terminal_only"<<std::endl;
         if (continuumTransaction->adapter != nullptr) {
@@ -10586,7 +10758,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             stepCount * phaseCount * (verifyDeterminism ? 2u : 1u);
         // Completed GPU rejection is an encoded attempt, not an encoding abort.
         const std::uint32_t expectedRejectedAuditPasses =
-            organEventRollbackTest ? eventRollbackProbe->injectedCount() : 0u;
+            organEventRollbackTest ? eventRollbackProbe->injectedCount() :
+            (sharedTissueRollbackTest ? sharedTissueRollbackProbe->injectedCount() : 0u);
+        const std::uint32_t rejectedAuditStep =
+            organEventRollbackTest ? organReleaseStep :
+            (sharedTissueRollbackTest ? sharedTissueRollbackProbe->rejectStep() :
+                                       MR_INVALID_INDEX);
         const std::uint32_t expectedConsumerPasses =
             expectedAcceptedConsumerPasses + expectedRejectedAuditPasses;
         std::vector<std::uint32_t> expectedConsumerStepIndices;
@@ -10596,8 +10773,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         for (std::uint32_t phase = 0u; phase < consumerPhases; ++phase) {
             for (std::uint32_t step = 0u; step < stepCount; ++step) {
                 expectedConsumerStepIndices.push_back(step);
-                if (organEventRollbackTest && phase == 0u &&
-                    step == organReleaseStep) {
+                if (expectedRejectedAuditPasses != 0u && phase == 0u &&
+                    step == rejectedAuditStep) {
                     for (std::uint32_t retry = 0u;
                          retry < expectedRejectedAuditPasses; ++retry)
                         expectedConsumerStepIndices.push_back(step);
@@ -26660,6 +26837,37 @@ int main(int argc, char** argv) {
                     if(!mechanicsOnly)liveVisual->present();
                 }
                 auto restingProgram=coupled.program();
+                std::unique_ptr<numi::human::shared_tissue_rollback::Probe>
+                    sharedTissueRollbackOwner;
+                const char* sharedRollbackSetting =
+                    std::getenv("NUMI_HUMAN_SHARED_TISSUE_ROLLBACK_TEST");
+                require(sharedRollbackSetting == nullptr ||
+                            std::strcmp(sharedRollbackSetting, "0") == 0 ||
+                            std::strcmp(sharedRollbackSetting, "1") == 0,
+                        "NUMI_HUMAN_SHARED_TISSUE_ROLLBACK_TEST must be 0 or 1");
+                if (sharedRollbackSetting != nullptr &&
+                    std::strcmp(sharedRollbackSetting, "1") == 0) {
+                    const char* organSetting =
+                        std::getenv("NUMI_HUMAN_ORGAN_EVENT_ROLLBACK_TEST");
+                    require(restingPassiveFasciaOwner != nullptr &&
+                                restingPassiveFasciaOwner->transaction.restingSharedPassiveOwner &&
+                                restingPassiveFasciaOwner->transaction.restingCouplingOwnsScheduling &&
+                                !separationReleaseStep.has_value() &&
+                                !organVisualAnatomyPayload.has_value() &&
+                                (organSetting == nullptr || std::strcmp(organSetting, "0") == 0) &&
+                                restingProgram.valid() && restingProgram.deferAcceptedPublication,
+                            "shared-tissue rollback test requires the intact deferred fascia owner only");
+                    sharedTissueRollbackOwner =
+                        std::make_unique<numi::human::shared_tissue_rollback::Probe>(
+                            restingProgram, 1u);
+                    restingProgram = sharedTissueRollbackOwner->program();
+                    std::cout << "shared_tissue_rollback_fixture=armed"
+                              << " reject_step=1 failure_phase=postDynamics"
+                              << " finalization_phase=acceptedPublication"
+                              << " injection=GPU_stand_status_9"
+                              << " delegate_fingerprint=" << restingProgram.fingerprint
+                              << std::endl;
+                }
                 std::unique_ptr<numi::human::event_rollback::Probe>
                     eventRollbackOwner;
                 const char* eventRollbackSetting =

@@ -1,0 +1,9 @@
+{
+  "bytes": 479850,
+  "path": "/Users/numi/numi-human-separation-20261018/C/shared-tissue-rollback-224/native-005/native.log",
+  "selected_records": [
+    "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1",
+    "resting_FEM_terminal_audit=passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=3 expected_adapter_passes=3 min_J=0.999982218241 max_J=1.00003477203 max_displacement_m=3.27168729193e-07 max_anchor_reaction_N=3.62905311023 capture=terminal_only"
+  ],
+  "sha256": "4f2f425661512b22383814951e6b663afee9f7d88a150ae234aa1445836329a5"
+}

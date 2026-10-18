@@ -1,0 +1,24 @@
+{
+  "app_source_sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1",
+  "base_w_revision": "ec6222480f8458defb18bf50eb61b7c0b0082a0a",
+  "binary_sha256": "1255da735389d31b9da20fc06695302cd76beddf13bd68b5c202f69b45e610b0",
+  "fem_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=3 expected_adapter_passes=3 min_J=0.999982218241 max_J=1.00003477203 max_displacement_m=3.27168729193e-07 max_anchor_reaction_N=3.62905311023 capture=terminal_only",
+  "invocation_sha256": "a96f45a04a9689dbf674c9fc7d7a79ff041d7391f3b05cd0f027520af465c97d",
+  "matter_include_sha256": "b67ed9dfcc77c445b4bbbd3332b0246027d48f7263c6e22e33022d4eb70c67ce",
+  "matter_source_sha256": "22e5b9b4f9007b0e2c58fe39f4772cef866e6dd1c1488e774db1cd0cdacfbd00",
+  "native_log_bytes": 479850,
+  "native_log_sha256": "4f2f425661512b22383814951e6b663afee9f7d88a150ae234aa1445836329a5",
+  "process_exit_code": 0,
+  "rollback_assertion": "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1",
+  "rollback_probe_sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3",
+  "run": "native-005",
+  "runtime_library_sha256": "dd0c254ec2ce901a257797c43636d7e02ab406eae34dc32e9025abde7937524a",
+  "scope": "whole application accepted two 0.25 ms body steps with an injected late reject at step 1 and same-context retry; terminal FEM audit passed; no visual or long-horizon qualification",
+  "status": "PASS",
+  "trace_comparison": {
+    "file": "baseline-trace-comparison.json",
+    "scope": "two accepted coupled CSV rows only; not full raw-state clean-control equivalence",
+    "sha256": "65fc65cbcf2afe2625ab089d421bf79a696eebfde269fbff94d2e61f77dd52fd"
+  },
+  "wall_seconds": 67.27
+}

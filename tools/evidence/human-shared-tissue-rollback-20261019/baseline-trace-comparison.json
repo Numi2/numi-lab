@@ -1,0 +1,10 @@
+{
+  "scope": "two accepted coupled CSV rows only, not full raw-state clean-control equivalence",
+  "baseline_path": "/Users/numi/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/output/resting-coupled.csv",
+  "retry_path": "/Users/numi/numi-human-separation-20261018/C/shared-tissue-rollback-224/native-005/output/resting-coupled.csv",
+  "baseline_sha256": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab",
+  "retry_sha256": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab",
+  "rows": 2,
+  "simulated_seconds": 0.0005,
+  "byte_identical": true
+}

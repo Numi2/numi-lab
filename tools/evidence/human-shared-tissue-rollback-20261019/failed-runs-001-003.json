@@ -1,0 +1,97 @@
+{
+  "runs": [
+    {
+      "accepted_physical_steps_observed": 1,
+      "accepted_step_indices": [
+        1
+      ],
+      "binary_sha256": "b5039614fb6e8788a9f7b220e19b04e79f1aee194b40339ba4e8a08c2084e4c5",
+      "invocation_sha256": "8f6cf9a74c502f92c1febe248ffaf9ba5452b266c4f090ff8cc297b1fdf3e6bc",
+      "native_log_sha256": "a937cda9db62f73e3cd7a4bc615bac36fc5490065dfc0eb665b85cdc73e72860",
+      "output_hashes": {
+        "output/resting-airway-anchor-map.json": {
+          "bytes": 82547,
+          "sha256": "9351297ecb1ec988c0b9e9a391b6f64bb5a4d082466a9dedc23af3c139b8d672"
+        },
+        "output/resting-coupled.csv": {
+          "bytes": 2582,
+          "sha256": "92003f57be016e1e4b3a9aa0f5c7279d4db486767a5d6170109cd480003ce352"
+        },
+        "output/resting-surface-audit.csv": {
+          "bytes": 1739,
+          "sha256": "6ddf6824d36ad3373f501eed8f6035bfbf5694ae92a79ba25635776d377b19b6"
+        }
+      },
+      "process_exit_code": 1,
+      "retained_source_path": "/Users/numi/numi-human-separation-20261018/C/shared-tissue-rollback-224/native-001",
+      "rollback_probe": null,
+      "run": "native-001",
+      "runtime_library_sha256": "dd0c254ec2ce901a257797c43636d7e02ab406eae34dc32e9025abde7937524a",
+      "status": "FAILED",
+      "terminal_fixture_error": "myosim_articulated_visual=failed error=\"intact shared-tissue rejection input is not the accepted step-1 continuation\""
+    },
+    {
+      "accepted_physical_steps_observed": 2,
+      "accepted_step_indices": [
+        1,
+        2
+      ],
+      "binary_sha256": "6d8db369848bcc6c26b5415eba40d1c95be3ddc20ed3af1c49dd14145ea131cd",
+      "invocation_sha256": "c26a5ca6728a6e3c354e0a1ca2ff4f3859fad7486145a9e4f7e7ca2908072010",
+      "native_log_sha256": "bd5f19647ba673a7305fb1c34962ef4ab5bd2fc82a99c2c2701f06cfb5038781",
+      "output_hashes": {
+        "output/resting-airway-anchor-map.json": {
+          "bytes": 82547,
+          "sha256": "9351297ecb1ec988c0b9e9a391b6f64bb5a4d082466a9dedc23af3c139b8d672"
+        },
+        "output/resting-coupled.csv": {
+          "bytes": 3390,
+          "sha256": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab"
+        },
+        "output/resting-surface-audit.csv": {
+          "bytes": 2206,
+          "sha256": "7e4bfb41c21fede3e1f24ca040b886c0cff672bc6e8c3c2220f02d58bcbce0fd"
+        }
+      },
+      "process_exit_code": 1,
+      "retained_source_path": "/Users/numi/numi-human-separation-20261018/C/shared-tissue-rollback-224/native-002",
+      "rollback_probe": "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1",
+      "run": "native-002",
+      "runtime_library_sha256": "dd0c254ec2ce901a257797c43636d7e02ab406eae34dc32e9025abde7937524a",
+      "status": "FAILED",
+      "terminal_fixture_error": "myosim_articulated_visual=failed error=\"persistent Human borrowed tendon-load snapshot disagreed with publication: passes=3 expected=2 aborts=0 expected_aborts=0\""
+    },
+    {
+      "accepted_physical_steps_observed": 2,
+      "accepted_step_indices": [
+        1,
+        2
+      ],
+      "binary_sha256": "7aaedec3f5347f93ab0aae287a834096395bafee7677942b085fa0810ecdd733",
+      "invocation_sha256": "f4d281d3775d3707006b67ce20222d9f7e38b02dc8271045eeceedf6981a20c8",
+      "native_log_sha256": "dafbf2162871863f6f842d41b863db6f4acb1231ce3ba741eb01edcec640ff7d",
+      "output_hashes": {
+        "output/resting-airway-anchor-map.json": {
+          "bytes": 82547,
+          "sha256": "9351297ecb1ec988c0b9e9a391b6f64bb5a4d082466a9dedc23af3c139b8d672"
+        },
+        "output/resting-coupled.csv": {
+          "bytes": 3390,
+          "sha256": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab"
+        },
+        "output/resting-surface-audit.csv": {
+          "bytes": 2206,
+          "sha256": "7e4bfb41c21fede3e1f24ca040b886c0cff672bc6e8c3c2220f02d58bcbce0fd"
+        }
+      },
+      "process_exit_code": 1,
+      "retained_source_path": "/Users/numi/numi-human-separation-20261018/C/shared-tissue-rollback-224/native-003",
+      "rollback_probe": "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1",
+      "run": "native-003",
+      "runtime_library_sha256": "dd0c254ec2ce901a257797c43636d7e02ab406eae34dc32e9025abde7937524a",
+      "status": "FAILED",
+      "terminal_fixture_error": "myosim_articulated_visual=failed error=\"resting FEM accepted cursors disagree with physical steps\""
+    }
+  ],
+  "scope": "failure history; process exits are failures even when the injected rollback assertion itself passed"
+}
