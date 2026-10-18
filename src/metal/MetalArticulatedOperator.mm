@@ -369,6 +369,7 @@ struct SupportGeometryAbortGuard {
     case MetalNumanXTransactionPhase::beginStep:
     case MetalNumanXTransactionPhase::preDynamics:
     case MetalNumanXTransactionPhase::postDynamics:
+    case MetalNumanXTransactionPhase::acceptedPublication:
         return true;
     }
     return false;
@@ -639,6 +640,15 @@ void visitSplitStandBoundary(
         sink, input.stand.contacts,
         input.stand.usePerContactSupportPlanes);
     appendSplitStandSpan(sink, input.stand.jointEqualities);
+    if (input.stand.jointEqualityPrefixRelease.configured()) {
+        constexpr std::string_view releaseDomain =
+            "mrnx.stand.joint-equality.release";
+        sink.append(releaseDomain.data(), releaseDomain.size());
+        appendSplitStandValue(
+            sink, input.stand.jointEqualityPrefixRelease.releaseStep);
+        appendSplitStandValue(
+            sink, input.stand.jointEqualityPrefixRelease.retainedPrefixCount);
+    }
     appendSplitStandSpan(sink, input.stand.tendonBindings);
     appendSplitStandSpan(sink, input.stand.tendonEnvelopes);
     appendSplitStandValue(sink, input.stand.tendonLoadProgram.fingerprint);
@@ -650,6 +660,8 @@ void visitSplitStandBoundary(
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.fingerprint);
     appendSplitStandValue(sink, input.stand.numanXTransactionProgram.writeBodyProperties);
+    appendSplitStandValue(
+        sink, input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication());
     appendSplitStandValue(sink, input.stand.contactIterationCount);
     appendSplitStandValue(sink, speculativeContactAdmissionDistanceMeters);
     appendSplitStandValue(sink, hybridEqualityFactorCache);
@@ -1287,6 +1299,7 @@ struct MetalArticulatedOperatorSubmissionState {
     bool standUsePerContactSupportPlanes = false;
     bool standRootMomentumDiagnosticsCaptured = false;
     std::size_t standJointEqualityCount = 0u;
+    std::size_t standJointEqualityPayloadCount = 0u;
     bool standEqualityDeferralFaultRequested = false;
     bool publishAcceptedResidentState = false;
     bool collectFullResultToHost = true;
@@ -2014,6 +2027,12 @@ bool validNumiHumanStand(
         reason = "mutable Human body properties require one environment and the ordinary transaction owner";
         return false;
     }
+    if (stand.numanXTransactionProgram.usesDeferredAcceptedPublication() &&
+        (!stand.numanXTransactionProgram.valid() ||
+         stand.numanXHumanMatterProgram.configured())) {
+        reason = "deferred accepted publication requires the ordinary stand reconciliation owner";
+        return false;
+    }
     if (!stand.enabled()) {
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
@@ -2027,6 +2046,7 @@ bool validNumiHumanStand(
             stand.usePerContactSupportPlanes ||
             stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
             stand.rootMomentumDiagnosticLastAcceptedStep != 0u ||
+            stand.jointEqualityPrefixRelease.configured() ||
             mrNumiHumanTimedRootForceConfigured(stand.timedRootForce) ||
             stand.stepIndexOffset != 0u ||
             stand.authoritativeStepCount != 0u) {
@@ -2046,6 +2066,22 @@ bool validNumiHumanStand(
         stand.stepCount > authoritativeStepCount - stand.stepIndexOffset) {
         reason = "stand authoritative step range is malformed";
         return false;
+    }
+    const auto& equalityRelease = stand.jointEqualityPrefixRelease;
+    if (equalityRelease.configured()) {
+        const std::uint32_t submissionEnd =
+            stand.stepIndexOffset + stand.stepCount;
+        const bool scheduleValid =
+            equalityRelease.releaseStep > 0u &&
+            equalityRelease.releaseStep < authoritativeStepCount &&
+            equalityRelease.retainedPrefixCount > 0u &&
+            equalityRelease.retainedPrefixCount < stand.jointEqualities.size() &&
+            !(stand.stepIndexOffset < equalityRelease.releaseStep &&
+              submissionEnd > equalityRelease.releaseStep);
+        if (!scheduleValid) {
+            reason = "joint-equality prefix release must be in-horizon, retain a nonempty strict prefix, and fall on a submission boundary";
+            return false;
+        }
     }
     if (!mrNumiHumanTimedRootForceValid(
             stand.timedRootForce, authoritativeStepCount)) {
@@ -2649,11 +2685,24 @@ bool cachedStandSparseGraph(
     return true;
 }
 
+[[nodiscard]] std::size_t activeStandJointEqualityCount(
+    const MetalNumiHumanStandInput& stand,
+    const std::uint32_t stepIndex
+) noexcept {
+    const auto& release = stand.jointEqualityPrefixRelease;
+    if (!release.configured() || stepIndex < release.releaseStep)
+        return stand.jointEqualities.size();
+    return release.retainedPrefixCount;
+}
+
 bool canUseReducedStandProjectedResponses(
     const MetalArticulatedOperatorConfig& config,
     const MetalArticulatedOperatorInput& input,
     std::uint32_t nv
 ) noexcept {
+    // This reduced workspace is dimensioned from the immutable full equality
+    // payload. Keep scheduled releases on the existing full response path.
+    if (input.stand.jointEqualityPrefixRelease.configured()) return false;
     const auto equalityCount = input.stand.jointEqualities.size();
     return config.reducedStandProjectedResponses && config.splitStandSolve &&
         input.stand.enabled() && input.stand.enableContact &&
@@ -2667,6 +2716,9 @@ bool canCacheStandLimitEqualityResponses(
     const MetalArticulatedOperatorInput& input,
     std::uint32_t nv
 ) noexcept {
+    // The response cache is keyed by the full admitted equality set. Do not
+    // reuse its rows across a scheduled rank change.
+    if (input.stand.jointEqualityPrefixRelease.configured()) return false;
     return config.cacheStandLimitEqualityResponses && config.splitStandSolve &&
         input.stand.enabled() && input.stand.enableContact &&
         !input.stand.contacts.empty() && nv != 0u && nv <= 128u &&
@@ -7201,12 +7253,12 @@ struct MetalBufferRegion {
         input.stand.tendonBindings.size()
     );
     dispatch.jointEqualityCount = static_cast<mr_u32>(
-        input.stand.jointEqualities.size()
+        activeStandJointEqualityCount(input.stand, stepIndex)
     );
     if (!input.stand.tendonBindings.empty()) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS;
     }
-    if (!input.stand.jointEqualities.empty()) {
+    if (dispatch.jointEqualityCount != 0u) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
     }
     if (!input.stand.passiveJointProgram.empty()) {
@@ -10298,13 +10350,27 @@ MetalArticulatedOperatorSubmission::wait(
             const std::size_t nq = pending->articulation.nq;
             const std::size_t contacts = pending->standContactCount;
             const std::size_t equalities = pending->standJointEqualityCount;
-            const std::size_t stride = diagnostics.layout.standVectorElements / environments;
+            const std::size_t allocatedStride =
+                diagnostics.layout.standVectorElements / environments;
+            const std::size_t allocatedEqualityCount =
+                pending->standJointEqualityPayloadCount;
+            const std::size_t stride = nv + 3u * nv + 12u * contacts +
+                equalities +
+                (pending->context->config.readStandConstraintDiagnostics
+                    ? nv + nq + nv + 3u * nv + 6u : 0u);
+            const std::size_t expectedAllocatedStride =
+                nv + 3u * nv + 12u * contacts + allocatedEqualityCount +
+                (pending->context->config.readStandConstraintDiagnostics
+                    ? nv + nq + nv + 3u * nv + 6u : 0u);
             const std::size_t preProjectionBase =
                 5u * nv + 12u * contacts + equalities;
             const std::size_t rootMomentumTailBase =
                 preProjectionBase + nq + nv;
             const std::size_t rootMomentumTailElements = 3u * nv + 6u;
-            if (stride != rootMomentumTailBase + rootMomentumTailElements) {
+            if (allocatedStride != expectedAllocatedStride ||
+                stride > allocatedStride ||
+                (pending->context->config.readStandConstraintDiagnostics &&
+                 stride != rootMomentumTailBase + rootMomentumTailElements)) {
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::internalFailure,
                     "GPU Numi Human endpoint diagnostic stride is invalid");
@@ -11546,6 +11612,10 @@ MetalArticulatedOperatorContext::submit(
                 }
                 const MetalNumanXTransactionProgram& program =
                     input.stand.numanXTransactionProgram;
+                if (phase == MetalNumanXTransactionPhase::acceptedPublication &&
+                    !program.usesDeferredAcceptedPublication()) {
+                    return false;
+                }
                 hostTrace.transaction(reinterpret_cast<const void*>(program.encode),
                     static_cast<std::uint32_t>(phase), program.valid(), stepIndex);
                 if (!program.valid()) {
@@ -11555,7 +11625,7 @@ MetalArticulatedOperatorContext::submit(
                 const MetalArticulatedOperatorLayout& layout =
                     diagnostics.layout;
                 MetalNumanXTransactionPass pass{};
-                pass.abiVersion = kMetalNumanXTransactionABIVersion;
+                pass.abiVersion = program.abiVersion;
                 pass.structSize = sizeof(MetalNumanXTransactionPass);
                 pass.accessFlags =
                     MetalNumanXTransactionReadBorrowedState;
@@ -11567,8 +11637,14 @@ MetalArticulatedOperatorContext::submit(
                 ) {
                     pass.accessFlags |=
                         MetalNumanXTransactionWriteStandFailure;
+                } else if (
+                    phase == MetalNumanXTransactionPhase::acceptedPublication
+                ) {
+                    pass.accessFlags |=
+                        MetalNumanXTransactionWriteAcceptedPublication;
                 }
-                if (program.writeBodyProperties) {
+                if (program.writeBodyProperties &&
+                    phase != MetalNumanXTransactionPhase::acceptedPublication) {
                     pass.bodyProperties = (__bridge void*)state_->buffers[4u];
                     pass.bodyPropertiesCheckpoint = (__bridge void*)state_->standBuffers[kStandBodyPropertiesCheckpointBuffer];
                     pass.bodyPropertyCount = model.bodies.size();
@@ -11727,6 +11803,7 @@ MetalArticulatedOperatorContext::submit(
                     phase == MetalNumanXTransactionPhase::beginStep ? "transaction_begin" :
                     phase == MetalNumanXTransactionPhase::preDynamics ? "transaction_pre_dynamics" :
                     phase == MetalNumanXTransactionPhase::postDynamics ? "transaction_post_dynamics" :
+                    phase == MetalNumanXTransactionPhase::acceptedPublication ? "transaction_accepted_publication" :
                     "transaction_other";
                 auto callbackTiming = humanBeginBorrowedCallbackTiming(
                     commandBuffer, state_->device, stepIndex, phaseName);
@@ -15393,6 +15470,17 @@ MetalArticulatedOperatorContext::submit(
                         threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
                     [reconcile endEncoding];
                 }
+                if (input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication() &&
+                    !encodeNumanXTransactionPhase(
+                        MetalNumanXTransactionPhase::acceptedPublication,
+                        authoritativeStep
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                        "NumanX accepted-publication transaction rejected encoding"
+                    );
+                }
             }
             }
 
@@ -15494,6 +15582,10 @@ MetalArticulatedOperatorContext::submit(
                 finalAcceptedStep <=
                     input.stand.rootMomentumDiagnosticLastAcceptedStep;
             pending->standJointEqualityCount =
+                activeStandJointEqualityCount(
+                    input.stand,
+                    input.stand.stepIndexOffset + input.stand.stepCount - 1u);
+            pending->standJointEqualityPayloadCount =
                 input.stand.jointEqualities.size();
             pending->standEqualityDeferralFaultRequested =
                 state_->config.standEqualityDeferralFault !=

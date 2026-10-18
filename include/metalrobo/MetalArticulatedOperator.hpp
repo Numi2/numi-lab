@@ -268,9 +268,15 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     beginStep = 0u,
     preDynamics = 1u,
     postDynamics = 2u,
+    // Opt-in final phase: dispatched after tendon validation and accepted
+    // stand-state reconciliation for this step.
+    acceptedPublication = 3u,
 };
 
-inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 4u;
+// ABI 4 remains accepted for callbacks compiled before deferred publication
+// occupied a former padding byte. New programs use ABI 5.
+inline constexpr std::uint32_t kMetalNumanXTransactionLegacyABIVersion = 4u;
+inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 5u;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -283,6 +289,9 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     // preDynamics only, opt-in single-environment body-property transaction.
     MetalNumanXTransactionWriteBodyProperties = 1u << 3u,
     MetalNumanXTransactionWriteGeneralizedForce = 1u << 4u,
+    // acceptedPublication only: the callback may publish its own candidate
+    // physiology state, gated on the final successful stand status.
+    MetalNumanXTransactionWriteAcceptedPublication = 1u << 5u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -292,6 +301,10 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
 // MyoSim activation and tendon transfer; postDynamics follows stand dynamics.
 // At postDynamics, q/v/status are post-stand while poses, point streams, MyoSim
 // results, and tendon transfers remain that step's pre-dynamics evaluation.
+// When deferAcceptedPublication is enabled, acceptedPublication follows tendon
+// post-validation and stand accepted-state reconciliation. The callback must
+// gate every publication write on the successful per-step stand status; this
+// phase cannot modify stand failure status or physical state.
 struct MetalNumanXTransactionPass {
     std::uint32_t abiVersion = kMetalNumanXTransactionABIVersion;
     std::uint32_t structSize = sizeof(MetalNumanXTransactionPass);
@@ -433,21 +446,46 @@ struct MetalNumanXTransactionProgram {
     std::uint64_t fingerprint = 0u;
     // Opt-in resident mass state; one environment, ordinary transaction only.
     bool writeBodyProperties = false;
+    // Delay consumer publication until tendon validation and stand reconcile
+    // have accepted this step. Uses existing tail padding; struct size is stable.
+    bool deferAcceptedPublication = false;
+
+    // The deferred-publication byte was padding in ABI 4. Never inspect it
+    // unless the caller explicitly identifies the ABI 5 layout.
+    [[nodiscard]] bool usesDeferredAcceptedPublication() const noexcept {
+        return abiVersion >= kMetalNumanXTransactionABIVersion &&
+            deferAcceptedPublication;
+    }
 
     [[nodiscard]] bool valid() const noexcept {
-        return abiVersion == kMetalNumanXTransactionABIVersion &&
+        const bool supportedVersion =
+            abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
+            abiVersion == kMetalNumanXTransactionABIVersion;
+        return supportedVersion &&
             structSize == sizeof(MetalNumanXTransactionProgram) &&
             context != nullptr && encode != nullptr && abort != nullptr &&
             fingerprint != 0u;
     }
 
     [[nodiscard]] bool configured() const noexcept {
-        return abiVersion != kMetalNumanXTransactionABIVersion ||
+        const bool legacyFieldsConfigured =
             structSize != sizeof(MetalNumanXTransactionProgram) ||
             context != nullptr || encode != nullptr || abort != nullptr ||
             fingerprint != 0u || writeBodyProperties;
+        if (abiVersion == kMetalNumanXTransactionLegacyABIVersion) {
+            // ABI 4 has no deferred-publication field; do not read its padding.
+            return legacyFieldsConfigured;
+        }
+        if (abiVersion == kMetalNumanXTransactionABIVersion) {
+            return legacyFieldsConfigured ||
+                usesDeferredAcceptedPublication();
+        }
+        return true;
     }
 };
+
+static_assert(sizeof(MetalNumanXTransactionProgram) == 48u,
+              "deferred publication must preserve the transaction program size");
 
 enum class MetalNumanXHumanMatterPhase : std::uint32_t {
     beginStep = 0u,
@@ -1714,6 +1752,19 @@ private:
     std::uint64_t slotGeneration_ = 0u;
 };
 
+// Immutable step-gated activation of a retained prefix of the complete
+// source equality payload. The full ordered payload remains bound and resident;
+// only the Stand dispatch row count changes at releaseStep. A zero/zero record
+// disables the schedule. Callers must split a submission at the event boundary.
+struct MetalNumiHumanJointEqualityPrefixRelease {
+    std::uint32_t releaseStep = 0u;
+    std::uint32_t retainedPrefixCount = 0u;
+
+    [[nodiscard]] bool configured() const noexcept {
+        return releaseStep != 0u || retainedPrefixCount != 0u;
+    }
+};
+
 // Persistent large-state Human horizon. This is deliberately coupled to the
 // MyoSim sidecar: each device step recomputes source routes and J^T muscle
 // force from the current q before advancing activation and dynamics. Support
@@ -1748,6 +1799,9 @@ struct MetalNumiHumanStandInput {
     // carry bilateral reaction impulses during dynamics; dependent q/v are
     // projected back onto the same polynomial after each accepted step.
     std::span<const MRNumiHumanJointEqualityGPU> jointEqualities{};
+    // Optional release schedule over that immutable payload. At/after the
+    // absolute release step, dispatch only the declared retained prefix.
+    MetalNumiHumanJointEqualityPrefixRelease jointEqualityPrefixRelease{};
     // Optional NHTENDON2/3 program. When present, one terminal-load transaction
     // executes from the current MyoSim force field before every dynamics step.
     // Transfer alone retains MyoSim's original J^T wrench. A configured

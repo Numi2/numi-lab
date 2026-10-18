@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "GPU rejected release step and exact same-context retry; full400accepted horizon including strict tendon snapshots/callback sequence",
+  "witness": "organ_event_rollback_test=passed release_step=100 rejected_gpu_status=9 failure_accepted_publication_forwarded=1 retry_accepted_publication_forwarded=1 q_v_root_muscle_bytes_unchanged=1 matter_accepted_and_vascular_clock_bytes_unchanged=1 controller_accepted_and_presentation_bytes_unchanged=1 accepted_body_properties_bytes_unchanged=1 body_properties_snapshot_count=2 generation_before=4 generation_after=5 fingerprint=15769614180062971900 equality_rows_full=97 equality_rows_retained=91 retry_without_reset=1",
+  "run": "/Users/n/numi-human-separation-20261018/C/organ-release-029/native-run-057-abi5-rollback-117",
+  "log_sha256": "d5804b3feda1e64b7ee584b5eafd9a9fd950abbf433e4a4dbfb324cf32b03d44",
+  "binary_sha256": "f3a1350b4b01e0fe466801b35909292a7590a90aea6415b44ea160667f14e328",
+  "expected_tendon_encoded_attempts": 401,
+  "expected_tendon_encoding_aborts": 0,
+  "limitations": [
+    "single-kidney fragment and one aortic outlet",
+    "not fullsixDOFtorso cut yet; sourceaudit foundunlockedtranslationcarriers",
+    "not fullbleedingfall qualification"
+  ],
+  "compact_trace_rows_equal_to_113": 15,
+  "visual_verification": false,
+  "owner_scope": "joint-equality prefix release and deferred accepted publication; ABI4 padding compatibility",
+  "current_source_base": "b14766d3b7baa32cafd6a988a51c9e90a5af8287",
+  "runtime_build_report": "/Users/n/numi-human-separation-20261018/integrated-runtime-build-116/build-report.json",
+  "no_visual_verification": true,
+  "qualification": "400 accepted native steps only; not full swing/fall or integrated passive tissue qualification"
+}
