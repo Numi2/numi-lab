@@ -1,0 +1,12 @@
+source_identity=b118d58230a3f276:6108d05501a3ac9b:910124ef823567a7:e5fe23f6df0b4f67: world_fingerprint=10119188360575851565 env=1 objects=0 materials=0 particles=0 fem_nodes=0 tets=0 mpm_nodes=0 mpm_grids=0 max_rate_exponent=8 compartments=21 connections=24 unknowns=45 dt_s=0.00025
+dormant_world_fingerprint=11092661948925992891 env=1 objects=1 materials=1 particles=1 mpm_cooked_particles=1 active_particles=1 mpm_nodes=27 mpm_grid_nodes=512 mpm_grids=1 fem_nodes=0 tets=0 compartments=21 connections=24 unknowns=45 max_rate_exponent=8 dt_s=0.00025
+scope gridNodes=512 mpmBlocks=8 params=3 ID=0 topologyCapacity=0 deformableCapacity=8 contacts=0 flags=257 eventStride=8 learned=0 mutations=0
+device=Apple M6 fingerprint=11092661948925992891
+accept=0 code=9 microsteps=256 GPU_seconds=3.25263 callbacks=1,256,256,1
+accept=1 code=0 microsteps=256 GPU_seconds=3.22642 callbacks=1,256,256,1
+accept=1 code=0 microsteps=256 GPU_seconds=3.23056 callbacks=1,256,256,1
+PASS external_gate_full_rollback_retry_restore
+comparison pure_generic_vs_dense45_max_abs_normalized_state=0
+comparison pure_generic_vs_dormant_mpm_max_abs_normalized_state=0
+resting_job_lock waiting pid=88022
+resting_job_lock acquired pid=88022

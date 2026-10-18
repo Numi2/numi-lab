@@ -1,0 +1,16 @@
+{
+  "source": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/matter/src/runtime.mm",
+  "source_sha256": "28dbcda01947df78eb37f95fde1e8aa730503375803098db290e0df4cc453e2a",
+  "runtime_object": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/runtime.mm.o",
+  "runtime_object_sha256": "b8ae3dc515ee1149ee43b25c2745a83db713d041380728d61f28887eb130c6fd",
+  "library": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/libmetalrobo.dylib",
+  "library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "compile_log": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/compile.log",
+  "link_log": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/link.log",
+  "built_at_utc": "2026-10-18T21:38:16Z",
+  "scope_note": "MPM-only proof requires global contact off and both per-object contact-disable flags; the preallocated deformableContactCapacity is allowed as scratch. Vascular-only still requires zero contact capacity. Immutable material parameters are allowed; reset, identification, learned update, topology mutation, FEM, rigid, adaptive, and active contact remain excluded.",
+  "patch": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/runtime-mpm-finalizer.patch",
+  "patch_sha256": "c25fb4f9939a1328898a35f07492d19d027e3a2128041891712d9bf78631c80d",
+  "baseline_source": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/matter/src/runtime.mm.before-mpm-extension-finalizer",
+  "baseline_source_sha256": "7ecc7b4e25a9c5028a58365cf55492b36749606b1756a673213a9a7cdf5dea30"
+}

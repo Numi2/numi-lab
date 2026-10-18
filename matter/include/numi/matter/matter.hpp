@@ -1139,6 +1139,22 @@ struct AcceptedStepExtensionView {
     std::uint64_t vascularTimestepTicks = 0u;
     float frameTimestepSeconds = 0.0f;
     float microstepTimestepSeconds = 0.0f;
+    // Environment-major existing MPM arenas, borrowed for this transaction.
+    // A frameBegin receiver may initialize preauthored dormant particle slots
+    // after the control-frame checkpoint and before classification/solve.
+    // Other phases must not change particle identity or initialize stock.
+    // Defaults and checkpoints are read-only. Leave checkpoints untouched so
+    // the existing frame rollback restores activation and material history.
+    // No additional particle owner, allocation or physical mass is implied.
+    void* particleAccepted = nullptr; // NMParticleStateGPU[environmentCount * particleCount]
+    void* particleCandidate = nullptr;
+    void* particleCheckpoint = nullptr;
+    void* particleMaterialStateDefaults = nullptr; // float[environmentCount * particleCount * materialStateStride]
+    void* particleMaterialStateAccepted = nullptr;
+    void* particleMaterialStateCandidate = nullptr;
+    void* particleMaterialStateCheckpoint = nullptr;
+    std::uint32_t particleCount = 0u;
+    std::uint32_t materialStateStride = 0u;
 };
 
 using EncodeAcceptedStepExtension = bool (*) (

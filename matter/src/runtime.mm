@@ -2527,6 +2527,11 @@ struct Runtime::State {
     bool hasPrescribedTranslation = false;
     bool hasAdaptive = false;
     bool hasMutableFEMTopology = false;
+    // Initialization-time proof that every authored object uses the MPM
+    // representation. Deferred owner finalization may then opt into the
+    // narrow particle/material-state rollback path without admitting FEM or
+    // rigid-world state.
+    bool acceptedStepExtensionMPMOnlyWorld = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
     // Immutable contact-pair admission mirror used by the bounded capsule
     // residual-Armijo slice. It does not participate in simulation state.
@@ -4125,6 +4130,22 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(world.identification.size());
         candidate->hasAdaptive =
             (world.dispatch.flags & NM_MATTER_ADAPTIVE) != 0u;
+        candidate->acceptedStepExtensionMPMOnlyWorld =
+            world.dispatch.objectCount != 0u &&
+            world.dispatch.particleCount != 0u &&
+            world.dispatch.mpmGridCount != 0u &&
+            world.dispatch.mpmBlockCount != 0u &&
+            (world.dispatch.flags & NM_MATTER_CONTACT) == 0u &&
+            world.objects.size() == world.dispatch.objectCount &&
+            std::all_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    constexpr std::uint32_t disabledContact =
+                        NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+                        NM_OBJECT_DISABLE_SELF_CONTACT;
+                    return object.representation == NM_REPRESENTATION_MPM &&
+                        (object.flags & disabledContact) == disabledContact;
+                });
         candidate->device = MTLCreateSystemDefaultDevice();
         if (candidate->device == nil) {
             diagnostics.message = "no Metal device is available";
@@ -8442,37 +8463,76 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         return diagnostics;
     }
 
-    // This local finalizer owns only vascular state. Every other mutable Matter
-    // family must remain empty; otherwise the owner-level reject cannot safely
-    // restore all success-surviving arenas from this step's checkpoint.
+    // The legacy local path owns vascular state only. The narrowly admitted
+    // MPM path additionally owns particle/material history, per-object
+    // topology authority, and scheduler/event authority through existing
+    // checkpoints and rollback kernels. Other mutable Matter families remain
+    // excluded.
     const auto& d = state.dispatch;
-    if (state.hasAdaptive || state.requiresCurrentBodies ||
+    const bool commonUnsupportedState =
+        state.hasAdaptive || state.requiresCurrentBodies ||
         state.requiresSceneBodies || state.requiresRodNodes ||
         state.requiresCoupledCandidate || state.hasPrescribedTranslation ||
-        d.particleCount != 0u || d.gridNodeCount != 0u ||
-        d.mpmGridCount != 0u || d.mpmBlockCount != 0u ||
         d.femNodeCount != 0u || d.tetrahedronCount != 0u ||
-        d.objectCount != 0u || d.rigidProxyCount != 0u ||
+        d.rigidProxyCount != 0u ||
         d.contactPairCount != 0u || d.femHumanAttachmentCount != 0u ||
         d.learnedWeightCount != 0u || d.learnedMaterialCount != 0u ||
         d.cohesiveFaceCount != 0u || d.mutationCommandCount != 0u ||
-        d.punctureChannelCount != 0u || d.deformableContactCapacity != 0u ||
+        d.punctureChannelCount != 0u ||
         state.humanSupportDispatch.contactCount != 0u ||
-        state.vascularValue.layout.ranges.z == 0u) {
+        state.vascularValue.layout.ranges.z == 0u;
+    const bool vascularOnlyScope = !commonUnsupportedState &&
+        d.gridNodeCount == 0u && d.particleCount == 0u &&
+        d.mpmGridCount == 0u && d.mpmBlockCount == 0u && d.objectCount == 0u &&
+        d.deformableContactCapacity == 0u;
+    const std::uint64_t minimumEventStride =
+        static_cast<std::uint64_t>(d.objectCount) * NM_EVENT_CLASS_COUNT;
+    const bool mpmOnlyScope = state.acceptedStepExtensionMPMOnlyWorld &&
+        !commonUnsupportedState && d.particleCount != 0u &&
+        d.mpmGridCount != 0u && d.mpmBlockCount != 0u &&
+        d.objectCount != 0u && d.identificationCandidateCount == 0u &&
+        d.topologyNodeCapacity == 0u &&
+        state.identificationDistributionCount == 0u &&
+        !ownership->identificationAdvanced && !state.automaticIdentification &&
+        d.eventStride >= minimumEventStride;
+    if (!vascularOnlyScope && !mpmOnlyScope) {
         diagnostics.message =
-            "deferred local finalization is limited to vascular-only Matter worlds with no mutable mechanical, contact, adaptive, learned, or topology state";
+            "deferred local finalization requires either a vascular-only world or a nonadaptive, contact-free MPM plus vascular world with no parameter, identification, reset, learned, FEM, rigid-body, or topology mutation";
         return diagnostics;
     }
 
     const auto gatePipeline = state.pipelines.find(
         "nm_merge_accepted_step_gate_into_status");
     const auto rollbackPipeline = state.pipelines.find("nm_vascular_rollback");
+    const auto mpmRollbackPipeline = state.pipelines.find("nm_mpm_rollback_frame");
+    const auto mpmCommitPipeline = state.pipelines.find("nm_mpm_commit_microstep");
+    const auto topologyRollbackPipeline = state.pipelines.find("nm_topology_rollback");
+    const auto schedulerReconcilePipeline =
+        state.pipelines.find("nm_scheduler_reconcile");
     if (gatePipeline == state.pipelines.end() ||
         gatePipeline->second == nil ||
         rollbackPipeline == state.pipelines.end() ||
-        rollbackPipeline->second == nil) {
+        rollbackPipeline->second == nil ||
+        (mpmOnlyScope &&
+         (mpmRollbackPipeline == state.pipelines.end() ||
+          mpmRollbackPipeline->second == nil ||
+          mpmCommitPipeline == state.pipelines.end() ||
+          mpmCommitPipeline->second == nil ||
+          topologyRollbackPipeline == state.pipelines.end() ||
+          topologyRollbackPipeline->second == nil ||
+          schedulerReconcilePipeline == state.pipelines.end() ||
+          schedulerReconcilePipeline->second == nil ||
+          state.particleAccepted == nil || state.particleCandidate == nil ||
+          state.particleCheckpoint == nil || state.schedulers == nil ||
+          state.schedulerCheckpoint == nil || state.events == nil ||
+          state.topologyStatesAccepted == nil ||
+          state.topologyStatesCheckpoint == nil ||
+          (d.materialStateStride != 0u &&
+           (state.particleMaterialStateAccepted == nil ||
+            state.particleMaterialStateCandidate == nil ||
+            state.particleMaterialStateCheckpoint == nil))))) {
         diagnostics.message =
-            "accepted-step finalization or vascular rollback Metal pipeline is unavailable";
+            "accepted-step finalization or a required rollback/reconcile Metal pipeline and arena is unavailable";
         return diagnostics;
     }
 
@@ -8514,6 +8574,87 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         threadsPerThreadgroup:MTLSizeMake(
             gatePipeline->second.threadExecutionWidth, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    if (mpmOnlyScope) {
+        const NSUInteger particleTotal =
+            static_cast<NSUInteger>(environmentCount) * d.particleCount;
+        [encoder setComputePipelineState:mpmRollbackPipeline->second];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+        [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
+        [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:3u];
+        [encoder setBuffer:state.particleMaterialStateAccepted
+                     offset:0u atIndex:4u];
+        [encoder setBuffer:state.particleMaterialStateCheckpoint
+                     offset:0u atIndex:5u];
+        [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                mpmRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        // On rejection rollback restores accepted state from the immutable
+        // frame checkpoint; this existing microstep kernel then makes the
+        // candidate mirror that restored accepted state. On success it is an
+        // idempotent accepted=candidate publication.
+        [encoder setComputePipelineState:mpmCommitPipeline->second];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+        [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
+        [encoder setBuffer:state.particleCandidate offset:0u atIndex:3u];
+        [encoder setBuffer:state.particleMaterialStateAccepted
+                     offset:0u atIndex:4u];
+        [encoder setBuffer:state.particleMaterialStateCandidate
+                     offset:0u atIndex:5u];
+        [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                mpmCommitPipeline->second.threadExecutionWidth, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const NSUInteger topologyWidth = std::max({
+            static_cast<NSUInteger>(d.tetrahedronCount),
+            static_cast<NSUInteger>(d.femNodeCount),
+            static_cast<NSUInteger>(d.cohesiveFaceCount),
+            static_cast<NSUInteger>(d.punctureChannelCount),
+            static_cast<NSUInteger>(d.objectCount),
+            static_cast<NSUInteger>(d.tetrahedronCount) * 4u,
+        });
+        const NSUInteger topologyTotal =
+            static_cast<NSUInteger>(environmentCount) * topologyWidth;
+        [encoder setComputePipelineState:topologyRollbackPipeline->second];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+        [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:2u];
+        [encoder setBuffer:state.femTetrahedraCheckpoint offset:0u atIndex:3u];
+        [encoder setBuffer:state.femTopologyNodesAccepted offset:0u atIndex:4u];
+        [encoder setBuffer:state.femTopologyNodesCheckpoint offset:0u atIndex:5u];
+        [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:6u];
+        [encoder setBuffer:state.cohesiveFacesCheckpoint offset:0u atIndex:7u];
+        [encoder setBuffer:state.punctureChannelsAccepted offset:0u atIndex:8u];
+        [encoder setBuffer:state.punctureChannelsCheckpoint offset:0u atIndex:9u];
+        [encoder setBuffer:state.topologyStatesAccepted offset:0u atIndex:10u];
+        [encoder setBuffer:state.topologyStatesCheckpoint offset:0u atIndex:11u];
+        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:12u];
+        [encoder setBuffer:state.femNodeIncidenceCheckpoint offset:0u atIndex:13u];
+        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:14u];
+        [encoder setBuffer:state.femNodeRangesCheckpoint offset:0u atIndex:15u];
+        [encoder dispatchThreads:MTLSizeMake(topologyTotal, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                topologyRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const NSUInteger objectTotal =
+            static_cast<NSUInteger>(environmentCount) * d.objectCount;
+        [encoder setComputePipelineState:schedulerReconcilePipeline->second];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+        [encoder setBuffer:state.schedulerCheckpoint offset:0u atIndex:2u];
+        [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+        [encoder setBuffer:state.events offset:0u atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(objectTotal, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                schedulerReconcilePipeline->second.threadExecutionWidth, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
 
     const NSUInteger vascularTotal =
         static_cast<NSUInteger>(environmentCount) *
@@ -8845,6 +8986,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             state.vascularValue.layout.ranges.z == 0u) {
             diagnostics.message =
                 "accepted-step extension requires an initialized vascular network";
+            return diagnostics;
+        }
+        if (request.deferAcceptedStepExtensionFinalization &&
+            state.acceptedStepExtensionMPMOnlyWorld &&
+            (request.resetMasks != nullptr ||
+             request.resetMaskStepStride != 0u || request.runIdentification ||
+             state.identificationDistributionCount != 0u ||
+             request.learnedWeightUpdate != nullptr ||
+             request.learnedWeightCount != 0u ||
+             request.mutationCommandCount != 0u)) {
+            diagnostics.message =
+                "deferred MPM owner finalization excludes reset, identification, parameter, learned-weight, and topology-update transactions";
             return diagnostics;
         }
         if (request.deferAcceptedStepExtensionFinalization &&
@@ -10275,6 +10428,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 (__bridge void*)state.vascularClockCandidate;
             view.vascularClockCheckpoint =
                 (__bridge void*)state.vascularClockCheckpoint;
+            view.particleAccepted = (__bridge void*)state.particleAccepted;
+            view.particleCandidate = (__bridge void*)state.particleCandidate;
+            view.particleCheckpoint = (__bridge void*)state.particleCheckpoint;
+            view.particleMaterialStateDefaults =
+                (__bridge void*)state.particleMaterialStateDefaults;
+            view.particleMaterialStateAccepted =
+                (__bridge void*)state.particleMaterialStateAccepted;
+            view.particleMaterialStateCandidate =
+                (__bridge void*)state.particleMaterialStateCandidate;
+            view.particleMaterialStateCheckpoint =
+                (__bridge void*)state.particleMaterialStateCheckpoint;
+            view.particleCount = state.dispatch.particleCount;
+            view.materialStateStride = state.dispatch.materialStateStride;
             view.vascularLayout = state.vascularValue.layout;
             view.environmentCount = state.dispatch.environmentCount;
             view.vascularStateStride = state.vascularValue.layout.ranges.z;

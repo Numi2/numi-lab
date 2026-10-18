@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/external-mpm-finalizer-211/build/finalizer"
+  ],
+  "shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "binary_sha256": "92c46367e82c1c499eea6a9bc826b0303539adb9ccb6255da5e9a5e9153d1e80",
+  "source_sha256": "371d8844172c9d546cf8d0f5880a03fd7980e6d129cb1e351ed0528adb4599d0",
+  "library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "exit": 0,
+  "seconds": 13.055028250033502,
+  "library_sha256_after": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673"
+}
