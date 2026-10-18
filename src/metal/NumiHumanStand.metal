@@ -4358,6 +4358,9 @@ kernel void mr_numi_human_stand_reconcile(
     device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(12)]],
     device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(13)]],
     device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory [[buffer(14)]],
+    device MRBodyPropertiesGPU* bodyProperties [[buffer(15)]],
+    device const MRBodyPropertiesGPU* acceptedBodyProperties [[buffer(16)]],
+    constant uint4& bodyPropertyTransaction [[buffer(17)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= shape.x) return;
@@ -4388,6 +4391,9 @@ kernel void mr_numi_human_stand_reconcile(
         }
         return;
     }
+    if (bodyPropertyTransaction.x != 0u)
+        for (uint body = 0u; body < bodyPropertyTransaction.y; ++body)
+            bodyProperties[body] = acceptedBodyProperties[body];
     rootTranslations[environment] = acceptedRootTranslations[environment];
     for (uint i=0u; i<strides.x; ++i) q[environment*strides.x+i] = acceptedQ[environment*strides.x+i];
     for (uint i=0u; i<strides.y; ++i) v[environment*strides.y+i] = acceptedV[environment*strides.y+i];
@@ -4400,4 +4406,9 @@ kernel void mr_numi_human_stand_reconcile(
         ? MR_NUMI_HUMAN_STAND_INVALID_DISPATCH : attempt.code;
     restored.failingIndex = attempt.failingIndex;
     statuses[environment] = restored;
+}
+
+// Capability marker: old retained metallibs must fail closed for mutable mass.
+kernel void mr_numi_human_body_properties_transaction_v4(device uint* version [[buffer(0)]]) {
+    version[0] = 4u;
 }

@@ -259,7 +259,8 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 26u;
+constexpr std::size_t kStandBufferCount = 27u;
+constexpr std::size_t kStandBodyPropertiesCheckpointBuffer = 26u;
 constexpr std::size_t kStandSparseGraphBuffer = 24u;
 constexpr std::size_t kStandContactWarmStartBuffer = 25u;
 constexpr std::size_t kStandPassiveJointBuffer = 22u;
@@ -648,6 +649,7 @@ void visitSplitStandBoundary(
         sink, input.stand.numanXTransactionProgram.structSize);
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.fingerprint);
+    appendSplitStandValue(sink, input.stand.numanXTransactionProgram.writeBodyProperties);
     appendSplitStandValue(sink, input.stand.contactIterationCount);
     appendSplitStandValue(sink, speculativeContactAdmissionDistanceMeters);
     appendSplitStandValue(sink, hybridEqualityFactorCache);
@@ -1022,6 +1024,7 @@ struct MetalArticulatedOperatorContextState {
     std::uint64_t standFreeHandoffNextValue = 0u;
     __strong id<MTLBuffer> standCpuFinishBuffer = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
+    bool bodyPropertiesTransactionAvailable = false;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> tendonCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterBeginPipeline = nil;
@@ -2005,6 +2008,12 @@ bool validNumiHumanStand(
         reason = "NumanX transaction program is only partially configured";
         return false;
     }
+    if (stand.numanXTransactionProgram.writeBodyProperties &&
+        (!stand.numanXTransactionProgram.valid() || input.environmentCount != 1u ||
+         stand.numanXHumanMatterProgram.configured())) {
+        reason = "mutable Human body properties require one environment and the ordinary transaction owner";
+        return false;
+    }
     if (!stand.enabled()) {
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
@@ -2935,6 +2944,8 @@ bool buildRequirements(
             requirements.humanMatterEntries[kHumanMatterCandidateBodyPositionLowBuffer]) ||
         !makeRequirement<mr_float4>("NumanX candidate point low positions", layout.humanMatterCandidatePointWorldElements,
             requirements.humanMatterEntries[kHumanMatterCandidatePointPositionLowBuffer]) ||
+        !makeRequirement<MRBodyPropertiesGPU>("Human accepted body properties checkpoint", model.bodies.size(),
+            requirements.standEntries[kStandBodyPropertiesCheckpointBuffer]) ||
         !makeRequirement<float>("Human accepted q checkpoint", layout.qElements,
             requirements.standEntries[kStandQCheckpointBuffer]) ||
         !makeRequirement<float>("Human accepted v checkpoint", layout.standVelocityElements,
@@ -4353,6 +4364,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             );
         }
     }
+    context.bodyPropertiesTransactionAvailable =
+        [standLibrary newFunctionWithName:@"mr_numi_human_body_properties_transaction_v4"] != nil;
     MTLFunctionConstantValues* articulatedConstants =
         [[MTLFunctionConstantValues alloc] init];
     bool canonicalBodyProbeFusion =
@@ -5558,7 +5571,9 @@ void uploadBatch(
             : static_cast<const void*>(input.points.data()),
     };
     for (std::size_t index = 0u; index < sources.size(); ++index) {
-        if (reusePublishedResidentState && index == 6u) {
+        if (reusePublishedResidentState &&
+            (index == 6u || (index == 4u &&
+             input.stand.numanXTransactionProgram.writeBodyProperties))) {
             continue;
         }
         copyToBuffer(
@@ -11123,6 +11138,11 @@ MetalArticulatedOperatorContext::submit(
             if (!diagnostics.succeeded()) {
                 return diagnostics;
             }
+            if (input.stand.numanXTransactionProgram.writeBodyProperties &&
+                !state_->bodyPropertiesTransactionAvailable)
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "Human body-property transactions require the matching V4 stand shader");
             if (input.stand.numanXHumanMatterProgram.valid()) {
                 diagnostics = initializeHumanMatterPipelines(
                     *state_, std::move(diagnostics)
@@ -11547,6 +11567,14 @@ MetalArticulatedOperatorContext::submit(
                 ) {
                     pass.accessFlags |=
                         MetalNumanXTransactionWriteStandFailure;
+                }
+                if (program.writeBodyProperties) {
+                    pass.bodyProperties = (__bridge void*)state_->buffers[4u];
+                    pass.bodyPropertiesCheckpoint = (__bridge void*)state_->standBuffers[kStandBodyPropertiesCheckpointBuffer];
+                    pass.bodyPropertyCount = model.bodies.size();
+                    if (phase == MetalNumanXTransactionPhase::preDynamics)
+                        pass.accessFlags |= MetalNumanXTransactionWriteBodyProperties |
+                            MetalNumanXTransactionWriteGeneralizedForce;
                 }
                 pass.reserved0 = 0u;
                 pass.commandBuffer = (__bridge void*)commandBuffer;
@@ -11974,6 +12002,9 @@ MetalArticulatedOperatorContext::submit(
                     if (bytes != 0u) [checkpoint copyFromBuffer:source sourceOffset:0u
                         toBuffer:state_->standBuffers[destination] destinationOffset:0u size:bytes];
                 };
+                if (input.stand.numanXTransactionProgram.writeBodyProperties)
+                    copy(state_->buffers[4u], kStandBodyPropertiesCheckpointBuffer,
+                        model.bodies.size() * sizeof(MRBodyPropertiesGPU));
                 copy(state_->standBuffers[kStandRootTranslationBuffer], kStandRootTranslationCheckpointBuffer,
                     input.environmentCount * sizeof(MRCompensatedRootTranslationGPU));
                 copy(state_->buffers[6u], kStandQCheckpointBuffer,
@@ -15211,6 +15242,12 @@ MetalArticulatedOperatorContext::submit(
                         standDispatch.qStride, standDispatch.vStride,
                         standDispatch.supportContactCount,
                         contactWarmStartRequested ? 1u : 0u};
+                    const mr_uint4 bodyPropertyTransaction = {
+                        input.stand.numanXTransactionProgram.writeBodyProperties ? 1u : 0u,
+                        static_cast<mr_u32>(model.bodies.size()), 0u, 0u};
+                    [reconcile setBuffer:state_->buffers[4u] offset:0u atIndex:15u];
+                    [reconcile setBuffer:state_->standBuffers[kStandBodyPropertiesCheckpointBuffer] offset:0u atIndex:16u];
+                    [reconcile setBytes:&bodyPropertyTransaction length:sizeof(bodyPropertyTransaction) atIndex:17u];
                     [reconcile setComputePipelineState:state_->standReconcilePipeline];
                     [reconcile setBuffer:
                         state_->standBuffers[kStandContactWarmStartBuffer] != nil

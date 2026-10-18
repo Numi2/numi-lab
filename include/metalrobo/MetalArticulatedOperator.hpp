@@ -257,7 +257,7 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     postDynamics = 2u,
 };
 
-inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 3u;
+inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 4u;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -267,6 +267,9 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     // postDynamics only: a consumer may change a successful stand status to
     // a defined failure code. It may never turn failure into success.
     MetalNumanXTransactionWriteStandFailure = 1u << 2u,
+    // preDynamics only, opt-in single-environment body-property transaction.
+    MetalNumanXTransactionWriteBodyProperties = 1u << 3u,
+    MetalNumanXTransactionWriteGeneralizedForce = 1u << 4u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -386,6 +389,12 @@ struct MetalNumanXTransactionPass {
     std::uint32_t standContactEnabled = 0u;
     mr_float4 standGroundPoint{};
     mr_float4 standGroundNormal{};
+
+    // V4 opt-in: live candidate mass/COM/inertia. Checkpoint is the immutable
+    // accepted start-of-step source. The physical owner restores it on reject.
+    void* bodyProperties = nullptr;
+    void* bodyPropertiesCheckpoint = nullptr;
+    std::uint64_t bodyPropertyCount = 0u;
 };
 
 using MetalNumanXTransactionEncode = bool (*)(
@@ -409,6 +418,8 @@ struct MetalNumanXTransactionProgram {
     MetalNumanXTransactionEncode encode = nullptr;
     MetalNumanXTransactionAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;
+    // Opt-in resident mass state; one environment, ordinary transaction only.
+    bool writeBodyProperties = false;
 
     [[nodiscard]] bool valid() const noexcept {
         return abiVersion == kMetalNumanXTransactionABIVersion &&
@@ -421,7 +432,7 @@ struct MetalNumanXTransactionProgram {
         return abiVersion != kMetalNumanXTransactionABIVersion ||
             structSize != sizeof(MetalNumanXTransactionProgram) ||
             context != nullptr || encode != nullptr || abort != nullptr ||
-            fingerprint != 0u;
+            fingerprint != 0u || writeBodyProperties;
     }
 };
 

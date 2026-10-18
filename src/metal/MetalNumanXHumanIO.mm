@@ -2596,7 +2596,19 @@ template <typename Input>
         reason = "prepared HumanIO input family is absent or inconsistent";
         return false;
     }
+    const bool mutableBodyProperties = pass.bodyProperties != nullptr;
+    if ((mutableBodyProperties &&
+         (pass.bodyPropertiesCheckpoint == nullptr || pass.bodyPropertyCount == 0u ||
+          pass.environmentCount != 1u)) ||
+        (!mutableBodyProperties &&
+         (pass.bodyPropertiesCheckpoint != nullptr || pass.bodyPropertyCount != 0u))) {
+        reason = "transaction body-property lease is incomplete";
+        return false;
+    }
     const std::uint32_t expectedAccessFlags =
+        (mutableBodyProperties && pass.phase == MetalNumanXTransactionPhase::preDynamics
+             ? MetalNumanXTransactionWriteBodyProperties |
+               MetalNumanXTransactionWriteGeneralizedForce : 0u) |
         MetalNumanXTransactionReadBorrowedState |
         (pass.phase == MetalNumanXTransactionPhase::beginStep
              ? MetalNumanXTransactionWriteMujocoExcitation

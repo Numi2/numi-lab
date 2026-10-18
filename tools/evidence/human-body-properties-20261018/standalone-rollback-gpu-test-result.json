@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "test": "Actual GPU mr_numi_human_stand_reconcile; 3 distinct mass/COM/inertia records; accepted preserves candidate; rejected restores checkpoint byte-exact; opt-out preserves candidate",
+  "host": "ssh numi",
+  "device_model": "Mac18,5",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425\n",
+  "files": {
+    "test_body_mass_rollback.mm": "2b16833e049c0d494df648407d5eb4bb208343ca73cd014c7e01c95369d786ae",
+    "test-body-mass-rollback": "8b87c692d02d42d7885fba946418d32d2f1630b3adb7c749026eae0d68179345",
+    "StandSource.metal": "1684fc1dee0f6d151b4f5f06f506864c162d32eb00ba9f5ee0fd3a036d1e3d57",
+    "src/metal/NumiHumanStand.metal": "92aa761817c1cb6bca3ecf3f34d3d7984708abef11158ff3c9c65c27b053031c"
+  },
+  "scope": "Kernel rollback only; not full bleeding or contact qualification"
+}
