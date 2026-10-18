@@ -992,6 +992,85 @@ inline float3 worldInertiaMultiply(
     return quaternionRotate(orientation, localResult);
 }
 
+// Propagate exact zero-generalized-acceleration spatial bias from a parent COM
+// to one child COM. Joint anchors are COM-relative; vectors are world-frame.
+// This mirrors the scalar-joint recursion in the articulated ABA bias pass,
+// operating on the stand's current body-pose and J*v streams.
+inline bool standVelocityProductBiasChild(
+    device const MRJointDescriptorGPU& joint,
+    device const MRArticulatedBodyPoseGPU& parentPose,
+    device const MRArticulatedBodyPoseGPU& childPose,
+    const float3 parentAngularVelocity,
+    const float3 childAngularVelocity,
+    const float3 parentLinearBias,
+    const float3 parentAngularBias,
+    const float q,
+    const float qd,
+    thread float3& childAngularBias,
+    thread float3& childLinearBias
+) {
+    const bool prismatic = joint.jointType == MR_JOINT_PRISMATIC;
+    const bool revolute = joint.jointType == MR_JOINT_REVOLUTE ||
+        joint.jointType == MR_JOINT_CONTINUOUS;
+    const bool fixedJoint = joint.jointType == MR_JOINT_FIXED;
+    if (!((fixedJoint && joint.nq == 0u && joint.nv == 0u) ||
+          ((prismatic || revolute) && joint.nq == 1u && joint.nv == 1u)))
+        return false;
+
+    float4 parentOrientation;
+    float4 childOrientation;
+    if (!normalizedQuaternion(parentPose.orientation, parentOrientation) ||
+        !normalizedQuaternion(childPose.orientation, childOrientation))
+        return false;
+
+    float3 axis{0.0f};
+    if (!fixedJoint) {
+        const float3 axisInJoint = joint.axis0.xyz;
+        const float axisLengthSquared = dot(axisInJoint, axisInJoint);
+        if (!all(isfinite(axisInJoint)) || !(axisLengthSquared > 1.0e-12f) ||
+            !isfinite(axisLengthSquared))
+            return false;
+        float4 parentJointOrientation;
+        if (!normalizedQuaternion(
+                quaternionMultiply(parentOrientation, joint.parentRotation),
+                parentJointOrientation))
+            return false;
+        axis = quaternionRotate(
+            parentJointOrientation, axisInJoint * rsqrt(axisLengthSquared));
+        if (!all(isfinite(axis)))
+            return false;
+    }
+
+    const float3 parentPosition = parentPose.position.xyz;
+    const float3 childAnchor = quaternionRotate(
+        childOrientation, joint.childAnchor.xyz);
+    const float3 parentAnchor = quaternionRotate(
+        parentOrientation, joint.parentAnchor.xyz);
+    const float3 jointPosition = parentPosition + parentAnchor +
+        (prismatic ? axis * q : float3(0.0f));
+    const float3 parentToJoint = jointPosition - parentPosition;
+    const float3 jointToChild = -childAnchor;
+
+    childAngularBias = parentAngularBias;
+    if (revolute)
+        childAngularBias += cross(parentAngularVelocity, axis * qd);
+
+    const float3 anchorLinearBias =
+        parentLinearBias +
+        cross(parentAngularBias, parentToJoint) +
+        cross(parentAngularVelocity,
+              cross(parentAngularVelocity, parentToJoint)) +
+        (prismatic
+            ? 2.0f * cross(parentAngularVelocity, axis) * qd
+            : float3(0.0f));
+    childLinearBias =
+        anchorLinearBias +
+        cross(childAngularBias, jointToChild) +
+        cross(childAngularVelocity,
+              cross(childAngularVelocity, jointToChild));
+    return all(isfinite(childAngularBias)) && all(isfinite(childLinearBias));
+}
+
 template <typename WorkspacePointer, typename OutputPointer>
 inline bool solveFactor(
     device const float* factor,
@@ -1281,13 +1360,11 @@ inline void publishParallelResponseFailure(
 
 } // namespace
 
-// Large-state Human dynamics deliberately consumes the already-authoritative
-// Metal kinematics/Jacobian and MyoSim J^T streams. Matrix assembly is spread
-// across the threadgroup; lane zero performs deterministic Cholesky, source
-// support projection, and state publication. The first release retains a
-// low-velocity bias model (gravity, gyroscopic and authored body damping) and
-// exposes that evidence boundary to the host rather than pretending to be an
-// exact high-speed RNEA replacement.
+// Large-state Human dynamics consumes the already-authoritative Metal
+// kinematics/Jacobian and MyoSim J^T streams. Its body bias includes exact
+// velocity-product spatial acceleration for fixed, scalar revolute, continuous,
+// and prismatic inbound joints, plus gyroscopic, gravity, and authored damping.
+// Unsupported multi-DOF inbound joints fail closed.
 kernel void mr_numi_human_stand_step(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1315,6 +1392,7 @@ kernel void mr_numi_human_stand_step(
     device const float4* pointPositionLow [[buffer(23)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
+    device const MRJointDescriptorGPU* joints [[buffer(27)]],
     device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory
         [[buffer(30), function_constant(kUseStandContactWarmStart)]],
@@ -1350,7 +1428,7 @@ kernel void mr_numi_human_stand_step(
     const uint spatialBase = environment * bodyCount *
         MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
     const uint inertiaWeightedBase = spatialBase + bodyCount * 6u * nv;
-    const uint bodyMotionBase = environment * bodyCount * 2u;
+    const uint bodyMotionBase = environment * bodyCount * 4u;
     const uint factorBase = environment * nv * nv;
     const uint vectorStride = nv + 3u * nv +
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
@@ -1793,10 +1871,109 @@ kernel void mr_numi_human_stand_step(
                 spatialJacobianScratch[base + 5u * nv + dof]
             );
         }
-        bodyMotionScratch[bodyMotionBase + 2u * localBody + 0u] = float4(angular, 0.0f);
-        bodyMotionScratch[bodyMotionBase + 2u * localBody + 1u] = float4(linear, 0.0f);
+        const uint motionBase = bodyMotionBase + 4u * localBody;
+        bodyMotionScratch[motionBase + 0u] = float4(angular, 0.0f);
+        bodyMotionScratch[motionBase + 1u] = float4(linear, 0.0f);
+        bodyMotionScratch[motionBase + 2u] = float4(0.0f);
+        bodyMotionScratch[motionBase + 3u] = float4(0.0f);
     }
     threadgroup_barrier(mem_flags::mem_device);
+
+    // One deterministic lane propagates spatial bias from the root through the
+    // authored joint tree. alphaBias.w is only a private visited marker.
+    if (lane == 0u && status.code == MR_NUMI_HUMAN_STAND_SUCCESS) {
+        if (articulation.rootBody < articulation.firstBody ||
+            articulation.rootBody >= articulation.firstBody + bodyCount) {
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, articulation.rootBody);
+        } else {
+            const uint rootLocal = articulation.rootBody - articulation.firstBody;
+            for (uint localBody = 0u; localBody < bodyCount; ++localBody) {
+                const uint motionBase = bodyMotionBase + 4u * localBody;
+                bodyMotionScratch[motionBase + 2u] = float4(0.0f);
+                bodyMotionScratch[motionBase + 3u] = float4(0.0f);
+            }
+            bodyMotionScratch[bodyMotionBase + 4u * rootLocal + 2u].w = 1.0f;
+            uint resolvedBodies = 1u;
+            for (uint pass = 0u;
+                 pass < bodyCount && resolvedBodies < bodyCount &&
+                    status.code == MR_NUMI_HUMAN_STAND_SUCCESS;
+                 ++pass) {
+                bool advanced = false;
+                for (uint jointOffset = 0u;
+                     jointOffset < articulation.jointCount &&
+                        status.code == MR_NUMI_HUMAN_STAND_SUCCESS;
+                     ++jointOffset) {
+                    device const MRJointDescriptorGPU& joint =
+                        joints[articulation.firstJoint + jointOffset];
+                    if (joint.parentBody < articulation.firstBody ||
+                        joint.parentBody >= articulation.firstBody + bodyCount ||
+                        joint.childBody < articulation.firstBody ||
+                        joint.childBody >= articulation.firstBody + bodyCount ||
+                        joint.parentBody == joint.childBody) {
+                        fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                             articulation.firstJoint + jointOffset);
+                        break;
+                    }
+                    const uint parentLocal = joint.parentBody - articulation.firstBody;
+                    const uint childLocal = joint.childBody - articulation.firstBody;
+                    const uint parentMotionBase =
+                        bodyMotionBase + 4u * parentLocal;
+                    const uint childMotionBase =
+                        bodyMotionBase + 4u * childLocal;
+                    if (bodyMotionScratch[childMotionBase + 2u].w == 1.0f)
+                        continue;
+                    if (bodyMotionScratch[parentMotionBase + 2u].w != 1.0f)
+                        continue;
+
+                    float q = 0.0f;
+                    float qd = 0.0f;
+                    if (joint.jointType != MR_JOINT_FIXED) {
+                        if (joint.qOffset < articulation.qOffset ||
+                            joint.qOffset >= articulation.qOffset + nq ||
+                            joint.vOffset < articulation.vOffset ||
+                            joint.vOffset >= articulation.vOffset + nv) {
+                            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                                 articulation.firstJoint + jointOffset);
+                            break;
+                        }
+                        q = qState[qBase + joint.qOffset - articulation.qOffset];
+                        qd = vState[vBase + joint.vOffset - articulation.vOffset];
+                    }
+                    float3 childAngularBias;
+                    float3 childLinearBias;
+                    if (!standVelocityProductBiasChild(
+                            joint,
+                            bodyPoses[bodyPoseBase + parentLocal],
+                            bodyPoses[bodyPoseBase + childLocal],
+                            bodyMotionScratch[parentMotionBase + 0u].xyz,
+                            bodyMotionScratch[childMotionBase + 0u].xyz,
+                            bodyMotionScratch[parentMotionBase + 3u].xyz,
+                            bodyMotionScratch[parentMotionBase + 2u].xyz,
+                            q, qd, childAngularBias, childLinearBias)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                             articulation.firstJoint + jointOffset);
+                        break;
+                    }
+                    bodyMotionScratch[childMotionBase + 2u] =
+                        float4(childAngularBias, 1.0f);
+                    bodyMotionScratch[childMotionBase + 3u] =
+                        float4(childLinearBias, 0.0f);
+                    ++resolvedBodies;
+                    advanced = true;
+                }
+                if (!advanced && resolvedBodies < bodyCount &&
+                    status.code == MR_NUMI_HUMAN_STAND_SUCCESS)
+                    fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                         articulation.firstJoint);
+            }
+            if (resolvedBodies != bodyCount &&
+                status.code == MR_NUMI_HUMAN_STAND_SUCCESS)
+                fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                     articulation.firstJoint);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
 
     for (uint row = lane; row < nv; row += threadCount) {
         float value = 0.0f;
@@ -1817,18 +1994,20 @@ kernel void mr_numi_human_stand_step(
                 spatialJacobianScratch[base + 4u * nv + row],
                 spatialJacobianScratch[base + 5u * nv + row],
             };
-            const float3 angular = bodyMotionScratch[
-                bodyMotionBase + 2u * localBody + 0u
-            ].xyz;
-            const float3 linear = bodyMotionScratch[
-                bodyMotionBase + 2u * localBody + 1u
-            ].xyz;
+            const uint motionBase = bodyMotionBase + 4u * localBody;
+            const float3 angular = bodyMotionScratch[motionBase + 0u].xyz;
+            const float3 linear = bodyMotionScratch[motionBase + 1u].xyz;
+            const float3 angularBias = bodyMotionScratch[motionBase + 2u].xyz;
+            const float3 linearBias = bodyMotionScratch[motionBase + 3u].xyz;
             const float4 orientation = bodyPoses[bodyPoseBase + localBody].orientation;
             const float3 angularMomentum = worldInertiaMultiply(body, orientation, angular);
-            const float3 requiredTorque = cross(angular, angularMomentum) +
+            const float3 requiredTorque =
+                worldInertiaMultiply(body, orientation, angularBias) +
+                cross(angular, angularMomentum) +
                 body.dampingAndSpeedLimits.y * angular;
             const float3 requiredForce =
-                -body.massAndInverseMass.x * world.gravityAndTimestep.xyz +
+                body.massAndInverseMass.x *
+                    (linearBias - world.gravityAndTimestep.xyz) +
                 body.dampingAndSpeedLimits.x * linear;
             const float contribution =
                 dot(jw, requiredTorque) + dot(jv, requiredForce);

@@ -1,0 +1,30 @@
+{
+  "scope": "Exact articulated velocity-product bias correction; full swing and fall NOT qualified",
+  "source_runtime": "/Users/n/numi-human-separation-20261018/contact-runtime-030",
+  "native_evidence": "/Users/n/numi-human-separation-20261018/contact-stability-030/native-moving-exact-bias-spec02-dt05ms-4s-001",
+  "native_exit": 0,
+  "duration_sim_s": 4,
+  "timestep_s": 0.0005,
+  "speculative_contact_distance_m": 0.02,
+  "per_step_floor_min_witness": {
+    "accepted_step": "783",
+    "accepted_time_s": "0.39150001859525219",
+    "pre_dynamics_step_index": "782",
+    "pre_dynamics_time_s": "0.39100001857150346",
+    "region": "20",
+    "source_geometry_index": "38631",
+    "point_query_index": "660",
+    "selected_skin_vertex_local": "36122",
+    "selected_vertex_map_index": "775980",
+    "region_error": "0",
+    "global_error": "0",
+    "nonfinite_jacobian_count": "0",
+    "selected_point_world_x_m": "-0.062500827014446259",
+    "selected_point_world_y_m": "-0.042928095906972885",
+    "selected_point_world_z_m": "-0.0021825295407325029",
+    "max_abs_point_jacobian": "1.9184961318969727"
+  },
+  "rows_below_minus_1mm": 24,
+  "remaining_defect": "One minimum per region can switch during integration; sampled render guard missed brief 2.18253mm penetration. Contact witness correction remains required.",
+  "guards_relaxed": false
+}

@@ -3528,7 +3528,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             !checkedMultiply(bodyDofs, MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS, bodyDofs) ||
             !checkedMultiply(input.environmentCount, bodyDofs,
                              layout.standSpatialJacobianElements) ||
-            !checkedMultiply(articulation.bodyCount, 2u,
+            !checkedMultiply(articulation.bodyCount, 4u,
                              bodyMotionPerEnvironment) ||
             !checkedMultiply(input.environmentCount, bodyMotionPerEnvironment,
                              layout.standBodyMotionElements) ||
@@ -12784,6 +12784,7 @@ MetalArticulatedOperatorContext::submit(
                     MetalArticulatedOperatorHostStatus::metalCommandFailure,
                     "failed to encode Human free velocity predictor");
                 predictor.label = @"NumanX Human free velocity and source effective tangent";
+                [predictor setBuffer:state_->buffers[2u] offset:0u atIndex:27u];
                 [predictor setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                 [predictor setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                 [predictor setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
@@ -14792,6 +14793,8 @@ MetalArticulatedOperatorContext::submit(
                     if (sampleReducedResponseDiagnostics)
                         [standEncoder setBuffer:reducedResponseDiagnosticBuffer
                             offset:0u atIndex:29u];
+                    [standEncoder setBuffer:state_->buffers[2u]
+                                      offset:0u atIndex:27u];
                     if (cachedFinish)
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandLimitEqualityResponseBuffer]
