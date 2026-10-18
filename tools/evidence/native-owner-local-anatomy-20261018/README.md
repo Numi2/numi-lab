@@ -1,0 +1,14 @@
+# Native owner-local anatomy precision
+World-space binary32 emission collapsed valid source triangles as the rope-driven body moved. The presentation kernel now retains source anatomy in its existing rigid owner frame. Closed cardiac and exact torso respiratory geometry stays torso-local; other source geometry uses relative-body skinning. The existing renderer supplies articulated transforms. Accepted/rejected snapshots retain those local vertices and freeze the corresponding body transforms. Strict triangle and functional-volume guards remain enabled.
+
+The two already-cut external obliques each contain contiguous upper/lower sole-owner ranges. These ranges now use separate render instances with their original anatomical identities, source triangle order and layer mask. This changes no geometry or physical mass, attachments, force routes, q/v, controller or physiology state.
+
+The pinned Apple M6 native executable completed matched 2-second control/release runs. Three control traces are byte-identical to the retained baseline. The real Metal kernel regression rejects a collapsed legacy triangle at 2 m and 20 m while preserving the local triangle, including the rigid source path. The published deformation kernel is byte-identical to the executed kernel; the retained runtime/shader/build/asset identities are recorded separately. This is a pinned retained-runtime qualification, not a claim of a fresh full-runtime rebuild.
+
+The requested 12-second run failed at 2.494 seconds on real floor penetration (92 mm), after passing the earlier cardiac, respiratory and whole-mesh precision failures. This run is retained as failed. The previous raw physical trace and all failed source-frame attempts remain in the recorded SSH Numi evidence paths. A mislabeled first control accidentally retained release step50; it is explicitly excluded, retained and replaced by native-held-002.
+
+Reproduce the bounded release with the existing launcher:
+    python3 tools/launch_human_rope.py tools/evidence/native-owner-local-anatomy-20261018/invocation-released-bounded.json --output FRESH_REMOTE_DIRECTORY --exclusive-wrapper /Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py
+All pinned source assets/runtime paths must be available on SSH Numi. The build report records exact compiler/linker arguments and dependency hashes; HumanPresentation.metal.gz is the exact runtime-compiled presentation source. Keep the retained physics metallib distinct from this presentation-only source.
+
+Mechanical waist release is an articulated idealization. Passive organs have no independent detachment/contact/mass partition, there is no conserved hemorrhage/free-surface fluid owner, and post-cut physiology is unsupported. No organ ejection, bleeding, completed long fall, continuum cutting or injury validation is claimed.

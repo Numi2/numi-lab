@@ -1,0 +1,10 @@
+{
+  "schema": "numi.human.mechanical-separation-scope.v1",
+  "mode": "mechanical_topology_release",
+  "release_step": 10000,
+  "seam": {"joint_index": 16, "parent_runtime_body": 16, "last_carrier_runtime_body": 19, "source_torso_body": 20, "runtime_torso_body": 23},
+  "post_release_physiology": "unsupported; intact reference physiology continues",
+  "blood_loss": "not_modelled",
+  "injury_qualification": "none",
+  "source_physiology_mutated": false
+}

@@ -26,6 +26,18 @@ static_assert(sizeof(MRHumanRestingSurfaceFailureGPU)==80);
 static_assert(alignof(MRHumanRestingSurfaceFailureGPU)==16);
 class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
+    // Keep precise local vertices and freeze only their rigid instance pose.
+    void freezeLocalCardiacInstances(metalrobo::VisualAssetPackV2& pack,
+                                    const MRBodyStateGPU* bodies) const {
+        for(const auto& [instanceIndex,bodyIndex]:localCardiacInstances) {
+            require(bodies&&bodyIndex<sourceBodyCount,"local cardiac snapshot body is out of range");
+            auto& instance=pack.instances.at(instanceIndex);
+            instance.translationAndScale=bodies[bodyIndex].position;
+            instance.translationAndScale.w=1.0f;
+            instance.orientation=bodies[bodyIndex].orientation;
+            instance.binding.z=MR_VISUAL_BINDING_WORLD;
+        }
+    }
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
     std::unique_ptr<NumiHumanRestingRopeSupport> ropeSupport;
     std::unique_ptr<NumiHumanSeparationSupport> separationSupport;
@@ -66,6 +78,7 @@ class NumiHumanRestingVisual {
         NumiHumanSkinInfluenceLayout::vertexMajor;
     unsigned auditCount=0,volumeAuditGroupCount=0,skinAuditGroupCount=0;
     std::vector<unsigned> auditStableIds;
+    std::vector<std::pair<unsigned,unsigned>> localCardiacInstances;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     bool commonCardiacGeometry=false;
     unsigned commonFieldVertexCount=0,commonFieldNormalVertexCount=0,airwayNormalVertexCount=0;
@@ -302,6 +315,10 @@ class NumiHumanRestingVisual {
         const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
         require(vertexCaptureBuffer.length>=vertexBytes,"accepted geometry staging buffer is undersized");
         std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        require(coupled.presentationBodies&&coupled.presentationBodies.contents&&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "local cardiac snapshot requires complete accepted body poses");
+        freezeLocalCardiacInstances(pack,static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents));
         for(const auto& vertex:pack.vertices)require(
             std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
             std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
@@ -435,6 +452,7 @@ class NumiHumanRestingVisual {
             @"vertex_count":@(pack.vertices.size()),@"index_count":@(pack.indices.size()),
             @"primitive_count":@(pack.primitives.size()),@"instance_count":@(pack.instances.size()),
             @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer",
+            @"local_anatomy_vertex_frame":@"cardiac torso-local and non-respiratory owner-local; captured instance transforms freeze accepted world poses",
             @"runtime_skin_influence_layout_id":loadedKneeNSString(skinInfluenceLayoutName(skinInfluenceLayout))
         };
         NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
@@ -462,6 +480,10 @@ class NumiHumanRestingVisual {
         const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
         require(vertexCaptureBuffer.length>=vertexBytes,"rejected geometry staging buffer is undersized");
         std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        require(coupled.presentationBodies&&coupled.presentationBodies.contents&&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "local cardiac snapshot requires complete accepted body poses");
+        freezeLocalCardiacInstances(pack,static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents));
         for(const auto& vertex:pack.vertices)require(
             std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
             std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
@@ -1647,6 +1669,9 @@ public:
                 }else if(deformation==12) {
                     const auto range=functional.commonFieldRanges.at(instance.identity.w);
                     maps[v].chamberIndex=range.first+(v-base);
+                    // W=2 marks closed torso-local cardiac surfaces.
+                    // Passive attachments remain W=1 and world-space.
+                    if(commonChannel<7u)maps[v].deformationWeight.w=2.0f;
                 }else if(deformation==2) {
                     const auto& weights=functional.cardiacFreewallWeights.at(instance.identity.w);
                     require(v>=base&&v-base<weights.size(),"cardiac cavity pack order differs from source vertices");
@@ -1810,10 +1835,111 @@ public:
                     <<" retained_unused_slots="<<(intercostalRibChannels->size()-referencedIntercostalRibVertices.size())
                     <<" source_allocation_and_channels_preserved=true\n";
             }
-            // GPU skinning supplies world coordinates; identity keeps the exact
-            // source semantic, stable ID and anatomical owner for inspection.
-            instance.binding.z=MR_VISUAL_BINDING_WORLD;
+            // Non-respiratory source surfaces use one rigid owner frame.
+            // Relative-body skinning preserves blended motion without the
+            // precision loss of adding/subtracting a world-space origin.
+            unsigned localSourceBody=MR_INVALID_INDEX;
+            if(deformation==0u) {
+                const auto& firstMap=maps.at(vertices.front());
+                float largest=-1.0f;
+                for(unsigned j=0;j<firstMap.influenceCount;++j) {
+                    const auto& influence=weights.at(firstMap.firstInfluence+j);
+                    if(influence.body.x!=MR_INVALID_INDEX&&influence.positionAndWeight.w>largest) {
+                        largest=influence.positionAndWeight.w;localSourceBody=influence.body.x;
+                    }
+                }
+                if(localSourceBody!=MR_INVALID_INDEX)for(unsigned v:vertices) {
+                    maps[v].chamberIndex=localSourceBody;maps[v].deformationWeight.w=3.0f;
+                }
+            }
+            if(localSourceBody!=MR_INVALID_INDEX) {
+                instance.binding.y=localSourceBody;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),localSourceBody);
+            }else if(deformation==12u&&commonChannel<7u) {
+                localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),instance.binding.y);
+                require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x,
+                    "closed cardiac local frame must retain its exact torso owner");
+            }else if(deformation==1u||deformation==4u||deformation==5u||deformation==6u||deformation==7u||deformation==9u||deformation==11u) {
+                bool exact=true;
+                for(unsigned v:vertices) {
+                    const auto& m=maps[v];const auto& influence=weights.at(m.firstInfluence);
+                    exact=exact&&m.influenceCount==1u&&influence.body.x==anatomyGPU.bodyAndFlags.x&&influence.positionAndWeight.w==1.0f;
+                }
+                if(exact) {
+                    for(unsigned v:vertices)maps[v].deformationWeight.w=2.0f;
+                    instance.binding.y=anatomyGPU.bodyAndFlags.x;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                    localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),instance.binding.y);
+                }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
+            }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
             instance.translationAndScale={0,0,0,1};instance.orientation={0,0,0,1};
+        }
+        // A cut source can contain disconnected upper/lower components.
+        // Each retains its exact source indices and gets its own rigid frame;
+        // one frame spanning freely separating parts loses binary32 precision.
+        const unsigned unsplitInstanceCount=unsigned(pack.instances.size());
+        for(unsigned instanceIndex=0;instanceIndex<unsplitInstanceCount;++instanceIndex) {
+            const auto originalInstance=pack.instances.at(instanceIndex);
+            if(originalInstance.identity.x!=kMuscleSurfaceSemantic||
+                (originalInstance.identity.w!=67u&&originalInstance.identity.w!=68u)||
+                originalInstance.geometry.y!=1u)continue;
+            const auto originalPrimitive=pack.primitives.at(originalInstance.geometry.x);
+            const unsigned begin=originalPrimitive.geometry.x,end=begin+originalPrimitive.geometry.y;
+            std::map<unsigned,std::vector<unsigned>> componentTriangles;
+            bool soleOwned=true;
+            for(unsigned j=begin;j<end;j+=3) {
+                unsigned owner=MR_INVALID_INDEX;
+                for(unsigned k=0;k<3;++k) {
+                    const auto& m=maps.at(pack.indices[j+k]);
+                    const auto& influence=weights.at(m.firstInfluence);
+                    if(m.influenceCount!=1u||influence.body.x==MR_INVALID_INDEX||influence.positionAndWeight.w!=1.0f) {
+                        soleOwned=false;break;
+                    }
+                    if(k==0u)owner=influence.body.x;
+                    else if(owner!=influence.body.x){soleOwned=false;break;}
+                }
+                if(!soleOwned)break;
+                componentTriangles[owner].push_back(j);
+            }
+            if(!soleOwned)continue;
+            if(componentTriangles.size()==1u)continue;
+            require(componentTriangles.size()<=8u,"split oblique has unexpected disconnected source components");
+            localCardiacInstances.erase(std::remove_if(localCardiacInstances.begin(),localCardiacInstances.end(),
+                [&](const auto& entry){return entry.first==instanceIndex;}),localCardiacInstances.end());
+            bool first=true;
+            for(const auto& [component,triangles]:componentTriangles) {
+                (void)component;
+                require(triangles.back()-triangles.front()+3u==triangles.size()*3u,
+                    "split source component triangles must retain their contiguous source order");
+                std::set<unsigned> componentVertices;
+                for(unsigned j:triangles)for(unsigned k=0;k<3;++k)componentVertices.insert(pack.indices[j+k]);
+                std::map<unsigned,double> totals;
+                for(unsigned v:componentVertices) {
+                    const auto& m=maps.at(v);
+                    require(m.deformationKind==0u,"oblique component must retain its passive source owner");
+                    for(unsigned j=0;j<m.influenceCount;++j) {
+                        const auto& influence=weights.at(m.firstInfluence+j);
+                        if(influence.body.x!=MR_INVALID_INDEX)totals[influence.body.x]+=influence.positionAndWeight.w;
+                    }
+                }
+                unsigned owner=MR_INVALID_INDEX;double largest=-1;
+                for(const auto& [body,total]:totals)if(total>largest){owner=body;largest=total;}
+                require(owner!=MR_INVALID_INDEX,"split source component lacks an articulated owner frame");
+                for(unsigned v:componentVertices){maps[v].chamberIndex=owner;maps[v].deformationWeight.w=3.0f;}
+                auto instance=originalInstance;auto primitive=originalPrimitive;
+                const unsigned outputInstance=first?instanceIndex:unsigned(pack.instances.size());
+                const unsigned outputPrimitive=first?originalInstance.geometry.x:unsigned(pack.primitives.size());
+                primitive.geometry.x=triangles.front();primitive.geometry.y=unsigned(triangles.size()*3u);
+                primitive.geometry.w=outputInstance;
+                instance.geometry.x=outputPrimitive;instance.geometry.y=1u;
+                instance.binding.y=owner;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                if(first){pack.instances[outputInstance]=instance;pack.primitives[outputPrimitive]=primitive;}
+                else {pack.instances.push_back(instance);pack.primitives.push_back(primitive);visibleLayers.push_back(visibleLayers.at(instanceIndex));}
+                localCardiacInstances.emplace_back(outputInstance,owner);first=false;
+                std::cout<<"source_component_local_frame stable_id="<<instance.identity.w
+                    <<" instance="<<outputInstance<<" first_source_triangle="<<(triangles.front()-begin)/3u
+                    <<" triangles="<<triangles.size()<<" body="<<owner<<"\n";
+            }
         }
         // The saved existing-format pack is itself a coherent initial pose;
         // GPU updates use these same source influences for later poses.
@@ -1831,6 +1957,28 @@ public:
                     point=addPoint(b.position,rotatePoint(b.orientation,point));normal=rotatePoint(b.orientation,normal);
                 }
                 p=addPoint(p,scalePoint(point,w.positionAndWeight.w));n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
+            }
+            if(m.deformationWeight.w==2.0f&&(m.deformationKind==12u||m.deformationKind==1u||m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u)) {
+                require(exactTorsoSource,"closed cardiac local vertex has a blended owner");
+                p=soleInfluence.positionAndWeight;n=soleInfluence.normal;
+            }
+            if(m.deformationKind==0u&&m.deformationWeight.w==3.0f) {
+                p={};n={};const auto& frame=initialBodies.at(m.chamberIndex);
+                const auto inverse=inverseRotation(frame.orientation);
+                for(unsigned j=0;j<m.influenceCount;++j) {
+                    const auto& w=weights.at(m.firstInfluence+j);
+                    mr_float4 point=w.positionAndWeight,normal=w.normal;
+                    if(w.body.x!=m.chamberIndex) {
+                        if(w.body.x!=MR_INVALID_INDEX) {
+                            const auto& body=initialBodies.at(w.body.x);
+                            point=addPoint(subtractPoint(body.position,frame.position),rotatePoint(body.orientation,point));
+                            normal=rotatePoint(body.orientation,normal);
+                        }else point=subtractPoint(point,frame.position);
+                        point=rotatePoint(inverse,point);normal=rotatePoint(inverse,normal);
+                    }
+                    p=addPoint(p,scalePoint(point,w.positionAndWeight.w));
+                    n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
+                }
             }
             p.w=1;pack.vertices[v].position=p;
             if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||
@@ -2140,8 +2288,12 @@ public:
             : "/accepted_native_body_skinning_no_truncated_weights/visible_native_contact_plane";
         pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
         const auto packPath=output/"resting-human.mrvpack";std::string error;
+        // Initial source pack retains its native articulated bindings.
+        // Accepted snapshots below freeze them at the recorded body pose.
         require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
         initialPackPath=packPath;initialPackContentHash=pack.contentHash;
+        std::cout<<"anatomy_vertex_frame=owner_local source_surfaces="<<localCardiacInstances.size()
+            <<" world_pose=existing_gpu_articulated_instance strict_area_guard=unchanged\n";
         initialPackFileSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
         const float distance=framing.distance;
         const auto c=framing.center;
@@ -2450,7 +2602,25 @@ public:
                 <<" stable_id="<<retiredID<<" layer_mask=0 payload_retained=true geometry_retained=true\n";
         }
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
-        NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+        NSError* e=nil;id<MTLLibrary> lib=nil;
+#ifdef NUMI_HUMAN_RESTING_PRESENTATION_SOURCE
+        const std::filesystem::path presentationSourcePath=NUMI_HUMAN_RESTING_PRESENTATION_SOURCE;
+        require(loadedKneeSHA256Hex(loadedKneeFileSHA256(presentationSourcePath))==
+            NUMI_HUMAN_RESTING_PRESENTATION_SOURCE_SHA256,"presentation Metal source hash mismatch");
+        NSString* presentationSource=[NSString stringWithContentsOfFile:
+            loadedKneeNSString(presentationSourcePath.string()) encoding:NSUTF8StringEncoding error:&e];
+        require(presentationSource!=nil,"presentation Metal source is unavailable");
+        MTLCompileOptions* presentationOptions=[MTLCompileOptions new];
+        presentationOptions.mathMode=MTLMathModeSafe;
+        presentationOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        presentationOptions.languageVersion=MTLLanguageVersion4_0;
+        lib=[device newLibraryWithSource:presentationSource options:presentationOptions error:&e];
+#else
+        lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+#endif
+        require(lib!=nil,e?std::string(e.localizedDescription.UTF8String):"presentation library unavailable");
+        require([lib newFunctionWithName:@"nm_human_resting_local_cardiac_layout_v4"]!=nil,
+            "presentation library lacks the required torso-local cardiac layout");
         if(skinTissueLayers&&!skinTissueLayers->empty()) {
             // Prepared source material bindings only; no per-step CPU skin
             // update or independent state. Unbound scenes retain their owner.

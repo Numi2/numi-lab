@@ -1,0 +1,78 @@
+{
+  "accepted_geometry_capture_requested" : false,
+  "accepted_geometry_capture_skipped_reason" : "not_requested",
+  "accepted_geometry_capture_written" : false,
+  "accepted_root_fingerprint" : 13698994713900763953,
+  "accepted_root_fingerprint_hex" : "be1c9b1ca6024b31",
+  "accepted_step" : 799,
+  "accepted_time_s" : 1.5980000759009272,
+  "accepted_timestamp_microseconds" : 1598000,
+  "accepted_transaction_fingerprint" : 13698994713900763953,
+  "accepted_transaction_fingerprint_hex" : "be1c9b1ca6024b31",
+  "first_invalid_triangle" : {
+    "area_failure_kind" : "exact_zero_area",
+    "index_buffer_offset" : 10493994,
+    "mesh_vertex_indices" : [
+      1926506,
+      1857583,
+      1926505
+    ],
+    "rendered_positions_f32_bits_hex" : [
+      [
+        "3f31c5dc",
+        "3f310c7b",
+        "402e9858"
+      ],
+      [
+        "3f31c643",
+        "3f310d8b",
+        "402e9a41"
+      ],
+      [
+        "3f31c5dc",
+        "3f310c7b",
+        "402e9858"
+      ]
+    ],
+    "rendered_positions_m" : [
+      [
+        0.69442534446716309,
+        0.69159668684005737,
+        2.7280483245849609
+      ],
+      [
+        0.69443148374557495,
+        0.69161289930343628,
+        2.7281649112701416
+      ],
+      [
+        0.69442534446716309,
+        0.69159668684005737,
+        2.7280483245849609
+      ]
+    ],
+    "triangle_index_in_surface" : 71407
+  },
+  "first_invalid_triangle_available" : true,
+  "invalid_triangle_present" : true,
+  "physical_endpoint" : "accepted",
+  "rejected_geometry_diagnostic_content_hash" : "",
+  "rejected_geometry_diagnostic_mrvpack_path" : "",
+  "rejected_geometry_diagnostic_mrvpack_sha256" : "",
+  "rejected_geometry_diagnostic_written" : false,
+  "rejection_stage" : "post_accept_surface_presentation",
+  "runtime_skin_influence_layout_id" : "vertex-major-v1",
+  "schema" : "numi.human.accepted_surface_audit_failure.v1",
+  "source_pack_content_hash" : "sha256:54337966aa8da7b248b83437e666aa39f14116b5b439b58c9940564568e5eab8",
+  "source_pack_file_sha256" : "7593123fdf189fbe9a192835ee0f8c3ec38f73ac9006831e87d935b9a53260c3",
+  "source_pack_path" : "\/Users\/numi\/numi-human-separation-20261018\/local-anatomy-presentation-018\/native-released-001\/resting-human.mrvpack",
+  "surface_audit_endpoint" : "rejected",
+  "surface_audit_index" : 661,
+  "surface_audit_scope" : "all_rendered_triangles",
+  "surface_semantic" : 51010,
+  "surface_stable_id" : 313,
+  "surface_status" : 2,
+  "volume_owner_mismatch" : false,
+  "volume_relative_error" : "NaN",
+  "volume_relative_error_applicable" : false
+}

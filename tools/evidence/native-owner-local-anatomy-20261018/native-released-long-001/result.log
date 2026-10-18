@@ -1,0 +1,6 @@
+source_component_local_frame stable_id=67 instance=251 first_source_triangle=54848 triangles=61020 body=7
+source_component_local_frame stable_id=67 instance=875 first_source_triangle=0 triangles=54848 body=23
+source_component_local_frame stable_id=68 instance=252 first_source_triangle=54844 triangles=61020 body=7
+source_component_local_frame stable_id=68 instance=876 first_source_triangle=0 triangles=54844 body=23
+anatomy_vertex_frame=owner_local source_surfaces=675 world_pose=existing_gpu_articulated_instance strict_area_guard=unchanged
+myosim_articulated_visual=failed error="accepted full skin intersects the bed beyond the 1 mm inspection tolerance"

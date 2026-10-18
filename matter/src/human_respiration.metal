@@ -182,18 +182,33 @@ kernel void nm_human_resting_skin(
         ? nm_human_resting_support::skinInfluenceStride() : 1u;
     const auto soleInfluence=influences[m.firstInfluence];
     const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
-        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
+        m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
     const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     const bool compensatedPosition=
         soleInfluence.body.y==MR_HUMAN_RESTING_COMPENSATED_POSITION;
+    const bool ownerLocal=m.deformationKind==0u&&m.deformationWeight.w==3.0f;
     float3 positionCorrection=0;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
         auto influence=influences[m.firstInfluence+j*influenceStride];
         float w=influence.positionAndWeight.w;
         float3 ni;
-        if(influence.body.x==MR_INVALID_INDEX) {
+        if(ownerLocal) {
+            const auto frame=bodies[m.chamberIndex];
+            const float4 inverse=float4(-frame.orientation.xyz,frame.orientation.w);
+            float3 point=influence.positionAndWeight.xyz;ni=influence.normal.xyz;
+            if(influence.body.x!=m.chamberIndex) {
+                if(influence.body.x!=MR_INVALID_INDEX) {
+                    const auto body=bodies[influence.body.x];
+                    point=(body.position.xyz-frame.position.xyz)+restingRotate(body.orientation,point);
+                    ni=restingRotate(body.orientation,ni);
+                }else point-=frame.position.xyz;
+                point=restingRotate(inverse,point);ni=restingRotate(inverse,ni);
+            }
+            if(compensatedPosition)restingCompensatedPositionAdd(w*point,p,positionCorrection);
+            else p+=w*point;
+        }else if(influence.body.x==MR_INVALID_INDEX) {
             if(compensatedPosition)
                 restingCompensatedPositionAdd(w*influence.positionAndWeight.xyz,p,positionCorrection);
             else p+=w*influence.positionAndWeight.xyz;
@@ -286,8 +301,15 @@ kernel void nm_human_resting_skin(
                 (normal-normalAlong+weight*displacement*dot(normal,axis)/axialJacobian*
                  (gradient-dot(gradient,axis)*axis))/mix(1.0f,radial,weight);
         }
-        p=body.position.xyz+restingRotate(body.orientation,local);
-        n=restingRotate(body.orientation,normal);
+        if(m.deformationWeight.w==2.0f&&(m.deformationKind==12u||m.deformationKind==1u||m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u)) {
+            // Actual vertex-buffer geometry stays precise and torso-local.
+            // Existing articulated instances supply the same world pose.
+            // Strict area/volume guards inspect these actual local vertices.
+            p=local;n=normal;
+        }else {
+            p=body.position.xyz+restingRotate(body.orientation,local);
+            n=restingRotate(body.orientation,normal);
+        }
     }
     vertices[i].position=float4(p,1);
     const float3 unitNormal=normalize(dot(n,n)>1e-12f?n:strongest);
@@ -1434,3 +1456,6 @@ kernel void nm_human_resting_skin_tissue_layer(
     vertices[m.parentAndOutput.w]=output;
 }
 // END material-frame skin tissue layer
+
+// Presentation layout identity, never dispatched.
+kernel void nm_human_resting_local_cardiac_layout_v4(uint i [[thread_position_in_grid]]) { (void)i; }

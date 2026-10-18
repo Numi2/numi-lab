@@ -1,0 +1,23 @@
+{
+  "schema": "numi.human.native_evidence.v1",
+  "device": "Apple M6 on SSH numi",
+  "owner_base_revision": "a0d30eb129f8daec2c564eebf3f634bb6b9f55d4",
+  "source_presentation_sha256": "ba9b23de5c4c5d52d5383aed50efdaa1b1a4ddb84f1bfe48f3a5add0cb71a25a",
+  "flattened_presentation_sha256": "23380cd7aaa44110c3931bd65250b885f94d2266c1035f564391e821733999ab",
+  "physical_runtime": "retained ABI41 runtime and original physiology metallib; identities in build report/invocation",
+  "scope": "presentation coordinate precision, unchanged source anatomy/physical owners",
+  "long_run_status": "FAILED floor-contact guard at2.49400011846s, min gap -0.0921146869659m; no triangle precision failure",
+  "limitations": [
+    "Mechanical articulated waist release, not continuum tissue/vessel cutting",
+    "Passive organs remain attached anatomical displays without independent organ dynamics",
+    "No hemorrhage or post-injury physiology; retained intact reference physiology is unsupported after release"
+  ],
+  "validated_horizon_s": 2.0000000949949026,
+  "native_release_wall_s": 16.227924042,
+  "native_release_real_time_factor": 0.12324435890990365,
+  "binary_sha256": "a273b17f9e0c1616e9b77a37bc9baf48614032986d26d7cd13164c56fbd9766c",
+  "continuous_unretimed_movie": "/Users/n/numi-human-separation-20261018/local-anatomy-presentation-023/native-released-bounded-001/rope-suspension-reference.mov",
+  "continuous_unretimed_movie_sha256": "0db475bf501052724e0c93e34af3e2fd4ee9cee5f62dadc4bcace6f1f6808c8a",
+  "source_component_frames": "Exact sole-body contiguous source face ranges of cut obliques67/68; same source indices/identity and physical state",
+  "source_header_sha256": "fc5db412896b7c47cfe6fbf34074d3f29d208456daaacf2316b39d7d01096df1"
+}

@@ -1,0 +1,14 @@
+{
+  "resting-body-motion-partition.csv": {
+    "sha256": "5a317a87c77e24caec91c8764099b1811eb53b65a23455b279e1f4964f5fa2a9",
+    "byte_exact": true
+  },
+  "resting-coupled.csv": {
+    "sha256": "3df84aa9876fd7b8622c6380cef43d0e3f8002bbf8aeadf35b06b9871eecdec4",
+    "byte_exact": true
+  },
+  "resting-com-support-impulses.csv": {
+    "sha256": "d7bf2c3bed2ffb56f474d313721ef712794bcbc9677c102818a156e0928d88c7",
+    "byte_exact": true
+  }
+}

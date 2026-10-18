@@ -1,0 +1,6 @@
+source_component_local_frame stable_id=67 instance=251 first_source_triangle=54848 triangles=61020 body=7
+source_component_local_frame stable_id=67 instance=875 first_source_triangle=0 triangles=54848 body=23
+source_component_local_frame stable_id=68 instance=252 first_source_triangle=54844 triangles=61020 body=7
+source_component_local_frame stable_id=68 instance=876 first_source_triangle=0 triangles=54844 body=23
+anatomy_vertex_frame=owner_local source_surfaces=675 world_pose=existing_gpu_articulated_instance strict_area_guard=unchanged
+resting_integrated_body=completed simulated_s=2.0000000949949026 wall_s=16.227924042000001 real_time_factor=0.12324435890990365 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
