@@ -1,0 +1,116 @@
+{
+  "schema": "numi.blood_mpm_handoff_publication_package.v1",
+  "evidence_scope": "source-seeded MPM receiver transaction unit; not live circulation outlet integration or free-surface liquid",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1707,
+      "sha256": "4e38ecf93d1ef8c20c35a3c5fdcb835a042948ce2c63e48353bbed74808dfb36"
+    },
+    {
+      "path": "evidence/build-control-comparison-005.json",
+      "bytes": 3667,
+      "sha256": "6ec47a1147b2fb56d579ef6a1ca18da72560d11e4608589ad4226fca04beb59b"
+    },
+    {
+      "path": "evidence/compile-control-comparison-002.log",
+      "bytes": 795,
+      "sha256": "4fa65703ba454abc1d42b8c781ee337c9a6108cf3c09c6da86dfdd021879230d"
+    },
+    {
+      "path": "evidence/link-control-comparison-002.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/native-control-comparison-002/invocation.json",
+      "bytes": 1906,
+      "sha256": "ece79b6e4e4651d357f01206b4081e8509758df798fbd67f5a5777563fc4b453"
+    },
+    {
+      "path": "evidence/native-control-comparison-002/native.log",
+      "bytes": 251,
+      "sha256": "eff0a4d73f6731c8fb97873b9a6730b848e6ec6735f19855bc5f0c91220f93e2"
+    },
+    {
+      "path": "evidence/native-control-comparison-002/result.json",
+      "bytes": 225,
+      "sha256": "b7b30c7071800366eef4abe094305e35c10df3ab22b606e05738a51061312737"
+    },
+    {
+      "path": "evidence/native-control-comparison-003/invocation.json",
+      "bytes": 1906,
+      "sha256": "441615c9a86cb8e6891c605f11a9da4757b8a9332986a985ae1ef7cceb74a0f2"
+    },
+    {
+      "path": "evidence/native-control-comparison-003/native.log",
+      "bytes": 412,
+      "sha256": "9329d5d7c656ac27ee81c0b6e11d1c20c87fec8e9c9ea9ccb5c0cab443eaa2bc"
+    },
+    {
+      "path": "evidence/native-control-comparison-003/result.json",
+      "bytes": 225,
+      "sha256": "ba0b8d24b8f6aa27a26d5c418628b12e9b1cefee4b601b0d6efc609d25d09f43"
+    },
+    {
+      "path": "evidence/native-control-comparison-004/invocation.json",
+      "bytes": 1906,
+      "sha256": "618af1fac49d6c3abc051ddc17d37fbad7afdbb34d092f62518be1e8ca31eac6"
+    },
+    {
+      "path": "evidence/native-control-comparison-004/native.log",
+      "bytes": 900,
+      "sha256": "f26f940f1db8424b1d63ef7fdba9ce8b97f9f6a0ad6fda133805a8b968869389"
+    },
+    {
+      "path": "evidence/native-control-comparison-004/result.json",
+      "bytes": 225,
+      "sha256": "5e757eaf37eef7eda9f0fb7db9b1119fb74be5203444109214989e0e04dbf955"
+    },
+    {
+      "path": "evidence/native-control-comparison-005/invocation.json",
+      "bytes": 1906,
+      "sha256": "a963d1fe4f40be074e5c95fee6fc1df3cc697c9155aa7e1c1838ac0f45a3009e"
+    },
+    {
+      "path": "evidence/native-control-comparison-005/native.log",
+      "bytes": 1145,
+      "sha256": "47c4bafe346a3c59d890c0d869856ad7e9f6ad65839b4d982a3aad14d0cf9ab6"
+    },
+    {
+      "path": "evidence/native-control-comparison-005/result.json",
+      "bytes": 224,
+      "sha256": "adc5514175cd781bbac486294077501328ee54895367b2df82f6d43d6c86efce"
+    },
+    {
+      "path": "patchroot/matter/include/numi/matter/human_respiration.h",
+      "bytes": 9840,
+      "sha256": "397013723ea1f93129ec2a522c2c1335a7bb8ff2ac533f1ef82fd23b1ce6ebc6"
+    },
+    {
+      "path": "patchroot/matter/src/human_respiration.metal",
+      "bytes": 114704,
+      "sha256": "2e3f2d26e0aa712eb9f1a241d446cf691c715913f9cdfd3324ee3f6b6aeafe2e"
+    },
+    {
+      "path": "patchroot/matter/tools/human_resting_runtime.hpp",
+      "bytes": 48716,
+      "sha256": "08c3d66a277001da86cd43c08c19989d2d6189a9605a87ae01ece7b4211c2b8d"
+    },
+    {
+      "path": "unit/blood_mpm_handoff_transaction.mm",
+      "bytes": 30773,
+      "sha256": "cb419e4d258b41e978d47ebcc38ce73ec648135bd7df01df4303b76726981eb8"
+    },
+    {
+      "path": "unit/build_control_comparison.py",
+      "bytes": 3178,
+      "sha256": "1329e19d416b23d71706d1caf53cc28627da6feb0c91555cc06a5343b64b3e19"
+    },
+    {
+      "path": "unit/run_control_comparison.py",
+      "bytes": 2370,
+      "sha256": "302bcd1cd66ebd543720b542aede5baf5be98a4eabab19c2a190316536afde6e"
+    }
+  ]
+}

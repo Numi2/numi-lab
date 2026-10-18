@@ -1,0 +1,7 @@
+{
+  "schema": "numi.blood_mpm_transaction_fixture_result.v1",
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 2.4202218055725098,
+  "log_sha256": "f26f940f1db8424b1d63ef7fdba9ce8b97f9f6a0ad6fda133805a8b968869389"
+}

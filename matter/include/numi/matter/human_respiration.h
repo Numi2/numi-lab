@@ -79,6 +79,10 @@ typedef struct NM_ALIGN16 NMHumanExternalBloodInventoryGPU {
     nm_float4 transferMomentumResidual; // algebraic removed body momentum minus parcel and requested recoil (kg m/s)
     nm_float4 transferAngularResidual; // angular momentum balance residual about world origin (kg m2/s)
     NMHumanExternalBloodParcelGPU parcels[NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY];
+    // Already-counted external inventory represented by live MPM particles.
+    // This subset is diagnostic/accounting metadata, never additional stock.
+    nm_float4 mpmRepresented; // volume m3, mass kg, O2 and CO2 STPD m3
+    nm_float4 mpmRepresentedCompensation;
 } NMHumanExternalBloodInventoryGPU;
 
 typedef struct NM_ALIGN16 NMHumanRespirationState {
@@ -143,7 +147,9 @@ typedef struct NM_ALIGN16 NMHumanRespirationDispatch {
     nm_u32 reject; // test-only explicit rejected candidate; never changes state
     nm_u32 outletReleaseStep; // same control step as NUMI_HUMAN_SEPARATION_STEP; INVALID disables
     nm_u32 controlStep;
-    nm_u32 reserved[3];
+    nm_u32 bloodMpmFirstParticle;
+    nm_u32 bloodMpmParticleCount;
+    nm_u32 bloodMpmObjectIndex;
     nm_u32 articulationFirstBody;
     nm_u32 bodyPoseStride;
     nm_u32 bodyJacobianPointOffset;
@@ -153,7 +159,17 @@ typedef struct NM_ALIGN16 NMHumanRespirationDispatch {
     nm_u32 generalizedForceOffset;
     nm_u32 generalizedForceStride;
     nm_u32 bodyPropertyCount;
-    nm_u32 outletBatchSteps; // minimum candidate-step interval between reduced ballistic packets
+    nm_u32 outletBatchSteps; // minimum candidate-step interval between reduced packets
+    nm_u32 bloodMpmEnabled;
+    nm_u32 bloodMpmMaterialIndex;
+    nm_u32 bloodMpmTopologyGeneration;
+    nm_u32 bloodMpmMaterialStateCount;
+    float bloodMpmDensity;
+    float bloodMpmGridCellWidth;
+    nm_int4 bloodMpmGridNodeMinimum;
+    nm_uint4 bloodMpmGridNodeDimensions;
+    nm_u32 particleCount;
+    nm_u32 materialStateStride;
 } NMHumanRespirationDispatch;
 
 typedef struct NM_ALIGN16 NMHumanRespirationBrainDispatch {

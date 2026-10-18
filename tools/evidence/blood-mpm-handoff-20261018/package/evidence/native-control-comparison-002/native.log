@@ -1,0 +1,4 @@
+resting_job_lock waiting pid=87869
+resting_job_lock acquired pid=87869
+{"event":"compiled","particles":1,"rate_exponent":8,"substeps":256,"density_kg_m3":1050.6,"capacity_volume_m3":1e-09}
+blood_mpm_handoff_failure=same-context retry failed to accept

@@ -1,0 +1,7 @@
+/Users/n/numi-human-separation-20261018/C/blood-transfer-208/transaction-fixture/blood_mpm_handoff_transaction.mm:52:53: warning: use of GNU ?: conditional expression extension, omitting middle operand [-Wgnu-conditional-omitted-operand]
+   52 |             (error.localizedDescription.UTF8String ?: "unknown"));
+      |                                                     ^
+/Users/n/numi-human-separation-20261018/C/blood-transfer-208/transaction-fixture/blood_mpm_handoff_transaction.mm:341:64: warning: use of GNU ?: conditional expression extension, omitting middle operand [-Wgnu-conditional-omitted-operand]
+  341 |                 (compileError.localizedDescription.UTF8String ?: "unknown"));
+      |                                                                ^
+2 warnings generated.

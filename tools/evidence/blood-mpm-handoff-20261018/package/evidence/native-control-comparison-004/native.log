@@ -1,0 +1,4 @@
+resting_job_lock waiting pid=88335
+resting_job_lock acquired pid=88335
+{"event":"compiled","particles":1,"rate_exponent":8,"substeps":256,"density_kg_m3":1050.6,"capacity_volume_m3":1e-09}
+{"schema":"numi.human.blood_mpm_handoff_transaction.v1","scope":"source-seeded external inventory handoff unit; not circulation-stock integration or free-surface blood","active_receiver_slots":1,"accepted_mass_kg":1.0506e-06,"expected_mass_kg":1.0506e-06,"accepted_volume_m3":1e-09,"external_mass_kg":1.0506e-06,"mpm_represented_mass_kg":1.0506e-06,"accepted_o2_stpd_m3":1e-10,"represented_o2_stpd_m3":1e-10,"accepted_co2_stpd_m3":2e-10,"represented_co2_stpd_m3":2e-10,"frame_begin_callbacks":2,"microstep_callbacks":512,"frame_complete_callbacks":2,"handoff_dispatches":2,"gpu_rejection_dispatches":1,"rejected_physical_snapshot_restored":true,"same_context_retry_accepted":true,"snapshot_restore_exact":true}

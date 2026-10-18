@@ -24,7 +24,7 @@ struct Respiration {
     id<MTLBuffer> bodyPropertiesReference=nil;
     std::uint64_t bodyPropertiesReferenceCount=0u;
     void* bodyPropertiesReferenceCaptureCommand=nullptr;
-    id<MTLComputePipelineState> predict,exchange,resolve;
+    id<MTLComputePipelineState> predict,exchange,resolve,bloodMpmHandoff=nil;
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
     bool commonGeometryGateEnabled=false;
@@ -73,12 +73,92 @@ struct Respiration {
         parameters=readRespirationParameters(config,dt);
         dispatch={};
         dispatch.environmentCount=world.dispatch.environmentCount;
+        dispatch.particleCount=world.dispatch.particleCount;
+        dispatch.materialStateStride=world.dispatch.materialStateStride;
         dispatch.vascularStride=45u;
         dispatch.outletReleaseStep=NM_INVALID_INDEX;
         const float batchSteps=std::ceil(0.008f/parameters.environment.w);
         need(std::isfinite(batchSteps)&&batchSteps>=1.0f&&batchSteps<=float(UINT32_MAX),
              "blood packet interval must fit a 32-bit step count");
         dispatch.outletBatchSteps=static_cast<std::uint32_t>(batchSteps);
+        dispatch.bloodMpmObjectIndex=NM_INVALID_INDEX;
+        const char* bloodMpmSetting=std::getenv("NUMI_HUMAN_BLOOD_MPM_ENABLED");
+        need(!bloodMpmSetting||std::strcmp(bloodMpmSetting,"0")==0||
+             std::strcmp(bloodMpmSetting,"1")==0,
+             "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+        if(bloodMpmSetting&&std::strcmp(bloodMpmSetting,"1")==0) {
+            constexpr const char* bloodMaterialName="blood_high_shear_newtonian_proxy";
+            std::uint32_t receiver=NM_INVALID_INDEX;
+            std::uint32_t receiverCount=0u;
+            for(std::uint32_t index=0u;index<world.objects.size();++index) {
+                const auto& object=world.objects[index];
+                if(object.representation!=static_cast<std::uint32_t>(Representation::mpm)||
+                   object.materialIndex>=world.constitutive.size()) continue;
+                if(world.constitutive[object.materialIndex].material.name==bloodMaterialName) {
+                    receiver=index;
+                    ++receiverCount;
+                }
+            }
+            need(receiverCount==1u,
+                 "blood MPM mode requires exactly one compiled receiver object with the source-named high-shear blood material");
+            const auto& object=world.objects[receiver];
+            constexpr std::uint32_t requiredReceiverFlags =
+                NM_OBJECT_DISABLE_DEFORMABLE_CONTACT | NM_OBJECT_DISABLE_SELF_CONTACT;
+            need((object.flags & NM_OBJECT_ADAPTIVE) == 0u &&
+                 (object.flags & requiredReceiverFlags) == requiredReceiverFlags,
+                 "blood MPM receiver must be nonadaptive with deformable and self-contact disabled until the coupled path is qualified");
+            need(object.stateCount>0u&&object.stateCount<=4096u&&
+                 object.elementCount==1u&&object.elementOffset<world.mpm.grids.size()&&
+                 std::uint64_t(object.stateOffset)+object.stateCount<=world.mpm.particles.size()&&
+                 world.dispatch.particleCount==world.mpm.particles.size(),
+                 "blood MPM receiver range/grid is absent or exceeds the bounded dormant-slot admission");
+            const auto& grid=world.mpm.grids[object.elementOffset];
+            const float density=world.materials[object.materialIndex].bulk.x;
+            need(std::isfinite(density)&&density>0.0f&&
+                 std::isfinite(grid.metrics.x)&&grid.metrics.x>0.0f&&
+                 grid.nodeMinimumAndObject.w>=0&&
+                 static_cast<std::uint32_t>(grid.nodeMinimumAndObject.w)==receiver&&
+                 grid.nodeDimensionsAndOffset.x>2u&&
+                 grid.nodeDimensionsAndOffset.y>2u&&
+                 grid.nodeDimensionsAndOffset.z>2u,
+                 "blood MPM receiver grid or source density is invalid");
+            double capacityVolume=0.0;
+            for(std::uint32_t local=0u;local<object.stateCount;++local) {
+                const auto& particle=world.mpm.particles[object.stateOffset+local];
+                need(particle.identity.x==receiver&&
+                     particle.identity.y==object.materialIndex&&
+                     particle.identity.z==object.topologyGeneration&&
+                     particle.identity.w==0u&&
+                     std::isfinite(particle.positionAndMass.w)&&particle.positionAndMass.w>0.0f&&
+                     std::isfinite(particle.velocityAndReferenceVolume.w)&&
+                     particle.velocityAndReferenceVolume.w>0.0f&&
+                     std::abs(double(particle.positionAndMass.w)-
+                         double(density)*particle.velocityAndReferenceVolume.w)<=
+                         std::max(1.0e-12,4.0e-6*double(particle.positionAndMass.w)),
+                     "blood MPM receiver slots must be finite, source-identified, density-matched, and dormant");
+                capacityVolume+=particle.velocityAndReferenceVolume.w;
+            }
+            need(std::isfinite(capacityVolume)&&capacityVolume>0.0,
+                 "blood MPM dormant receiver has no positive volume capacity");
+            dispatch.bloodMpmEnabled=1u;
+            dispatch.bloodMpmFirstParticle=object.stateOffset;
+            dispatch.bloodMpmParticleCount=object.stateCount;
+            dispatch.bloodMpmObjectIndex=receiver;
+            dispatch.bloodMpmMaterialIndex=object.materialIndex;
+            dispatch.bloodMpmTopologyGeneration=object.topologyGeneration;
+            dispatch.bloodMpmMaterialStateCount=world.materials[object.materialIndex].stateCount;
+            dispatch.bloodMpmDensity=density;
+            dispatch.bloodMpmGridCellWidth=grid.metrics.x;
+            dispatch.bloodMpmGridNodeMinimum=grid.nodeMinimumAndObject;
+            dispatch.bloodMpmGridNodeDimensions=grid.nodeDimensionsAndOffset;
+            std::cerr<<"blood_mpm_receiver=enabled object="<<receiver
+                     <<" material="<<bloodMaterialName
+                     <<" slots="<<object.stateCount
+                     <<" dormant_capacity_ml="<<capacityVolume*1.0e6
+                     <<" cell_width_m="<<grid.metrics.x
+                     <<" density_kg_m3="<<density
+                     <<" stock_owner=external_blood_inventory_subset\n";
+        }
         auto numericEnvironment=[](const char* name,float fallback,float low,float high) {
             const char* value=std::getenv(name);
             if(!value||!value[0]) return fallback;
@@ -152,6 +232,8 @@ struct Respiration {
             };
             predict=specialized(@"nm_human_respiration_predict");
             exchange=specialized(@"nm_human_respiration_exchange");
+            if(dispatch.bloodMpmEnabled)
+                bloodMpmHandoff=pipeline(@"nm_human_blood_mpm_handoff");
             need(!parallelRespiratoryMuscles||exchange.threadExecutionWidth>=2,
                  "parallel respiratory muscles require at least two SIMD lanes");
             need(!parallelRespiratoryGas||exchange.threadExecutionWidth>=21,
@@ -168,7 +250,9 @@ struct Respiration {
                  <<" discharge_coefficient="<<dischargeCoefficient
                  <<" density_kg_m3=1050.6 cut_step="<<dispatch.outletReleaseStep
                  <<" bleeding_enabled="<<(bleedingEnabled?1:0)
-                 <<" free_surface_solver=0\n";
+                 <<" blood_mpm_enabled="<<dispatch.bloodMpmEnabled
+                 <<" blood_mpm_object="<<dispatch.bloodMpmObjectIndex
+                 <<" free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope\n";
         resolve=pipeline(@"nm_human_respiration_resolve");
         auto s=initializeRespiration(parameters,world);
         s.vascularCutOutlet.aperture.x=bleedingEnabled
@@ -296,6 +380,21 @@ struct Respiration {
                    lease.pointJacobianStride/(3u*lease.dofCount)))
                 return rejectLease("outlet_dimension_bounds");
         }
+        if(dispatch.bloodMpmEnabled&&phase==AcceptedStepExtensionPhase::frameBegin) {
+            const bool materialBuffersValid=dispatch.bloodMpmMaterialStateCount==0u||
+                (v.particleMaterialStateDefaults&&v.particleMaterialStateAccepted&&
+                 v.particleMaterialStateCandidate);
+            if(!bloodMpmHandoff||!v.matterStatuses||!v.particleAccepted||
+               !v.particleCandidate||!v.particleCheckpoint||
+               v.environmentCount!=dispatch.environmentCount||
+               v.particleCount!=dispatch.particleCount||
+               v.materialStateStride!=dispatch.materialStateStride||
+               v.particleCount<=dispatch.bloodMpmFirstParticle||
+               dispatch.bloodMpmParticleCount>
+                   v.particleCount-dispatch.bloodMpmFirstParticle||
+               v.materialStateStride<dispatch.bloodMpmMaterialStateCount||
+               !materialBuffersValid) return rejectLease("blood_mpm_borrowed_arena");
+        }
         if(brain&&!brain(phase,v)) return false;
         NMHumanRespirationDispatch stepDispatch = dispatch;
         stepDispatch.controlStep=v.controlStep;
@@ -325,6 +424,24 @@ struct Respiration {
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:candidate offset:0 atIndex:3];
             [enc setBuffer:excitation offset:0 atIndex:4];
+            if(dispatch.bloodMpmEnabled) {
+                [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                [enc memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [enc setComputePipelineState:bloodMpmHandoff];
+                [enc setBytes:&stepDispatch length:sizeof(stepDispatch) atIndex:0];
+                [enc setBuffer:candidate offset:0 atIndex:1];
+                [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:2];
+                [enc setBuffer:buffer(v.particleAccepted) offset:0 atIndex:3];
+                [enc setBuffer:buffer(v.particleCandidate) offset:0 atIndex:4];
+                [enc setBuffer:buffer(v.particleCheckpoint) offset:0 atIndex:5];
+                [enc setBuffer:buffer(v.particleMaterialStateDefaults) offset:0 atIndex:6];
+                [enc setBuffer:buffer(v.particleMaterialStateAccepted) offset:0 atIndex:7];
+                [enc setBuffer:buffer(v.particleMaterialStateCandidate) offset:0 atIndex:8];
+                [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                dispatched=true;
+            }
         } else if(phase==AcceptedStepExtensionPhase::candidateReady) {
             if(commonGeometryGateEnabled &&
                (!commonCoordinatesSolvePipeline||!commonCoordinateStatusPipeline||
@@ -565,6 +682,7 @@ inline void writeRespirationTraceHeader(std::ostream& trace) {
     trace<<",external_blood_ml,external_blood_mass_kg,external_blood_o2_stpd_ml,external_blood_co2_stpd_ml,grounded_blood_ml,grounded_blood_mass_kg";
     trace<<",reference_positive_body_mass_kg,candidate_positive_body_mass_kg,external_mass_kg,body_mass_residual_kg,max_abs_body_mass_residual_kg";
     trace<<",algebraic_transfer_momentum_residual_kg_m_s,algebraic_transfer_angular_residual_kg_m2_s";
+    trace<<",mpm_represented_blood_ml,mpm_represented_blood_mass_kg,mpm_represented_o2_stpd_ml,mpm_represented_co2_stpd_ml";
 }
 inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
     const NMHumanRespirationParameters& parameters) {
@@ -599,6 +717,10 @@ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespira
          <<double(s.externalBlood.bodyMassBalance.w)<<','
          <<double(s.externalBlood.bodyMassBalanceMax.x)<<','
          <<std::sqrt(double(s.externalBlood.transferMomentumResidual.w))<<','
-         <<std::sqrt(double(s.externalBlood.transferAngularResidual.w));
+         <<std::sqrt(double(s.externalBlood.transferAngularResidual.w))<<','
+         <<double(s.externalBlood.mpmRepresented.x-s.externalBlood.mpmRepresentedCompensation.x)*1e6<<','
+         <<double(s.externalBlood.mpmRepresented.y-s.externalBlood.mpmRepresentedCompensation.y)<<','
+         <<double(s.externalBlood.mpmRepresented.z-s.externalBlood.mpmRepresentedCompensation.z)*1e6<<','
+         <<double(s.externalBlood.mpmRepresented.w-s.externalBlood.mpmRepresentedCompensation.w)*1e6;
 }
 } // namespace numi::human

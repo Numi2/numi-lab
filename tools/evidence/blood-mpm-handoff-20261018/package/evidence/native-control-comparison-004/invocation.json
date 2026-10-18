@@ -1,0 +1,26 @@
+{
+  "schema": "numi.blood_mpm_transaction_fixture_invocation.v1",
+  "binary": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/transaction-fixture/blood_mpm_handoff_transaction",
+  "binary_sha256": "3f91d96d1ecc6557d3fc0f7a38d7cd302f04add0e41a37fbb020e0b7a6dd819f",
+  "runtime_library": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/build/libmetalrobo.dylib",
+  "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "matter_source": "/Users/n/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+  "matter_source_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "handoff_source": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/source/matter/src/human_respiration.metal",
+  "handoff_source_sha256": "2e3f2d26e0aa712eb9f1a241d446cf691c715913f9cdfd3324ee3f6b6aeafe2e",
+  "handoff_flattened_msl": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/shader-preflight/HumanRespiration208.metal",
+  "handoff_flattened_msl_sha256": "7d0b95ffc4ae8d0acf3fa395c362b9c552db55451d80ea22b5d5700018879989",
+  "wrapper": "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/transaction-fixture/blood_mpm_handoff_transaction"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8"
+  },
+  "timeout_seconds": 240
+}
