@@ -2527,11 +2527,12 @@ struct Runtime::State {
     bool hasPrescribedTranslation = false;
     bool hasAdaptive = false;
     bool hasMutableFEMTopology = false;
-    // Initialization-time proof that every authored object uses the MPM
-    // representation. Deferred owner finalization may then opt into the
-    // narrow particle/material-state rollback path without admitting FEM or
-    // rigid-world state.
+    // Initialization-time proof that the authored objects are all
+    // nonadaptive, contact-disabled MPM/FEM continua. Deferred owner
+    // finalization uses only the corresponding accepted-state rollback arenas;
+    // rigid, coupled, adaptive, and contact worlds remain excluded.
     bool acceptedStepExtensionMPMOnlyWorld = false;
+    bool acceptedStepExtensionContactFreeFEMMPMWorld = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
     // Immutable contact-pair admission mirror used by the bounded capsule
     // residual-Armijo slice. It does not participate in simulation state.
@@ -4130,6 +4131,27 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(world.identification.size());
         candidate->hasAdaptive =
             (world.dispatch.flags & NM_MATTER_ADAPTIVE) != 0u;
+        const auto allObjectsAreContactFreeContinuum = [&] {
+            if (world.dispatch.objectCount == 0u ||
+                world.objects.size() != world.dispatch.objectCount ||
+                (world.dispatch.flags & (NM_MATTER_CONTACT |
+                    NM_MATTER_ADAPTIVE | NM_MATTER_MIXED_FEM |
+                    NM_MATTER_MULTIPHYSICS)) != 0u) return false;
+            return std::all_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    constexpr std::uint32_t disabledContact =
+                        NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+                        NM_OBJECT_DISABLE_SELF_CONTACT;
+                    constexpr std::uint32_t unsupportedObject =
+                        NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                        NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS;
+                    return (object.representation == NM_REPRESENTATION_MPM ||
+                            object.representation == NM_REPRESENTATION_FEM) &&
+                        (object.flags & disabledContact) == disabledContact &&
+                        (object.flags & unsupportedObject) == 0u;
+                });
+        };
         candidate->acceptedStepExtensionMPMOnlyWorld =
             world.dispatch.objectCount != 0u &&
             world.dispatch.particleCount != 0u &&
@@ -4146,6 +4168,11 @@ RuntimeDiagnostics Runtime::initialize(
                     return object.representation == NM_REPRESENTATION_MPM &&
                         (object.flags & disabledContact) == disabledContact;
                 });
+        candidate->acceptedStepExtensionContactFreeFEMMPMWorld =
+            world.dispatch.femNodeCount != 0u &&
+            world.dispatch.tetrahedronCount != 0u &&
+            (world.dispatch.flags & NM_MATTER_CONTACT) == 0u &&
+            allObjectsAreContactFreeContinuum();
         candidate->device = MTLCreateSystemDefaultDevice();
         if (candidate->device == nil) {
             diagnostics.message = "no Metal device is available";
@@ -8464,40 +8491,80 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     }
 
     // The legacy local path owns vascular state only. The narrowly admitted
-    // MPM path additionally owns particle/material history, per-object
-    // topology authority, and scheduler/event authority through existing
-    // checkpoints and rollback kernels. Other mutable Matter families remain
-    // excluded.
+    // object path adds either contact-free, nonadaptive MPM or plain FEM
+    // (optionally both) to the same transaction. Coupled/rigid/contact,
+    // adaptive, multiphysics, topology-mutation, and learning paths remain
+    // excluded because their accepted authorities are not owned here.
     const auto& d = state.dispatch;
     const bool commonUnsupportedState =
         state.hasAdaptive || state.requiresCurrentBodies ||
         state.requiresSceneBodies || state.requiresRodNodes ||
         state.requiresCoupledCandidate || state.hasPrescribedTranslation ||
-        d.femNodeCount != 0u || d.tetrahedronCount != 0u ||
         d.rigidProxyCount != 0u ||
         d.contactPairCount != 0u || d.femHumanAttachmentCount != 0u ||
         d.learnedWeightCount != 0u || d.learnedMaterialCount != 0u ||
         d.cohesiveFaceCount != 0u || d.mutationCommandCount != 0u ||
+        state.hasMutableFEMTopology ||
         d.punctureChannelCount != 0u ||
+        (d.flags & (NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS)) != 0u ||
         state.humanSupportDispatch.contactCount != 0u ||
         state.vascularValue.layout.ranges.z == 0u;
     const bool vascularOnlyScope = !commonUnsupportedState &&
         d.gridNodeCount == 0u && d.particleCount == 0u &&
-        d.mpmGridCount == 0u && d.mpmBlockCount == 0u && d.objectCount == 0u &&
-        d.deformableContactCapacity == 0u;
+        d.mpmGridCount == 0u && d.mpmBlockCount == 0u &&
+        d.femNodeCount == 0u && d.tetrahedronCount == 0u &&
+        d.objectCount == 0u && d.deformableContactCapacity == 0u;
     const std::uint64_t minimumEventStride =
         static_cast<std::uint64_t>(d.objectCount) * NM_EVENT_CLASS_COUNT;
-    const bool mpmOnlyScope = state.acceptedStepExtensionMPMOnlyWorld &&
-        !commonUnsupportedState && d.particleCount != 0u &&
-        d.mpmGridCount != 0u && d.mpmBlockCount != 0u &&
+    const bool validMPMShape =
+        (d.particleCount == 0u && d.mpmGridCount == 0u &&
+         d.mpmBlockCount == 0u && d.gridNodeCount == 0u) ||
+        (d.particleCount != 0u && d.mpmGridCount != 0u &&
+         d.mpmBlockCount != 0u && d.gridNodeCount != 0u);
+    const bool validFEMShape =
+        (d.femNodeCount == 0u && d.tetrahedronCount == 0u) ||
+        (d.femNodeCount != 0u && d.tetrahedronCount != 0u);
+    const bool noFEM = d.femNodeCount == 0u && d.tetrahedronCount == 0u;
+    const bool hasFEM = d.femNodeCount != 0u && d.tetrahedronCount != 0u;
+    const bool hasMPM = d.particleCount != 0u && d.mpmGridCount != 0u &&
+        d.mpmBlockCount != 0u && d.gridNodeCount != 0u;
+    const bool immutableObjectScope =
         d.objectCount != 0u && d.identificationCandidateCount == 0u &&
-        d.topologyNodeCapacity == 0u &&
         state.identificationDistributionCount == 0u &&
         !ownership->identificationAdvanced && !state.automaticIdentification &&
-        d.eventStride >= minimumEventStride;
-    if (!vascularOnlyScope && !mpmOnlyScope) {
+        d.mutationCommandCount == 0u && d.eventStride >= minimumEventStride;
+    const bool immutableMPMScope = immutableObjectScope &&
+        d.topologyNodeCapacity == 0u;
+    const bool immutableFEMScope = immutableObjectScope &&
+        !state.hasMutableFEMTopology;
+    const bool mpmOnlyScope = state.acceptedStepExtensionMPMOnlyWorld &&
+        !commonUnsupportedState && noFEM && hasMPM && validFEMShape &&
+        immutableMPMScope;
+    const bool contactFreeFEMMPMScope =
+        state.acceptedStepExtensionContactFreeFEMMPMWorld &&
+        !commonUnsupportedState && hasFEM && validFEMShape && validMPMShape &&
+        (hasMPM || d.particleCount == 0u) && immutableFEMScope;
+    const bool objectContinuumScope =
+        mpmOnlyScope || contactFreeFEMMPMScope;
+    if (!vascularOnlyScope && !objectContinuumScope) {
         diagnostics.message =
-            "deferred local finalization requires either a vascular-only world or a nonadaptive, contact-free MPM plus vascular world with no parameter, identification, reset, learned, FEM, rigid-body, or topology mutation";
+            "deferred local finalization scope rejected: vascularOnly=" +
+            std::to_string(vascularOnlyScope) + " objectScope=" +
+            std::to_string(objectContinuumScope) + " mpmOnly=" +
+            std::to_string(mpmOnlyScope) + " femMpm=" +
+            std::to_string(contactFreeFEMMPMScope) + " proof=" +
+            std::to_string(state.acceptedStepExtensionContactFreeFEMMPMWorld) +
+            " commonUnsupported=" + std::to_string(commonUnsupportedState) +
+            " immutable=" + std::to_string(immutableObjectScope) +
+            " hasFEM=" + std::to_string(hasFEM) + " hasMPM=" +
+            std::to_string(hasMPM) + " globalFlags=" + std::to_string(d.flags) +
+            " objectCount=" + std::to_string(d.objectCount) +
+            " topologyCapacity=" + std::to_string(d.topologyNodeCapacity) +
+            " idCandidates=" + std::to_string(d.identificationCandidateCount) +
+            " idDistributions=" + std::to_string(state.identificationDistributionCount) +
+            " eventStride=" + std::to_string(d.eventStride) +
+            " eventMinimum=" + std::to_string(minimumEventStride) +
+            " mutableTopology=" + std::to_string(state.hasMutableFEMTopology);
         return diagnostics;
     }
 
@@ -8506,33 +8573,49 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     const auto rollbackPipeline = state.pipelines.find("nm_vascular_rollback");
     const auto mpmRollbackPipeline = state.pipelines.find("nm_mpm_rollback_frame");
     const auto mpmCommitPipeline = state.pipelines.find("nm_mpm_commit_microstep");
+    const auto femRollbackPipeline = state.pipelines.find("nm_fem_rollback_frame");
+    const auto mixedRollbackPipeline = state.pipelines.find("nm_mixed_rollback");
     const auto topologyRollbackPipeline = state.pipelines.find("nm_topology_rollback");
     const auto schedulerReconcilePipeline =
         state.pipelines.find("nm_scheduler_reconcile");
-    if (gatePipeline == state.pipelines.end() ||
-        gatePipeline->second == nil ||
-        rollbackPipeline == state.pipelines.end() ||
-        rollbackPipeline->second == nil ||
-        (mpmOnlyScope &&
-         (mpmRollbackPipeline == state.pipelines.end() ||
-          mpmRollbackPipeline->second == nil ||
-          mpmCommitPipeline == state.pipelines.end() ||
-          mpmCommitPipeline->second == nil ||
-          topologyRollbackPipeline == state.pipelines.end() ||
-          topologyRollbackPipeline->second == nil ||
-          schedulerReconcilePipeline == state.pipelines.end() ||
-          schedulerReconcilePipeline->second == nil ||
-          state.particleAccepted == nil || state.particleCandidate == nil ||
-          state.particleCheckpoint == nil || state.schedulers == nil ||
-          state.schedulerCheckpoint == nil || state.events == nil ||
-          state.topologyStatesAccepted == nil ||
-          state.topologyStatesCheckpoint == nil ||
-          (d.materialStateStride != 0u &&
-           (state.particleMaterialStateAccepted == nil ||
-            state.particleMaterialStateCandidate == nil ||
-            state.particleMaterialStateCheckpoint == nil))))) {
+    const auto invalidateCertificatePipeline =
+        state.pipelines.find("nm_invalidate_solver_certificate_after_late_failure");
+    const bool missingMPMResources = hasMPM &&
+        (mpmRollbackPipeline == state.pipelines.end() ||
+         mpmRollbackPipeline->second == nil ||
+         mpmCommitPipeline == state.pipelines.end() ||
+         mpmCommitPipeline->second == nil ||
+         state.particleAccepted == nil || state.particleCandidate == nil ||
+         state.particleCheckpoint == nil ||
+         (d.materialStateStride != 0u &&
+          (state.particleMaterialStateAccepted == nil ||
+           state.particleMaterialStateCandidate == nil ||
+           state.particleMaterialStateCheckpoint == nil)));
+    const bool missingFEMResources = hasFEM &&
+        (femRollbackPipeline == state.pipelines.end() ||
+         femRollbackPipeline->second == nil ||
+         mixedRollbackPipeline == state.pipelines.end() ||
+         mixedRollbackPipeline->second == nil ||
+         state.femAccepted == nil || state.femCheckpoint == nil ||
+         state.femMaterialStateAccepted == nil ||
+         state.femMaterialStateCheckpoint == nil ||
+         state.femFieldsAccepted == nil || state.femFieldsCheckpoint == nil);
+    const bool missingObjectResources = objectContinuumScope &&
+        (topologyRollbackPipeline == state.pipelines.end() ||
+         topologyRollbackPipeline->second == nil ||
+         schedulerReconcilePipeline == state.pipelines.end() ||
+         schedulerReconcilePipeline->second == nil ||
+         state.schedulers == nil || state.schedulerCheckpoint == nil ||
+         state.events == nil || state.topologyStatesAccepted == nil ||
+         state.topologyStatesCheckpoint == nil ||
+         invalidateCertificatePipeline == state.pipelines.end() ||
+         invalidateCertificatePipeline->second == nil ||
+         state.solverCertificates == nil);
+    if (gatePipeline == state.pipelines.end() || gatePipeline->second == nil ||
+        rollbackPipeline == state.pipelines.end() || rollbackPipeline->second == nil ||
+        missingMPMResources || missingFEMResources || missingObjectResources) {
         diagnostics.message =
-            "accepted-step finalization or a required rollback/reconcile Metal pipeline and arena is unavailable";
+            "accepted-step finalization or a required FEM/MPM rollback/reconcile pipeline and arena is unavailable";
         return diagnostics;
     }
 
@@ -8564,7 +8647,7 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             "failed to create accepted-step extension finalization encoder";
         return diagnostics;
     }
-    [encoder setLabel:@"Numi Matter final owner acceptance and vascular rollback"];
+    [encoder setLabel:@"Numi Matter final owner acceptance and continuum/vascular rollback"];
     [encoder setComputePipelineState:gatePipeline->second];
     [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
     [encoder setBytes:&finalization length:sizeof(finalization) atIndex:1u];
@@ -8575,40 +8658,52 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             gatePipeline->second.threadExecutionWidth, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
-    if (mpmOnlyScope) {
-        const NSUInteger particleTotal =
-            static_cast<NSUInteger>(environmentCount) * d.particleCount;
-        [encoder setComputePipelineState:mpmRollbackPipeline->second];
+    if (objectContinuumScope) {
+        // The external owner gate can reject after a successful Matter solve.
+        // Keep the numerical certificate as diagnostics but revoke its
+        // publication bit so rejected FEM/MPM work is never advertised valid.
+        [encoder setComputePipelineState:invalidateCertificatePipeline->second];
         [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
         [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-        [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
-        [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:3u];
-        [encoder setBuffer:state.particleMaterialStateAccepted
-                     offset:0u atIndex:4u];
-        [encoder setBuffer:state.particleMaterialStateCheckpoint
-                     offset:0u atIndex:5u];
-        [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
+        [encoder setBuffer:state.solverCertificates offset:0u atIndex:2u];
+        [encoder dispatchThreads:MTLSizeMake(environmentCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(
-                mpmRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+                invalidateCertificatePipeline->second.threadExecutionWidth, 1u, 1u)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        if (hasMPM) {
+            const NSUInteger particleTotal =
+                static_cast<NSUInteger>(environmentCount) * d.particleCount;
+            [encoder setComputePipelineState:mpmRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.particleMaterialStateAccepted
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:state.particleMaterialStateCheckpoint
+                         offset:0u atIndex:5u];
+            [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    mpmRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
-        // On rejection rollback restores accepted state from the immutable
-        // frame checkpoint; this existing microstep kernel then makes the
-        // candidate mirror that restored accepted state. On success it is an
-        // idempotent accepted=candidate publication.
-        [encoder setComputePipelineState:mpmCommitPipeline->second];
-        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
-        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-        [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
-        [encoder setBuffer:state.particleCandidate offset:0u atIndex:3u];
-        [encoder setBuffer:state.particleMaterialStateAccepted
-                     offset:0u atIndex:4u];
-        [encoder setBuffer:state.particleMaterialStateCandidate
-                     offset:0u atIndex:5u];
-        [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(
-                mpmCommitPipeline->second.threadExecutionWidth, 1u, 1u)];
-        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            // After a rejected frame the candidate mirrors its restored
+            // accepted particle/material state; after acceptance this is an
+            // idempotent publication.
+            [encoder setComputePipelineState:mpmCommitPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.particleCandidate offset:0u atIndex:3u];
+            [encoder setBuffer:state.particleMaterialStateAccepted
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:state.particleMaterialStateCandidate
+                         offset:0u atIndex:5u];
+            [encoder dispatchThreads:MTLSizeMake(particleTotal, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    mpmCommitPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
 
         const NSUInteger topologyWidth = std::max({
             static_cast<NSUInteger>(d.tetrahedronCount),
@@ -8654,6 +8749,37 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             threadsPerThreadgroup:MTLSizeMake(
                 schedulerReconcilePipeline->second.threadExecutionWidth, 1u, 1u)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        if (hasFEM) {
+            const NSUInteger femTransactionalTotal =
+                static_cast<NSUInteger>(environmentCount) * std::max(
+                    d.femNodeCount, d.tetrahedronCount);
+            [encoder setComputePipelineState:femRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.femCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.femMaterialStateAccepted
+                         offset:0u atIndex:4u];
+            [encoder setBuffer:state.femMaterialStateCheckpoint
+                         offset:0u atIndex:5u];
+            [encoder dispatchThreads:MTLSizeMake(femTransactionalTotal, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    femRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+            const NSUInteger femNodeTotal =
+                static_cast<NSUInteger>(environmentCount) * d.femNodeCount;
+            [encoder setComputePipelineState:mixedRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
+            [encoder dispatchThreads:MTLSizeMake(femNodeTotal, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    mixedRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
     }
 
     const NSUInteger vascularTotal =
@@ -8696,7 +8822,7 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     diagnostics.residentBytes = state.residentBytes;
     diagnostics.device = nsString(state.device.name);
     diagnostics.message =
-        "accepted-step extension publication and vascular rollback encoded behind the final owner gate";
+        "accepted-step extension publication and continuum/vascular rollback encoded behind the final owner gate";
     return diagnostics;
 }
 
@@ -8989,7 +9115,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         if (request.deferAcceptedStepExtensionFinalization &&
-            state.acceptedStepExtensionMPMOnlyWorld &&
+            (state.acceptedStepExtensionMPMOnlyWorld ||
+             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
             (request.resetMasks != nullptr ||
              request.resetMaskStepStride != 0u || request.runIdentification ||
              state.identificationDistributionCount != 0u ||
@@ -8997,7 +9124,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
              request.learnedWeightCount != 0u ||
              request.mutationCommandCount != 0u)) {
             diagnostics.message =
-                "deferred MPM owner finalization excludes reset, identification, parameter, learned-weight, and topology-update transactions";
+                "deferred MPM/FEM owner finalization excludes reset, identification, parameter, learned-weight, and topology-update transactions";
             return diagnostics;
         }
         if (request.deferAcceptedStepExtensionFinalization &&

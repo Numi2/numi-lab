@@ -2040,9 +2040,15 @@ public:
     );
     // Completes a deferred accepted-step extension after the enclosing owner
     // has reconciled its final GPU status. Failure is merged into Matter's
-    // status on-device, then the existing vascular checkpoint rollback runs
-    // before frameComplete is invoked. This narrow path rejects Matter worlds
-    // with mutable non-vascular state that it cannot restore locally.
+    // status on-device before accepted-state rollback. The local scope admits
+    // vascular-only worlds and immutable, nonadaptive, contact-free FEM and/or
+    // MPM objects. Object worlds restore vascular, particle/material, FEM
+    // node/field/material, topology, and scheduler state from existing
+    // checkpoints, then invalidate per-object solver-certificate publication
+    // on rejection. Rigid/coupled/attached, adaptive, mixed/multiphysics,
+    // contact, topology-mutation, reset, identification, learned-update, and
+    // parameter-update paths remain excluded. Objectless vascular-only worlds
+    // have no logical per-object certificate entries to publish or invalidate.
     [[nodiscard]] RuntimeDiagnostics finalizeAcceptedStepExtension(
         void* commandBuffer,
         std::uint32_t controlStep,

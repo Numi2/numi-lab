@@ -1,0 +1,14 @@
+{
+  "base_runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "runtime_source_sha256": "c3ac4a50a5b2ab74806275abb66c86f175a14a4a4c06bdf429069ca0b28e9dee",
+  "fixture_source_sha256": "b5edd94878bfb2090447c8c0ea006a60b8466d0235b324bec75d8d49ed63140d",
+  "material_sha256": "bc9f0a391a2d936c167947b7c34161dde422abd5071ada124b1e30a96a8ad3fc",
+  "runtime_object_sha256": "2b78fcbd07a8d334eed1e54347fcf0c07b7d11413fdad6371c95edbd918841c3",
+  "library_sha256": "6c3dedc2c92055e2a0b3ce83e44b7c6cb6cf3f4c3a96999f2eff74003e3915b8",
+  "fixture_binary_sha256": "6d4eb12903a8759e5ece9c3b66688107b2f7f8ea122435f8b0e274789f9fb60f",
+  "native_source_shader": "/Users/n/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+  "native_source_shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "tested_public_header_sha256": "2ab31453467b35fcf96b76efe31636acb415f05fec9007d3c13e748970d12046",
+  "published_public_header_sha256": "19d221874c30f0a034c4116546d9f3a0c146830772cd038829e8ea548ced26fc",
+  "header_difference": "Documentation-only API comment clarifies the newly admitted scope and empty vascular-only certificate arena; no declarations or compiled behavior changed. Native build used the tested header hash above."
+}

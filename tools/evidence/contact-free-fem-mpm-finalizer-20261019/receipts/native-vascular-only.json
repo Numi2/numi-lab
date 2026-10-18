@@ -1,0 +1,29 @@
+{
+  "mode": "vascular_only_no_certificate_arena",
+  "mode_environment": {
+    "NUMI_FEM_MPM_COMBINED": "0",
+    "NUMI_FEM_MPM_VASCULAR_ONLY": "1",
+    "NUMI_FEM_MPM_NETWORK": "/Users/numi/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "NUMI_FEM_MPM_MATERIAL": "/Users/numi/numi-human-separation-20261018/C/fem-mpm-finalizer-213/source/fem_rollback_history.nmatter"
+  },
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/numi/numi-human-separation-20261018/C/fem-mpm-finalizer-213/build/finalizer"
+  ],
+  "shader_path": "/Users/numi/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+  "shader_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "binary_sha256": "6d4eb12903a8759e5ece9c3b66688107b2f7f8ea122435f8b0e274789f9fb60f",
+  "fixture_source_sha256": "b5edd94878bfb2090447c8c0ea006a60b8466d0235b324bec75d8d49ed63140d",
+  "runtime_source_sha256": "c3ac4a50a5b2ab74806275abb66c86f175a14a4a4c06bdf429069ca0b28e9dee",
+  "runtime_library_sha256": "6c3dedc2c92055e2a0b3ce83e44b7c6cb6cf3f4c3a96999f2eff74003e3915b8",
+  "material_path": "/Users/numi/numi-human-separation-20261018/C/fem-mpm-finalizer-213/source/fem_rollback_history.nmatter",
+  "material_sha256": "bc9f0a391a2d936c167947b7c34161dde422abd5071ada124b1e30a96a8ad3fc",
+  "network_path": "/Users/numi/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+  "network_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+  "public_header_sha256": "2ab31453467b35fcf96b76efe31636acb415f05fec9007d3c13e748970d12046",
+  "exit": 0,
+  "seconds": 5.669920000014827,
+  "runtime_library_sha256_after": "6c3dedc2c92055e2a0b3ce83e44b7c6cb6cf3f4c3a96999f2eff74003e3915b8"
+}

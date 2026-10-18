@@ -1,0 +1,70 @@
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+#include <numi/matter/human_physiology.hpp>
+#include <numi/matter/matter.hpp>
+#include <metalrobo/engine_types.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <cstdlib>
+namespace nm = numi::matter;
+static void require(bool v,const std::string& m){if(!v)throw std::runtime_error(m);}
+template<class T> static bool same(const std::vector<T>& a,const std::vector<T>& b){return a.size()==b.size()&&(a.empty()||std::memcmp(a.data(),b.data(),a.size()*sizeof(T))==0);}
+static double nodeDelta(const std::vector<NMFEMNodeStateGPU>& a,const std::vector<NMFEMNodeStateGPU>& b){
+ if(a.size()!=b.size())return INFINITY;
+ double m=0;
+ for(size_t i=0;i<a.size();++i){
+  m=std::max(m,std::abs(double(a[i].positionAndMass.x)-double(b[i].positionAndMass.x)));
+  m=std::max(m,std::abs(double(a[i].positionAndMass.y)-double(b[i].positionAndMass.y)));
+  m=std::max(m,std::abs(double(a[i].positionAndMass.z)-double(b[i].positionAndMass.z)));
+  m=std::max(m,std::abs(double(a[i].velocityAndInverseMass.x)-double(b[i].velocityAndInverseMass.x)));
+  m=std::max(m,std::abs(double(a[i].velocityAndInverseMass.y)-double(b[i].velocityAndInverseMass.y)));
+  m=std::max(m,std::abs(double(a[i].velocityAndInverseMass.z)-double(b[i].velocityAndInverseMass.z)));
+ }
+ return m;
+}
+static double stateDelta(const std::vector<float>& a,const std::vector<float>& b){if(a.size()!=b.size())return INFINITY;double m=0;for(size_t i=0;i<a.size();++i)m=std::max(m,std::abs(double(a[i])-double(b[i])));return m;}
+static double particleDelta(const std::vector<NMParticleStateGPU>& a,const std::vector<NMParticleStateGPU>& b){if(a.size()!=b.size())return INFINITY;double m=0;for(size_t i=0;i<a.size();++i){const auto& x=a[i];const auto& y=b[i];m=std::max(m,std::abs(double(x.positionAndMass.x)-double(y.positionAndMass.x)));m=std::max(m,std::abs(double(x.positionAndMass.y)-double(y.positionAndMass.y)));m=std::max(m,std::abs(double(x.positionAndMass.z)-double(y.positionAndMass.z)));m=std::max(m,std::abs(double(x.velocityAndReferenceVolume.x)-double(y.velocityAndReferenceVolume.x)));m=std::max(m,std::abs(double(x.velocityAndReferenceVolume.y)-double(y.velocityAndReferenceVolume.y)));m=std::max(m,std::abs(double(x.velocityAndReferenceVolume.z)-double(y.velocityAndReferenceVolume.z)));}return m;}
+static void requireCertificates(const nm::RuntimeStateSnapshot& s,bool valid,const char* label){
+ require(!s.solverCertificates.empty(),std::string(label)+" missing solver certificates");
+ for(const auto& c:s.solverCertificates)
+  require((c.validity.w>=0.5f)==valid,std::string(label)+" solver certificate publication mismatch");
+}
+static void physicalEqual(const nm::RuntimeStateSnapshot& a,const nm::RuntimeStateSnapshot& b,const char* label){
+#define CHECK(f) require(same(a.f,b.f),std::string(label)+" changed " #f)
+ CHECK(particles); CHECK(particleMaterialState); CHECK(femNodes); CHECK(femFields); CHECK(femMaterialState); CHECK(femTopologyNodes); CHECK(femTopologyTetrahedra); CHECK(topologyStates); CHECK(schedulers); CHECK(adaptive); CHECK(vascularState); CHECK(vascularClock); CHECK(contactHistories); CHECK(deformableContactHistories); CHECK(environmentParameters); CHECK(identification);
+#undef CHECK
+ require(a.controlStep==b.controlStep&&a.physicsSubstep==b.physicsSubstep,std::string(label)+" changed cursor");
+}
+struct Gate{uint32_t code,environment,completed;};
+struct Callback{unsigned count[4]{};};
+static bool extension(void* c,nm::AcceptedStepExtensionPhase phase,const nm::AcceptedStepExtensionView&){auto& x=*static_cast<Callback*>(c);auto i=(unsigned)phase;if(i>=4)return false;++x.count[i];return true;}
+int main(){@autoreleasepool{try{
+ const char* networkEnv=std::getenv("NUMI_FEM_MPM_NETWORK");const std::filesystem::path networkPath=networkEnv&&*networkEnv?networkEnv:"/Users/numi/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json";
+ const char* materialEnv=std::getenv("NUMI_FEM_MPM_MATERIAL");const std::filesystem::path materialPath=materialEnv&&*materialEnv?materialEnv:"/Users/numi/numi-human-separation-20261018/C/fem-mpm-finalizer-213/source/fem_rollback_history.nmatter";
+ nm::VascularNetworkSource vascular;std::string error;require(nm::readHumanPhysiologyNetwork(networkPath,vascular,&error),error);
+ const auto parsed=nm::parseMatterFile(materialPath);require(parsed.succeeded(),"damageable silicone parse failed");
+ nm::WorldSource source;source.environmentCount=1;source.frameTimestep=0.00025;source.gravity={0,0,-9.81};source.vascular=vascular;source.materials.push_back(parsed.material);source.mixedSolver.relativeResidual=1e-7;source.mixedSolver.newtonIterations=12;source.mixedSolver.fgmresIterations=64;
+ const char* combinedEnv=std::getenv("NUMI_FEM_MPM_COMBINED");const bool combined=combinedEnv&&std::string(combinedEnv)=="1";
+ const char* vascularOnlyEnv=std::getenv("NUMI_FEM_MPM_VASCULAR_ONLY");const bool vascularOnly=vascularOnlyEnv&&std::string(vascularOnlyEnv)=="1";require(!(combined&&vascularOnly),"select either combined or vascular-only mode");
+ if(!vascularOnly){nm::ObjectSource object;object.name="synthetic_fixed_base_fem_rollback_fixture";object.materialIndex=0;object.representation=nm::Representation::fem;object.automaticRepresentation=false;object.twoWayCoupling=false;object.adaptive=false;object.identifiable=false;object.deformableContact=false;object.deformableSelfContact=false;object.mixedFEM=false;object.characteristicLength=0.05;object.femNodes={{0,0,0},{0.05,0,0},{0,0.05,0},{0,0,0.05}};object.femFixedNodes={0,1,2};object.tetrahedra.push_back({{0,1,2,3}});source.objects.push_back(object);}
+ if(combined){nm::ObjectSource mpm;mpm.name="synthetic_contact_free_mpm_rollback_fixture";mpm.materialIndex=0;mpm.representation=nm::Representation::mpm;mpm.automaticRepresentation=false;mpm.twoWayCoupling=false;mpm.adaptive=false;mpm.identifiable=false;mpm.deformableContact=false;mpm.deformableSelfContact=false;mpm.characteristicLength=0.005;mpm.mpmGridMinimum={0.19,0.19,0.19};mpm.mpmGridMaximum={0.21,0.21,0.21};nm::ParticleSource particle;particle.position={0.20,0.20,0.20};particle.velocity={0.10,0,0};particle.mass=1.1e-3;particle.referenceVolume=1.0e-6;particle.active=true;mpm.particles.push_back(particle);source.objects.push_back(mpm);}
+ const auto compiled=nm::compileWorld(source,{.maximumRateExponent=NM_MAX_RATE_EXPONENT});for(const auto& d:compiled.diagnostics)std::cout<<"compile_diagnostic="<<d.message<<"\n";require(compiled.succeeded(),"synthetic contact-free FEM compile failed");const auto& world=compiled.world;
+ const bool hasFEM=!vascularOnly;
+ require(world.dispatch.environmentCount==1&&world.dispatch.objectCount==(vascularOnly?0u:(combined?2u:1u))&&world.dispatch.femNodeCount==(hasFEM?4u:0u)&&world.dispatch.tetrahedronCount==(hasFEM?1u:0u)&&world.dispatch.particleCount==(combined?1u:0u)&&world.dispatch.contactPairCount==0&&world.dispatch.femHumanAttachmentCount==0&&world.vascular.compartments.size()==21&&world.vascular.connections.size()==24&&world.vascular.unknowns.size()==45,"compiled scope mismatch");
+ std::cout<<"scope objects="<<world.dispatch.objectCount<<" fem_nodes="<<world.dispatch.femNodeCount<<" tets="<<world.dispatch.tetrahedronCount<<" particles="<<world.dispatch.particleCount<<" mpm_grids="<<world.dispatch.mpmGridCount<<" mpm_nodes="<<world.dispatch.mpmActiveNodeCapacity<<" material_state_stride="<<world.dispatch.materialStateStride<<" contacts="<<world.dispatch.contactPairCount<<" attachments="<<world.dispatch.femHumanAttachmentCount<<" dt_s="<<source.frameTimestep<<"\n";
+ id<MTLDevice> device=MTLCreateSystemDefaultDevice();require(device!=nil,"no Metal device");id<MTLCommandQueue> queue=[device newCommandQueue];require(queue!=nil,"no command queue");
+ id<MTLBuffer> status=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];*static_cast<MRMetalWorldStatusGPU*>(status.contents)={};static_cast<MRMetalWorldStatusGPU*>(status.contents)->code=MR_STEP_SUCCESS;
+ id<MTLBuffer> gate=[device newBufferWithLength:sizeof(Gate) options:MTLResourceStorageModeShared];
+ nm::Runtime runtime;nm::RuntimeConfiguration cfg;cfg.metallib=NUMI_MATTER_METALLIB;cfg.environmentCount=1;cfg.captureEvents=true;cfg.captureDiagnostics=true;cfg.adaptiveTransfer=false;auto initialized=runtime.initialize(world,cfg);require(initialized.encoded,initialized.message);std::cout<<"device="<<initialized.device<<" fingerprint="<<runtime.fingerprint()<<"\n";
+ const auto initial=runtime.snapshot();require(initial.available,initial.message);std::cout<<"initial_snapshot_fem_nodes="<<initial.femNodes.size()<<" fem_history="<<initial.femMaterialState.size()<<" particles="<<initial.particles.size()<<" particle_history="<<initial.particleMaterialState.size()<<" certificates="<<initial.solverCertificates.size()<<"\n";if(vascularOnly){require(initial.femNodes.size()==1&&initial.femMaterialState.size()==4&&initial.particles.size()==1&&initial.solverCertificates.size()==1&&initial.solverCertificates[0].validity.w==0.0f,"objectless world sentinel arenas are not empty/inert");}else{require(initial.femNodes.size()==4&&initial.femMaterialState.size()>=2&&initial.particles.size()==(combined?1u:0u),"FEM/MPM physical snapshot missing");}
+ auto verifyCertificates=[&](const nm::RuntimeStateSnapshot& snapshot,bool valid,const char* label){if(vascularOnly){require(snapshot.solverCertificates.size()==1&&snapshot.solverCertificates[0].validity.w==0.0f,std::string(label)+" objectless vascular world has a published per-object certificate");}else requireCertificates(snapshot,valid,label);};
+ auto step=[&](bool accept){*static_cast<Gate*>(gate.contents)={accept?0u:99u,0u,1u};Callback cbctx;id<MTLCommandBuffer> cb=[queue commandBuffer];nm::EncodeRequest req{};req.commandBuffer=(__bridge void*)cb;req.environmentStatuses=(__bridge void*)status;req.physicsSubsteps=1;req.timestepSeconds=runtime.timestepSeconds();req.runAdaptiveTransfer=false;req.acceptedStepExtensionContext=&cbctx;req.encodeAcceptedStepExtension=&extension;req.deferAcceptedControlCursorPublication=true;req.deferAcceptedStepExtensionFinalization=true;req.phase=nm::EncodePhase::preDynamics;auto d=runtime.encode(req);require(d.encoded,d.message);req.phase=nm::EncodePhase::postCommit;d=runtime.encode(req);require(d.encoded,d.message);nm::AcceptedStepFinalizationGate fg{};fg.statusRecords=(__bridge void*)gate;fg.recordCount=1;fg.recordStrideBytes=sizeof(Gate);fg.completedCountOffsetBytes=8;fg.expectedCompletedCount=1;fg.environmentIndexOffsetBytes=4;d=runtime.finalizeAcceptedStepExtension((__bridge void*)cb,0,0,fg);require(d.encoded,d.message);nm::AcceptedControlCursorGate cg{};cg.statusCodes=(__bridge void*)gate;cg.recordCount=1;cg.recordStrideBytes=sizeof(Gate);d=runtime.encodeAcceptedControlCursorPublication((__bridge void*)cb,0,0,cg);require(d.encoded,d.message);[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"command buffer failed");auto snap=runtime.snapshot();require(snap.available,snap.message);require(!snap.statuses.empty(),"missing runtime status");std::cout<<"attempt_accept="<<accept<<" matter_status="<<snap.statuses[0].code<<" completed_microsteps="<<snap.statuses[0].completedMicrosteps<<" gpu_seconds="<<(cb.GPUEndTime-cb.GPUStartTime)<<" callbacks="<<cbctx.count[0]<<","<<cbctx.count[1]<<","<<cbctx.count[2]<<","<<cbctx.count[3]<<" fem_node_count="<<snap.femNodes.size()<<" fem_history_count="<<snap.femMaterialState.size()<<"\n";require(cbctx.count[0]==1&&cbctx.count[3]==1,"owner callback count mismatch");require(accept?snap.statuses[0].code==NM_STATUS_SUCCESS:snap.statuses[0].code!=NM_STATUS_SUCCESS,"external gate acceptance mismatch");return snap;};
+ const auto rejected=step(false);physicalEqual(initial,rejected,"external rejection");verifyCertificates(rejected,false,"external rejection");const auto retried=step(true);verifyCertificates(retried,true,"accepted retry");const double acceptedNodeDelta=nodeDelta(initial.femNodes,retried.femNodes),acceptedHistoryDelta=stateDelta(initial.femMaterialState,retried.femMaterialState),acceptedParticleDelta=particleDelta(initial.particles,retried.particles);std::cout<<"accepted_node_max_abs_delta_m="<<acceptedNodeDelta<<" accepted_material_history_max_abs_delta="<<acceptedHistoryDelta<<" accepted_particle_max_abs_delta="<<acceptedParticleDelta<<" initial_history=";for(float v:initial.femMaterialState)std::cout<<v<<",";std::cout<<" accepted_history=";for(float v:retried.femMaterialState)std::cout<<v<<",";std::cout<<"\n";if(hasFEM){require(acceptedNodeDelta>0,"accepted FEM node did not move");require(acceptedHistoryDelta>0,"accepted per-tet material history did not change");}if(combined)require(acceptedParticleDelta>0,"accepted MPM particle did not move");auto restored=runtime.restore(initial);require(restored.encoded,restored.message);const auto clean=step(true);physicalEqual(retried,clean,"retry vs restored clean acceptance");verifyCertificates(clean,true,"clean accepted control");require(nodeDelta(retried.femNodes,clean.femNodes)==0&&stateDelta(retried.femMaterialState,clean.femMaterialState)==0&&particleDelta(retried.particles,clean.particles)==0,"retry differs from clean accepted control");std::cout<<"PASS "<<(vascularOnly?"vascular_only_no_certificate_arena":combined?"contact_free_FEM_MPM_vascular":"contact_free_FEM_vascular")<<"_late_reject_retry\n";return 0;
+}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 2;}}}
