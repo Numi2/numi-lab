@@ -1270,6 +1270,39 @@ kernel void nm_prepared_state_materialize_restore_statuses(
     effective[environment] = status;
 }
 
+kernel void nm_prepared_state_materialize_extension_statuses(
+    constant uint& environmentCount [[buffer(0)]],
+    device const uint* actions [[buffer(1)]],
+    device NMMatterStatusGPU* extensionStatuses [[buffer(2)]],
+    device const NMPreparedStatePublicationFactsGPU* publicationFacts [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= environmentCount) return;
+    NMMatterStatusGPU status = extensionStatuses[environment];
+    const NMPreparedStatePublicationFactsGPU facts =
+        publicationFacts[environment];
+    const bool publicationValid =
+        facts.abiVersion == NM_MATTER_OWNER_APPLY_ABI_VERSION &&
+        facts.status == NM_PREPARED_STATE_PUBLICATION_FACTS_VALID &&
+        facts.reserved0 == 0u && facts.reserved1 == 0u &&
+        facts.physicsTokenFingerprint != 0ul &&
+        facts.brainProgramFingerprint != 0ul &&
+        facts.brainShadowStateFingerprint != 0ul &&
+        facts.brainWitnessFingerprint != 0ul &&
+        facts.matterApplyFingerprint != 0ul &&
+        facts.factsFingerprint != 0ul &&
+        facts.factsFingerprint == prepared_state_detail::publicationFactsFingerprint(facts);
+    const bool accepted =
+        actions[environment] == NM_PREPARED_STATE_ACTION_ACCEPT &&
+        publicationValid && status.code == NM_STATUS_SUCCESS;
+    if (!accepted) {
+        if (status.code == NM_STATUS_SUCCESS)
+            status.code = NM_STATUS_RIGID_WORLD_FAILURE;
+        status.failingIndex = actions[environment];
+    }
+    extensionStatuses[environment] = status;
+}
+
 kernel void nm_prepared_state_restore_bytes(
     constant NMPreparedStateRestoreGPU& pass [[buffer(0)]],
     device const uchar* checkpoint [[buffer(1)]],

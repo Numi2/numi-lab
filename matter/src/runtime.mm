@@ -2190,6 +2190,7 @@ struct Runtime::State {
     id<MTLComputePipelineState> preparedStateValidateApplication = nil;
     id<MTLComputePipelineState> preparedStateNormalizeApplication = nil;
     id<MTLComputePipelineState> preparedStateMaterializeRestoreStatuses = nil;
+    id<MTLComputePipelineState> preparedStateMaterializeExtensionStatuses = nil;
     id<MTLComputePipelineState> preparedStateRestoreBytes = nil;
     id<MTLBuffer> acceptedStateProofHashes = nil;
     id<MTLBuffer> acceptedStateProofScratchA = nil;
@@ -2293,6 +2294,11 @@ struct Runtime::State {
         std::uint32_t controlStep = 0u;
         std::uint32_t physicsSubstep = 0u;
         bool acceptedControlCursorDeferred = false;
+        bool deferredAcceptedStepExtensionRequested = false;
+        bool deferredAcceptedStepExtensionPending = false;
+        void* deferredAcceptedStepExtensionContext = nullptr;
+        EncodeAcceptedStepExtension deferredAcceptedStepExtension = nullptr;
+        AcceptedStepExtensionView deferredAcceptedStepExtensionView{};
         std::uint32_t identificationGeneration = 0u;
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
@@ -2336,6 +2342,14 @@ struct Runtime::State {
             acceptedStateProofBorrowedRangeCount = 0u;
         }
 
+        void clearDeferredAcceptedStepExtension() noexcept {
+            deferredAcceptedStepExtensionRequested = false;
+            deferredAcceptedStepExtensionPending = false;
+            deferredAcceptedStepExtensionContext = nullptr;
+            deferredAcceptedStepExtension = nullptr;
+            deferredAcceptedStepExtensionView = {};
+        }
+
         [[nodiscard]] bool matchesDispositionIdentity(
             const PreparedStateDispositionIdentity& identity
         ) const noexcept {
@@ -2374,6 +2388,7 @@ struct Runtime::State {
             applyEncoded = false;
             clearAcceptedStateProofBorrowedRanges();
             if (status != MTLCommandBufferStatusCompleted) {
+                clearDeferredAcceptedStepExtension();
                 publicationReserved = false;
                 publicationReleaseArmed = false;
                 publicationBinding = {};
@@ -2391,6 +2406,7 @@ struct Runtime::State {
                 return;
             }
             if (outcome == NM_PREPARED_STATE_APPLY_TERMINAL_NO_TOUCH) {
+                clearDeferredAcceptedStepExtension();
                 publicationReserved = false;
                 publicationReleaseArmed = false;
                 publicationBinding = {};
@@ -2407,6 +2423,7 @@ struct Runtime::State {
                  outcome !=
                     NM_PREPARED_STATE_APPLY_ACCEPTED_PENDING_PUBLICATION) ||
                 preparedCommandFailed) {
+                clearDeferredAcceptedStepExtension();
                 publicationReserved = false;
                 publicationReleaseArmed = false;
                 publicationBinding = {};
@@ -2434,12 +2451,14 @@ struct Runtime::State {
                     facts->factsFingerprint == 0u ||
                     facts->factsFingerprint !=
                         publicationFactsFingerprint(*facts)) {
+                    clearDeferredAcceptedStepExtension();
                     restoreRequired = true;
                     acceptedStateProofEligible = false;
                     disposition =
                         PreparedStateDisposition::restoreRequired;
                     return;
                 }
+                clearDeferredAcceptedStepExtension();
                 disposition =
                     PreparedStateDisposition::acceptedPendingPublication;
                 publicationReserved = false;
@@ -2452,6 +2471,7 @@ struct Runtime::State {
                 applyCommandCompleted = false;
                 return;
             }
+            clearDeferredAcceptedStepExtension();
             applyCommandCompleted = true;
             disposition = PreparedStateDisposition::resolved;
             preparedStateOpen = false;
@@ -4572,6 +4592,8 @@ RuntimeDiagnostics Runtime::initialize(
             @"nm_prepared_state_normalize_application");
         candidate->preparedStateMaterializeRestoreStatuses = proofPipeline(
             @"nm_prepared_state_materialize_restore_statuses");
+        candidate->preparedStateMaterializeExtensionStatuses = proofPipeline(
+            @"nm_prepared_state_materialize_extension_statuses");
         candidate->preparedStateRestoreBytes = proofPipeline(
             @"nm_prepared_state_restore_bytes");
         if (candidate->acceptedStateProofBegin == nil ||
@@ -8509,9 +8531,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "accepted-step extension requires an initialized vascular network";
             return diagnostics;
         }
-        if (hasAcceptedStepExtension && retainPreparedState) {
+        if (request.deferAcceptedStepExtensionFinalization &&
+            state.preparedStateMaterializeExtensionStatuses == nil) {
             diagnostics.message =
-                "accepted-step extension does not support prepared-state publication transactions";
+                "prepared deferred extension status pipeline is unavailable";
+            return diagnostics;
+        }
+        if (request.deferAcceptedStepExtensionFinalization &&
+            (!hasAcceptedStepExtension || !request.enablePreparedState ||
+             request.deferAcceptedControlCursorPublication)) {
+            diagnostics.message =
+                "prepared deferred extension finalization requires an extension and the prepared-state publication owner";
+            return diagnostics;
+        }
+        if (hasAcceptedStepExtension && retainPreparedState &&
+            !request.deferAcceptedStepExtensionFinalization) {
+            diagnostics.message =
+                "prepared-state publication requires deferred accepted-step extension finalization";
             return diagnostics;
         }
         if (request.phase != EncodePhase::preDynamics &&
@@ -9098,7 +9134,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
              ownership->controlStep != request.controlStep ||
              ownership->physicsSubstep != request.physicsSubstep ||
              ownership->acceptedControlCursorDeferred !=
-                 request.deferAcceptedControlCursorPublication)) {
+                 request.deferAcceptedControlCursorPublication ||
+             ownership->deferredAcceptedStepExtensionRequested !=
+                 request.deferAcceptedStepExtensionFinalization ||
+             (request.deferAcceptedStepExtensionFinalization &&
+              (ownership->deferredAcceptedStepExtensionContext !=
+                   request.acceptedStepExtensionContext ||
+               ownership->deferredAcceptedStepExtension !=
+                   request.encodeAcceptedStepExtension)))) {
             diagnostics.message =
                 "Matter post-commit pass does not match its pre-dynamics transaction or cursor-publication policy";
             return diagnostics;
@@ -9931,6 +9974,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             [encoder endEncoding];
             encoder = nil;
+            if (phase == AcceptedStepExtensionPhase::frameComplete &&
+                request.deferAcceptedStepExtensionFinalization) {
+                if (!retainPreparedState ||
+                    ownership->deferredAcceptedStepExtensionPending ||
+                    ownership->deferredAcceptedStepExtensionContext !=
+                        request.acceptedStepExtensionContext ||
+                    ownership->deferredAcceptedStepExtension !=
+                        request.encodeAcceptedStepExtension) {
+                    ownership->preDynamicsOpen = false;
+                    diagnostics.message =
+                        "deferred extension frameComplete does not match the prepared transaction";
+                    return false;
+                }
+                ownership->deferredAcceptedStepExtensionView = view;
+                ownership->deferredAcceptedStepExtensionPending = true;
+                return true;
+            }
             if (!request.encodeAcceptedStepExtension(
                     request.acceptedStepExtensionContext, phase, view)) {
                 ownership->preDynamicsOpen = false;
@@ -28835,6 +28895,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 locked->acceptedStateProofEligible = false;
                                 locked->disposition =
                                     PreparedStateDisposition::terminalNoTouch;
+                                locked->clearDeferredAcceptedStepExtension();
                             } else {
                                 locked->preparedCommandCompleted = true;
                                 if (locked->applyCommandCompleted &&
@@ -28873,6 +28934,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         locked->acceptedStateProofFamily = 0u;
                         locked->acceptedStateProofEligible = false;
                         locked->transactionPolicyFingerprint = 0u;
+                        locked->clearDeferredAcceptedStepExtension();
                         locked->preparedStateRequested = false;
                         // Snapshot clocks describe the accepted Matter state,
                         // not the most recent candidate that reached a
@@ -28957,7 +29019,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 (state.automaticIdentification ? 4ull : 0ull) |
                 (state.adaptiveTransfer ? 8ull : 0ull) |
                 (request.enablePreparedState ? 16ull : 0ull) |
-                (request.deferAcceptedControlCursorPublication ? 32ull : 0ull),
+                (request.deferAcceptedControlCursorPublication ? 32ull : 0ull) |
+                (request.deferAcceptedStepExtensionFinalization ? 64ull : 0ull),
         }};
         for (const std::uint64_t value : transactionPolicyValues) {
             transactionPolicyFingerprint = mixFingerprint(
@@ -28982,6 +29045,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ownership->physicsSubstep = request.physicsSubstep;
         ownership->acceptedControlCursorDeferred =
             request.deferAcceptedControlCursorPublication;
+        ownership->deferredAcceptedStepExtensionRequested =
+            request.deferAcceptedStepExtensionFinalization;
+        ownership->deferredAcceptedStepExtensionPending = false;
+        ownership->deferredAcceptedStepExtensionContext =
+            request.deferAcceptedStepExtensionFinalization
+                ? request.acceptedStepExtensionContext : nullptr;
+        ownership->deferredAcceptedStepExtension =
+            request.deferAcceptedStepExtensionFinalization
+                ? request.encodeAcceptedStepExtension : nullptr;
+        ownership->deferredAcceptedStepExtensionView = {};
         ownership->physicsSubsteps = request.physicsSubsteps;
         ownership->preparedStateRequested = request.enablePreparedState;
         diagnostics.encoded = true;
@@ -30569,6 +30642,18 @@ bool Runtime::applyPreparedStateImpl(
             !ownership->preparedCommandCompleted ||
             ownership->preparedCommandFailed ||
             ownership->terminalNoTouch ||
+            (ownership->deferredAcceptedStepExtensionRequested &&
+             (!ownership->deferredAcceptedStepExtensionPending ||
+              ownership->deferredAcceptedStepExtensionContext == nullptr ||
+              ownership->deferredAcceptedStepExtension == nullptr ||
+              ownership->deferredAcceptedStepExtensionView.commandBuffer !=
+                  ownership->preparedCommandBuffer ||
+              ownership->deferredAcceptedStepExtensionView.controlStep !=
+                  pass->controlStep ||
+              ownership->deferredAcceptedStepExtensionView.physicsSubstep !=
+                  pass->physicsSubstep)) ||
+            (!ownership->deferredAcceptedStepExtensionRequested &&
+             ownership->deferredAcceptedStepExtensionPending) ||
             (!forceRestore && !ownership->acceptedStateProofEncoded) ||
             (ownership->acceptedStateProofEncoded &&
              ownership->acceptedStateProofFamily !=
@@ -31146,12 +31231,48 @@ bool Runtime::applyPreparedStateImpl(
                                  offset:0u atIndex:3u];
                 });
         }
+        const bool extensionPending =
+            ownership->deferredAcceptedStepExtensionPending;
+        if (encoded && extensionPending) {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            const std::uint32_t extensionStatusEnvironmentCount =
+                pass->environmentCount;
+            encoded = dispatch(
+                state.preparedStateMaterializeExtensionStatuses,
+                pass->environmentCount,
+                [&] {
+                    [encoder setBytes:&extensionStatusEnvironmentCount
+                               length:sizeof(extensionStatusEnvironmentCount)
+                              atIndex:0u];
+                    [encoder setBuffer:state.preparedStateActions
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.preparedStateRestoreStatuses
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.preparedStatePublicationFacts
+                                 offset:0u atIndex:3u];
+                });
+            if (encoded) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+        }
         [encoder endEncoding];
         if (!encoded) {
             // The reservation deliberately remains until cancel(NotEnqueued).
             // The borrowed command contains partial encoding but has executed
             // nothing, so its immutable proof/checkpoints remain retryable.
             return false;
+        }
+        if (extensionPending) {
+            AcceptedStepExtensionView view =
+                ownership->deferredAcceptedStepExtensionView;
+            view.commandBuffer = commandBufferPointer;
+            view.matterStatuses =
+                (__bridge void*)state.preparedStateRestoreStatuses;
+            if (!ownership->deferredAcceptedStepExtension(
+                    ownership->deferredAcceptedStepExtensionContext,
+                    AcceptedStepExtensionPhase::frameComplete, view)) {
+                return false;
+            }
         }
 
         const std::weak_ptr<State::CommandOwnership> weakOwnership = ownership;
@@ -31530,6 +31651,7 @@ void Runtime::commitPublishedRootRelease(
         ownership->acceptedStateProofEligible = false;
         ownership->clearAcceptedStateProofBorrowedRanges();
         ownership->transactionPolicyFingerprint = 0u;
+        ownership->clearDeferredAcceptedStepExtension();
         ownership->identificationAdvanced = false;
         ownership->preparedCommandCompleted = false;
         ownership->preparedCommandFailed = false;
@@ -31604,6 +31726,7 @@ void Runtime::cancel(void* commandBuffer) noexcept {
             ownership->acceptedStateProofEligible = false;
             ownership->clearAcceptedStateProofBorrowedRanges();
             ownership->transactionPolicyFingerprint = 0u;
+            ownership->clearDeferredAcceptedStepExtension();
             ownership->preparedStateRequested = false;
             ownership->preparedStateOpen = false;
             ownership->restoreRequired = false;

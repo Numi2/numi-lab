@@ -1305,6 +1305,13 @@ struct EncodeRequest {
     // Runtime::encodeAcceptedControlCursorPublication in the same borrowed
     // command buffer after its final GPU acceptance gate.
     bool deferAcceptedControlCursorPublication = false;
+    // With enablePreparedState, postpone the extension's final frameComplete
+    // callback until applyPreparedState has materialized the exact ACCEPT,
+    // RESTORE, or TERMINAL_NO_TOUCH outcome. The callback only encodes into
+    // that same borrowed apply command buffer and may be retried if an
+    // unqueued apply command is cancelled. Its context and borrowed arenas
+    // must remain alive through apply-command completion.
+    bool deferAcceptedStepExtensionFinalization = false;
 };
 
 // Optional final owner acceptance gate for the Matter completion cursor.

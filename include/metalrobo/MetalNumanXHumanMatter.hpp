@@ -3,6 +3,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/numanx_human_io_gpu.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
+#include "numi/matter/matter.hpp"
 #include "numi/matter/numi_human.hpp"
 
 #include <array>
@@ -304,6 +305,13 @@ struct MetalNumanXHumanMatterConfig {
     // false cancels the borrowed transaction fail-closed.
     void* candidateObserverContext = nullptr;
     MetalNumanXHumanMatterObserveCandidate observeCandidate = nullptr;
+    // Optional prepared-transaction physiological extension. Its context and
+    // every callback-borrowed arena must remain valid until the apply command
+    // completes; frameComplete may be re-encoded after an unqueued apply is
+    // cancelled.
+    void* acceptedStepExtensionContext = nullptr;
+    numi::matter::EncodeAcceptedStepExtension
+        encodeAcceptedStepExtension = nullptr;
 
 };
 

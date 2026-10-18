@@ -2847,6 +2847,12 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.runIdentification = false;
     request.runAdaptiveTransfer = false;
     request.enablePreparedState = true;
+    request.acceptedStepExtensionContext =
+        state.config.acceptedStepExtensionContext;
+    request.encodeAcceptedStepExtension =
+        state.config.encodeAcceptedStepExtension;
+    request.deferAcceptedStepExtensionFinalization =
+        request.encodeAcceptedStepExtension != nullptr;
     const auto& deferred = state.config.tendonFEMDeferredLoadProgram;
     if (!deferred.configured()) return true;
     numi::matter::NumiHumanTendonFEMDeferredExternalForceView view{};
@@ -4425,6 +4431,8 @@ MetalNumanXHumanMatterContext::initialize() {
             MR_NUMANX_COUPLED_HUMAN_MAX_TRANSACTION_SLOTS ||
         config.reserved0 != 0u || config.maximumRetainedBytes == 0u ||
         ((config.candidateObserverContext == nullptr) != (config.observeCandidate == nullptr)) ||
+        ((config.acceptedStepExtensionContext == nullptr) !=
+         (config.encodeAcceptedStepExtension == nullptr)) ||
         (config.stateProofProgram.configured() &&
          !config.stateProofProgram.valid()) ||
         (config.stateProofProgramV2.configured() &&
