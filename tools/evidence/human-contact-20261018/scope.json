@@ -1,0 +1,8 @@
+{
+  "scope": "Retained pre-dynamics floor-witness validation; not full post-step collision or injury qualification",
+  "contact_run_simulated_seconds": 4,
+  "contact_run_accepted_steps": 8000,
+  "contact_root_assistance": false,
+  "blood_run_incomplete": "Rejected at candidate696 outside certified cardiac geometry union; no bypass",
+  "organ_run_incomplete": "FK-only finite; dynamics not yet admitted"
+}

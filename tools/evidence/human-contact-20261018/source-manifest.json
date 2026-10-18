@@ -1,0 +1,110 @@
+{
+  "base_revision": "e2c7ce7f0a484a59737e8a595e4442843035af45",
+  "repository": "/Users/n/numi-lab-native-replay-publish-20261017",
+  "artifact_directory": "/Users/n/numi-human-separation-20261018/contact-manifold-source-056/publication",
+  "patches": {
+    "runtime-053.patch": {
+      "sha256": "24a06d1562b5fe8833de9897577dc008b9961f1aa0c08e8c5ccc9202bb7ea148",
+      "files": 5,
+      "bytes": 35691
+    },
+    "app-056.snapshot.patch": {
+      "sha256": "669b0cc9f10212a99883852fea7415bf389baf382dae3d04c496eb1a121beb23",
+      "files": 5,
+      "bytes": 76181
+    },
+    "tools-floor-witness.patch": {
+      "sha256": "3484c10a5716f20c17278a134b6cf518de5fb30a0fb9f30b2e05e5483d4a97c9",
+      "files": 2,
+      "bytes": 10416
+    },
+    "app-manifold-043-to-054.patch": {
+      "sha256": "941112088dcdfc8c39b0eaca27483a4e4dcc4ffddfe5fd334f96a78a57d318ab",
+      "files": 4,
+      "bytes": 19674,
+      "base_snapshot": "/Users/n/numi-human-separation-20261018/native-contact-preview-build-043/compile-source",
+      "target_snapshot": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-054/compile-source",
+      "validation": "git apply --check + byte-identical target verification in a temporary tree"
+    },
+    "app-observer-055-to-056.patch": {
+      "sha256": "a4689b1ec4c7f2ac9cf0cb319b63419f4012d942514b2e1cf222e99faf726ec1",
+      "files": 1,
+      "bytes": 16569,
+      "base_snapshot": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-055/compile-source",
+      "target_snapshot": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source",
+      "validation": "git apply --check + byte-identical target verification in a temporary tree"
+    }
+  },
+  "candidate_inputs": {
+    "include/metalrobo/MetalArticulatedOperator.hpp": {
+      "source": "/Users/n/numi-human-separation-20261018/integrated-runtime-source-053/include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "ff6daef55a83331232494d2b4976492acdd58f640dcaea4f1035b968a6cf7b9a",
+      "base_present": true
+    },
+    "include/metalrobo/numi_human_stand_gpu.h": {
+      "source": "/Users/n/numi-human-separation-20261018/integrated-runtime-source-053/include/metalrobo/numi_human_stand_gpu.h",
+      "sha256": "22fc84a4ccf8762635d0278adf017e178d78329fc5e4d40a21ba81d7947e70e7",
+      "base_present": true
+    },
+    "include/metalrobo/numi_human_support_geometry_gpu.h": {
+      "source": "/Users/n/numi-human-separation-20261018/integrated-runtime-source-053/include/metalrobo/numi_human_support_geometry_gpu.h",
+      "sha256": "fb876149bf76246f45deeba6863b578d107f3acc32acd1e39dd5a9c893deb5fb",
+      "base_present": true
+    },
+    "src/metal/MetalArticulatedOperator.mm": {
+      "source": "/Users/n/numi-human-separation-20261018/integrated-runtime-source-053/src/metal/MetalArticulatedOperator.mm",
+      "sha256": "8a663e05ab4bdb28b17b32f344ef27ec8a86f9a7b3179155a07f3233724e7c5b",
+      "base_present": true
+    },
+    "src/metal/NumiHumanRestingSupportGeometry.metalinc": {
+      "source": "/Users/n/numi-human-separation-20261018/integrated-runtime-source-053/src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "sha256": "bbb259cf7c0440fd51003648b5e392846c4641727978a46ac51b2650adf63005",
+      "base_present": true
+    },
+    "apps/NumiHumanRestingVisual.hpp": {
+      "source": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source/NumiHumanRestingVisual.hpp",
+      "sha256": "790f74a0730f922c0718eafd57cc8d26e34c487fcc0fdd7c29bdd0908fe68326",
+      "base_present": true
+    },
+    "apps/NumiHumanRestingSupportGeometry.hpp": {
+      "source": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source/NumiHumanRestingSupportGeometry.hpp",
+      "sha256": "545ef47bcd50e61b4896e9c60926d8c9dd3540f18ad38e8197cd228964c78e92",
+      "base_present": true
+    },
+    "apps/NumiHumanRestingRopeSupport.hpp": {
+      "source": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source/NumiHumanRestingRopeSupport.hpp",
+      "sha256": "ff5f8f008741c7fc620a81924cba283b20882dbabe089aa32c884d77c71c8bd3",
+      "base_present": true
+    },
+    "apps/NumiHumanSeparationSupport.hpp": {
+      "source": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source/NumiHumanSeparationSupport.hpp",
+      "sha256": "564fd186d43b00da0255484b141b88bb2702e5ba46c104c3c59cf317c57903c4",
+      "base_present": true
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "source": "/Users/n/numi-human-separation-20261018/native-contact-manifold-build-056/compile-source/numilab_human_myosim_visual_probe.mm",
+      "sha256": "4238ee1196c6c4a1241c270954586006218bf612244d4ca810515a8125ac33a0",
+      "base_present": true
+    },
+    "tools/check_human_floor_witnesses.py": {
+      "source": "/Users/n/numi-lab-native-replay-publish-20261017/tools/check_human_floor_witnesses.py",
+      "sha256": "111afd03e2a09c2778e52cf3a00a853e6f1c26972067f026a0cf8fbed95ca4e0",
+      "base_present": true
+    },
+    "tools/test_human_floor_witnesses.py": {
+      "source": "/Users/n/numi-lab-native-replay-publish-20261017/tools/test_human_floor_witnesses.py",
+      "sha256": "f6e153bf8f8ab68c54506bb0ae34d01df46102ce271b63f04e187cdfe768efad",
+      "base_present": false
+    }
+  },
+  "evidence": {
+    "native_4s": "/Users/n/numi-human-separation-20261018/contact-stability-056/native-manifold-4s-002",
+    "floor_check": "/Users/n/numi-human-separation-20261018/contact-stability-056/native-manifold-4s-002/floor-witness-check.json"
+  },
+  "notes": [
+    "runtime patch is the 053 integrated runtime candidate versus the pinned base; it is separate from the 056 app integration.",
+    "app patch is a frozen 056 consumer snapshot versus the pinned base. Do not apply wholesale over concurrent bleeding or separation edits; merge its contact hunks with the owning app changes.",
+    "tools patch contains the strict 32/38-region floor checker and tests. It is safe to apply independently after review.",
+    "4s floor evidence qualifies retained support witnesses only; it is not an organ-release, cavity-contact, or bleeding qualification."
+  ]
+}

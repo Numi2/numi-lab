@@ -1,0 +1,68 @@
+{
+  "schema": "numi.human.closed-port-control.v1",
+  "scope": "1000 accepted steps; retained pre-dynamics floor witnesses only; no full injury qualification",
+  "binary_sha256": "a30dcc3758a6764aa7d153e0edadcd9ca5179dfb69a377d2934fa49a551cdd80",
+  "simulated_seconds": 0.5000000237487257,
+  "wall_seconds": 59.349902959,
+  "root_assistance": false,
+  "external_blood_ml_max": 0,
+  "external_blood_mass_kg_max": 0,
+  "external_o2_stpd_ml_max": 0,
+  "external_co2_stpd_ml_max": 0,
+  "floor_check": {
+    "passed": true,
+    "accepted_steps_checked": 1000,
+    "expected_regions": 38,
+    "boundary_only_rows": [
+      0,
+      1,
+      2,
+      3,
+      8,
+      9,
+      12
+    ],
+    "penetration_tolerance_m": 0.001,
+    "floor_witnesses_below_tolerance": 0,
+    "worst_floor_witness_gap_m": -2.5580651708878577e-05,
+    "pose_step": 787,
+    "region": 32
+  },
+  "compressed_trace_identities": [
+    {
+      "path": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-body-motion-partition.csv",
+      "compressed": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-body-motion-partition.csv.gz",
+      "sha256": "3977e92ad0414f98f2c5d66e051048cf0a27f5a33c2df7ba5ccf3bc51f257a07",
+      "bytes": 75048188,
+      "compressed_bytes": 22123001
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-com-support-impulses.csv",
+      "compressed": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-com-support-impulses.csv.gz",
+      "sha256": "72b2051166608efa588e5a531ab8a78d4b44325ffebf550b17a03d133b231728",
+      "bytes": 3320062,
+      "compressed_bytes": 387634
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-human.mrvpack",
+      "compressed": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-human.mrvpack.gz",
+      "sha256": "adb0ed6a58de690ab741ebadafa296c6977f034be57528008c113bd6f17e9efe",
+      "bytes": 296714240,
+      "compressed_bytes": 119141870
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-support-point-motion.csv",
+      "compressed": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-support-point-motion.csv.gz",
+      "sha256": "0ac247839f1c29d36a1eabe3b27ef202f26ab99881e3565b87ac53922fffeda0",
+      "bytes": 12148430,
+      "compressed_bytes": 3009359
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-support-selected-skin-witness.csv",
+      "compressed": "/Users/n/numi-human-separation-20261018/integrated-060/native-closed-port-05s-002/resting-support-selected-skin-witness.csv.gz",
+      "sha256": "89549f7e8c20fd920dead3bc14cc4d5f08a3e1760058dc7dbdeb7274e2fdfe6d",
+      "bytes": 6001307,
+      "compressed_bytes": 1676579
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "Matched accepted prefix; active run rejected at step696, not complete qualification",
+  "open_samples": 695,
+  "closed_samples": 1000,
+  "pre_cut_first200_rows_bytevalue_equal": true,
+  "matched_open": {
+    "time_s": "0.347500016505",
+    "blood_ml": "5110.41935533",
+    "external_blood_ml": "39.5821625716",
+    "aorta_mmhg": "91.9086120757",
+    "lv_ml": "55.9127984161",
+    "lv_mmhg": "93.0177070325",
+    "external_blood_o2_stpd_ml": "7.85769680078",
+    "external_blood_co2_stpd_ml": "18.9994225366",
+    "candidate_positive_body_mass_kg": "97.0903701782"
+  },
+  "matched_closed": {
+    "time_s": "0.347500016505",
+    "blood_ml": "5150.00149608",
+    "external_blood_ml": "0",
+    "aorta_mmhg": "112.122771545",
+    "lv_ml": "64.388186729",
+    "lv_mmhg": "113.115650906",
+    "external_blood_o2_stpd_ml": "0",
+    "external_blood_co2_stpd_ml": "0",
+    "candidate_positive_body_mass_kg": "97.1319503784"
+  },
+  "closed_external_max_ml": 0.0
+}

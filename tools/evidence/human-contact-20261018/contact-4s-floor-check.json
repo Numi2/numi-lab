@@ -1,0 +1,28 @@
+{
+  "run": "/Users/numi/numi-human-separation-20261018/contact-stability-056/native-manifold-4s-002",
+  "passed": true,
+  "scope": "retained pre-dynamics floor-witness and sampled surface consistency only; final endpoint and full physics qualification require separate evidence",
+  "boundary_only_rows": [
+    0,
+    1,
+    2,
+    3,
+    8,
+    9,
+    12
+  ],
+  "penetration_tolerance_m": 0.001,
+  "accepted_steps_checked": 8000,
+  "floor_witnesses_below_tolerance": 0,
+  "worst_floor_witness": {
+    "accepted_step_slot": 788,
+    "pose_step": 787,
+    "pose_time_s": 0.3935000186902471,
+    "region": 32,
+    "gap_m": -3.0418312235269696e-05,
+    "source_geometry_index": 38631,
+    "skin_vertex_local": 34156,
+    "vertex_map_index": 774014
+  },
+  "failures": []
+}

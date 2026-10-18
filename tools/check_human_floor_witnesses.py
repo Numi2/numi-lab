@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import math
+import re
 from pathlib import Path
 
 def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
@@ -11,6 +12,7 @@ def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
     worst = None
     failures = []
     seen = {}
+    first_step_source_geometry = {}
     below = 0
     path = run / "resting-support-selected-skin-witness.csv"
     with path.open(newline="") as stream:
@@ -22,6 +24,8 @@ def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
             if region in regions:
                 failures.append(f"duplicate step/region {step}/{region}")
             regions.add(region)
+            if step == 1:
+                first_step_source_geometry[region] = int(row["source_geometry_index"])
             if any(int(row[k]) != 0 for k in
                    ("region_error", "global_error", "nonfinite_jacobian_count")):
                 failures.append(f"invalid witness step/region {step}/{region}")
@@ -54,6 +58,33 @@ def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
             failures.append("incomplete region coverage in retained steps")
         if set(seen) != set(range(1, max(seen) + 1)):
             failures.append("retained step sequence is incomplete")
+    if expected_regions == 38:
+        log_path = run / "launcher.log"
+        if not log_path.is_file():
+            failures.append("38-region foot manifold run lacks launcher.log allocation receipt")
+        else:
+            log_text = log_path.read_text(errors="replace")
+            allocation_rows = re.findall(
+                r"resting_support_geometry=full_registered_skin\s+vertices=(\d+)\s+regions=(\d+).*?region_sizes=\[([0-9,]+)\]",
+                log_text,
+            )
+            if len(allocation_rows) != 1:
+                failures.append("expected exactly one full-skin region allocation receipt")
+            else:
+                vertex_count, region_count, encoded_sizes = allocation_rows[0]
+                sizes = [int(value) for value in encoded_sizes.split(",")]
+                if int(region_count) != 38 or len(sizes) != 38:
+                    failures.append("allocation receipt does not describe exactly 38 runtime regions")
+                if sum(sizes) != int(vertex_count):
+                    failures.append("per-region allocation counts do not cover every registered skin vertex exactly once")
+                for group in ((20, 32, 33, 34), (30, 35, 36, 37)):
+                    if len(sizes) == 38 and any(sizes[index] <= 0 for index in group):
+                        failures.append(f"foot manifold source/derived regions are empty: {group}")
+        for parent, children in ((20, (32, 33, 34)), (30, (35, 36, 37))):
+            source_id = first_step_source_geometry.get(parent)
+            if source_id is None or any(first_step_source_geometry.get(child) != source_id
+                                        for child in children):
+                failures.append(f"four contact regions do not preserve source identity for parent row {parent}")
     if expected_steps is not None and len(seen) != expected_steps:
         failures.append(f"expected {expected_steps} accepted steps; got {len(seen)}")
     if below:
@@ -87,7 +118,8 @@ def main():
                         help="Explicit comma-separated non-floor region IDs from scene admission")
     parser.add_argument("--penetration-tolerance-m", type=float, default=0.001)
     parser.add_argument("--expected-steps", type=int)
-    parser.add_argument("--expected-regions", type=int, default=32)
+    parser.add_argument("--expected-regions", type=int, choices=(32, 38), default=32,
+                        help="Exact admitted region count: 32 authored rows or 38 rows with four-point foot manifolds")
     args = parser.parse_args()
     if not math.isfinite(args.penetration_tolerance_m) or args.penetration_tolerance_m < 0:
         parser.error("penetration tolerance must be finite and nonnegative")
