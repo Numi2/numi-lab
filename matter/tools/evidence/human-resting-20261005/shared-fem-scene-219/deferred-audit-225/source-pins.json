@@ -1,0 +1,70 @@
+{
+  "name": "deferred-audit-diagnostics-225",
+  "status": "native regression PASS; no full-scene qualification implied",
+  "scope": "On successful v2 finalization, set the candidate audit accepted bit and copy that record to the accepted audit buffer. Failure paths leave candidate rejected and accepted history unchanged.",
+  "sources": [
+    {
+      "path": "matter/include/numi/matter/numi_human.hpp",
+      "origin": "/Users/n/numi-human-separation-20261018/C/deferred-audit-214-publication-003/patch/matter/include/numi/matter/numi_human.hpp",
+      "origin_sha256": "0559414f4fda88b5f7c9c0788d8a3bc96d3686c27421a3814f96f6a37a26b5f4",
+      "staged_sha256": "0559414f4fda88b5f7c9c0788d8a3bc96d3686c27421a3814f96f6a37a26b5f4",
+      "changed_from_origin": false
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "origin": "/Users/n/numi-human-separation-20261018/C/deferred-audit-214-publication-003/patch/matter/src/numi_human.mm",
+      "origin_sha256": "a285d448075a281d5ef1f8d377394313930d95fd719787e49ab2361a29ad82b7",
+      "staged_sha256": "a285d448075a281d5ef1f8d377394313930d95fd719787e49ab2361a29ad82b7",
+      "changed_from_origin": false
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "origin": "/Users/n/numi-human-separation-20261018/C/deferred-audit-214-publication-003/patch/matter/src/metal/numi_human.metalinc",
+      "origin_sha256": "daeb45ae4b5e29594b769c8be08587886fc5d0dfce45ce96cd46d5a8b9385c26",
+      "staged_sha256": "e726abd66e42b634d4fb27f07bce0a3a4803de7fa8ea59c02b7afa000c43853a",
+      "changed_from_origin": true
+    },
+    {
+      "path": "matter/src/MatterSource.metal",
+      "origin": "/Users/n/numi-human-separation-20261018/C/coupling-adapter-composition-214/source/matter/src/MatterSource.metal",
+      "origin_sha256": "df2cdc18484656600392ac54be30a79516f023e19403828255e81b89038707bd",
+      "staged_sha256": "fda72dcb8c2fefa13985ddd9047159bb91eb9e6fbc483f53961b497d70fd5058",
+      "changed_from_origin": true
+    },
+    {
+      "path": "tests/probe-223.mm",
+      "origin": "/Users/n/numi-human-separation-20261018/C/fixed-material-object-finalizer-223/probe-identifiable-001/probe.mm",
+      "origin_sha256": "4163ed85156b88d7fafdc60e67980778ad36c6e67f0aa2927a9d844c071b0823",
+      "staged_sha256": "1c112262e9bccbcf1dbbd314c46f4b9d0b4a95bcad3c63f2fb3b58369f596206",
+      "changed_from_origin": true
+    }
+  ],
+  "canonical_assembled_kernel_equivalence": {
+    "nm_numi_human_commit_passive_ligament_audit_v2": {
+      "sha256": "404d9864307e7aa0e9ea21ef4060ec5e9db4770bf50023d03b5f594f366dd0d6",
+      "canonical_equals_assembled": true
+    },
+    "nm_numi_human_commit_passive_routed_band_audit_v2": {
+      "sha256": "83d3ff7f0351c0da09036ed4c839bc9836de9de20c1f14df8ab6f68d68560284",
+      "canonical_equals_assembled": true
+    }
+  },
+  "assertions_added": [
+    "latest transaction accepted after initial deferred acceptance",
+    "false after Matter rejection",
+    "false after external rejection",
+    "true after accepted retry",
+    "true after clean acceptance"
+  ],
+  "native_validation": {
+    "receipt_path": "native-001/receipt.json",
+    "status": "PASS",
+    "exit_code": 0,
+    "wall_seconds": 3.183104125026148,
+    "device": "Apple M6",
+    "binary_sha256": "9c0ddf79ad1a4d8e9035f2bd3cb11b2fd1d474e918ad0297e1b42b69597f2597",
+    "library_sha256": "9caae2e28760fad23f3ffa7c8de1a216bfe154bad1d74bc1630a7ceda1bf59ab",
+    "source_sha256": "1c112262e9bccbcf1dbbd314c46f4b9d0b4a95bcad3c63f2fb3b58369f596206",
+    "matter_source_sha256": "fda72dcb8c2fefa13985ddd9047159bb91eb9e6fbc483f53961b497d70fd5058"
+  }
+}

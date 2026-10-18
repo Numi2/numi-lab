@@ -561,6 +561,11 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::uint64_t acceptedStepExtensionFingerprint = 0u;
     bool deferAcceptedControlCursorPublication = false;
     bool deferAcceptedStepExtensionFinalization = false;
+    bool deferAcceptedAuditPublication = false;
+    std::uint32_t expectedMicrotickCount = 1u;
+    std::uintptr_t acceptedAuditPendingCommandBufferIdentity = 0u;
+    void* acceptedAuditPendingStandStatuses = nullptr;
+    std::uint32_t acceptedAuditPendingStepIndex = 0u;
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t activeAnchorCount = 0u;
@@ -617,8 +622,10 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> articularContactPairAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> passiveLigamentAuditPipeline = nil;
     __strong id<MTLComputePipelineState> passiveLigamentAuditCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveLigamentDeferredAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> passiveRoutedBandAuditPipeline = nil;
     __strong id<MTLComputePipelineState> passiveRoutedBandAuditCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> passiveRoutedBandDeferredAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> targetPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditCommitPipeline = nil;
@@ -643,8 +650,10 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> articularContactPairAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> passiveLigamentBuffer = nil;
     __strong id<MTLBuffer> passiveLigamentAuditBuffer = nil;
+    __strong id<MTLBuffer> passiveLigamentAcceptedAuditBuffer = nil;
     __strong id<MTLBuffer> passiveRoutedBandBuffer = nil;
     __strong id<MTLBuffer> passiveRoutedBandAuditBuffer = nil;
+    __strong id<MTLBuffer> passiveRoutedBandAcceptedAuditBuffer = nil;
     __strong id<MTLBuffer> externalForceBuffer = nil;
     __strong id<MTLBuffer> externalForceAuditBuffer = nil;
     __strong id<MTLBuffer> anchorReactionAuditBuffer = nil;
@@ -685,7 +694,16 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.productionForceOwnerFraction > 1.0f ||
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib) ||
-        (!standalone && !deferred) || configuration.reserved0 != 0u ||
+        (!standalone && !deferred) ||
+        configuration.expectedMicrotickCount == 0u ||
+        configuration.expectedMicrotickCount > (1u << NM_MAX_RATE_EXPONENT) ||
+        (configuration.expectedMicrotickCount &
+         (configuration.expectedMicrotickCount - 1u)) != 0u ||
+        (configuration.expectedMicrotickCount != 1u &&
+         (!standalone || (configuration.reserved0 &
+          kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) == 0u)) ||
+        (configuration.reserved0 &
+         ~kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) != 0u ||
         ((configuration.acceptedStepExtensionContext == nullptr) !=
          (configuration.encodeAcceptedStepExtension == nullptr)) ||
         ((configuration.acceptedStepExtensionContext == nullptr) !=
@@ -694,6 +712,12 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
           configuration.deferAcceptedStepExtensionFinalization) &&
          configuration.encodeAcceptedStepExtension == nullptr) ||
         (configuration.encodeAcceptedStepExtension != nullptr && !standalone) ||
+        ((configuration.reserved0 &
+          kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) != 0u &&
+         (!standalone ||
+          configuration.encodeAcceptedStepExtension == nullptr ||
+          !configuration.deferAcceptedControlCursorPublication ||
+          !configuration.deferAcceptedStepExtensionFinalization)) ||
         source.articularContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.articularContactPairRanges.size() >
@@ -1103,6 +1127,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         configuration.deferAcceptedControlCursorPublication;
     candidate->deferAcceptedStepExtensionFinalization =
         configuration.deferAcceptedStepExtensionFinalization;
+    candidate->deferAcceptedAuditPublication =
+        (configuration.reserved0 &
+         kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) != 0u;
+    candidate->expectedMicrotickCount = configuration.expectedMicrotickCount;
     candidate->endpointCount = source.endpointCount;
     candidate->environmentCount = source.environmentCount;
     candidate->activeAnchorCount = anchorCount;
@@ -1180,6 +1208,15 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, &candidate->deferAcceptedStepExtensionFinalization,
         sizeof(candidate->deferAcceptedStepExtensionFinalization)
     );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->deferAcceptedAuditPublication,
+        sizeof(candidate->deferAcceptedAuditPublication)
+    );
+    if (candidate->expectedMicrotickCount != 1u) {
+        fingerprint = appendFingerprint(fingerprint,
+            &candidate->expectedMicrotickCount,
+            sizeof(candidate->expectedMicrotickCount));
+    }
     fingerprint = appendFingerprint(
         fingerprint, candidate->nodeLoads.data(),
         candidate->nodeLoads.size() * sizeof(candidate->nodeLoads.front())
@@ -1376,7 +1413,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             if (state_->executionMode ==
                     NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime) {
                 state_->statusPipeline = pipeline(
-                    "nm_numi_human_adapt_stand_status");
+                    state_->deferAcceptedAuditPublication
+                        ? "nm_numi_human_adapt_stand_status_v2"
+                        : "nm_numi_human_adapt_stand_status");
             }
             state_->forcePipeline = pipeline(
                 "nm_numi_human_assemble_tendon_fem_loads");
@@ -1418,12 +1457,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "nm_numi_human_audit_passive_ligaments");
                 state_->passiveLigamentAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_passive_ligament_audit");
+                if (state_->deferAcceptedAuditPublication) {
+                    state_->passiveLigamentDeferredAuditCommitPipeline = pipeline(
+                        "nm_numi_human_commit_passive_ligament_audit_v2");
+                }
             }
             if (!state_->passiveRoutedBands.empty()) {
                 state_->passiveRoutedBandAuditPipeline = pipeline(
                     "nm_numi_human_audit_passive_routed_bands");
                 state_->passiveRoutedBandAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_passive_routed_band_audit");
+                if (state_->deferAcceptedAuditPublication) {
+                    state_->passiveRoutedBandDeferredAuditCommitPipeline = pipeline(
+                        "nm_numi_human_commit_passive_routed_band_audit_v2");
+                }
             }
             if (state_->executionMode ==
                     NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime) {
@@ -1598,11 +1645,23 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     newBufferWithLength:state_->environmentCount *
                         sizeof(NMNumiHumanPassiveLigamentAuditGPU)
                     options:MTLResourceStorageModeShared];
+                if (state_->deferAcceptedAuditPublication) {
+                    state_->passiveLigamentAcceptedAuditBuffer = [device
+                        newBufferWithLength:state_->environmentCount *
+                            sizeof(NMNumiHumanPassiveLigamentAuditGPU)
+                        options:MTLResourceStorageModeShared];
+                }
                 if (state_->passiveLigamentAuditBuffer != nil) {
                     std::memcpy(
                         state_->passiveLigamentAuditBuffer.contents,
                         state_->passiveLigamentAcceptedState.data(),
                         state_->passiveLigamentAuditBuffer.length);
+                }
+                if (state_->passiveLigamentAcceptedAuditBuffer != nil) {
+                    std::memcpy(
+                        state_->passiveLigamentAcceptedAuditBuffer.contents,
+                        state_->passiveLigamentAcceptedState.data(),
+                        state_->passiveLigamentAcceptedAuditBuffer.length);
                 }
             }
             if (!state_->passiveRoutedBands.empty()) {
@@ -1615,11 +1674,23 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     newBufferWithLength:state_->environmentCount *
                         sizeof(NMNumiHumanPassiveRoutedBandAuditGPU)
                     options:MTLResourceStorageModeShared];
+                if (state_->deferAcceptedAuditPublication) {
+                    state_->passiveRoutedBandAcceptedAuditBuffer = [device
+                        newBufferWithLength:state_->environmentCount *
+                            sizeof(NMNumiHumanPassiveRoutedBandAuditGPU)
+                        options:MTLResourceStorageModeShared];
+                }
                 if (state_->passiveRoutedBandAuditBuffer != nil) {
                     std::memcpy(
                         state_->passiveRoutedBandAuditBuffer.contents,
                         state_->passiveRoutedBandAcceptedState.data(),
                         state_->passiveRoutedBandAuditBuffer.length);
+                }
+                if (state_->passiveRoutedBandAcceptedAuditBuffer != nil) {
+                    std::memcpy(
+                        state_->passiveRoutedBandAcceptedAuditBuffer.contents,
+                        state_->passiveRoutedBandAcceptedState.data(),
+                        state_->passiveRoutedBandAcceptedAuditBuffer.length);
                 }
             }
             state_->externalForceBuffer = [device
@@ -1670,10 +1741,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                   state_->articularContactPairAuditCommitPipeline == nil)) ||
                 (!state_->passiveLigaments.empty() &&
                  (state_->passiveLigamentAuditPipeline == nil ||
-                  state_->passiveLigamentAuditCommitPipeline == nil)) ||
+                  state_->passiveLigamentAuditCommitPipeline == nil ||
+                  (state_->deferAcceptedAuditPublication &&
+                   state_->passiveLigamentDeferredAuditCommitPipeline == nil))) ||
                 (!state_->passiveRoutedBands.empty() &&
                  (state_->passiveRoutedBandAuditPipeline == nil ||
-                  state_->passiveRoutedBandAuditCommitPipeline == nil)) ||
+                  state_->passiveRoutedBandAuditCommitPipeline == nil ||
+                  (state_->deferAcceptedAuditPublication &&
+                   state_->passiveRoutedBandDeferredAuditCommitPipeline == nil))) ||
                 (state_->executionMode ==
                         NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime &&
                  (state_->targetPipeline == nil ||
@@ -1730,14 +1805,18 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (!state_->passiveLigaments.empty() &&
                 (state_->passiveLigamentBuffer == nil ||
-                 state_->passiveLigamentAuditBuffer == nil)) {
+                 state_->passiveLigamentAuditBuffer == nil ||
+                 (state_->deferAcceptedAuditPublication &&
+                  state_->passiveLigamentAcceptedAuditBuffer == nil))) {
                 state_->message =
                     "Human passive ligament buffer is unavailable";
                 return false;
             }
             if (!state_->passiveRoutedBands.empty() &&
                 (state_->passiveRoutedBandBuffer == nil ||
-                 state_->passiveRoutedBandAuditBuffer == nil)) {
+                 state_->passiveRoutedBandAuditBuffer == nil ||
+                 (state_->deferAcceptedAuditPublication &&
+                  state_->passiveRoutedBandAcceptedAuditBuffer == nil))) {
                 state_->message =
                     "Human passive routed-band buffer is unavailable";
                 return false;
@@ -2224,6 +2303,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->message = "invalid borrowed Human post-validation pass";
             return false;
         }
+        if (state_->deferAcceptedAuditPublication &&
+            state_->acceptedAuditPendingCommandBufferIdentity != 0u) {
+            state_->message =
+                "a prior accepted-audit publication is still pending";
+            return false;
+        }
         const bool deferred = state_->executionMode ==
             NumiHumanTendonFEMLoadExecutionMode::numanXDeferred;
         if (deferred &&
@@ -2290,7 +2375,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 return false;
             }
             [encoder setComputePipelineState:state_->statusPipeline];
-            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            auto statusDispatch = dispatch;
+            if (state_->deferAcceptedAuditPublication)
+                statusDispatch.reserved0 = state_->expectedMicrotickCount;
+            [encoder setBytes:&statusDispatch length:sizeof(statusDispatch) atIndex:0u];
             [encoder setBuffer:standStatuses offset:0u atIndex:1u];
             [encoder setBuffer:state_->worldStatusBuffer offset:0u atIndex:2u];
             [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
@@ -2336,128 +2424,238 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 return false;
             }
         }
-        id<MTLComputeCommandEncoder> commitEncoder =
-            [command computeCommandEncoder];
-        if (commitEncoder == nil) {
+        if (state_->deferAcceptedAuditPublication) {
+            state_->acceptedAuditPendingCommandBufferIdentity =
+                reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
+            state_->acceptedAuditPendingStandStatuses = pass.standStatuses;
+            state_->acceptedAuditPendingStepIndex = pass.stepIndex;
             state_->message =
-                "Human FEM audit commit encoder is unavailable";
-            return false;
+                "Runtime post-commit encoded; audit publication awaits final owner gate";
+            return true;
         }
-        if (!deferred) {
-            [commitEncoder setComputePipelineState:
-                state_->reactionAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->anchorReactionAuditBuffer
-                              offset:0u atIndex:2u];
-            [commitEncoder setBuffer:state_->anchorReactionAuditHistoryBuffer
-                              offset:0u atIndex:3u];
-            const NSUInteger reactionCommitWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->reactionAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(reactionCommitWidth, 1u), 1u, 1u)];
-        }
-        if (!state_->articularContactSamples.empty()) {
-            [commitEncoder setComputePipelineState:
-                state_->articularContactAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->articularContactAuditBuffer
-                              offset:0u atIndex:2u];
-            [commitEncoder setBuffer:state_->articularContactAuditHistoryBuffer
-                              offset:0u atIndex:3u];
-            const NSUInteger commitWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->articularContactAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(commitWidth, 1u), 1u, 1u)];
-        }
-        if (state_->articularContactPairCount != 0u) {
-            [commitEncoder setComputePipelineState:
-                state_->articularContactPairAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->articularContactPairAuditBuffer
-                              offset:0u atIndex:2u];
-            [commitEncoder setBuffer:
-                state_->articularContactPairAuditHistoryBuffer
-                              offset:0u atIndex:3u];
-            const NSUInteger pairCommitWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->articularContactPairAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(pairCommitWidth, 1u), 1u, 1u)];
-        }
-        if (!state_->femBodyContactSamples.empty()) {
-            [commitEncoder setComputePipelineState:
-                state_->articularContactAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->femBodyContactAuditBuffer
-                              offset:0u atIndex:2u];
-            [commitEncoder setBuffer:state_->femBodyContactAuditHistoryBuffer
-                              offset:0u atIndex:3u];
-            const NSUInteger contactCommitWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->articularContactAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(contactCommitWidth, 1u), 1u, 1u)];
-        }
-        if (!state_->passiveLigaments.empty()) {
-            [commitEncoder setComputePipelineState:
-                state_->passiveLigamentAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->passiveLigamentAuditBuffer
+        return encodeAcceptedAuditCommit(pass);
+    }
+}
+
+bool NumiHumanTendonFEMLoadAdapter::finalizeAcceptedAudits(
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    if (state_ == nullptr ||
+        !state_->deferAcceptedAuditPublication ||
+        state_->acceptedAuditPendingCommandBufferIdentity == 0u ||
+        pass.commandBuffer == nullptr ||
+        state_->acceptedAuditPendingCommandBufferIdentity !=
+            reinterpret_cast<std::uintptr_t>(pass.commandBuffer) ||
+        state_->acceptedAuditPendingStepIndex != pass.stepIndex ||
+        state_->acceptedAuditPendingStandStatuses != pass.standStatuses) {
+        if (state_ != nullptr)
+            state_->message =
+                "final accepted-audit gate lost its exact command/step/status lease";
+        return false;
+    }
+    if (!encodeAcceptedAuditCommit(pass)) return false;
+    state_->acceptedAuditPendingCommandBufferIdentity = 0u;
+    state_->acceptedAuditPendingStandStatuses = nullptr;
+    state_->acceptedAuditPendingStepIndex = 0u;
+    return true;
+}
+
+bool NumiHumanTendonFEMLoadAdapter::encodeAcceptedAuditCommit(
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+
+    @autoreleasepool {    if (state_ == nullptr || state_->runtime == nullptr ||
+        state_->device == nil || pass.commandBuffer == nullptr ||
+        pass.standStatuses == nullptr ||
+        pass.environmentCount != state_->environmentCount ||
+        pass.endpointCount != state_->endpointCount ||
+        pass.dofCount == 0u || pass.muscleCount == 0u ||
+        pass.stepIndex >= NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) {
+        if (state_ != nullptr)
+            state_->message = "invalid accepted-audit commit pass";
+        return false;
+    }
+    const bool deferred = state_->executionMode ==
+        NumiHumanTendonFEMLoadExecutionMode::numanXDeferred;
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBuffer> standStatuses =
+        (__bridge id<MTLBuffer>)pass.standStatuses;
+    if (command == nil || standStatuses == nil ||
+        standStatuses.device.registryID != state_->device.registryID) {
+        state_->message = "accepted-audit commit buffers are unavailable";
+        return false;
+    }
+    const NMNumiHumanTendonFEMLoadDispatchGPU dispatch{
+        .abiVersion = NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION,
+        .environmentCount = state_->environmentCount,
+        .femNodeCount = static_cast<std::uint32_t>(state_->nodeLoads.size()),
+        .endpointCount = state_->endpointCount,
+        .transferStride = pass.endpointCount,
+        .stepIndex = pass.stepIndex,
+        .replacementCount = static_cast<std::uint32_t>(
+            state_->replacements.size()),
+        .dofCount = pass.dofCount,
+        .bodyPoseStride = pass.bodyPoseStride,
+        .articulationFirstBody = pass.articulationFirstBody,
+        .pointJacobianStride = pass.pointJacobianStride,
+        .bodyJacobianPointOffset = pass.bodyJacobianPointOffset,
+        .generalizedForceStride = pass.generalizedForceStride,
+        .generalizedForceOffset = pass.generalizedForceOffset,
+        .muscleCount = pass.muscleCount,
+        .femContactSampleCount = static_cast<std::uint32_t>(
+            state_->contactSamples.size()),
+        .articularContactSampleCount = static_cast<std::uint32_t>(
+            state_->articularContactSamples.size()),
+        .passiveLigamentCount = static_cast<std::uint32_t>(
+            state_->passiveLigaments.size()),
+        .femBodyContactSampleCount = static_cast<std::uint32_t>(
+            state_->femBodyContactSamples.size()),
+        .passiveRoutedBandCount = static_cast<std::uint32_t>(
+            state_->passiveRoutedBands.size()),
+        .articularContactPairCount = state_->articularContactPairCount,
+    };
+    const NSUInteger count = state_->environmentCount;
+    id<MTLComputeCommandEncoder> commitEncoder =
+        [command computeCommandEncoder];
+    if (commitEncoder == nil) {
+        state_->message =
+            "Human FEM audit commit encoder is unavailable";
+        return false;
+    }
+    if (!deferred) {
+        [commitEncoder setComputePipelineState:
+            state_->reactionAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->anchorReactionAuditBuffer
                           offset:0u atIndex:2u];
-            const NSUInteger passiveWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->passiveLigamentAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(passiveWidth, 1u), 1u, 1u)];
-        }
-        if (!state_->passiveRoutedBands.empty()) {
-            [commitEncoder setComputePipelineState:
-                state_->passiveRoutedBandAuditCommitPipeline];
-            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-            [commitEncoder setBuffer:state_->passiveRoutedBandAuditBuffer
+        [commitEncoder setBuffer:state_->anchorReactionAuditHistoryBuffer
+                          offset:0u atIndex:3u];
+        const NSUInteger reactionCommitWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                state_->reactionAuditCommitPipeline
+                    .maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(reactionCommitWidth, 1u), 1u, 1u)];
+    }
+    if (!state_->articularContactSamples.empty()) {
+        [commitEncoder setComputePipelineState:
+            state_->articularContactAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->articularContactAuditBuffer
                           offset:0u atIndex:2u];
-            const NSUInteger routedWidth = std::min<NSUInteger>(
-                count, std::min<NSUInteger>(
-                    state_->passiveRoutedBandAuditCommitPipeline
-                        .maxTotalThreadsPerThreadgroup,
-                    256u));
-            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(
-                    std::max<NSUInteger>(routedWidth, 1u), 1u, 1u)];
+        [commitEncoder setBuffer:state_->articularContactAuditHistoryBuffer
+                          offset:0u atIndex:3u];
+        const NSUInteger commitWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                state_->articularContactAuditCommitPipeline
+                    .maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(commitWidth, 1u), 1u, 1u)];
+    }
+    if (state_->articularContactPairCount != 0u) {
+        [commitEncoder setComputePipelineState:
+            state_->articularContactPairAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->articularContactPairAuditBuffer
+                          offset:0u atIndex:2u];
+        [commitEncoder setBuffer:
+            state_->articularContactPairAuditHistoryBuffer
+                          offset:0u atIndex:3u];
+        const NSUInteger pairCommitWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                state_->articularContactPairAuditCommitPipeline
+                    .maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(pairCommitWidth, 1u), 1u, 1u)];
+    }
+    if (!state_->femBodyContactSamples.empty()) {
+        [commitEncoder setComputePipelineState:
+            state_->articularContactAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->femBodyContactAuditBuffer
+                          offset:0u atIndex:2u];
+        [commitEncoder setBuffer:state_->femBodyContactAuditHistoryBuffer
+                          offset:0u atIndex:3u];
+        const NSUInteger contactCommitWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                state_->articularContactAuditCommitPipeline
+                    .maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(contactCommitWidth, 1u), 1u, 1u)];
+    }
+    if (!state_->passiveLigaments.empty()) {
+        [commitEncoder setComputePipelineState:
+            state_->deferAcceptedAuditPublication
+                ? state_->passiveLigamentDeferredAuditCommitPipeline
+                : state_->passiveLigamentAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->passiveLigamentAuditBuffer
+                      offset:0u atIndex:2u];
+        if (state_->deferAcceptedAuditPublication) {
+            [commitEncoder setBuffer:state_->passiveLigamentAcceptedAuditBuffer
+                          offset:0u atIndex:3u];
         }
-        [commitEncoder endEncoding];
-        ++state_->encodedPassCount;
-        if (deferred) {
-            state_->deferredExternalForcesAvailable = false;
-            state_->deferredCommandBufferIdentity = 0u;
-            state_->message = "deferred audit reconciliation encoded";
-        } else {
-            state_->message = "two-way transaction encoded";
+        id<MTLComputePipelineState> passiveCommitPipeline =
+            state_->deferAcceptedAuditPublication
+                ? state_->passiveLigamentDeferredAuditCommitPipeline
+                : state_->passiveLigamentAuditCommitPipeline;
+        const NSUInteger passiveWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                passiveCommitPipeline.maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(passiveWidth, 1u), 1u, 1u)];
+    }
+    if (!state_->passiveRoutedBands.empty()) {
+        [commitEncoder setComputePipelineState:
+            state_->deferAcceptedAuditPublication
+                ? state_->passiveRoutedBandDeferredAuditCommitPipeline
+                : state_->passiveRoutedBandAuditCommitPipeline];
+        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->passiveRoutedBandAuditBuffer
+                      offset:0u atIndex:2u];
+        if (state_->deferAcceptedAuditPublication) {
+            [commitEncoder setBuffer:state_->passiveRoutedBandAcceptedAuditBuffer
+                          offset:0u atIndex:3u];
         }
-        return true;
+        id<MTLComputePipelineState> routedCommitPipeline =
+            state_->deferAcceptedAuditPublication
+                ? state_->passiveRoutedBandDeferredAuditCommitPipeline
+                : state_->passiveRoutedBandAuditCommitPipeline;
+        const NSUInteger routedWidth = std::min<NSUInteger>(
+            count, std::min<NSUInteger>(
+                routedCommitPipeline.maxTotalThreadsPerThreadgroup,
+                256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(routedWidth, 1u), 1u, 1u)];
+    }
+    [commitEncoder endEncoding];
+    ++state_->encodedPassCount;
+    if (deferred) {
+        state_->deferredExternalForcesAvailable = false;
+        state_->deferredCommandBufferIdentity = 0u;
+        state_->message = "deferred audit reconciliation encoded";
+    } else {
+        state_->message = "two-way transaction encoded";
+    }
+    return true;
     }
 }
 
@@ -2465,6 +2663,12 @@ void NumiHumanTendonFEMLoadAdapter::abort(void* commandBuffer) noexcept {
     if (state_ != nullptr && state_->runtime != nullptr &&
         commandBuffer != nullptr) {
         ++state_->abortCount;
+        if (state_->acceptedAuditPendingCommandBufferIdentity ==
+                reinterpret_cast<std::uintptr_t>(commandBuffer)) {
+            state_->acceptedAuditPendingCommandBufferIdentity = 0u;
+            state_->acceptedAuditPendingStandStatuses = nullptr;
+            state_->acceptedAuditPendingStepIndex = 0u;
+        }
         if (state_->executionMode ==
                 NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
             if (state_->deferredCommandBufferIdentity ==
@@ -2641,6 +2845,12 @@ NumiHumanTendonFEMLoadAdapter::snapshot() const noexcept {
                 "Numi Human tendon/FEM adapter is not initialized";
             return result;
         }
+        if (state_->deferAcceptedAuditPublication &&
+            state_->acceptedAuditPendingCommandBufferIdentity != 0u) {
+            result.message =
+                "Numi Human tendon/FEM adapter snapshot requires a completed accepted-audit boundary";
+            return result;
+        }
         result.adapterFingerprint = state_->fingerprint;
         result.runtimeDeviceProgramFingerprint =
             state_->runtime->deviceProgramFingerprint();
@@ -2703,10 +2913,14 @@ NumiHumanTendonFEMLoadAdapter::snapshot() const noexcept {
                 state_->articularContactPairAuditHistoryBuffer,
                 result.articularContactPairForceAcceptedHistory) ||
             !readAuthority(
-                state_->passiveLigamentAuditBuffer,
+                state_->deferAcceptedAuditPublication
+                    ? state_->passiveLigamentAcceptedAuditBuffer
+                    : state_->passiveLigamentAuditBuffer,
                 result.passiveLigamentAcceptedState) ||
             !readAuthority(
-                state_->passiveRoutedBandAuditBuffer,
+                state_->deferAcceptedAuditPublication
+                    ? state_->passiveRoutedBandAcceptedAuditBuffer
+                    : state_->passiveRoutedBandAuditBuffer,
                 result.passiveRoutedBandAcceptedState)) {
             result.message =
                 "Numi Human tendon/FEM adapter authority buffer is unavailable";
@@ -2749,6 +2963,11 @@ NumiHumanTendonFEMLoadAdapter::restore(
             state_->fingerprint == 0u || !state_->runtime->valid()) {
             return reject(
                 "Numi Human tendon/FEM adapter restore requires an initialized adapter");
+        }
+        if (state_->deferAcceptedAuditPublication &&
+            state_->acceptedAuditPendingCommandBufferIdentity != 0u) {
+            return reject(
+                "Numi Human tendon/FEM adapter restore requires a completed accepted-audit boundary");
         }
         if (!snapshotValue.available ||
             snapshotValue.formatVersion !=
@@ -2869,10 +3088,18 @@ NumiHumanTendonFEMLoadAdapter::restore(
                 state_->passiveLigamentAuditBuffer,
                 stagedLigament.size() *
                     sizeof(NMNumiHumanPassiveLigamentAuditGPU)) ||
+            (state_->deferAcceptedAuditPublication && !writable(
+                state_->passiveLigamentAcceptedAuditBuffer,
+                stagedLigament.size() *
+                    sizeof(NMNumiHumanPassiveLigamentAuditGPU))) ||
             !writable(
                 state_->passiveRoutedBandAuditBuffer,
                 stagedRouted.size() *
-                    sizeof(NMNumiHumanPassiveRoutedBandAuditGPU))) {
+                    sizeof(NMNumiHumanPassiveRoutedBandAuditGPU)) ||
+            (state_->deferAcceptedAuditPublication && !writable(
+                state_->passiveRoutedBandAcceptedAuditBuffer,
+                stagedRouted.size() *
+                    sizeof(NMNumiHumanPassiveRoutedBandAuditGPU)))) {
             return reject(
                 "Numi Human tendon/FEM adapter restore target buffer is unavailable");
         }
@@ -2894,7 +3121,11 @@ NumiHumanTendonFEMLoadAdapter::restore(
             state_->articularContactPairAuditHistoryBuffer,
             stagedArticularPairs);
         writeAuthority(state_->passiveLigamentAuditBuffer, stagedLigament);
+        if (state_->deferAcceptedAuditPublication)
+            writeAuthority(state_->passiveLigamentAcceptedAuditBuffer, stagedLigament);
         writeAuthority(state_->passiveRoutedBandAuditBuffer, stagedRouted);
+        if (state_->deferAcceptedAuditPublication)
+            writeAuthority(state_->passiveRoutedBandAcceptedAuditBuffer, stagedRouted);
         state_->anchorReactionAcceptedHistory = std::move(stagedAnchor);
         state_->femBodyContactAcceptedHistory = std::move(stagedFEMBody);
         state_->articularContactAcceptedHistory = std::move(stagedArticular);
@@ -2926,6 +3157,9 @@ NumiHumanTendonFEMLoadDiagnostics
 NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     NumiHumanTendonFEMLoadDiagnostics result{};
     if (state_ == nullptr) return result;
+    // Preserve the active owner diagnostic even when a later validation
+    // branch returns early (for example, an uninitialized provisional audit).
+    result.message = state_->message;
     result.initialized = state_->runtime != nullptr && state_->fingerprint != 0u;
     result.encodedPassCount = state_->encodedPassCount;
     result.abortCount = state_->abortCount;

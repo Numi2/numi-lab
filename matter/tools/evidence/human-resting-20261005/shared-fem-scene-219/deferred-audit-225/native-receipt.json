@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "exit_code": 0,
+  "wall_seconds": 3.183104125026148,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/deferred-audit-diagnostics-225/probe-build/deferred-audit-probe"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/deferred-audit-diagnostics-225/matter/src/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "fda72dcb8c2fefa13985ddd9047159bb91eb9e6fbc483f53961b497d70fd5058",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/deferred-audit-diagnostics-225/build",
+    "DYLD_PRINT_LIBRARIES": "1"
+  },
+  "binary_sha256": "9c0ddf79ad1a4d8e9035f2bd3cb11b2fd1d474e918ad0297e1b42b69597f2597",
+  "library_sha256": "9caae2e28760fad23f3ffa7c8de1a216bfe154bad1d74bc1630a7ceda1bf59ab",
+  "source_sha256": "1c112262e9bccbcf1dbbd314c46f4b9d0b4a95bcad3c63f2fb3b58369f596206"
+}

@@ -132,10 +132,15 @@ enum class NumiHumanTendonFEMLoadExecutionMode : std::uint32_t {
     numanXDeferred = 1u,
 };
 
+inline constexpr std::uint32_t
+    kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication = 1u << 0u;
+
 struct NumiHumanTendonFEMLoadConfiguration {
     std::filesystem::path metallib;
     NumiHumanTendonFEMLoadExecutionMode executionMode =
         NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
+    // Bit 0 opts into explicit final-gate audit publication. Zero preserves
+    // the existing immediate post-validation behavior and ABI layout.
     std::uint32_t reserved0 = 0u;
     // Optional callback for the same Runtime transaction that owns this FEM
     // adapter. This lets a combined vascular/FEM WorldSource keep one vascular
@@ -146,6 +151,9 @@ struct NumiHumanTendonFEMLoadConfiguration {
     std::uint64_t acceptedStepExtensionFingerprint = 0u;
     bool deferAcceptedControlCursorPublication = false;
     bool deferAcceptedStepExtensionFinalization = false;
+    // Exact compiled Runtime microticks per body frame. Nondefault counts
+    // require standalone execution with explicit deferred audit publication.
+    std::uint32_t expectedMicrotickCount = 1u;
 };
 
 struct NumiHumanTendonFEMLoadDiagnostics {
@@ -455,6 +463,13 @@ public:
     [[nodiscard]] NumiHumanTendonFEMDeferredLoadProgram
     deferredProgram() noexcept;
     [[nodiscard]] NumiHumanTendonFEMLoadDiagnostics diagnostics() const noexcept;
+    // In deferred-audit mode, postValidation has already encoded the single
+    // Runtime post-commit but leaves accepted audit histories untouched. The
+    // owning transaction calls this only after its final status has been
+    // merged into the same borrowed Stand status buffer.
+    [[nodiscard]] bool finalizeAcceptedAudits(
+        const metalrobo::MetalNumiHumanTendonLoadPass& pass
+    );
     // Snapshot/restore are completion-boundary operations: the caller must not
     // have an in-flight borrowed command buffer using this adapter. Restore
     // validates version, source/runtime identity, every vector extent, and the
@@ -466,6 +481,9 @@ public:
     ) noexcept;
 
 private:
+    [[nodiscard]] bool encodeAcceptedAuditCommit(
+        const metalrobo::MetalNumiHumanTendonLoadPass& pass
+    );
     [[nodiscard]] bool encodePreDynamics(
         const metalrobo::MetalNumiHumanTendonLoadPass& pass
     );

@@ -809,6 +809,49 @@ kernel void nm_numi_human_adapt_stand_status(
     worldStatuses[environment] = world;
 }
 
+kernel void nm_numi_human_adapt_stand_status_v2(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    const NMMatterStatusGPU matter = matterStatuses[environment];
+    const bool matterAccepted =
+        matter.code == NM_STATUS_SUCCESS &&
+        matter.environment == environment &&
+        dispatch.reserved0 != 0u &&
+        dispatch.reserved0 <= (1u << NM_MAX_RATE_EXPONENT) &&
+        (dispatch.reserved0 & (dispatch.reserved0 - 1u)) == 0u &&
+        matter.completedMicrosteps == dispatch.reserved0;
+    if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS && !matterAccepted) {
+        stand.code = MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;
+        stand.completedSteps = dispatch.stepIndex;
+        stand.failingIndex = matter.environment == environment
+            ? matter.objectIndex
+            : NM_INVALID_INDEX;
+        standStatuses[environment] = stand;
+    }
+    const bool accepted =
+        dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        dispatch.muscleCount > 0u &&
+        matterAccepted &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u;
+    MRMetalWorldStatusGPU world{};
+    world.code = accepted ? MR_STEP_SUCCESS : MR_STEP_DID_NOT_CONVERGE;
+    world.environment = environment;
+    world.controlStep = dispatch.stepIndex;
+    world.successfulSubsteps = accepted ? 1u : 0u;
+    world.abaCode = accepted ? MR_ABA_SUCCESS : MR_ABA_INVALID_DISPATCH;
+    world.failingSubstep = accepted ? MR_INVALID_INDEX : 0u;
+    world.failingIndex = accepted ? MR_INVALID_INDEX : stand.failingIndex;
+    worldStatuses[environment] = world;
+}
+
 kernel void nm_numi_human_assemble_tendon_fem_loads(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanTendonFEMNodeLoadGPU* nodeLoads [[buffer(1)]],
@@ -1566,6 +1609,48 @@ kernel void nm_numi_human_commit_passive_routed_band_audit(
         stand.environment == environment &&
         stand.completedSteps == dispatch.stepIndex + 1u) {
         audits[environment].strainCountAndAccepted.w = 1.0f;
+    }
+}
+
+kernel void nm_numi_human_commit_passive_ligament_audit_v2(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device NMNumiHumanPassiveLigamentAuditGPU* candidateAudits [[buffer(2)]],
+    device NMNumiHumanPassiveLigamentAuditGPU* acceptedAudits [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u) {
+        NMNumiHumanPassiveLigamentAuditGPU accepted =
+            candidateAudits[environment];
+        accepted.stretchCountAndAccepted.w = 1.0f;
+        candidateAudits[environment] = accepted;
+        acceptedAudits[environment] = accepted;
+    }
+}
+
+kernel void nm_numi_human_commit_passive_routed_band_audit_v2(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device NMNumiHumanPassiveRoutedBandAuditGPU* candidateAudits [[buffer(2)]],
+    device NMNumiHumanPassiveRoutedBandAuditGPU* acceptedAudits [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u) {
+        NMNumiHumanPassiveRoutedBandAuditGPU accepted =
+            candidateAudits[environment];
+        accepted.strainCountAndAccepted.w = 1.0f;
+        candidateAudits[environment] = accepted;
+        acceptedAudits[environment] = accepted;
     }
 }
 

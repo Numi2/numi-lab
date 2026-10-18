@@ -1,0 +1,6 @@
+{
+  "path_on_test_host": "/Users/n/numi-human-separation-20261018/C/deferred-audit-diagnostics-225/native-001/native.log",
+  "bytes": 226077,
+  "sha256": "f23ca935fd1c186aa42fadc3108eb47780417cbce42c8f40094e6a1544e6370a",
+  "note": "Complete dyld-inclusive log retained on the experiment host; the filtered result line is committed here."
+}

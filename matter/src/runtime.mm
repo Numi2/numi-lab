@@ -4144,7 +4144,10 @@ RuntimeDiagnostics Runtime::initialize(
                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
                         NM_OBJECT_DISABLE_SELF_CONTACT;
                     constexpr std::uint32_t unsupportedObject =
-                        NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                        // An identifiable material is still immutable when
+                        // identification is disabled. Per-encode and final
+                        // publication gates exclude all identification work.
+                        NM_OBJECT_ADAPTIVE |
                         NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS;
                     return (object.representation == NM_REPRESENTATION_MPM ||
                             object.representation == NM_REPRESENTATION_FEM) &&
@@ -8528,9 +8531,19 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     const bool hasFEM = d.femNodeCount != 0u && d.tetrahedronCount != 0u;
     const bool hasMPM = d.particleCount != 0u && d.mpmGridCount != 0u &&
         d.mpmBlockCount != 0u && d.gridNodeCount != 0u;
+    // A material may declare identifiable parameters without enabling an
+    // identification transaction. In that case its parameters remain fixed
+    // physical inputs: no distribution is advanced or sampled, and deferred
+    // finalization skips the legacy mean-publication kernel that otherwise
+    // rewrites environmentParameters.
+    const bool immutableIdentificationState =
+        state.identificationDistributionCount == 0u ||
+        (d.identificationCandidateCount == 0u &&
+         !ownership->identificationAdvanced &&
+         !state.automaticIdentification);
     const bool immutableObjectScope =
         d.objectCount != 0u && d.identificationCandidateCount == 0u &&
-        state.identificationDistributionCount == 0u &&
+        immutableIdentificationState &&
         !ownership->identificationAdvanced && !state.automaticIdentification &&
         d.mutationCommandCount == 0u && d.eventStride >= minimumEventStride;
     const bool immutableMPMScope = immutableObjectScope &&
@@ -9119,7 +9132,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
              state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
             (request.resetMasks != nullptr ||
              request.resetMaskStepStride != 0u || request.runIdentification ||
-             state.identificationDistributionCount != 0u ||
+             state.automaticIdentification ||
+             state.dispatch.identificationCandidateCount != 0u ||
              request.learnedWeightUpdate != nullptr ||
              request.learnedWeightCount != 0u ||
              request.mutationCommandCount != 0u)) {
@@ -9706,6 +9720,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
         const auto ownership = state.commandOwnership;
         std::unique_lock ownershipLock(ownership->mutex);
+        if (request.deferAcceptedStepExtensionFinalization &&
+            (state.acceptedStepExtensionMPMOnlyWorld ||
+             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
+            ownership->identificationAdvanced) {
+            diagnostics.message =
+                "deferred MPM/FEM owner finalization rejects an advanced material-identification transaction";
+            return diagnostics;
+        }
         if (ownership->physicalStateDigestOpen ||
             ownership->preparedStateOpen || ownership->applyEncoded ||
             ownership->restoreRequired) {
@@ -11668,7 +11690,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
         }
 
-        if (firstPrePass && state.identificationDistributionCount != 0u) {
+        const bool preserveDeferredFixedMaterialParameters =
+            request.deferAcceptedStepExtensionFinalization &&
+            (state.acceptedStepExtensionMPMOnlyWorld ||
+             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
+            state.identificationDistributionCount != 0u &&
+            state.dispatch.identificationCandidateCount == 0u &&
+            !state.automaticIdentification && !request.runIdentification &&
+            !ownership->identificationAdvanced &&
+            request.resetMasks == nullptr &&
+            request.resetMaskStepStride == 0u;
+        if (firstPrePass && state.identificationDistributionCount != 0u &&
+            !preserveDeferredFixedMaterialParameters) {
             NMIdentificationPassGPU identification{};
             identification.candidateCount =
                 state.dispatch.identificationCandidateCount;

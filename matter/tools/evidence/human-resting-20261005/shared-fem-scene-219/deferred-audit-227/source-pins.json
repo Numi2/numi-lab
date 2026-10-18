@@ -1,0 +1,16 @@
+{
+  "base_225_probe_sha256": "1c112262e9bccbcf1dbbd314c46f4b9d0b4a95bcad3c63f2fb3b58369f596206",
+  "build_or_native_run": "native-001 completed: PASS; see build-receipt.json, invocation.json, native-receipt.json, and native.log",
+  "frozen_226_adapter_sha256": "4f2059560c8361e211653f503480d6ef589c4826c07ed510585c3812ea5f885b",
+  "frozen_226_assembled_msl_sha256": "22e5b9b4f9007b0e2c58fe39f4772cef866e6dd1c1488e774db1cd0cdacfbd00",
+  "frozen_226_canonical_msl_sha256": "b67ed9dfcc77c445b4bbbd3332b0246027d48f7263c6e22e33022d4eb70c67ce",
+  "frozen_226_header_sha256": "8bc40fef2eabd691c2490ecd32bccd337aa294ce76cacc317326387deee0e9e3",
+  "native_binary_sha256": "89db9d23a67c1375a227666390078173824da7b0daa226934d1bfe72fe96f32e",
+  "native_library_sha256": "dd0c254ec2ce901a257797c43636d7e02ab406eae34dc32e9025abde7937524a",
+  "native_receipt_sha256": "adbd6ee4792be684b97c694c095e116af578a783fc424e1a986b5efe035ed609",
+  "original_225_suite_path": "/Users/n/numi-human-separation-20261018/C/deferred-audit-diagnostics-225/tests/probe-223.mm",
+  "original_225_suite_unchanged": true,
+  "probe_225_original_sha256": "1c112262e9bccbcf1dbbd314c46f4b9d0b4a95bcad3c63f2fb3b58369f596206",
+  "probe_multirate_227_sha256": "ccbda03793a31c2f02ea5d6f0fa0b69cd73e0edecd62486957053e9c3fe66c9f",
+  "scope": "source-only focused exponent-1 expectedMicrotickCount=2 accept and count-1 mismatch rejection; invalid configuration counts 0, 3, and 512 rejected; original 225 regression suite retained unchanged and copied separately"
+}
