@@ -1,0 +1,32 @@
+{
+  "scope": "Reusable inferred registered-skeleton ACL FEM construction, not enabled in the production scene by this commit",
+  "source_header_sha256": "c9549051b5e930aee1aec1c29ca4120197be280811df01650a80781c0f662e69",
+  "test_sha256": "d1e0f06700089d83fbb164a05f7a2c0ed2ad789f517c7293996c8b20466dd333",
+  "test_command": [
+    "clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/apps",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "/Users/n/numi-lab-native-replay-publish-20261017/tools/test_inferred_acl_geometry.cpp",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/acl-publication-200/test-inferred-acl"
+  ],
+  "test_result": "acl_geometry_regression=PASS voronoi_regions=7 seed_composition=checked laterality=checked",
+  "device_host": "ssh numi",
+  "geometry": "Inferred reference geometry; source-bound femur/tibia/patella and source-face attachment ancestry required",
+  "material": "Existing open_knee_ligament_febio_exp_linear.nmatter; reference material hash retained in header",
+  "retained_native_build": "native-tissue-mechanics-build-198",
+  "retained_native_scope": "Fascia and bilateral inferred ACLs completed 8 ms at 100 us; timestep-dependent FEM displacement remains unresolved",
+  "not_qualified": [
+    "full swept attachment clearance",
+    "whole-body tissue mechanics",
+    "long-duration equilibrium",
+    "production activation",
+    "clinical validation"
+  ]
+}
