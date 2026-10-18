@@ -1,0 +1,1 @@
+resting_integrated_body=completed simulated_s=0.064000003039836884 wall_s=2.1895154579999998 real_time_factor=0.029230212924962546 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
