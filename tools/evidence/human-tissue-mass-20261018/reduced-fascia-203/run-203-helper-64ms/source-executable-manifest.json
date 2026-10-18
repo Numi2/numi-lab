@@ -1,0 +1,22 @@
+{
+  "schema": "numi.native-run-source-executable-manifest.v1",
+  "binary_path": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/bin/numi-human-native",
+  "binary_sha256": "8b6b4f8e64e63a693f0f0ff7dd1865aac28bb32c55775eada9de5544fdbb2e58",
+  "source_path": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/numilab_human_myosim_visual_probe.mm",
+  "source_sha256": "0af410e2d5e0af7ebfc90ad52901f0bad1529344dbfc9797ea9cf753f1e20ed6",
+  "build_report_path": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/build-report.json",
+  "build_report_sha256": "c8847ffaf5dacf8746ff1bba35e2dd49de8298d7fc63a873d0ce23a29fc66026",
+  "helper_path": "/Users/numi/numi-human-separation-20261018/C/passive-fascia-reduction-203/NumiHumanReducedPassiveFascia.hpp",
+  "helper_sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f",
+  "fixture_path": "/Users/numi/numi-human-separation-20261018/C/passive-fascia-reduction-203/test_reduced_passive_fascia.mm",
+  "fixture_sha256": "d55ada7485bf58c3e8797541deda8ec8e5c7aae417b69d8f06ef60104a9bde8e",
+  "invocation_path": "/Users/numi/numi-human-separation-20261018/native-run-203-helper-64ms/invocation.json",
+  "invocation_sha256": "6812546364e69127857ff2c00e04ab1d74379980ff6772ab5c316a886c91d2c2",
+  "launcher_log_path": "/Users/numi/numi-human-separation-20261018/native-run-203-helper-64ms/launcher.log",
+  "launcher_log_sha256": "8791fa1f55be5f49bf66fe9936eaecd4a6585e96e03858ace792300628abf467",
+  "process_result_sha256": "e3f4572cb758946b80c8900d74b9e289e0b833095f1076b9d6893bb3af05dabb",
+  "frozen_evidence_copies": {
+    "build_report_sha256": "c8847ffaf5dacf8746ff1bba35e2dd49de8298d7fc63a873d0ce23a29fc66026",
+    "launcher_log_sha256": "8791fa1f55be5f49bf66fe9936eaecd4a6585e96e03858ace792300628abf467"
+  }
+}

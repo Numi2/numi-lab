@@ -1,0 +1,15 @@
+{
+  "native": "isolated app203 helper integration passed 256 accepted steps, 0.064 simulated seconds",
+  "comparison": "coupled and surface CSVs byte-identical to app202; strip geometry identical; Float32 fit parameter rounding differs slightly",
+  "not_qualified": [
+    "force convergence",
+    "long-horizon stability",
+    "full tissue mechanics"
+  ],
+  "visual_verification": false,
+  "gravity_ownership": "Both pinned app202 and app203 sources already assign the FEM WorldSource gravity from model.world.gravityAndTimestep. An interim lead/worker assertion of omitted ACL weight came from inspecting a different tissue owner and is withdrawn. No gravity physics change is justified by that assertion. Actual vector was not separately printed by these artifacts.",
+  "gravity_source_pins": {
+    "app202": "237aed321bbc6446e9cd8c23a3106cb912a724d7e9e2d6221ae1507226b1d795",
+    "app203": "0af410e2d5e0af7ebfc90ad52901f0bad1529344dbfc9797ea9cf753f1e20ed6"
+  }
+}

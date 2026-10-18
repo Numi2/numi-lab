@@ -1,0 +1,600 @@
+{
+  "schema": "numi.passive_fascia_helper_native_comparison.v1",
+  "baseline": {
+    "attempt": "112",
+    "directory": "/Users/numi/numi-human-separation-20261018/C/passive-fascia-reduction-203/evidence/run-112",
+    "invocation_sha256": "785f0302a15236359a8f8f2948adcc49ad034b1f4f1e1cf4e6f1e94a2eb62ebc",
+    "binary_sha256": "a173994573c885e4eb083bfd221284054816e81fda46685b849290ae705e63d0"
+  },
+  "helper": {
+    "attempt": "203-helper-64ms",
+    "directory": "/Users/numi/numi-human-separation-20261018/native-run-203-helper-64ms",
+    "invocation_sha256": "6812546364e69127857ff2c00e04ab1d74379980ff6772ab5c316a886c91d2c2",
+    "binary_sha256": "8b6b4f8e64e63a693f0f0ff7dd1865aac28bb32c55775eada9de5544fdbb2e58",
+    "process_result": {
+      "returncode": 0,
+      "wall_seconds": 70.26205379102612,
+      "invocation": "/Users/numi/numi-human-separation-20261018/native-run-203-helper-64ms/invocation.json",
+      "binary_sha256": "8b6b4f8e64e63a693f0f0ff7dd1865aac28bb32c55775eada9de5544fdbb2e58"
+    }
+  },
+  "same_physical_inputs_and_parameters": true,
+  "requested_steps": 256,
+  "step_seconds": 0.00025,
+  "requested_horizon_s": 0.064,
+  "strip_count": 8,
+  "identity_mapping_exact": true,
+  "strip_numeric_max_abs_delta": {
+    "rest_length_m": 0.0,
+    "area_m2": 0.0,
+    "volume_m3": 0.0,
+    "fiber_alignment": 3.999999997894577e-09,
+    "c3_pa": 0.00020000000040454324,
+    "c4": 0.0,
+    "c5_pa": 0.001799999998183921,
+    "fit_rms_fraction": 6.753999999987298e-08,
+    "fit_max_fraction": 7.276900000005582e-07
+  },
+  "strip_numeric_max_relative_delta": {
+    "rest_length_m": 0.0,
+    "area_m2": 0.0,
+    "volume_m3": 0.0,
+    "fiber_alignment": 4.1605123176388565e-09,
+    "c3_pa": 2.5033806453817332e-08,
+    "c4": 0.0,
+    "c5_pa": 2.455366042702265e-08,
+    "fit_rms_fraction": 2.656050549804351e-05,
+    "fit_max_fraction": 0.00013266588864486995
+  },
+  "coupled_csv_byte_identical": true,
+  "surface_audit_csv_byte_identical": true,
+  "terminal_audits": {
+    "baseline": [
+      "resting_FEM_terminal_audit=passed expected_steps=256 initial_control=0 final_control=255 initial_substep=0 final_substep=0 accepted_steps=256 adapter_passes=256 min_J=0.999754223582 max_J=1.00044536654 max_displacement_m=0.00340027996033 max_anchor_reaction_N=0.941208368558 capture=terminal_only",
+      "resting_passive_fascia_ligament_terminal_audit=passed count=8 accepted=1 endpoint_force_l1_N=0.016455469653 max_tension_N=0.00328544713557 min_effective_stretch=1.01038777828 max_effective_stretch=1.01262152195 force_residual_N=0 moment_residual_Nm=6.70078554142e-11 capture=terminal_only"
+    ],
+    "helper": [
+      "resting_FEM_terminal_audit=passed expected_steps=256 initial_control=0 final_control=255 initial_substep=0 final_substep=0 accepted_steps=256 adapter_passes=256 min_J=0.999754223582 max_J=1.00044536654 max_displacement_m=0.00340027996033 max_anchor_reaction_N=0.941208368558 capture=terminal_only",
+      "resting_passive_fascia_ligament_terminal_audit=passed count=8 accepted=1 endpoint_force_l1_N=0.016455469653 max_tension_N=0.00328544760123 min_effective_stretch=1.01038777828 max_effective_stretch=1.01262152195 force_residual_N=0 moment_residual_Nm=1.82031088828e-10 capture=terminal_only"
+    ]
+  },
+  "strip_comparisons": [
+    {
+      "identity": {
+        "layer": "0",
+        "first_node": "9",
+        "first_source_vertex": "1016",
+        "second_node": "0",
+        "second_source_vertex": "626",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0834504148,
+          "helper": 0.0834504148,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 5.86090515e-06,
+          "helper": 5.86090515e-06,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 4.89094966e-07,
+          "helper": 4.89094966e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.991451838,
+          "helper": 0.991451842,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.034487433928814e-09
+        },
+        "c3_pa": {
+          "baseline": 7987.74653,
+          "helper": 7987.74672,
+          "absolute_delta": 0.0001899999997476698,
+          "relative_delta": 2.378643269596182e-08
+        },
+        "c4": {
+          "baseline": 5.15,
+          "helper": 5.15,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 76317.7388,
+          "helper": 76317.7406,
+          "absolute_delta": 0.001799999998183921,
+          "relative_delta": 2.3585603871820085e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00304762365,
+          "helper": 0.00304762372,
+          "absolute_delta": 6.99999997202938e-11,
+          "relative_delta": 2.296871469431069e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00637830106,
+          "helper": 0.00637832598,
+          "absolute_delta": 2.4920000000171194e-08,
+          "relative_delta": 3.906981248420168e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "0",
+        "first_node": "10",
+        "first_source_vertex": "1018",
+        "second_node": "17",
+        "second_source_vertex": "649",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0899336418,
+          "helper": 0.0899336418,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 6.09881352e-07,
+          "helper": 6.09881352e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 5.48488511e-08,
+          "helper": 5.48488511e-08,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.968119238,
+          "helper": 0.968119242,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.131722441164512e-09
+        },
+        "c3_pa": {
+          "baseline": 7584.75285,
+          "helper": 7584.75303,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.3731820836925924e-08
+        },
+        "c4": {
+          "baseline": 4.825,
+          "helper": 4.825,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 65297.3049,
+          "helper": 65297.3065,
+          "absolute_delta": 0.0015999999959603883,
+          "relative_delta": 2.4503307743029007e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00262622704,
+          "helper": 0.00262622712,
+          "absolute_delta": 8.000000011401665e-11,
+          "relative_delta": 3.046195034114819e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.0057669222,
+          "helper": 0.00576694686,
+          "absolute_delta": 2.466000000034274e-08,
+          "relative_delta": 4.276092809418178e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "0",
+        "first_node": "11",
+        "first_source_vertex": "1020",
+        "second_node": "16",
+        "second_source_vertex": "657",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0898856036,
+          "helper": 0.0898856036,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 2.4662861e-07,
+          "helper": 2.4662861e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 2.21683615e-08,
+          "helper": 2.21683615e-08,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.962314279,
+          "helper": 0.962314283,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.1566461898753475e-09
+        },
+        "c3_pa": {
+          "baseline": 7429.74795,
+          "helper": 7429.74813,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.422693163358837e-08
+        },
+        "c4": {
+          "baseline": 4.775,
+          "helper": 4.775,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 62921.3736,
+          "helper": 62921.3751,
+          "absolute_delta": 0.0014999999984866008,
+          "relative_delta": 2.383927554193902e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00252514778,
+          "helper": 0.00252514784,
+          "absolute_delta": 5.999999976025183e-11,
+          "relative_delta": 2.3760984925243756e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00525641891,
+          "helper": 0.00525644352,
+          "absolute_delta": 2.460999999967517e-08,
+          "relative_delta": 4.681872811157908e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "0",
+        "first_node": "12",
+        "first_source_vertex": "999",
+        "second_node": "15",
+        "second_source_vertex": "658",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0864519867,
+          "helper": 0.0864519867,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 1.87067559e-06,
+          "helper": 1.87067559e-06,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 1.61723621e-07,
+          "helper": 1.61723621e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.963394116,
+          "helper": 0.96339412,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.151987140937269e-09
+        },
+        "c3_pa": {
+          "baseline": 7476.44184,
+          "helper": 7476.44202,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.4075623072950817e-08
+        },
+        "c4": {
+          "baseline": 4.775,
+          "helper": 4.775,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 63316.8169,
+          "helper": 63316.8184,
+          "absolute_delta": 0.0014999999984866008,
+          "relative_delta": 2.3690388057884488e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00254287329,
+          "helper": 0.00254280575,
+          "absolute_delta": 6.753999999987298e-08,
+          "relative_delta": 2.656050549804351e-05
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00548513267,
+          "helper": 0.00548440498,
+          "absolute_delta": 7.276900000005582e-07,
+          "relative_delta": 0.00013266588864486995
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "1",
+        "first_node": "28",
+        "first_source_vertex": "1016",
+        "second_node": "19",
+        "second_source_vertex": "626",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0828582287,
+          "helper": 0.0828582287,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 6.18670414e-06,
+          "helper": 6.18670414e-06,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 5.12619347e-07,
+          "helper": 5.12619347e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.991483813,
+          "helper": 0.991483817,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.034357323145877e-09
+        },
+        "c3_pa": {
+          "baseline": 7989.19636,
+          "helper": 7989.19656,
+          "absolute_delta": 0.00020000000040454324,
+          "relative_delta": 2.5033806453817332e-08
+        },
+        "c4": {
+          "baseline": 5.15,
+          "helper": 5.15,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 76331.591,
+          "helper": 76331.5928,
+          "absolute_delta": 0.001799999998183921,
+          "relative_delta": 2.358132369777984e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00304806894,
+          "helper": 0.00304806901,
+          "absolute_delta": 7.000000015397467e-11,
+          "relative_delta": 2.296535935515931e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00638508055,
+          "helper": 0.00638504474,
+          "absolute_delta": 3.581000000002499e-08,
+          "relative_delta": 5.608386569222684e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "1",
+        "first_node": "29",
+        "first_source_vertex": "1018",
+        "second_node": "36",
+        "second_source_vertex": "649",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.089183249,
+          "helper": 0.089183249,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 4.3969284e-07,
+          "helper": 4.3969284e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 3.92132361e-08,
+          "helper": 3.92132361e-08,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.967763997,
+          "helper": 0.967764001,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.133239089035485e-09
+        },
+        "c3_pa": {
+          "baseline": 7569.19868,
+          "helper": 7569.19886,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.3780588055562202e-08
+        },
+        "c4": {
+          "baseline": 4.825,
+          "helper": 4.825,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 65163.3987,
+          "helper": 65163.4003,
+          "absolute_delta": 0.001600000003236346,
+          "relative_delta": 2.455366042702265e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00261935153,
+          "helper": 0.00261935161,
+          "absolute_delta": 8.000000011401665e-11,
+          "relative_delta": 3.0541909611751835e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.0056897796,
+          "helper": 0.00568980426,
+          "absolute_delta": 2.466000000034274e-08,
+          "relative_delta": 4.334068251469646e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "1",
+        "first_node": "30",
+        "first_source_vertex": "1020",
+        "second_node": "35",
+        "second_source_vertex": "657",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0893507725,
+          "helper": 0.0893507725,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 1.68057127e-07,
+          "helper": 1.68057127e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 1.50160341e-08,
+          "helper": 1.50160341e-08,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.961420055,
+          "helper": 0.961420059,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.1605123176388565e-09
+        },
+        "c3_pa": {
+          "baseline": 7439.65228,
+          "helper": 7439.65246,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.4194678577806985e-08
+        },
+        "c4": {
+          "baseline": 4.75,
+          "helper": 4.75,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 62487.637,
+          "helper": 62487.6385,
+          "absolute_delta": 0.0014999999984866008,
+          "relative_delta": 2.4004747730810803e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00250885148,
+          "helper": 0.00250885156,
+          "absolute_delta": 7.999999968033578e-11,
+          "relative_delta": 3.188709964185198e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00543522906,
+          "helper": 0.00543525365,
+          "absolute_delta": 2.4589999999755086e-08,
+          "relative_delta": 4.52416788308584e-06
+        }
+      }
+    },
+    {
+      "identity": {
+        "layer": "1",
+        "first_node": "31",
+        "first_source_vertex": "999",
+        "second_node": "34",
+        "second_source_vertex": "658",
+        "first_body": "25",
+        "second_body": "41"
+      },
+      "fields": {
+        "rest_length_m": {
+          "baseline": 0.0860343267,
+          "helper": 0.0860343267,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "area_m2": {
+          "baseline": 1.22438896e-06,
+          "helper": 1.22438896e-06,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "volume_m3": {
+          "baseline": 1.0533948e-07,
+          "helper": 1.0533948e-07,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "fiber_alignment": {
+          "baseline": 0.962435097,
+          "helper": 0.962435101,
+          "absolute_delta": 3.999999997894577e-09,
+          "relative_delta": 4.156124390869007e-09
+        },
+        "c3_pa": {
+          "baseline": 7434.95975,
+          "helper": 7434.95993,
+          "absolute_delta": 0.00018000000000029104,
+          "relative_delta": 2.420994890288414e-08
+        },
+        "c4": {
+          "baseline": 4.775,
+          "helper": 4.775,
+          "absolute_delta": 0.0,
+          "relative_delta": 0.0
+        },
+        "c5_pa": {
+          "baseline": 62965.5115,
+          "helper": 62965.513,
+          "absolute_delta": 0.0014999999984866008,
+          "relative_delta": 2.3822564559850418e-08
+        },
+        "fit_rms_fraction": {
+          "baseline": 0.00252707843,
+          "helper": 0.00252707849,
+          "absolute_delta": 6.00000001939327e-11,
+          "relative_delta": 2.3742832061355046e-08
+        },
+        "fit_max_fraction": {
+          "baseline": 0.00528295308,
+          "helper": 0.00528297769,
+          "absolute_delta": 2.461000000054253e-08,
+          "relative_delta": 4.658357737744399e-06
+        }
+      }
+    }
+  ],
+  "scope": "Same integrated intact-Human 64 ms native run; validates helper cooking parity at this horizon only, not full tissue, physiology, or material qualification."
+}
