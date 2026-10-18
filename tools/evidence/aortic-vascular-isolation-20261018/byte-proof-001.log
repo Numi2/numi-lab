@@ -1,0 +1,28 @@
+resting_job_lock waiting pid=85556
+resting_job_lock acquired pid=85556
+source_identity=b118d58230a3f276:6108d05501a3ac9b:910124ef823567a7:e5fe23f6df0b4f67: world_fingerprint=10119188360575851565 env=1 objects=0 materials=0 particles=0 fem_nodes=0 tets=0 mpm_nodes=0 mpm_grids=0 max_rate_exponent=8 compartments=21 connections=24 unknowns=45 dt_s=0.00025
+mode=pure_generic_fullcap init_encoded=1 requested_dense45=0 selected_dense45=0 runtime_message=Numi Matter runtime initialized device=Apple M6 runtime_dt_s=0.000250000012 runtime_fingerprint=10119188360575851565 program_fingerprint=9499946816837094760
+mode=pure_generic_fullcap pre_encoded=1 pre_message=Numi Matter pre-dynamics graph encoded into borrowed command buffer
+mode=pure_generic_fullcap post_encoded=1 post_message=Numi Matter post-commit reconciliation encoded
+mode=pure_generic_fullcap command_status=4 gpu_start_seconds=438187.268 gpu_end_seconds=438188.616 gpu_elapsed_seconds=1.34814267
+mode=pure_generic_fullcap snapshot_available=1 snapshot_message= accepted_control_step=0 accepted_physics_substep=0 vascular_state_count=45 vascular_max_abs_delta=0.146838715 clock_count=1 status_count=1
+mode=pure_generic_fullcap clock_before_low=0 clock_before_high=0 clock_after_low=562949980160 clock_after_high=0
+mode=pure_generic_fullcap status_code=0 environment=0 object_index=4294967295 failing_index=4294967295 completed_microsteps=256 fgmres_iterations=2 contact_count=0 diagnostic_x=inf diagnostic_y=0 diagnostic_z=0 diagnostic_w=0
+mode=pure_dense45_fullcap init_encoded=1 requested_dense45=1 selected_dense45=1 runtime_message=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M6 runtime_dt_s=0.000250000012 runtime_fingerprint=10119188360575851565 program_fingerprint=9499946816837094760
+mode=pure_dense45_fullcap pre_encoded=1 pre_message=Numi Matter pre-dynamics graph encoded into borrowed command buffer
+mode=pure_dense45_fullcap post_encoded=1 post_message=Numi Matter post-commit reconciliation encoded
+mode=pure_dense45_fullcap command_status=4 gpu_start_seconds=438188.856 gpu_end_seconds=438189.134 gpu_elapsed_seconds=0.2778685
+mode=pure_dense45_fullcap snapshot_available=1 snapshot_message= accepted_control_step=0 accepted_physics_substep=0 vascular_state_count=45 vascular_max_abs_delta=0.146838697 clock_count=1 status_count=1
+mode=pure_dense45_fullcap clock_before_low=0 clock_before_high=0 clock_after_low=562949980160 clock_after_high=0
+mode=pure_dense45_fullcap status_code=0 environment=0 object_index=4294967295 failing_index=4294967295 completed_microsteps=256 fgmres_iterations=0 contact_count=0 diagnostic_x=inf diagnostic_y=0 diagnostic_z=0 diagnostic_w=0
+dormant_world_fingerprint=5635794762721684054 env=1 objects=1 materials=1 particles=1 mpm_cooked_particles=1 active_particles=0 mpm_nodes=27 mpm_grid_nodes=512 mpm_grids=1 fem_nodes=0 tets=0 compartments=21 connections=24 unknowns=45 max_rate_exponent=8 dt_s=0.00025
+mode=dormant_mpm_generic_fullcap init_encoded=1 requested_dense45=0 selected_dense45=0 runtime_message=Numi Matter runtime initialized device=Apple M6 runtime_dt_s=0.000250000012 runtime_fingerprint=5635794762721684054 program_fingerprint=1382549714395267593
+mode=dormant_mpm_generic_fullcap pre_encoded=1 pre_message=Numi Matter pre-dynamics graph encoded into borrowed command buffer
+mode=dormant_mpm_generic_fullcap post_encoded=1 post_message=Numi Matter post-commit reconciliation encoded
+mode=dormant_mpm_generic_fullcap command_status=4 gpu_start_seconds=438190.046 gpu_end_seconds=438192.636 gpu_elapsed_seconds=2.59018
+mode=dormant_mpm_generic_fullcap dormant_particle_index=0 dormant_particle_bytes_unchanged=1 dormant_material_state_stride=0 dormant_material_bytes_unchanged=1 accepted_microsteps=256
+mode=dormant_mpm_generic_fullcap snapshot_available=1 snapshot_message= accepted_control_step=0 accepted_physics_substep=0 vascular_state_count=45 vascular_max_abs_delta=0.146838715 clock_count=1 status_count=1
+mode=dormant_mpm_generic_fullcap clock_before_low=0 clock_before_high=0 clock_after_low=562949980160 clock_after_high=0
+mode=dormant_mpm_generic_fullcap status_code=0 environment=0 object_index=4294967295 failing_index=4294967295 completed_microsteps=256 fgmres_iterations=2 contact_count=0 diagnostic_x=inf diagnostic_y=0 diagnostic_z=0 diagnostic_w=0
+comparison pure_generic_vs_dense45_max_abs_normalized_state=1.1920929e-07
+comparison pure_generic_vs_dormant_mpm_max_abs_normalized_state=0

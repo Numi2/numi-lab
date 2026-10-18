@@ -1,0 +1,16 @@
+{
+  "source_base_commit": "d67473c1fcd454770628dd8d18dc15331205fdd2",
+  "test_source_sha256": "123920a64d2428dd5d7fff0005cdc1dc39f0c1f5c134ea11e12683d760e0efdf",
+  "baseline": "baseline-result.json",
+  "corrected": "fixed-result.json",
+  "baseline_expected_failure": "dormant particle changed across a physical step",
+  "corrected_pass": true,
+  "accepted_frames": 8,
+  "injected_rejection_frames": 1,
+  "physical_parameters_and_full_scheduler_budget_unchanged": true,
+  "active_inventory_results_match_prior_published_fixture": true,
+  "runtime_library": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+  "material_sha256": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+  "scope": "Dormant particle/material bytes unchanged and rejected-step exact rollback; no blood circulation transfer or fluid accuracy qualification. Prior unexplained active kinetic damping remains.",
+  "material_state_limit": "Blood proxy is stateless (materialStateStride=0), so the generic material-state byte assertion covers an empty arena in this run; this does not qualify a stateful dormant material."
+}

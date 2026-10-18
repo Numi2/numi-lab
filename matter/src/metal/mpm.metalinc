@@ -927,6 +927,10 @@ kernel void nm_mpm_g2p(
         );
         return;
     }
+    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+        candidate[global] = particle;
+        return;
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     const NMSchedulerStateGPU scheduler =
         schedulers[environment * dispatch.objectCount + objectIndex];

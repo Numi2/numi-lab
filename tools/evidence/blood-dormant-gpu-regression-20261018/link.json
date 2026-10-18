@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--sdk",
+    "macosx",
+    "clang++",
+    "-arch",
+    "arm64",
+    "/Users/n/numi-human-separation-20261018/C/blood-dormant-regression-210/probe.o",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/blood-dormant-regression-210/probe",
+    "-L/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.04311333398800343
+}

@@ -1,0 +1,44 @@
+--- a/matter/src/metal/mpm.metalinc
++++ b/matter/src/metal/mpm.metalinc
+@@ -927,6 +927,10 @@
+         );
+         return;
+     }
++    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
++        candidate[global] = particle;
++        return;
++    }
+     const NMContinuumObjectGPU object = objects[objectIndex];
+     const NMSchedulerStateGPU scheduler =
+         schedulers[environment * dispatch.objectCount + objectIndex];
+--- a/matter/src/metal/identification_scheduler.metalinc
++++ b/matter/src/metal/identification_scheduler.metalinc
+@@ -445,6 +445,7 @@
+         const uint base = environment * dispatch.particleCount + object.stateOffset;
+         for (uint local = lane; local < object.stateCount; local += 32u) {
+             const NMParticleStateGPU particle = particles[base + local];
++            if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+             const float3x3 deformation = matrixFromRows(
+                 particle.deformationRow0,
+                 particle.deformationRow1,
+--- a/MatterSource.metal
++++ b/MatterSource.metal
+@@ -13727,6 +13727,10 @@
+             particleIndex,
+             float4(0.0f)
+         );
++        return;
++    }
++    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
++        candidate[global] = particle;
+         return;
+     }
+     const NMContinuumObjectGPU object = objects[objectIndex];
+@@ -53454,6 +53458,7 @@
+         const uint base = environment * dispatch.particleCount + object.stateOffset;
+         for (uint local = lane; local < object.stateCount; local += 32u) {
+             const NMParticleStateGPU particle = particles[base + local];
++            if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+             const float3x3 deformation = matrixFromRows(
+                 particle.deformationRow0,
+                 particle.deformationRow1,

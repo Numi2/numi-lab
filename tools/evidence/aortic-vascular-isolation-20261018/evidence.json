@@ -1,0 +1,36 @@
+{
+  "base_commit": "d67473c1fcd454770628dd8d18dc15331205fdd2",
+  "source_base": "current-operator-integration-207",
+  "base_mpm_metalinc_sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643",
+  "base_scheduler_metalinc_sha256": "b9334103f369f4736e56ba2268d717fea28b50ef63337a3feafe992baafb02b0",
+  "patched_mpm_metalinc_sha256": "8be957e76cd9f861b3567407a175d9fa7aad6b0eddfe1f44ce72f3272f411a0c",
+  "patched_scheduler_metalinc_sha256": "da05927181bc0a2cdcc6acd551d80def77fecd57bd1a91671fb0dff1ceebf4ce",
+  "patched_flat_matter_source_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "patch_sha256": "b2ad93a8723a739ec29b47285fc700f15994fbafa686e06bb32a8620fdd15278",
+  "byte_proof_control": {
+    "source_sha256": "833a100e70d969b85ef22f7bb8e1a99037c6236427e6b4b800ca3eea2dbe12d8",
+    "binary_sha256": "796c4fca0c30d8fbab904ac7467d3fce9a880f7c56e0cf675518fefb08cfc659",
+    "object_sha256": "eda175b5a2ca6077439ffcf1adc2853b1bcfbf6ab469f1ea386087af88bdd16b",
+    "runtime_library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+    "native_device": "Apple M6",
+    "timestep_seconds": 0.00025,
+    "accepted_microsteps": 256,
+    "pure_generic_status": 0,
+    "pure_dense45_status": 0,
+    "dormant_mpm_status": 0,
+    "dormant_particle_bytes_unchanged": true,
+    "dormant_material_state_stride": 0,
+    "pure_generic_vs_dense45_max_abs_normalized_state": 1.1920929e-07,
+    "pure_generic_vs_dormant_mpm_max_abs_normalized_state": 0.0,
+    "log": "byte-proof-001.log",
+    "shader_execution": "runtime test-source loader compiled the exact pinned flattened source; installed default metallib was not rebuilt"
+  },
+  "blood_mpm_regression": {
+    "probe_source_sha256": "123920a64d2428dd5d7fff0005cdc1dc39f0c1f5c134ea11e12683d760e0efdf",
+    "baseline_expected_failure": "dormant particle changed across a physical step",
+    "corrected_result": "../blood-dormant-gpu-regression-20261018/fixed-result.json",
+    "accepted_frames": 8,
+    "injected_rejection_frames": 1,
+    "scope_limit": "stateless blood proxy; materialStateStride=0; no circulation-stock transfer or fluid-accuracy qualification"
+  }
+}

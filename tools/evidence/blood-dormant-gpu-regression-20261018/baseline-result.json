@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/usr/bin/env",
+    "NUMI_MATTER_TEST_SOURCE=/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256=6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de",
+    "/Users/n/numi-human-separation-20261018/C/blood-dormant-regression-210/probe",
+    "--blood-mpm"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 16.78259329200955,
+  "binary_sha256": "02f847fc7d275fe6d4cc190cacc70a672a328bbc86f8304289ace49f202babf3",
+  "source_sha256": "123920a64d2428dd5d7fff0005cdc1dc39f0c1f5c134ea11e12683d760e0efdf"
+}

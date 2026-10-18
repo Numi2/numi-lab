@@ -1350,7 +1350,9 @@ numi::matter::CompiledWorld compileBloodMPMCase(
     // A finite positive dormant capacity slot verifies that the active mask
     // excludes reserve capacity from physical inventory and MPM evolution.
     numi::matter::ParticleSource reserve;
-    reserve.position = {0.0, 0.0, 0.0};
+    // Keep reserve support separate from the active cloud. A dormant G2P
+    // lookup must not depend on nodes activated by neighboring particles.
+    reserve.position = {0.010, 0.010, 0.010};
     reserve.velocity = {0.0, 0.0, 0.0};
     reserve.referenceVolume = particleVolume;
     reserve.mass = densityKgPerM3 * particleVolume;
@@ -3072,6 +3074,11 @@ Outcome runCase(
         if (forceRollback) {
             require(baseline.available, label + std::string(" baseline: ") + baseline.message);
         }
+        const auto inventoryBaseline = recordMPMInventory
+            ? runtime.snapshot() : numi::matter::RuntimeStateSnapshot{};
+        if (recordMPMInventory)
+            require(inventoryBaseline.available,
+                label + std::string(" inventory baseline: ") + inventoryBaseline.message);
         std::vector<float> learnedUpdateValues = world.learnedWeights;
         for (float& value : learnedUpdateValues) value += 0.001f;
         id<MTLBuffer> learnedUpdate = learnedUpdateValues.empty()
@@ -3111,6 +3118,24 @@ Outcome runCase(
         auto recordSnapshot = [&](const numi::matter::RuntimeStateSnapshot& snapshot) {
             require(snapshot.available, label + std::string(" snapshot: ") + snapshot.message);
             if (recordMPMInventory) {
+                require(snapshot.particles.size() == inventoryBaseline.particles.size() &&
+                        snapshot.materialStateStride == inventoryBaseline.materialStateStride &&
+                        snapshot.particleMaterialState.size() ==
+                            inventoryBaseline.particleMaterialState.size(),
+                    label + std::string(" MPM inventory arena changed"));
+                for (std::size_t index = 0u; index < snapshot.particles.size(); ++index) {
+                    const auto& initial = inventoryBaseline.particles[index];
+                    if ((initial.identity.w & NM_OBJECT_ACTIVE) != 0u) continue;
+                    require(std::memcmp(&initial, &snapshot.particles[index], sizeof(initial)) == 0,
+                        label + std::string(" dormant particle changed across a physical step"));
+                    const auto stride = snapshot.materialStateStride;
+                    if (stride != 0u)
+                        require(std::memcmp(
+                            inventoryBaseline.particleMaterialState.data() + index * stride,
+                            snapshot.particleMaterialState.data() + index * stride,
+                            stride * sizeof(float)) == 0,
+                            label + std::string(" dormant particle material state changed"));
+                }
                 double activeMass = 0.0;
                 double kineticEnergy = 0.0;
                 std::array<double, 3> momentum{};
@@ -3275,7 +3300,7 @@ Outcome runCase(
             }
         };
         if (recordMPMInventory) {
-            recordSnapshot(runtime.snapshot());
+            recordSnapshot(inventoryBaseline);
         }
         for (std::uint32_t step = 0u; step < controlSteps; ++step) {
             id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
@@ -3607,6 +3632,7 @@ void runBloodMPM() {
         << momentumDelta[0] << "," << momentumDelta[1] << ","
         << momentumDelta[2] << "]"
         << ",\"rejection_restored_particles_and_material_state\":true"
+        << ",\"dormant_particle_and_material_bytes_unchanged\":true"
         << ",\"scope_limits\":[\"high-shear Newtonian proxy\","
         << "\"no low-shear aggregation or clotting\","
         << "\"no free-surface or circulation-stock transfer\"]"
