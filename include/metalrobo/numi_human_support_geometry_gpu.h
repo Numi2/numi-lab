@@ -3,11 +3,18 @@
 #include "metalrobo/numi_human_resting_visual_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 
-#define MR_NUMI_HUMAN_SUPPORT_GEOMETRY_ABI_VERSION 1u
+#define MR_NUMI_HUMAN_SUPPORT_GEOMETRY_ABI_VERSION 3u
 
-// A source NHCNT row owns this support region. sourceGeometryIndex preserves
-// the seed identity; pointQueryIndex selects the existing contact query slot
-// whose position and weighted Jacobian are refreshed from the current skin.
+// A source NHCNT row owns a role-0 floor region or role-1 moving boundary
+// region. Role-2 derived floor regions use reserved1 as their parent source-row
+// index; sourceGeometryIndex remains the original seed identity for lineage.
+// pointQueryIndex selects the unique contact query refreshed from the skin.
+enum MRHumanRestingSupportRegionRole {
+    MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR = 0u,
+    MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY = 1u,
+    MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR = 2u,
+};
+
 typedef struct MR_ALIGN16 MRHumanRestingSupportRegionGPU {
     mr_u32 pointQueryIndex;
     mr_u32 sourceGeometryIndex;
@@ -37,6 +44,14 @@ typedef struct MR_ALIGN16 MRHumanRestingSupportRotationZBasisGPU {
     mr_float4 low;
 } MRHumanRestingSupportRotationZBasisGPU;
 
+typedef struct MR_ALIGN16 MRHumanRestingSupportPredictionGPU {
+    // xyz = global support-plane point; w = timestep seconds.
+    mr_float4 groundPointAndTimestep;
+    // x = source-free velocity element offset; y = buffer element count;
+    // z = per-environment element stride; w = body count.
+    mr_uint4 sourceVelocity;
+} MRHumanRestingSupportPredictionGPU;
+
 typedef struct MR_ALIGN16 MRHumanRestingSupportDispatchGPU {
     // vertex count, region count, dof count, environment count
     mr_uint4 counts;
@@ -44,6 +59,7 @@ typedef struct MR_ALIGN16 MRHumanRestingSupportDispatchGPU {
     mr_uint4 strides;
     // articulation first body, influence-buffer count, support row count, ABI
     mr_uint4 identity;
+    MRHumanRestingSupportPredictionGPU prediction;
 } MRHumanRestingSupportDispatchGPU;
 
 // One-shot first-step audit output. It is written only when the debug path is
@@ -59,6 +75,7 @@ static_assert(sizeof(MRHumanRestingSupportRegionGPU) == 16);
 static_assert(sizeof(MRHumanRestingSupportVertexRegionGPU) == 16);
 static_assert(sizeof(MRHumanRestingSupportPositionGPU) == 32);
 static_assert(sizeof(MRHumanRestingSupportRotationZBasisGPU) == 32);
-static_assert(sizeof(MRHumanRestingSupportDispatchGPU) == 48);
+static_assert(sizeof(MRHumanRestingSupportPredictionGPU) == 32);
+static_assert(sizeof(MRHumanRestingSupportDispatchGPU) == 80);
 static_assert(sizeof(MRHumanRestingSupportDebugGPU) == 48);
 #endif

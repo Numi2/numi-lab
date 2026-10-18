@@ -14,6 +14,7 @@ struct NumiHumanSkinInfluencePipelineConfig {
         NumiHumanSkinInfluenceLayout::vertexMajor;
     bool skipNonAncestorSupportBodyDofs = false;
     bool contouredBed = false;
+    bool predictedEndpoint = false;
 };
 
 inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
@@ -27,6 +28,11 @@ inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
     // Explicit false removes the bed buffers from the legacy pipeline.
     const bool contouredBed = config.contouredBed;
     [constants setConstantValue:&contouredBed type:MTLDataTypeBool atIndex:47u];
+    if (config.predictedEndpoint) {
+        bool predictedEndpoint = true;
+        [constants setConstantValue:&predictedEndpoint
+                              type:MTLDataTypeBool atIndex:48u];
+    }
     if (config.validatedStaticSkinInfluences) {
         bool validated = true;
         [constants setConstantValue:&validated

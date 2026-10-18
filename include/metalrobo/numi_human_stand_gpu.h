@@ -3,7 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 18u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 19u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -11,7 +11,7 @@
 // Prefix of the opt-in hybrid equality factor cache; its tail remains in the arena.
 #define MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS 7800u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
-#define MR_NUMI_HUMAN_STAND_MAX_CONTACTS 32u
+#define MR_NUMI_HUMAN_STAND_MAX_CONTACTS 64u
 #define MR_NUMI_HUMAN_STAND_MAX_STEPS 4096u
 // Total accepted horizon across bounded submissions. This is not permission
 // to encode this many steps in one command buffer.
@@ -320,8 +320,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
-static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 544);
-static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 576);
+static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 32 + 16 * MR_NUMI_HUMAN_STAND_MAX_CONTACTS);
+static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 64 + 16 * MR_NUMI_HUMAN_STAND_MAX_CONTACTS);
 static_assert(sizeof(MRNumiHumanHipCapsuleTermGPU) == 48);
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 64);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 528);

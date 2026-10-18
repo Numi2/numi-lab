@@ -3867,20 +3867,28 @@ struct MetalMujocoVisualQueries {
 MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     const metalrobo::EngineModel& model,
     const LoadedSupportContacts* support = nullptr,
-    const std::span<const double> supportNormalForce = {}
+    const std::span<const double> supportNormalForce = {},
+    const bool deriveFootManifold = false
 ) {
+    require(!deriveFootManifold || support != nullptr,
+        "four-point foot manifold requires source support contacts");
+    const std::uint64_t supportQueryCount = support == nullptr ? 0u :
+        static_cast<std::uint64_t>(support->records.size()) +
+            (deriveFootManifold ? 6u : 0u);
     require(
         model.articulations.size() == 1u &&
             model.articulations.front().bodyCount == model.bodies.size() &&
-            model.bodies.size() <=
-                MR_ARTICULATED_OPERATOR_MAX_POINTS / 4u,
+            model.bodies.size() <= MR_ARTICULATED_OPERATOR_MAX_POINTS / 4u &&
+            4ull * static_cast<std::uint64_t>(model.bodies.size()) +
+                supportQueryCount <= MR_ARTICULATED_OPERATOR_MAX_POINTS,
         "MyoSim Metal visual force queries exceed articulated-operator capacity"
     );
     MetalMujocoVisualQueries result;
     result.bodyJacobianPointOffset = 0u;
     result.points.reserve(
         4u * model.bodies.size() +
-        (support == nullptr ? 0u : support->records.size())
+        (support == nullptr ? 0u : support->records.size()) +
+        (deriveFootManifold ? 6u : 0u)
     );
     for (std::uint32_t body = 0u;
          body < model.bodies.size();
@@ -3903,7 +3911,8 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
             supportNormalForce.empty() ||
                 supportNormalForce.size() == support->records.size(),
             "MyoSim source support force count does not match support witnesses");
-        result.supportContacts.reserve(support->records.size());
+        result.supportContacts.reserve(support->records.size() +
+            (deriveFootManifold ? 6u : 0u));
         for (std::size_t supportIndex = 0u;
              supportIndex < support->records.size();
              ++supportIndex) {
@@ -3935,6 +3944,31 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                 static_cast<float>(sourceSupportForce),
             };
             result.supportContacts.push_back(contact);
+        }
+        if (deriveFootManifold) {
+            constexpr std::uint32_t sourceRows = 32u;
+            constexpr std::array<std::uint32_t, 6> parentRows =
+                {20u, 20u, 20u, 30u, 30u, 30u};
+            require(support->records.size() == sourceRows &&
+                        result.supportContacts.size() == sourceRows,
+                    "four-point foot manifold requires the registered 32-row NHCNT source");
+            require(result.points.size() + parentRows.size() <=
+                        MR_ARTICULATED_OPERATOR_MAX_POINTS,
+                    "derived foot contact queries exceed articulated-operator point capacity");
+            for (const std::uint32_t parent : parentRows) {
+                require(parent < result.supportContacts.size() &&
+                            result.supportContacts[parent].sourceGeometryIndex > 0u,
+                        "derived foot row has no source NHCNT parent");
+                auto point = result.points.at(
+                    result.supportContacts[parent].pointQueryIndex);
+                auto contact = result.supportContacts[parent];
+                contact.pointQueryIndex = static_cast<std::uint32_t>(result.points.size());
+                // The source equilibrium force belongs only to the partition
+                // containing its authored seed; the derived rows are cold.
+                contact.frictionSlopAndStabilization.w = 0.0f;
+                result.points.push_back(point);
+                result.supportContacts.push_back(contact);
+            }
         }
     }
     return result;
@@ -5932,15 +5966,27 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human stand default velocity is non-finite");
         v.push_back(static_cast<float>(velocity));
     }
+    const char* footManifoldSetting = std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
+    require(footManifoldSetting == nullptr || std::strcmp(footManifoldSetting, "0") == 0 ||
+                std::strcmp(footManifoldSetting, "1") == 0,
+            "NUMI_HUMAN_FOOT_MANIFOLD must be 0 or 1");
+    const bool deriveFootManifold =
+        (footManifoldSetting != nullptr && std::strcmp(footManifoldSetting, "1") == 0) ||
+        ropeModeRequested || std::getenv("NUMI_HUMAN_SEPARATION_STEP") != nullptr;
+    require(!deriveFootManifold || (supportGeometryProgram != nullptr &&
+                supportGeometryProgram->valid() &&
+                supportGeometryProgram->usePerContactSupportPlanes),
+        "four-point foot manifold requires the full per-contact skin geometry owner");
     MetalMujocoVisualQueries queries =
         makeMetalMujocoVisualQueries(
             model,
             &supportContacts,
-            compiledActivation.supportNormalForce
+            compiledActivation.supportNormalForce,
+            deriveFootManifold
         );
     if(ropeModeRequested) {
-        require(queries.supportContacts.size()==MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
-                "rope mode requires the existing 32 support-contact rows");
+        require(queries.supportContacts.size()>=32u&&queries.supportContacts.size()<=MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
+                "rope mode requires the 32 authored rows and bounded derived contact rows");
         std::uint32_t ropeContactIndex=MR_INVALID_INDEX;
         unsigned ropeContactMatches=0u;
         for(std::uint32_t i=0u;i<queries.supportContacts.size();++i) {
@@ -5960,7 +6006,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "rope posture retained a nonzero source contact-support seed");
         std::cout<<"rope_native_contact_replacement=existing_contact_index="
             <<ropeContactIndex<<" source_body=20 runtime_body="<<mappedTorsoBodyIndex
-            <<" contact_count=32"
+            <<" authored_source_contact_count=32 runtime_contact_count="
+            <<queries.supportContacts.size()
             <<" static_support_seeds_all_zero=1 selected_friction=0 other_contact_friction=preserved"
             <<" support_contact_force_owner=existing_unilateral_gpu_contact\n";
     }
@@ -24130,6 +24177,10 @@ int main(int argc, char** argv) {
                 std::vector<float> terminalAcceptedQ;
                 MRCompensatedRootTranslationGPU terminalAcceptedRoot{};
                 MRNumiHumanStandStatusGPU terminalAcceptedStandStatus{};
+                // Runtime manifold rows retain their authored NHCNT source lineage.
+                // Rows 32..37 resolve by (bodyIndex, sourceGeometryIndex) to
+                // source rows 20/20/20/30/30/30; no source record is duplicated.
+                std::vector<std::size_t> runtimeSupportSourceRecordIndices;
                 const std::function<void(
                     std::uint32_t,
                     std::span<const float>,
@@ -24144,6 +24195,58 @@ int main(int argc, char** argv) {
                         const MRCompensatedRootTranslationGPU& rootBefore,
                         const metalrobo::MetalArticulatedOperatorResult& result,
                         const MetalMujocoVisualQueries& queries) {
+                        if (runtimeSupportSourceRecordIndices.empty()) {
+                            runtimeSupportSourceRecordIndices.assign(
+                                queries.supportContacts.size(),
+                                std::numeric_limits<std::size_t>::max());
+                            std::vector<std::uint8_t> sourceRecordSeen(
+                                supportContactPayload->records.size(), 0u);
+                            for (std::size_t runtimeRow = 0u;
+                                 runtimeRow < queries.supportContacts.size(); ++runtimeRow) {
+                                const auto& runtimeContact =
+                                    queries.supportContacts[runtimeRow];
+                                std::size_t match = std::numeric_limits<std::size_t>::max();
+                                unsigned matchCount = 0u;
+                                for (std::size_t sourceRow = 0u;
+                                     sourceRow < supportContactPayload->records.size();
+                                     ++sourceRow) {
+                                    const auto& sourceContact =
+                                        supportContactPayload->records[sourceRow];
+                                    if (runtimeContact.bodyIndex == sourceContact.bodyIndex &&
+                                        runtimeContact.sourceGeometryIndex ==
+                                            sourceContact.sourceGeometryIndex) {
+                                        match = sourceRow;
+                                        ++matchCount;
+                                    }
+                                }
+                                require(matchCount == 1u,
+                                    "runtime support row has ambiguous or missing NHCNT lineage");
+                                runtimeSupportSourceRecordIndices[runtimeRow] = match;
+                                sourceRecordSeen[match] = 1u;
+                                if (runtimeRow < supportContactPayload->records.size()) {
+                                    require(match == runtimeRow,
+                                        "authored support row ordering changed before observer");
+                                } else {
+                                    require(runtimeRow < 38u &&
+                                                (match == 20u || match == 30u),
+                                        "derived support row is not a four-point foot child");
+                                }
+                            }
+                            require(std::all_of(sourceRecordSeen.begin(),
+                                        sourceRecordSeen.end(),
+                                        [](std::uint8_t seen) { return seen == 1u; }),
+                                "runtime support lineage omitted an authored NHCNT row");
+                            std::cout << "support_runtime_source_lineage runtime_rows="
+                                << queries.supportContacts.size()
+                                << " source_records="
+                                << supportContactPayload->records.size()
+                                << " derived_parent_rows=20,20,20,30,30,30"
+                                << " mapping=bodyIndex+sourceGeometryIndex"
+                                << std::endl;
+                        }
+                        require(runtimeSupportSourceRecordIndices.size() ==
+                                    queries.supportContacts.size(),
+                            "runtime support lineage changed within the accepted observer");
                         const auto observerProfileStart = trainingProfile
                             ? std::chrono::steady_clock::now()
                             : std::chrono::steady_clock::time_point{};
@@ -24316,8 +24419,10 @@ int main(int argc, char** argv) {
                                             vBefore.size() == articulation.nv &&
                                             result.pointJacobians.size() ==
                                                 queries.points.size() * 3u * articulation.nv &&
-                                            queries.supportContacts.size() ==
-                                                supportContactPayload->records.size(),
+                                            result.standContactImpulses.size() ==
+                                                3u * queries.supportContacts.size() &&
+                                            runtimeSupportSourceRecordIndices.size() ==
+                                                queries.supportContacts.size(),
                                         "accepted q-integration audit lacks a complete adjacent state, velocity, or point-Jacobian set");
                                 const auto worldConfiguration = [](
                                     const std::span<const float> source,
@@ -24446,7 +24551,7 @@ int main(int argc, char** argv) {
                                     const auto& supportContact =
                                         queries.supportContacts[contact];
                                     const auto& sourceContact =
-                                        supportContactPayload->records[contact];
+                                        supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
                                     // These identity fields bind the support-region row
                                     // to its contact-query slot. They do not imply that
                                     // the dynamic weighted-skin witness is a one-body
@@ -24490,7 +24595,7 @@ int main(int argc, char** argv) {
                                         const auto& supportContact =
                                             queries.supportContacts[contact];
                                         const auto& sourceContact =
-                                            supportContactPayload->records[contact];
+                                            supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
                                         qSupportSlipTrace << step << ','
                                             << std::setprecision(17)
                                             << step * double(coupled.physiology.runtime.timestepSeconds())
@@ -24797,8 +24902,8 @@ int main(int argc, char** argv) {
                                             result.pointJacobians.size() == queryElements &&
                                             result.pointWorld.size() == queries.points.size() &&
                                             result.pointPositionLow.size() == queries.points.size() &&
-                                            queries.supportContacts.size() ==
-                                                supportContactPayload->records.size(),
+                                            runtimeSupportSourceRecordIndices.size() ==
+                                                queries.supportContacts.size(),
                                         "accepted support motion observer lacks same-step pre-dynamics arrays");
                                 const auto preVelocityFingerprint =
                                     metalrobo::numiHumanRuntimePayloadFingerprint(
@@ -24814,7 +24919,7 @@ int main(int argc, char** argv) {
                                     const auto& contactQuery =
                                         queries.supportContacts[contact];
                                     const auto& sourceContact =
-                                        supportContactPayload->records[contact];
+                                        supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
                                     require(contactQuery.bodyIndex == sourceContact.bodyIndex &&
                                                 contactQuery.sourceGeometryIndex ==
                                                     sourceContact.sourceGeometryIndex &&
@@ -24929,7 +25034,7 @@ int main(int argc, char** argv) {
                             const auto& supportNormal = supportContactPayload->header;
                             const bool fullContactVector =
                                 result.standContactImpulses.size() ==
-                                3u * supportContactPayload->records.size();
+                                3u * queries.supportContacts.size();
                             require(fullContactVector,
                                     "accepted COM audit lacks every support-contact impulse triple");
                             const std::array<double,3u> referencePlaneNormal{
@@ -24937,9 +25042,9 @@ int main(int argc, char** argv) {
                             std::array<double, 3u> worldExternalSupportImpulse{};
                             std::uint32_t designatedInternalSeamRowCount=0u;
                             for (std::size_t contact = 0u;
-                                 contact < supportContactPayload->records.size(); ++contact) {
+                                 contact < queries.supportContacts.size(); ++contact) {
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
-                                    supportContactPayload->records.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
+                                    queries.supportContacts.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
                                 const double normalComponent =
                                     result.standContactImpulses[3u * contact];
                                 const double tangent0Component =
@@ -24950,7 +25055,7 @@ int main(int argc, char** argv) {
                                             std::isfinite(tangent0Component) &&
                                             std::isfinite(tangent1Component),
                                         "accepted support impulse component is non-finite");
-                                if (comAuditInternalSeamRows[contact]) {
+                                if (comAuditInternalSeamRows[runtimeSupportSourceRecordIndices.at(contact)]) {
                                     ++designatedInternalSeamRowCount;
                                 } else {
                                     for (std::size_t axis = 0u; axis < 3u; ++axis) {
@@ -25066,15 +25171,15 @@ int main(int argc, char** argv) {
                                 ? std::chrono::steady_clock::now()
                                 : std::chrono::steady_clock::time_point{};
                             for (std::size_t contact = 0u;
-                                 contact < supportContactPayload->records.size(); ++contact) {
+                                 contact < queries.supportContacts.size(); ++contact) {
                                 const auto& sourceContact =
-                                    supportContactPayload->records[contact];
+                                    supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
                                 const double components[3]{
                                     result.standContactImpulses[3u * contact],
                                     result.standContactImpulses[3u * contact + 1u],
                                     result.standContactImpulses[3u * contact + 2u]};
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
-                                    supportContactPayload->records.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
+                                    queries.supportContacts.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
                                 const auto& normal=impulseBasis[0];
                                 const auto& tangent0=impulseBasis[1];const auto& tangent1=impulseBasis[2];
                                 std::array<double, 3u> contactWorld{};
@@ -25086,7 +25191,7 @@ int main(int argc, char** argv) {
                                     << ',' << sampleSteps << ',' << contact << ','
                                     << sourceContact.bodyIndex << ','
                                     << sourceContact.sourceGeometryIndex << ','
-                                    << (comAuditInternalSeamRows[contact]
+                                    << (comAuditInternalSeamRows[runtimeSupportSourceRecordIndices.at(contact)]
                                         ? "internal_seam_constraint"
                                         : "external_support_contact") << ','
                                     << components[0] << ',' << components[1] << ','
@@ -25100,7 +25205,7 @@ int main(int argc, char** argv) {
                                     !qIntegrationWindow.bounded) {
                                     require(qIntegrationAuditSample &&
                                                 qAuditSupportPointSlip.size() ==
-                                                    supportContactPayload->records.size(),
+                                                    queries.supportContacts.size(),
                                             "unbounded Q audit lost its per-step support-point slip rows");
                                     for (const auto& slip :
                                          qAuditSupportPointSlip[contact])
@@ -25112,7 +25217,7 @@ int main(int argc, char** argv) {
                             if (qIntegrationAuditSample) {
                                 ++qComMomentumAuditRows;
                                 qSupportImpulseAuditRows +=
-                                    supportContactPayload->records.size();
+                                    queries.supportContacts.size();
                             }
                             if (trainingProfile) {
                                 restingObserverProfile.supportImpulseCsvMilliseconds +=
@@ -25381,9 +25486,11 @@ int main(int argc, char** argv) {
                             "accepted Q-integration trace did not retain every requested window step");
                     require(qComMomentumAuditRows == qIntegrationWindow.rowCount(),
                             "accepted COM momentum trace did not retain every requested Q-window step");
+                    require(!runtimeSupportSourceRecordIndices.empty(),
+                            "accepted Q-window lacks the runtime support-row lineage map");
                     const std::uint64_t expectedQSupportImpulseRows =
                         std::uint64_t(qIntegrationWindow.rowCount()) *
-                        supportContactPayload->records.size();
+                        runtimeSupportSourceRecordIndices.size();
                     require(qSupportImpulseAuditRows == expectedQSupportImpulseRows,
                             "accepted support impulse trace did not retain every Q-window contact row");
                     qIntegrationTrace.flush();

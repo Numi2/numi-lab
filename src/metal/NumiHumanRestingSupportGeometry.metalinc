@@ -16,6 +16,10 @@ constant bool kSkipNonAncestorSupportBodyDofs [[function_constant(43)]];
 constant bool kUseSkipNonAncestorSupportBodyDofs =
     is_function_constant_defined(kSkipNonAncestorSupportBodyDofs)
         ? kSkipNonAncestorSupportBodyDofs : false;
+constant bool kPredictedSupportEndpoint [[function_constant(48)]];
+constant bool kUsePredictedSupportEndpoint =
+    is_function_constant_defined(kPredictedSupportEndpoint)
+        ? kPredictedSupportEndpoint : false;
 #include "metalrobo/numi_human_support_geometry_gpu.h"
 
 namespace nm_human_resting_support {
@@ -47,6 +51,12 @@ inline uint skinInfluenceIndex(
 inline uint orderedFloat(float value) {
     const uint bits = as_type<uint>(value);
     return (bits & 0x80000000u) != 0u ? ~bits : (bits ^ 0x80000000u);
+}
+
+inline float orderedFloatValue(const uint key) {
+    const uint bits = (key & 0x80000000u) != 0u
+        ? (key ^ 0x80000000u) : ~key;
+    return as_type<float>(bits);
 }
 
 inline MRCompensatedPositionGPU skinInfluencePosition(
@@ -283,6 +293,55 @@ inline MRCompensatedScalar skinWorldZBasis(
     return result;
 }
 
+inline float3 skinWorldVelocity(
+    const MRHumanRestingVertexMap mappedVertex,
+    device const MRHumanRestingInfluence* influences,
+    device const float4* bodyProbeVelocities,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment, thread bool& valid
+) {
+    valid = validSkinInfluenceRange(mappedVertex, dispatch.identity.y);
+    if (!valid) return float3(as_type<float>(0x7fc00000u));
+    float3 result = float3(0.0f);
+    for (uint influenceIndex = 0u;
+         influenceIndex < mappedVertex.influenceCount;
+         ++influenceIndex) {
+        const MRHumanRestingInfluence influence =
+            influences[skinInfluenceIndex(mappedVertex, influenceIndex)];
+        const uint bodyIndex = influence.body.x;
+        if (bodyIndex == MR_INVALID_INDEX ||
+            bodyIndex < dispatch.identity.x ||
+            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+            !all(isfinite(influence.positionAndWeight)) ||
+            !(influence.positionAndWeight.w > 0.0f)) {
+            valid = false;
+            return float3(as_type<float>(0x7fc00000u));
+        }
+        const uint localBody = bodyIndex - dispatch.identity.x;
+        const uint bodyOffset =
+            (environment * dispatch.strides.x + localBody) * 4u;
+        const float4 velocity0 = bodyProbeVelocities[bodyOffset];
+        const float4 velocityX = bodyProbeVelocities[bodyOffset + 1u];
+        const float4 velocityY = bodyProbeVelocities[bodyOffset + 2u];
+        const float4 velocityZ = bodyProbeVelocities[bodyOffset + 3u];
+        if (velocity0.w != 1.0f || velocityX.w != 1.0f ||
+            velocityY.w != 1.0f || velocityZ.w != 1.0f ||
+            !all(isfinite(velocity0)) || !all(isfinite(velocityX)) ||
+            !all(isfinite(velocityY)) || !all(isfinite(velocityZ))) {
+            valid = false;
+            return float3(as_type<float>(0x7fc00000u));
+        }
+        const float3 local = influence.positionAndWeight.xyz;
+        const float3 pointVelocity = velocity0.xyz +
+            local.x * (velocityX.xyz - velocity0.xyz) +
+            local.y * (velocityY.xyz - velocity0.xyz) +
+            local.z * (velocityZ.xyz - velocity0.xyz);
+        result += influence.positionAndWeight.w * pointVelocity;
+    }
+    valid = all(isfinite(result));
+    return result;
+}
+
 } // namespace nm_human_resting_support
 
 // Normalize each current body orientation once per physical step, preserving
@@ -332,8 +391,60 @@ kernel void nm_human_resting_support_normalize_poses(
     };
 }
 
+// Compute the four body-probe point velocities from the exact GPU free
+// velocity. The skin pass then interpolates these affine rigid-body fields
+// with the same authored LBS weights used for its current-pose witness.
+kernel void nm_human_resting_support_probe_velocities(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const float* pointJacobians [[buffer(1)]],
+    device const float* sourceFreeVelocity [[buffer(2)]],
+    device float4* bodyProbeVelocities [[buffer(3)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint dofCount = dispatch.counts.z;
+    const uint bodyCount = dispatch.prediction.sourceVelocity.w;
+    const uint environmentCount = dispatch.counts.w;
+    const uint total = environmentCount * bodyCount * 4u;
+    if (dofCount == 0u || globalIndex >= total) return;
+    const uint environment = globalIndex / (bodyCount * 4u);
+    const uint probeLocal = globalIndex - environment * bodyCount * 4u;
+    const uint localBody = probeLocal / 4u;
+    const uint pointProbe = dispatch.strides.y + probeLocal;
+    const uint outputBase =
+        (environment * dispatch.strides.x + localBody) * 4u +
+        (probeLocal & 3u);
+    const uint sourceBase = environment *
+        dispatch.prediction.sourceVelocity.z +
+        dispatch.prediction.sourceVelocity.x;
+    if (bodyCount == 0u ||
+        dispatch.prediction.sourceVelocity.x + dofCount >
+            dispatch.prediction.sourceVelocity.y ||
+        dispatch.prediction.sourceVelocity.z == 0u ||
+        sourceBase + dofCount > dispatch.prediction.sourceVelocity.y) {
+        bodyProbeVelocities[outputBase] = float4(NAN);
+        return;
+    }
+    float3 velocity = float3(0.0f);
+    for (uint dof = 0u; dof < dofCount; ++dof) {
+        const float generalizedVelocity =
+            sourceFreeVelocity[sourceBase + dof];
+        const float jx = pointJacobians[
+            environment * dispatch.strides.w +
+            (3u * pointProbe + 0u) * dofCount + dof];
+        const float jy = pointJacobians[
+            environment * dispatch.strides.w +
+            (3u * pointProbe + 1u) * dofCount + dof];
+        const float jz = pointJacobians[
+            environment * dispatch.strides.w +
+            (3u * pointProbe + 2u) * dofCount + dof];
+        velocity += float3(jx, jy, jz) * generalizedVelocity;
+    }
+    const bool valid = all(isfinite(velocity));
+    bodyProbeVelocities[outputBase] =
+        valid ? float4(velocity, 1.0f) : float4(NAN);
+}
+
 // Stage 1: evaluate every registered skin vertex and atomically find the
-// lowest current world-Z key for its derived Voronoi support region.
+// lowest current or predicted-endpoint world-Z key for its support region.
 kernel void nm_human_resting_support_positions(
     constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
     device const MRHumanRestingVertexMap* vertexMap [[buffer(1)]],
@@ -348,6 +459,8 @@ kernel void nm_human_resting_support_positions(
     device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(10)]],
     constant MRHumanRestingBedGPU& bed [[buffer(11), function_constant(kUseRestingContouredBed)]],
     device const float* bedHeights [[buffer(12), function_constant(kUseRestingContouredBed)]],
+    device const float4* bodyProbeVelocities
+        [[buffer(13), function_constant(kUsePredictedSupportEndpoint)]],
     uint globalIndex [[thread_position_in_grid]]) {
     const uint vertexCount = dispatch.counts.x;
     const uint regionCount = dispatch.counts.y;
@@ -370,7 +483,22 @@ kernel void nm_human_resting_support_positions(
         return;
     }
     float orderingValue;
-    if (kUseRestingContouredBed) {
+    if (kUsePredictedSupportEndpoint) {
+        const MRCompensatedScalar positionZ =
+            nm_human_resting_support::skinWorldZBasis(
+                mappedVertex, influences, bodies, bodyPositionLow,
+                rotationZBasis, dispatch, environment);
+        bool velocityValid = true;
+        const float3 pointVelocity =
+            nm_human_resting_support::skinWorldVelocity(
+                mappedVertex, influences, bodyProbeVelocities,
+                dispatch, environment, velocityValid);
+        const float position = positionZ.high + positionZ.low;
+        const float dt = dispatch.prediction.groundPointAndTimestep.w;
+        orderingValue = velocityValid && isfinite(position) && isfinite(dt) &&
+                dt > 0.0f
+            ? position + dt * pointVelocity.z : NAN;
+    } else if (kUseRestingContouredBed) {
         const MRCompensatedPositionGPU point =
             nm_human_resting_support::skinPosition(mappedVertex, influences,
                 bodies, bodyPositionLow, normalizedOrientations, dispatch, environment);
@@ -430,6 +558,45 @@ kernel void nm_human_resting_support_select(
     }
 }
 
+// Choose the lower of the current and source-free predicted full-skin
+// minima. This preserves a deeper current violation while admitting a deeper
+// endpoint witness even when the current resting row has a tiny negative gap.
+kernel void nm_human_resting_support_choose_endpoint_witness(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* currentSelectedVertices [[buffer(1)]],
+    device const uint* currentPositionKeys [[buffer(2)]],
+    device const atomic_uint* predictedSelectedVertices [[buffer(3)]],
+    device uint* selectedVertices [[buffer(4)]],
+    device const uint* predictedPositionKeys [[buffer(5)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint regionCount = dispatch.counts.y;
+    const uint regionElements = regionCount * dispatch.counts.w;
+    if (regionCount == 0u || globalIndex >= regionElements) return;
+    const uint environment = globalIndex / regionCount;
+    const uint current = currentSelectedVertices[globalIndex];
+    const uint predicted = atomic_load_explicit(
+        predictedSelectedVertices + globalIndex, memory_order_relaxed);
+    if (predicted >= dispatch.counts.x) {
+        selectedVertices[globalIndex] = MR_INVALID_INDEX;
+        return;
+    }
+    const uint predictedKey = predictedPositionKeys[
+        environment * dispatch.counts.x + predicted];
+    if (predictedKey == 0xffffffffu) {
+        selectedVertices[globalIndex] = MR_INVALID_INDEX;
+        return;
+    }
+    if (current < dispatch.counts.x) {
+        const uint currentKey = currentPositionKeys[
+            environment * dispatch.counts.x + current];
+        if (currentKey != 0xffffffffu && currentKey <= predictedKey) {
+            selectedVertices[globalIndex] = current;
+            return;
+        }
+    }
+    selectedVertices[globalIndex] = predicted;
+}
+
 // Stage 3: publish each selected full-skin point and its complete weighted
 // articulated Jacobian into the existing source contact query row. For a
 // rigid body's point Jacobian, the four existing COM/+X/+Y/+Z probes give the
@@ -485,13 +652,26 @@ kernel void nm_human_resting_support_publish(
     const uint environment = regionElement / regionCount;
     const uint region = regionElement - environment * regionCount;
     const uint query = regions[region].pointQueryIndex;
-    const uint vertexIndex = atomic_load_explicit(
-        selectedVertices + regionElement, memory_order_relaxed);
+    // Boundary-only rows keep a finite source query until the dedicated
+    // rope/interface callback publishes its moving boundary point.
+    const uint vertexIndex = regions[region].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY
+        ? regions[region].sourceGeometryIndex - 1u
+        : atomic_load_explicit(
+            selectedVertices + regionElement, memory_order_relaxed);
     const uint flagsBase = environment * (regionCount + 1u);
+    const uint role = regions[region].reserved0;
+    const uint parentRegion = regions[region].reserved1;
+    const bool derivedLineageValid = role != MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR ||
+        (parentRegion < regionCount && parentRegion != region &&
+         regions[parentRegion].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR &&
+         regions[parentRegion].sourceGeometryIndex ==
+             regions[region].sourceGeometryIndex);
     const bool valid =
         dispatch.identity.w == MR_NUMI_HUMAN_SUPPORT_GEOMETRY_ABI_VERSION &&
         dispatch.identity.z == regionCount &&
-        regions[region].reserved0 == 0u && regions[region].reserved1 == 0u &&
+        role <= MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR &&
+        (role == MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR
+            ? derivedLineageValid : parentRegion == 0u) &&
         contacts[region].pointQueryIndex == query &&
         contacts[region].sourceGeometryIndex == regions[region].sourceGeometryIndex &&
         atomic_load_explicit(invalidRegionFlags + flagsBase + region,
@@ -548,7 +728,7 @@ kernel void nm_human_resting_support_publish(
 
     // One GPU lane owns each scalar weighted-J entry. It retains the exact
     // source influence order, while parallelizing independent rows/DOFs
-    // across the 32 contact regions instead of serially writing 384 entries
+    // across the contact regions instead of serially writing 384 entries
     // from each of only 32 lanes.
     const uint jacobianIndex = ownedJacobianIndex;
     const uint axis = jacobianIndex / dofCount;
@@ -622,8 +802,10 @@ kernel void nm_human_resting_support_debug(
     const uint region = globalIndex - environment * regionCount;
     const uint flagsBase = environment * (regionCount + 1u);
     const uint query = regions[region].pointQueryIndex;
-    const uint selected = atomic_load_explicit(
-        selectedVertices + globalIndex, memory_order_relaxed);
+    const uint selected = regions[region].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY
+        ? regions[region].sourceGeometryIndex - 1u
+        : atomic_load_explicit(
+            selectedVertices + globalIndex, memory_order_relaxed);
     MRHumanRestingSupportDebugGPU result{};
     result.status = uint4(
         selected,

@@ -1,0 +1,9 @@
+{
+  "scope": "Existing rope GPU fixture repaired to bind required motion buffer7 with neutral finite motion. Both unmodified-main-control and candidate first failed with missing buffer7; corrected fixture passes on Apple M6.",
+  "native_contact_evidence": "Retained four-second native056 run; this fixture is not long-run qualification.",
+  "remaining_gaps": [
+    "Organ release integration unfinished",
+    "Bleeding topology integration unfinished",
+    "COM impulse residual remains unexplained"
+  ]
+}

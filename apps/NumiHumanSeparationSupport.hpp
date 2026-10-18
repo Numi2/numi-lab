@@ -28,7 +28,7 @@ private:
         auto* s=static_cast<NumiHumanSeparationSupport*>(c);if(s&&s->base_.abort)s->base_.abort(s->base_.context,cb);
     }
     bool encode(const metalrobo::MetalNumiHumanSupportGeometryPass& p) {
-        if(p.abiVersion!=2||p.structSize!=sizeof(p)||p.environmentCount!=1||
+        if((p.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose&&p.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint)||p.abiVersion!=3||p.structSize!=sizeof(p)||p.environmentCount!=1||
            p.articulationFirstBody!=cfg_.bodies.z||p.dofCount!=cfg_.strides.w||
            p.bodyCount==0||p.bodyCount>192||p.bodyPoseStride<p.bodyCount||
            p.bodyPoseElementCount<p.bodyPoseStride||

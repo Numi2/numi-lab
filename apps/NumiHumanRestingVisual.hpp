@@ -2666,7 +2666,14 @@ public:
         }
 
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
-        auto supportQueries=makeMetalMujocoVisualQueries(model,&support);
+        const char* footManifoldSetting=std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
+        require(!footManifoldSetting||std::strcmp(footManifoldSetting,"0")==0||
+                std::strcmp(footManifoldSetting,"1")==0,
+            "NUMI_HUMAN_FOOT_MANIFOLD must be 0 or 1");
+        const bool deriveFootManifold=(footManifoldSetting&&
+                std::strcmp(footManifoldSetting,"1")==0)||ropeConfig.has_value()||
+            std::getenv("NUMI_HUMAN_SEPARATION_STEP")!=nullptr;
+        auto supportQueries=makeMetalMujocoVisualQueries(model,&support,{},deriveFootManifold);
         if(ropeConfig) {
             NumiHumanRestingRopeSupport::prepareContacts(
                 supportQueries.supportContacts,ropeContactIndex,ropeConfig->globalBodyIndex);
@@ -2685,26 +2692,125 @@ public:
                 <<ropeConfig->anchorAndLength[2]<<','<<ropeConfig->anchorAndLength[3]
                 <<"] force_owner=existing_unilateral_metal_contact\n";
         }
+        std::set<unsigned> boundaryOnlyRows;
+        if(ropeConfig) {
+            boundaryOnlyRows.insert(ropeContactIndex);
+            if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+                const auto rows=NumiHumanSeparationSupport::selectIndices(
+                    std::span<const MRNumiHumanStandContactGPU>(supportQueries.supportContacts),ropeContactIndex);
+                boundaryOnlyRows.insert(rows.begin(),rows.end());
+            }
+        }
+        constexpr unsigned sourceRegionCount=32u;
+        constexpr std::array<unsigned,2> manifoldParents={20u,30u};
         std::vector<MRHumanRestingSupportRegionGPU> regions;
         std::vector<unsigned> seeds;
-        for(const auto& row:supportQueries.supportContacts) {
+        const unsigned sourceRowCount=unsigned(support.records.size());
+        require(sourceRowCount==sourceRegionCount&&
+                    supportQueries.supportContacts.size()==
+                        sourceRegionCount+(deriveFootManifold?6u:0u),
+            "resting support producer and contact manifold row counts disagree");
+        regions.reserve(supportQueries.supportContacts.size());
+        seeds.reserve(sourceRegionCount);
+        for(unsigned rowIndex=0;rowIndex<sourceRegionCount;++rowIndex) {
+            const auto& row=supportQueries.supportContacts[rowIndex];
             require(row.sourceGeometryIndex>0&&row.sourceGeometryIndex<=skin.header.vertexCount,
                 "resting NHCNT row has no valid source skin vertex identity");
             const unsigned seed=row.sourceGeometryIndex-1;
-            require(std::find(seeds.begin(),seeds.end(),seed)==seeds.end(),"resting support seed is duplicated");
-            seeds.push_back(seed);regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,0,0});
+            require(std::find(seeds.begin(),seeds.end(),seed)==seeds.end(),
+                "resting support seed is duplicated");
+            const unsigned role=boundaryOnlyRows.contains(rowIndex)?
+                MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY:
+                MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR;
+            seeds.push_back(seed);regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,role,0});
+        }
+        if(deriveFootManifold) {
+            for(unsigned derived=0;derived<6u;++derived) {
+                const unsigned parent=derived<3u?manifoldParents[0]:manifoldParents[1];
+                const auto& row=supportQueries.supportContacts[sourceRegionCount+derived];
+                require(row.sourceGeometryIndex==supportQueries.supportContacts[parent].sourceGeometryIndex&&
+                            row.bodyIndex==supportQueries.supportContacts[parent].bodyIndex,
+                    "derived foot contact did not preserve its source row identity");
+                regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,
+                    MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR,parent});
+            }
         }
         std::vector<unsigned> regionForVertex(skin.header.vertexCount);
-        std::vector<unsigned> regionCounts(seeds.size());
+        std::vector<unsigned> regionCounts(regions.size());
         for(unsigned v=0;v<skin.header.vertexCount;++v) {
             float nearest=INFINITY;unsigned chosen=MR_INVALID_INDEX;
-            for(unsigned r=0;r<seeds.size();++r) {
+            for(unsigned r=0;r<sourceRegionCount;++r) {
+                if(regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY)continue;
                 const auto delta=subtractPoint(skinRestWorld[v],skinRestWorld[seeds[r]]);
                 const float distance=dotPoint(delta,delta);
                 if(distance<nearest){nearest=distance;chosen=r;}
             }
             require(chosen!=MR_INVALID_INDEX,"registered skin Voronoi assignment is invalid");
             regionForVertex[v]=chosen;++regionCounts[chosen];
+        }
+        if(deriveFootManifold) {
+            for(unsigned parentIndex=0;parentIndex<manifoldParents.size();++parentIndex) {
+                const unsigned parent=manifoldParents[parentIndex];
+                require(regions[parent].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR,
+                    "foot manifold parent is not a source floor contact");
+                std::vector<unsigned> vertices;
+                vertices.reserve(regionCounts[parent]);
+                for(unsigned vertex=0;vertex<skin.header.vertexCount;++vertex)
+                    if(regionForVertex[vertex]==parent)vertices.push_back(vertex);
+                require(vertices.size()>=4u&&
+                            std::find(vertices.begin(),vertices.end(),seeds[parent])!=vertices.end(),
+                    "foot source region cannot form four nonempty spatial patches");
+                float minX=INFINITY,maxX=-INFINITY,minY=INFINITY,maxY=-INFINITY;
+                for(const unsigned vertex:vertices) {
+                    const auto& position=skinRestWorld[vertex];
+                    minX=std::min(minX,position.x);maxX=std::max(maxX,position.x);
+                    minY=std::min(minY,position.y);maxY=std::max(maxY,position.y);
+                }
+                const unsigned axis=(maxX-minX)>=(maxY-minY)?0u:1u;
+                const auto coordinate=[&](unsigned vertex) {
+                    return axis==0u?skinRestWorld[vertex].x:skinRestWorld[vertex].y;
+                };
+                std::sort(vertices.begin(),vertices.end(),[&](unsigned a,unsigned b) {
+                    const float ca=coordinate(a),cb=coordinate(b);
+                    return ca==cb?a<b:ca<cb;
+                });
+                std::array<std::vector<unsigned>,4> bins;
+                std::array<float,4> binMin={INFINITY,INFINITY,INFINITY,INFINITY};
+                std::array<float,4> binMax={-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+                unsigned seedBin=MR_INVALID_INDEX;
+                for(std::size_t rank=0;rank<vertices.size();++rank) {
+                    const unsigned bin=std::min(3u,unsigned(rank*4u/vertices.size()));
+                    const unsigned vertex=vertices[rank];
+                    bins[bin].push_back(vertex);
+                    binMin[bin]=std::min(binMin[bin],coordinate(vertex));
+                    binMax[bin]=std::max(binMax[bin],coordinate(vertex));
+                    if(vertex==seeds[parent])seedBin=bin;
+                }
+                require(seedBin<4u&&std::all_of(bins.begin(),bins.end(),
+                            [](const auto& bin){return !bin.empty();})&&
+                            binMin[0]<binMax[3],
+                    "foot manifold patches are not spatially separated");
+                std::array<unsigned,4> rowForBin{};
+                rowForBin[seedBin]=parent;
+                unsigned derivedRow=sourceRegionCount+parentIndex*3u;
+                for(unsigned bin=0;bin<4u;++bin)
+                    if(bin!=seedBin)rowForBin[bin]=derivedRow++;
+                require(derivedRow==sourceRegionCount+(parentIndex+1u)*3u,
+                    "foot manifold derived-row lineage is incomplete");
+                regionCounts[parent]=0u;
+                for(unsigned bin=0;bin<4u;++bin) {
+                    if(bin>0u)require(binMax[bin-1u]<binMin[bin],
+                        "adjacent foot manifold patches have no spatial separation");
+                    const unsigned row=rowForBin[bin];
+                    require(row<regions.size()&&(row==parent||
+                                (regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR&&
+                                 regions[row].reserved1==parent)),
+                        "foot manifold patch points at a row with different lineage");
+                    for(const unsigned vertex:bins[bin]) {
+                        regionForVertex[vertex]=row;++regionCounts[row];
+                    }
+                }
+            }
         }
         const char* supportAncestryPruningSetting =
             std::getenv("NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE");
@@ -2820,7 +2926,8 @@ public:
             <<" ancestry_prune="<<(supportAncestryPruning?"on":"off")
             <<" region_sizes=[";
         for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
-        std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";
+        std::cout<<"] force_owner=existing_metal_stand partition="
+            <<(deriveFootManifold?"source_rest_voronoi_4point_foot":"source_rest_voronoi")<<"\n";
         id<MTLLibrary> skinLibrary=lib;
 #ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
         // Hosts with Command Line Tools but no offline Metal compiler can

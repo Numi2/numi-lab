@@ -184,22 +184,26 @@ struct MetalNumiHumanTendonLoadProgram {
     }
 };
 
-// Optional current-pose support-surface query refresh. The callback is offered
-// after current-step kinematics, MyoSim/tendon evaluation, and the Human/Matter
-// pre-dynamics apply, immediately before the existing stand contact solver.
-// It may write only the pointWorld, pointPositionLow, and pointJacobians rows
-// addressed by the immutable stand.contacts pointQueryIndex values. When the
-// registered provider opts into per-contact fixed planes, it may additionally
-// overwrite only planePoint/planeNormal on those contact records. Contact IDs,
-// source geometry, friction/rest parameters, body poses, paired body positions,
-// and every other point row remain read-only. Plane fields are transient derived
-// data, not rollback state: regenerate them before every stand use. After a rejected
-// attempt, rerun the callback from restored current-pose inputs before the solver
-// can read those fields again. Implementations append work to the same
-// command buffer; they must not commit, wait, retain, read back, or replace
-// borrowed resources.
+// Optional support-surface query refresh. The callback is offered after
+// current-step kinematics, MyoSim/tendon evaluation, and the Human/Matter
+// pre-dynamics apply. It may write only the pointWorld, pointPositionLow, and
+// pointJacobians rows addressed by the immutable stand.contacts pointQueryIndex
+// values. When the registered provider opts into per-contact fixed planes, it
+// may additionally overwrite only planePoint/planeNormal on those contact
+// records. Contact IDs, source geometry, friction/rest parameters, body poses,
+// paired body positions, and every other point row remain read-only. Plane
+// fields are transient derived data, not rollback state: regenerate them before
+// every stand use. A second predictedFreeEndpoint phase may be offered after
+// the exact free-velocity solve and before projected contact responses are
+// assembled. Implementations append work to the same command buffer; they must
+// not commit, wait, retain, read back, or replace borrowed resources.
+enum class MetalNumiHumanSupportGeometryPhase : std::uint32_t {
+    currentPose = 0u,
+    predictedFreeEndpoint = 1u,
+};
+
 struct MetalNumiHumanSupportGeometryPass {
-    std::uint32_t abiVersion = 2u;
+    std::uint32_t abiVersion = 3u;
     std::uint32_t structSize = sizeof(MetalNumiHumanSupportGeometryPass);
     void* commandBuffer = nullptr;
     void* bodyPoses = nullptr;
@@ -224,6 +228,13 @@ struct MetalNumiHumanSupportGeometryPass {
     std::uint64_t standContactCount = 0u;
     mr_float4 groundPoint{};
     mr_float4 groundNormal{};
+    MetalNumiHumanSupportGeometryPhase phase =
+        MetalNumiHumanSupportGeometryPhase::currentPose;
+    void* sourceFreeVelocity = nullptr;
+    std::uint64_t sourceFreeVelocityElementOffset = 0u;
+    std::uint64_t sourceFreeVelocityElementCount = 0u;
+    std::uint64_t sourceFreeVelocityElementStride = 0u;
+    float timestepSeconds = 0.0f;
 };
 
 using MetalNumiHumanSupportGeometryEncode = bool (*)(
@@ -235,6 +246,8 @@ using MetalNumiHumanSupportGeometryAbort = void (*)(
 
 struct MetalNumiHumanSupportGeometryProgram {
     void* context = nullptr;
+    // Called for currentPose and, in the split GPU preview path, again for
+    // predictedFreeEndpoint after the source free-velocity solve.
     MetalNumiHumanSupportGeometryEncode encodePreDynamics = nullptr;
     MetalNumiHumanSupportGeometryAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;

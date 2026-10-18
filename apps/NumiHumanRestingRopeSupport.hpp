@@ -53,10 +53,10 @@ private:
     bool encode(const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
         constexpr std::uint64_t maxU32=std::numeric_limits<std::uint32_t>::max();
         const auto fits=[](std::uint64_t a,std::uint64_t b){return b==0||a<=std::numeric_limits<std::uint64_t>::max()/b;};
-        if(!base_.valid()||pass.abiVersion!=2u||pass.structSize!=sizeof(pass)||!pass.commandBuffer||
+        if((pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose&&pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint)||!base_.valid()||pass.abiVersion!=3u||pass.structSize!=sizeof(pass)||!pass.commandBuffer||
            !pass.bodyPoses||!pass.bodyPositionLow||!pass.pointWorld||!pass.pointPositionLow||
            !pass.pointJacobians||!pass.standContacts||pass.environmentCount!=1u||
-           pass.standContactCount!=MR_NUMI_HUMAN_STAND_MAX_CONTACTS||pass.bodyCount==0||pass.dofCount==0||
+           (pass.standContactCount<32u||pass.standContactCount>MR_NUMI_HUMAN_STAND_MAX_CONTACTS)||pass.bodyCount==0||pass.dofCount==0||
            pass.bodyPoseStride<pass.bodyCount||pass.pointWorldStride<pass.pointCount||
            !fits(pass.pointWorldStride,3ull*pass.dofCount)||
            pass.pointJacobianStride<pass.pointWorldStride*3ull*pass.dofCount||
@@ -139,7 +139,7 @@ public:
                                 std::uint32_t bodyIndex=MR_INVALID_INDEX) {
         require(bodyIndex!=MR_INVALID_INDEX,
             "rope contact selection requires an explicitly mapped runtime body index");
-        require(contacts.size()==MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
+        require(contacts.size()>=32u&&contacts.size()<=MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
             "rope mode requires the existing 32 support contacts");
         selectedIndex=MR_INVALID_INDEX;unsigned matches=0;
         for(std::uint32_t i=0;i<contacts.size();++i)if(contacts[i].bodyIndex==bodyIndex){

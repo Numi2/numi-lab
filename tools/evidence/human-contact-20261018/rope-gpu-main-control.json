@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/contact-publication-056/test-rope-main",
+    "/Users/n/numi-human-separation-20261018/C/contact-publication-056/NumiHumanRestingRope-main.metalinc",
+    "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/numi_human_resting_rope_gpu.h",
+    "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/engine_types.h",
+    "/Users/n/numi-human-separation-20261018/C/contact-publication-056/numi_human_stand-head.h"
+  ],
+  "exit_code": 1,
+  "output": "rigid site not transported\n"
+}

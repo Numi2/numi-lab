@@ -1,0 +1,67 @@
+{
+  "base_commit": "f0d362dae3993795b2caf15d4febcf2b6596638d",
+  "scope": "tested056 contact owner: ABI19/64-row runtime contract, ABI3 support provider, four-point foot manifold, observer source-row lineage",
+  "files": {
+    "apps/NumiHumanRestingSupportGeometry.hpp": {
+      "change": "modified",
+      "base_sha256": "bc888b73c2d2617ed9d16e31556d167ebcd15425b6686cfae086da595e6c6d98",
+      "candidate_sha256": "545ef47bcd50e61b4896e9c60926d8c9dd3540f18ad38e8197cd228964c78e92"
+    },
+    "apps/NumiHumanRestingSkinInfluencePipeline.hpp": {
+      "change": "modified",
+      "base_sha256": "872a2eef8e4c62806001b9004f3d9a9ef7b75c890962cf144ea167614115f79e",
+      "candidate_sha256": "11045831148605618015730f3a7f73573b52c21cf5fc96874e16bcfd579aa89c"
+    },
+    "apps/NumiHumanRestingRopeSupport.hpp": {
+      "change": "modified",
+      "base_sha256": "54991697809a67c3cf6f2df694b3097355d5dccc12082b2a5b7a457a40b9baa9",
+      "candidate_sha256": "ff5f8f008741c7fc620a81924cba283b20882dbabe089aa32c884d77c71c8bd3"
+    },
+    "apps/NumiHumanSeparationSupport.hpp": {
+      "change": "modified",
+      "base_sha256": "2a3130d10d795bee1a93ceaef853b5caedeb23a25d12cefcbeb48bac6802699b",
+      "candidate_sha256": "564fd186d43b00da0255484b141b88bb2702e5ba46c104c3c59cf317c57903c4"
+    },
+    "apps/NumiHumanRestingVisual.hpp": {
+      "change": "modified",
+      "base_sha256": "2caf38399a47a39d17e679a288df4f102896f681440560bb81461a7e9d2efbb2",
+      "candidate_sha256": "15fb310526b990027bed1886ddd9e308a8050c21433bdc3903c243cd0f9b7420"
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "change": "modified",
+      "base_sha256": "96ef07091f3d91804412f4507e8ef294e4436f51c3189726d0b4d52f7149a3d2",
+      "candidate_sha256": "4238ee1196c6c4a1241c270954586006218bf612244d4ca810515a8125ac33a0"
+    },
+    "include/metalrobo/numi_human_stand_gpu.h": {
+      "change": "modified",
+      "base_sha256": "29ea5f38c06a10249b21c4e9a0a2c55f400bbc8425dc87030462cd4dadd8477e",
+      "candidate_sha256": "22fc84a4ccf8762635d0278adf017e178d78329fc5e4d40a21ba81d7947e70e7"
+    },
+    "include/metalrobo/numi_human_support_geometry_gpu.h": {
+      "change": "modified",
+      "base_sha256": "fc2da71cd12e18e7f1fb6dc59d65a83eb4c872ae7cf5da38cbd7dbf36ecbe416",
+      "candidate_sha256": "fb876149bf76246f45deeba6863b578d107f3acc32acd1e39dd5a9c893deb5fb"
+    },
+    "src/metal/NumiHumanRestingSupportGeometry.metalinc": {
+      "change": "modified",
+      "base_sha256": "4592aa32978e928ae6c816c30166423e0c5eee72d8a45e13d8216663925cab82",
+      "candidate_sha256": "bbb259cf7c0440fd51003648b5e392846c4641727978a46ac51b2650adf63005"
+    },
+    "include/metalrobo/MetalArticulatedOperator.hpp": {
+      "change": "modified",
+      "base_sha256": "3537b92abef5b9e76ecd171c4ef570716268ad6895831123419f973a6ec9931c",
+      "candidate_sha256": "ff6daef55a83331232494d2b4976492acdd58f640dcaea4f1035b968a6cf7b9a"
+    },
+    "src/metal/MetalArticulatedOperator.mm": {
+      "change": "modified",
+      "base_sha256": "95b1d0aa54121e9e06af6464f165be070dc2614ad0046e8358565b6780ee7e9c",
+      "candidate_sha256": "8a663e05ab4bdb28b17b32f344ef27ec8a86f9a7b3179155a07f3233724e7c5b"
+    }
+  },
+  "excluded": "W dirty working-tree intercostal and blood edits; candidate-only no-op v5 layout marker (tracked HEAD v4 identity retained)",
+  "no_apply_no_stage_no_build": true,
+  "patch_path": "/Users/n/numi-human-separation-20261018/C/contact-publication-056/whead-f0d362da-contact-owner.patch",
+  "patch_sha256": "a705ab8136c9ffdc59d9e849a13861ce7af0823790a52a781776cf2ecf0dc858",
+  "candidate_app_visual_shader_marker": "kept v4 to match W HEAD tracked HumanPresentation shader; v5 was a stub-only candidate guard change",
+  "runtime_owner_source": "integrated-runtime-source-053: MetalArticulatedOperator.hpp/.mm plus the two public ABI headers and support geometry include; NumiHumanStandSolve.metalinc is identical to W HEAD and omitted"
+}

@@ -13222,6 +13222,18 @@ MetalArticulatedOperatorContext::submit(
                     !oneHandoff &&
                     (standDispatch.flags &
                      MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u;
+                const bool supportEndpointPreviewRequested = freeSplit &&
+                    input.stand.supportGeometryProgram.valid();
+                const bool freePreviewMode = supportEndpointPreviewRequested &&
+                    !input.stand.supportGeometryProgram.usePerContactSupportPlanes &&
+                    !cpuStandDiagnosticRequested && !cpuFactorShadowFreeProbe;
+                if (supportEndpointPreviewRequested && !freePreviewMode) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "predicted support endpoint preview requires the full GPU flat-plane stand path"
+                    );
+                }
                 // An unconstrained reference/parity submission shares this
                 // context but has no equality fallback to exercise. Require
                 // fault delivery only for the constrained contact solve.
@@ -13312,11 +13324,19 @@ MetalArticulatedOperatorContext::submit(
                 constexpr std::uint32_t deferredEqualityRecoveryPhaseCount = 3u;
                 const std::uint32_t deferredEqualityRecoveryPhases =
                     deferEqualityData ? deferredEqualityRecoveryPhaseCount : 0u;
-                const std::uint32_t standFreePreludePhase =
-                    6u + deferredEqualityRecoveryPhases;
-                const std::uint32_t standPhaseCount = parallelMass ?
-                    (freeSplit ? 8u : 7u) + deferredEqualityRecoveryPhases :
-                    (splitStand ? 2u : 1u);
+                const std::uint32_t standFreePreludePhase = freePreviewMode
+                    ? 5u : 6u + deferredEqualityRecoveryPhases;
+                const std::uint32_t standPhaseCount = parallelMass
+                    ? (freeSplit ? 8u : 7u) + deferredEqualityRecoveryPhases -
+                          (freePreviewMode && deferEqualityData ? 1u : 0u)
+                    : (splitStand ? 2u : 1u);
+                const std::uint32_t projectedResponsePhase =
+                    freePreviewMode
+                        ? (deferEqualityData ? 8u : 6u)
+                        : 5u;
+                const std::uint32_t deferredProjectedResponsePhase =
+                    deferEqualityData && !freePreviewMode ? 8u
+                        : projectedResponsePhase;
                 constexpr std::size_t freeProbeDofs =
                     detail::stand_cpu_pilot::kDofs;
                 const auto freeProbeMatrix = cpuFactorShadowFreeProbe
@@ -14636,7 +14656,7 @@ MetalArticulatedOperatorContext::submit(
                             phaseDispatch.flags |=
                                 MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA |
                                 MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY;
-                        if (phase == 5u &&
+                        if (phase == deferredProjectedResponsePhase &&
                             state_->config.standEqualityDeferralFault ==
                                 MetalStandEqualityDeferralFault::projectedColumnFallback)
                             phaseDispatch.flags |=
@@ -14653,6 +14673,9 @@ MetalArticulatedOperatorContext::submit(
                         if (phase == 0u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY;
+                        } else if (freePreviewMode &&
+                                   phase == standFreePreludePhase) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
                         } else if (phase >= 2u && phase <= 5u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_READY |
@@ -14666,9 +14689,16 @@ MetalArticulatedOperatorContext::submit(
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_READY |
                                 MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
-                        } else if (freeSplit && phase == standFreePreludePhase) {
+                        } else if (freePreviewMode &&
+                                   phase == projectedResponsePhase) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                                MR_NUMI_HUMAN_STAND_MASS_READY |
+                                MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
+                        } else if (!freePreviewMode && freeSplit &&
+                                   phase == standFreePreludePhase) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
-                        } else if (freeSplit && phase == standPhaseCount - 1u) {
+                        } else if (freeSplit &&
+                                   phase == standPhaseCount - 1u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_READY;
                             if (cpuFinish)
                                 phaseDispatch.flags |=
@@ -14688,7 +14718,8 @@ MetalArticulatedOperatorContext::submit(
                         authoritativeStep == state_->sparseCaptureRoot &&
                         !state_->sparseCapturePath.empty();
                     const bool sampleReducedResponseDiagnostics =
-                        parallelMass && reducedProjectedResponses && phase == 5u &&
+                        parallelMass && reducedProjectedResponses &&
+                        phase == projectedResponsePhase &&
                         state_->standProjectedResponseDiagnosticPipeline != nil &&
                         std::binary_search(
                             state_->reducedResponseDiagnosticRoots.begin(),
@@ -14752,13 +14783,17 @@ MetalArticulatedOperatorContext::submit(
                            phase == 2u ? "stand_factor" :
                            phase == 3u ? "stand_equality_responses" :
                            phase == 4u ? "stand_equality_factor" :
-                           phase == 5u ? "stand_projected_responses" :
+                           freePreviewMode &&
+                                   phase == standFreePreludePhase
+                               ? "stand_endpoint_preview" :
                            deferEqualityData && phase == 6u
                                ? "stand_equality_response_rebuild" :
                            deferEqualityData && phase == 7u
                                ? "stand_equality_factor_rebuild" :
                            deferEqualityData && phase == 8u
                                ? "stand_projected_response_fallback" :
+                           phase == projectedResponsePhase
+                               ? "stand_projected_responses" :
                            freeSplit && phase == standFreePreludePhase
                                ? "stand_free_prelude" :
                            (cachedFinish ? "stand_finish_cached" : "stand_finish"))
@@ -14795,7 +14830,7 @@ MetalArticulatedOperatorContext::submit(
                                 ? state_->standResponsePipeline
                             : parallelMass && phase == 4u
                                 ? state_->standEqualityPipeline
-                            : parallelMass && phase == 5u
+                            : parallelMass && phase == projectedResponsePhase
                                 ? (sampleReducedResponseDiagnostics
                                     ? state_->standProjectedResponseDiagnosticPipeline
                                     : state_->standProjectedResponsePipeline)
@@ -14934,8 +14969,10 @@ MetalArticulatedOperatorContext::submit(
                                 static_cast<NSUInteger>(input.environmentCount), 1u)
                             threadsPerThreadgroup:MTLSizeMake(
                                 kStandResponseThreadsPerThreadgroup, 1u, 1u)];
-                    } else if (parallelMass && (phase == 5u ||
-                               (deferEqualityData && phase == 8u))) {
+                    } else if (parallelMass &&
+                               (phase == projectedResponsePhase ||
+                                (deferEqualityData && !freePreviewMode &&
+                                 phase == 8u))) {
                         const NSUInteger projectedColumns =
                             3u * static_cast<NSUInteger>(
                                 standDispatch.supportContactCount) +
@@ -14958,6 +14995,91 @@ MetalArticulatedOperatorContext::submit(
                                 1u, 1u)];
                     }
                     [standEncoder endEncoding];
+                    if (freePreviewMode &&
+                        phase == standFreePreludePhase) {
+                        id<MTLBuffer> freeVelocity =
+                            state_->standBuffers[kStandVectorBuffer];
+                        const std::uint64_t vectorElementCount =
+                            diagnostics.layout.standVectorElements;
+                        if (freeVelocity == nil || input.environmentCount != 1u ||
+                            vectorElementCount == 0u ||
+                            vectorElementCount % input.environmentCount != 0u ||
+                            freeVelocity.length <
+                                vectorElementCount * sizeof(float)) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "stand endpoint preview has no complete free-velocity scratch"
+                            );
+                        }
+                        const std::uint64_t vectorStride =
+                            vectorElementCount / input.environmentCount;
+                        const std::uint64_t freeVelocityOffset =
+                            2ull * articulation.nv;
+                        if (vectorStride == 0u ||
+                            freeVelocityOffset + articulation.nv > vectorStride) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::invalidDimensions,
+                                "stand endpoint preview free-velocity slice exceeds its scratch stride"
+                            );
+                        }
+                        MetalNumiHumanSupportGeometryPass pass{};
+                        const auto& layout = diagnostics.layout;
+                        pass.commandBuffer = (__bridge void*)commandBuffer;
+                        pass.bodyPoses = (__bridge void*)state_->buffers[8u];
+                        pass.bodyPositionLow = (__bridge void*)state_->standBuffers[
+                            kStandBodyPositionLowBuffer];
+                        pass.pointWorld = (__bridge void*)state_->buffers[9u];
+                        pass.pointPositionLow = (__bridge void*)state_->standBuffers[
+                            kStandPointPositionLowBuffer];
+                        pass.pointJacobians = (__bridge void*)state_->buffers[11u];
+                        pass.standContacts = (__bridge void*)state_->standBuffers[
+                            kStandContactsBuffer];
+                        pass.stepIndex = authoritativeStep;
+                        pass.articulationFirstBody = articulation.firstBody;
+                        pass.bodyJacobianPointOffset =
+                            input.mujoco.bodyJacobianPointOffset;
+                        pass.dofCount = articulation.nv;
+                        pass.environmentCount = input.environmentCount;
+                        pass.bodyCount = articulation.bodyCount;
+                        pass.bodyPoseStride = layout.dispatch.bodyPoseStride;
+                        pass.bodyPoseElementCount = layout.bodyPoseElements;
+                        pass.pointCount = input.pointCount;
+                        pass.pointWorldStride = layout.dispatch.pointWorldStride;
+                        pass.pointWorldElementCount = layout.pointWorldElements;
+                        pass.pointJacobianStride =
+                            layout.dispatch.pointJacobianStride;
+                        pass.pointJacobianElementCount =
+                            layout.pointJacobianElements;
+                        pass.standContactCount = layout.standContactElements;
+                        pass.groundPoint = input.stand.groundPoint;
+                        pass.groundNormal = input.stand.groundNormal;
+                        pass.phase =
+                            MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint;
+                        pass.sourceFreeVelocity = (__bridge void*)freeVelocity;
+                        pass.sourceFreeVelocityElementOffset = freeVelocityOffset;
+                        pass.sourceFreeVelocityElementCount = vectorElementCount;
+                        pass.sourceFreeVelocityElementStride = vectorStride;
+                        pass.timestepSeconds =
+                            standDispatch.groundPointAndTimestep.w;
+                        supportGeometryAbort.armed = true;
+                        auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                            commandBuffer, state_->device, authoritativeStep,
+                            "support_geometry_predicted_endpoint");
+                        const bool encoded =
+                            input.stand.supportGeometryProgram.encodePreDynamics(
+                                input.stand.supportGeometryProgram.context, pass);
+                        humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                            commandBuffer, encoded);
+                        if (!encoded) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                                "Numi Human predicted-endpoint support geometry rejected encoding"
+                            );
+                        }
+                    }
                     if (sampleReducedResponseDiagnostics) {
                         const auto environments = input.environmentCount;
                         const auto nv = articulation.nv;

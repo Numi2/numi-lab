@@ -39,8 +39,9 @@ int main(int argc,char** argv){@autoreleasepool{try{
  MRNumiHumanStandContactGPU contacts[2]{};contacts[0].bodyIndex=99;contacts[1].bodyIndex=7;contacts[1].pointQueryIndex=0;
  contacts[1].frictionSlopAndStabilization={0,.002f,.2f,0};
  auto alloc=[&](const void* bytes,NSUInteger length){return [device newBufferWithBytes:bytes length:length options:MTLResourceStorageModeShared];};
- id<MTLBuffer> buffers[7]={alloc(&cfg,sizeof(cfg)),alloc(&body,sizeof(body)),alloc(&low,sizeof(low)),alloc(points,sizeof(points)),alloc(pointLow,sizeof(pointLow)),alloc(j,sizeof(j)),alloc(contacts,sizeof(contacts))};
- auto queue=[device newCommandQueue];auto run=[&]{std::memcpy(buffers[0].contents,&cfg,sizeof(cfg));auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline];for(unsigned i=0;i<7;++i)[e setBuffer:buffers[i] offset:0 atIndex:i];[e dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];[e endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"GPU command failed");};
+ const mr_float4 neutralMotion={0,0,4,3};
+ id<MTLBuffer> buffers[8]={alloc(&cfg,sizeof(cfg)),alloc(&body,sizeof(body)),alloc(&low,sizeof(low)),alloc(points,sizeof(points)),alloc(pointLow,sizeof(pointLow)),alloc(j,sizeof(j)),alloc(contacts,sizeof(contacts)),alloc(&neutralMotion,sizeof(neutralMotion))};
+ auto queue=[device newCommandQueue];auto run=[&]{std::memcpy(buffers[0].contents,&cfg,sizeof(cfg));auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline];for(unsigned i=0;i<8;++i)[e setBuffer:buffers[i] offset:0 atIndex:i];[e dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];[e endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"GPU command failed");};
  auto* output=static_cast<MRArticulatedPointWorldGPU*>(buffers[3].contents);auto* planes=static_cast<MRNumiHumanStandContactGPU*>(buffers[6].contents);auto* outJ=static_cast<float*>(buffers[5].contents);
  auto near=[](float a,float b){return std::abs(a-b)<2e-6f;};
  run();require(near(output[0].position.x,1.9f)&&near(output[0].position.y,3.2f)&&near(output[0].position.z,4.3f),"rigid site not transported");
