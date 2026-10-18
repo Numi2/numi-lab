@@ -1,0 +1,59 @@
+{
+  "base_head": "a8d7312ff273e4a4e6707a829504d797e0b551f1",
+  "files": [
+    {
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "base_sha256": "5a08bdd5ac8ff16354327b322ac458b07c628a999da02929742ec1cfed915c64",
+      "candidate_sha256": "3654c85b6fe67cc445a53a789cd537e3a914b3f149df86143e35258ee5eeb440",
+      "bytes": 117821
+    },
+    {
+      "path": "src/metal/MetalArticulatedOperator.mm",
+      "base_sha256": "a4d396f4e8c8e991ceacb18e7b01cdeed094b007f9a9787c6d6e91f1311f1c25",
+      "candidate_sha256": "5c2f42037266d51ee2de8d7d9b4d35fafe435aaf80cdd708d0f3e32e6d2f7158",
+      "bytes": 895075
+    },
+    {
+      "path": "src/metal/NumiHumanStand.metal",
+      "base_sha256": "92aa761817c1cb6bca3ecf3f34d3d7984708abef11158ff3c9c65c27b053031c",
+      "candidate_sha256": "4a8500d1a6c24764561572f98cf9805bf5cadb89333642afe847c1110bdb7959",
+      "bytes": 216752
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_sha256": "93ce39abc6c158ee9c984839e55a4bcf4e908012df09fd5b7487ab97b6df1502",
+      "candidate_sha256": "f1d6a72e344ed58176503bd64e633c98081e9046f1895b1677def2dcf359f318",
+      "bytes": 110833
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "af06fd8268384d750d91a6de24ba8c2140f6cf1b44c0a2dfb2325cfc1e592bb6",
+      "candidate_sha256": "54d4d3f84ea6d224c0668f6cf9c3ed4bc1dd5348b06f9535c2a71bb0afebc353",
+      "bytes": 2057383
+    },
+    {
+      "path": "matter/src/metal/identification_scheduler.metalinc",
+      "base_sha256": "054d3118cb598666e5ea6c59a53b1c96bb61c8776a3ba0a3762dd6ca3cd0d8f2",
+      "candidate_sha256": "b9334103f369f4736e56ba2268d717fea28b50ef63337a3feafe992baafb02b0",
+      "bytes": 40232
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "base_sha256": "be6b9034f6b9d35a52a5dd3ca4b358f4e7bd13c243de8005ae005ad1479f59c1",
+      "candidate_sha256": "ea1ceea037edc72f735c57301d3094458ab9381b902e2cb7807a481b62830449",
+      "bytes": 171777
+    },
+    {
+      "path": "src/metal/MetalNumanXHumanMatter.mm",
+      "base_sha256": "27dd6ded0af00c0850f26ac1eb43a9563cadfbd7dbace0964339c67fc6753f2b",
+      "candidate_sha256": "0e79078d577999365c3e20ac94961220426657ddede9d8d3ea4430a18493f709",
+      "bytes": 247138
+    },
+    {
+      "path": "src/metal/MetalNumanXCoupledHuman.mm",
+      "base_sha256": "f48749c7634d21d284fc7a7178a964f5cbf89775b49b47ce1ecb220fa04c505a",
+      "candidate_sha256": "35bda7342699cab3af33804a2f55f243956e5648525ea987f484949dcf73014b",
+      "bytes": 82509
+    }
+  ]
+}

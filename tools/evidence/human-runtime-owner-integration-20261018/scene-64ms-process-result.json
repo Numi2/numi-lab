@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "wall_seconds": 75.94856154202716,
+  "invocation": "/Users/numi/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/native-current-main-64ms-002/invocation.json",
+  "binary_sha256": "ee606a1b14d12116d556d37bb9557cfc8d0ce7b069f8bbdf496009672e170590",
+  "runtime_library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56"
+}

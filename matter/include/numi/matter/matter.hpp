@@ -1330,6 +1330,21 @@ struct AcceptedControlCursorGate {
     std::uint32_t acceptedStatusCode = 0u;
 };
 
+// Final owner gate for a deferred accepted-step extension. One status record
+// is supplied per Matter environment. The first uint32 is the status code;
+// an optional aligned byte offset can additionally require an exact completed
+// step count (for example MRNumiHumanStandStatusGPU::completedSteps).
+struct AcceptedStepFinalizationGate {
+    void* statusRecords = nullptr; // id<MTLBuffer>
+    std::uint32_t recordCount = 0u;
+    std::uint32_t recordStrideBytes = 0u;
+    std::uint32_t acceptedStatusCode = 0u;
+    std::uint32_t completedCountOffsetBytes = NM_INVALID_INDEX;
+    std::uint32_t expectedCompletedCount = 0u;
+    std::uint32_t environmentIndexOffsetBytes = NM_INVALID_INDEX;
+    std::uint32_t expectedEnvironmentBase = 0u;
+};
+
 // Borrowed, device-only accepted-state proof surface. This is intentionally
 // independent of the NumanX adapter header so Matter remains usable on its own;
 // acceptedStateProofs must nevertheless point to the adapter's exact 128-byte
@@ -2006,6 +2021,17 @@ public:
         std::uint32_t controlStep,
         std::uint32_t physicsSubstep,
         const AcceptedControlCursorGate& gate = {}
+    );
+    // Completes a deferred accepted-step extension after the enclosing owner
+    // has reconciled its final GPU status. Failure is merged into Matter's
+    // status on-device, then the existing vascular checkpoint rollback runs
+    // before frameComplete is invoked. This narrow path rejects Matter worlds
+    // with mutable non-vascular state that it cannot restore locally.
+    [[nodiscard]] RuntimeDiagnostics finalizeAcceptedStepExtension(
+        void* commandBuffer,
+        std::uint32_t controlStep,
+        std::uint32_t physicsSubstep,
+        const AcceptedStepFinalizationGate& gate
     );
     // Performs the complete success-surviving post-dynamics reconciliation
     // but retains every rollback checkpoint and quarantines the Runtime until

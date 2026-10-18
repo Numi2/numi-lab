@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
@@ -4501,46 +4502,158 @@ MetalNumanXHumanMatterContext::initialize() {
                 "Matter Runtime status authority is missing or undersized");
         }
         state.device = matterStatuses.device;
-        NSString* path = nsString(config.adapterMetallibPath);
-        BOOL directory = NO;
-        if (path == nil || ![[NSFileManager defaultManager]
-                fileExistsAtPath:path isDirectory:&directory] || directory) {
-            return diagnostics(
-                &state, MetalNumanXHumanMatterHostStatus::metallibUnavailable,
-                "adapterMetallibPath does not name a readable regular file");
-        }
-        NSError* imageError = nil;
-        NSData* image = [NSData dataWithContentsOfFile:path
-                                               options:NSDataReadingMappedIfSafe
-                                                 error:&imageError];
+        bool compileTestSource = false;
+        NSData* sourceImage = nil;
+        NSString* sourceText = nil;
         detail::NumanXExecutableImageIdentity imageIdentity{};
-        if (image == nil ||
-            !detail::numanXExecutableImageIdentity(
-                image.bytes, image.length, imageIdentity)) {
+#if defined(METALROBO_TEST_HUMAN_MATTER_SOURCE_LOADER)
+        const char* testSourcePath =
+            std::getenv("NUMANX_HUMAN_MATTER_TEST_SOURCE");
+        const char* testSourceSHA256 =
+            std::getenv("NUMANX_HUMAN_MATTER_TEST_SOURCE_SHA256");
+        if ((testSourcePath == nullptr) !=
+            (testSourceSHA256 == nullptr)) {
             return diagnostics(
-                &state, MetalNumanXHumanMatterHostStatus::metallibUnavailable,
-                "failed to read the explicit Human/Matter adapter metallib image: " +
-                    fromNSString(imageError.localizedDescription));
+                &state,
+                MetalNumanXHumanMatterHostStatus::invalidConfiguration,
+                "test adapter source path and SHA-256 must be set together");
         }
-        dispatch_data_t libraryImage = dispatch_data_create(
-            image.bytes,
-            image.length,
-            dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
-            DISPATCH_DATA_DESTRUCTOR_DEFAULT
-        );
-        if (libraryImage == nullptr) {
-            return diagnostics(
-                &state, MetalNumanXHumanMatterHostStatus::metallibUnavailable,
-                "failed to retain the Human/Matter adapter metallib image");
+        compileTestSource = testSourcePath != nullptr;
+        if (compileTestSource) {
+            if (testSourcePath[0] == '\0' ||
+                testSourceSHA256[0] == '\0' ||
+                std::strlen(testSourceSHA256) !=
+                    2u * CC_SHA256_DIGEST_LENGTH) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXHumanMatterHostStatus::invalidConfiguration,
+                    "test adapter source path or SHA-256 is invalid");
+            }
+            NSString* sourcePath = nsString(testSourcePath);
+            NSError* sourceError = nil;
+            sourceImage = sourcePath == nil ? nil :
+                [NSData dataWithContentsOfFile:sourcePath
+                                       options:NSDataReadingMappedIfSafe
+                                         error:&sourceError];
+            if (sourceImage == nil || sourceImage.length == 0u ||
+                sourceImage.bytes == nullptr ||
+                sourceImage.length >
+                    static_cast<NSUInteger>(
+                        std::numeric_limits<CC_LONG>::max())) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "failed to read one pinned test adapter source image: " +
+                        fromNSString(sourceError.localizedDescription));
+            }
+            std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
+            CC_SHA256(sourceImage.bytes,
+                      static_cast<CC_LONG>(sourceImage.length),
+                      digest.data());
+            std::array<char, 2u * CC_SHA256_DIGEST_LENGTH + 1u> actualSHA256{};
+            for (std::size_t index = 0u; index < digest.size(); ++index) {
+                std::snprintf(actualSHA256.data() + 2u * index,
+                    actualSHA256.size() - 2u * index, "%02x",
+                    static_cast<unsigned>(digest[index]));
+            }
+            std::string expectedSHA256(testSourceSHA256);
+            std::transform(expectedSHA256.begin(), expectedSHA256.end(),
+                expectedSHA256.begin(), [](const unsigned char value) {
+                    return value >= 'A' && value <= 'Z'
+                        ? static_cast<char>(value + ('a' - 'A'))
+                        : static_cast<char>(value);
+                });
+            if (expectedSHA256.find_first_not_of(
+                    "0123456789abcdef") != std::string::npos ||
+                expectedSHA256 != actualSHA256.data() ||
+                !detail::numanXExecutableImageIdentity(
+                    sourceImage.bytes, sourceImage.length, imageIdentity)) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "test adapter source SHA-256 or identity is invalid");
+            }
+            sourceText = [[NSString alloc]
+                initWithBytes:sourceImage.bytes
+                       length:sourceImage.length
+                     encoding:NSUTF8StringEncoding];
+            if (sourceText == nil) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "test adapter source is not valid UTF-8");
+            }
+        } else
+#endif
+        {
+            NSString* path = nsString(config.adapterMetallibPath);
+            BOOL directory = NO;
+            if (path == nil || ![[NSFileManager defaultManager]
+                    fileExistsAtPath:path isDirectory:&directory] || directory) {
+                return diagnostics(
+                    &state, MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "adapterMetallibPath does not name a readable regular file");
+            }
+            NSError* imageError = nil;
+            NSData* image = [NSData dataWithContentsOfFile:path
+                                                   options:NSDataReadingMappedIfSafe
+                                                     error:&imageError];
+            if (image == nil ||
+                !detail::numanXExecutableImageIdentity(
+                    image.bytes, image.length, imageIdentity)) {
+                return diagnostics(
+                    &state, MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "failed to read the explicit Human/Matter adapter metallib image: " +
+                        fromNSString(imageError.localizedDescription));
+            }
+            sourceImage = image;
         }
         NSError* libraryError = nil;
-        state.library = [state.device
-            newLibraryWithData:libraryImage error:&libraryError];
+#if defined(METALROBO_TEST_HUMAN_MATTER_SOURCE_LOADER)
+        if (compileTestSource) {
+            MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+            options.languageVersion = MTLLanguageVersion4_0;
+            options.optimizationLevel = MTLLibraryOptimizationLevelDefault;
+            options.mathMode = MTLMathModeSafe;
+            options.mathFloatingPointFunctions =
+                MTLMathFloatingPointFunctionsPrecise;
+            state.library = [state.device
+                newLibraryWithSource:sourceText
+                             options:options
+                               error:&libraryError];
+        } else
+#endif
+        {
+            dispatch_data_t libraryImage = dispatch_data_create(
+                sourceImage.bytes,
+                sourceImage.length,
+                dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+                DISPATCH_DATA_DESTRUCTOR_DEFAULT
+            );
+            if (libraryImage == nullptr) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXHumanMatterHostStatus::metallibUnavailable,
+                    "failed to retain the explicit adapter metallib image");
+            }
+            state.library = [state.device
+                newLibraryWithData:libraryImage error:&libraryError];
+        }
         if (state.library == nil) {
+#if defined(METALROBO_TEST_HUMAN_MATTER_SOURCE_LOADER)
+            const std::string libraryErrorMessage = compileTestSource
+                ? "failed to compile pinned test adapter source: " +
+                    fromNSString(libraryError.localizedDescription)
+                : "failed to load explicit adapter metallib: " +
+                    fromNSString(libraryError.localizedDescription);
+#else
+            const std::string libraryErrorMessage =
+                "failed to load explicit adapter metallib: " +
+                    fromNSString(libraryError.localizedDescription);
+#endif
             return diagnostics(
                 &state, MetalNumanXHumanMatterHostStatus::metalLibraryFailure,
-                "failed to load explicit adapter metallib: " +
-                    fromNSString(libraryError.localizedDescription));
+                libraryErrorMessage);
         }
         state.metallibIdentity = imageIdentity;
         const auto pipeline = [&] (

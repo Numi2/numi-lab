@@ -1,0 +1,3 @@
+resting_tissue_mass_partition=conserved initial_kg=97.1319507 executed_rigid_plus_FEM_kg=97.1319507 FEM_kg=0.00101686581
+resting_passive_fascia_ligament_terminal_audit=passed count=8 accepted=1 endpoint_force_l1_N=0.016455469653 max_tension_N=0.00328544760123 min_effective_stretch=1.01038777828 max_effective_stretch=1.01262152195 force_residual_N=0 moment_residual_Nm=1.82031088828e-10 capture=terminal_only
+resting_integrated_body=completed simulated_s=0.064000003039836884 wall_s=65.118575082999996 real_time_factor=0.00098282253501804392 physiology_body_clock=matched root_assistance=false presentation_qualification=pending

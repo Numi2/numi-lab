@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/prepared-regression/probe"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de",
+    "NUMANX_HUMAN_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/HumanMatterSource.metal",
+    "NUMANX_HUMAN_MATTER_TEST_SOURCE_SHA256": "716ce8bf5da667f4e9b33af9c05a87df34e95ad617d5025e348394fde10c1e4b",
+    "NUMI_HUMAN_STAND_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/StandSource.metal",
+    "NUMI_HUMAN_STAND_SOURCE_SHA256": "9cffe1fb1113392354f5c4ca2c3beb8bc63c351f3106a645939aaa897a2ab896",
+    "METALROBO_TEST_ARTICULATED_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/operator-modules.tsv",
+    "METALROBO_TEST_ARTICULATED_SOURCE_SHA256": "a9c7662cd40fef6a306bdfd1ead10ef2341f08bc312bdc1f0418ad175b19e915",
+    "NUMANX_COUPLED_HUMAN_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/NumanXCoupledHuman-181-current-main.metal",
+    "NUMANX_COUPLED_HUMAN_TEST_SOURCE_SHA256": "02815e02294f2fed78d895d34ab437445243fbfda946db96596b50646c202692",
+    "NUMI_MATTER_METALLIB": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal"
+  },
+  "binary_sha256": "874a69a0712e0ba21a605f5f5a13345db6c4da10a5381f94630e6b21fe0c28d0",
+  "library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+  "seconds": 3.3271137919509783,
+  "exit": 0
+}

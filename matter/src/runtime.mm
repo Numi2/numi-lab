@@ -2167,6 +2167,18 @@ struct NMControlCursorPublicationParams {
 };
 static_assert(sizeof(NMControlCursorPublicationParams) == 32u);
 
+struct NMAcceptedStepFinalizationParams {
+    std::uint32_t environmentCount;
+    std::uint32_t externalStatusStrideWords;
+    std::uint32_t acceptedStatusCode;
+    std::uint32_t environmentIndexOffsetWords;
+    std::uint32_t expectedEnvironmentBase;
+    std::uint32_t completedCountOffsetWords;
+    std::uint32_t expectedCompletedCount;
+    std::uint32_t reserved0;
+};
+static_assert(sizeof(NMAcceptedStepFinalizationParams) == 32u);
+
 struct Runtime::State {
     id<MTLDevice> device = nil;
     id<MTLCommandQueue> queue = nil;
@@ -4325,27 +4337,103 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint, supportFingerprint);
         }
+#if defined(NM_MATTER_TEST_SOURCE_LOADER)
+        const char* testMatterSourcePath =
+            std::getenv("NUMI_MATTER_TEST_SOURCE");
+        const char* testMatterSourceSHA256 =
+            std::getenv("NUMI_MATTER_TEST_SOURCE_SHA256");
+        if ((testMatterSourcePath == nullptr) !=
+            (testMatterSourceSHA256 == nullptr)) {
+            diagnostics.message =
+                "test source path and SHA-256 must be set together";
+            return diagnostics;
+        }
+        const bool compileTestMatterSource =
+            testMatterSourcePath != nullptr;
+        NSData* testMatterSourceBytes = nil;
+        NSString* testMatterSource = nil;
+        if (compileTestMatterSource) {
+            if (testMatterSourcePath[0] == '\0' ||
+                testMatterSourceSHA256[0] == '\0' ||
+                std::strlen(testMatterSourceSHA256) !=
+                    2u * CC_SHA256_DIGEST_LENGTH) {
+                diagnostics.message =
+                    "test source path or SHA-256 is invalid";
+                return diagnostics;
+            }
+            NSString* sourcePath = [NSString
+                stringWithUTF8String:testMatterSourcePath];
+            NSError* sourceError = nil;
+            testMatterSourceBytes = sourcePath == nil ? nil :
+                [NSData dataWithContentsOfFile:sourcePath
+                                      options:NSDataReadingMappedIfSafe
+                                        error:&sourceError];
+            if (testMatterSourceBytes == nil ||
+                testMatterSourceBytes.length == 0u ||
+                testMatterSourceBytes.bytes == nullptr) {
+                diagnostics.message =
+                    "failed to read pinned test Matter source: " +
+                    errorString(sourceError);
+                return diagnostics;
+            }
+            const std::string actualSHA256 = sha256Hex(
+                testMatterSourceBytes.bytes,
+                static_cast<std::size_t>(testMatterSourceBytes.length));
+            std::string expectedSHA256(testMatterSourceSHA256);
+            std::transform(expectedSHA256.begin(), expectedSHA256.end(),
+                expectedSHA256.begin(), [](const unsigned char value) {
+                    return value >= 'A' && value <= 'Z'
+                        ? static_cast<char>(value + ('a' - 'A'))
+                        : static_cast<char>(value);
+                });
+            if (expectedSHA256.find_first_not_of(
+                    "0123456789abcdef") != std::string::npos ||
+                expectedSHA256 != actualSHA256) {
+                diagnostics.message =
+                    "test Matter source SHA-256 does not match exact bytes";
+                return diagnostics;
+            }
+            testMatterSource = [[NSString alloc]
+                initWithBytes:testMatterSourceBytes.bytes
+                       length:testMatterSourceBytes.length
+                     encoding:NSUTF8StringEncoding];
+            if (testMatterSource == nil) {
+                diagnostics.message = "test Matter source is not valid UTF-8";
+                return diagnostics;
+            }
+        }
+#else
+        constexpr bool compileTestMatterSource = false;
+        NSData* testMatterSourceBytes = nil;
+        NSString* testMatterSource = nil;
+#endif
         std::filesystem::path metallib = configuration.metallib;
-        if (metallib.empty()) {
+        if (metallib.empty() && !compileTestMatterSource) {
             metallib = defaultMetallib();
         }
-        if (!regularFile(metallib)) {
+        const bool needMetallibImage =
+            !compileTestMatterSource ||
+            configuration.enablePhysicalStateDigest;
+        if (needMetallibImage && !regularFile(metallib)) {
             diagnostics.message = "NumiMatter.metallib is unavailable";
             return diagnostics;
         }
-        NSString* metallibPath = [NSString
-            stringWithUTF8String:metallib.string().c_str()];
-        NSError* imageError = nil;
-        NSData* metallibImage = metallibPath == nil ? nil :
-            [NSData dataWithContentsOfFile:metallibPath
-                                  options:NSDataReadingMappedIfSafe
-                                    error:&imageError];
-        if (metallibImage == nil || metallibImage.length == 0u ||
-            metallibImage.bytes == nullptr) {
-            diagnostics.message =
-                "failed to read one immutable NumiMatter.metallib image: " +
-                errorString(imageError);
-            return diagnostics;
+        NSData* metallibImage = nil;
+        if (needMetallibImage) {
+            NSString* metallibPath = [NSString
+                stringWithUTF8String:metallib.string().c_str()];
+            NSError* imageError = nil;
+            metallibImage = metallibPath == nil ? nil :
+                [NSData dataWithContentsOfFile:metallibPath
+                                      options:NSDataReadingMappedIfSafe
+                                        error:&imageError];
+            if (metallibImage == nil || metallibImage.length == 0u ||
+                metallibImage.bytes == nullptr) {
+                diagnostics.message =
+                    "failed to read one immutable NumiMatter.metallib image: " +
+                    errorString(imageError);
+                return diagnostics;
+            }
         }
         candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity =
             configuration
@@ -4369,11 +4457,16 @@ RuntimeDiagnostics Runtime::initialize(
                 0u;
         const bool physicalStateDigestEnabled =
             candidate->physicalStateDigestEnabled;
-        const std::uint64_t metallibFingerprint = detail::hashBytes(
-            metallibImage.bytes,
-            static_cast<std::size_t>(metallibImage.length));
+        const std::uint64_t metallibFingerprint =
+            compileTestMatterSource
+            ? detail::hashBytes(testMatterSourceBytes.bytes,
+                static_cast<std::size_t>(testMatterSourceBytes.length))
+            : detail::hashBytes(metallibImage.bytes,
+                static_cast<std::size_t>(metallibImage.length));
         const std::uint64_t metallibByteCount =
-            static_cast<std::uint64_t>(metallibImage.length);
+            compileTestMatterSource
+            ? static_cast<std::uint64_t>(testMatterSourceBytes.length)
+            : static_cast<std::uint64_t>(metallibImage.length);
         if (metallibFingerprint == 0u || metallibByteCount == 0u) {
             diagnostics.message =
                 "NumiMatter.metallib executable image identity is invalid";
@@ -4474,22 +4567,40 @@ RuntimeDiagnostics Runtime::initialize(
                     ->acceptedStateProofMujocoBytesPerEnvironmentCapacity,
                 NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2,
                 sizeof(NMAcceptedStateProofGPUV2));
-        dispatch_data_t libraryImage = dispatch_data_create(
-            metallibImage.bytes,
-            metallibImage.length,
-            dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
-            DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-        if (libraryImage == nullptr) {
-            diagnostics.message =
-                "failed to retain the exact NumiMatter.metallib image";
-            return diagnostics;
-        }
         NSError* libraryError = nil;
-        candidate->library = [candidate->device
-            newLibraryWithData:libraryImage error:&libraryError];
+        if (compileTestMatterSource) {
+            MTLCompileOptions* compileOptions =
+                [[MTLCompileOptions alloc] init];
+            compileOptions.languageVersion = MTLLanguageVersion4_0;
+            compileOptions.optimizationLevel =
+                MTLLibraryOptimizationLevelDefault;
+            compileOptions.mathMode = MTLMathModeSafe;
+            compileOptions.mathFloatingPointFunctions =
+                MTLMathFloatingPointFunctionsPrecise;
+            candidate->library = [candidate->device
+                newLibraryWithSource:testMatterSource
+                             options:compileOptions
+                               error:&libraryError];
+        } else {
+            dispatch_data_t libraryImage = dispatch_data_create(
+                metallibImage.bytes,
+                metallibImage.length,
+                dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+                DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+            if (libraryImage == nullptr) {
+                diagnostics.message =
+                    "failed to retain the exact NumiMatter.metallib image";
+                return diagnostics;
+            }
+            candidate->library = [candidate->device
+                newLibraryWithData:libraryImage error:&libraryError];
+        }
         if (candidate->library == nil) {
-            diagnostics.message = "failed to load Numi Matter Metal library: " +
-                errorString(libraryError);
+            diagnostics.message = compileTestMatterSource
+                ? "failed to compile test-only pinned Numi Matter Metal source: " +
+                    errorString(libraryError)
+                : "failed to load Numi Matter Metal library: " +
+                    errorString(libraryError);
             return diagnostics;
         }
         if (physicalStateDigestEnabled) {
@@ -4955,6 +5066,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_scheduler_observe",
             "nm_complete_microstep",
             "nm_publish_accepted_control_cursor",
+            "nm_merge_accepted_step_gate_into_status",
             "nm_mpm_rollback_frame",
             "nm_fem_rollback_frame",
             "nm_latch_matter_status_into_rigid_world",
@@ -8191,6 +8303,7 @@ RuntimeDiagnostics Runtime::encodeAcceptedControlCursorPublication(
     if (ownership->activeCommandBuffer != commandBufferRaw ||
         ownership->preDynamicsOpen ||
         !ownership->acceptedControlCursorDeferred ||
+        ownership->deferredAcceptedStepExtensionPending ||
         ownership->controlStep != controlStep ||
         ownership->physicsSubstep != physicsSubstep) {
         diagnostics.message =
@@ -8240,6 +8353,209 @@ RuntimeDiagnostics Runtime::encodeAcceptedControlCursorPublication(
     diagnostics.device = nsString(state.device.name);
     diagnostics.message =
         "accepted Matter control cursor publication encoded behind all owner gates";
+    return diagnostics;
+}
+
+RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
+    void* const commandBufferRaw,
+    const std::uint32_t controlStep,
+    const std::uint32_t physicsSubstep,
+    const AcceptedStepFinalizationGate& gate
+) {
+    RuntimeDiagnostics diagnostics;
+    if (!state_ || commandBufferRaw == nullptr || gate.statusRecords == nullptr) {
+        diagnostics.message =
+            "accepted-step extension finalization requires an initialized Runtime, borrowed command buffer, and owner status";
+        return diagnostics;
+    }
+    State& state = *state_;
+    const std::uint32_t environmentCount = state.dispatch.environmentCount;
+    if (environmentCount == 0u || gate.recordCount != environmentCount ||
+        gate.recordStrideBytes < sizeof(std::uint32_t) ||
+        (gate.recordStrideBytes % sizeof(std::uint32_t)) != 0u ||
+        (gate.completedCountOffsetBytes != NM_INVALID_INDEX &&
+         ((gate.completedCountOffsetBytes % sizeof(std::uint32_t)) != 0u ||
+          gate.completedCountOffsetBytes >
+              gate.recordStrideBytes - sizeof(std::uint32_t))) ||
+        (gate.environmentIndexOffsetBytes != NM_INVALID_INDEX &&
+         ((gate.environmentIndexOffsetBytes % sizeof(std::uint32_t)) != 0u ||
+          gate.environmentIndexOffsetBytes >
+              gate.recordStrideBytes - sizeof(std::uint32_t)))) {
+        diagnostics.message =
+            "accepted-step extension status gate has invalid record count, stride, or completion offset";
+        return diagnostics;
+    }
+    const std::uint64_t recordBytes =
+        static_cast<std::uint64_t>(gate.recordCount - 1u) *
+            gate.recordStrideBytes +
+        std::max(
+            gate.completedCountOffsetBytes == NM_INVALID_INDEX
+                ? sizeof(std::uint32_t)
+                : static_cast<std::uint64_t>(gate.completedCountOffsetBytes) +
+                      sizeof(std::uint32_t),
+            gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+                ? sizeof(std::uint32_t)
+                : static_cast<std::uint64_t>(gate.environmentIndexOffsetBytes) +
+                      sizeof(std::uint32_t));
+    if (recordBytes > std::numeric_limits<NSUInteger>::max()) {
+        diagnostics.message =
+            "accepted-step extension status gate exceeds Metal addressability";
+        return diagnostics;
+    }
+
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)commandBufferRaw;
+    __unsafe_unretained id<MTLBuffer> externalStatuses =
+        (__bridge id<MTLBuffer>)gate.statusRecords;
+    if (commandBuffer == nil || commandBuffer.commandQueue == nil ||
+        commandBuffer.commandQueue.device.registryID !=
+            state.device.registryID ||
+        commandBuffer.status != MTLCommandBufferStatusNotEnqueued ||
+        externalStatuses == nil || externalStatuses.device == nil ||
+        externalStatuses.device.registryID != state.device.registryID ||
+        externalStatuses.gpuAddress == 0u ||
+        externalStatuses.length < recordBytes) {
+        diagnostics.message =
+            "accepted-step extension gate has invalid Metal device provenance, command-buffer state, or byte bounds";
+        return diagnostics;
+    }
+
+    const auto ownership = state.commandOwnership;
+    std::unique_lock ownershipLock(ownership->mutex);
+    if (ownership->activeCommandBuffer != commandBufferRaw ||
+        ownership->preDynamicsOpen ||
+        !ownership->acceptedControlCursorDeferred ||
+        ownership->controlStep != controlStep ||
+        ownership->physicsSubstep != physicsSubstep ||
+        !ownership->deferredAcceptedStepExtensionRequested ||
+        !ownership->deferredAcceptedStepExtensionPending ||
+        ownership->deferredAcceptedStepExtension == nullptr ||
+        ownership->deferredAcceptedStepExtensionContext == nullptr ||
+        ownership->deferredAcceptedStepExtensionView.commandBuffer !=
+            commandBufferRaw ||
+        ownership->deferredAcceptedStepExtensionView.controlStep != controlStep ||
+        ownership->deferredAcceptedStepExtensionView.physicsSubstep !=
+            physicsSubstep ||
+        ownership->preparedStateOpen || ownership->restoreRequired) {
+        diagnostics.message =
+            "accepted-step extension finalization does not match the pending same-command-buffer transaction";
+        return diagnostics;
+    }
+
+    // This local finalizer owns only vascular state. Every other mutable Matter
+    // family must remain empty; otherwise the owner-level reject cannot safely
+    // restore all success-surviving arenas from this step's checkpoint.
+    const auto& d = state.dispatch;
+    if (state.hasAdaptive || state.requiresCurrentBodies ||
+        state.requiresSceneBodies || state.requiresRodNodes ||
+        state.requiresCoupledCandidate || state.hasPrescribedTranslation ||
+        d.particleCount != 0u || d.gridNodeCount != 0u ||
+        d.mpmGridCount != 0u || d.mpmBlockCount != 0u ||
+        d.femNodeCount != 0u || d.tetrahedronCount != 0u ||
+        d.objectCount != 0u || d.rigidProxyCount != 0u ||
+        d.contactPairCount != 0u || d.femHumanAttachmentCount != 0u ||
+        d.learnedWeightCount != 0u || d.learnedMaterialCount != 0u ||
+        d.cohesiveFaceCount != 0u || d.mutationCommandCount != 0u ||
+        d.punctureChannelCount != 0u || d.deformableContactCapacity != 0u ||
+        state.humanSupportDispatch.contactCount != 0u ||
+        state.vascularValue.layout.ranges.z == 0u) {
+        diagnostics.message =
+            "deferred local finalization is limited to vascular-only Matter worlds with no mutable mechanical, contact, adaptive, learned, or topology state";
+        return diagnostics;
+    }
+
+    const auto gatePipeline = state.pipelines.find(
+        "nm_merge_accepted_step_gate_into_status");
+    const auto rollbackPipeline = state.pipelines.find("nm_vascular_rollback");
+    if (gatePipeline == state.pipelines.end() ||
+        gatePipeline->second == nil ||
+        rollbackPipeline == state.pipelines.end() ||
+        rollbackPipeline->second == nil) {
+        diagnostics.message =
+            "accepted-step finalization or vascular rollback Metal pipeline is unavailable";
+        return diagnostics;
+    }
+
+    const std::uint64_t strideWords =
+        gate.recordStrideBytes / sizeof(std::uint32_t);
+    const std::uint32_t completedOffsetWords =
+        gate.completedCountOffsetBytes == NM_INVALID_INDEX
+            ? NM_INVALID_INDEX
+            : gate.completedCountOffsetBytes / sizeof(std::uint32_t);
+    const std::uint32_t environmentOffsetWords =
+        gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+            ? NM_INVALID_INDEX
+            : gate.environmentIndexOffsetBytes / sizeof(std::uint32_t);
+    const NMAcceptedStepFinalizationParams finalization{
+        .environmentCount = environmentCount,
+        .externalStatusStrideWords = static_cast<std::uint32_t>(strideWords),
+        .acceptedStatusCode = gate.acceptedStatusCode,
+        .environmentIndexOffsetWords = environmentOffsetWords,
+        .expectedEnvironmentBase = gate.expectedEnvironmentBase,
+        .completedCountOffsetWords = completedOffsetWords,
+        .expectedCompletedCount = gate.expectedCompletedCount,
+        .reserved0 = 0u,
+    };
+
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        diagnostics.message =
+            "failed to create accepted-step extension finalization encoder";
+        return diagnostics;
+    }
+    [encoder setLabel:@"Numi Matter final owner acceptance and vascular rollback"];
+    [encoder setComputePipelineState:gatePipeline->second];
+    [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBytes:&finalization length:sizeof(finalization) atIndex:1u];
+    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+    [encoder setBuffer:externalStatuses offset:0u atIndex:3u];
+    [encoder dispatchThreads:MTLSizeMake(environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+            gatePipeline->second.threadExecutionWidth, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    const NSUInteger vascularTotal =
+        static_cast<NSUInteger>(environmentCount) *
+        state.vascularValue.layout.ranges.z;
+    [encoder setComputePipelineState:rollbackPipeline->second];
+    [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBytes:&state.vascularValue.layout
+        length:sizeof(state.vascularValue.layout) atIndex:1u];
+    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+    [encoder setBuffer:state.vascularAccepted offset:0u atIndex:3u];
+    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
+    [encoder setBuffer:state.vascularCheckpoint offset:0u atIndex:5u];
+    [encoder setBuffer:state.vascularClockAccepted offset:0u atIndex:6u];
+    [encoder setBuffer:state.vascularClockCandidate offset:0u atIndex:7u];
+    [encoder setBuffer:state.vascularClockCheckpoint offset:0u atIndex:8u];
+    [encoder dispatchThreads:MTLSizeMake(vascularTotal, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+            rollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+    [encoder endEncoding];
+
+    auto callback = ownership->deferredAcceptedStepExtension;
+    void* const callbackContext =
+        ownership->deferredAcceptedStepExtensionContext;
+    AcceptedStepExtensionView view =
+        ownership->deferredAcceptedStepExtensionView;
+    view.matterStatuses = (__bridge void*)state.statuses;
+    if (!callback(callbackContext, AcceptedStepExtensionPhase::frameComplete,
+                  view)) {
+        diagnostics.message =
+            "deferred accepted-step extension failed to encode frameComplete";
+        return diagnostics;
+    }
+
+    ownership->deferredAcceptedStepExtensionPending = false;
+    ownership->deferredAcceptedStepExtensionContext = nullptr;
+    ownership->deferredAcceptedStepExtension = nullptr;
+    ownership->deferredAcceptedStepExtensionView = {};
+    diagnostics.encoded = true;
+    diagnostics.residentBytes = state.residentBytes;
+    diagnostics.device = nsString(state.device.name);
+    diagnostics.message =
+        "accepted-step extension publication and vascular rollback encoded behind the final owner gate";
     return diagnostics;
 }
 
@@ -8532,16 +8848,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         if (request.deferAcceptedStepExtensionFinalization &&
+            request.enablePreparedState &&
             state.preparedStateMaterializeExtensionStatuses == nil) {
             diagnostics.message =
                 "prepared deferred extension status pipeline is unavailable";
             return diagnostics;
         }
         if (request.deferAcceptedStepExtensionFinalization &&
-            (!hasAcceptedStepExtension || !request.enablePreparedState ||
-             request.deferAcceptedControlCursorPublication)) {
+            (!hasAcceptedStepExtension ||
+             (request.enablePreparedState ==
+              request.deferAcceptedControlCursorPublication))) {
             diagnostics.message =
-                "prepared deferred extension finalization requires an extension and the prepared-state publication owner";
+                "deferred extension requires exactly one prepared-state or standalone-cursor publication owner";
             return diagnostics;
         }
         if (hasAcceptedStepExtension && retainPreparedState &&
@@ -9127,6 +9445,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ownership->preDynamicsOpen) {
             diagnostics.message =
                 "a Matter pre-dynamics pass is still awaiting post-commit reconciliation";
+            return diagnostics;
+        }
+        if (request.phase == EncodePhase::preDynamics &&
+            ownership->acceptedControlCursorDeferred) {
+            diagnostics.message =
+                "the previous Matter frame still requires final owner publication";
             return diagnostics;
         }
         if (request.phase == EncodePhase::postCommit &&
@@ -9976,7 +10300,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             encoder = nil;
             if (phase == AcceptedStepExtensionPhase::frameComplete &&
                 request.deferAcceptedStepExtensionFinalization) {
-                if (!retainPreparedState ||
+                if ((!retainPreparedState &&
+                     !request.deferAcceptedControlCursorPublication) ||
                     ownership->deferredAcceptedStepExtensionPending ||
                     ownership->deferredAcceptedStepExtensionContext !=
                         request.acceptedStepExtensionContext ||

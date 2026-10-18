@@ -1301,12 +1301,47 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         if (state_->device == nil) {
             state_->device = device;
             NSError* error = nil;
+#ifndef NUMI_HUMAN_TENDON_FEM_TEST_SOURCE_PATH
             NSString* path = [NSString
                 stringWithUTF8String:state_->metallib.string().c_str()];
             state_->library = path == nil
                 ? nil
                 : [device newLibraryWithURL:[NSURL fileURLWithPath:path]
                                       error:&error];
+#else
+            // Test-only current-source compilation for hosts without offline Metal.
+            NSString* shaderSource = [NSString
+                stringWithContentsOfFile:@(NUMI_HUMAN_TENDON_FEM_TEST_SOURCE_PATH)
+                encoding:NSUTF8StringEncoding error:&error];
+            NSData* shaderBytes = [NSData
+                dataWithContentsOfFile:@(NUMI_HUMAN_TENDON_FEM_TEST_SOURCE_PATH)];
+            if (shaderSource == nil || shaderBytes == nil ||
+                shaderBytes.length == 0u || shaderBytes.length > UINT32_MAX) {
+                state_->message = "pinned test Matter shader source unavailable";
+                return false;
+            }
+            unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+            CC_SHA256(shaderBytes.bytes,
+                      static_cast<CC_LONG>(shaderBytes.length), digest);
+            constexpr char hex[] = "0123456789abcdef";
+            std::string actualSHA;
+            actualSHA.reserve(2u * CC_SHA256_DIGEST_LENGTH);
+            for (const auto byte : digest) {
+                actualSHA += hex[byte >> 4u];
+                actualSHA += hex[byte & 15u];
+            }
+            if (actualSHA != NUMI_HUMAN_TENDON_FEM_TEST_SOURCE_SHA256) {
+                state_->message = "pinned test Matter shader SHA-256 mismatch";
+                return false;
+            }
+            MTLCompileOptions* shaderOptions = [MTLCompileOptions new];
+            shaderOptions.languageVersion = MTLLanguageVersion4_0;
+            shaderOptions.mathMode = MTLMathModeSafe;
+            shaderOptions.mathFloatingPointFunctions =
+                MTLMathFloatingPointFunctionsPrecise;
+            state_->library = [device newLibraryWithSource:shaderSource
+                options:shaderOptions error:&error];
+#endif
             if (state_->library == nil) {
                 state_->message = "Numi Matter metallib did not load for Human tendon/FEM assembly";
                 return false;

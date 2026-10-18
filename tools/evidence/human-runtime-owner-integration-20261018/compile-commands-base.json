@@ -1,0 +1,836 @@
+[
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Model.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Model.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Model.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Model.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Franka.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Franka.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaEngine.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaEngine.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaHand.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaHand.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/FrankaWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/CpuDynamics.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/CpuDynamics.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/EngineModel.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/EngineModel.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/EngineModelComposer.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/EngineModelComposer.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/RunProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/RunProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ParallelABASchedule.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ParallelABASchedule.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/CompiledMetalMultiArticulatedProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/CompiledMetalMultiArticulatedProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/CompiledMetalMultiArticulatedContactProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/CompiledMetalMultiArticulatedContactProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/WorldCompiler.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/WorldCompiler.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/WorldPack.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/WorldPack.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MatterSnapshotArchive.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MatterSnapshotArchive.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/EpisodeTwinCompiler.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/EpisodeTwinCompiler.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/R2S2R.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/R2S2R.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/VisualPlatform.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/VisualPlatform.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/VisualPresentation.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/VisualPresentation.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCulture.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCulture.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureArtifacts.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureArtifacts.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureProtocol.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureProtocol.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureEmbodiment.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NeuronCultureEmbodiment.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Tactile.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Tactile.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/TactileDebug.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/TactileDebug.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/RobotDescriptionCooker.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/RobotDescriptionCooker.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/GeometryCooker.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/GeometryCooker.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimFunction.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimFunction.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimSpatialTransform.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimSpatialTransform.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimMobileRoot.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/OpenSimMobileRoot.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/G1.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/G1.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/G1.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/G1.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/LocomotionWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/LocomotionWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/TaskProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/TaskProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/PolicyProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/PolicyProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HyperPolicyProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HyperPolicyProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HyperPolicyPacks.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HyperPolicyPacks.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/LearningPacks.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/LearningPacks.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MotionCompiler.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MotionCompiler.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalPSM.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalPSM.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/EmbodiedTactile.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/EmbodiedTactile.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Wave.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Wave.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalAssets.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalAssets.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalVisual.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalVisual.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalKnot.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalKnot.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalThreadTargeting.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/SurgicalThreadTargeting.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HeterogeneousWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HeterogeneousWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/DiscreteElasticRod.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/DiscreteElasticRod.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Collision.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Collision.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/FreeBodyDynamics.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/FreeBodyDynamics.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/Multicopter.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/Multicopter.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/PX4X500.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/PX4X500.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedDynamics.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedDynamics.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanSupport.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanSupport.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedActuation.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedActuation.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MillardMuscleReference.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MillardMuscleReference.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MujocoMuscleReference.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MujocoMuscleReference.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanJointEquality.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanJointEquality.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanMuscleEquilibrium.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanMuscleEquilibrium.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -o CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanInitialState.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanInitialState.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanRuntimeIdentity.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanRuntimeIdentity.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanSourceConstraints.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanSourceConstraints.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumanXExactTransaction.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumanXExactTransaction.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanProductionOwnerSnapshot.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanProductionOwnerSnapshot.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorProgram.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorProgram.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorTrial.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorTrial.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorAcceptedStateRoot.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorAcceptedStateRoot.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorNativeAudit.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorNativeAudit.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorStateComponents.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/HumanBehaviorStateComponents.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTensionNetwork.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTensionNetwork.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTendon.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTendon.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanCartilage.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanCartilage.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTissueMass.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTissueMass.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTissueBinding.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanTissueBinding.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanKnee.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanKnee.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanKneeContact.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanKneeContact.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanLoadedKnee.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanLoadedKnee.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanLoadedKneeNumanX.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanLoadedKneeNumanX.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanLoadedKneeBinding.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanLoadedKneeBinding.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanContinuumMap.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/NumiHumanContinuumMap.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedJointLimits.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedJointLimits.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedContact.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedContact.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/CoupledArticulatedRigidContact.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/CoupledArticulatedRigidContact.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedRigidCollision.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedRigidCollision.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedRigidWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedRigidWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedMixedConstraints.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedMixedConstraints.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedCollision.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedCollision.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ArticulatedWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MultiArticulatedWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MultiArticulatedWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/MultiArticulatedContact.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/MultiArticulatedContact.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ConstraintIR.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ConstraintIR.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ReferenceConicSolver.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ReferenceConicSolver.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/QualityContactSolver.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/QualityContactSolver.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/ConstraintSolver.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/ConstraintSolver.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/core/RigidBodyWorld.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/core/RigidBodyWorld.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/apple/CaptureManifestJSON.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/apple/CaptureManifestJSON.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/apple/HardwareOutcomeJSON.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/apple/HardwareOutcomeJSON.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/apple/EnvironmentCooker.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/apple/EnvironmentCooker.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/apple/VisualAssetCooker.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/apple/VisualAssetCooker.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -o CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedOperator.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedOperator.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXHumanIO.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXHumanIO.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHumanBehaviorTelemetry.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHumanBehaviorTelemetry.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/NumanXBridgeV1.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/NumanXBridgeV1.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -o CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/NumanXRuntimeV1.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/NumanXRuntimeV1.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXCoupledHuman.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXCoupledHuman.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -o CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXHumanMatter.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNumanXHumanMatter.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanTendonMetal.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanTendonMetal.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanExtensorHoodMetal.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/NumiHumanExtensorHoodMetal.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedABA.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedABA.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedABA.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedABA.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalDiscreteElasticRod.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalDiscreteElasticRod.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedInverseMass.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalArticulatedInverseMass.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedInverseMass.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedInverseMass.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedConstraints.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedConstraints.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedContact.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalMultiArticulatedContact.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalQualityContactSolver.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalQualityContactSolver.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalUnifiedQualitySolver.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalUnifiedQualitySolver.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalWorld.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalWorld.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHyperPolicy.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHyperPolicy.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalWorldFamily.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalWorldFamily.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHybridRenderer.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalHybridRenderer.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalRunInspector.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalRunInspector.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalTactile.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalTactile.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNeuronCulture.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/metal/MetalNeuronCulture.mm",
+    "output": "CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001",
+    "command": "/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/MetalRobo.metallib\\\" -DMETALROBO_NEURON_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/shaders/NumiNeuron.metallib\\\" -Dmetalrobo_EXPORTS -I/Users/n/numi-lab-complete-body-capture-1276/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/src -I/Users/n/numi-lab-complete-body-capture-build-1276-001/generated -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2 -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/metalrobo.dir/src/c_api.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/src/c_api.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/src/c_api.cpp",
+    "output": "CMakeFiles/metalrobo.dir/src/c_api.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/matter.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/matter.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/language_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/language_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/constitutive_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/constitutive_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/compiler_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/compiler_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/vascular_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/vascular_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/fingerprint_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/fingerprint_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/validation_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/validation_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/package_impl.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/package_impl.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++  -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/surgical_tissue.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/surgical_tissue.cpp",
+    "output": "matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/matter/shaders/NumiMatter.metallib\\\" -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/runtime.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/runtime.mm",
+    "output": "matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/matter/shaders/NumiMatter.metallib\\\" -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/human_physiology.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/human_physiology.mm",
+    "output": "matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/c++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/matter/shaders/NumiMatter.metallib\\\" -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/../include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/metal_world.cpp",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/metal_world.cpp",
+    "output": "matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o"
+  },
+  {
+    "directory": "/Users/n/numi-lab-complete-body-capture-build-1276-001/matter",
+    "command": "/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\\\"/Users/n/numi-lab-complete-body-capture-build-1276-001/matter/shaders/NumiMatter.metallib\\\" -I/Users/n/numi-lab-complete-body-capture-1276/matter/include -I/Users/n/numi-lab-complete-body-capture-1276/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -o CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o -c /Users/n/numi-lab-complete-body-capture-1276/matter/src/numi_human.mm",
+    "file": "/Users/n/numi-lab-complete-body-capture-1276/matter/src/numi_human.mm",
+    "output": "matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o"
+  }
+]

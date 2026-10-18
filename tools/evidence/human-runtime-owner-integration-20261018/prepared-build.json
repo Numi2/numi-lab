@@ -1,0 +1,41 @@
+{
+  "compile": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O3",
+    "-arch",
+    "arm64",
+    "-fobjc-arc",
+    "-x",
+    "objective-c++",
+    "-I/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include",
+    "-I/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include",
+    "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003",
+    "-DNUMI_MATTER_METALLIB=\"/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal\"",
+    "-DNUMANX_ADAPTER_METALLIB=\"/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/HumanMatterSource.metal\"",
+    "-DNUMI_MATTER_MATERIAL=\"/Users/n/numi-lab-anatomy-parent-publication-1384/matter/materials/silicone.nmatter\"",
+    "-c",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/prepared-extension-probe-001/numanx_human_matter_deferred_extension_probe.mm",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/prepared-regression/probe.o"
+  ],
+  "link": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/prepared-regression/probe.o",
+    "-L/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "Accelerate",
+    "-lz",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/prepared-regression/probe"
+  ],
+  "exit": 0
+}

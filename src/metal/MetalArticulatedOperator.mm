@@ -51,6 +51,42 @@
 namespace metalrobo {
 namespace {
 
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+[[nodiscard]] id<MTLFunction> testSourceFunction(
+    NSArray<id<MTLLibrary>>* libraries,
+    NSString* name
+) {
+    for (id<MTLLibrary> candidate in libraries) {
+        id<MTLFunction> function = [candidate newFunctionWithName:name];
+        if (function != nil) return function;
+    }
+    return nil;
+}
+
+[[nodiscard]] id<MTLFunction> testSourceFunction(
+    NSArray<id<MTLLibrary>>* libraries,
+    NSString* name,
+    MTLFunctionConstantValues* constants,
+    NSError** error
+) {
+    NSError* lastError = nil;
+    for (id<MTLLibrary> candidate in libraries) {
+        NSError* candidateError = nil;
+        id<MTLFunction> function = [candidate
+            newFunctionWithName:name
+            constantValues:constants
+            error:&candidateError];
+        if (function != nil) {
+            if (error != nullptr) *error = nil;
+            return function;
+        }
+        if (candidateError != nil) lastError = candidateError;
+    }
+    if (error != nullptr) *error = lastError;
+    return nil;
+}
+#endif
+
 // Diagnostic schedules are immutable for an owning process/context. A short,
 // explicit list permits late-root attribution without profiling every root.
 std::vector<std::uint32_t> humanDiagnosticRoots(const char* name) {
@@ -259,8 +295,9 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 27u;
 constexpr std::size_t kStandBodyPropertiesCheckpointBuffer = 26u;
+constexpr std::size_t kStandDofPropertiesCheckpointBuffer = 27u;
+constexpr std::size_t kStandBufferCount = 28u;
 constexpr std::size_t kStandSparseGraphBuffer = 24u;
 constexpr std::size_t kStandContactWarmStartBuffer = 25u;
 constexpr std::size_t kStandPassiveJointBuffer = 22u;
@@ -660,6 +697,7 @@ void visitSplitStandBoundary(
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.fingerprint);
     appendSplitStandValue(sink, input.stand.numanXTransactionProgram.writeBodyProperties);
+    appendSplitStandValue(sink, input.stand.numanXTransactionProgram.usesDofProperties());
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication());
     appendSplitStandValue(sink, input.stand.contactIterationCount);
@@ -816,6 +854,26 @@ void visitSplitStandBoundary(
 } // namespace
 
 namespace detail {
+
+enum class StandEndpointMomentumScratchSlot : std::size_t {
+    bodyPoses = 0u,
+    pointWorld = 1u,
+    pointJacobians = 2u,
+    statuses = 3u,
+    bodyPositionLow = 4u,
+    pointPositionLow = 5u,
+    bodySpatialJacobians = 6u,
+    generalizedImpulse = 7u,
+    deltaVelocity = 8u,
+    count = 9u,
+};
+
+struct StandEndpointMomentumScratchLayout {
+    std::array<std::size_t,
+        static_cast<std::size_t>(StandEndpointMomentumScratchSlot::count)>
+        offsets{};
+    std::size_t totalBytes = 0u;
+};
 
 struct MetalArticulatedOperatorContextState {
     explicit MetalArticulatedOperatorContextState(
@@ -1008,9 +1066,16 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLSharedEvent> geometryReadyEvent = nil;
     std::uint64_t geometryNextEventValue = 0u;
     __strong id<MTLLibrary> library = nil;
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+    __strong NSArray<id<MTLLibrary>>* testSourceLibraries = nil;
+#endif
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
     __strong id<MTLBuffer> kinematicsCache = nil;
+    // Persistent output-only arena for the terminal accepted-state momentum
+    // observer. It never aliases solver or transaction state.
+    __strong id<MTLBuffer> standEndpointMomentumScratch = nil;
+    std::size_t standEndpointMomentumScratchCapacity = 0u;
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoCompensatedPipeline = nil;
@@ -1036,7 +1101,9 @@ struct MetalArticulatedOperatorContextState {
     std::uint64_t standFreeHandoffNextValue = 0u;
     __strong id<MTLBuffer> standCpuFinishBuffer = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
+    __strong id<MTLComputePipelineState> standDofPropertiesReconcilePipeline = nil;
     bool bodyPropertiesTransactionAvailable = false;
+    bool dofPropertiesTransactionAvailable = false;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> tendonCompensatedPipeline = nil;
     __strong id<MTLComputePipelineState> humanMatterBeginPipeline = nil;
@@ -1298,6 +1365,9 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standContactCount = 0u;
     bool standUsePerContactSupportPlanes = false;
     bool standRootMomentumDiagnosticsCaptured = false;
+    bool standEndpointLinearMomentumCaptured = false;
+    __strong id<MTLBuffer> standEndpointMomentumScratch = nil;
+    StandEndpointMomentumScratchLayout standEndpointMomentumScratchLayout{};
     std::size_t standJointEqualityCount = 0u;
     std::size_t standJointEqualityPayloadCount = 0u;
     bool standEqualityDeferralFaultRequested = false;
@@ -1321,6 +1391,28 @@ struct MetalNumanXHumanMatterPreparedState {
 } // namespace detail
 
 namespace {
+
+bool makeStandEndpointMomentumScratchLayout(
+    const std::array<std::size_t,
+        static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::count)>& sizes,
+    detail::StandEndpointMomentumScratchLayout& layout
+) noexcept {
+    constexpr std::size_t alignment = 256u;
+    constexpr std::size_t alignmentMask = alignment - 1u;
+    std::size_t cursor = 0u;
+    for (std::size_t slot = 0u; slot < sizes.size(); ++slot) {
+        if (cursor > std::numeric_limits<std::size_t>::max() - alignmentMask)
+            return false;
+        const std::size_t offset = (cursor + alignmentMask) & ~alignmentMask;
+        const std::size_t bytes = std::max<std::size_t>(sizes[slot], 16u);
+        if (bytes > std::numeric_limits<std::size_t>::max() - offset)
+            return false;
+        layout.offsets[slot] = offset;
+        cursor = offset + bytes;
+    }
+    layout.totalBytes = cursor;
+    return cursor != 0u;
+}
 
 struct LegacyResidentContinuationFailureGuard {
     std::shared_ptr<detail::MetalArticulatedOperatorContextState> context;
@@ -1527,6 +1619,36 @@ MetalArticulatedOperatorDiagnostics reject(
     diagnostics.status = status;
     diagnostics.message = std::move(message);
     return diagnostics;
+}
+
+std::string gpuEnvironmentFailureMessage(
+    const MetalArticulatedOperatorDiagnostics& diagnostics,
+    const std::vector<MRArticulatedOperatorStatusGPU>& statuses
+) {
+    std::ostringstream message;
+    message << "one or more GPU environments rejected execution"
+            << " failed_environment_count=" << diagnostics.failedEnvironmentCount
+            << " first_environment=" << diagnostics.firstFailingEnvironment
+            << " first_status_code=" << diagnostics.firstGPUStatusCode;
+    const std::size_t index = diagnostics.firstFailingEnvironment;
+    if (index < statuses.size()) {
+        const MRArticulatedOperatorStatusGPU& status = statuses[index];
+        message << " first_articulated_status={environment=" << status.environment
+                << ",articulation=" << status.articulationIndex
+                << ",code=" << status.code
+                << ",failing_index=" << status.failingIndex
+                << ",bodies=" << status.bodyCount
+                << ",nq=" << status.nq
+                << ",nv=" << status.nv
+                << ",points=" << status.pointCount
+                << ",diagnostics=[" << std::setprecision(
+                    std::numeric_limits<float>::max_digits10)
+                << status.diagnostics.x << ',' << status.diagnostics.y << ','
+                << status.diagnostics.z << ',' << status.diagnostics.w << "]}";
+    } else {
+        message << " first_articulated_status=unavailable";
+    }
+    return message.str();
 }
 
 bool checkedMultiply(
@@ -2031,6 +2153,13 @@ bool validNumiHumanStand(
         (!stand.numanXTransactionProgram.valid() ||
          stand.numanXHumanMatterProgram.configured())) {
         reason = "deferred accepted publication requires the ordinary stand reconciliation owner";
+        return false;
+    }
+    if (stand.numanXTransactionProgram.usesDofProperties() &&
+        (stand.numanXTransactionProgram.abiVersion != kMetalNumanXTransactionABIVersion ||
+         !stand.numanXTransactionProgram.valid() || input.environmentCount != 1u ||
+         stand.numanXHumanMatterProgram.configured())) {
+        reason = "mutable DoF properties require ABI 6 and one ordinary stand-reconciliation environment";
         return false;
     }
     if (!stand.enabled()) {
@@ -2695,20 +2824,35 @@ bool cachedStandSparseGraph(
     return release.retainedPrefixCount;
 }
 
-bool canUseReducedStandProjectedResponses(
+bool canAllocateReducedStandProjectedResponses(
     const MetalArticulatedOperatorConfig& config,
     const MetalArticulatedOperatorInput& input,
     std::uint32_t nv
 ) noexcept {
-    // This reduced workspace is dimensioned from the immutable full equality
-    // payload. Keep scheduled releases on the existing full response path.
-    if (input.stand.jointEqualityPrefixRelease.configured()) return false;
+    // The reduced workspace is dimensioned from the full admitted equality
+    // payload. That allocation is sufficient while the complete prefix is
+    // active; released prefixes use the legacy full response path below.
     const auto equalityCount = input.stand.jointEqualities.size();
     return config.reducedStandProjectedResponses && config.splitStandSolve &&
         input.stand.enabled() && input.stand.enableContact &&
         !input.stand.contacts.empty() && equalityCount != 0u &&
         nv != 0u && nv <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
         equalityCount < nv && nv - equalityCount <= 64u;
+}
+
+bool canUseReducedStandProjectedResponses(
+    const MetalArticulatedOperatorConfig& config,
+    const MetalArticulatedOperatorInput& input,
+    std::uint32_t nv,
+    std::uint32_t stepIndex
+) noexcept {
+    const auto& release = input.stand.jointEqualityPrefixRelease;
+    // Before the release event, the workspace dimension exactly matches the
+    // full equality prefix. At and after release, fall back to the legacy path
+    // rather than indexing a reduced workspace dimensioned for the old rank.
+    if (release.configured() && stepIndex >= release.releaseStep)
+        return false;
+    return canAllocateReducedStandProjectedResponses(config, input, nv);
 }
 
 bool canCacheStandLimitEqualityResponses(
@@ -2998,6 +3142,8 @@ bool buildRequirements(
             requirements.humanMatterEntries[kHumanMatterCandidatePointPositionLowBuffer]) ||
         !makeRequirement<MRBodyPropertiesGPU>("Human accepted body properties checkpoint", model.bodies.size(),
             requirements.standEntries[kStandBodyPropertiesCheckpointBuffer]) ||
+        !makeRequirement<MRDofPropertiesGPU>("Human accepted DoF properties checkpoint", model.dofs.size(),
+            requirements.standEntries[kStandDofPropertiesCheckpointBuffer]) ||
         !makeRequirement<float>("Human accepted q checkpoint", layout.qElements,
             requirements.standEntries[kStandQCheckpointBuffer]) ||
         !makeRequirement<float>("Human accepted v checkpoint", layout.standVelocityElements,
@@ -3656,7 +3802,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 "derived Numi Human stand response element count overflow"
             );
         }
-        if (canUseReducedStandProjectedResponses(
+        if (canAllocateReducedStandProjectedResponses(
                 config, input, articulation.nv)) {
             const std::size_t freeDofs =
                 articulation.nv - input.stand.jointEqualities.size();
@@ -4240,10 +4386,28 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     }
 
     std::string metallibPath = context.config.metallibPath;
-    if (metallibPath.empty()) {
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+    const char* testOperatorSourcePath =
+        std::getenv("METALROBO_TEST_ARTICULATED_SOURCE");
+    const char* testOperatorSourceSHA256 =
+        std::getenv("METALROBO_TEST_ARTICULATED_SOURCE_SHA256");
+    if ((testOperatorSourcePath == nullptr) !=
+        (testOperatorSourceSHA256 == nullptr)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "test articulated source path and SHA-256 must be set together"
+        );
+    }
+    const bool compileTestOperatorSource =
+        testOperatorSourcePath != nullptr;
+#else
+    constexpr bool compileTestOperatorSource = false;
+#endif
+    if (metallibPath.empty() && !compileTestOperatorSource) {
         metallibPath = defaultMetallibPath();
     }
-    if (metallibPath.empty()) {
+    if (metallibPath.empty() && !compileTestOperatorSource) {
         return reject(
             std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::
@@ -4282,29 +4446,240 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     }
     queue.label = @"MetalRobo articulated operator queue";
 
-    NSString* path = [NSString
-        stringWithUTF8String:metallibPath.c_str()];
-    if (path == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalArticulatedOperatorHostStatus::
-                metallibUnavailable,
-            "metallib path is not valid UTF-8"
-        );
-    }
     NSError* error = nil;
-    id<MTLLibrary> library = [device
-        newLibraryWithURL:[NSURL fileURLWithPath:path]
-                    error:&error];
+    id<MTLLibrary> library = nil;
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+    __strong NSArray<id<MTLLibrary>>* testSourceLibraries = nil;
+    if (compileTestOperatorSource) {
+        if (testOperatorSourcePath[0] == '\0' ||
+            testOperatorSourceSHA256[0] == '\0' ||
+            std::strlen(testOperatorSourceSHA256) !=
+                2u * CC_SHA256_DIGEST_LENGTH) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "test articulated source manifest path or SHA-256 is invalid"
+            );
+        }
+        std::ifstream manifestFile(testOperatorSourcePath, std::ios::binary);
+        if (!manifestFile) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "failed to open pinned test articulated source manifest"
+            );
+        }
+        const std::string manifestBytes{
+            std::istreambuf_iterator<char>(manifestFile),
+            std::istreambuf_iterator<char>()};
+        if (manifestFile.bad() || manifestBytes.empty() ||
+            manifestBytes.size() > 8u * 1024u * 1024u) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned test articulated source manifest is unreadable or too large"
+            );
+        }
+        auto sha256Hex = [](const std::string& bytes) {
+            std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+            CC_SHA256(
+                bytes.data(), static_cast<CC_LONG>(bytes.size()),
+                digest.data());
+            static constexpr char kHex[] = "0123456789abcdef";
+            std::string result(2u * digest.size(), '0');
+            for (std::size_t index = 0u; index < digest.size(); ++index) {
+                result[2u * index] = kHex[(digest[index] >> 4u) & 0x0fu];
+                result[2u * index + 1u] = kHex[digest[index] & 0x0fu];
+            }
+            return result;
+        };
+        std::string expectedManifestSHA256(testOperatorSourceSHA256);
+        std::transform(
+            expectedManifestSHA256.begin(), expectedManifestSHA256.end(),
+            expectedManifestSHA256.begin(),
+            [](const unsigned char value) {
+                return static_cast<char>(std::tolower(value));
+            });
+        if (expectedManifestSHA256.find_first_not_of(
+                "0123456789abcdef") != std::string::npos ||
+            expectedManifestSHA256 != sha256Hex(manifestBytes)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned test articulated source manifest SHA-256 does not match"
+            );
+        }
+
+        NSMutableArray<id<MTLLibrary>>* compiledLibraries =
+            [NSMutableArray array];
+        std::vector<std::string> loadedPaths;
+        std::size_t totalSourceBytes = 0u;
+        std::size_t lineStart = 0u;
+        while (lineStart < manifestBytes.size()) {
+            const std::size_t lineEnd = manifestBytes.find('\n', lineStart);
+            const std::size_t end =
+                lineEnd == std::string::npos ? manifestBytes.size() : lineEnd;
+            std::string line = manifestBytes.substr(lineStart, end - lineStart);
+            lineStart = lineEnd == std::string::npos ? manifestBytes.size() : end + 1u;
+            if (line.empty() || line[0] == '#') continue;
+            const std::size_t separator = line.find('\t');
+            if (separator == std::string::npos || separator == 0u ||
+                separator + 1u >= line.size()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "test articulated source manifest row must be SHA256<TAB>PATH"
+                );
+            }
+            std::string expectedSourceSHA256 = line.substr(0u, separator);
+            const std::string sourcePath = line.substr(separator + 1u);
+            std::transform(
+                expectedSourceSHA256.begin(), expectedSourceSHA256.end(),
+                expectedSourceSHA256.begin(),
+                [](const unsigned char value) {
+                    return static_cast<char>(std::tolower(value));
+                });
+            if (expectedSourceSHA256.size() !=
+                    2u * CC_SHA256_DIGEST_LENGTH ||
+                expectedSourceSHA256.find_first_not_of(
+                    "0123456789abcdef") != std::string::npos ||
+                sourcePath.empty() ||
+                std::find(loadedPaths.begin(), loadedPaths.end(), sourcePath) !=
+                    loadedPaths.end()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "test articulated source manifest has an invalid or duplicate row"
+                );
+            }
+            std::ifstream sourceFile(sourcePath, std::ios::binary);
+            if (!sourceFile) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "failed to open pinned test articulated source module: " +
+                        sourcePath
+                );
+            }
+            const std::string sourceBytes{
+                std::istreambuf_iterator<char>(sourceFile),
+                std::istreambuf_iterator<char>()};
+            constexpr std::size_t kMaximumSourceBytes =
+                128u * 1024u * 1024u;
+            if (sourceFile.bad() || sourceBytes.empty() ||
+                sourceBytes.size() >
+                    static_cast<std::size_t>(
+                        std::numeric_limits<CC_LONG>::max()) ||
+                sourceBytes.size() > kMaximumSourceBytes ||
+                totalSourceBytes > kMaximumSourceBytes - sourceBytes.size()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "pinned test articulated source module is unreadable or exceeds the byte limit"
+                );
+            }
+            totalSourceBytes += sourceBytes.size();
+            if (sha256Hex(sourceBytes) != expectedSourceSHA256) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "pinned test articulated source module SHA-256 does not match: " +
+                        sourcePath
+                );
+            }
+            NSString* source = [[NSString alloc]
+                initWithBytes:sourceBytes.data()
+                       length:sourceBytes.size()
+                     encoding:NSUTF8StringEncoding];
+            if (source == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "pinned test articulated source is not valid UTF-8: " +
+                        sourcePath
+                );
+            }
+            MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+            options.languageVersion = MTLLanguageVersion4_0;
+            options.optimizationLevel = MTLLibraryOptimizationLevelDefault;
+            options.mathMode = MTLMathModeSafe;
+            options.mathFloatingPointFunctions =
+                MTLMathFloatingPointFunctionsPrecise;
+            error = nil;
+            id<MTLLibrary> moduleLibrary = [device
+                newLibraryWithSource:source options:options error:&error];
+            if (moduleLibrary == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "failed to compile pinned test articulated source module " +
+                        sourcePath + ": " + describeError(error)
+                );
+            }
+            [compiledLibraries addObject:moduleLibrary];
+            loadedPaths.push_back(sourcePath);
+        }
+        if (compiledLibraries.count == 0u) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned test articulated source manifest contains no modules"
+            );
+        }
+        testSourceLibraries = [compiledLibraries copy];
+        library = testSourceLibraries.firstObject;
+    } else
+#endif
+    {
+        NSString* path = [NSString
+            stringWithUTF8String:metallibPath.c_str()];
+        if (path == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::
+                    metallibUnavailable,
+                "metallib path is not valid UTF-8"
+            );
+        }
+        library = [device
+            newLibraryWithURL:[NSURL fileURLWithPath:path]
+                        error:&error];
+    }
     if (library == nil) {
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+        const std::string libraryErrorMessage = compileTestOperatorSource
+            ? "failed to compile pinned test articulated source: " +
+                describeError(error)
+            : "failed to load metallib: " + describeError(error);
+#else
+        const std::string libraryErrorMessage =
+            "failed to load metallib: " + describeError(error);
+#endif
         return reject(
             std::move(diagnostics),
-            MetalArticulatedOperatorHostStatus::
-                metalLibraryFailure,
-            "failed to load metallib: " +
-                describeError(error)
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            libraryErrorMessage
         );
     }
+    auto findLibraryFunction = [&](NSString* name) -> id<MTLFunction> {
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+        if (compileTestOperatorSource)
+            return testSourceFunction(testSourceLibraries, name);
+#endif
+        return [library newFunctionWithName:name];
+    };
+    auto findLibraryFunctionWithConstants = [&](
+        NSString* name, MTLFunctionConstantValues* constants,
+        NSError** functionError
+    ) -> id<MTLFunction> {
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+        if (compileTestOperatorSource)
+            return testSourceFunction(
+                testSourceLibraries, name, constants, functionError);
+#endif
+        return [library newFunctionWithName:name
+            constantValues:constants error:functionError];
+    };
     id<MTLLibrary> standLibrary = library;
     const char* standSourcePath = std::getenv("NUMI_HUMAN_STAND_SOURCE");
     const char* standSourceSHA256 =
@@ -4418,15 +4793,16 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     }
     context.bodyPropertiesTransactionAvailable =
         [standLibrary newFunctionWithName:@"mr_numi_human_body_properties_transaction_v4"] != nil;
+    context.dofPropertiesTransactionAvailable =
+        [standLibrary newFunctionWithName:@"mr_numi_human_dof_properties_reconcile_v6"] != nil;
     MTLFunctionConstantValues* articulatedConstants =
         [[MTLFunctionConstantValues alloc] init];
     bool canonicalBodyProbeFusion =
         context.config.fuseCanonicalBodyProbes;
     [articulatedConstants setConstantValue:&canonicalBodyProbeFusion
                                       type:MTLDataTypeBool atIndex:45u];
-    id<MTLFunction> function = [library
-        newFunctionWithName:@"mr_articulated_operator"
-            constantValues:articulatedConstants error:&error];
+    id<MTLFunction> function = findLibraryFunctionWithConstants(
+        @"mr_articulated_operator", articulatedConstants, &error);
     if (function == nil) {
         return reject(
             std::move(diagnostics),
@@ -4459,8 +4835,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             "device cannot execute the articulated threadgroup"
         );
     }
-    id<MTLFunction> millardFunction = [library
-        newFunctionWithName:@"mr_millard_reference"];
+    id<MTLFunction> millardFunction = findLibraryFunction(@"mr_millard_reference");
     if (millardFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -4482,8 +4857,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    id<MTLFunction> mujocoFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_reference"];
+    id<MTLFunction> mujocoFunction = findLibraryFunction(@"mr_mujoco_muscle_reference");
     if (mujocoFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -4505,8 +4879,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    id<MTLFunction> mujocoReduceFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_reduce"];
+    id<MTLFunction> mujocoReduceFunction = findLibraryFunction(@"mr_mujoco_muscle_reduce");
     if (mujocoReduceFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -4528,8 +4901,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    id<MTLFunction> mujocoActiveForceFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_active_force_rows"];
+    id<MTLFunction> mujocoActiveForceFunction = findLibraryFunction(@"mr_mujoco_muscle_active_force_rows");
     if (mujocoActiveForceFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -4551,8 +4923,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    id<MTLFunction> mujocoActivationFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_activation_step"];
+    id<MTLFunction> mujocoActivationFunction = findLibraryFunction(@"mr_mujoco_muscle_activation_step");
     if (mujocoActivationFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -4999,8 +5370,16 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             MetalArticulatedOperatorHostStatus::metalPipelineFailure,
             "failed to create Human accepted-state reconciliation: " + describeError(error));
     }
-    id<MTLFunction> tendonFunction = [library
-        newFunctionWithName:@"mr_numi_human_tendon_transfer"];
+    id<MTLFunction> dofReconcileFunction = [standLibrary
+        newFunctionWithName:@"mr_numi_human_dof_properties_reconcile_v6"];
+    id<MTLComputePipelineState> dofReconcilePipeline = dofReconcileFunction == nil
+        ? nil : [device newComputePipelineStateWithFunction:dofReconcileFunction error:&error];
+    if (dofReconcileFunction != nil && dofReconcilePipeline == nil) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create Human accepted DoF-property reconciliation: " + describeError(error));
+    }
+    id<MTLFunction> tendonFunction = findLibraryFunction(@"mr_numi_human_tendon_transfer");
     if (tendonFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -5026,9 +5405,13 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.device = device;
     context.queue = queue;
     context.library = library;
-    id<MTLFunction> compensatedFunction = [library
-        newFunctionWithName:@"mr_articulated_operator_compensated"
-            constantValues:articulatedConstants error:&error];
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+    context.testSourceLibraries = testSourceLibraries;
+#endif
+    id<MTLFunction> compensatedFunction =
+        findLibraryFunctionWithConstants(
+            @"mr_articulated_operator_compensated",
+            articulatedConstants, &error);
     if (compensatedFunction == nil) return reject(std::move(diagnostics),
         MetalArticulatedOperatorHostStatus::metalLibraryFailure,
         "metallib lacks compensated articulated operator");
@@ -5037,8 +5420,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         MetalArticulatedOperatorHostStatus::metalPipelineFailure, describeError(error));
     context.pipeline = pipeline;
     context.millardPipeline = millardPipeline;
-    id<MTLFunction> mujocoCompensatedFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_reference_compensated"];
+    id<MTLFunction> mujocoCompensatedFunction = findLibraryFunction(@"mr_mujoco_muscle_reference_compensated");
     id<MTLComputePipelineState> mujocoCompensatedPipeline =
         mujocoCompensatedFunction == nil ? nil : [device
             newComputePipelineStateWithFunction:mujocoCompensatedFunction error:&error];
@@ -5048,10 +5430,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             MetalArticulatedOperatorHostStatus::metalPipelineFailure,
             "failed to create paired MyoSim reference pipeline: " + describeError(error));
     context.mujocoCompensatedPipeline = mujocoCompensatedPipeline;
-    id<MTLFunction> mujocoCachedFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_reference_cached"];
-    id<MTLFunction> mujocoAngularFunction = [library
-        newFunctionWithName:@"mr_mujoco_muscle_angular_jacobians"];
+    id<MTLFunction> mujocoCachedFunction = findLibraryFunction(@"mr_mujoco_muscle_reference_cached");
+    id<MTLFunction> mujocoAngularFunction = findLibraryFunction(@"mr_mujoco_muscle_angular_jacobians");
     if (mujocoCachedFunction == nil || mujocoAngularFunction == nil)
         return reject(std::move(diagnostics),
             MetalArticulatedOperatorHostStatus::metalLibraryFailure,
@@ -5095,8 +5475,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.standCachedFinishCounterPipeline = standCachedFinishCounterPipeline;
     context.standCpuFinishPipeline = standCpuFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
-    id<MTLFunction> tendonCompensatedFunction = [library
-        newFunctionWithName:@"mr_numi_human_tendon_transfer_compensated"];
+    context.standDofPropertiesReconcilePipeline = dofReconcilePipeline;
+    id<MTLFunction> tendonCompensatedFunction = findLibraryFunction(@"mr_numi_human_tendon_transfer_compensated");
     id<MTLComputePipelineState> tendonCompensatedPipeline =
         tendonCompensatedFunction == nil ? nil : [device
             newComputePipelineStateWithFunction:tendonCompensatedFunction error:&error];
@@ -5161,8 +5541,14 @@ MetalArticulatedOperatorDiagnostics initializeHumanMatterPipelines(
          kStandThreadsPerThreadgroup},
     }};
     for (const PipelineSpec& spec : specs) {
-        id<MTLFunction> function = [context.library
-            newFunctionWithName:spec.name];
+        id<MTLFunction> function = nil;
+#if defined(METALROBO_TEST_ARTICULATED_SOURCE_LOADER)
+        if (context.testSourceLibraries != nil)
+            function = testSourceFunction(
+                context.testSourceLibraries, spec.name);
+#endif
+        if (function == nil)
+            function = [context.library newFunctionWithName:spec.name];
         if (function == nil) {
             return reject(
                 std::move(diagnostics),
@@ -5625,7 +6011,9 @@ void uploadBatch(
     for (std::size_t index = 0u; index < sources.size(); ++index) {
         if (reusePublishedResidentState &&
             (index == 6u || (index == 4u &&
-             input.stand.numanXTransactionProgram.writeBodyProperties))) {
+             input.stand.numanXTransactionProgram.writeBodyProperties) ||
+             (index == 3u &&
+             input.stand.numanXTransactionProgram.usesDofProperties()))) {
             continue;
         }
         copyToBuffer(
@@ -10332,6 +10720,117 @@ MetalArticulatedOperatorSubmission::wait(
                 }
             }
         }
+        std::vector<double> endpointLinearMomentum;
+        if (pending->standEndpointLinearMomentumCaptured) {
+            const std::size_t environments = staged.standStatuses.size();
+            const std::size_t bodyCount = pending->articulation.bodyCount;
+            const std::size_t nv = pending->articulation.nv;
+            const std::size_t velocityStride = environments == 0u ? 0u :
+                diagnostics.layout.standVelocityElements / environments;
+            std::size_t spatialFloats = 0u;
+            std::size_t spatialBytes = 0u;
+            if (environments == 0u || velocityStride < nv ||
+                pending->context->buffers[4u] == nil ||
+                pending->context->standBuffers[kStandVelocityBuffer] == nil ||
+                pending->standEndpointMomentumScratch == nil ||
+                !checkedMultiply(environments, bodyCount, spatialFloats) ||
+                !checkedMultiply(spatialFloats, std::size_t(9u), spatialFloats) ||
+                !checkedMultiply(spatialFloats, nv, spatialFloats) ||
+                !checkedMultiply(spatialFloats, sizeof(float), spatialBytes)) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "terminal endpoint momentum dimensions or buffers are invalid");
+            }
+            const auto& scratchLayout =
+                pending->standEndpointMomentumScratchLayout;
+            const std::size_t firstBody = pending->articulation.firstBody;
+            if (pending->standEndpointMomentumScratch.contents == nullptr ||
+                pending->context->buffers[4u].contents == nullptr ||
+                pending->context->standBuffers[kStandVelocityBuffer].contents == nullptr ||
+                firstBody > pending->model->bodies.size() ||
+                bodyCount > pending->model->bodies.size() - firstBody ||
+                pending->standEndpointMomentumScratch.length <
+                    scratchLayout.totalBytes ||
+                pending->context->buffers[4u].length <
+                    pending->model->bodies.size() * sizeof(MRBodyPropertiesGPU) ||
+                pending->context->standBuffers[kStandVelocityBuffer].length <
+                    environments * velocityStride * sizeof(float) ||
+                scratchLayout.offsets[static_cast<std::size_t>(
+                    detail::StandEndpointMomentumScratchSlot::bodySpatialJacobians)] >
+                    pending->standEndpointMomentumScratch.length ||
+                spatialBytes > pending->standEndpointMomentumScratch.length -
+                    scratchLayout.offsets[static_cast<std::size_t>(
+                        detail::StandEndpointMomentumScratchSlot::bodySpatialJacobians)]) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "terminal endpoint momentum scratch extent is invalid");
+            }
+            const auto* scratchBytes = static_cast<const char*>(
+                pending->standEndpointMomentumScratch.contents);
+            const auto* endpointStatuses = reinterpret_cast<const
+                MRArticulatedOperatorStatusGPU*>(scratchBytes +
+                    scratchLayout.offsets[static_cast<std::size_t>(
+                        detail::StandEndpointMomentumScratchSlot::statuses)]);
+            const auto* spatialJacobians = reinterpret_cast<const float*>(
+                scratchBytes + scratchLayout.offsets[static_cast<std::size_t>(
+                    detail::StandEndpointMomentumScratchSlot::bodySpatialJacobians)]);
+            const auto* acceptedVelocity = static_cast<const float*>(
+                pending->context->standBuffers[kStandVelocityBuffer].contents);
+            const auto* bodyProperties = static_cast<const MRBodyPropertiesGPU*>(
+                pending->context->buffers[4u].contents);
+            endpointLinearMomentum.assign(environments * 3u, 0.0);
+            for (std::size_t environment = 0u;
+                 environment < environments; ++environment) {
+                const MRArticulatedOperatorStatusGPU& status =
+                    endpointStatuses[environment];
+                if (status.code != MR_ARTICULATED_OPERATOR_SUCCESS ||
+                    status.environment != environment ||
+                    status.articulationIndex != pending->articulationIndex ||
+                    status.bodyCount != bodyCount || status.nq != pending->articulation.nq ||
+                    status.nv != nv || status.pointCount != pending->pointCount ||
+                    !finite(status.diagnostics)) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure,
+                        "terminal endpoint momentum FK/Jacobian dispatch failed validation");
+                }
+                for (std::size_t localBody = 0u;
+                     localBody < bodyCount; ++localBody) {
+                    const std::size_t globalBody =
+                        pending->articulation.firstBody + localBody;
+                    const float mass = bodyProperties[globalBody].massAndInverseMass.x;
+                    if (!std::isfinite(mass) || mass < 0.0f) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::internalFailure,
+                            "accepted endpoint body mass is invalid");
+                    }
+                    if (mass == 0.0f) continue;
+                    const std::size_t envBase =
+                        environment * bodyCount * 9u * nv;
+                    const std::size_t bodyBase =
+                        envBase + localBody * 6u * nv;
+                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                        double linearVelocity = 0.0;
+                        const std::size_t rowBase =
+                            bodyBase + (3u + axis) * nv;
+                        for (std::size_t dof = 0u; dof < nv; ++dof) {
+                            linearVelocity +=
+                                static_cast<double>(spatialJacobians[rowBase + dof]) *
+                                static_cast<double>(acceptedVelocity[
+                                    environment * velocityStride + dof]);
+                        }
+                        endpointLinearMomentum[environment * 3u + axis] +=
+                            static_cast<double>(mass) * linearVelocity;
+                    }
+                }
+            }
+        }
+        if (!std::all_of(endpointLinearMomentum.begin(),
+                         endpointLinearMomentum.end(),
+                         [](const double value) { return std::isfinite(value); })) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::internalFailure,
+                "terminal endpoint momentum payload is non-finite");
+        }
         if (!finitePayload(staged)) {
             return reject(
                 std::move(diagnostics),
@@ -10453,6 +10952,36 @@ MetalArticulatedOperatorSubmission::wait(
                     std::copy_n(evidence + 3u * nv, 6u,
                         staged.standBodyKineticRootMomentumStages.begin() + env * 6u);
                 }
+            }
+            if (pending->standEndpointLinearMomentumCaptured) {
+                // Keep the established first six values intact and add endpoint
+                // q/v momentum as an optional seventh xyz stage in this window.
+                if (!pending->standRootMomentumDiagnosticsCaptured ||
+                    endpointLinearMomentum.size() != environments * 3u ||
+                    staged.standBodyKineticRootMomentumStages.size() != environments * 6u) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "endpoint momentum requires the original same-q root stages");
+                }
+                std::vector<float> extendedStages;
+                extendedStages.reserve(environments * 9u);
+                for (std::size_t env = 0u; env < environments; ++env) {
+                    const auto stageBegin =
+                        staged.standBodyKineticRootMomentumStages.begin() + env * 6u;
+                    extendedStages.insert(extendedStages.end(), stageBegin, stageBegin + 6u);
+                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                        const float endpoint = static_cast<float>(
+                            endpointLinearMomentum[env * 3u + axis]);
+                        if (!std::isfinite(endpoint)) {
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::internalFailure,
+                                "endpoint momentum cannot be represented in typed stages");
+                        }
+                        extendedStages.push_back(endpoint);
+                    }
+                }
+                staged.standBodyKineticRootMomentumStages =
+                    std::move(extendedStages);
             }
             if (!std::all_of(staged.standSourceLimitImpulses.begin(),
                              staged.standSourceLimitImpulses.end(),
@@ -10608,7 +11137,7 @@ MetalArticulatedOperatorSubmission::wait(
                 std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::
                     gpuEnvironmentFailure,
-                "one or more GPU environments rejected execution"
+                gpuEnvironmentFailureMessage(diagnostics, result.statuses)
             );
         }
         diagnostics.status =
@@ -11209,6 +11738,12 @@ MetalArticulatedOperatorContext::submit(
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::metalLibraryFailure,
                     "Human body-property transactions require the matching V4 stand shader");
+            if (input.stand.numanXTransactionProgram.usesDofProperties() &&
+                (!state_->dofPropertiesTransactionAvailable ||
+                 !state_->standDofPropertiesReconcilePipeline))
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                    "Human DoF-property transactions require the matching ABI6 stand shader");
             if (input.stand.numanXHumanMatterProgram.valid()) {
                 diagnostics = initializeHumanMatterPipelines(
                     *state_, std::move(diagnostics)
@@ -11626,7 +12161,8 @@ MetalArticulatedOperatorContext::submit(
                     diagnostics.layout;
                 MetalNumanXTransactionPass pass{};
                 pass.abiVersion = program.abiVersion;
-                pass.structSize = sizeof(MetalNumanXTransactionPass);
+                pass.structSize =
+                    metalNumanXTransactionPassStructSizeForABI(program.abiVersion);
                 pass.accessFlags =
                     MetalNumanXTransactionReadBorrowedState;
                 if (phase == MetalNumanXTransactionPhase::beginStep) {
@@ -11651,6 +12187,13 @@ MetalArticulatedOperatorContext::submit(
                     if (phase == MetalNumanXTransactionPhase::preDynamics)
                         pass.accessFlags |= MetalNumanXTransactionWriteBodyProperties |
                             MetalNumanXTransactionWriteGeneralizedForce;
+                }
+                if (program.usesDofProperties() &&
+                    phase == MetalNumanXTransactionPhase::preDynamics) {
+                    pass.dofProperties = (__bridge void*)state_->buffers[3u];
+                    pass.dofPropertiesCheckpoint = (__bridge void*)state_->standBuffers[kStandDofPropertiesCheckpointBuffer];
+                    pass.dofPropertyCount = model.dofs.size();
+                    pass.accessFlags |= MetalNumanXTransactionWriteDofProperties;
                 }
                 pass.reserved0 = 0u;
                 pass.commandBuffer = (__bridge void*)commandBuffer;
@@ -12082,6 +12625,9 @@ MetalArticulatedOperatorContext::submit(
                 if (input.stand.numanXTransactionProgram.writeBodyProperties)
                     copy(state_->buffers[4u], kStandBodyPropertiesCheckpointBuffer,
                         model.bodies.size() * sizeof(MRBodyPropertiesGPU));
+                if (input.stand.numanXTransactionProgram.usesDofProperties())
+                    copy(state_->buffers[3u], kStandDofPropertiesCheckpointBuffer,
+                        model.dofs.size() * sizeof(MRDofPropertiesGPU));
                 copy(state_->standBuffers[kStandRootTranslationBuffer], kStandRootTranslationCheckpointBuffer,
                     input.environmentCount * sizeof(MRCompensatedRootTranslationGPU));
                 copy(state_->buffers[6u], kStandQCheckpointBuffer,
@@ -13068,7 +13614,8 @@ MetalArticulatedOperatorContext::submit(
                      std::strcmp(parallelMassSetting, "1") == 0);
                 const bool reducedProjectedResponses = parallelMass &&
                     canUseReducedStandProjectedResponses(
-                        state_->config, input, articulation.nv);
+                        state_->config, input, articulation.nv,
+                        authoritativeStep);
                 const char* freeSplitSetting =
                     std::getenv("NUMI_HUMAN_STAND_FREE_SPLIT");
                 const bool freeSplitRequested = freeSplitSetting != nullptr &&
@@ -15469,6 +16016,25 @@ MetalArticulatedOperatorContext::submit(
                     [reconcile dispatchThreads:MTLSizeMake(input.environmentCount, 1u, 1u)
                         threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
                     [reconcile endEncoding];
+                    if (input.stand.numanXTransactionProgram.usesDofProperties()) {
+                        id<MTLComputeCommandEncoder> dofReconcile = [commandBuffer computeCommandEncoder];
+                        if (dofReconcile == nil) {
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                                "failed to encode accepted DoF-property reconciliation");
+                        }
+                        const mr_uint4 dofShape = {
+                            static_cast<mr_u32>(input.environmentCount),
+                            static_cast<mr_u32>(model.dofs.size()), authoritativeStep, 0u};
+                        [dofReconcile setComputePipelineState:state_->standDofPropertiesReconcilePipeline];
+                        [dofReconcile setBytes:&dofShape length:sizeof(dofShape) atIndex:0u];
+                        [dofReconcile setBuffer:state_->buffers[3u] offset:0u atIndex:1u];
+                        [dofReconcile setBuffer:state_->standBuffers[kStandDofPropertiesCheckpointBuffer] offset:0u atIndex:2u];
+                        [dofReconcile setBuffer:state_->standBuffers[kStandStatusBuffer] offset:0u atIndex:3u];
+                        [dofReconcile dispatchThreads:MTLSizeMake(model.dofs.size(),1u,1u)
+                            threadsPerThreadgroup:MTLSizeMake(128u,1u,1u)];
+                        [dofReconcile endEncoding];
+                    }
                 }
                 if (input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication() &&
                     !encodeNumanXTransactionPhase(
@@ -15514,6 +16080,167 @@ MetalArticulatedOperatorContext::submit(
                         1u,
                         1u)];
                 [completionEncoder endEncoding];
+            }
+
+            const std::uint32_t finalAcceptedStep =
+                input.stand.stepIndexOffset + input.stand.stepCount;
+            const bool captureEndpointLinearMomentum =
+                input.stand.enabled() &&
+                input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u &&
+                finalAcceptedStep >=
+                    input.stand.rootMomentumDiagnosticFirstAcceptedStep &&
+                finalAcceptedStep <=
+                    input.stand.rootMomentumDiagnosticLastAcceptedStep;
+            if (captureEndpointLinearMomentum &&
+                !state_->config.readStandConstraintDiagnostics) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
+                    "endpoint momentum stages require the existing stand diagnostics payload");
+            }
+            detail::StandEndpointMomentumScratchLayout endpointScratchLayout{};
+            __strong id<MTLBuffer> endpointScratchBuffer = nil;
+            if (captureEndpointLinearMomentum) {
+                const bool pairedGeometry =
+                    hasCompensatedGeometry(diagnostics.layout);
+                if (!input.stand.enabled() ||
+                    !state_->config.pointJacobiansOnly ||
+                    !input.mujoco.enabled() ||
+                    input.mujoco.bodyJacobianPointOffset == MR_INVALID_INDEX ||
+                    state_->buffers[8u] == nil || state_->buffers[9u] == nil ||
+                    state_->buffers[11u] == nil || state_->buffers[12u] == nil ||
+                    state_->buffers[13u] == nil || state_->buffers[14u] == nil ||
+                    state_->standBuffers[kStandSpatialJacobianBuffer] == nil ||
+                    (pairedGeometry &&
+                     (state_->standBuffers[kStandBodyPositionLowBuffer] == nil ||
+                      state_->standBuffers[kStandPointPositionLowBuffer] == nil ||
+                      state_->standBuffers[kStandRootTranslationBuffer] == nil))) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "terminal endpoint momentum requires the supported Human body-Jacobian path");
+                }
+                const std::array<std::size_t,
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::count)> scratchSizes{
+                    state_->buffers[8u].length,
+                    state_->buffers[9u].length,
+                    state_->buffers[11u].length,
+                    state_->buffers[14u].length,
+                    state_->standBuffers[kStandBodyPositionLowBuffer].length,
+                    state_->standBuffers[kStandPointPositionLowBuffer].length,
+                    state_->standBuffers[kStandSpatialJacobianBuffer].length,
+                    state_->buffers[12u].length,
+                    state_->buffers[13u].length};
+                if (!makeStandEndpointMomentumScratchLayout(
+                        scratchSizes, endpointScratchLayout) ||
+                    endpointScratchLayout.totalBytes >
+                        std::numeric_limits<NSUInteger>::max()) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                        "terminal endpoint momentum scratch layout overflow");
+                }
+                if (state_->standEndpointMomentumScratch == nil ||
+                    state_->standEndpointMomentumScratchCapacity <
+                        endpointScratchLayout.totalBytes) {
+                    id<MTLBuffer> replacement = [state_->device
+                        newBufferWithLength:static_cast<NSUInteger>(
+                            endpointScratchLayout.totalBytes)
+                        options:MTLResourceStorageModeShared];
+                    if (replacement == nil || replacement.contents == nullptr ||
+                        replacement.length < endpointScratchLayout.totalBytes) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                            "terminal endpoint momentum scratch allocation failed");
+                    }
+                    replacement.label = @"Human terminal endpoint momentum scratch";
+                    state_->standEndpointMomentumScratch = replacement;
+                    state_->standEndpointMomentumScratchCapacity =
+                        replacement.length;
+                }
+                endpointScratchBuffer = state_->standEndpointMomentumScratch;
+                id<MTLComputePipelineState> endpointPipeline = pairedGeometry
+                    ? state_->compensatedPipeline : state_->pipeline;
+                if (endpointPipeline == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                        "terminal endpoint momentum pipeline is unavailable");
+                }
+                id<MTLComputeCommandEncoder> endpointEncoder =
+                    [commandBuffer computeCommandEncoder];
+                if (endpointEncoder == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create terminal endpoint momentum encoder");
+                }
+                endpointEncoder.label =
+                    @"Human terminal accepted-q body spatial Jacobians";
+                [endpointEncoder setComputePipelineState:endpointPipeline];
+                for (NSUInteger index = 0u; index < kRawBufferCount; ++index)
+                    [endpointEncoder setBuffer:state_->buffers[index]
+                                        offset:0u atIndex:index];
+                const std::size_t bodyPoseOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::bodyPoses)];
+                const std::size_t pointWorldOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::pointWorld)];
+                const std::size_t pointJacobianOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::pointJacobians)];
+                const std::size_t statusOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::statuses)];
+                const std::size_t bodyPositionLowOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::bodyPositionLow)];
+                const std::size_t pointPositionLowOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::pointPositionLow)];
+                const std::size_t bodySpatialOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::bodySpatialJacobians)];
+                const std::size_t generalizedImpulseOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::generalizedImpulse)];
+                const std::size_t deltaVelocityOffset = endpointScratchLayout.offsets[
+                    static_cast<std::size_t>(detail::StandEndpointMomentumScratchSlot::deltaVelocity)];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:bodyPoseOffset atIndex:8u];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:pointWorldOffset atIndex:9u];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:pointJacobianOffset atIndex:11u];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:generalizedImpulseOffset atIndex:12u];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:deltaVelocityOffset atIndex:13u];
+                [endpointEncoder setBuffer:endpointScratchBuffer offset:statusOffset atIndex:14u];
+                MRArticulatedOperatorDispatchGPU endpointDispatch =
+                    diagnostics.layout.dispatch;
+                endpointDispatch.flags =
+                    (diagnostics.layout.dispatch.flags &
+                     MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) |
+                    MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+                    MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS;
+                endpointDispatch.reserved0 =
+                    input.mujoco.bodyJacobianPointOffset;
+                [endpointEncoder setBytes:&endpointDispatch
+                                   length:sizeof(endpointDispatch) atIndex:5u];
+                if (pairedGeometry) {
+                    [endpointEncoder setBuffer:
+                        state_->standBuffers[kStandRootTranslationBuffer]
+                        offset:0u atIndex:17u];
+                    [endpointEncoder setBuffer:endpointScratchBuffer
+                        offset:bodyPositionLowOffset atIndex:18u];
+                    [endpointEncoder setBuffer:endpointScratchBuffer
+                        offset:pointPositionLowOffset atIndex:19u];
+                    [endpointEncoder setBuffer:endpointScratchBuffer
+                        offset:bodyPoseOffset atIndex:20u];
+                }
+                [endpointEncoder setBuffer:endpointScratchBuffer
+                    offset:bodySpatialOffset atIndex:21u];
+                const NSUInteger endpointThreads = std::min<NSUInteger>(
+                    8u * endpointPipeline.threadExecutionWidth,
+                    endpointPipeline.maxTotalThreadsPerThreadgroup);
+                const NSUInteger endpointThreadgroupBytes =
+                    detail::articulatedOperatorThreadgroupBytes(
+                        articulation.bodyCount, articulation.nv, false,
+                        pairedGeometry);
+                [endpointEncoder setThreadgroupMemoryLength:
+                    endpointThreadgroupBytes atIndex:0u];
+                const NSUInteger endpointPointTiles = std::min<NSUInteger>(
+                    32u, std::max<NSUInteger>(1u,
+                        (input.pointCount + 15u) / 16u));
+                [endpointEncoder dispatchThreadgroups:MTLSizeMake(
+                    input.environmentCount, endpointPointTiles, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(
+                        endpointThreads, 1u, 1u)];
+                [endpointEncoder endEncoding];
             }
 
             hostMark("postdynamics_and_publish");
@@ -15573,14 +16300,16 @@ MetalArticulatedOperatorContext::submit(
             pending->standContactCount = input.stand.contacts.size();
             pending->standUsePerContactSupportPlanes =
                 input.stand.usePerContactSupportPlanes;
-            const std::uint32_t finalAcceptedStep =
-                input.stand.stepIndexOffset + input.stand.stepCount;
             pending->standRootMomentumDiagnosticsCaptured =
                 input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u &&
                 finalAcceptedStep >=
                     input.stand.rootMomentumDiagnosticFirstAcceptedStep &&
                 finalAcceptedStep <=
                     input.stand.rootMomentumDiagnosticLastAcceptedStep;
+            pending->standEndpointLinearMomentumCaptured =
+                captureEndpointLinearMomentum;
+            pending->standEndpointMomentumScratch = endpointScratchBuffer;
+            pending->standEndpointMomentumScratchLayout = endpointScratchLayout;
             pending->standJointEqualityCount =
                 activeStandJointEqualityCount(
                     input.stand,
@@ -16929,7 +17658,7 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                 std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::
                     gpuEnvironmentFailure,
-                "one or more GPU environments rejected execution"
+                gpuEnvironmentFailureMessage(diagnostics, result.statuses)
             );
         }
         diagnostics.status =

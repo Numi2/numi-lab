@@ -4412,3 +4412,24 @@ kernel void mr_numi_human_stand_reconcile(
 kernel void mr_numi_human_body_properties_transaction_v4(device uint* version [[buffer(0)]]) {
     version[0] = 4u;
 }
+
+// ABI 6 transaction extension: restore accepted DoF metadata after any rejected
+// step. Accepted values remain live across resident split batches; the owner
+// checkpoints this array before each attempt. One environment is enforced by
+// host admission, so this kernel can use statuses[0] and restore per record.
+kernel void mr_numi_human_dof_properties_reconcile_v6(
+    constant uint4& shape [[buffer(0)]], // environments, DoFs, attempted absolute step
+    device MRDofPropertiesGPU* dofs [[buffer(1)]],
+    device const MRDofPropertiesGPU* acceptedDofs [[buffer(2)]],
+    device const MRNumiHumanStandStatusGPU* statuses [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= shape.y || shape.x != 1u) return;
+    const MRNumiHumanStandStatusGPU attempt = statuses[0];
+    if (attempt.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        attempt.environment == 0u &&
+        attempt.completedSteps == shape.z + 1u) {
+        return;
+    }
+    dofs[index] = acceptedDofs[index];
+}

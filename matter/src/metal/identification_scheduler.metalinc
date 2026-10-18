@@ -862,6 +862,47 @@ struct NMControlCursorPublicationGPU {
 // a later rejected frame in the same command buffer cannot erase earlier
 // accepted progress. External status records are optional and must have their
 // uint32 status code as the first field.
+struct NMAcceptedStepFinalizationGPU {
+    uint environmentCount;
+    uint externalStatusStrideWords;
+    uint acceptedStatusCode;
+    uint environmentIndexOffsetWords;
+    uint expectedEnvironmentBase;
+    uint completedCountOffsetWords;
+    uint expectedCompletedCount;
+    uint reserved0;
+};
+
+kernel void nm_merge_accepted_step_gate_into_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMAcceptedStepFinalizationGPU& gate [[buffer(1)]],
+    device NMMatterStatusGPU* matterStatuses [[buffer(2)]],
+    device const uint* externalStatusRecords [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        gate.environmentCount != dispatch.environmentCount ||
+        gate.externalStatusStrideWords == 0u ||
+        gate.reserved0 != 0u) return;
+    device const uint* record =
+        externalStatusRecords + ulong(environment) *
+            gate.externalStatusStrideWords;
+    bool accepted = record[0] == gate.acceptedStatusCode;
+    if (gate.environmentIndexOffsetWords != NM_INVALID_INDEX)
+        accepted = accepted &&
+            record[gate.environmentIndexOffsetWords] ==
+                gate.expectedEnvironmentBase + environment;
+    if (gate.completedCountOffsetWords != NM_INVALID_INDEX)
+        accepted = accepted &&
+            record[gate.completedCountOffsetWords] ==
+                gate.expectedCompletedCount;
+    if (!accepted && matterStatuses[environment].code == NM_STATUS_SUCCESS) {
+        NMMatterStatusGPU status = matterStatuses[environment];
+        status.code = NM_STATUS_RIGID_WORLD_FAILURE;
+        status.failingIndex = environment;
+        matterStatuses[environment] = status;
+    }
+}
+
 kernel void nm_publish_accepted_control_cursor(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMControlCursorPublicationGPU& publication [[buffer(1)]],

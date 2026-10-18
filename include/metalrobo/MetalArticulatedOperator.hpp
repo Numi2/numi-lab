@@ -273,10 +273,11 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     acceptedPublication = 3u,
 };
 
-// ABI 4 remains accepted for callbacks compiled before deferred publication
-// occupied a former padding byte. New programs use ABI 5.
+// ABI 4 is pre-deferred; ABI 5 adds deferred publication; ABI 6 adds a
+// versioned live DoF-properties transaction lease.
 inline constexpr std::uint32_t kMetalNumanXTransactionLegacyABIVersion = 4u;
-inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 5u;
+inline constexpr std::uint32_t kMetalNumanXTransactionDeferredPublicationABIVersion = 5u;
+inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 6u;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -292,6 +293,8 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     // acceptedPublication only: the callback may publish its own candidate
     // physiology state, gated on the final successful stand status.
     MetalNumanXTransactionWriteAcceptedPublication = 1u << 5u,
+    // ABI 6 preDynamics only: mutate live DoF properties with owner rollback.
+    MetalNumanXTransactionWriteDofProperties = 1u << 6u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -421,7 +424,25 @@ struct MetalNumanXTransactionPass {
     void* bodyProperties = nullptr;
     void* bodyPropertiesCheckpoint = nullptr;
     std::uint64_t bodyPropertyCount = 0u;
+
+    // ABI 6 tail extension. ABI 4/5 callbacks receive the old structSize.
+    void* dofProperties = nullptr;
+    void* dofPropertiesCheckpoint = nullptr;
+    std::uint64_t dofPropertyCount = 0u;
 };
+
+[[nodiscard]] inline constexpr std::uint32_t
+metalNumanXTransactionPassStructSizeForABI(
+    const std::uint32_t abiVersion
+) noexcept {
+    if (abiVersion == kMetalNumanXTransactionABIVersion)
+        return static_cast<std::uint32_t>(sizeof(MetalNumanXTransactionPass));
+    if (abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
+        abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion)
+        return static_cast<std::uint32_t>(
+            offsetof(MetalNumanXTransactionPass, dofProperties));
+    return 0u;
+}
 
 using MetalNumanXTransactionEncode = bool (*)(
     void* context,
@@ -449,17 +470,24 @@ struct MetalNumanXTransactionProgram {
     // Delay consumer publication until tendon validation and stand reconcile
     // have accepted this step. Uses existing tail padding; struct size is stable.
     bool deferAcceptedPublication = false;
+    // ABI 6 only: candidate DoF metadata is checkpointed/reconciled by stand.
+    bool writeDofProperties = false;
 
-    // The deferred-publication byte was padding in ABI 4. Never inspect it
-    // unless the caller explicitly identifies the ABI 5 layout.
+    // This flag was padding in ABI 4. Never inspect it before ABI 5.
     [[nodiscard]] bool usesDeferredAcceptedPublication() const noexcept {
-        return abiVersion >= kMetalNumanXTransactionABIVersion &&
+        return abiVersion >= kMetalNumanXTransactionDeferredPublicationABIVersion &&
             deferAcceptedPublication;
+    }
+
+    [[nodiscard]] bool usesDofProperties() const noexcept {
+        return abiVersion >= kMetalNumanXTransactionABIVersion &&
+            writeDofProperties;
     }
 
     [[nodiscard]] bool valid() const noexcept {
         const bool supportedVersion =
             abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
+            abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion ||
             abiVersion == kMetalNumanXTransactionABIVersion;
         return supportedVersion &&
             structSize == sizeof(MetalNumanXTransactionProgram) &&
@@ -476,16 +504,19 @@ struct MetalNumanXTransactionProgram {
             // ABI 4 has no deferred-publication field; do not read its padding.
             return legacyFieldsConfigured;
         }
+        if (abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion) {
+            return legacyFieldsConfigured || usesDeferredAcceptedPublication();
+        }
         if (abiVersion == kMetalNumanXTransactionABIVersion) {
-            return legacyFieldsConfigured ||
-                usesDeferredAcceptedPublication();
+            return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
+                usesDofProperties();
         }
         return true;
     }
 };
 
 static_assert(sizeof(MetalNumanXTransactionProgram) == 48u,
-              "deferred publication must preserve the transaction program size");
+              "transaction program extensions must fit the tail padding");
 
 enum class MetalNumanXHumanMatterPhase : std::uint32_t {
     beginStep = 0u,

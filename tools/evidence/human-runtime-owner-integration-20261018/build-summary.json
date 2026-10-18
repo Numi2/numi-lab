@@ -1,0 +1,983 @@
+{
+  "source_head": "a8d7312ff273e4a4e6707a829504d797e0b551f1",
+  "translation_units": 139,
+  "failed": 0,
+  "objects": [
+    {
+      "source": "src/core/Model.cpp",
+      "source_sha256": "89f99e604953bfa3696ea6e0943c6e43c5e2035b58f7a58cbbc5ba49b7064cdb",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o",
+      "object_sha256": "8d6a5c0decbebc3e91cddd37cc17ee386d978490e7d86074bb9a61d822b8686f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/Franka.cpp",
+      "source_sha256": "32f2810e920882dac740d7ded15bd4577ccab49a425f968839a34885e3c06363",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o",
+      "object_sha256": "54b44d34540bc74cfd02cc6f7b28433adb3313113de0b3f21ad2ba2ece0bebb8",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/FrankaEngine.cpp",
+      "source_sha256": "45f556be76fa44d3a4efe4b76dd0e85b686554a89998b316650eb3702cb14d1f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o",
+      "object_sha256": "7bb26d0f78f8df2b58db90ce7311567444801d83ae87ed506b563c483427cde3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/FrankaHand.cpp",
+      "source_sha256": "9872a3bb37614fd20dbf723c254895015e05e288a39496df995589777e104b2e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o",
+      "object_sha256": "af8413f123d750bfdb42785463af60360f88772ce0726533997c194b314bf402",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/FrankaWorld.cpp",
+      "source_sha256": "3db84f10d305761b65475662edd0fda62d94a24975a03c9fc1651178bd20dde7",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o",
+      "object_sha256": "91650e1f0d940d46fca807ead1e1b71c9b3d787fef6c2b4d6a6ecb0285233f8c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/CpuDynamics.cpp",
+      "source_sha256": "8c96ecc041301ff77d5a475544e63442a0f4bf0ef6cfad46ff7187faa6cf0b57",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o",
+      "object_sha256": "cb6a940c73098166e8be74aa6d1ad5af9831a01f39976f58199eddf90bfe4d91",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/EngineModel.cpp",
+      "source_sha256": "ed43573eb38f100c62e1547e7213abb9dcad3d159f34765f9385e67126e7642b",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o",
+      "object_sha256": "5b15d90835bd2bb4a6f2f060e10ee96458850e6cc161980c8980749a69479e5c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/EngineModelComposer.cpp",
+      "source_sha256": "148ab72e0e055ad0a5fd49e583d317c62e8e38ffb0fd06ae134bc5afbc1ecb94",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o",
+      "object_sha256": "0d6165c6c412a283e78654864a1242667d1f2d602f24c718f06e6ad85287c003",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/RunProgram.cpp",
+      "source_sha256": "769c7dda97f19bc710ffdbbe2d419dc2da4d3c2ae6ddc5fbf4e772355ce93925",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o",
+      "object_sha256": "882d6913faaf3d041bb9608485bbd1f9a05a4b55f31da835bcff3b751d4eb036",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ParallelABASchedule.cpp",
+      "source_sha256": "be847ddbf79f32afa403ceed0251bb5f1e17578e4d8b36ff7541d03627adc60c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o",
+      "object_sha256": "2540bbf27ac126dce7d1529fc70872a8eefb6f8fb1240fab2feca99a0d03f073",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/CompiledMetalMultiArticulatedProgram.cpp",
+      "source_sha256": "cf22e430b9bc997ada93d5d8adf57fe76796d3e2b2166d9bfcfaf0dfee53f0c5",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o",
+      "object_sha256": "5329684fbec7ed2a24e207113ade02a373a6e13b3ebe1b22c56710c96c9c86d7",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/CompiledMetalMultiArticulatedContactProgram.cpp",
+      "source_sha256": "4a539a539da6b9978a20925cac1c865c570ac4d1369fb499d5c6cdcf4c5b50ce",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o",
+      "object_sha256": "7b0d8bf16ca05981e3bb13cefe0c0bb796b0abbc9cc57deedf0312fc24ae5e6d",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/WorldCompiler.cpp",
+      "source_sha256": "4b9389606b923d71cb23db61fb2d239c9aca7b7a9db3bfa29921d152513e23ef",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o",
+      "object_sha256": "7c657a5120e385ff66945e8e473ca865547505f47d9b7b962939ae16c570c50e",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/WorldPack.cpp",
+      "source_sha256": "16131f5fa5d3fcf179bc7a893016649cf065b3b8e1bfa450af54abfa52252251",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o",
+      "object_sha256": "40bf02792949435b5214d17d50a509447ab512c49aa95428f0c63a92ae45f861",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MatterSnapshotArchive.cpp",
+      "source_sha256": "23a4e0f92b1bcb71e45789e5b13efcd9eb7d6666aba168abc273d0bb5216203b",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o",
+      "object_sha256": "ae97d89be5972c84b726551ace30d5e5169d8860447bebe38792c82359914b31",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/EpisodeTwinCompiler.cpp",
+      "source_sha256": "d0166f0f00c986567f99fe9ca12148e49f0ccc38f3ec6e422d2c1723fa3abc4c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o",
+      "object_sha256": "7540c2257c3c096b774a6860e91b9483267d86878a6cd4d084918c26837872d3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/R2S2R.cpp",
+      "source_sha256": "3da21dcb9e9f2405abc30165d35dbcff49d8ee571a7960fcf115c16174f60d45",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o",
+      "object_sha256": "a6a7cdda7e65f67b30fe5116718a4e757cb395e9c95f58e225a0f0b431524425",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/VisualPlatform.cpp",
+      "source_sha256": "a69ec34b77752d5ccaf2a9de1966389320e53c18b19bcdf18a238dc9fca6588b",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o",
+      "object_sha256": "7dba316c9d6beef25016d41263594b889d88b793a769d34c395474bc81c415d9",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/VisualPresentation.cpp",
+      "source_sha256": "5548248b21269dc7ea520233d54c1b95db4f3441d4b099095aa94aaec5f4ebde",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o",
+      "object_sha256": "a4e539641216222aa9011e9d97f0353efa59c7c5531f608431560b748bbe9e08",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NeuronCulture.cpp",
+      "source_sha256": "9232d40f4e3be0e8aaaa327a747dd7c2ed5ccf63beb9869aa52fc7415969af67",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o",
+      "object_sha256": "5221d038ac2baa533e193d11ddaa9cddaca2fb8549c14ada779499d777cc5e29",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NeuronCultureArtifacts.cpp",
+      "source_sha256": "b2939c80f8c39865ef2fe1b68249fe4ee98e047125c4ab1e3b7c63dfa7a5ceaf",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o",
+      "object_sha256": "92e3d9dcb4a80552f54aa7f103506c917313ec6cd26bd177ee152ccf7f3442e9",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NeuronCultureProtocol.cpp",
+      "source_sha256": "1fbda3355ebf2649f1afabfb56ce0d66417bac28cedd06fab68dd0ba0b5ef124",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o",
+      "object_sha256": "89b04f6b79caa665a771ba61906f0d948ff0ae6afc90524d5893d5f8595d12ff",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NeuronCultureEmbodiment.cpp",
+      "source_sha256": "cd80b9fd7dec12a4d33407dcbe16f4e3ffdd953ef378ee8d118178d7c7d5128e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o",
+      "object_sha256": "03a33239c1b4d472fed7b6db84f67ade7d4b25f28de8693ac68ced08add5cb9a",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/Tactile.cpp",
+      "source_sha256": "a001857e77305d126eafbb93e1645750199d37cd598ac64b1251edfc33250c6d",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o",
+      "object_sha256": "b128570ff8a275328d70272502324879d6187ae5ebe356f6d37a9e7104a6dd82",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/TactileDebug.cpp",
+      "source_sha256": "1987b2c9d2b6b19764148a048d89eea0efce472f099156b1b8e7dd6b38e6e58c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o",
+      "object_sha256": "edd36af316923ecea9e167278f2c10aae746f45bd30bb12f22914ef28b63c9fb",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/RobotDescriptionCooker.cpp",
+      "source_sha256": "795bd5a0fd99deca9359657b5086c9e42ad2bf56e917a2fa86e4039131e06099",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o",
+      "object_sha256": "762e8d342dbb8d1a0a0b3259d4f90feaa55b9a507ce42e40a4e29c2cb23df66f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/GeometryCooker.cpp",
+      "source_sha256": "7d095a501f255de341b5b9ab34760ff8f0c7f5a7eccc046653b586b6384401db",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o",
+      "object_sha256": "b0f1c8d0dfb479935411bb84cbdccd0c2b609f8a2cee94056883ec47fb1a0bd1",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/OpenSimFunction.cpp",
+      "source_sha256": "6f1a30927f894e944e2aca1327fbc0eb9a7c261875a45377cf4c447ebf8c6796",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o",
+      "object_sha256": "5196ba39387daf427adbb22cec827d10fdb582cfe0bcd4c7c284d24a59dff11f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/OpenSimSpatialTransform.cpp",
+      "source_sha256": "d37c8251466833b9e8a896c3263d56d48a5fdec7ba0fe460a91fe352eeb50e50",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o",
+      "object_sha256": "a5ee86d3c7310af7d9c7dfee52aa916cce7fec2c7448c0b932bbf9a7714bed08",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/OpenSimMobileRoot.cpp",
+      "source_sha256": "71e3595767177c01ae9bfb5c8f6409a32a258247d448041525900fd11c42fc35",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o",
+      "object_sha256": "979a50943768654fc38df8b4b28c4623d2b05a72032f450d756cd468be7496a8",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/G1.cpp",
+      "source_sha256": "ac171742ac007382511eaa15eb7d53f0c5195fdb48b51fa7e2693d5637e94006",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o",
+      "object_sha256": "1c601d2ac0c7d26215ac598c99b47090ff9dbb153d9caf1d3797edd141925d04",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/LocomotionWorld.cpp",
+      "source_sha256": "928daf12a6d16064fb617dffffad4e156d65536ed024d95640d5bcb320ed4e75",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o",
+      "object_sha256": "86940df4b026e921efd004ab5bc8f4652f59fe988a06d30d305fc03166caf7d7",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/TaskProgram.cpp",
+      "source_sha256": "2c1ec1fe4230beb6132adcfc3f7989e2a5a622676a3ed05f8a4a60aa6d83934b",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o",
+      "object_sha256": "93a3ba67452b181d502196d35a0221020c334bb07984c22f7f5fa0da7fc57ee5",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/PolicyProgram.cpp",
+      "source_sha256": "5bd30d901352971db889fde290ebe0f32548dc4a61a309d88d32bc03a2bddf19",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o",
+      "object_sha256": "39f71b048b41e222c9d206fb8a86f52eedf3d6304e865d82bb7e2a56e0aaad1d",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HyperPolicyProgram.cpp",
+      "source_sha256": "89a34d7bbc37f05570d6e6104aef1eba10af3a9ea159fa9fb0662b4922869a6f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o",
+      "object_sha256": "b3cb38cdca1821cbaeefe05ccb80441c46155d44bd893e9be2bb96e58e27a054",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HyperPolicyPacks.cpp",
+      "source_sha256": "7ff6758b5997d50b84ae9422cccb16945a086b57431d66b8879c74aec94db833",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o",
+      "object_sha256": "d80e382a0312688d57e1d48ac0964eaebd1d2835d82417ec1fe77369a54ce017",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/LearningPacks.cpp",
+      "source_sha256": "0acb2d7f33b07b197d2207f76d3f90c983fef70f870db7dbf6a1dc95a83b3c33",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o",
+      "object_sha256": "d6a21764f51e4c14d53d1a36e76c309deebd5069cddda420969f675922af71e7",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MotionCompiler.cpp",
+      "source_sha256": "ae6814e795649403c5c898739b848e08cc2fdaf69b712caffe8698a5eff54bd7",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o",
+      "object_sha256": "6fb5bcddacfb27ed66e0ea2d86494b6e8e42a7ea1b5c3d16935d525810aa8997",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalPSM.cpp",
+      "source_sha256": "d0788cc23c6cb180b86ceb0245a5ff63267480f6db009ff730ee29ff50ca5d0a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o",
+      "object_sha256": "e2d59483ebc05c8656d74ec41f46fb70d53d8efcf5ddc8eb1bf677dcbac8d077",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/EmbodiedTactile.cpp",
+      "source_sha256": "031a4bfb6d383bf2c7490678fb8a02e41881a8daa5326556833a3b890d1494ca",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o",
+      "object_sha256": "b311c09f4b7ee2b213b8dd372ddca6090e16c5a1178bf35cc93ba2cd9129873f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/Wave.cpp",
+      "source_sha256": "006fab2b344506245a7fe5d03e2d2399678506ebc3cf2bfd59df90d9a272be24",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o",
+      "object_sha256": "16fbdb7df8bc3247500700d1421d7169113f3cfe42870188a70a75e210851239",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalAssets.cpp",
+      "source_sha256": "1ec8fed0567f958db9cdf98dca54cb4ecf91ee20a89e80865614853742037a2d",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o",
+      "object_sha256": "299818eb09aeefb26176bdf35fb4d2036b025075ffe5e9fbee3cb8b60d0af6c7",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalVisual.cpp",
+      "source_sha256": "8eb67b1cf828ac02c2618374dd0517ccd8cd4ffaa03ac9bf40eec4336d1c1a52",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o",
+      "object_sha256": "58d1f8427fe182c9eb6def8394582f8042a2637d018dd035fb835a7514f058c3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalWorld.cpp",
+      "source_sha256": "f2feef76131ab3f68d75e39ea72b50b2d7019929ce0944d4c8cd7f9fdaf5f0df",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o",
+      "object_sha256": "a8008286afe91c62f9a280bec429842bcf7e2bd556e2c63f3b3e550830640a90",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalKnot.cpp",
+      "source_sha256": "ed92310ff85d8ae248d28b5b07a93dd351f18c604d05a16cf59c46749a53c45a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o",
+      "object_sha256": "ecf87219309852f7e33e9f87bf24da9819fa045c60d630197835b7cf3a380406",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/SurgicalThreadTargeting.cpp",
+      "source_sha256": "82f9681204aaa97c64ec82199d908901d5d20d530a24193bf8fc55282e125f2c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o",
+      "object_sha256": "2acd7e161ef65e4a512c9ea29b704dfc9c35aa16350b9380e2187c850ca121b5",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HeterogeneousWorld.cpp",
+      "source_sha256": "1555cfde9a278d0aa615bf9b804710867b7dad67235e15eea99d340685547df1",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o",
+      "object_sha256": "82ea3334a5680dd94854a709a66798b519630015b8e6d9c6cc60178177e38b22",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/DiscreteElasticRod.cpp",
+      "source_sha256": "78239e16273a647124f0f369f54dd17e098fd09fc05161356146d0eff5aaeb8f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o",
+      "object_sha256": "e1f6f44fc6c03bba7af7832f47a6add252a3d11c12003eb4812feac2cf48abac",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/Collision.cpp",
+      "source_sha256": "06e65ae7bb0c49449336393d5bbf56e3763c4fb11e7cb1415458b52b499ad02d",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o",
+      "object_sha256": "9a6949eb8cf6ce5d0cfab417e49b02b0158773882604f43e81340fa2b3f51fa2",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/FreeBodyDynamics.cpp",
+      "source_sha256": "2c33dfb6c5eddfb7c9ce7015d8e746e2ae8010597d0d906092e3c2f17b2a8682",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o",
+      "object_sha256": "97fca1d6087858bbef563c09f2b258d72421468d713f505a27aeb3a787eb3199",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/Multicopter.cpp",
+      "source_sha256": "173279cfa6186c2b80693091d7da2077363c0c386f212aa77773d5c18fa58f6f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o",
+      "object_sha256": "39a441d86debbe2c1be56ae4cc2299a45be18cf118baa2505fbe816654b2179e",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/PX4X500.cpp",
+      "source_sha256": "9ecbcbfd41db6f62abe95e9ce5381b06e6ff0dac116ec386c74d740b324f1b6a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o",
+      "object_sha256": "9a4c5508bea45ec5933a99018199c74600f0e5c437d6f9ede7b25e6c3a2c09f3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedDynamics.cpp",
+      "source_sha256": "ddf1ba3e47603d673298a4a05bee5bf6d02396a5a21de47db3ef6fc19f1d8fd1",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o",
+      "object_sha256": "946d35f7521623e2729e3751624312c47d22c62808efe357343bee68bacba43c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanSupport.cpp",
+      "source_sha256": "0b10530d69ee6be3a5e707aee56ae3ddc289bacf9488d66d6c749b543b47d7b5",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o",
+      "object_sha256": "55a073ff7f985733f4ce32e7026054bdf4ff098870ac613372195c045083e82f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedActuation.cpp",
+      "source_sha256": "c0bdbc918e32e09df2734055ee4a9989584b839e519fd36bb972d4bf31b465d1",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o",
+      "object_sha256": "7fa88ca2e85f527a8b089782c1f5235652a1260b846b1b9c36d7128a3aba7c68",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MillardMuscleReference.cpp",
+      "source_sha256": "b3bb2a818bc355d3724f707e42e62726440716e19f43c1e5d2e208e02e49810a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o",
+      "object_sha256": "df05bb5ade08f223b3d62d2fcbe7bd86136b53d63a3960eb634fbad73fe23a39",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MujocoMuscleReference.cpp",
+      "source_sha256": "3627df8464537a0749f859d6967f64b4758758fee6a633b4cffb3fd21a85277a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o",
+      "object_sha256": "6ffa82eb5a5344832356da65e686c92e4fd0fb8d3166b074f0e6d8c9c2acde0e",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanJointEquality.cpp",
+      "source_sha256": "6c3b4862db6bd8fd424431cabe17ec67040af81db7b88aab34327945a88d7d19",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o",
+      "object_sha256": "5119b27f8c4690bf8a15d5238bc9caab5d186e8c0463048895a58fae2657d1f3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanMuscleEquilibrium.cpp",
+      "source_sha256": "734f0efb483e38605bdb3c1d0540dd24eccff36af1c0c3f9b05c4d9500c7d383",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o",
+      "object_sha256": "40b04e8ce3407efa6789d8639f4caaf0df53f765a3d84d22a8407432cd2fa6e2",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanInitialState.cpp",
+      "source_sha256": "08b05c35c9e73b319dec5c9feead3e10f1192586358a233e988240b274779c84",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o",
+      "object_sha256": "5103252060dd5b2038db7bb13ce9e6940e59c0ae6b025efbcef83794157dceab",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanRuntimeIdentity.cpp",
+      "source_sha256": "290b557b0d67ee5023afb96a46b17f3b6c8c93e9954172e6f560411a8eed47e0",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o",
+      "object_sha256": "c4145506392ddbc4af290b07353bdd2bbcbc17c7f0ec67272fb36412d0d7e2d6",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanSourceConstraints.cpp",
+      "source_sha256": "3c22711183ddac4f0ae16e9e02653c4de15786b3c032f2362f5a40f7863b6afe",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o",
+      "object_sha256": "c59ab7864fd6592f56f7b6d2005860125e4422e9baea8a929e4a55d87e5d3c46",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumanXExactTransaction.cpp",
+      "source_sha256": "370caa695292febb3d24881f6b1b0366e19b89b8c941d2578d56d654eca2f068",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o",
+      "object_sha256": "04ce9e0217ddfe30064887b5f33193a36b27aa38acb6a3fc16e6d7d0e2240279",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanProductionOwnerEvidenceWriter.cpp",
+      "source_sha256": "3e5e4efc5cde40d19f67d3dea1277eb32e10724420a668432baa409686e2bfcb",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o",
+      "object_sha256": "11ccc2ea46962a723303e719138bdf4371d270dde6984bd67d704171e67c43ff",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanProductionOwnerSnapshot.cpp",
+      "source_sha256": "a7e35a2888cc7a1bebccef01cc5d9a2046371246ac6e8db3996fd915321ccb1d",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o",
+      "object_sha256": "809623f7bba1b4957123c873d850644f2443419d3882e6c52da26f4897159bdd",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HumanBehaviorProgram.cpp",
+      "source_sha256": "e2a83c1e33fb209e3fd09a3bbb1128f2f53481d162143bd0629ece3f34604b11",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o",
+      "object_sha256": "b3d45a7e920f5e1a29d5eb92c04b08927b2d7a173df7832250b7a3aab4e026d6",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HumanBehaviorTrial.cpp",
+      "source_sha256": "32067eba01d1cb4d71ada58c147bebe082e04283bb9bf658f9be8f36ac54f5d2",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o",
+      "object_sha256": "d05dafe701fb9d6a53aa6ee8e551c501931ff69f5bee4c66337e1b351185c1ae",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HumanBehaviorAcceptedStateRoot.cpp",
+      "source_sha256": "244996c004846e24c10ef4ebb45b91aac51c65ef2cfe2724e5ce7e60c116ff8c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o",
+      "object_sha256": "7f5a720c31c16a357ef7943a15ae912fd5d5583de0385d5564f7d823cb3386c3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HumanBehaviorNativeAudit.cpp",
+      "source_sha256": "ce3fb25238a41fe1f12244056aee6ec9293e69c2c3ae561b3abfa54e2003035c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o",
+      "object_sha256": "a2e5a69085a590606d90ff8d1b7709797d97a38afeb0ccfef5cac2693f7a806b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/HumanBehaviorStateComponents.cpp",
+      "source_sha256": "163495e2ac1ed1f805353b638c1130f7e2afe9efb623e17099ada17f7f82783f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o",
+      "object_sha256": "28b3667aa94e38ab6cb0c3e31c9117f85165176c72cfad6cdfabe20d7ec7945a",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanTensionNetwork.cpp",
+      "source_sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o",
+      "object_sha256": "8cecf2b363da5f4314be7485d48127e6eb8db497636c30943b0f76c18f66c8e3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanTendon.cpp",
+      "source_sha256": "f63a350cd58d571502528e60c652b97d1c06fb0ad610d98404e341c4db9e4dd4",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o",
+      "object_sha256": "ebfbb0a58db0b0fcc50a801b34cb656a9b0e89ad3bf6d2f75ef6f829f8c73c3b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanCartilage.cpp",
+      "source_sha256": "6532faeb26856cccbe53fe98152420df24be6a87e83fa026aafd62b0230c1edb",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o",
+      "object_sha256": "b1b72f06bf81ea53eaa3f2d7e66d00af24ab7798a1830e841ba15353dadca057",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanTissueMass.cpp",
+      "source_sha256": "daf6295dd0baea01427b3dcfc615af0c58f603577b859358ac2c1a742cec51ea",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o",
+      "object_sha256": "6d0eef885763add348f54dc188717de13ce1ea88c63348eee2fc57ae8d212fb8",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanTissueBinding.cpp",
+      "source_sha256": "e1341b32f4e71c61c15d7fa52afe6111493fa3aa52e20db2f36f67daa6f5e758",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o",
+      "object_sha256": "160895b1902b824a67f976c6ccaaf6ee7743fb8ca675ff353572b2baa734ee09",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanKnee.cpp",
+      "source_sha256": "cf226adc9f9c18d49c9fb86697b05af13abf5b9d47c9647ecf3755ef25459513",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o",
+      "object_sha256": "656e81d3c2c2d07801e247eb48006164d33dc28288de2a33a7b16a353af71d0a",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanKneeContact.cpp",
+      "source_sha256": "b004bca05b9028d8399113c0b7f48d35a7e0e916a9c6708c48f0a55ff753e717",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o",
+      "object_sha256": "ca1c723bab4c5acd8ad45ec5bb3ad12569ae340567286aa4e93b638ff1c5b74d",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanLoadedKnee.cpp",
+      "source_sha256": "c66580c10e35d6bf5783ca5498e3f6345c29a97852fd5847f7c3522343f1914a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o",
+      "object_sha256": "ff26c7a71e100eb9e40988e6a1d37ff51baa4d5a431bbb47fdfe7f1b4a688f5d",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanLoadedKneeNumanX.cpp",
+      "source_sha256": "28aa1db0bb2709b8c76def438153b10582f0dcd0ef687d81c17f8c60b6bf55c8",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o",
+      "object_sha256": "b560b6886a4771048f52c4e1b410fb39bd472337c02ceb1a329daca956ec9933",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/NumiHumanLoadedKneeBinding.mm",
+      "source_sha256": "23c5bf27955f9f5f0d0e1c4b15d393b333df01fb2be19664dc09559dd543eaa0",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o",
+      "object_sha256": "df019994ae3e359ab0b11eb49553699eb9858ab60607f65704a3bd53c17fc4c3",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/NumiHumanContinuumMap.cpp",
+      "source_sha256": "0b47f634af5e1623207452b7b9d6d7dc5dc2d26e2e7eb49960e0b517173b5590",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o",
+      "object_sha256": "ed4f17f01283336f6665ecafd3302e0719c8c472331bafe8c1c54135ef1bc856",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedJointLimits.cpp",
+      "source_sha256": "3ac89a65b046b8e1d9fb7941ea687bf45667c234371931f46a665c2bc42b55c3",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o",
+      "object_sha256": "cedb1397761d0af7939372f1a57a936ed05730dfa32971e9c6319aaf3ad4ded2",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedContact.cpp",
+      "source_sha256": "f814d6c0830bb0aef2013ee0068054c47f1f9e73f9c549f8a547e4f7434896ed",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o",
+      "object_sha256": "d0fc56df171596387db86d657594a91068cc7d0eb91decb972c58c3c353f353c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/CoupledArticulatedRigidContact.cpp",
+      "source_sha256": "dbddbb5f6fcc62f913fd3f0d26bb20082ad800c4bf071f75edbd4327001e2fe5",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o",
+      "object_sha256": "2b9357cda37874a0197c59f59e50093d684998919a6a58110c9f02ce5db0e464",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedRigidCollision.cpp",
+      "source_sha256": "fa13c1970b87ed0d1ae9ab1dd3054b61c8f932b6c7e242cb3e92619ad755e34c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o",
+      "object_sha256": "0810589f1af2e67d8940d3ca8100bcfe8709a3f4abc39425b076f51ea48265e5",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedRigidWorld.cpp",
+      "source_sha256": "8335c6d0253dd8738ab68d7eb011c2fcc294224077eb12e8ba4d75445d7fe754",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o",
+      "object_sha256": "118545f4ec1ef32001b442804e1c057d8a3b978f1d50a68a55736ae06d263c46",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedMixedConstraints.cpp",
+      "source_sha256": "e6fb4378339435b9f7f06159b94d5ce3da68ae5af8eeac7f3e17a9ca089fc368",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o",
+      "object_sha256": "30e6b02cdc5a73409230331b336fe4a87fd82ef72a9904a529476f854b5347a1",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedCollision.cpp",
+      "source_sha256": "53707133325e868c3ee7a9966ce10a8ae177b4d9ab678eae587f351339af9210",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o",
+      "object_sha256": "169bcb624500f241e8d98a9c89f9b14975651d840f95702845a7bf22f5320cf7",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ArticulatedWorld.cpp",
+      "source_sha256": "d6ba9e421ede03de59cdbbd9441f16c72c527c1aca7b8db587fb471fbfd481b5",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o",
+      "object_sha256": "678b1529dbc071ac9c57540d1c31317b0876e9b1be2225227dc121987110d6ac",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MultiArticulatedWorld.cpp",
+      "source_sha256": "7871d3bac533bdc5d3470caf35c6e0bd49d6c66f371248b6754ba0a116f9db57",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o",
+      "object_sha256": "4b3efde89f7f9cc54ba19cd1471cfb40c0bda484f1a50928865248d10d482403",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/MultiArticulatedContact.cpp",
+      "source_sha256": "69d1b01a67dc64745c7c2925e73b1228b45f65ca62a18be5403405438292909e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o",
+      "object_sha256": "54755a9c33fba60d3b5485fa2577a5277d7192125c081ee7c6ffe1a422e13de2",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ConstraintIR.cpp",
+      "source_sha256": "20bd90f77ddb77bd464306b3b438c9100e51435e9db068b032a00d9cffb74d04",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o",
+      "object_sha256": "5f282a0ed2c0b8831736d21761d05bf5442dbb7a5c3378516d85567d8fad9c58",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ReferenceConicSolver.cpp",
+      "source_sha256": "5f697b81b333a409eeabd0f9f72bdaafb48eab1a2b559dfde642c79cbc3b9d9c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o",
+      "object_sha256": "98d50e712587089839ebe8b6197e5761d3323fc9316592ff7c2ea25ca029fcb1",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/QualityContactSolver.cpp",
+      "source_sha256": "ef5f83d547de3e34ebd8d7e0aa2fb38f090779df6b2e5ab84b7cdf057d78e041",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o",
+      "object_sha256": "da86860ba542a031a5dae06a85737631008739a4d3fe6c91abb84bd81e350613",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/ConstraintSolver.cpp",
+      "source_sha256": "680b8aa3f72daa1a28bbe7e99b78838feaa668babec861850e16a9e303c4a3d7",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o",
+      "object_sha256": "89d26f0d8e008b9dae6b60c0e367637e1161f2023247dd8a36c46c8be412fe82",
+      "exit_code": 0
+    },
+    {
+      "source": "src/core/RigidBodyWorld.cpp",
+      "source_sha256": "0c3e44beb646d6fd9a54f3cb4e789f7ab4af563040dcc92e63961c11038b05ec",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o",
+      "object_sha256": "7f1d52a71345291d666414497bb6ce011ad75da4fdb964d1a529cd2173b418bc",
+      "exit_code": 0
+    },
+    {
+      "source": "src/apple/CaptureManifestJSON.mm",
+      "source_sha256": "ad989c80fb00e913f6834fdb89c8560b1eb8df869a30f14c8630409e4500b9e0",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o",
+      "object_sha256": "8a99d3c07e0b513d9561a6649279ba422eae171b92f15f336beefd25a216d152",
+      "exit_code": 0
+    },
+    {
+      "source": "src/apple/HardwareOutcomeJSON.mm",
+      "source_sha256": "eb9bbe4dfd70c3a9c34ba25bb60024370426b7c202f9e47d433e70d9c4d96c35",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o",
+      "object_sha256": "eddb17ed1b3dfe4a41895fa87cbbc8197b9a8098eda6a343f10ad091f540df9b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/apple/EnvironmentCooker.mm",
+      "source_sha256": "ec1f7aa1d39cafdfdb1c5d1dfa9ef1ef8e8f941bdbf7b42b2c5227916a478ea0",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o",
+      "object_sha256": "a6ac6c50ed4fddc2cd20160fda474a2e41bde94cccc60d3868cb3bbcd159c3c9",
+      "exit_code": 0
+    },
+    {
+      "source": "src/apple/VisualAssetCooker.mm",
+      "source_sha256": "05cd64b456b454af1f6681a3c56b1c18dd24b36ecbaab0c652a5c90307bed632",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o",
+      "object_sha256": "bdf13be5f1b5ba5b959d0c0a01be86a0efcd4a3ac54ee07e7d5cafb7cbe8ae0b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalArticulatedOperator.mm",
+      "source_sha256": "5c2f42037266d51ee2de8d7d9b4d35fafe435aaf80cdd708d0f3e32e6d2f7158",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o",
+      "object_sha256": "200b9a489cf9964d23dbf4d294bf64673045e3830bed952292e68c5bb390f072",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalNumanXHumanIO.mm",
+      "source_sha256": "c1eeaf9bfdff2ee807ab622b80b8904e69a980e64afc24b522df7b383976915f",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o",
+      "object_sha256": "d2a2a13ace2b1e81d3c093306b3f3b00290125fe076847c0b4ce6ae7e37a7f45",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalHumanBehaviorTelemetry.mm",
+      "source_sha256": "1d355ef6528b4e2c3fe66f0827c3c7ff236d1bfde153e6a77e8b79782b812687",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o",
+      "object_sha256": "eb04e92ae637f62f046025c25a02c5fe052dc45fbbbf071939c483794040a072",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/NumanXBridgeV1.mm",
+      "source_sha256": "a4cbadd2d01c771029615c10a4464a0ed454b4615496737ee5987b058534c3c3",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o",
+      "object_sha256": "e4894b0af8573e7520edd70352c04b9189ad3eb3a368d2b74e032eef8c3e3635",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/NumanXRuntimeV1.mm",
+      "source_sha256": "5b4ede76e693bc45ca076f9d66dab1f022b3046ea21029117cb499d072a5f99e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o",
+      "object_sha256": "1657627622ace1a506db83c344027915997924354254784cb13fafa4becad54e",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalNumanXCoupledHuman.mm",
+      "source_sha256": "35bda7342699cab3af33804a2f55f243956e5648525ea987f484949dcf73014b",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o",
+      "object_sha256": "f0bab07cea5b14ebda5c56901065d175746d7ecb550e9a4e4ddd7f5dae90b265",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalNumanXHumanMatter.mm",
+      "source_sha256": "0e79078d577999365c3e20ac94961220426657ddede9d8d3ea4430a18493f709",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o",
+      "object_sha256": "cd7a45dc65c356fde578a8e96975b07f8233b509ce36051b3834a4bcd29ba18b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/NumiHumanTendonMetal.mm",
+      "source_sha256": "4447a71e3f904ac8bf1946970b6a54f05e136f5eb59353b3babb3457d4749bb2",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o",
+      "object_sha256": "a4cedd278768aaa67e8f72f82263fb4e4fded08f8ec1997b8d1f255c582fc433",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/NumiHumanExtensorHoodMetal.mm",
+      "source_sha256": "4ee1d81b1c12b82727230c8c85e97f0b566c01a544bc2deac6426d1c11f71db1",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o",
+      "object_sha256": "ed4b75fbc17a0882a465b9a4b2d6b501cd07b3a390f649758dc34b5cf48e0f85",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalArticulatedABA.mm",
+      "source_sha256": "d639b3850d67a45b16d59c7aaaba77a2174dce668c66aed010e70ae5dff01ff2",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o",
+      "object_sha256": "52b8fd22d93a03839dba06c34f847d39033186a5bb6c15347c77d165641b501b",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalMultiArticulatedABA.mm",
+      "source_sha256": "242de0ad8903d6dc180ee6ba51b6a1e9335c581e09efd2e2ca7d09023f84d831",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o",
+      "object_sha256": "3445950a0a1c97aa01b645a59eeb234a44ec21e07637bd3f8cb051a2c5f38c36",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalDiscreteElasticRod.mm",
+      "source_sha256": "bcf0e9787c6371cb6125508ec315b82c28e1e756912ee9d787b27a5fb561c12c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o",
+      "object_sha256": "db10f58f2910a057008b42b4df5d7cea1c3ee1d523106c2411d0946371e5a28f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalArticulatedInverseMass.mm",
+      "source_sha256": "7267fba5892ad10eb24ef1b47b4776df7160b028aeded920bdf7df4cede94a6c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o",
+      "object_sha256": "5f43d57358260827ebc1fd403452958201ab8bd8bf051679859ab3ee289d9135",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalMultiArticulatedInverseMass.mm",
+      "source_sha256": "7b31984c9b04f31672637af1c56871e5b239833dff75b7e9e043546930640480",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o",
+      "object_sha256": "4bd7757f3970823af6225a6c46fc1e59179baa38c80f86e09636a0faad78d61c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalMultiArticulatedConstraints.mm",
+      "source_sha256": "1f5e4f0f7d29dc410e9dfe915930ec3ef20b7e15c527735dd569d370a5e67aa0",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o",
+      "object_sha256": "d991eb9ccda777ed306542ce6527711e2305e7052e89baea4fcf9f9302c4e50a",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalMultiArticulatedContact.mm",
+      "source_sha256": "a9de0dc41b4494e537973f34f1c4593d475fcae15da0a7ca675ba8bf045f9466",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o",
+      "object_sha256": "e489ea046540ae45127b00f2e9b2138ae2f4ac8b080221694fc4ace5afc88197",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalQualityContactSolver.mm",
+      "source_sha256": "63de645fc7315bb47ad7f7c4f86b17735751583e479556c9133b774f4dbdb789",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o",
+      "object_sha256": "41702450152ba80d1bf2672cee8dbaa79ac90dccc806cccdf85b45abb32c299f",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalUnifiedQualitySolver.mm",
+      "source_sha256": "613502f0f0c3d8ce15b5b13d7d39fb66fb26def3a3a04c0dba6f2b38aebe4729",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o",
+      "object_sha256": "4aba23e0600b631dd924f1cb05ec588d4893ad0166ab0974278a906e14a55392",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalWorld.mm",
+      "source_sha256": "1e2ec5c22a4d07bffa7c0fc824ff74704256ced45f3cc9c3489d17dde222e83a",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o",
+      "object_sha256": "23eef0491a388e6c8c8f32a1c7fe308d0429a3fd5d95d7670204e95a0babdf03",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalHyperPolicy.mm",
+      "source_sha256": "409ac1924c92373b7fe98c9cecde3b0a6828827c5b1a8acf720dab18db9d2acc",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o",
+      "object_sha256": "d726487e3f9750e09aaa595bd1fa11d022773a11fde7f746293ff943e843a2ac",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalWorldFamily.mm",
+      "source_sha256": "f646f6720a4a11be2f79e293ff385c700c6f442b29b539242a95d0766d76ba89",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o",
+      "object_sha256": "9673f546d8de5916470028090038f3ed01fa5449a9a754a8139821da4d9faa85",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalHybridRenderer.mm",
+      "source_sha256": "5be04f37fb211f9e9dd6dd7c809dd5ae135dc54842f9eb260b9db29941662918",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o",
+      "object_sha256": "98de3117e4d16b92dc36fd85be0dcda4bf432369d3c66bcc60c64798233bea70",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalRunInspector.mm",
+      "source_sha256": "47513dcac367784f25f1c75c64012aeb057cfefa84aad71481dab99c3d26f5d4",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o",
+      "object_sha256": "ec24909d86521a5cb0b9ededb500152754fb20a4755c682c8e8b3c650a143aec",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalTactile.mm",
+      "source_sha256": "40f89d573a2c7f4929221a6677d20a1a401beb2e416afd51e874192ae332f2c7",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o",
+      "object_sha256": "1e70c4e2a6abe8e134474d16a6c1fc9fcc40e569ee61680f5b93c98fb199424c",
+      "exit_code": 0
+    },
+    {
+      "source": "src/metal/MetalNeuronCulture.mm",
+      "source_sha256": "626237f4edfc19422bf3a5027acb617c9125044669462b7efb900249b1c6e208",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o",
+      "object_sha256": "6ac749281b77425e361efe16348f77c49a2c12558e23e4300041787049fe5782",
+      "exit_code": 0
+    },
+    {
+      "source": "src/c_api.cpp",
+      "source_sha256": "3ca7075dc99ab1258a7317f740fe1902913e5aee87b54f096f4e12f5704e93bf",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/c_api.cpp.o",
+      "object_sha256": "01923cab931f9000de7190f224e32cdc008fbd44ce8444b165ce158983f30554",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/matter.cpp",
+      "source_sha256": "fb9db95c09f457713cb8df4b5f1a2ad46fd88121f61968ec6fc19aaf0ada67ec",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o",
+      "object_sha256": "3c9b26e886e89051b3586a603e56203976cdba02db8f6d51c591a2cc791570ae",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/language_impl.cpp",
+      "source_sha256": "e3d92454fbf003b2eae2989888579dee07169f17ec38833e3b02424d1c8dcc43",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o",
+      "object_sha256": "78a76011cdd55c9b681e6d06b4ed0ab504a2de79b725e9c05d367c7e285ae6ac",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/constitutive_impl.cpp",
+      "source_sha256": "e4bc877aa8c19b8f464c8005ea3cf85ceb29320b9101df0876f6656e1eec260e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o",
+      "object_sha256": "d0f01bd99ce37d6e91ac8df8912aa94fad0033adaab0ea4cb570320ba1fd4b1e",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/compiler_impl.cpp",
+      "source_sha256": "4a4f2f0080577288ba5ff884a28ae1c4f9139ab868be40d5f4e2365de9d88bf7",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o",
+      "object_sha256": "21c5c30bc3c4f80989c58106489063812eb6bc40032242cc1d9c63f74bfc070c",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/vascular_impl.cpp",
+      "source_sha256": "255560baffedbf4b1206eacd83c6b4da0f461da61e985a9648d290f96ac2ad75",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o",
+      "object_sha256": "2d5a720c321a84b06cbc276ff22885ee0321b0352857396db08ec7873505db2f",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/fingerprint_impl.cpp",
+      "source_sha256": "e10dd46df3c4617d50b3854fcdc3f11af9c369575785e422e8741acdd2f62115",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o",
+      "object_sha256": "38cfc271a3929bf5ac65a2a07cda9f4f92929b0aeca196f15b77fbd56eea0d63",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/validation_impl.cpp",
+      "source_sha256": "fcc6ce268dce9fff97f79224590c841361c641de649223ac65c2505f6ead0305",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o",
+      "object_sha256": "1e44d09a1cdbd1dafcbbdc2b73da742e0866890c1e59da99abd0c02871db5777",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/package_impl.cpp",
+      "source_sha256": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o",
+      "object_sha256": "843b2e46a33c528928c74e3ae8582a321d33cbe5499c7a7e69c84285ab0fa168",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/surgical_tissue.cpp",
+      "source_sha256": "3e6ff5ae889ca3ed496b5be762bc7af34f38c5eeac853b74aa0287aa06d01c52",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o",
+      "object_sha256": "e4c614f77a830ae1a1f2381efa839a554970354ebfef8fb96fbfcb0ee1222247",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/runtime.mm",
+      "source_sha256": "54d4d3f84ea6d224c0668f6cf9c3ed4bc1dd5348b06f9535c2a71bb0afebc353",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o",
+      "object_sha256": "74acf0a286d7b19b248ba6431546082d39ad8c9157bc8daa0cef85b6aefec89b",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/human_physiology.mm",
+      "source_sha256": "2fefc2ab1903aff0e03ddf8eae45c0fe985444cf39dc96c56beb719fa79ca18e",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o",
+      "object_sha256": "cd7332fedfa00985d03f80a09daa59f70b7f1932fd4599a31017c1273f4583df",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/metal_world.cpp",
+      "source_sha256": "af7c0d5411caa24ac2048a45b7066cd8dc0e36c793eb8256c3100323a5fd517d",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o",
+      "object_sha256": "b1fddb4c6128d7a1a682fe2767758b1793a656e59fb069f9515a033eafedd563",
+      "exit_code": 0
+    },
+    {
+      "source": "matter/src/numi_human.mm",
+      "source_sha256": "ea1ceea037edc72f735c57301d3094458ab9381b902e2cb7807a481b62830449",
+      "object": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o",
+      "object_sha256": "c3d8571a84fe77552b55f2630623597c6c1406596d116e8c020f73ed9eeb5ee1",
+      "exit_code": 0
+    }
+  ],
+  "compile_receipt_path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/compile-receipt.json",
+  "compile_receipt_sha256": "aaf51780ec92a2a7f151aaa5a7eb2bdb3ecc4ce51f5e1a5972769bd7393be231",
+  "scope": "Fresh source-built closure; test-only pinned runtime MSL source compilation on CLT-only Apple M6. No performance or whole-body qualification."
+}

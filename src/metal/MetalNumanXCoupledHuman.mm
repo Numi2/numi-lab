@@ -1,6 +1,13 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
+#if defined(METALROBO_TEST_COUPLED_HUMAN_SOURCE_LOADER)
+#include <CommonCrypto/CommonDigest.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#endif
+
 #include "metalrobo/MetalNumanXCoupledHuman.hpp"
 #include "NumanXProgramIdentity.hpp"
 
@@ -1683,7 +1690,27 @@ MetalNumanXCoupledHumanContext::initialize() {
         );
     }
     const auto& config = state.config;
-    if (config.metallibPath.empty() ||
+#if defined(METALROBO_TEST_COUPLED_HUMAN_SOURCE_LOADER)
+    const char* testSourcePath =
+        std::getenv("NUMANX_COUPLED_HUMAN_TEST_SOURCE");
+    const char* testSourceSHA256 =
+        std::getenv("NUMANX_COUPLED_HUMAN_TEST_SOURCE_SHA256");
+    const bool compileTestSource =
+        testSourcePath != nullptr || testSourceSHA256 != nullptr;
+    if (compileTestSource &&
+        (testSourcePath == nullptr || testSourceSHA256 == nullptr ||
+         testSourcePath[0] == '\0' || testSourceSHA256[0] == '\0' ||
+         std::strlen(testSourceSHA256) != 2u * CC_SHA256_DIGEST_LENGTH)) {
+        return diagnostics(
+            &state,
+            MetalNumanXCoupledHumanHostStatus::invalidConfiguration,
+            "pinned test coupled-Human source path or SHA-256 is invalid"
+        );
+    }
+#else
+    constexpr bool compileTestSource = false;
+#endif
+    if ((!compileTestSource && config.metallibPath.empty()) ||
         config.environmentCapacity == 0u ||
         config.pointCapacity > MR_NUMANX_COUPLED_HUMAN_MAX_POINTS ||
         config.transactionSlotCount == 0u ||
@@ -1738,62 +1765,165 @@ MetalNumanXCoupledHumanContext::initialize() {
                 "no system-default Metal device is available"
             );
         }
-        NSString* path = [NSString
-            stringWithUTF8String:config.metallibPath.c_str()];
-        if (path == nil) {
-            return diagnostics(
-                &state,
-                MetalNumanXCoupledHumanHostStatus::invalidConfiguration,
-                "metallibPath is not valid UTF-8"
-            );
-        }
-        BOOL isDirectory = NO;
-        if (![[NSFileManager defaultManager]
-                fileExistsAtPath:path
-                     isDirectory:&isDirectory] || isDirectory) {
-            return diagnostics(
-                &state,
-                MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
-                "metallibPath does not name a readable regular file"
-            );
-        }
-        NSError* imageError = nil;
-        NSData* image = [NSData dataWithContentsOfFile:path
-                                               options:NSDataReadingMappedIfSafe
-                                                 error:&imageError];
+        NSString* path = nil;
+        NSData* image = nil;
         detail::NumanXExecutableImageIdentity imageIdentity{};
-        if (image == nil ||
-            !numanXExecutableImageIdentity(
-                image.bytes, image.length, imageIdentity)) {
-            return diagnostics(
-                &state,
-                MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
-                "failed to read the explicit coupled-Human metallib image: " +
-                    fromNSString(imageError.localizedDescription)
-            );
-        }
-        dispatch_data_t libraryImage = dispatch_data_create(
-            image.bytes,
-            image.length,
-            dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
-            DISPATCH_DATA_DESTRUCTOR_DEFAULT
-        );
-        if (libraryImage == nullptr) {
-            return diagnostics(
-                &state,
-                MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
-                "failed to retain the coupled-Human metallib image"
-            );
+        NSString* sourceText = nil;
+#if defined(METALROBO_TEST_COUPLED_HUMAN_SOURCE_LOADER)
+        if (compileTestSource) {
+            NSString* sourcePath =
+                [NSString stringWithUTF8String:testSourcePath];
+            BOOL isDirectory = NO;
+            if (sourcePath == nil ||
+                ![[NSFileManager defaultManager]
+                    fileExistsAtPath:sourcePath
+                         isDirectory:&isDirectory] ||
+                isDirectory) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "pinned test coupled-Human source is not a readable regular file"
+                );
+            }
+            NSError* sourceError = nil;
+            image = [NSData dataWithContentsOfFile:sourcePath
+                                           options:NSDataReadingMappedIfSafe
+                                             error:&sourceError];
+            if (image == nil || image.length == 0u ||
+                image.bytes == nullptr ||
+                image.length >
+                    static_cast<NSUInteger>(
+                        std::numeric_limits<CC_LONG>::max())) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "failed to read pinned test coupled-Human source: " +
+                        fromNSString(sourceError.localizedDescription)
+                );
+            }
+            std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
+            CC_SHA256(image.bytes, static_cast<CC_LONG>(image.length),
+                      digest.data());
+            std::array<char, 2u * CC_SHA256_DIGEST_LENGTH + 1u> actualSHA256{};
+            for (std::size_t index = 0u; index < digest.size(); ++index) {
+                std::snprintf(actualSHA256.data() + 2u * index,
+                    actualSHA256.size() - 2u * index, "%02x",
+                    static_cast<unsigned>(digest[index]));
+            }
+            std::string expectedSHA256(testSourceSHA256);
+            std::transform(expectedSHA256.begin(), expectedSHA256.end(),
+                expectedSHA256.begin(), [](const unsigned char value) {
+                    return value >= 'A' && value <= 'Z'
+                        ? static_cast<char>(value + ('a' - 'A'))
+                        : static_cast<char>(value);
+                });
+            if (expectedSHA256.find_first_not_of(
+                    "0123456789abcdef") != std::string::npos ||
+                expectedSHA256 != actualSHA256.data() ||
+                !numanXExecutableImageIdentity(
+                    image.bytes, image.length, imageIdentity)) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "pinned test coupled-Human source SHA-256 or identity is invalid"
+                );
+            }
+            sourceText = [[NSString alloc]
+                initWithBytes:image.bytes
+                       length:image.length
+                     encoding:NSUTF8StringEncoding];
+            if (sourceText == nil) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "pinned test coupled-Human source is not valid UTF-8"
+                );
+            }
+        } else
+#endif
+        {
+            path = [NSString
+                stringWithUTF8String:config.metallibPath.c_str()];
+            if (path == nil) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::invalidConfiguration,
+                    "metallibPath is not valid UTF-8"
+                );
+            }
+            BOOL isDirectory = NO;
+            if (![[NSFileManager defaultManager]
+                    fileExistsAtPath:path
+                         isDirectory:&isDirectory] || isDirectory) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "metallibPath does not name a readable regular file"
+                );
+            }
+            NSError* imageError = nil;
+            image = [NSData dataWithContentsOfFile:path
+                                           options:NSDataReadingMappedIfSafe
+                                             error:&imageError];
+            if (image == nil ||
+                !numanXExecutableImageIdentity(
+                    image.bytes, image.length, imageIdentity)) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "failed to read the explicit coupled-Human metallib image: " +
+                        fromNSString(imageError.localizedDescription)
+                );
+            }
         }
         NSError* libraryError = nil;
-        state.library = [state.device
-            newLibraryWithData:libraryImage error:&libraryError];
+#if defined(METALROBO_TEST_COUPLED_HUMAN_SOURCE_LOADER)
+        if (compileTestSource) {
+            MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+            options.languageVersion = MTLLanguageVersion4_0;
+            options.optimizationLevel = MTLLibraryOptimizationLevelDefault;
+            options.mathMode = MTLMathModeSafe;
+            options.mathFloatingPointFunctions =
+                MTLMathFloatingPointFunctionsPrecise;
+            state.library = [state.device
+                newLibraryWithSource:sourceText
+                             options:options
+                               error:&libraryError];
+        } else
+#endif
+        {
+            dispatch_data_t libraryImage = dispatch_data_create(
+                image.bytes,
+                image.length,
+                dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+                DISPATCH_DATA_DESTRUCTOR_DEFAULT
+            );
+            if (libraryImage == nullptr) {
+                return diagnostics(
+                    &state,
+                    MetalNumanXCoupledHumanHostStatus::metallibUnavailable,
+                    "failed to retain the coupled-Human metallib image"
+                );
+            }
+            state.library = [state.device
+                newLibraryWithData:libraryImage error:&libraryError];
+        }
         if (state.library == nil) {
+#if defined(METALROBO_TEST_COUPLED_HUMAN_SOURCE_LOADER)
+            const std::string libraryFailure = compileTestSource
+                ? "failed to compile pinned test coupled-Human source: " +
+                    fromNSString(libraryError.localizedDescription)
+                : "failed to load explicit coupled-Human metallib: " +
+                    fromNSString(libraryError.localizedDescription);
+#else
+            const std::string libraryFailure =
+                "failed to load explicit coupled-Human metallib: " +
+                    fromNSString(libraryError.localizedDescription);
+#endif
             return diagnostics(
                 &state,
                 MetalNumanXCoupledHumanHostStatus::metalLibraryFailure,
-                "failed to load explicit coupled-Human metallib: " +
-                    fromNSString(libraryError.localizedDescription)
+                libraryFailure
             );
         }
         state.metallibIdentity = imageIdentity;
