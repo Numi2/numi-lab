@@ -1,15 +1,21 @@
 #pragma once
 #include "NumiHumanRestingAnatomy.hpp"
+#include "NumiHumanRestingIntercostalRibField.hpp"
 #include "NumiHumanRestingInspectionLayers.hpp"
 #include "NumiHumanRestingOcularWindow.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
+#include "NumiHumanOrganRelease.hpp"
+#include "NumiHumanOrganFloorPartition.hpp"
 #include "NumiHumanRestingRopeSupport.hpp"
 #include "NumiHumanSeparationSupport.hpp"
 #include "NumiHumanRestingRopeVisual.hpp"
+#include "NumiHumanRestingBloodVisual.hpp"
 #include "NumiHumanRestingBedSurface.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include "NumiHumanAcceptedGeometryCadence.hpp"
 #include "NumiHumanRestingSourceAllocation.hpp"
+#include "metalrobo/NumiHumanTissueMass.hpp"
+#include <span>
 #include <charconv>
 #include <bit>
 #include <cstdio>
@@ -42,6 +48,7 @@ class NumiHumanRestingVisual {
     std::unique_ptr<NumiHumanRestingRopeSupport> ropeSupport;
     std::unique_ptr<NumiHumanSeparationSupport> separationSupport;
     std::unique_ptr<NumiHumanRestingRopeVisual> ropeVisual;
+    std::unique_ptr<NumiHumanRestingBloodVisual> bloodVisual;
     MRHumanRestingBedGPU bedParameters{};
     id<MTLBuffer> bedHeights=nil;
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
@@ -959,17 +966,50 @@ public:
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true,
         const NumiHumanRestingBedSurface* bedSurface=nullptr,
         const LoadedTorsoAnatomy* torsoAnatomy=nullptr,
-        const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr):
+        const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr,
+        std::span<const metalrobo::NumiHumanTissueMassPartition> massPartitions={}):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         const bool ropeConfigured=NumiHumanRestingRopeSupport::configuredFromEnvironment();
         std::optional<NumiHumanRestingRopeSupport::Config> ropeConfig;
         std::optional<NumiHumanRestingRopeVisual::Layout> ropeVisualLayout;
+        std::optional<NumiHumanRestingBloodVisual::Layout> bloodVisualLayout;
         MRHumanRestingRopeGPU ropeVisualParameters{};
         std::uint32_t ropeContactIndex=MR_INVALID_INDEX,ropeQueryIndex=MR_INVALID_INDEX;
         if(ropeConfigured) {
             ropeConfig=NumiHumanRestingRopeSupport::readConfig();
             ropeConfig->globalBodyIndex=functional.gpu.bodyAndFlags.x;
+            // Preserve the authored environment value; only this private config
+            // copy is rebased into the executed donor body's COM frame.
+            const auto authoredBodyLocalSite=ropeConfig->bodyLocalSite;
+            std::size_t matchedMassPartitions=0u;
+            std::array<double,3u> appliedCOMOffset{};
+            for(const auto& partition:massPartitions) {
+                if(partition.donorBody!=ropeConfig->globalBodyIndex)continue;
+                ++matchedMassPartitions;
+                appliedCOMOffset=partition.remainingCOMOffsetM;
+            }
+            require(matchedMassPartitions<=1u,
+                "rope site matches more than one tissue mass partition");
+            if(matchedMassPartitions==1u) {
+                for(unsigned axis=0u;axis<3u;++axis) {
+                    const double offset=appliedCOMOffset[axis];
+                    const float rebased=float(
+                        double(authoredBodyLocalSite[axis])-offset);
+                    require(std::isfinite(offset)&&std::isfinite(rebased),
+                        "rope site COM rebase is non-finite");
+                    ropeConfig->bodyLocalSite[axis]=rebased;
+                }
+                std::cout<<std::setprecision(9)
+                    <<"rope_site_COM_rebase=applied body_index="
+                    <<ropeConfig->globalBodyIndex<<" authored_body_local_site_m=["
+                    <<authoredBodyLocalSite[0]<<','<<authoredBodyLocalSite[1]<<','
+                    <<authoredBodyLocalSite[2]<<"] remaining_COM_offset_m=["
+                    <<appliedCOMOffset[0]<<','<<appliedCOMOffset[1]<<','
+                    <<appliedCOMOffset[2]<<"] executed_body_local_site_m=["
+                    <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                    <<ropeConfig->bodyLocalSite[2]<<"]\n";
+            }
             const char* anchorFromSite=std::getenv("NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE");
             require(!anchorFromSite||std::strcmp(anchorFromSite,"0")==0||
                     std::strcmp(anchorFromSite,"1")==0,
@@ -1162,6 +1202,9 @@ public:
         }
         auto anatomyGPU=functional.gpu;
         float posteriorSkin=INFINITY,anteriorSkin=-INFINITY;
+        using RibTriangleIndex=NumiHumanRestingAnatomy::TriangleIndex;
+        std::array<std::unique_ptr<RibTriangleIndex>,24> ribSurfaces;
+        std::array<unsigned,24> ribStableIds{};
         std::array<mr_float4,24> ribLo,ribHi;
         std::set<unsigned> boundRibs;
         const auto& initialThorax=initialBodies.at(anatomyGPU.bodyAndFlags.x);
@@ -1227,14 +1270,37 @@ public:
                 const auto& primitive=pack.primitives.at(p);
                 for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)ids.insert(pack.indices.at(j));
             }
-            std::vector<mr_float4> points;float lo=INFINITY,hi=-INFINITY;
-            ribLo[rib]={INFINITY,INFINITY,INFINITY,0};ribHi[rib]={-INFINITY,-INFINITY,-INFINITY,0};
+            std::vector<mr_float4> points;std::vector<std::array<double,3>> surfacePoints;
+            std::map<unsigned,unsigned> localVertex;
+            float lo=INFINITY,hi=-INFINITY;
+            ribStableIds[rib]=instance.identity.w;
+            ribLo[rib]={INFINITY,INFINITY,INFINITY,0};
+            ribHi[rib]={-INFINITY,-INFINITY,-INFINITY,0};
             for(unsigned id:ids) {
                 const auto p=torsoLocal(instance,pack.vertices[id].position);points.push_back(p);
-                const float ap=dotPoint(p,anatomyGPU.anteriorAxis);lo=std::min(lo,ap);hi=std::max(hi,ap);
                 ribLo[rib].x=std::min(ribLo[rib].x,p.x);ribLo[rib].y=std::min(ribLo[rib].y,p.y);ribLo[rib].z=std::min(ribLo[rib].z,p.z);
                 ribHi[rib].x=std::max(ribHi[rib].x,p.x);ribHi[rib].y=std::max(ribHi[rib].y,p.y);ribHi[rib].z=std::max(ribHi[rib].z,p.z);
+                localVertex.emplace(id,unsigned(surfacePoints.size()));
+                surfacePoints.push_back({p.x,p.y,p.z});
+                const float ap=dotPoint(p,anatomyGPU.anteriorAxis);lo=std::min(lo,ap);hi=std::max(hi,ap);
             }
+            require(!points.empty(),"source rib has no registered surface vertices");
+            std::vector<std::array<unsigned,3>> surfaceTriangles;
+            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                require(primitive.geometry.y%3==0,"typed rib surface has a partial triangle");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<unsigned,3> face{};
+                    for(unsigned k=0;k<3;++k) {
+                        const auto found=localVertex.find(pack.indices.at(j+k));
+                        require(found!=localVertex.end(),"typed rib triangle escapes its indexed vertex set");
+                        face[k]=found->second;
+                    }
+                    surfaceTriangles.push_back(face);
+                }
+            }
+            require(!surfaceTriangles.empty(),"typed rib surface has no triangles");
+            ribSurfaces[rib]=std::make_unique<RibTriangleIndex>(std::move(surfacePoints),surfaceTriangles);
             require(hi-lo>.015f,"source rib lacks anterior/posterior extent");
             mr_float4 pivot{},distal{};unsigned posteriorCount=0,anteriorCount=0;
             for(const auto& p:points) {
@@ -1249,6 +1315,22 @@ public:
             anatomyGPU.ribAxis[rib]=scalePoint(axis,1/lever);pivot.w=1/lever;anatomyGPU.ribPivotAndGain[rib]=pivot;
         }
         require(boundRibs.size()==24,"native pack omitted a functional source rib");
+        std::vector<NumiHumanRestingRibFieldChannel> ribFieldChannels;
+        std::array<unsigned,2> ribSideCounts{};
+        for(unsigned channel=0;channel<24;++channel) {
+            require(ribSurfaces[channel]!=nullptr&&ribStableIds[channel]!=0,
+                "native pack omitted a typed rib surface for the continuous intercostal field");
+            const auto typedChannel=functional.ribs.find(ribStableIds[channel]);
+            require(typedChannel!=functional.ribs.end()&&typedChannel->second==channel,
+                "rib surface channel differs from the receipt-authenticated source order");
+            // functional.ribs is built directly from rib_bone_stable_ids:
+            // right T1..T12 at 0..11, then left T1..T12 at 12..23.
+            const int side=channel<12?-1:1;
+            ++ribSideCounts[side<0?0u:1u];
+            ribFieldChannels.push_back({channel,ribStableIds[channel],side});
+        }
+        require(ribSideCounts[0]==12&&ribSideCounts[1]==12,
+            "receipt-authenticated rib channels do not form two twelve-rib chains");
         auto add=[&](unsigned vertex,unsigned body,mr_float4 p,mr_float4 n,float w) {
             if(w<=0)return;
             auto& m=maps.at(vertex);if(!m.influenceCount)m.firstInfluence=unsigned(weights.size());
@@ -1259,7 +1341,7 @@ public:
         // that registered neighbor, then blend smoothly into the same GPU
         // respiratory map used by the lung surfaces over the next 8 mm.
         // The distances are computed once at scene load in their shared
-        // articulated body-20 source frame; no per-step CPU work is added.
+        // source-body-20 frame resolved through the runtime body map; no per-step CPU work is added.
         const MRVisualInstanceGPUV2* airway31Instance=nullptr;
         const MRVisualInstanceGPUV2* airway32Instance=nullptr;
         for(const auto& candidate:pack.instances)if(candidate.identity.x==kAirwaySurfaceSemantic) {
@@ -1351,7 +1433,7 @@ public:
                 <<"{\n  \"schema\": \"resting-airway-anchor-map.v1\",\n"
                 <<"  \"source_pack_content_hash\": \""<<pack.contentHash<<"\",\n"
                 <<"  \"semantic\": "<<kAirwaySurfaceSemantic<<", \"stable_id\": 31, \"neighbor_stable_id\": 32,\n"
-                <<"  \"body_index\": "<<anatomyGPU.bodyAndFlags.x<<", \"coordinate_frame\": \"shared articulated body-20 source frame\",\n"
+                <<"  \"body_index\": "<<anatomyGPU.bodyAndFlags.x<<", \"coordinate_frame\": \"shared articulated frame of source body 20 (mapped runtime body)\",\n"
                 <<"  \"mask_rule\": \"0 for distance <= 0.002 m; smoothstep((d-0.002)/0.008) for 0.002 < d < 0.010 m; 1 for d >= 0.010 m\",\n"
                 <<"  \"id32_triangle_count\": "<<airway32Triangles.size()<<", \"id31_vertex_count\": "<<airwayMaskRows.size()<<",\n"
                 <<"  \"held_at_or_below_2mm\": "<<airwayHeldCount<<", \"blended_2_to_10mm\": "<<airwayBlendCount
@@ -1376,6 +1458,9 @@ public:
                 <<" distance_m=["<<airwayMinDistance<<","<<airwayMaxDistance<<"]"
                 <<" map_sha256="<<airwayMaskSHA<<" receipt="<<airwayMapPath.string()<<"\n";
         }
+        NSMutableArray* inferredRibFieldRows=[NSMutableArray array];
+        const auto& activeOrganWitness=metalrobo::organ_release::activeRuntimeSupportWitness;
+        unsigned releasedKidneySkinInstanceCount=0u;
         for(auto& instance:pack.instances) {
             std::vector<unsigned> vertices;
             for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
@@ -1442,6 +1527,22 @@ public:
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
+            bool releasedKidneySourceInstance=false;
+            if(semantic==kOrganSurfaceSemantic&&torsoAnatomy&&activeOrganWitness.active&&
+               instance.identity.w==metalrobo::organ_release::runtimeDisplaySurfaceId(
+                   metalrobo::organ_release::kRightKidneyStableId,
+                   metalrobo::organ_release::kCaudalFragment)&&
+               instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+               instance.binding.y==activeOrganWitness.bodyIndex) {
+                const auto sourceIdentity=torsoAnatomy->sourceStableIdByRuntimeDisplayId.find(instance.identity.w);
+                if(sourceIdentity!=torsoAnatomy->sourceStableIdByRuntimeDisplayId.end()&&
+                   sourceIdentity->second==metalrobo::organ_release::kRightKidneyStableId) {
+                    // Reuse this source instance and its existing GPU-deformed vertices.
+                    // Keep the Organ bit and add Skin visibility while it is detached.
+                    visibility|=kNumiHumanSkinInspectionLayerBit;
+                    releasedKidneySourceInstance=true;
+                }
+            }
             const auto ocularAppearance=numiHumanRestingOcularAppearance(
                 semantic,instance.identity.w,kOrganSurfaceSemantic);
             if(ocularFeatureEnabled&&ocularAppearance!=NumiHumanRestingOcularAppearance::none) {
@@ -1465,6 +1566,12 @@ public:
             visibleLayers.push_back(numiHumanRestingInspectionLayerMask(
                 semantic,instance.identity.w,visibility,kOrganSurfaceSemantic,
                 functional.retiredInspectionStableIDs,ocularFeatureEnabled));
+            if(releasedKidneySourceInstance) {
+                const auto layerMask=visibleLayers.back();
+                require((layerMask&kNumiHumanSkinInspectionLayerBit)!=0u&&(layerMask&8u)!=0u,
+                    "released kidney source instance must remain visible in both Skin and Organs");
+                ++releasedKidneySkinInstanceCount;
+            }
             if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
             if(deformation==11&&instance.identity.w==31) {
@@ -1636,7 +1743,7 @@ public:
                     require(deformation==7&&instance.geometry.y==1&&torsoAnatomy!=nullptr&&
                         instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
                         instance.binding.y==anatomyGPU.bodyAndFlags.x,
-                        "Intercostal rib-channel attachment is not on its registered body-20 intercostal surface");
+                        "Intercostal rib-channel attachment is not on its registered source-body-20 intercostal surface (runtime binding mapped)");
                     const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
                         [&](const auto& row){return row.stableId==instance.identity.w;});
                     require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==anatomyGPU.bodyAndFlags.x&&
@@ -1656,6 +1763,423 @@ public:
                         numiHumanRestingReferencedSourceAttachmentVertices(
                             attachment->second,vertices,base,source->vertexCount);
                 }
+            }
+            struct InferredRibFieldWeight { unsigned first=0,second=0;float blend=0;int side=0;double scalar=0; };
+            std::map<unsigned,InferredRibFieldWeight> inferredRibField;
+            std::map<std::array<float,3>,InferredRibFieldWeight> coincidentPointFields;
+            if(deformation==7&&numiHumanUseContinuousRibField(instance.identity.w)) {
+                require(functional.intercostals.contains(instance.identity.w)&&
+                    instance.identity.x==kOrganSurfaceSemantic&&instance.geometry.y==1&&torsoAnatomy!=nullptr,
+                    "kind-7 rib field is only supported for a typed single-primitive intercostal source surface");
+                const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                    [&](const auto& row){return row.stableId==instance.identity.w;});
+                require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==20&&
+                    source->vertexCount>0&&source->indexCount>0,
+                    "kind-7 harmonic field lacks the typed body-20 source row");
+                if(source->stableId==317)
+                    require(source->vertexCount==70351&&source->indexCount==261732,
+                        "row-317 one-sided fragment policy is pinned to a different source allocation");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y==source->indexCount&&primitive.geometry.y%3==0,
+                    "kind-7 primitive indices differ from the typed source allocation");
+                base=numiHumanRestingSourceAllocationBase(
+                    torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                    pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
+
+                // The source quotient uses exact authored coordinates, not nearby-point welding.
+                std::map<std::array<double,3>,unsigned> quotientBySourcePoint;
+                std::vector<std::array<double,3>> quotientSourcePoints,quotientTorsoPoints;
+                std::vector<std::vector<unsigned>> quotientAliases;
+                std::map<unsigned,unsigned> quotientByPackVertex;
+                for(const unsigned vertex:vertices) {
+                    require(vertex>=base&&vertex-base<source->vertexCount,
+                        "kind-7 pack vertex escapes its source allocation");
+                    const unsigned local=vertex-base;
+                    const auto& sourceVertex=torsoAnatomy->vertices.at(source->firstVertex+local);
+                    const std::array<double,3> sourcePoint{
+                        sourceVertex.positionX,sourceVertex.positionY,sourceVertex.positionZ};
+                    const auto [sourceIt,sourceInserted]=quotientBySourcePoint.emplace(
+                        sourcePoint,unsigned(quotientSourcePoints.size()));
+                    const unsigned quotient=sourceIt->second;
+                    if(sourceInserted) {
+                        quotientSourcePoints.push_back(sourcePoint);
+                        quotientAliases.emplace_back();
+                        const auto localPoint=torsoLocal(instance,pack.vertices.at(vertex).position);
+                        const std::array<double,3> torsoPoint{localPoint.x,localPoint.y,localPoint.z};
+                        quotientTorsoPoints.push_back(torsoPoint);
+                    } else {
+                        const auto localPoint=torsoLocal(instance,pack.vertices.at(vertex).position);
+                        const std::array<double,3> torsoPoint{localPoint.x,localPoint.y,localPoint.z};
+                        require(quotientTorsoPoints.at(quotient)==torsoPoint,
+                            "one exact source-coordinate alias has inconsistent body-20 rest coordinates");
+                    }
+                    quotientAliases.at(quotient).push_back(vertex);
+                    require(quotientByPackVertex.emplace(vertex,quotient).second,
+                        "kind-7 source vertex is duplicated in its renderer vertex list");
+                }
+                require(!quotientSourcePoints.empty(),"kind-7 exact-coordinate quotient is empty");
+
+                std::set<std::pair<unsigned,unsigned>> quotientEdges;
+                std::vector<std::array<unsigned,3>> quotientFaces;
+                quotientFaces.reserve(primitive.geometry.y/3);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<unsigned,3> face{};
+                    for(unsigned corner=0;corner<3;++corner) {
+                        const unsigned vertex=pack.indices.at(j+corner);
+                        const auto found=quotientByPackVertex.find(vertex);
+                        require(found!=quotientByPackVertex.end(),
+                            "kind-7 source face escapes its exact-coordinate quotient allocation");
+                        face[corner]=found->second;
+                    }
+                    require(face[0]!=face[1]&&face[1]!=face[2]&&face[2]!=face[0],
+                        "kind-7 source face collapses in the exact-coordinate quotient");
+                    quotientFaces.push_back(face);
+                    for(unsigned side=0;side<3;++side) {
+                        unsigned a=face[side],b=face[(side+1)%3];if(a>b)std::swap(a,b);
+                        quotientEdges.emplace(a,b);
+                    }
+                }
+                require(!quotientFaces.empty()&&!quotientEdges.empty(),
+                    "kind-7 exact-coordinate quotient has no triangle graph");
+                std::vector<unsigned> quotientParent(quotientSourcePoints.size());
+                std::iota(quotientParent.begin(),quotientParent.end(),0u);
+                const auto quotientRoot=[&](auto&& self,unsigned x)->unsigned {
+                    if(quotientParent[x]!=x)quotientParent[x]=self(self,quotientParent[x]);
+                    return quotientParent[x];
+                };
+                for(const auto& [a,b]:quotientEdges) {
+                    const unsigned ra=quotientRoot(quotientRoot,a),rb=quotientRoot(quotientRoot,b);
+                    if(ra!=rb)quotientParent[rb]=ra;
+                }
+                std::map<unsigned,std::vector<unsigned>> quotientComponents;
+                for(unsigned q=0;q<quotientSourcePoints.size();++q)
+                    quotientComponents[quotientRoot(quotientRoot,q)].push_back(q);
+                std::vector<std::vector<std::pair<unsigned,double>>> quotientAdjacency(quotientSourcePoints.size());
+                for(const auto& [a,b]:quotientEdges) {
+                    double lengthSquared=0;
+                    for(unsigned axis=0;axis<3;++axis) {
+                        const double delta=quotientSourcePoints[a][axis]-quotientSourcePoints[b][axis];
+                        lengthSquared+=delta*delta;
+                    }
+                    const double length=std::sqrt(lengthSquared);
+                    require(std::isfinite(length)&&length>0,
+                        "kind-7 exact-coordinate quotient has a zero or invalid source edge");
+                    const double conductance=1.0/length;
+                    require(std::isfinite(conductance)&&conductance>0,
+                        "kind-7 positive harmonic graph edge conductance is invalid");
+                    quotientAdjacency[a].push_back({b,conductance});
+                    quotientAdjacency[b].push_back({a,conductance});
+                }
+                std::map<unsigned,std::vector<unsigned>> quotientComponentFaceOrdinals;
+                for(unsigned faceOrdinal=0;faceOrdinal<quotientFaces.size();++faceOrdinal) {
+                    const auto& face=quotientFaces[faceOrdinal];
+                    quotientComponentFaceOrdinals[quotientRoot(quotientRoot,face[0])].push_back(faceOrdinal);
+                }
+                require(!quotientComponents.empty(),"kind-7 source has no exact-coordinate quotient components");
+                const auto distanceToRib=[&](const std::array<double,3>& point,unsigned channel) {
+                    require(channel<ribSurfaces.size()&&ribSurfaces[channel]!=nullptr,
+                        "kind-7 harmonic field selected a missing typed rib surface");
+                    return std::sqrt(ribSurfaces[channel]->nearest(point).distanceSquared);
+                };
+                unsigned componentIndex=0;
+                std::set<unsigned> matchedOneSidedFragmentOrdinals;
+                for(const auto& [componentRoot,componentNodes]:quotientComponents) {
+                    const auto componentFacesIt=quotientComponentFaceOrdinals.find(componentRoot);
+                    require(componentFacesIt!=quotientComponentFaceOrdinals.end(),
+                        "kind-7 exact quotient component lost its source face ancestry");
+                    const auto& componentFaceOrdinals=componentFacesIt->second;
+                    const auto* oneSidedPolicy=source->stableId==317?
+                        numiHumanMatchRow317OneSidedRibFragment(componentFaceOrdinals):nullptr;
+                    const std::size_t sampleCount=std::min<std::size_t>(64,componentNodes.size());
+                    std::vector<std::array<double,3>> componentPoints;componentPoints.reserve(componentNodes.size());
+                    std::array<double,3> centroid{};
+                    for(const unsigned node:componentNodes) {
+                        componentPoints.push_back(quotientTorsoPoints[node]);
+                        for(unsigned axis=0;axis<3;++axis)
+                            centroid[axis]+=componentPoints.back()[axis]/double(componentNodes.size());
+                    }
+                    std::size_t firstSample=0;double centroidDistance=std::numeric_limits<double>::infinity();
+                    for(std::size_t i=0;i<componentPoints.size();++i) {
+                        double distanceSquared=0;
+                        for(unsigned axis=0;axis<3;++axis) {
+                            const double delta=componentPoints[i][axis]-centroid[axis];
+                            distanceSquared+=delta*delta;
+                        }
+                        if(distanceSquared<centroidDistance){centroidDistance=distanceSquared;firstSample=i;}
+                    }
+                    std::vector<std::size_t> sampleIndices{firstSample};
+                    std::vector<double> nearestSampleDistanceSquared(componentPoints.size(),
+                        std::numeric_limits<double>::infinity());
+                    std::vector<bool> selected(componentPoints.size());selected[firstSample]=true;
+                    double sampleCoverRadius=0;
+                    while(sampleIndices.size()<=sampleCount) {
+                        const auto& sample=componentPoints[sampleIndices.back()];
+                        std::size_t next=componentPoints.size();double farthest=-1;
+                        for(std::size_t i=0;i<componentPoints.size();++i) {
+                            double distanceSquared=0;
+                            for(unsigned axis=0;axis<3;++axis) {
+                                const double delta=componentPoints[i][axis]-sample[axis];
+                                distanceSquared+=delta*delta;
+                            }
+                            nearestSampleDistanceSquared[i]=std::min(nearestSampleDistanceSquared[i],distanceSquared);
+                            if(!selected[i]&&(nearestSampleDistanceSquared[i]>farthest||
+                                (nearestSampleDistanceSquared[i]==farthest&&i<next))) {
+                                farthest=nearestSampleDistanceSquared[i];next=i;
+                            }
+                        }
+                        if(next==componentPoints.size())break;
+                        sampleCoverRadius=std::max(sampleCoverRadius,std::sqrt(std::max(0.0,farthest)));
+                        if(sampleIndices.size()==sampleCount)break;
+                        selected[next]=true;sampleIndices.push_back(next);
+                    }
+                    std::vector<std::array<double,3>> samples;samples.reserve(sampleIndices.size());
+                    for(const std::size_t index:sampleIndices)samples.push_back(componentPoints[index]);
+                    const int side=numiHumanChooseIntercostalRibFieldSide(samples,ribFieldChannels,distanceToRib);
+                    std::vector<NumiHumanRestingRibFieldChannel> sideChannels;
+                    for(const auto& channel:ribFieldChannels)if(channel.lateralSide==side)
+                        sideChannels.push_back(channel);
+                    sideChannels=numiHumanRestingValidateRibSideChannels(std::move(sideChannels),side);
+                    require(sideChannels.size()==12,
+                        "kind-7 exact source component has an incomplete typed rib-side chain");
+
+                    std::map<unsigned,unsigned> componentLocalNode;
+                    for(unsigned local=0;local<componentNodes.size();++local)
+                        componentLocalNode.emplace(componentNodes[local],local);
+                    std::vector<std::vector<std::pair<unsigned,double>>> componentAdjacency(componentNodes.size());
+                    unsigned componentEdgeCount=0;
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const unsigned node=componentNodes[local];
+                        for(const auto& [neighbor,weight]:quotientAdjacency[node]) {
+                            const auto found=componentLocalNode.find(neighbor);
+                            require(found!=componentLocalNode.end(),
+                                "kind-7 exact quotient graph edge crosses component ownership");
+                            componentAdjacency[local].push_back({found->second,weight});
+                        }
+                        std::sort(componentAdjacency[local].begin(),componentAdjacency[local].end(),
+                            [](const auto& a,const auto& b){return a.first<b.first;});
+                        componentEdgeCount+=unsigned(componentAdjacency[local].size());
+                    }
+                    componentEdgeCount/=2;
+                    if(oneSidedPolicy) {
+                        require(matchedOneSidedFragmentOrdinals.insert(oneSidedPolicy->fragmentOrdinal).second,
+                            "row-317 one-sided fragment policy matched more than one source component");
+                        require(side==oneSidedPolicy->lateralSide,
+                            "row-317 tiny fragment disagrees with the typed nearest-rib laterality");
+
+                        std::array<double,3> minimumPoint{
+                            std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity(),
+                            std::numeric_limits<double>::infinity()};
+                        std::array<double,3> maximumPoint{
+                            -std::numeric_limits<double>::infinity(),-std::numeric_limits<double>::infinity(),
+                            -std::numeric_limits<double>::infinity()};
+                        for(const auto& point:componentPoints)
+                            for(unsigned axis=0;axis<3;++axis) {
+                                minimumPoint[axis]=std::min(minimumPoint[axis],point[axis]);
+                                maximumPoint[axis]=std::max(maximumPoint[axis],point[axis]);
+                            }
+                        double diameterSquared=0;
+                        for(unsigned axis=0;axis<3;++axis) {
+                            const double extent=maximumPoint[axis]-minimumPoint[axis];
+                            diameterSquared+=extent*extent;
+                        }
+                        const double diameter=std::sqrt(diameterSquared);
+                        double signedVolume=0;
+                        for(const unsigned faceOrdinal:componentFaceOrdinals) {
+                            const auto& face=quotientFaces.at(faceOrdinal);
+                            const auto& a=componentPoints.at(componentLocalNode.at(face[0]));
+                            const auto& b=componentPoints.at(componentLocalNode.at(face[1]));
+                            const auto& c=componentPoints.at(componentLocalNode.at(face[2]));
+                            const std::array<double,3> ar{a[0]-centroid[0],a[1]-centroid[1],a[2]-centroid[2]};
+                            const std::array<double,3> br{b[0]-centroid[0],b[1]-centroid[1],b[2]-centroid[2]};
+                            const std::array<double,3> cr{c[0]-centroid[0],c[1]-centroid[1],c[2]-centroid[2]};
+                            signedVolume+=(ar[0]*(br[1]*cr[2]-br[2]*cr[1])+
+                                ar[1]*(br[2]*cr[0]-br[0]*cr[2])+
+                                ar[2]*(br[0]*cr[1]-br[1]*cr[0]))/6.0;
+                        }
+
+                        double maximumSelectedRibDistance=0;
+                        double minimumRunnerUpRibDistance=std::numeric_limits<double>::infinity();
+                        for(unsigned local=0;local<componentNodes.size();++local) {
+                            std::vector<std::pair<double,unsigned>> ribDistances;
+                            ribDistances.reserve(ribFieldChannels.size());
+                            for(const auto& channel:ribFieldChannels)
+                                ribDistances.push_back({distanceToRib(componentPoints[local],channel.channel),channel.stableId});
+                            std::sort(ribDistances.begin(),ribDistances.end(),[](const auto& a,const auto& b) {
+                                return a.first==b.first?a.second<b.second:a.first<b.first;
+                            });
+                            require(ribDistances.size()==24&&
+                                ribDistances.front().second==oneSidedPolicy->selectedRibStableId,
+                                "row-317 tiny fragment no longer has one fixed nearest typed rib");
+                            maximumSelectedRibDistance=std::max(maximumSelectedRibDistance,ribDistances.front().first);
+                            minimumRunnerUpRibDistance=std::min(minimumRunnerUpRibDistance,ribDistances[1].first);
+                        }
+                        numiHumanValidateRow317OneSidedRibFragment(*oneSidedPolicy,source->stableId,
+                            source->vertexCount,source->indexCount,unsigned(componentNodes.size()),side,
+                            oneSidedPolicy->selectedRibStableId,diameter,signedVolume,
+                            maximumSelectedRibDistance,minimumRunnerUpRibDistance);
+                        const auto selectedChannel=std::find_if(sideChannels.begin(),sideChannels.end(),
+                            [&](const auto& channel){return channel.stableId==oneSidedPolicy->selectedRibStableId;});
+                        require(selectedChannel!=sideChannels.end(),
+                            "row-317 one-sided fragment selected a rib outside its typed side chain");
+                        const unsigned selectedOrdinal=unsigned(selectedChannel-sideChannels.begin());
+                        const auto encoded=numiHumanEncodeContinuousRibOrdinal(
+                            double(selectedOrdinal),sideChannels,side);
+                        const InferredRibFieldWeight weight{
+                            encoded.firstChannel,encoded.secondChannel,encoded.secondaryWeight,side,
+                            double(selectedOrdinal)};
+                        for(const unsigned node:componentNodes) {
+                            const std::array<float,3> coordinate{
+                                float(quotientSourcePoints[node][0]),float(quotientSourcePoints[node][1]),
+                                float(quotientSourcePoints[node][2])};
+                            const auto [pointIt,pointInserted]=coincidentPointFields.emplace(coordinate,weight);
+                            require(pointInserted||
+                                (pointIt->second.first==weight.first&&pointIt->second.second==weight.second&&
+                                 pointIt->second.blend==weight.blend&&pointIt->second.side==weight.side),
+                                "coincident row-317 fragment alias has inconsistent one-rib carriage");
+                            for(const unsigned vertex:quotientAliases[node])
+                                require(inferredRibField.emplace(vertex,weight).second,
+                                    "row-317 one-sided fragment alias was assigned more than once");
+                        }
+                        NSMutableArray* fragmentFaceOrdinals=[NSMutableArray arrayWithCapacity:componentFaceOrdinals.size()];
+                        for(const unsigned faceOrdinal:componentFaceOrdinals)
+                            [fragmentFaceOrdinals addObject:@(faceOrdinal)];
+                        [inferredRibFieldRows addObject:@{
+                            @"row_stable_id":@(source->stableId),
+                            @"component_index":@(componentIndex++),
+                            @"fragment_policy_ordinal":@(oneSidedPolicy->fragmentOrdinal),
+                            @"component_face_count":@(componentFaceOrdinals.size()),
+                            @"source_face_ordinals":fragmentFaceOrdinals,
+                            @"exact_coordinate_quotient_vertex_count":@(componentNodes.size()),
+                            @"positive_source_graph_edge_count":@(componentEdgeCount),
+                            @"lateral_side_sign":@(side),
+                            @"field_method":@"authenticated_tiny_closed_fragment_one_sided_nearest_typed_rib_carriage",
+                            @"registration":@"inferred passive visual carriage to one measured typed rib",
+                            @"selected_rib_stable_id":@(oneSidedPolicy->selectedRibStableId),
+                            @"measured_nearest_rib_distance_m":@(oneSidedPolicy->measuredNearestRibDistanceM),
+                            @"maximum_vertex_distance_to_selected_rib_m":@(maximumSelectedRibDistance),
+                            @"minimum_runner_up_rib_distance_m":@(minimumRunnerUpRibDistance),
+                            @"measured_source_component_diameter_m":@(diameter),
+                            @"measured_positive_source_volume_m3":@(signedVolume),
+                            @"interface_exemption":@NO,@"mechanical_route_or_force_owner_changed":@NO
+                        }];
+                        continue;
+                    }
+                    std::vector<std::array<double,12>> channelDistances(componentNodes.size());
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const auto& point=componentPoints[local];
+                        for(unsigned ordinal=0;ordinal<12;++ordinal)
+                            channelDistances[local][ordinal]=distanceToRib(point,sideChannels[ordinal].channel);
+                    }
+                    constexpr std::array<double,3> anchorRadii{{.0015,.003,.0045}};
+                    std::array<NumiHumanPositiveGraphHarmonicResult,3> harmonicSolutions;
+                    std::array<std::array<unsigned,2>,3> anchorCounts{};
+                    std::array<unsigned,3> anchorFirst{},anchorLast{};
+                    for(unsigned sensitivity=0;sensitivity<anchorRadii.size();++sensitivity) {
+                        std::vector<double> dirichlet(componentNodes.size(),std::numeric_limits<double>::quiet_NaN());
+                        std::set<unsigned> levels;
+                        for(unsigned local=0;local<componentNodes.size();++local) {
+                            int anchor=-1;
+                            for(unsigned ordinal=0;ordinal<12;++ordinal)
+                                if(channelDistances[local][ordinal]<=anchorRadii[sensitivity]) {
+                                    require(anchor==-1,
+                                        "kind-7 harmonic anchor neighborhood reaches multiple typed ribs");
+                                    anchor=int(ordinal);levels.insert(ordinal);
+                                }
+                            if(anchor>=0)dirichlet[local]=double(anchor);
+                        }
+                        require(levels.size()==2,
+                            "kind-7 source component is unanchored or ambiguously touches non-adjacent ribs");
+                        auto level=levels.begin();anchorFirst[sensitivity]=*level++;
+                        anchorLast[sensitivity]=*level;
+                        require(anchorLast[sensitivity]==anchorFirst[sensitivity]+1,
+                            "kind-7 source component anchors do not identify one adjacent typed-rib pair");
+                        for(const double value:dirichlet)if(std::isfinite(value)) {
+                            if(value==double(anchorFirst[sensitivity]))++anchorCounts[sensitivity][0];
+                            else if(value==double(anchorLast[sensitivity]))++anchorCounts[sensitivity][1];
+                            else require(false,"kind-7 harmonic anchor escaped its adjacent rib pair");
+                        }
+                        if(sensitivity)
+                            require(anchorFirst[sensitivity]==anchorFirst[0]&&anchorLast[sensitivity]==anchorLast[0],
+                                "kind-7 adjacent typed-rib pair changes across the anchor-radius sensitivity range");
+                        harmonicSolutions[sensitivity]=numiHumanSolvePositiveGraphHarmonic(
+                            componentAdjacency,dirichlet,1.0e-9,20000);
+                    }
+                    double sensitivityLowMax=0,sensitivityHighMax=0;
+                    double sensitivityLowSquared=0,sensitivityHighSquared=0;
+                    double scalarOrdinalMin=std::numeric_limits<double>::infinity();
+                    double scalarOrdinalMax=-std::numeric_limits<double>::infinity();
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const double scalar=harmonicSolutions[1].values[local];
+                        scalarOrdinalMin=std::min(scalarOrdinalMin,scalar);
+                        scalarOrdinalMax=std::max(scalarOrdinalMax,scalar);
+                        const double low=harmonicSolutions[0].values[local]-scalar;
+                        const double high=harmonicSolutions[2].values[local]-scalar;
+                        sensitivityLowMax=std::max(sensitivityLowMax,std::abs(low));
+                        sensitivityHighMax=std::max(sensitivityHighMax,std::abs(high));
+                        sensitivityLowSquared+=low*low;sensitivityHighSquared+=high*high;
+                        const auto encoded=numiHumanEncodeContinuousRibOrdinal(scalar,sideChannels,side);
+                        const InferredRibFieldWeight weight{
+                            encoded.firstChannel,encoded.secondChannel,encoded.secondaryWeight,side,scalar};
+                        const unsigned node=componentNodes[local];
+                        const std::array<float,3> coordinate{
+                            float(quotientSourcePoints[node][0]),float(quotientSourcePoints[node][1]),
+                            float(quotientSourcePoints[node][2])};
+                        const auto [pointIt,pointInserted]=coincidentPointFields.emplace(coordinate,weight);
+                        require(pointInserted||
+                            (pointIt->second.first==weight.first&&pointIt->second.second==weight.second&&
+                             pointIt->second.blend==weight.blend&&pointIt->second.side==weight.side),
+                            "coincident kind-7 source points received inconsistent harmonic rib fields");
+                        for(const unsigned vertex:quotientAliases[node])
+                            require(inferredRibField.emplace(vertex,weight).second,
+                                "kind-7 source alias was assigned more than one harmonic rib field");
+                    }
+                    const unsigned firstOrdinal=anchorFirst[1];
+                    const unsigned firstChannel=sideChannels[firstOrdinal].channel;
+                    const unsigned secondChannel=sideChannels[firstOrdinal+1].channel;
+                    NSMutableArray* sideChannelStableIds=[NSMutableArray arrayWithCapacity:sideChannels.size()];
+                    for(const auto& channel:sideChannels)[sideChannelStableIds addObject:@(channel.stableId)];
+                    [inferredRibFieldRows addObject:@{
+                        @"row_stable_id":@(instance.identity.w),@"component_index":@(componentIndex++),
+                        @"component_face_count":@(componentFaceOrdinals.size()),
+                        @"exact_coordinate_quotient_vertex_count":@(componentNodes.size()),
+                        @"positive_source_graph_edge_count":@(componentEdgeCount),
+                        @"lateral_side_sign":@(side),@"typed_rib_stable_ids":sideChannelStableIds,
+                        @"anchor_method":@"actual_typed_rib_triangle_surface_distance_dirichlet",
+                        @"anchor_radii_m":@[@(anchorRadii[0]),@(anchorRadii[1]),@(anchorRadii[2])],
+                        @"anchor_adjacent_channel_pair":@[@(firstChannel),@(secondChannel)],
+                        @"anchor_adjacent_stable_ids":@[@(sideChannels[firstOrdinal].stableId),
+                            @(sideChannels[firstOrdinal+1].stableId)],
+                        @"anchor_counts_by_radius":@[
+                            @[@(anchorCounts[0][0]),@(anchorCounts[0][1])],
+                            @[@(anchorCounts[1][0]),@(anchorCounts[1][1])],
+                            @[@(anchorCounts[2][0]),@(anchorCounts[2][1])]],
+                        @"harmonic_iterations_by_radius":@[@(harmonicSolutions[0].iterations),
+                            @(harmonicSolutions[1].iterations),@(harmonicSolutions[2].iterations)],
+                        @"harmonic_residual_inf_by_radius":@[@(harmonicSolutions[0].residualInfinity),
+                            @(harmonicSolutions[1].residualInfinity),@(harmonicSolutions[2].residualInfinity)],
+                        @"maximum_principle_violation_by_radius":@[
+                            @(harmonicSolutions[0].maximumPrincipleViolation),
+                            @(harmonicSolutions[1].maximumPrincipleViolation),
+                            @(harmonicSolutions[2].maximumPrincipleViolation)],
+                        @"sensitivity_max_abs_ordinal_delta_1p5mm_vs_3mm":@(sensitivityLowMax),
+                        @"sensitivity_rms_ordinal_delta_1p5mm_vs_3mm":@(
+                            std::sqrt(sensitivityLowSquared/double(componentNodes.size()))),
+                        @"sensitivity_max_abs_ordinal_delta_4p5mm_vs_3mm":@(sensitivityHighMax),
+                        @"sensitivity_rms_ordinal_delta_4p5mm_vs_3mm":@(
+                            std::sqrt(sensitivityHighSquared/double(componentNodes.size()))),
+                        @"scalar_ordinal_min":@(scalarOrdinalMin),@"scalar_ordinal_max":@(scalarOrdinalMax),
+                        @"field_method":@"positive_inverse_edge_length_graph_harmonic_over_exact_source_coordinate_quotient",
+                        @"field_encoding":@"harmonic ordinal encoded as adjacent typed channels with fractional secondary weight",
+                        @"registration":@"inferred passive visual rib-space boundary condition",
+                        @"interface_exemption":@NO,@"mechanical_route_or_force_owner_changed":@NO
+                    }];
+                }
+                if(source->stableId==317)
+                    require(matchedOneSidedFragmentOrdinals.size()==
+                        numiHumanRow317OneSidedRibFragmentPolicies().size(),
+                        "row-317 one-sided field did not match exactly the eight measured source fragments");
+                require(inferredRibField.size()==vertices.size(),
+                    "kind-7 rib field does not cover every referenced source vertex");
             }
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
@@ -1681,6 +2205,35 @@ public:
                     require(v>=base&&v-base<cardiac.size(),"passive heart pack order differs from source vertices");
                     maps[v].chamberIndex=cardiac.at(v-base).chamber;
                     maps[v].deformationWeight=cardiac.at(v-base).displacementAndWeight;
+                }
+                if(deformation==7) {
+                    if(numiHumanUseContinuousRibField(instance.identity.w)) {
+                        const auto field=inferredRibField.find(v);
+                        require(field!=inferredRibField.end(),
+                            "row-317 source vertex has no connected-component rib field");
+                        maps[v].chamberIndex=field->second.first;
+                        maps[v].deformationWeight.y=float(field->second.second);
+                        maps[v].deformationWeight.z=field->second.blend;
+                    } else {
+                        // Keep the previously accepted AABB assignment for every other
+                        // kind-7 row until that row has its own emitted-pose evidence.
+                        const auto local=rotatePoint(inverseRotation(initialThorax.orientation),
+                            subtractPoint(pack.vertices.at(v).position,initialThorax.position));
+                        std::array<std::pair<float,unsigned>,24> distance;
+                        for(unsigned rib=0;rib<24;++rib) {
+                            const mr_float4 nearest{std::clamp(local.x,ribLo[rib].x,ribHi[rib].x),
+                                std::clamp(local.y,ribLo[rib].y,ribHi[rib].y),
+                                std::clamp(local.z,ribLo[rib].z,ribHi[rib].z),0};
+                            const auto delta=subtractPoint(local,nearest);
+                            distance[rib]={dotPoint(delta,delta),rib};
+                        }
+                        std::partial_sort(distance.begin(),distance.begin()+2,distance.end());
+                        maps[v].chamberIndex=distance[0].second;
+                        maps[v].deformationWeight.y=float(distance[1].second);
+                        const float first=std::sqrt(distance[0].first)+.0001f;
+                        const float second=std::sqrt(distance[1].first)+.0001f;
+                        maps[v].deformationWeight.z=first/(first+second);
+                    }
                 }
                 if(intercostalRibChannels) {
                     require(v>=base,"NHA313 pack vertex precedes its source allocation");
@@ -2008,19 +2561,6 @@ public:
                     posteriorSkin=std::min(posteriorSkin,ap);anteriorSkin=std::max(anteriorSkin,ap);
                 }
             }
-            if(maps[v].deformationKind==7) {
-                const auto local=rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
-                std::array<std::pair<float,unsigned>,24> distance;
-                for(unsigned r=0;r<24;++r) {
-                    const mr_float4 nearest{std::clamp(local.x,ribLo[r].x,ribHi[r].x),
-                        std::clamp(local.y,ribLo[r].y,ribHi[r].y),std::clamp(local.z,ribLo[r].z,ribHi[r].z),0};
-                    const auto delta=subtractPoint(local,nearest);distance[r]={dotPoint(delta,delta),r};
-                }
-                std::partial_sort(distance.begin(),distance.begin()+2,distance.end());
-                maps[v].chamberIndex=distance[0].second;maps[v].deformationWeight.y=float(distance[1].second);
-                const float first=std::sqrt(distance[0].first)+.0001f,second=std::sqrt(distance[1].first)+.0001f;
-                maps[v].deformationWeight.z=first/(first+second);
-            }
             const float length=std::sqrt(dotPoint(n,n));
             if(length>1e-6f){
                 n=scalePoint(n,1/length);n.w=1;pack.vertices[v].normalAndTangentSign=n;
@@ -2128,6 +2668,13 @@ public:
         }
         require(std::isfinite(posteriorSkin)&&anteriorSkin-posteriorSkin>.05f,
             "registered skin has no usable anterior/posterior thorax extent");
+        if(inferredRibFieldRows.count) {
+            NSData* fieldJSON=[NSJSONSerialization dataWithJSONObject:inferredRibFieldRows
+                options:NSJSONWritingSortedKeys error:nil];
+            require(fieldJSON!=nil,"inferred intercostal rib field registration serialization failed");
+            std::cout<<"resting_intercostal_rib_field_registration="
+                <<[[[NSString alloc] initWithData:fieldJSON encoding:NSUTF8StringEncoding] UTF8String]<<"\n";
+        }
         if(commonCardiacGeometry) {
             require(commonFieldVertexCount>0&&commonFieldNormalVertexCount==commonFieldVertexCount,
                 "common cardiac coefficient map and rendered source ranges have different vertex totals");
@@ -2210,7 +2757,15 @@ public:
             // The source viewer's normalized focal is 0.72; this distance aims
             // for about 75% vertical occupancy while preserving horizontal fit.
             framing.distance=std::max(0.96f*height+margin,0.96f*width+margin);
-            if(std::getenv("NUMI_HUMAN_ROPE_SWING"))framing.distance*=2.0f;
+            if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+                float viewScale=2.0f;
+                if(const char* value=std::getenv("NUMI_HUMAN_ROPE_VIEW_SCALE")) {
+                    char* end=nullptr;viewScale=std::strtof(value,&end);
+                    require(end!=value&&*end=='\0'&&std::isfinite(viewScale)&&
+                            viewScale>=1.0f&&viewScale<=3.0f,"rope view scale outside [1,3]");
+                }
+                framing.distance*=viewScale;
+            }
         }
         require(support.header.groundNormalX==0&&support.header.groundNormalY==0&&support.header.groundNormalZ==1,
                 "resting visible bed must match the native +Z support plane");
@@ -2288,6 +2843,10 @@ public:
             ropeVisualLayout=NumiHumanRestingRopeVisual::appendGeometry(pack,ropeVisualParameters);
             visibleLayers.push_back(127u);
             pack.preprocessingProvenance+="/presentation_only_gpu_rope_visual";
+        }
+        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+            bloodVisualLayout=NumiHumanRestingBloodVisual::appendGeometry(pack);
+            visibleLayers.insert(visibleLayers.end(),NumiHumanRestingBloodVisual::capacity,127u);
         }
         maps.resize(pack.vertices.size());
         pack.preprocessingProvenance+=bedSurface
@@ -2595,6 +3154,17 @@ public:
         }
         require(visibleLayers.size()==pack.instances.size(),
             "inspection layer-mask count differs from packed visual instances");
+        require(activeOrganWitness.active ? releasedKidneySkinInstanceCount>0u : releasedKidneySkinInstanceCount==0u,
+            "active released kidney has no matching source instance for Skin-layer visibility");
+        if(activeOrganWitness.active)
+            std::cout<<"released_kidney_layer_visibility source_id="
+                <<metalrobo::organ_release::kRightKidneyStableId
+                <<" runtime_display_id="<<metalrobo::organ_release::runtimeDisplaySurfaceId(
+                    metalrobo::organ_release::kRightKidneyStableId,
+                    metalrobo::organ_release::kCaudalFragment)
+                <<" body="<<activeOrganWitness.bodyIndex
+                <<" existing_source_instances="<<releasedKidneySkinInstanceCount
+                <<" skin_and_organs=true duplicated_geometry=false\n";
         for(unsigned retiredID:functional.retiredInspectionStableIDs) {
             unsigned matchCount=0,retiredMask=std::numeric_limits<unsigned>::max();
             for(std::size_t index=0;index<pack.instances.size();++index) {
@@ -2626,7 +3196,7 @@ public:
         lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
 #endif
         require(lib!=nil,e?std::string(e.localizedDescription.UTF8String):"presentation library unavailable");
-        require([lib newFunctionWithName:@"nm_human_resting_local_cardiac_layout_v4"]!=nil,
+        require([lib newFunctionWithName:@"nm_human_resting_local_cardiac_layout_v5"]!=nil,
             "presentation library lacks the required torso-local cardiac layout");
         if(skinTissueLayers&&!skinTissueLayers->empty()) {
             // Prepared source material bindings only; no per-step CPU skin
@@ -2673,7 +3243,35 @@ public:
         const bool deriveFootManifold=(footManifoldSetting&&
                 std::strcmp(footManifoldSetting,"1")==0)||ropeConfig.has_value()||
             std::getenv("NUMI_HUMAN_SEPARATION_STEP")!=nullptr;
-        auto supportQueries=makeMetalMujocoVisualQueries(model,&support,{},deriveFootManifold);
+        const auto& organWitness=metalrobo::organ_release::activeRuntimeSupportWitness;
+        const bool organSupportActive=organWitness.active;
+        const TorsoAnatomyRecord* organSurface=nullptr;
+        std::uint32_t organFirstVertex=0u,organVertexCount=0u,organRuntimeDisplayId=0u;
+        if(organSupportActive) {
+            require(torsoAnatomy!=nullptr&&organWitness.bodyIndex<model.bodies.size()&&
+                        organWitness.contactIndex<support.records.size(),
+                "organ floor support lacks its admitted anatomy, body, or reserved source row");
+            for(const auto& record:torsoAnatomy->records) {
+                const auto source=torsoAnatomy->sourceStableIdByRuntimeDisplayId.find(record.stableId);
+                if(source==torsoAnatomy->sourceStableIdByRuntimeDisplayId.end()||
+                   source->second!=metalrobo::organ_release::kRightKidneyStableId||
+                   record.bodyIndex!=organWitness.bodyIndex) continue;
+                require(organSurface==nullptr,
+                    "organ floor lineage resolves to multiple runtime anatomy records");
+                organSurface=&record;
+            }
+            require(organSurface!=nullptr&&organSurface->vertexCount>=4u&&
+                        organSurface->firstVertex<=torsoAnatomy->vertices.size()&&
+                        organSurface->vertexCount<=torsoAnatomy->vertices.size()-organSurface->firstVertex,
+                "released stable anatomy ID 4 has no complete dynamic source vertex range");
+            organFirstVertex=organSurface->firstVertex;
+            organVertexCount=organSurface->vertexCount;
+            organRuntimeDisplayId=organSurface->stableId;
+            require(organWitness.contactIndex!=20u&&organWitness.contactIndex!=30u,
+                "organ floor cannot reuse either four-point foot manifold parent");
+        }
+        auto supportQueries=makeMetalMujocoVisualQueries(
+            model,&support,{},deriveFootManifold,organSupportActive);
         if(ropeConfig) {
             NumiHumanRestingRopeSupport::prepareContacts(
                 supportQueries.supportContacts,ropeContactIndex,ropeConfig->globalBodyIndex);
@@ -2682,6 +3280,7 @@ public:
             ropeQueryIndex=supportQueries.supportContacts[ropeContactIndex].pointQueryIndex;
             if(std::getenv("NUMI_HUMAN_SEPARATION_STEP"))
                 NumiHumanSeparationSupport::selectRows(supportQueries.supportContacts,ropeContactIndex);
+
             std::cout<<"resting_rope_requested=true contact_index="<<ropeContactIndex
                 <<" body_index="<<ropeConfig->globalBodyIndex
                 <<" point_query_index="<<ropeQueryIndex
@@ -2701,15 +3300,25 @@ public:
                 boundaryOnlyRows.insert(rows.begin(),rows.end());
             }
         }
+        if(organSupportActive)
+            require(!boundaryOnlyRows.contains(organWitness.contactIndex),
+                "organ floor source row conflicts with a moving rope boundary row");
         constexpr unsigned sourceRegionCount=32u;
         constexpr std::array<unsigned,2> manifoldParents={20u,30u};
+        const unsigned footDerivedCount=deriveFootManifold?6u:0u;
+        const unsigned organDerivedCount=organSupportActive?3u:0u;
+        const unsigned organDerivedStart=sourceRegionCount+footDerivedCount;
         std::vector<MRHumanRestingSupportRegionGPU> regions;
         std::vector<unsigned> seeds;
         const unsigned sourceRowCount=unsigned(support.records.size());
         require(sourceRowCount==sourceRegionCount&&
                     supportQueries.supportContacts.size()==
-                        sourceRegionCount+(deriveFootManifold?6u:0u),
+                        sourceRegionCount+footDerivedCount+organDerivedCount,
             "resting support producer and contact manifold row counts disagree");
+        if(organSupportActive)
+            require(organWitness.contactIndex<sourceRegionCount&&
+                        !boundaryOnlyRows.contains(organWitness.contactIndex),
+                "organ source row is not an available floor contact");
         regions.reserve(supportQueries.supportContacts.size());
         seeds.reserve(sourceRegionCount);
         for(unsigned rowIndex=0;rowIndex<sourceRegionCount;++rowIndex) {
@@ -2719,9 +3328,11 @@ public:
             const unsigned seed=row.sourceGeometryIndex-1;
             require(std::find(seeds.begin(),seeds.end(),seed)==seeds.end(),
                 "resting support seed is duplicated");
-            const unsigned role=boundaryOnlyRows.contains(rowIndex)?
-                MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY:
-                MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR;
+            const unsigned role=organSupportActive&&rowIndex==organWitness.contactIndex?
+                MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR:
+                (boundaryOnlyRows.contains(rowIndex)?
+                    MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY:
+                    MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR);
             seeds.push_back(seed);regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,role,0});
         }
         if(deriveFootManifold) {
@@ -2735,12 +3346,30 @@ public:
                     MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR,parent});
             }
         }
-        std::vector<unsigned> regionForVertex(skin.header.vertexCount);
+        std::array<unsigned,4> organBinRows{};
+        if(organSupportActive) {
+            organBinRows[0]=organWitness.contactIndex;
+            for(unsigned bin=1u;bin<4u;++bin) {
+                const unsigned rowIndex=organDerivedStart+(bin-1u);
+                const auto& row=supportQueries.supportContacts.at(rowIndex);
+                const auto& parent=supportQueries.supportContacts.at(organWitness.contactIndex);
+                require(row.bodyIndex==organWitness.bodyIndex&&
+                            row.sourceGeometryIndex==parent.sourceGeometryIndex,
+                    "derived organ floor row lost its dynamic body or source NHCNT identity");
+                organBinRows[bin]=rowIndex;
+                regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,
+                    MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR,
+                    organWitness.contactIndex});
+            }
+        }
+        std::vector<unsigned> regionForVertex(
+            skin.header.vertexCount+(organSupportActive?organVertexCount:0u),MR_INVALID_INDEX);
         std::vector<unsigned> regionCounts(regions.size());
         for(unsigned v=0;v<skin.header.vertexCount;++v) {
             float nearest=INFINITY;unsigned chosen=MR_INVALID_INDEX;
             for(unsigned r=0;r<sourceRegionCount;++r) {
-                if(regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY)continue;
+                if(regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY||
+                   regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR)continue;
                 const auto delta=subtractPoint(skinRestWorld[v],skinRestWorld[seeds[r]]);
                 const float distance=dotPoint(delta,delta);
                 if(distance<nearest){nearest=distance;chosen=r;}
@@ -2811,6 +3440,50 @@ public:
                     }
                 }
             }
+        }
+        if(organSupportActive) {
+            require(organVertexCount>=4u&&organFirstVertex+organVertexCount<=torsoAnatomy->vertices.size()&&
+                        organWitness.bodyIndex<initialBodies.size(),
+                "organ floor mesh or admitted body pose cannot form four patches");
+            std::vector<numi_human_organ_floor::Point3> organPositions(organVertexCount);
+            for(unsigned vertex=0;vertex<organVertexCount;++vertex) {
+                const auto& source=torsoAnatomy->vertices[organFirstVertex+vertex];
+                require(std::isfinite(source.positionX)&&std::isfinite(source.positionY)&&
+                            std::isfinite(source.positionZ)&&std::isfinite(source.normalX)&&
+                            std::isfinite(source.normalY)&&std::isfinite(source.normalZ),
+                    "registered dynamic organ surface contains nonfinite source vertices");
+                const auto local=mr_float4{source.positionX,source.positionY,source.positionZ,0.0f};
+                const auto& body=initialBodies[organWitness.bodyIndex];
+                const auto world=addPoint(body.position,rotatePoint(body.orientation,local));
+                organPositions[vertex]={world.x,world.y,world.z};
+            }
+            const auto organPartition =
+                numi_human_organ_floor::partitionFourSpatialBins(organPositions);
+            require(organPartition.axis<2u,
+                "organ floor partition selected a nonhorizontal axis");
+            const auto& bins=organPartition.bins;
+            for(unsigned bin=0u;bin<4u;++bin) {
+                const unsigned row=organBinRows[bin];
+                require(row<regions.size()&&
+                            (bin==0u?regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR:
+                             (regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR&&
+                              regions[row].reserved1==organWitness.contactIndex)),
+                    "organ floor bin has no matching typed contact row");
+                for(const unsigned vertex:bins[bin]) {
+                    const unsigned combined=skin.header.vertexCount+vertex;
+                    require(combined<regionForVertex.size()&&regionForVertex[combined]==MR_INVALID_INDEX,
+                        "dynamic organ vertex was assigned to more than one support bin");
+                    regionForVertex[combined]=row;++regionCounts[row];
+                }
+            }
+            require(std::all_of(regionForVertex.begin()+skin.header.vertexCount,
+                                regionForVertex.end(),[](unsigned row){return row!=MR_INVALID_INDEX;}),
+                "not every registered dynamic organ vertex belongs to exactly one floor bin");
+            std::cout<<"organ_floor_support=registered_dynamic_surface source_stable_id=4"
+                <<" runtime_display_id="<<organRuntimeDisplayId
+                <<" body_index="<<organWitness.bodyIndex<<" vertices="<<organVertexCount
+                <<" bins=4 parent_row="<<organWitness.contactIndex
+                <<" contact_owner=existing_metal_stand\n";
         }
         const char* supportAncestryPruningSetting =
             std::getenv("NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE");
@@ -2885,8 +3558,81 @@ public:
                 }
             }
         }
+        std::vector<MRHumanRestingSupportLineageGPU> supportLineage(regions.size());
+        for(std::size_t row=0;row<regions.size();++row) {
+            supportLineage[row]={MR_HUMAN_RESTING_SUPPORT_LINEAGE_NONE,0u,0u,MR_INVALID_INDEX};
+        }
+        if(organSupportActive) {
+            for(unsigned bin=0u;bin<4u;++bin) {
+                const unsigned row=organBinRows[bin];
+                supportLineage[row]={MR_HUMAN_RESTING_SUPPORT_LINEAGE_ORGAN_SURFACE,
+                    metalrobo::organ_release::kRightKidneyStableId,
+                    organWitness.contactIndex,bin};
+            }
+        }
+        std::vector<MRHumanRestingVertexMap> ownedSupportMaps;
+        std::vector<MRHumanRestingInfluence> ownedSupportWeights;
+        std::span<const MRHumanRestingVertexMap> supportMapSpan;
+        std::span<const MRHumanRestingInfluence> supportWeightSpan;
+        id<MTLBuffer> supportMapBuffer=mapping;
+        id<MTLBuffer> supportWeightBuffer=influences;
+        NSUInteger supportMapOffsetBytes=skinFirstVertex*sizeof(MRHumanRestingVertexMap);
+        NumiHumanSkinInfluenceLayout supportInfluenceLayout=skinInfluenceLayout;
+        if(organSupportActive) {
+            const std::uint64_t skinStride=skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?32u:1u;
+            ownedSupportMaps.reserve(skin.header.vertexCount+organVertexCount);
+            ownedSupportWeights.reserve(weights.size()+organVertexCount);
+            for(unsigned vertex=0u;vertex<skin.header.vertexCount;++vertex) {
+                auto map=maps.at(skinFirstVertex+vertex);
+                require(map.deformationKind==3u&&map.influenceCount>0u,
+                    "organ support compaction requires complete registered skin influences");
+                const std::uint64_t sourceFirst=map.firstInfluence;
+                map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                for(std::uint32_t influence=0u;influence<map.influenceCount;++influence) {
+                    const std::uint64_t sourceIndex=sourceFirst+
+                        static_cast<std::uint64_t>(influence)*skinStride;
+                    require(sourceIndex<weights.size(),
+                        "organ support compaction found an out-of-range skin influence");
+                    ownedSupportWeights.push_back(weights[sourceIndex]);
+                }
+                ownedSupportMaps.push_back(map);
+            }
+            for(unsigned vertex=0u;vertex<organVertexCount;++vertex) {
+                const auto& source=torsoAnatomy->vertices[organFirstVertex+vertex];
+                MRHumanRestingVertexMap map{};
+                map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                map.influenceCount=1u;
+                map.deformationKind=3u;
+                MRHumanRestingInfluence influence{};
+                influence.positionAndWeight={source.positionX,source.positionY,source.positionZ,1.0f};
+                influence.normal={source.normalX,source.normalY,source.normalZ,0.0f};
+                influence.body={organWitness.bodyIndex,0u,0u,0u};
+                ownedSupportMaps.push_back(map);
+                ownedSupportWeights.push_back(influence);
+            }
+            supportMapSpan=std::span<const MRHumanRestingVertexMap>(ownedSupportMaps);
+            supportWeightSpan=std::span<const MRHumanRestingInfluence>(ownedSupportWeights);
+            supportMapBuffer=[device newBufferWithBytes:ownedSupportMaps.data()
+                length:ownedSupportMaps.size()*sizeof(ownedSupportMaps.front())
+                options:MTLResourceStorageModeShared];
+            supportWeightBuffer=[device newBufferWithBytes:ownedSupportWeights.data()
+                length:ownedSupportWeights.size()*sizeof(ownedSupportWeights.front())
+                options:MTLResourceStorageModeShared];
+            require(supportMapBuffer&&supportWeightBuffer,
+                "compact skin plus organ support map upload failed");
+            supportMapBuffer.label=@"Human skin and stable anatomy ID 4 support vertex map";
+            supportWeightBuffer.label=@"Human skin and stable anatomy ID 4 support influences";
+            supportMapOffsetBytes=0u;
+            supportInfluenceLayout=NumiHumanSkinInfluenceLayout::vertexMajor;
+        } else {
+            supportMapSpan=std::span<const MRHumanRestingVertexMap>(maps).subspan(
+                skinFirstVertex,skin.header.vertexCount);
+            supportWeightSpan=std::span<const MRHumanRestingInfluence>(weights);
+        }
         HumanBrainSourceFingerprint supportIdentity;
-        supportIdentity.text("numi.human.full-skin-support.v1");
+        supportIdentity.text(organSupportActive?
+            "numi.human.skin-plus-registered-organ-support.v2":
+            "numi.human.full-skin-support.v1");
         if (supportAncestryPruning) {
             supportIdentity.text("support-jacobian-ancestry-prune-v3");
             supportIdentity.bytes(supportBodyDofAncestry.data(),
@@ -2896,38 +3642,49 @@ public:
         if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
             supportIdentity.text("runtime-layout:tile32-slot-major-v1");
         }
+        if(organSupportActive) {
+            supportIdentity.text("organ-source-lineage:stable-id-4-four-spatial-bins-v1");
+            supportIdentity.integer(organRuntimeDisplayId);
+            supportIdentity.integer(organWitness.bodyIndex);
+            supportIdentity.integer(organWitness.contactIndex);
+            supportIdentity.integer(organFirstVertex);
+            supportIdentity.integer(organVertexCount);
+        }
         if(bedSurface) {
             supportIdentity.text("fixed-world-triangulated-bed-v1");
             supportIdentity.bytes(&bedParameters,sizeof(bedParameters));
             supportIdentity.bytes(bedSurface->heights.data(),bedSurface->heights.size()*sizeof(float));
         }
         supportIdentity.integer(coupled.brain.rootProgramIdentity);
-        supportIdentity.integer(skinFirstVertex*sizeof(MRHumanRestingVertexMap));
-        supportIdentity.integer(skin.header.vertexCount);
-        supportIdentity.bytes(maps.data()+skinFirstVertex,skin.header.vertexCount*sizeof(maps.front()));
-        supportIdentity.bytes(weights.data(),weights.size()*sizeof(weights.front()));
+        supportIdentity.integer(supportMapOffsetBytes);
+        supportIdentity.integer(supportMapSpan.size());
+        supportIdentity.bytes(supportMapSpan.data(),supportMapSpan.size_bytes());
+        supportIdentity.bytes(supportWeightSpan.data(),supportWeightSpan.size_bytes());
         supportIdentity.bytes(regionForVertex.data(),regionForVertex.size()*sizeof(regionForVertex.front()));
         supportIdentity.bytes(regions.data(),regions.size()*sizeof(regions.front()));
-        skinSupport=std::make_unique<NumiHumanRestingSupportGeometry>(device,lib,mapping,
-            std::span<const MRHumanRestingVertexMap>(maps).subspan(skinFirstVertex,skin.header.vertexCount),
-            influences,std::span<const MRHumanRestingInfluence>(weights),regionForVertex,regions,
-            supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
+        supportIdentity.bytes(supportLineage.data(),supportLineage.size()*sizeof(supportLineage.front()));
+        skinSupport=std::make_unique<NumiHumanRestingSupportGeometry>(device,lib,supportMapBuffer,
+            supportMapSpan,supportWeightBuffer,supportWeightSpan,regionForVertex,regions,
+            supportLineage,supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
             model.articulations.at(0).bodyCount,model.articulations.at(0).nv,
             supportBodyDofAncestry,supportAncestryPruning,supportIdentity.value(),
-            skinFirstVertex*sizeof(MRHumanRestingVertexMap),skinInfluenceLayout,bedParameters,bedHeights);
+            supportMapOffsetBytes,supportInfluenceLayout,bedParameters,bedHeights);
         if(bedSurface)std::cout<<"resting_bed_surface=fixed_world_triangulated"
             <<" grid_nx="<<bedParameters.counts.x<<" grid_ny="<<bedParameters.counts.y
             <<" source_capture_sha256="<<bedSurface->sourceCaptureSHA256
             <<" contact_owner=existing_metal_stand outside_finite_bounds=reject"
             <<" body_following=0 root_assistance=0\n";
-        std::cout<<"resting_support_geometry=full_registered_skin vertices="<<skin.header.vertexCount
+        std::cout<<"resting_support_geometry="
+            <<(organSupportActive?"registered_skin_plus_dynamic_organ":"full_registered_skin")
+            <<" vertices="<<supportMapSpan.size()
             <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
-            <<" influence_layout="<<skinInfluenceLayoutName(skinInfluenceLayout)
+            <<" influence_layout="<<skinInfluenceLayoutName(supportInfluenceLayout)
             <<" ancestry_prune="<<(supportAncestryPruning?"on":"off")
             <<" region_sizes=[";
         for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
         std::cout<<"] force_owner=existing_metal_stand partition="
-            <<(deriveFootManifold?"source_rest_voronoi_4point_foot":"source_rest_voronoi")<<"\n";
+            <<(deriveFootManifold?(organSupportActive?"skin_foot_and_organ_spatial_manifolds":"source_rest_voronoi_4point_foot"):
+                (organSupportActive?"skin_plus_organ_spatial_manifold":"source_rest_voronoi"))<<"\n";
         id<MTLLibrary> skinLibrary=lib;
 #ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
         // Hosts with Command Line Tools but no offline Metal compiler can
@@ -3010,6 +3767,8 @@ public:
             require(false,"rope callback requires a configure-time source SHA-256 pin");
 #endif
         }
+        if(bloodVisualLayout)
+            bloodVisual=std::make_unique<NumiHumanRestingBloodVisual>(device,lib,*bloodVisualLayout);
         const auto skinFunction = numiHumanRestingMakeSkinInfluenceFunction(
             skinLibrary, @"nm_human_resting_skin",
             {false, true, skinInfluenceLayout}, &e);
@@ -3149,6 +3908,8 @@ public:
                NumiHumanRestingRopeSupport::swingMotion(self.coupled.physiology.runtime.timestepSeconds())))return false;
         if(lease.encoder->splitCommandEncoder&&
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
+        if(self.bloodVisual&&!self.bloodVisual->encode(
+               lease,self.coupled.presentationRespiration,false))return false;
         const mr_uint4 volumeAuditDimensions={self.volumeAuditGroupCount,self.auditCount,0u,0u};
         e.setPipeline(e.context,(__bridge void*)self.volumeAuditPartialPipeline);
         e.setBytes(e.context,&volumeAuditDimensions,sizeof(volumeAuditDimensions),0);
@@ -3216,6 +3977,8 @@ public:
         e.setPipeline(e.context,(__bridge void*)self.layerPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,lease.meshInstances,0,1);e.setBuffer(e.context,(__bridge void*)self.instanceLayers,0,2);
         e.dispatchThreads(e.context,lease.meshInstanceCount,64);
+        if(self.bloodVisual&&!self.bloodVisual->encode(
+               lease,self.coupled.presentationRespiration,true))return false;
         if(self.captureThisFrame) {
             if(!self.vertexCapturePipeline||!self.vertexCaptureBuffer||
                lease.acceptedStateBuffer!=(__bridge void*)self.coupled.presentationRespiration||
@@ -3410,8 +4173,12 @@ public:
             <<"LV "<<p.circulation.y*1e6<<" mL / "<<p.cardiacPressure.x/133.322387415<<" mmHg  RV "<<p.circulation.z*1e6<<" mL  Stroke "<<p.cardiacFlow.w*1e6<<" mL  Blood "<<p.circulation.x*1e3<<" L  CO mean "
             <<(time>0?p.cardiacFlow.x*60e3/time:0)<<" L/min\n"
             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
-        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP"))metrics<<"\nMechanical separation; post-cut physiology unsupported; no bleeding model.";
-        else if(rigidHands)metrics<<"\nRigid digits; wrists free; hand function not simulated.";
+        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+            const char* bleedingSetting=std::getenv("NUMI_HUMAN_BLEEDING_ENABLED");
+            metrics<<(bleedingSetting&&std::strcmp(bleedingSetting,"0")==0
+                ?"\nMechanical cut; blood outlet closed for control run; injury response unsupported."
+                :"\nMechanical cut; pressure-driven blood loss, reduced ballistic parcels (not full-fluid flow); injury response unsupported.");
+        } else if(rigidHands)metrics<<"\nRigid digits; wrists free; hand function not simulated.";
         if(profileTiming) {
             const double renderEnd=CACurrentMediaTime();
             std::cout<<"resting_render_profile step="<<p.status.x

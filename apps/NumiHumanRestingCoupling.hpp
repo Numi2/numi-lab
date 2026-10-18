@@ -44,16 +44,79 @@ public:
 private:
     id<MTLComputePipelineState> prepareWorld, validateBody, validateMatter, capture, publishFrame, publishTerminalFrame;
     id<MTLComputePipelineState> latchCommonFailure=nil;
+    id<MTLComputePipelineState> releaseSeamDofProperties=nil;
+    id<MTLBuffer> seamDofPatchIndices=nil, seamDofPatchRecords=nil;
+    std::uint32_t seamDofReleaseStep=MR_INVALID_INDEX;
+    std::uint32_t seamDofIndex=MR_INVALID_INDEX;
+    std::uint32_t seamDofPatchCount=0u;
     bool commonFailureCaptureEnabled=false;
     id<MTLBuffer> bodyTemplate;
     std::uint64_t fingerprint;
 public:
     NumiHumanRestingCoupling(const char* network,const char* parameters,float dt,
-                            const metalrobo::EngineModel& model,std::uint64_t bodySourceIdentity,bool denseVascular=false):
-        physiology(network,parameters,dt,denseVascular),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity) {
+                            const metalrobo::EngineModel& model,std::uint64_t bodySourceIdentity,bool denseVascular=false,
+                            std::uint32_t releaseStep=MR_INVALID_INDEX,
+                            std::uint32_t sourceSeamDofIndex=MR_INVALID_INDEX,
+                            std::span<const std::uint32_t> releasePatchIndices={},
+                            std::span<const MRDofPropertiesGPU> releasePatchRecords={}):
+        physiology(network,parameters,dt,denseVascular),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
+        seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
         using numi::human::need;
+        need((seamDofReleaseStep==MR_INVALID_INDEX)==(seamDofIndex==MR_INVALID_INDEX),
+             "seam DoF release requires both a cut step and mapped source DoF");
         auto device=physiology.device;NSError* e=nil;
+        if(seamDofReleaseStep!=MR_INVALID_INDEX) {
+            need(!releasePatchIndices.empty()&&releasePatchIndices.size()==releasePatchRecords.size()&&
+                 releasePatchIndices.size()<=UINT32_MAX,
+                 "seam release requires an exact post-cut DoF patch table");
+            seamDofPatchCount=static_cast<std::uint32_t>(releasePatchIndices.size());
+            for(const auto index:releasePatchIndices)need(index<model.dofs.size(),
+                 "seam release post-cut patch index is outside the admitted model");
+            seamDofPatchIndices=[device newBufferWithBytes:releasePatchIndices.data()
+                length:releasePatchIndices.size_bytes() options:MTLResourceStorageModeShared];
+            seamDofPatchRecords=[device newBufferWithBytes:releasePatchRecords.data()
+                length:releasePatchRecords.size_bytes() options:MTLResourceStorageModeShared];
+            need(seamDofPatchIndices&&seamDofPatchRecords,
+                 "seam release post-cut patch buffers could not be allocated");
+            need(seamDofIndex<model.dofs.size()&&model.dofs[seamDofIndex].jointIndex==21u&&
+                 (model.dofs[seamDofIndex].flags&MR_DOF_FLAG_POSITION_LIMIT)!=0u&&
+                 model.dofs[seamDofIndex].drive.y>=0.0f,
+                 "seam release must target the admitted remapped source revolute and preserve its pre-cut limit");
+        }
+        using numi::human::need;
+        #ifdef NUMI_HUMAN_RESPIRATION_SOURCE
+        NSString* transactionSource=[NSString stringWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_SOURCE) encoding:NSUTF8StringEncoding error:&e];
+        need(transactionSource!=nil,"resting Human source library unavailable for the seam event");
+        if(seamDofReleaseStep!=MR_INVALID_INDEX) {
+            NSString* seamKernel=[NSString stringWithUTF8String:R"MSL(kernel void nm_human_release_seam_dof_properties_v6(
+    constant uint4& event [[buffer(0)]],
+    device MRDofPropertiesGPU* dofs [[buffer(1)]],
+    device const uint* patchIndices [[buffer(2)]],
+    device const MRDofPropertiesGPU* patchRecords [[buffer(3)]],
+    device const MRDofPropertiesGPU* acceptedDofs [[buffer(4)]],
+    uint lane [[thread_position_in_grid]]
+) {
+    if(event.x<event.y || lane>=event.z) return;
+    const uint index=patchIndices[lane];
+    if(index>=event.w) return;
+    // Start from the exact accepted record so unrelated DoF metadata remains
+    // rollback-owned; install only precomputed source-derived post-cut fields.
+    MRDofPropertiesGPU d=acceptedDofs[index];
+    const MRDofPropertiesGPU target=patchRecords[lane];
+    d.flags=target.flags;
+    d.limits=target.limits;
+    d.drive.y=target.drive.y;
+    d.drive.z=target.drive.z;
+    dofs[index]=d;
+}
+)MSL"];
+            transactionSource=[transactionSource stringByAppendingString:seamKernel];
+        }
+        MTLCompileOptions* transactionOptions=[MTLCompileOptions new];transactionOptions.languageVersion=MTLLanguageVersion4_0;transactionOptions.mathMode=MTLMathModeSafe;transactionOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        auto lib=[device newLibraryWithSource:transactionSource options:transactionOptions error:&e];
+#else
         auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+#endif
         auto pipeline=[&](NSString* name) {
             auto p=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:name] error:&e];
             need(p!=nil,std::string("resting transaction pipeline: ")+name.UTF8String);return p;
@@ -65,6 +128,8 @@ public:
         capture=pipeline(@"nm_human_resting_capture");
         publishFrame=pipeline(@"nm_human_resting_present_commit");
         publishTerminalFrame=pipeline(@"nm_human_resting_terminal_present_commit");
+        if(seamDofReleaseStep!=MR_INVALID_INDEX)
+            releaseSeamDofProperties=pipeline(@"nm_human_release_seam_dof_properties_v6");
         std::vector<MRBodyStateGPU> initial(model.bodies.size());
         for(unsigned i=0;i<initial.size();++i) {
             initial[i].linearVelocityAndInverseMass.w=model.bodies[i].massAndInverseMass.y;
@@ -93,6 +158,7 @@ public:
              (!commonFailureCaptureEnabled||commonFailureCaptureBuffer),
              "resting presentation allocation");
         fingerprint=brain.rootProgramIdentity^0x4e48524553543031ull;
+        fingerprint^=(std::uint64_t(seamDofReleaseStep)<<32u)|seamDofIndex;
         if(!fingerprint)fingerprint=1;
     }
     void initializeInitialCommonCoordinates() {
@@ -304,10 +370,16 @@ public:
     }
     metalrobo::MetalNumanXTransactionProgram program() {
         metalrobo::MetalNumanXTransactionProgram p;
-        p.context=this;p.encode=&encodeCallback;p.abort=&abortCallback;p.fingerprint=fingerprint;return p;
+        p.context=this;p.encode=&encodeCallback;p.abort=&abortCallback;p.fingerprint=fingerprint;
+        p.writeBodyProperties=true;
+        p.deferAcceptedPublication=true;
+        if(seamDofReleaseStep!=MR_INVALID_INDEX) p.writeDofProperties=true;
+        return p;
     }
     static void abortCallback(void* context,void* commandBuffer) noexcept {
         auto& self=*static_cast<NumiHumanRestingCoupling*>(context);
+        self.physiology.respiration->discardBodyPropertiesReferenceCapture(commandBuffer);
+        self.physiology.respiration->clearPhysicsLease(commandBuffer);
         self.physiology.runtime.cancel(commandBuffer);
     }
     static bool encodeCallback(void* context,const metalrobo::MetalNumanXTransactionPass& p) noexcept {
@@ -319,7 +391,10 @@ public:
         using numi::human::need;
         need(p.environmentCount==1&&p.timestepSeconds==physiology.runtime.timestepSeconds(),
              "resting body/physiology cadence differs");
-        if(p.phase==metalrobo::MetalNumanXTransactionPhase::beginStep)return true;
+        if(p.phase==metalrobo::MetalNumanXTransactionPhase::beginStep) {
+            return physiology.respiration->captureBodyPropertiesReference(
+                p.commandBuffer,p.bodyPropertiesCheckpoint,p.bodyPropertyCount);
+        }
         auto cb=(__bridge id<MTLCommandBuffer>)p.commandBuffer;
         const mr_uint4 d={p.stepIndex,static_cast<unsigned>(p.bodyCount),physiology.respiration->commonGeometryGateEnabled?1u:0u,0};
         auto bridge=[&](id<MTLComputePipelineState> pipeline) {
@@ -332,10 +407,80 @@ public:
         };
         EncodeRequest r;r.commandBuffer=p.commandBuffer;
         r.environmentStatuses=(__bridge void*)physiology.statuses;
+        need(p.bodyPoseStride<=UINT32_MAX&&p.pointCount<=UINT32_MAX&&
+             p.pointJacobianStride<=UINT32_MAX&&p.dofCount<=UINT32_MAX&&
+             p.vStride<=UINT32_MAX&&p.mujocoGeneralizedForceOffset<=UINT32_MAX&&
+             p.mujocoGeneralizedForceStride<=UINT32_MAX&&p.bodyJacobianPointOffset<=UINT32_MAX&&
+             p.bodyCount<=UINT32_MAX,
+             "resting outlet metadata exceeds 32-bit shader dimensions");
         r.controlStep=p.stepIndex;r.physicsSubsteps=1;r.timestepSeconds=p.timestepSeconds;r.runAdaptiveTransfer=false;
         r.deferAcceptedControlCursorPublication=true;
+        r.deferAcceptedStepExtensionFinalization=true;
         r.acceptedStepExtensionContext=physiology.respiration.get();r.encodeAcceptedStepExtension=&numi::human::Respiration::callback;
+        if(p.phase==metalrobo::MetalNumanXTransactionPhase::acceptedPublication) {
+            need(p.standStatuses&&p.environmentCount==1,
+                 "accepted publication requires the current one-environment stand status");
+            AcceptedStepFinalizationGate finalGate;
+            finalGate.statusRecords=p.standStatuses;
+            finalGate.recordCount=static_cast<std::uint32_t>(p.environmentCount);
+            finalGate.recordStrideBytes=sizeof(MRNumiHumanStandStatusGPU);
+            finalGate.acceptedStatusCode=MR_NUMI_HUMAN_STAND_SUCCESS;
+            finalGate.completedCountOffsetBytes=offsetof(MRNumiHumanStandStatusGPU,completedSteps);
+            finalGate.expectedCompletedCount=p.stepIndex+1u;
+            finalGate.environmentIndexOffsetBytes=offsetof(MRNumiHumanStandStatusGPU,environment);
+            finalGate.expectedEnvironmentBase=0u;
+            const auto finalized=physiology.runtime.finalizeAcceptedStepExtension(
+                p.commandBuffer,p.stepIndex,0u,finalGate);
+            need(finalized.encoded,finalized.message);
+
+            AcceptedControlCursorGate cursorGate;
+            cursorGate.statusCodes=p.standStatuses;
+            cursorGate.recordCount=static_cast<std::uint32_t>(p.environmentCount);
+            cursorGate.recordStrideBytes=sizeof(MRNumiHumanStandStatusGPU);
+            cursorGate.acceptedStatusCode=MR_NUMI_HUMAN_STAND_SUCCESS;
+            const auto cursor=physiology.runtime.encodeAcceptedControlCursorPublication(
+                p.commandBuffer,p.stepIndex,0u,cursorGate);
+            need(cursor.encoded,cursor.message);
+
+            auto e=[cb computeCommandEncoder];need(e!=nil,"resting accepted frame commit encoder");
+            [e setComputePipelineState:publishFrame];[e setBytes:&d length:sizeof(d) atIndex:0];
+            [e setBuffer:presentationCandidateBodies offset:0 atIndex:1];
+            [e setBuffer:presentationCandidateRespiration offset:0 atIndex:2];
+            [e setBuffer:presentationBodies offset:0 atIndex:3];
+            [e setBuffer:presentationRespiration offset:0 atIndex:4];
+            [e setBuffer:numi::human::buffer(p.standStatuses) offset:0 atIndex:5];
+            [e setBuffer:presentationFrameCommonCoordinates offset:0 atIndex:6];
+            [e setBuffer:presentationCommonCoordinates offset:0 atIndex:7];
+            [e setBuffer:presentationCandidateCommonCoordinates offset:0 atIndex:8];
+            [e setBuffer:acceptedCommonCoordinates offset:0 atIndex:9];
+            [e setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:10];
+            [e dispatchThreads:MTLSizeMake(p.bodyCount,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];[e endEncoding];
+            return true;
+        }
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::preDynamics) {
+            if(seamDofReleaseStep!=MR_INVALID_INDEX && p.stepIndex>=seamDofReleaseStep) {
+                need((p.accessFlags&metalrobo::MetalNumanXTransactionWriteDofProperties)!=0u&&
+                     p.abiVersion==metalrobo::kMetalNumanXTransactionABIVersion&&
+                     p.dofProperties&&p.dofPropertiesCheckpoint&&
+                     p.dofPropertyCount>seamDofIndex&&
+                     p.dofPropertyCount<=UINT32_MAX&&
+                     p.commandBuffer&&releaseSeamDofProperties,
+                     "seam release lacks the ABI6 live DoF-property lease");
+                need(seamDofPatchCount>0u&&seamDofPatchIndices&&seamDofPatchRecords,
+                     "seam release post-cut patch buffers are unavailable");
+                const mr_uint4 event={p.stepIndex,seamDofReleaseStep,seamDofPatchCount,
+                                      static_cast<mr_u32>(p.dofPropertyCount)};
+                auto release=[cb computeCommandEncoder];need(release!=nil,"seam DoF release encoder");
+                [release setComputePipelineState:releaseSeamDofProperties];
+                [release setBytes:&event length:sizeof(event) atIndex:0];
+                [release setBuffer:numi::human::buffer(p.dofProperties) offset:0 atIndex:1];
+                [release setBuffer:seamDofPatchIndices offset:0 atIndex:2];
+                [release setBuffer:seamDofPatchRecords offset:0 atIndex:3];
+                [release setBuffer:numi::human::buffer(p.dofPropertiesCheckpoint) offset:0 atIndex:4];
+                [release dispatchThreads:MTLSizeMake(seamDofPatchCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(std::min<NSUInteger>(64u,releaseSeamDofProperties.maxTotalThreadsPerThreadgroup),1,1)];
+                [release endEncoding];
+            }
             bridge(prepareWorld);
             // Poses here are the exact current accepted q at t_n. Capture the
             // matching accepted respiratory state into a frame candidate.
@@ -353,6 +498,41 @@ public:
             need(p.phase==metalrobo::MetalNumanXTransactionPhase::postDynamics,"invalid resting transaction phase");
             bridge(validateBody);r.phase=EncodePhase::postCommit;
         }
+        auto& respiration=*physiology.respiration;
+        numi::human::Respiration::PhysicsLease lease{};
+        lease.commandBuffer=p.commandBuffer;
+        lease.controlStep=p.stepIndex;
+        lease.bodyPropertiesAccepted=p.bodyPropertiesCheckpoint;
+        lease.bodyPropertiesCandidate=p.bodyProperties;
+        lease.bodyPropertiesCheckpoint=p.bodyPropertiesCheckpoint;
+        lease.bodyPropertiesReference=respiration.bodyPropertiesReferenceHandle();
+        lease.bodyPosesAccepted=p.bodyPoses;
+        lease.bodyPositionLow=p.bodyPositionLow;
+        lease.pointJacobians=p.pointJacobians;
+        lease.generalizedVelocity=p.v;
+        lease.generalizedForceArena=p.mujocoGeneralizedForceArena;
+        lease.bodyPropertyCount=p.bodyPropertyCount;
+        lease.bodyPoseElementCount=p.bodyPoseElementCount;
+        lease.bodyPositionLowElementCount=p.bodyPositionLowElementCount;
+        lease.pointJacobianElementCount=p.pointJacobianElementCount;
+        lease.generalizedVelocityElementCount=p.vElementCount;
+        lease.generalizedForceArenaElementCount=p.mujocoGeneralizedForceArenaElementCount;
+        lease.bodyPoseStride=static_cast<std::uint32_t>(p.bodyPoseStride);
+        lease.pointCount=static_cast<std::uint32_t>(p.pointCount);
+        lease.pointJacobianStride=static_cast<std::uint32_t>(p.pointJacobianStride);
+        lease.bodyJacobianPointOffset=static_cast<std::uint32_t>(p.bodyJacobianPointOffset);
+        lease.articulationFirstBody=p.articulationFirstBody;
+        lease.dofCount=static_cast<std::uint32_t>(p.dofCount);
+        lease.vStride=static_cast<std::uint32_t>(p.vStride);
+        lease.generalizedForceOffset=static_cast<std::uint32_t>(p.mujocoGeneralizedForceOffset);
+        lease.generalizedForceStride=static_cast<std::uint32_t>(p.mujocoGeneralizedForceStride);
+        lease.bodyCount=static_cast<std::uint32_t>(p.bodyCount);
+        need(respiration.stagePhysicsLease(lease),"resting owner physics lease already active or invalid");
+        struct PhysicsLeaseScope {
+            numi::human::Respiration& owner;
+            void* commandBuffer;
+            ~PhysicsLeaseScope(){owner.clearPhysicsLease(commandBuffer);}
+        } leaseScope{respiration,p.commandBuffer};
         auto result=physiology.runtime.encode(r);need(result.encoded,result.message);
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::preDynamics) {
             auto& respiration=*physiology.respiration;
@@ -400,26 +580,6 @@ public:
                 [latch setBuffer:physiology.respiration->commonGeometryBoxes offset:0 atIndex:13];
                 [latch dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];[latch endEncoding];
             }
-            AcceptedControlCursorGate gate;
-            gate.statusCodes=p.standStatuses;gate.recordCount=1;
-            gate.recordStrideBytes=sizeof(MRNumiHumanStandStatusGPU);
-            gate.acceptedStatusCode=MR_NUMI_HUMAN_STAND_SUCCESS;
-            const auto cursor=physiology.runtime.encodeAcceptedControlCursorPublication(
-                p.commandBuffer,p.stepIndex,0,gate);
-            need(cursor.encoded,cursor.message);
-            auto e=[cb computeCommandEncoder];need(e!=nil,"resting accepted frame commit encoder");
-            [e setComputePipelineState:publishFrame];[e setBytes:&d length:sizeof(d) atIndex:0];
-            [e setBuffer:presentationCandidateBodies offset:0 atIndex:1];
-            [e setBuffer:presentationCandidateRespiration offset:0 atIndex:2];
-            [e setBuffer:presentationBodies offset:0 atIndex:3];
-            [e setBuffer:presentationRespiration offset:0 atIndex:4];
-            [e setBuffer:numi::human::buffer(p.standStatuses) offset:0 atIndex:5];
-            [e setBuffer:presentationFrameCommonCoordinates offset:0 atIndex:6];
-            [e setBuffer:presentationCommonCoordinates offset:0 atIndex:7];
-            [e setBuffer:presentationCandidateCommonCoordinates offset:0 atIndex:8];
-            [e setBuffer:acceptedCommonCoordinates offset:0 atIndex:9];
-            [e setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:10];
-            [e dispatchThreads:MTLSizeMake(p.bodyCount,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];[e endEncoding];
         }
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::postDynamics&&
            p.stepIndex==transactionProbeCaptureControlStep) {

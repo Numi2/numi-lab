@@ -37,6 +37,24 @@ template <class T>
     return firstByteCount == secondByteCount ? std::string::npos : sharedSize;
 }
 
+template <class T>
+[[nodiscard]] inline std::size_t differingByteCount(
+    const std::vector<T>& first,
+    const std::vector<T>& second
+) noexcept {
+    const auto* firstBytes = reinterpret_cast<const std::byte*>(first.data());
+    const auto* secondBytes = reinterpret_cast<const std::byte*>(second.data());
+    const std::size_t firstByteCount = first.size() * sizeof(T);
+    const std::size_t secondByteCount = second.size() * sizeof(T);
+    const std::size_t sharedSize = firstByteCount < secondByteCount
+        ? firstByteCount : secondByteCount;
+    std::size_t count = firstByteCount > secondByteCount
+        ? firstByteCount - secondByteCount : secondByteCount - firstByteCount;
+    for (std::size_t index = 0u; index < sharedSize; ++index)
+        count += firstBytes[index] != secondBytes[index];
+    return count;
+}
+
 [[nodiscard]] inline std::vector<std::byte> readBufferBytes(
     id<MTLBuffer> buffer,
     const char* label
@@ -422,6 +440,41 @@ inline void captureCompletedTransactionProbePhysical(
         first.presentedStep == second.presentedStep;
 }
 
+// Compare adapter continuation authority, excluding monotonic execution
+// counters. Rejection may advance attempt/abort counts, but must not publish
+// any accepted FEM/contact/ligament history.
+[[nodiscard]] inline bool sameTendonAdapterAcceptedHistory(
+    const numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1& first,
+    const numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1& second
+) noexcept {
+    return first.available && second.available &&
+        first.formatVersion == second.formatVersion &&
+        first.adapterFingerprint == second.adapterFingerprint &&
+        first.runtimeDeviceProgramFingerprint == second.runtimeDeviceProgramFingerprint &&
+        first.environmentCount == second.environmentCount &&
+        first.endpointCount == second.endpointCount &&
+        first.femNodeCount == second.femNodeCount &&
+        first.contactSampleCount == second.contactSampleCount &&
+        first.femBodyContactSampleCount == second.femBodyContactSampleCount &&
+        first.articularContactSampleCount == second.articularContactSampleCount &&
+        first.articularContactPairCount == second.articularContactPairCount &&
+        first.passiveLigamentCount == second.passiveLigamentCount &&
+        first.passiveRoutedBandCount == second.passiveRoutedBandCount &&
+        first.boundBodyPoseStride == second.boundBodyPoseStride &&
+        sameBytes(first.anchorReactionAcceptedHistory,
+                  second.anchorReactionAcceptedHistory) &&
+        sameBytes(first.femBodyContactAcceptedHistory,
+                  second.femBodyContactAcceptedHistory) &&
+        sameBytes(first.articularContactAcceptedHistory,
+                  second.articularContactAcceptedHistory) &&
+        sameBytes(first.articularContactPairForceAcceptedHistory,
+                  second.articularContactPairForceAcceptedHistory) &&
+        sameBytes(first.passiveLigamentAcceptedState,
+                  second.passiveLigamentAcceptedState) &&
+        sameBytes(first.passiveRoutedBandAcceptedState,
+                  second.passiveRoutedBandAcceptedState);
+}
+
 [[nodiscard]] inline std::vector<std::uint8_t>
 captureAcceptedContactWarmStart(
     metalrobo::MetalArticulatedOperatorContext& context,
@@ -504,7 +557,10 @@ inline void run(
     const metalrobo::EngineModel& model,
     const metalrobo::MetalArticulatedOperatorConfig& config,
     metalrobo::MetalArticulatedOperatorInput seedInput,
-    NumiHumanRestingCoupling& coupling
+    NumiHumanRestingCoupling& coupling,
+    numi::matter::Runtime* fasciaRuntime,
+    numi::matter::NumiHumanTendonFEMLoadAdapter* fasciaAdapter,
+    metalrobo::MetalNumiHumanTendonLoadProgram fasciaProgram
 ) {
     auto& physiology = coupling.physiology;
     auto& respiration = *physiology.respiration;
@@ -513,6 +569,12 @@ inline void run(
     need(originalMatter.available, "resting rejection probe lacks an initial Matter snapshot");
     const auto originalDispatch = respiration.dispatch;
     const auto originalDiagnosticReject = respiration.diagnosticRejectAtControlStep;
+    const auto originalFasciaMatter = fasciaRuntime != nullptr
+        ? fasciaRuntime->snapshot()
+        : numi::matter::RuntimeStateSnapshot{};
+    const auto originalFasciaAdapter = fasciaAdapter != nullptr
+        ? fasciaAdapter->snapshot()
+        : numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1{};
     __strong id<MTLBuffer> originalProbeRoots = coupling.transactionProbeRoots;
     __strong id<MTLBuffer> originalProbeQ = coupling.transactionProbeQ;
     __strong id<MTLBuffer> originalProbeV = coupling.transactionProbeV;
@@ -530,6 +592,20 @@ inline void run(
     const auto originalProbeCapturedStep = coupling.transactionProbeCapturedStep;
     respiration.dispatch.reject = 0u;
 
+    auto restoreFasciaOwner = [&]() {
+        if (fasciaRuntime != nullptr) {
+            const auto restored = fasciaRuntime->restore(originalFasciaMatter);
+            need(restored.encoded,
+                 "resting rejection probe could not restore fascia Matter seed: " +
+                     restored.message);
+        }
+        if (fasciaAdapter != nullptr) {
+            const auto restored = fasciaAdapter->restore(originalFasciaAdapter);
+            need(restored.succeeded(),
+                 "resting rejection probe could not restore fascia adapter seed: " +
+                     restored.message);
+        }
+    };
     auto restoreInitialCoupling = [&]() {
         const auto restored = physiology.runtime.restore(originalMatter);
         need(restored.encoded, "resting rejection probe could not restore Matter seed: " +
@@ -1186,7 +1262,421 @@ inline void run(
              (!config.standContactWarmStart || sameBytes(multiBaseline6WarmStart, multiRetry6WarmStart)),
          "fresh-context multi-step replay did not reproduce the uninterrupted six-root coupled endpoint");
 
+    // Run the real outlet through one 8 ms packetization boundary, then reject
+    // the exact candidate step that would publish its first external parcel.
+    // The rejected candidate must contain removed CVSim blood and advected gas,
+    // while accepted respiration/Matter state remains byte-identical to the
+    // same-context accepted prefix. No separate simulator or state owner.
+    const std::uint32_t bleedReleaseStep=respiration.dispatch.outletReleaseStep;
+    const std::uint32_t bleedBatchSteps=respiration.dispatch.outletBatchSteps;
+    need(bleedReleaseStep!=NM_INVALID_INDEX&&bleedBatchSteps>0u&&
+             bleedReleaseStep<=UINT32_MAX-bleedBatchSteps,
+         "bleeding rollback probe lacks an admitted release and packet cadence");
+    const std::uint32_t rejectedBleedStep=bleedReleaseStep+bleedBatchSteps-1u;
+    auto bleedPrefixInput=makeInput(false,0u,0u,true);
+    bleedPrefixInput.stand.authoritativeStepCount=rejectedBleedStep+1u;
+    bleedPrefixInput.stand.stepCount=rejectedBleedStep;
     restoreInitialCoupling();
+    respiration.dispatch.reject=0u;
+    respiration.diagnosticRejectAtControlStep=NM_INVALID_INDEX;
+    metalrobo::MetalArticulatedOperatorContext bleedContext(config);
+    metalrobo::MetalArticulatedOperatorResult bleedPrefixResult;
+    const auto bleedPrefixDiagnostics=bleedContext.run(
+        model,bleedPrefixInput,bleedPrefixResult);
+    requireAcceptedStep(bleedPrefixDiagnostics,bleedPrefixResult,rejectedBleedStep,
+                        qCount,vCount,muscleCount);
+    const auto bleedPrefixMatter=physiology.runtime.snapshot();
+    const auto bleedPrefixMemory=captureCouplingMemory(coupling);
+    NMHumanRespirationState bleedPrefixState{};
+    need(bleedPrefixMemory.respirationAccepted.size()==sizeof(bleedPrefixState),
+         "bleeding rollback probe respiration ABI size changed");
+    std::memcpy(&bleedPrefixState,bleedPrefixMemory.respirationAccepted.data(),
+                sizeof(bleedPrefixState));
+    auto activeParcels=[](const NMHumanRespirationState& state) {
+        std::uint32_t count=0u;
+        for(std::uint32_t i=0u;i+1u<NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY;++i)
+            if(state.externalBlood.parcels[i].gasAndFlags.z>=0.5f)++count;
+        return count;
+    };
+    const float prefixExternalVolume=bleedPrefixState.externalBlood.total.x-
+        bleedPrefixState.externalBlood.compensation.x;
+    need(prefixExternalVolume>0.0f&&bleedPrefixState.externalBlood.pendingParcel.x>0.0f&&
+             activeParcels(bleedPrefixState)==0u,
+         "bleeding rollback probe did not establish the pre-publication pending parcel prefix");
+
+    respiration.diagnosticRejectAtControlStep=rejectedBleedStep;
+    auto rejectedBleedInput=makeInput(
+        true,bleedPrefixDiagnostics.residentStateTransactionFingerprint,
+        bleedPrefixDiagnostics.residentStateGeneration,false);
+    rejectedBleedInput.stand.authoritativeStepCount=rejectedBleedStep+1u;
+    rejectedBleedInput.stand.stepIndexOffset=rejectedBleedStep;
+    rejectedBleedInput.stand.stepCount=1u;
+    metalrobo::MetalArticulatedOperatorResult rejectedBleedResult;
+    rejectedBleedResult.standQ={-904.0f};
+    const auto rejectedBleedDiagnostics=bleedContext.run(
+        model,rejectedBleedInput,rejectedBleedResult);
+    const auto rejectedBleedMatter=physiology.runtime.snapshot();
+    const auto rejectedBleedMemory=captureCouplingMemory(coupling);
+    NMHumanRespirationState acceptedAfterBleedReject{},candidateBleedReject{};
+    need(rejectedBleedMemory.respirationAccepted.size()==sizeof(acceptedAfterBleedReject)&&
+             rejectedBleedMemory.respirationCandidate.size()==sizeof(candidateBleedReject),
+         "bleeding rollback probe respiration ABI size changed after rejected candidate");
+    std::memcpy(&acceptedAfterBleedReject,
+                rejectedBleedMemory.respirationAccepted.data(),sizeof(acceptedAfterBleedReject));
+    std::memcpy(&candidateBleedReject,
+                rejectedBleedMemory.respirationCandidate.data(),sizeof(candidateBleedReject));
+    const float candidateExternalVolume=candidateBleedReject.externalBlood.total.x-
+        candidateBleedReject.externalBlood.compensation.x;
+    const float candidateExternalO2=candidateBleedReject.externalBlood.total.z-
+        candidateBleedReject.externalBlood.compensation.z;
+    const float candidateExternalCO2=candidateBleedReject.externalBlood.total.w-
+        candidateBleedReject.externalBlood.compensation.w;
+    const bool rejectedAtBleedPacketStep=!rejectedBleedDiagnostics.succeeded()&&
+        rejectedBleedDiagnostics.dispatched&&!rejectedBleedDiagnostics.published&&
+        rejectedBleedDiagnostics.firstStandGPUStatusCode==
+            MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED&&
+        rejectedBleedDiagnostics.completedStandSteps==rejectedBleedStep&&
+        rejectedBleedResult.standQ==std::vector<float>{-904.0f};
+    const bool bleedingCandidateWasStaged=candidateBleedReject.status.w!=0u&&
+        candidateExternalVolume>prefixExternalVolume&&candidateExternalO2>
+            (bleedPrefixState.externalBlood.total.z-bleedPrefixState.externalBlood.compensation.z)&&
+        candidateExternalCO2>
+            (bleedPrefixState.externalBlood.total.w-bleedPrefixState.externalBlood.compensation.w)&&
+        activeParcels(candidateBleedReject)>activeParcels(bleedPrefixState);
+    const bool acceptedBloodInventoryByteExact=
+        std::memcmp(&acceptedAfterBleedReject,&bleedPrefixState,sizeof(bleedPrefixState))==0;
+    const bool acceptedBleedPrefixRestored=
+        sameMatterAcceptedState(bleedPrefixMatter,rejectedBleedMatter)&&
+        sameAcceptedCouplingMemory(bleedPrefixMemory,rejectedBleedMemory)&&
+        acceptedBloodInventoryByteExact;
+    need(rejectedAtBleedPacketStep&&bleedingCandidateWasStaged&&
+             acceptedBleedPrefixRestored,
+         "rejected outlet candidate changed accepted blood/gas/packet inventory or was not staged");
+    std::cout<<"resting_bleed_outlet_candidate_rollback=pass"
+             <<" accepted_prefix_steps="<<rejectedBleedStep
+             <<" rejected_packet_step="<<rejectedBleedStep
+             <<" candidate_external_blood_ml="<<candidateExternalVolume*1e6f
+             <<" candidate_external_o2_stpd_ml="<<candidateExternalO2*1e6f
+             <<" candidate_external_co2_stpd_ml="<<candidateExternalCO2*1e6f
+             <<" candidate_active_packets="<<activeParcels(candidateBleedReject)
+             <<" accepted_inventory_circuit_unchanged=true\n";
+
+const char* fasciaRejectProbe =
+        std::getenv("NUMI_HUMAN_FASCIA_DISPATCH_REJECT_PROBE");
+    if (fasciaRejectProbe != nullptr &&
+        std::strcmp(fasciaRejectProbe, "1") == 0) {
+        need(fasciaRuntime != nullptr && fasciaRuntime->valid() &&
+                 fasciaAdapter != nullptr && fasciaProgram.valid() &&
+                 originalFasciaMatter.available &&
+                 originalFasciaAdapter.available,
+             "fascia dispatch-reject probe requires the admitted continuum runtime, adapter, and actual program");
+        auto restoreProbeSeed = [&]() {
+            restoreInitialCoupling();
+            restoreFasciaOwner();
+        };
+        auto fasciaInput = [&](bool resident, std::uint64_t transaction,
+                               std::uint64_t generation) {
+            auto input = makeInput(resident, transaction, generation, true);
+            input.stand.tendonLoadProgram = fasciaProgram;
+            return input;
+        };
+        restoreProbeSeed();
+        respiration.dispatch.reject = 0u;
+        metalrobo::MetalArticulatedOperatorContext fasciaBaselineContext(config);
+        auto fasciaBaseFirstInput = fasciaInput(false, 0u, 0u);
+        metalrobo::MetalArticulatedOperatorResult fasciaBaseFirstResult;
+        const auto fasciaBaseFirstDiagnostics = fasciaBaselineContext.run(
+            model, fasciaBaseFirstInput, fasciaBaseFirstResult);
+        requireAcceptedStep(fasciaBaseFirstDiagnostics,
+                            fasciaBaseFirstResult, 1u,
+                            qCount, vCount, muscleCount);
+        const auto fasciaBaseFirstMatter = fasciaRuntime->snapshot();
+        const auto fasciaBaseFirstAdapter = fasciaAdapter->snapshot();
+        const auto fasciaBaseFirstMemory = captureCouplingMemory(coupling);
+        const PhysicalSnapshot fasciaBaseFirstPhysical = observePhysicalState(
+            fasciaBaselineContext, physical,
+            fasciaBaseFirstDiagnostics.residentStateTransactionFingerprint,
+            fasciaBaseFirstDiagnostics.residentStateGeneration);
+
+        auto fasciaBaseSecondInput = fasciaInput(
+            true,
+            fasciaBaseFirstDiagnostics.residentStateTransactionFingerprint,
+            fasciaBaseFirstDiagnostics.residentStateGeneration);
+        metalrobo::MetalArticulatedOperatorResult fasciaBaseSecondResult;
+        const auto fasciaBaseSecondDiagnostics = fasciaBaselineContext.run(
+            model, fasciaBaseSecondInput, fasciaBaseSecondResult);
+        requireAcceptedStep(fasciaBaseSecondDiagnostics,
+                            fasciaBaseSecondResult, 2u,
+                            qCount, vCount, muscleCount);
+        const auto fasciaBaselineFinalMatter = fasciaRuntime->snapshot();
+        const auto fasciaBaselineFinalAdapter = fasciaAdapter->snapshot();
+        const auto fasciaBaselineFinalMemory = captureCouplingMemory(coupling);
+        const PhysicalSnapshot fasciaBaselineFinalPhysical = observePhysicalState(
+            fasciaBaselineContext, physical,
+            fasciaBaseSecondDiagnostics.residentStateTransactionFingerprint,
+            fasciaBaseSecondDiagnostics.residentStateGeneration);
+
+        restoreProbeSeed();
+        respiration.dispatch.reject = 0u;
+        metalrobo::MetalArticulatedOperatorContext fasciaTrialContext(config);
+        auto fasciaTrialFirstInput = fasciaInput(false, 0u, 0u);
+        metalrobo::MetalArticulatedOperatorResult fasciaTrialFirstResult;
+        const auto fasciaTrialFirstDiagnostics = fasciaTrialContext.run(
+            model, fasciaTrialFirstInput, fasciaTrialFirstResult);
+        requireAcceptedStep(fasciaTrialFirstDiagnostics,
+                            fasciaTrialFirstResult, 1u,
+                            qCount, vCount, muscleCount);
+        const auto fasciaTrialFirstMatter = fasciaRuntime->snapshot();
+        const auto fasciaTrialFirstAdapter = fasciaAdapter->snapshot();
+        const auto fasciaTrialFirstMemory = captureCouplingMemory(coupling);
+        const PhysicalSnapshot fasciaTrialFirstPhysical = observePhysicalState(
+            fasciaTrialContext, physical,
+            fasciaTrialFirstDiagnostics.residentStateTransactionFingerprint,
+            fasciaTrialFirstDiagnostics.residentStateGeneration);
+        need(sameMatterAcceptedState(fasciaBaseFirstMatter,
+                                     fasciaTrialFirstMatter) &&
+                 sameTendonAdapterAcceptedHistory(fasciaBaseFirstAdapter,
+                                                  fasciaTrialFirstAdapter) &&
+                 samePhysicalState(fasciaBaseFirstPhysical,
+                                   fasciaTrialFirstPhysical) &&
+                 sameAcceptedCouplingMemory(fasciaBaseFirstMemory,
+                                            fasciaTrialFirstMemory),
+             "fascia rejection trial did not reproduce its accepted predecessor");
+
+        auto fasciaRejectedInput = fasciaInput(
+            true,
+            fasciaTrialFirstDiagnostics.residentStateTransactionFingerprint,
+            fasciaTrialFirstDiagnostics.residentStateGeneration);
+        respiration.dispatch.reject = 1u;
+        metalrobo::MetalArticulatedOperatorResult fasciaRejectedResult;
+        fasciaRejectedResult.standQ = {-190.25f};
+        const auto fasciaRejectedDiagnostics = fasciaTrialContext.run(
+            model, fasciaRejectedInput, fasciaRejectedResult);
+        need(!fasciaRejectedDiagnostics.succeeded() &&
+                 fasciaRejectedDiagnostics.dispatched &&
+                 !fasciaRejectedDiagnostics.published &&
+                 fasciaRejectedDiagnostics.firstStandGPUStatusCode ==
+                     MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+                 fasciaRejectedResult.standQ == std::vector<float>{-190.25f},
+             "respiration.dispatch.reject did not reject the real fascia transaction: " +
+                 fasciaRejectedDiagnostics.message);
+        const auto fasciaAfterRejectMatter = fasciaRuntime->snapshot();
+        const auto fasciaAfterRejectAdapter = fasciaAdapter->snapshot();
+        const auto fasciaAfterRejectMemory = captureCouplingMemory(coupling);
+        const PhysicalSnapshot fasciaAfterRejectPhysical = observePhysicalState(
+            fasciaTrialContext, physical,
+            fasciaTrialFirstDiagnostics.residentStateTransactionFingerprint,
+            fasciaTrialFirstDiagnostics.residentStateGeneration);
+        const bool fasciaAuthorityUnchanged =
+            sameMatterAcceptedState(fasciaTrialFirstMatter,
+                                    fasciaAfterRejectMatter) &&
+            sameTendonAdapterAcceptedHistory(fasciaTrialFirstAdapter,
+                                             fasciaAfterRejectAdapter) &&
+            samePhysicalState(fasciaTrialFirstPhysical,
+                              fasciaAfterRejectPhysical) &&
+            sameAcceptedCouplingMemory(fasciaTrialFirstMemory,
+                                       fasciaAfterRejectMemory);
+        // The GPU status gate rejects after post-validation encoding has
+        // succeeded. The host abort callback is reserved for callback-encoding
+        // failure and is separately exercised by the host-abort fixture.
+        const bool fasciaAttemptReceipts =
+            fasciaAfterRejectAdapter.encodedPassCount ==
+                fasciaTrialFirstAdapter.encodedPassCount + 1u &&
+            fasciaAfterRejectAdapter.abortCount ==
+                fasciaTrialFirstAdapter.abortCount &&
+            fasciaAfterRejectAdapter.articularAttemptedStepCount ==
+                fasciaTrialFirstAdapter.articularAttemptedStepCount + 1u;
+        const bool fasciaMatterUnchanged = sameMatterAcceptedState(
+            fasciaTrialFirstMatter, fasciaAfterRejectMatter);
+        const bool fasciaAdapterHistoryUnchanged = sameTendonAdapterAcceptedHistory(
+            fasciaTrialFirstAdapter, fasciaAfterRejectAdapter);
+        const bool fasciaPhysicalUnchanged = samePhysicalState(
+            fasciaTrialFirstPhysical, fasciaAfterRejectPhysical);
+        const bool fasciaCoupledUnchanged = sameAcceptedCouplingMemory(
+            fasciaTrialFirstMemory, fasciaAfterRejectMemory);
+        std::cerr << "fascia_dispatch_reject_diagnostic"
+                  << " matter=" << fasciaMatterUnchanged
+                  << " matter_source_fp_same=" << (fasciaTrialFirstMatter.sourcePhysicsFingerprint == fasciaAfterRejectMatter.sourcePhysicsFingerprint)
+                  << " matter_program_fp_same=" << (fasciaTrialFirstMatter.deviceProgramFingerprint == fasciaAfterRejectMatter.deviceProgramFingerprint)
+                  << " matter_control_step=" << fasciaTrialFirstMatter.controlStep
+                  << ":" << fasciaAfterRejectMatter.controlStep
+                  << " matter_substep=" << fasciaTrialFirstMatter.physicsSubstep
+                  << ":" << fasciaAfterRejectMatter.physicsSubstep
+                  << " matter_alloc_gen=" << fasciaTrialFirstMatter.allocationGeneration
+                  << ":" << fasciaAfterRejectMatter.allocationGeneration
+                  << " fem_nodes_count=" << fasciaTrialFirstMatter.femNodes.size()
+                  << ":" << fasciaAfterRejectMatter.femNodes.size()
+                  << " fem_nodes_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.femNodes,
+                         fasciaAfterRejectMatter.femNodes)
+                  << " fem_nodes_first_diff=" << firstDifferingByte(
+                         fasciaTrialFirstMatter.femNodes,
+                         fasciaAfterRejectMatter.femNodes)
+                  << " fem_fields_count=" << fasciaTrialFirstMatter.femFields.size()
+                  << ":" << fasciaAfterRejectMatter.femFields.size()
+                  << " fem_fields_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.femFields,
+                         fasciaAfterRejectMatter.femFields)
+                  << " particles_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.particles,
+                         fasciaAfterRejectMatter.particles)
+                  << " vasculature_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.vascularState,
+                         fasciaAfterRejectMatter.vascularState)
+                  << " vascular_clock_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.vascularClock,
+                         fasciaAfterRejectMatter.vascularClock)
+                  << " rigid_candidate_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.rigidGeneralizedCandidate,
+                         fasciaAfterRejectMatter.rigidGeneralizedCandidate)
+                  << " contact_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.contactHistories,
+                         fasciaAfterRejectMatter.contactHistories)
+                  << " human_support_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMatter.humanSupportHistories,
+                         fasciaAfterRejectMatter.humanSupportHistories)
+                  << " adapter_history=" << fasciaAdapterHistoryUnchanged
+                  << " adapter_fingerprint=" << fasciaTrialFirstAdapter.adapterFingerprint
+                  << ":" << fasciaAfterRejectAdapter.adapterFingerprint
+                  << " adapter_runtime_fp=" << fasciaTrialFirstAdapter.runtimeDeviceProgramFingerprint
+                  << ":" << fasciaAfterRejectAdapter.runtimeDeviceProgramFingerprint
+                  << " adapter_stride=" << fasciaTrialFirstAdapter.boundBodyPoseStride
+                  << ":" << fasciaAfterRejectAdapter.boundBodyPoseStride
+                  << " adapter_shape(node/contact/femContact/articular/pairs/ligament/routed)="
+                  << fasciaTrialFirstAdapter.femNodeCount << "/"
+                  << fasciaTrialFirstAdapter.contactSampleCount << "/"
+                  << fasciaTrialFirstAdapter.femBodyContactSampleCount << "/"
+                  << fasciaTrialFirstAdapter.articularContactSampleCount << "/"
+                  << fasciaTrialFirstAdapter.articularContactPairCount << "/"
+                  << fasciaTrialFirstAdapter.passiveLigamentCount << "/"
+                  << fasciaTrialFirstAdapter.passiveRoutedBandCount << ":"
+                  << fasciaAfterRejectAdapter.femNodeCount << "/"
+                  << fasciaAfterRejectAdapter.contactSampleCount << "/"
+                  << fasciaAfterRejectAdapter.femBodyContactSampleCount << "/"
+                  << fasciaAfterRejectAdapter.articularContactSampleCount << "/"
+                  << fasciaAfterRejectAdapter.articularContactPairCount << "/"
+                  << fasciaAfterRejectAdapter.passiveLigamentCount << "/"
+                  << fasciaAfterRejectAdapter.passiveRoutedBandCount
+                  << " anchor_history_size=" << fasciaTrialFirstAdapter.anchorReactionAcceptedHistory.size()
+                  << ":" << fasciaAfterRejectAdapter.anchorReactionAcceptedHistory.size()
+                  << " anchor_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.anchorReactionAcceptedHistory,
+                         fasciaAfterRejectAdapter.anchorReactionAcceptedHistory)
+                  << " fem_body_history_size=" << fasciaTrialFirstAdapter.femBodyContactAcceptedHistory.size()
+                  << ":" << fasciaAfterRejectAdapter.femBodyContactAcceptedHistory.size()
+                  << " fem_body_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.femBodyContactAcceptedHistory,
+                         fasciaAfterRejectAdapter.femBodyContactAcceptedHistory)
+                  << " articular_history_size=" << fasciaTrialFirstAdapter.articularContactAcceptedHistory.size()
+                  << ":" << fasciaAfterRejectAdapter.articularContactAcceptedHistory.size()
+                  << " articular_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.articularContactAcceptedHistory,
+                         fasciaAfterRejectAdapter.articularContactAcceptedHistory)
+                  << " pair_history_size=" << fasciaTrialFirstAdapter.articularContactPairForceAcceptedHistory.size()
+                  << ":" << fasciaAfterRejectAdapter.articularContactPairForceAcceptedHistory.size()
+                  << " pair_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.articularContactPairForceAcceptedHistory,
+                         fasciaAfterRejectAdapter.articularContactPairForceAcceptedHistory)
+                  << " ligament_history_size=" << fasciaTrialFirstAdapter.passiveLigamentAcceptedState.size()
+                  << ":" << fasciaAfterRejectAdapter.passiveLigamentAcceptedState.size()
+                  << " ligament_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.passiveLigamentAcceptedState,
+                         fasciaAfterRejectAdapter.passiveLigamentAcceptedState)
+                  << " routed_history_size=" << fasciaTrialFirstAdapter.passiveRoutedBandAcceptedState.size()
+                  << ":" << fasciaAfterRejectAdapter.passiveRoutedBandAcceptedState.size()
+                  << " routed_history_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstAdapter.passiveRoutedBandAcceptedState,
+                         fasciaAfterRejectAdapter.passiveRoutedBandAcceptedState)
+                  << " pass_count=" << fasciaTrialFirstAdapter.encodedPassCount
+                  << ":" << fasciaAfterRejectAdapter.encodedPassCount
+                  << " abort_count=" << fasciaTrialFirstAdapter.abortCount
+                  << ":" << fasciaAfterRejectAdapter.abortCount
+                  << " attempt_count=" << fasciaTrialFirstAdapter.articularAttemptedStepCount
+                  << ":" << fasciaAfterRejectAdapter.articularAttemptedStepCount
+                  << " physical=" << fasciaPhysicalUnchanged
+                  << " roots_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstPhysical.rootValues,
+                         fasciaAfterRejectPhysical.rootValues)
+                  << " q_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstPhysical.qValues,
+                         fasciaAfterRejectPhysical.qValues)
+                  << " v_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstPhysical.vValues,
+                         fasciaAfterRejectPhysical.vValues)
+                  << " muscles_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstPhysical.muscleValues,
+                         fasciaAfterRejectPhysical.muscleValues)
+                  << " coupled=" << fasciaCoupledUnchanged
+                  << " respiration_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.respirationAccepted,
+                         fasciaAfterRejectMemory.respirationAccepted)
+                  << " brain_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.brainAccepted,
+                         fasciaAfterRejectMemory.brainAccepted)
+                  << " presentation_bodies_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.presentationBodies,
+                         fasciaAfterRejectMemory.presentationBodies)
+                  << " presentation_resp_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.presentationRespiration,
+                         fasciaAfterRejectMemory.presentationRespiration)
+                  << " presentation_common_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.presentationCommonCoordinates,
+                         fasciaAfterRejectMemory.presentationCommonCoordinates)
+                  << " accepted_common_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.acceptedCommonCoordinates,
+                         fasciaAfterRejectMemory.acceptedCommonCoordinates)
+                  << " frame_common_diff_bytes=" << differingByteCount(
+                         fasciaTrialFirstMemory.presentationFrameCommonCoordinates,
+                         fasciaAfterRejectMemory.presentationFrameCommonCoordinates)
+                  << " coupled_initialized=" << fasciaTrialFirstMemory.commonAcceptedCoordinatesInitialized
+                  << ":" << fasciaAfterRejectMemory.commonAcceptedCoordinatesInitialized
+                  << " presented_step=" << fasciaTrialFirstMemory.presentedStep
+                  << ":" << fasciaAfterRejectMemory.presentedStep
+                  << " authority_unchanged=" << fasciaAuthorityUnchanged
+                  << " receipts_match=" << fasciaAttemptReceipts << '\n';
+        need(fasciaAuthorityUnchanged && fasciaAttemptReceipts,
+             "rejected fascia dispatch changed accepted FEM/adapter/body/coupled state or missed attempt/abort receipts");
+
+        respiration.dispatch.reject = 0u;
+        metalrobo::MetalArticulatedOperatorResult fasciaRetryResult;
+        const auto fasciaRetryDiagnostics = fasciaTrialContext.run(
+            model, fasciaRejectedInput, fasciaRetryResult);
+        requireAcceptedStep(fasciaRetryDiagnostics, fasciaRetryResult, 2u,
+                            qCount, vCount, muscleCount);
+        const auto fasciaRetryMatter = fasciaRuntime->snapshot();
+        const auto fasciaRetryAdapter = fasciaAdapter->snapshot();
+        const auto fasciaRetryMemory = captureCouplingMemory(coupling);
+        const PhysicalSnapshot fasciaRetryPhysical = observePhysicalState(
+            fasciaTrialContext, physical,
+            fasciaRetryDiagnostics.residentStateTransactionFingerprint,
+            fasciaRetryDiagnostics.residentStateGeneration);
+        need(sameMatterAcceptedState(fasciaBaselineFinalMatter,
+                                     fasciaRetryMatter) &&
+                 sameTendonAdapterAcceptedHistory(fasciaBaselineFinalAdapter,
+                                                  fasciaRetryAdapter) &&
+                 samePhysicalState(fasciaBaselineFinalPhysical,
+                                   fasciaRetryPhysical) &&
+                 sameAcceptedCouplingMemory(fasciaBaselineFinalMemory,
+                                            fasciaRetryMemory),
+             "same-context fascia retry did not reproduce the uninterrupted accepted FEM/body/coupled endpoint");
+        std::cout << "resting_fascia_dispatch_reject=pass"
+                     " actual_continuum_program=true rejected_after_accepted_predecessor=true"
+                     " accepted_fem_and_adapter_history_unchanged=true"
+                     " gpu_attempt_receipts=pass host_abort_counter_unchanged=true body_and_coupled_state_unchanged=true"
+                     " same_context_same_input_retry_matches_uninterrupted_baseline=true"
+                  << " aborts=" << fasciaAfterRejectAdapter.abortCount -
+                         fasciaTrialFirstAdapter.abortCount
+                  << " encoded_passes_baseline=" <<
+                         fasciaBaselineFinalAdapter.encodedPassCount -
+                         originalFasciaAdapter.encodedPassCount
+                  << " encoded_passes_retry=" <<
+                         fasciaRetryAdapter.encodedPassCount -
+                         originalFasciaAdapter.encodedPassCount << '\n';
+        restoreProbeSeed();
+    }
+
+    restoreInitialCoupling();
+    restoreFasciaOwner();
     std::cout << "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true"
                  " body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true"
                  " respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true"

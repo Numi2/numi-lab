@@ -108,6 +108,21 @@ inline NMHumanRespirationState initializeRespiration(const NMHumanRespirationPar
     s.gasBudget={float(oxygenTotal),float(co2Total),0,0};
     s.observation={100,40,(oxygen(100)-p.oxygen.y*100)/p.oxygen.x,0};
     s.breath={p.lung.x,p.lung.x,0,0};
+    // Exact native-028 source-bound outer-surface crossing. The measured
+    // section is not a patent lumen; the configured 0.25 area fraction is a
+    // conservative sensitivity point, not an anatomical measurement.
+    auto& outlet=s.vascularCutOutlet;
+    outlet.identity={9u,7u,7u,0u}; // aorta stable ID 9, CVSim ID 7, runtime body 7, closed
+    outlet.aperture={2.41926012e-4f*0.25f,0.0f,-1.0f,0.0f};
+    outlet.fluid={1050.6f,0.6f,0.0f,6.0f}; // kg/m3, Cd assumption, gauge atmosphere, row index
+    outlet.sourcePointAndGround={-0.03372473683f,0.05810004997f,-0.00946755672f,0.0f};
+    auto setHash=[](nm_u64* out,const char* hex) {
+        auto nibble=[](char c)->unsigned char {return c<='9'?unsigned(c-'0'):unsigned((c|32)-'a'+10);};
+        auto* bytes=reinterpret_cast<unsigned char*>(out);
+        for(unsigned i=0;i<32;++i) bytes[i]=static_cast<unsigned char>((nibble(hex[2*i])<<4)|nibble(hex[2*i+1]));
+    };
+    setHash(outlet.sourceIdentity,"cbdbe976943f977c48b9dbdfa2efdd9eb025f935d3f921a3fb8479df2090d25d");
+    setHash(outlet.crossingProofIdentity,"49804b85f5bc5fdc488d37b84db2540a3bdb33d126a361ca437ca6d55d785b4d");
     return s;
 }
 }

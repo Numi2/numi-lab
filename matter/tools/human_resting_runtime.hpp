@@ -12,6 +12,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 
 namespace numi::human {
 using namespace numi::matter;
@@ -20,6 +21,9 @@ inline id<MTLBuffer> buffer(void* value){return (__bridge id<MTLBuffer>)value;}
 struct Respiration {
     id<MTLDevice> device;
     id<MTLBuffer> accepted,candidate,excitation;
+    id<MTLBuffer> bodyPropertiesReference=nil;
+    std::uint64_t bodyPropertiesReferenceCount=0u;
+    void* bodyPropertiesReferenceCaptureCommand=nullptr;
     id<MTLComputePipelineState> predict,exchange,resolve;
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
@@ -31,12 +35,86 @@ struct Respiration {
     // for each callback; this selector never mutates persistent dispatch or
     // accepted controller history and is inert unless explicitly set.
     std::uint32_t diagnosticRejectAtControlStep = NM_INVALID_INDEX;
+    // Borrowed owner metadata for this synchronous Matter encode call. The
+    // callback uses the same GPU buffers as the transaction pass and validates
+    // the command-buffer/step identity before binding them.
+    struct PhysicsLease {
+        void* commandBuffer = nullptr;
+        std::uint32_t controlStep = NM_INVALID_INDEX;
+        void* bodyPropertiesAccepted = nullptr;
+        void* bodyPropertiesCandidate = nullptr;
+        void* bodyPropertiesCheckpoint = nullptr;
+        void* bodyPropertiesReference = nullptr;
+        void* bodyPosesAccepted = nullptr;
+        void* bodyPositionLow = nullptr;
+        void* pointJacobians = nullptr;
+        void* generalizedVelocity = nullptr;
+        void* generalizedForceArena = nullptr;
+        std::uint64_t bodyPropertyCount = 0u;
+        std::uint64_t bodyPoseElementCount = 0u;
+        std::uint64_t bodyPositionLowElementCount = 0u;
+        std::uint64_t pointJacobianElementCount = 0u;
+        std::uint64_t generalizedVelocityElementCount = 0u;
+        std::uint64_t generalizedForceArenaElementCount = 0u;
+        std::uint32_t bodyPoseStride = 0u;
+        std::uint32_t pointCount = 0u;
+        std::uint32_t pointJacobianStride = 0u;
+        std::uint32_t bodyJacobianPointOffset = 0u;
+        std::uint32_t articulationFirstBody = 0u;
+        std::uint32_t dofCount = 0u;
+        std::uint32_t vStride = 0u;
+        std::uint32_t generalizedForceOffset = 0u;
+        std::uint32_t generalizedForceStride = 0u;
+        std::uint32_t bodyCount = 0u;
+        bool active = false;
+    } physicsLease{};
     std::function<bool(AcceptedStepExtensionPhase,const AcceptedStepExtensionView&)> brain;
     explicit Respiration(id<MTLDevice> dev,const CompiledWorld& world,const char* config,float dt):device(dev) {
         parameters=readRespirationParameters(config,dt);
-        dispatch={world.dispatch.environmentCount,45,0,0};
+        dispatch={};
+        dispatch.environmentCount=world.dispatch.environmentCount;
+        dispatch.vascularStride=45u;
+        dispatch.outletReleaseStep=NM_INVALID_INDEX;
+        const float batchSteps=std::ceil(0.008f/parameters.environment.w);
+        need(std::isfinite(batchSteps)&&batchSteps>=1.0f&&batchSteps<=float(UINT32_MAX),
+             "blood packet interval must fit a 32-bit step count");
+        dispatch.outletBatchSteps=static_cast<std::uint32_t>(batchSteps);
+        auto numericEnvironment=[](const char* name,float fallback,float low,float high) {
+            const char* value=std::getenv(name);
+            if(!value||!value[0]) return fallback;
+            char* end=nullptr;
+            const float parsed=std::strtof(value,&end);
+            need(end&&*end=='\0'&&std::isfinite(parsed)&&parsed>=low&&parsed<=high,
+                 std::string(name)+" must be finite and within the admitted range");
+            return parsed;
+        };
+        const char* release=std::getenv("NUMI_HUMAN_SEPARATION_STEP");
+        if(release&&release[0]) {
+            char* end=nullptr;
+            const unsigned long step=std::strtoul(release,&end,10);
+            need(end&&*end=='\0'&&step>0&&step<=UINT32_MAX,
+                 "NUMI_HUMAN_SEPARATION_STEP must be a positive 32-bit step");
+            dispatch.outletReleaseStep=static_cast<std::uint32_t>(step);
+        }
+        const char* bleedingSetting=std::getenv("NUMI_HUMAN_BLEEDING_ENABLED");
+        need(!bleedingSetting||std::strcmp(bleedingSetting,"0")==0||
+             std::strcmp(bleedingSetting,"1")==0,
+             "NUMI_HUMAN_BLEEDING_ENABLED must be exactly 0 or 1");
+        const bool bleedingEnabled=!bleedingSetting||std::strcmp(bleedingSetting,"1")==0;
+        const float apertureFraction=numericEnvironment("NUMI_HUMAN_BLEEDING_AREA_FRACTION",0.25f,0.25f,1.0f);
+        const float dischargeCoefficient=numericEnvironment("NUMI_HUMAN_BLEEDING_DISCHARGE_COEFFICIENT",0.6f,0.3f,0.8f);
         NSError* error=nil;
+#ifdef NUMI_HUMAN_RESPIRATION_SOURCE
+        NSString* shaderSource=[NSString stringWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_SOURCE)
+            encoding:NSUTF8StringEncoding error:&error];
+        need(shaderSource!=nil,"respiration source: "+std::string(error?error.localizedDescription.UTF8String:"missing"));
+        MTLCompileOptions* compileOptions=[MTLCompileOptions new];
+        compileOptions.languageVersion=MTLLanguageVersion4_0;
+        compileOptions.mathMode=MTLMathModeSafe;compileOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        auto library=[device newLibraryWithSource:shaderSource options:compileOptions error:&error];
+#else
         auto library=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&error];
+#endif
         need(library!=nil,"respiration library: "+std::string(error?error.localizedDescription.UTF8String:"missing"));
         auto pipeline=[&](NSString* name){
             id<MTLFunction> f=[library newFunctionWithName:name];
@@ -85,9 +163,17 @@ struct Respiration {
                  <<" parallel_respiratory_gas="<<(parallelRespiratoryGas?1:0)
                  <<" maximum_internal_mechanics_dt_s=0.002"
                  <<" maximum_substeps=32 donor_fraction_bound=0.1"
-                 <<" physical_controller_clock_substeps=1\n";
+                 <<" external_blood=operator_split_orifice_ballistic_packets"
+                 <<" source_anatomy_id=9 donor_compartment_id=7 area_fraction="<<apertureFraction
+                 <<" discharge_coefficient="<<dischargeCoefficient
+                 <<" density_kg_m3=1050.6 cut_step="<<dispatch.outletReleaseStep
+                 <<" bleeding_enabled="<<(bleedingEnabled?1:0)
+                 <<" free_surface_solver=0\n";
         resolve=pipeline(@"nm_human_respiration_resolve");
         auto s=initializeRespiration(parameters,world);
+        s.vascularCutOutlet.aperture.x=bleedingEnabled
+            ?2.41926012e-4f*apertureFraction:0.0f;
+        s.vascularCutOutlet.fluid.y=dischargeCoefficient;
         accepted=[device newBufferWithLength:sizeof(s)*dispatch.environmentCount options:MTLResourceStorageModeShared];
         candidate=[device newBufferWithLength:accepted.length options:MTLResourceStorageModeShared];
         excitation=[device newBufferWithLength:sizeof(nm_float4)*dispatch.environmentCount options:MTLResourceStorageModeShared];
@@ -96,11 +182,134 @@ struct Respiration {
         std::memcpy(candidate.contents,accepted.contents,accepted.length);
         std::memset(excitation.contents,0,excitation.length);
     }
+    bool captureBodyPropertiesReference(void* commandValue,void* sourceValue,std::uint64_t count) {
+        if(bodyPropertiesReference) return count==bodyPropertiesReferenceCount;
+        if(!commandValue||!sourceValue||count==0u||
+           count>std::numeric_limits<NSUInteger>::max()/sizeof(MRBodyPropertiesGPU)) return false;
+        id<MTLCommandBuffer> cb=(__bridge id<MTLCommandBuffer>)commandValue;
+        id<MTLBuffer> source=buffer(sourceValue);
+        if(!cb||!source||source.device.registryID!=device.registryID||
+           source.length<count*sizeof(MRBodyPropertiesGPU)) return false;
+        bodyPropertiesReference=[device newBufferWithLength:
+            static_cast<NSUInteger>(count)*sizeof(MRBodyPropertiesGPU)
+            options:MTLResourceStorageModePrivate];
+        if(!bodyPropertiesReference) return false;
+        id<MTLBlitCommandEncoder> blit=[cb blitCommandEncoder];
+        if(!blit) {bodyPropertiesReference=nil;return false;}
+        [blit copyFromBuffer:source sourceOffset:0u toBuffer:bodyPropertiesReference
+            destinationOffset:0u size:static_cast<NSUInteger>(count)*sizeof(MRBodyPropertiesGPU)];
+        [blit endEncoding];
+        bodyPropertiesReferenceCount=count;
+        bodyPropertiesReferenceCaptureCommand=commandValue;
+        return true;
+    }
+    void discardBodyPropertiesReferenceCapture(void* commandValue) noexcept {
+        if(bodyPropertiesReferenceCaptureCommand==commandValue) {
+            bodyPropertiesReference=nil;
+            bodyPropertiesReferenceCount=0u;
+            bodyPropertiesReferenceCaptureCommand=nullptr;
+        }
+    }
+    void* bodyPropertiesReferenceHandle() const noexcept {
+        return (__bridge void*)bodyPropertiesReference;
+    }
+    bool stagePhysicsLease(const PhysicsLease& lease) noexcept {
+        if(physicsLease.active||!lease.commandBuffer||
+           lease.controlStep==NM_INVALID_INDEX) return false;
+        physicsLease=lease;
+        physicsLease.active=true;
+        return true;
+    }
+    void clearPhysicsLease(void* commandValue=nullptr) noexcept {
+        if(physicsLease.active&&
+           (!commandValue||physicsLease.commandBuffer==commandValue))
+            physicsLease=PhysicsLease{};
+    }
     bool encode(AcceptedStepExtensionPhase phase,const AcceptedStepExtensionView& v) {
-        if(v.microtickCount!=1||v.environmentCount!=dispatch.environmentCount||v.vascularStateStride!=45||
-           v.microstepTimestepSeconds!=parameters.environment.w) return false;
+        const PhysicsLease& lease=physicsLease;
+        const bool outletStep=dispatch.outletReleaseStep!=NM_INVALID_INDEX&&
+            v.controlStep>=dispatch.outletReleaseStep;
+        const auto rejectLease=[&](const char* reason) {
+            if(outletStep||phase==AcceptedStepExtensionPhase::candidateReady) {
+                std::cerr<<"resting_outlet_lease=reject reason="<<reason
+                    <<" step="<<v.controlStep
+                    <<" release_step="<<dispatch.outletReleaseStep
+                    <<" phase="<<static_cast<unsigned>(phase)
+                    <<" command_match="<<(lease.commandBuffer==v.commandBuffer)
+                    <<" lease_active="<<lease.active
+                    <<" body_count="<<lease.bodyCount
+                    <<" property_count="<<lease.bodyPropertyCount
+                    <<" pose_stride="<<lease.bodyPoseStride
+                    <<" pose_count="<<lease.bodyPoseElementCount
+                    <<" low_count="<<lease.bodyPositionLowElementCount
+                    <<" jac_count="<<lease.pointJacobianElementCount
+                    <<" jac_stride="<<lease.pointJacobianStride
+                    <<" jac_offset="<<lease.bodyJacobianPointOffset
+                    <<" first_body="<<lease.articulationFirstBody
+                    <<" dof="<<lease.dofCount
+                    <<" velocity_stride="<<lease.vStride
+                    <<" velocity_count="<<lease.generalizedVelocityElementCount
+                    <<" force_offset="<<lease.generalizedForceOffset
+                    <<" force_stride="<<lease.generalizedForceStride
+                    <<" force_count="<<lease.generalizedForceArenaElementCount
+                    <<" buffers="<<bool(lease.bodyPropertiesAccepted)
+                    <<bool(lease.bodyPropertiesCandidate)
+                    <<bool(lease.bodyPropertiesReference)
+                    <<bool(lease.bodyPosesAccepted)
+                    <<bool(lease.bodyPositionLow)
+                    <<bool(lease.pointJacobians)
+                    <<bool(lease.generalizedVelocity)
+                    <<bool(lease.generalizedForceArena)
+                    <<"\n";
+            }
+            return false;
+        };
+        if((lease.active&&(lease.commandBuffer!=v.commandBuffer||
+                           lease.controlStep!=v.controlStep))||
+           v.microtickCount!=1||v.environmentCount!=dispatch.environmentCount||
+           v.vascularStateStride!=45||
+           v.microstepTimestepSeconds!=parameters.environment.w)
+            return rejectLease("callback_identity_or_cadence");
+        if(outletStep&&!lease.active) return rejectLease("missing_owner_lease");
+        if(phase==AcceptedStepExtensionPhase::candidateReady&&lease.active) {
+            if(!lease.bodyPropertiesCandidate||!lease.bodyPropertiesAccepted||
+               !lease.bodyPropertiesReference||lease.bodyPropertyCount==0u||
+               lease.bodyPropertyCount>UINT32_MAX)
+                return rejectLease("missing_mass_buffers_or_count");
+            if(outletStep&&(!lease.bodyPosesAccepted||!lease.bodyPositionLow||
+               !lease.pointJacobians||!lease.generalizedVelocity||
+               !lease.generalizedForceArena||lease.bodyPropertyCount<=7u||
+               lease.articulationFirstBody>7u||
+               7u-lease.articulationFirstBody>=lease.bodyPoseStride||
+               lease.dofCount==0u||lease.dofCount>MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS||
+               lease.vStride<lease.dofCount||
+               lease.bodyPoseElementCount<lease.bodyPoseStride||
+               lease.bodyPositionLowElementCount<lease.bodyPoseStride||
+               lease.pointJacobianStride==0u||
+               lease.generalizedVelocityElementCount<lease.vStride||
+               lease.dofCount>lease.generalizedForceStride||
+               lease.generalizedForceOffset>lease.generalizedForceArenaElementCount||
+               lease.dofCount>lease.generalizedForceArenaElementCount-
+                   lease.generalizedForceOffset||
+               lease.pointJacobianElementCount<lease.pointJacobianStride||
+               lease.bodyJacobianPointOffset+4u*(7u-lease.articulationFirstBody)+4u>
+                   lease.pointJacobianStride/(3u*lease.dofCount)))
+                return rejectLease("outlet_dimension_bounds");
+        }
         if(brain&&!brain(phase,v)) return false;
         NMHumanRespirationDispatch stepDispatch = dispatch;
+        stepDispatch.controlStep=v.controlStep;
+        if(phase==AcceptedStepExtensionPhase::candidateReady&&lease.active) {
+            stepDispatch.articulationFirstBody=lease.articulationFirstBody;
+            stepDispatch.bodyPoseStride=lease.bodyPoseStride;
+            stepDispatch.bodyJacobianPointOffset=lease.bodyJacobianPointOffset;
+            stepDispatch.pointJacobianStride=lease.pointJacobianStride;
+            stepDispatch.dofCount=lease.dofCount;
+            stepDispatch.vStride=lease.vStride;
+            stepDispatch.generalizedForceOffset=lease.generalizedForceOffset;
+            stepDispatch.generalizedForceStride=lease.generalizedForceStride;
+            stepDispatch.bodyPropertyCount=static_cast<std::uint32_t>(lease.bodyPropertyCount);
+        }
         if(diagnosticRejectAtControlStep != NM_INVALID_INDEX)
             stepDispatch.reject = v.controlStep == diagnosticRejectAtControlStep ? 1u : 0u;
         id<MTLCommandBuffer> cb=(__bridge id<MTLCommandBuffer>)v.commandBuffer;
@@ -135,6 +344,13 @@ struct Respiration {
             [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:8];
             [enc setBuffer:buffer(v.vascularCompartments) offset:0 atIndex:9];
             [enc setBuffer:buffer(v.vascularElastance) offset:0 atIndex:10];
+            [enc setBuffer:buffer(lease.bodyPosesAccepted) offset:0 atIndex:11];
+            [enc setBuffer:buffer(lease.bodyPropertiesCandidate) offset:0 atIndex:12];
+            [enc setBuffer:buffer(lease.bodyPositionLow) offset:0 atIndex:13];
+            [enc setBuffer:buffer(lease.pointJacobians) offset:0 atIndex:14];
+            [enc setBuffer:buffer(lease.generalizedVelocity) offset:0 atIndex:15];
+            [enc setBuffer:buffer(lease.generalizedForceArena) offset:0 atIndex:16];
+            [enc setBuffer:buffer(lease.bodyPropertiesReference) offset:0 atIndex:17];
             // Exchange must execute before switching this encoder to the
             // common-coordinate solver/status pipelines. This propagates any
             // respiratory candidate failure into the Matter transaction.
@@ -214,10 +430,20 @@ struct RespiratoryBrain {
             mix(mode,sizeof(mode));
         }
         if(bodySourceIdentity)mix(&bodySourceIdentity,sizeof(bodySourceIdentity));
+        #ifdef NUMI_HUMAN_RESPIRATION_SOURCE
+        NSData* libraryBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_SOURCE)];
+#else
         NSData* libraryBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_METALLIB)];
+#endif
         mix(libraryBytes.bytes,libraryBytes.length);
         NSError* error=nil;
+        #ifdef NUMI_HUMAN_RESPIRATION_SOURCE
+        NSString* brainSource=[NSString stringWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_SOURCE) encoding:NSUTF8StringEncoding error:&error];
+        MTLCompileOptions* brainOptions=[MTLCompileOptions new];brainOptions.languageVersion=MTLLanguageVersion4_0;brainOptions.mathMode=MTLMathModeSafe;brainOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        auto library=[body.device newLibraryWithSource:brainSource options:brainOptions error:&error];
+#else
         auto library=[body.device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&error];
+#endif
         auto pipeline=[&](NSString* name){auto p=[body.device newComputePipelineStateWithFunction:[library newFunctionWithName:name] error:&error];need(p!=nil,"Brain pipeline unavailable");return p;};
         observe=pipeline(@"nm_human_respiration_brain_observe");
         advance=pipeline(@"advance_numi_respiratory_chemoreflex_v1");
@@ -336,6 +562,9 @@ inline void writeRespirationTraceHeader(std::ostream& trace) {
     trace<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml,right_atrium_ml,left_atrium_ml,blood_continuity_residual_accum_ml,blood_physical_delta_accum_ml,blood_residual_minus_physical_ml,blood_endpoint_minus_physical_ml";
     trace<<",inspired_volume_accum_ml,last_inspiration_step,last_inspiration_time_s,last_inspiration_volume_accum_ml,last_complete_breath_inspired_ml";
     trace<<",respiratory_net_volume_ml,respiratory_volume_balance_ml,gas_max_donor_fraction,respiratory_gas_substeps";
+    trace<<",external_blood_ml,external_blood_mass_kg,external_blood_o2_stpd_ml,external_blood_co2_stpd_ml,grounded_blood_ml,grounded_blood_mass_kg";
+    trace<<",reference_positive_body_mass_kg,candidate_positive_body_mass_kg,external_mass_kg,body_mass_residual_kg,max_abs_body_mass_residual_kg";
+    trace<<",algebraic_transfer_momentum_residual_kg_m_s,algebraic_transfer_angular_residual_kg_m2_s";
 }
 inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
     const NMHumanRespirationParameters& parameters) {
@@ -357,6 +586,19 @@ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespira
          <<s.breathTiming.x<<','<<double(s.breathTiming.x)*parameters.environment.w<<','
          <<(double(s.breathAccounting.x)-double(s.breathAccounting.w))*1e6<<','
          <<s.breathAccounting.z*1e6<<','<<s.transportStep.x*1e6<<','
-         <<s.transportStep.y*1e6<<','<<s.transportStep.z<<','<<s.transportStep.w;
+         <<s.transportStep.y*1e6<<','<<s.transportStep.z<<','<<s.transportStep.w<<','
+         <<double(s.externalBlood.total.x-s.externalBlood.compensation.x)*1e6<<','
+         <<double(s.externalBlood.total.y-s.externalBlood.compensation.y)<<','
+         <<double(s.externalBlood.total.z-s.externalBlood.compensation.z)*1e6<<','
+         <<double(s.externalBlood.total.w-s.externalBlood.compensation.w)*1e6<<','
+         <<double(s.externalBlood.grounded.x-s.externalBlood.groundedCompensation.x)*1e6<<','
+         <<double(s.externalBlood.grounded.y-s.externalBlood.groundedCompensation.y)<<','
+         <<double(s.externalBlood.bodyMassBalance.x)<<','
+         <<double(s.externalBlood.bodyMassBalance.y)<<','
+         <<double(s.externalBlood.bodyMassBalance.z)<<','
+         <<double(s.externalBlood.bodyMassBalance.w)<<','
+         <<double(s.externalBlood.bodyMassBalanceMax.x)<<','
+         <<std::sqrt(double(s.externalBlood.transferMomentumResidual.w))<<','
+         <<std::sqrt(double(s.externalBlood.transferAngularResidual.w));
 }
 } // namespace numi::human

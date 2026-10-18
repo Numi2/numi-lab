@@ -1,0 +1,8 @@
+{
+  "returncode": 0,
+  "binary_sha256": "b47796400e66e1aa440db034357430ae0f93ad48e16e7c859a7016127e138efc",
+  "runtime_library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+  "requested_step_count": 64,
+  "requested_step_seconds": 0.00025,
+  "requested_physical_horizon_s": 0.016
+}

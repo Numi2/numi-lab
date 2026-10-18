@@ -1,0 +1,48 @@
+// Accepted parcel words are bound at the exact C++ offsetof(externalBlood.parcels).
+// Shared host static_asserts pin each 64-byte record and its four float4 offsets.
+// Octahedra are reduced packet/pool representations, not a free-surface solver.
+kernel void nm_human_resting_blood_visual(
+ constant uint4& ranges [[buffer(0)]],
+ device const float4* acceptedParcelWords [[buffer(1)]],
+ device MRVisualVertexGPUV2* vertices [[buffer(2)]],
+ device MRVisualPrimitiveGPUV2* primitives [[buffer(3)]],
+ device MRVisualInstanceGPUV2* instances [[buffer(4)]],
+ constant uint& visibilityOnly [[buffer(5)]],
+ uint p [[thread_position_in_grid]]) {
+ if(p>=ranges.w)return;
+ const float4 positionVolume=acceptedParcelWords[4u*p];
+ const float4 velocityMass=acceptedParcelWords[4u*p+1u];
+ const float4 gasFlags=acceptedParcelWords[4u*p+2u];
+ // Sub-nanolitre inventory remains in physics; hide it below mesh resolution.
+ const bool active=gasFlags.z>0.5f&&positionVolume.w>=1.0e-12f&&velocityMass.w>0.0f&&
+                   all(isfinite(positionVolume))&&all(isfinite(velocityMass))&&all(isfinite(gasFlags));
+ if(visibilityOnly!=0u) {
+  // Preserve the existing selected anatomy-layer visibility for active packets.
+  if(!active)instances[ranges.z+p].binding.w=0u;
+  return;
+ }
+ float3 center=active?positionVolume.xyz:float3(0);
+ float3 scale=float3(0.001f);
+ if(active) {
+  // Volume of the actual rendered unit octahedron is 4/3.
+  const float radius=pow(0.75f*positionVolume.w,1.0f/3.0f);
+  scale=float3(radius);
+  if(gasFlags.z>1.5f) {
+   const float halfHeight=min(0.002f,radius);
+   const float horizontal=sqrt(0.75f*positionVolume.w/halfHeight);
+   scale=float3(horizontal,horizontal,halfHeight);
+   center.z+=halfHeight;
+  }
+ }
+ const float3 axes[6]={float3(1,0,0),float3(-1,0,0),float3(0,1,0),float3(0,-1,0),float3(0,0,1),float3(0,0,-1)};
+ for(uint k=0;k<6u;++k) {
+  const uint v=ranges.x+6u*p+k;const float3 normal=normalize(axes[k]/scale);
+  vertices[v].position=float4(center+axes[k]*scale,1);
+  vertices[v].normalAndTangentSign=float4(normal,1);
+  const float3 tangentReference=abs(normal.y)<0.9f?float3(0,1,0):float3(1,0,0);
+  const float3 tangent=normalize(cross(tangentReference,normal));
+  vertices[v].tangent=float4(tangent,0);
+ }
+ primitives[ranges.y+p].boundsMinimum=float4(center-scale,1);
+ primitives[ranges.y+p].boundsMaximum=float4(center+scale,1);
+}

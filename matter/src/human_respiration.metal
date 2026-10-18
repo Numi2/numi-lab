@@ -3,13 +3,11 @@
 #include "MujocoMuscleReference.metal"
 #include "numi/matter/human_respiration.h"
 #include "RespiratoryChemoreflexV1.metal"
+#include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
 #include "NumiHumanRestingCommonField.metalinc"
 #include "NumiHumanRestingSupportGeometry.metalinc"
-#include "metalrobo/numi_human_resting_rope_gpu.h"
-#include "NumiHumanRestingRope.metalinc"
-#include "NumiHumanRestingRopeVisual.metalinc"
 
 constant bool kGasTransportSubcycling [[function_constant(40)]];
 constant bool kUseGasTransportSubcycling =
@@ -182,33 +180,18 @@ kernel void nm_human_resting_skin(
         ? nm_human_resting_support::skinInfluenceStride() : 1u;
     const auto soleInfluence=influences[m.firstInfluence];
     const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
-        m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
+        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
     const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     const bool compensatedPosition=
         soleInfluence.body.y==MR_HUMAN_RESTING_COMPENSATED_POSITION;
-    const bool ownerLocal=m.deformationKind==0u&&m.deformationWeight.w==3.0f;
     float3 positionCorrection=0;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
         auto influence=influences[m.firstInfluence+j*influenceStride];
         float w=influence.positionAndWeight.w;
         float3 ni;
-        if(ownerLocal) {
-            const auto frame=bodies[m.chamberIndex];
-            const float4 inverse=float4(-frame.orientation.xyz,frame.orientation.w);
-            float3 point=influence.positionAndWeight.xyz;ni=influence.normal.xyz;
-            if(influence.body.x!=m.chamberIndex) {
-                if(influence.body.x!=MR_INVALID_INDEX) {
-                    const auto body=bodies[influence.body.x];
-                    point=(body.position.xyz-frame.position.xyz)+restingRotate(body.orientation,point);
-                    ni=restingRotate(body.orientation,ni);
-                }else point-=frame.position.xyz;
-                point=restingRotate(inverse,point);ni=restingRotate(inverse,ni);
-            }
-            if(compensatedPosition)restingCompensatedPositionAdd(w*point,p,positionCorrection);
-            else p+=w*point;
-        }else if(influence.body.x==MR_INVALID_INDEX) {
+        if(influence.body.x==MR_INVALID_INDEX) {
             if(compensatedPosition)
                 restingCompensatedPositionAdd(w*influence.positionAndWeight.xyz,p,positionCorrection);
             else p+=w*influence.positionAndWeight.xyz;
@@ -301,15 +284,8 @@ kernel void nm_human_resting_skin(
                 (normal-normalAlong+weight*displacement*dot(normal,axis)/axialJacobian*
                  (gradient-dot(gradient,axis)*axis))/mix(1.0f,radial,weight);
         }
-        if(m.deformationWeight.w==2.0f&&(m.deformationKind==12u||m.deformationKind==1u||m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u)) {
-            // Actual vertex-buffer geometry stays precise and torso-local.
-            // Existing articulated instances supply the same world pose.
-            // Strict area/volume guards inspect these actual local vertices.
-            p=local;n=normal;
-        }else {
-            p=body.position.xyz+restingRotate(body.orientation,local);
-            n=restingRotate(body.orientation,normal);
-        }
+        p=body.position.xyz+restingRotate(body.orientation,local);
+        n=restingRotate(body.orientation,normal);
     }
     vertices[i].position=float4(p,1);
     const float3 unitNormal=normalize(dot(n,n)>1e-12f?n:strongest);
@@ -1117,12 +1093,19 @@ kernel void nm_human_respiration_exchange(
     device const NMHumanRespirationState* accepted [[buffer(2)]],
     device NMHumanRespirationState* candidate [[buffer(3)]],
     device const float4* vascularBefore [[buffer(4)]],
-    device const float4* vascularAfter [[buffer(5)]],
+    device float4* vascularAfter [[buffer(5)]],
     device const NMVascularUnknownGPU* unknowns [[buffer(6)]],
     device const NMVascularConnectionGPU* connections [[buffer(7)]],
     device NMMatterStatusGPU* statuses [[buffer(8)]],
     device const NMVascularCompartmentGPU* compartments [[buffer(9)]],
     device const float* elastance [[buffer(10)]],
+    device const MRArticulatedBodyPoseGPU* bodyPosesAccepted [[buffer(11)]],
+    device MRBodyPropertiesGPU* bodyPropertiesCandidate [[buffer(12)]],
+    device const float4* bodyPositionLow [[buffer(13)]],
+    device const float* pointJacobians [[buffer(14)]],
+    device const float* generalizedVelocity [[buffer(15)]],
+    device float* mujocoGeneralizedForceArena [[buffer(16)]],
+    device const MRBodyPropertiesGPU* bodyPropertiesReference [[buffer(17)]],
     uint globalIndex [[thread_position_in_grid]],
     uint lane [[thread_index_in_simdgroup]],
     uint simdWidth [[threads_per_simdgroup]]) {
@@ -1146,6 +1129,37 @@ kernel void nm_human_respiration_exchange(
         const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
         const uint from=flow>=0?con.identity.y:con.identity.z;
         outgoing[from]+=abs(flow);
+    }
+    // Same accepted cut event as the Human separation control step. This is an
+    // operator-split reduced orifice law: pressure and area set the attempted
+    // outflow; the donor debit is bounded and enters the accepted-state ledger.
+    NMHumanVascularCutEventGPU outlet=n.vascularCutOutlet;
+    const bool cutReached=d.outletReleaseStep!=NM_INVALID_INDEX &&
+        d.controlStep>=d.outletReleaseStep;
+    if(cutReached) outlet.identity.w=1u;
+    float outletFlow=0.0f;
+    float outletVolume=0.0f;
+    uint outletRow=uint(max(0.0f,outlet.fluid.w));
+    if(outlet.identity.w && outletRow<21u && outlet.identity.x==9u && outlet.identity.y==7u) {
+        const float donorVolume=human_respiration::physical(vascularAfter,unknowns,base,outletRow);
+        const auto donor=compartments[outletRow];
+        float pressure=donor.compliance.w+donor.compliance.y+
+            (donorVolume-donor.compliance.x)*elastance[env*21u+outletRow];
+        if(donor.identity.w==3u) {
+            const float displacement=donorVolume-donor.compliance.x;
+            const float angle=(0.5f*donor.waveform.x)*(displacement/donor.pressureParameters.x);
+            pressure=donor.compliance.w+donor.compliance.y+
+                (2.0f*donor.pressureParameters.x/donor.waveform.x/donor.compliance.z)*tan(angle);
+        }
+        const float deltaPressure=max(0.0f,pressure-outlet.fluid.z);
+        if(isfinite(pressure)&&isfinite(deltaPressure)&&outlet.aperture.x>0.0f&&
+           outlet.fluid.x>0.0f&&outlet.fluid.y>=0.0f) {
+            outletFlow=outlet.fluid.y*outlet.aperture.x*sqrt(2.0f*deltaPressure/outlet.fluid.x);
+            const float available=max(0.0f,donorVolume-donor.compliance.x);
+            outletVolume=min(dt*outletFlow,min(0.1f*donorVolume,available));
+            outletFlow=outletVolume/dt;
+            outgoing[outletRow]+=outletFlow;
+        }
     }
     if(kUseGasTransportSubcycling) {
         float required=kUseRespiratorySubcycling?max(1.0f,ceil(dt/0.002f)):1.0f;
@@ -1278,6 +1292,365 @@ kernel void nm_human_respiration_exchange(
         for(uint row=0u;row<21u;++row)
             n.bloodGas[row]=simd_broadcast(compartmentGas,row);
     if(gasSubsteps>1u) pulmonaryO2=totalPulmonaryO2/dt;
+    n.vascularCutOutlet=outlet;
+    if(publish && outletVolume>0.0f) {
+        const float donorBefore=human_respiration::physical(vascularAfter,unknowns,base,outletRow);
+        const float donorScale=unknowns[outletRow].initialAndScaling.y;
+        const float2 donorContent=n.bloodGas[outletRow].xy/donorBefore;
+        const float2 removedGas=donorContent*outletVolume;
+        if(!(donorBefore>outletVolume)||!(donorScale>0.0f)||
+           !all(isfinite(removedGas))||any(removedGas<0.0f)||
+           any(removedGas>n.bloodGas[outletRow].xy)) {
+            n.status.w=8u;
+        } else {
+            vascularAfter[base+outletRow].x-=(outletVolume/donorScale);
+            human_respiration::addGas(n.bloodGas[outletRow],-removedGas);
+            const float removedMass=outlet.fluid.x*outletVolume;
+            const float4 transfer=float4(outletVolume,removedMass,removedGas);
+            float4 y=transfer-n.externalBlood.compensation;
+            float4 next=n.externalBlood.total+y;
+            n.externalBlood.compensation=(next-n.externalBlood.total)-y;
+            n.externalBlood.total=next;
+            const float externalMass=n.externalBlood.total.y-n.externalBlood.compensation.y;
+            if(!all(isfinite(next))||any(next<0.0f)||!isfinite(externalMass))
+                n.status.w=8u;
+
+            // The cut surface is attached to runtime abdomen body 7. Blood
+            // mass is spatially redistributed over every positive-mass body
+            // property because CVSim21 supplies no segment perfusion map.
+            // Segment COM positions are preserved; this is a homogeneous
+            // reference-mass approximation, not a patient-specific map.
+            const uint bodyIndex=outlet.identity.z;
+            if(bodyIndex<d.articulationFirstBody||
+               bodyIndex-d.articulationFirstBody>=d.bodyPoseStride||
+               bodyIndex>=d.bodyPropertyCount||d.dofCount==0u||
+               d.dofCount>MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS) {
+                n.status.w=10u;
+            } else {
+                float referenceTotalMass=0.0f;
+                float referenceMassCorrection=0.0f;
+                bool validMass=true;
+                for(uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal) {
+                    const float mass=bodyPropertiesReference[bodyOrdinal].massAndInverseMass.x;
+                    if(!isfinite(mass)||mass<0.0f) {validMass=false;break;}
+                    if(mass>0.0f) {
+                        const float adjusted=mass-referenceMassCorrection;
+                        const float sum=referenceTotalMass+adjusted;
+                        referenceMassCorrection=(sum-referenceTotalMass)-adjusted;
+                        referenceTotalMass=sum;
+                    }
+                }
+                const float remainingMass=referenceTotalMass-externalMass;
+                if(!validMass||!(referenceTotalMass>0.0f)||!(remainingMass>0.0f)||
+                   !isfinite(referenceTotalMass)||!isfinite(remainingMass)) {
+                    n.status.w=10u;
+                } else {
+                    const float remainingFraction=remainingMass/referenceTotalMass;
+                    const float transferFraction=removedMass/referenceTotalMass;
+                    float3 removedBodyMomentum=0.0f;
+                    float3 removedBodyAngularMomentum=0.0f;
+                    float removedBodyKineticEnergy=0.0f;
+                    bool validKinematics=true;
+
+                    // Momentum carried by the spatially distributed blood is
+                    // removed at each segment COM, including the lost angular
+                    // momentum of its proportionally scaled reference inertia.
+                    for(uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal) {
+                        const MRBodyPropertiesGPU reference=bodyPropertiesReference[bodyOrdinal];
+                        const float referenceMass=reference.massAndInverseMass.x;
+                        if(!(referenceMass>0.0f)) continue;
+                        if(bodyOrdinal<d.articulationFirstBody||
+                           bodyOrdinal-d.articulationFirstBody>=d.bodyPoseStride) {
+                            validKinematics=false;
+                            break;
+                        }
+                        const uint localBody=bodyOrdinal-d.articulationFirstBody;
+                        const uint poseIndex=env*d.bodyPoseStride+localBody;
+                        const MRArticulatedBodyPoseGPU body=bodyPosesAccepted[poseIndex];
+                        const float3 worldCOM=body.position.xyz+bodyPositionLow[poseIndex].xyz;
+                        const float3 worldAxes[3]={
+                            restingRotate(body.orientation,float3(1,0,0)),
+                            restingRotate(body.orientation,float3(0,1,0)),
+                            restingRotate(body.orientation,float3(0,0,1))
+                        };
+                        const uint probe=d.bodyJacobianPointOffset+4u*localBody;
+                        const uint centerBase=env*d.pointJacobianStride+probe*3u*d.dofCount;
+                        float3 centerVelocity=0.0f;
+                        float3 angularVelocity=0.0f;
+                        for(uint dof=0u;dof<d.dofCount;++dof) {
+                            const float3 centerJ=float3(
+                                pointJacobians[centerBase+dof],
+                                pointJacobians[centerBase+d.dofCount+dof],
+                                pointJacobians[centerBase+2u*d.dofCount+dof]);
+                            float3 angularJ=0.0f;
+                            for(uint axis=0u;axis<3u;++axis) {
+                                const uint axisBase=centerBase+(axis+1u)*3u*d.dofCount;
+                                const float3 axisJ=float3(
+                                    pointJacobians[axisBase+dof],
+                                    pointJacobians[axisBase+d.dofCount+dof],
+                                    pointJacobians[axisBase+2u*d.dofCount+dof]);
+                                angularJ+=0.5f*cross(worldAxes[axis],axisJ-centerJ);
+                            }
+                            const float velocity=generalizedVelocity[env*d.vStride+dof];
+                            centerVelocity+=centerJ*velocity;
+                            angularVelocity+=angularJ*velocity;
+                        }
+                        const float removedSegmentMass=removedMass*referenceMass/referenceTotalMass;
+                        removedBodyMomentum+=removedSegmentMass*centerVelocity;
+                        removedBodyAngularMomentum+=cross(worldCOM,removedSegmentMass*centerVelocity);
+                        const float4 inverseOrientation=float4(-body.orientation.xyz,body.orientation.w);
+                        const float3 omegaLocal=restingRotate(inverseOrientation,angularVelocity);
+                        const float3 inertiaOmegaLocal=float3(
+                            dot(reference.inertiaRow0.xyz,omegaLocal),
+                            dot(reference.inertiaRow1.xyz,omegaLocal),
+                            dot(reference.inertiaRow2.xyz,omegaLocal));
+                        const float3 removedSpin=restingRotate(body.orientation,
+                            transferFraction*inertiaOmegaLocal);
+                        removedBodyAngularMomentum+=removedSpin;
+                        removedBodyKineticEnergy+=0.5f*removedSegmentMass*
+                            dot(centerVelocity,centerVelocity)+
+                            0.5f*transferFraction*dot(omegaLocal,inertiaOmegaLocal);
+                    }
+                    if(!validKinematics) {
+                        n.status.w=10u;
+                    } else {
+                        // Reconstruct each candidate mass and inertia from the
+                        // immutable baseline. Inverse mass remains zero for a
+                        // baseline-fixed segment.
+                        for(uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal) {
+                            const MRBodyPropertiesGPU reference=bodyPropertiesReference[bodyOrdinal];
+                            const float referenceMass=reference.massAndInverseMass.x;
+                            if(!(referenceMass>0.0f)) continue;
+                            device MRBodyPropertiesGPU& properties=bodyPropertiesCandidate[bodyOrdinal];
+                            const float newMass=referenceMass*remainingFraction;
+                            const float ratio=newMass/referenceMass;
+                            if(!(newMass>0.0f)||!isfinite(newMass)||!(ratio>0.0f)) {
+                                n.status.w=10u;
+                                break;
+                            }
+                            const float inverseMass=reference.massAndInverseMass.y>0.0f
+                                ?1.0f/newMass:reference.massAndInverseMass.y;
+                            properties.massAndInverseMass=float4(newMass,inverseMass,0.0f,0.0f);
+                            properties.inertiaRow0.xyz=reference.inertiaRow0.xyz*ratio;
+                            properties.inertiaRow1.xyz=reference.inertiaRow1.xyz*ratio;
+                            properties.inertiaRow2.xyz=reference.inertiaRow2.xyz*ratio;
+                            properties.inverseInertiaRow0.xyz=reference.inverseInertiaRow0.xyz/ratio;
+                            properties.inverseInertiaRow1.xyz=reference.inverseInertiaRow1.xyz/ratio;
+                            properties.inverseInertiaRow2.xyz=reference.inverseInertiaRow2.xyz/ratio;
+                        }
+
+                        const uint localOutletBody=bodyIndex-d.articulationFirstBody;
+                        const uint outletPoseIndex=env*d.bodyPoseStride+localOutletBody;
+                        const MRArticulatedBodyPoseGPU outletBody=bodyPosesAccepted[outletPoseIndex];
+                        const MRBodyPropertiesGPU outletProperties=bodyPropertiesReference[bodyIndex];
+                        const float3 localOffset=outlet.sourcePointAndGround.xyz-
+                            outletProperties.centerOfMass.xyz;
+                        const float3 worldOffset=restingRotate(outletBody.orientation,localOffset);
+                        const float3 worldCOM=outletBody.position.xyz+bodyPositionLow[outletPoseIndex].xyz;
+                        const float3 worldPoint=worldCOM+worldOffset;
+                        const float3 worldNormal=normalize(restingRotate(
+                            outletBody.orientation,outlet.aperture.yzw));
+                        const float relativeJetSpeed=outletFlow/outlet.aperture.x;
+                        float3 outletPointJacobian[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS];
+                        float3 outletAngularJacobian[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS];
+                        float3 outletPointVelocity=0.0f;
+                        const float3 outletAxes[3]={
+                            restingRotate(outletBody.orientation,float3(1,0,0)),
+                            restingRotate(outletBody.orientation,float3(0,1,0)),
+                            restingRotate(outletBody.orientation,float3(0,0,1))
+                        };
+                        const uint outletProbe=d.bodyJacobianPointOffset+4u*localOutletBody;
+                        const uint outletCenterBase=env*d.pointJacobianStride+
+                            outletProbe*3u*d.dofCount;
+                        for(uint dof=0u;dof<d.dofCount;++dof) {
+                            const float3 centerJ=float3(
+                                pointJacobians[outletCenterBase+dof],
+                                pointJacobians[outletCenterBase+d.dofCount+dof],
+                                pointJacobians[outletCenterBase+2u*d.dofCount+dof]);
+                            float3 angularJ=0.0f;
+                            for(uint axis=0u;axis<3u;++axis) {
+                                const uint axisBase=outletCenterBase+(axis+1u)*3u*d.dofCount;
+                                const float3 axisJ=float3(
+                                    pointJacobians[axisBase+dof],
+                                    pointJacobians[axisBase+d.dofCount+dof],
+                                    pointJacobians[axisBase+2u*d.dofCount+dof]);
+                                angularJ+=0.5f*cross(outletAxes[axis],axisJ-centerJ);
+                            }
+                            const float3 pointJ=centerJ+cross(angularJ,worldOffset);
+                            outletPointJacobian[dof]=pointJ;
+                            outletAngularJacobian[dof]=angularJ;
+                            outletPointVelocity+=pointJ*generalizedVelocity[env*d.vStride+dof];
+                        }
+                        const float3 parcelVelocity=outletPointVelocity+worldNormal*relativeJetSpeed;
+                        const float3 parcelMomentum=removedMass*parcelVelocity;
+                        const float3 recoilImpulse=removedBodyMomentum-parcelMomentum;
+                        const float3 parcelAngularMomentum=cross(worldPoint,parcelMomentum);
+                        const float3 recoilTorque=removedBodyAngularMomentum-parcelAngularMomentum-
+                            cross(worldPoint,recoilImpulse);
+                        const float3 momentumResidual=removedBodyMomentum-parcelMomentum-recoilImpulse;
+                        const float3 angularResidual=removedBodyAngularMomentum-parcelAngularMomentum-
+                            cross(worldPoint,recoilImpulse)-recoilTorque;
+                        for(uint dof=0u;dof<d.dofCount;++dof) {
+                            const uint forceIndex=env*d.generalizedForceStride+
+                                d.generalizedForceOffset+dof;
+                            mujocoGeneralizedForceArena[forceIndex]+=
+                                (dot(outletPointJacobian[dof],recoilImpulse)+
+                                 dot(outletAngularJacobian[dof],recoilTorque))/dt;
+                        }
+                        n.externalBlood.jetImpulse.xyz+=recoilImpulse;
+                        n.externalBlood.jetTorqueImpulse.xyz+=recoilTorque;
+                        n.externalBlood.transferMomentumResidual=float4(
+                            momentumResidual,dot(momentumResidual,momentumResidual));
+                        n.externalBlood.transferAngularResidual=float4(
+                            angularResidual,dot(angularResidual,angularResidual));
+                        n.externalBlood.pendingParcel+=transfer;
+                        n.externalBlood.pendingMomentum.xyz+=parcelMomentum;
+                        n.externalBlood.pendingPositionMass.xyz+=removedMass*worldPoint;
+                        n.externalBlood.pendingPositionMass.w+=removedMass;
+                        n.externalBlood.pendingAngularMomentum.xyz+=parcelAngularMomentum;
+                        const float parcelKineticEnergy=0.5f*removedMass*
+                            dot(parcelVelocity,parcelVelocity);
+                        n.externalBlood.energyLedger.x+=parcelKineticEnergy;
+                        n.externalBlood.energyLedger.w+=removedBodyKineticEnergy-parcelKineticEnergy;
+                    }
+                }
+            }
+        }
+    }
+    // Emit one physically aggregated packet no more often than each admitted
+    // 8 ms batch. The barycentric velocity preserves accumulated linear
+    // momentum; intrinsic angular momentum carries the unresolved within-batch
+    // moment. Kinetic energy lost by merging is ledgered as dissipation.
+    const bool batchDue=d.outletBatchSteps>0u&&d.controlStep>=d.outletReleaseStep&&
+        ((d.controlStep-d.outletReleaseStep+1u)%d.outletBatchSteps)==0u;
+    if(publish&&batchDue&&n.externalBlood.pendingParcel.y>0.0f) {
+        uint freeParcel=NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY;
+        for(uint i=0;i+1u<NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY;++i)
+            if(n.externalBlood.parcels[i].gasAndFlags.z<0.5f) {freeParcel=i;break;}
+        const float mass=n.externalBlood.pendingParcel.y;
+        if(freeParcel+1u>=NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY||
+           !(mass>0.0f)||!(n.externalBlood.pendingPositionMass.w>0.0f)||
+           !isfinite(mass)) {
+            n.status.w=9u;
+        } else {
+            const float3 spawn=n.externalBlood.pendingPositionMass.xyz/mass+
+                0.002f*normalize(restingRotate(bodyPosesAccepted[
+                    env*d.bodyPoseStride+outlet.identity.z-d.articulationFirstBody].orientation,
+                    outlet.aperture.yzw));
+            const float3 momentum=n.externalBlood.pendingMomentum.xyz;
+            const float kineticAfter=0.5f*dot(momentum,momentum)/mass;
+            const float mergeLoss=max(0.0f,n.externalBlood.energyLedger.x-kineticAfter);
+            float energyAdjusted=mergeLoss-n.externalBlood.energyLedger.z;
+            float energyNext=n.externalBlood.energyLedger.y+energyAdjusted;
+            n.externalBlood.energyLedger.z=(energyNext-n.externalBlood.energyLedger.y)-energyAdjusted;
+            n.externalBlood.energyLedger.y=energyNext;
+            thread NMHumanExternalBloodParcelGPU& parcel=n.externalBlood.parcels[freeParcel];
+            parcel.positionAndVolume=float4(spawn,n.externalBlood.pendingParcel.x);
+            parcel.velocityAndMass=float4(momentum/mass,mass);
+            parcel.gasAndFlags=float4(n.externalBlood.pendingParcel.zw,1.0f,0.0f);
+            parcel.intrinsicAngularMomentum=float4(
+                n.externalBlood.pendingAngularMomentum.xyz-cross(spawn,momentum),0.0f);
+            n.externalBlood.pendingParcel=0.0f;
+            n.externalBlood.pendingMomentum=0.0f;
+            n.externalBlood.pendingPositionMass=0.0f;
+            n.externalBlood.pendingAngularMomentum=0.0f;
+            n.externalBlood.energyLedger.x=0.0f;
+        }
+    }
+    // In parallel-gas mode only lane zero publishes the outlet debit, while
+    // every lane below reads vascularAfter for observations and the balance
+    // ledger. Make that device-buffer write visible at the SIMD rendezvous.
+    if(kUseParallelRespiratoryMuscles) threadgroup_barrier(mem_flags::mem_device);
+    if(publish) {
+        const uint poolIndex=NM_HUMAN_EXTERNAL_BLOOD_PARCEL_CAPACITY-1u;
+        thread NMHumanExternalBloodParcelGPU& pool=n.externalBlood.parcels[poolIndex];
+        for(uint i=0;i<poolIndex;++i) {
+            thread NMHumanExternalBloodParcelGPU& parcel=n.externalBlood.parcels[i];
+            if(parcel.gasAndFlags.z<0.5f) continue;
+            const float radius=pow(max(parcel.positionAndVolume.w,0.0f)*0.2387324146f,1.0f/3.0f);
+            parcel.velocityAndMass.z-=9.81f*dt;
+            parcel.positionAndVolume.xyz+=parcel.velocityAndMass.xyz*dt;
+            if(parcel.positionAndVolume.z<=outlet.sourcePointAndGround.w+radius) {
+                parcel.positionAndVolume.z=outlet.sourcePointAndGround.w+radius;
+                const float3 impactImpulse=parcel.velocityAndMass.w*parcel.velocityAndMass.xyz;
+                n.externalBlood.groundReactionImpulse.xyz+=impactImpulse;
+                n.externalBlood.groundReactionAngularImpulse.xyz+=
+                    cross(parcel.positionAndVolume.xyz,impactImpulse)+
+                    parcel.intrinsicAngularMomentum.xyz;
+                n.externalBlood.groundImpactDissipation.x+=
+                    0.5f*parcel.velocityAndMass.w*
+                    dot(parcel.velocityAndMass.xyz,parcel.velocityAndMass.xyz);
+                const float4 transfer=float4(parcel.positionAndVolume.w,parcel.velocityAndMass.w,
+                    parcel.gasAndFlags.x,parcel.gasAndFlags.y);
+                const float4 y=transfer-n.externalBlood.groundedCompensation;
+                const float4 next=n.externalBlood.grounded+y;
+                n.externalBlood.groundedCompensation=(next-n.externalBlood.grounded)-y;
+                n.externalBlood.grounded=next;
+
+                // All landed mass remains in one world-fixed puddle pool at
+                // the volume-weighted impact centroid. The GPU renderer turns
+                // this exact ledger volume into a flattened ellipsoid.
+                const float oldPoolVolume=pool.positionAndVolume.w;
+                const float newPoolVolume=oldPoolVolume+parcel.positionAndVolume.w;
+                if(!(newPoolVolume>0.0f)||!isfinite(newPoolVolume)) {
+                    n.status.w=9u;
+                } else {
+                    if(oldPoolVolume>0.0f) {
+                        pool.positionAndVolume.xyz=
+                            (oldPoolVolume*pool.positionAndVolume.xyz+
+                             parcel.positionAndVolume.w*parcel.positionAndVolume.xyz)/newPoolVolume;
+                    } else {
+                        pool.positionAndVolume.xyz=parcel.positionAndVolume.xyz;
+                    }
+                    pool.positionAndVolume.w=newPoolVolume;
+                    const float oldPoolMass=pool.velocityAndMass.w;
+                    pool.velocityAndMass=float4(0.0f,0.0f,0.0f,oldPoolMass+transfer.y);
+                    pool.gasAndFlags.x+=transfer.z;
+                    pool.gasAndFlags.y+=transfer.w;
+                    pool.gasAndFlags.z=2.0f; // grounded pooled state
+                    pool.intrinsicAngularMomentum=0.0f;
+                }
+                parcel.gasAndFlags.z=0.0f;
+            }
+        }
+    }
+    if(publish&&d.bodyPropertyCount>0u) {
+        float referencePositiveMass=0.0f,referenceCorrection=0.0f;
+        float candidatePositiveMass=0.0f,candidateCorrection=0.0f;
+        bool validBodyMass=true;
+        for(uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal) {
+            const float referenceMass=bodyPropertiesReference[bodyOrdinal].massAndInverseMass.x;
+            const float candidateMass=bodyPropertiesCandidate[bodyOrdinal].massAndInverseMass.x;
+            if(!isfinite(referenceMass)||!isfinite(candidateMass)||
+               referenceMass<0.0f||candidateMass<0.0f) {
+                validBodyMass=false;
+                break;
+            }
+            if(referenceMass>0.0f) {
+                const float adjusted=referenceMass-referenceCorrection;
+                const float sum=referencePositiveMass+adjusted;
+                referenceCorrection=(sum-referencePositiveMass)-adjusted;
+                referencePositiveMass=sum;
+            }
+            if(candidateMass>0.0f) {
+                const float adjusted=candidateMass-candidateCorrection;
+                const float sum=candidatePositiveMass+adjusted;
+                candidateCorrection=(sum-candidatePositiveMass)-adjusted;
+                candidatePositiveMass=sum;
+            }
+        }
+        const float externalMass=n.externalBlood.total.y-n.externalBlood.compensation.y;
+        const float residual=referencePositiveMass-externalMass-candidatePositiveMass;
+        if(!validBodyMass||!(referencePositiveMass>0.0f)||!isfinite(externalMass)||
+           !isfinite(residual)||abs(residual)>1.0e-3f) {
+            n.status.w=10u;
+        } else {
+            n.externalBlood.bodyMassBalance=float4(referencePositiveMass,
+                candidatePositiveMass,externalMass,residual);
+            n.externalBlood.bodyMassBalanceMax.x=max(
+                n.externalBlood.bodyMassBalanceMax.x,abs(residual));
+        }
+    }
     n.transportStep=float4(netSweptVolume,
         (n.mechanics.x-old.mechanics.x)-netSweptVolume,
         maxDonorFraction,float(gasSubsteps));
@@ -1298,16 +1671,14 @@ kernel void nm_human_respiration_exchange(
     }
     float bloodVolume=0;
     for(uint row=0;row<21;++row) bloodVolume+=human_respiration::physical(vascularAfter,unknowns,base,row);
+    const float combinedBloodVolume=bloodVolume+n.externalBlood.total.x;
     n.circulation=float4(bloodVolume,
         human_respiration::physical(vascularAfter,unknowns,base,20),
         human_respiration::physical(vascularAfter,unknowns,base,16),
-        max(n.circulation.w,abs(bloodVolume-0.00515f)));
-    // In the closed 21-compartment network every edge is internal: its signed
-    // dt*Q term appears once at each endpoint and cancels in the global volume
-    // equation. Thus the global continuity residual is the sum of each node's
-    // normalized volume term. Compare that with the rounded physical delta;
-    // their difference isolates state-normalization arithmetic, while the
-    // endpoint total also includes its simple FP32 reduction-order error.
+        max(n.circulation.w,abs(combinedBloodVolume-0.00515f)));
+    // Internal edge transfers cancel globally. The accepted cut debit is
+    // balanced by the same-volume external inventory increment below, so the
+    // observer checks the combined vascular + external candidate.
     float stepResidual=0,stepResidualCorrection=0;
     float stepPhysicalDelta=0,stepPhysicalDeltaCorrection=0;
     for(uint node=0;node<p.topology.z;++node) {
@@ -1326,6 +1697,13 @@ kernel void nm_human_respiration_exchange(
         const float physicalNext=stepPhysicalDelta+physicalAdjusted;
         stepPhysicalDeltaCorrection=(physicalNext-stepPhysicalDelta)-physicalAdjusted;
         stepPhysicalDelta=physicalNext;
+    }
+    // The vascular normalized row was debited after the circuit solve. Add the
+    // transferred physical volume once to both reductions to measure the full
+    // vascular-plus-external accepted candidate, not a closed-network total.
+    if(publish && outletVolume>0.0f) {
+        stepResidual+=outletVolume;
+        stepPhysicalDelta+=outletVolume;
     }
     const float residualValue=stepResidual-stepResidualCorrection;
     const float residualAdjusted=residualValue-n.bloodBalance.continuityResidualCompensationM3;
@@ -1359,6 +1737,7 @@ kernel void nm_human_respiration_exchange(
     human_respiration::addGas(total,n.alveolarGas.xy);
     human_respiration::addGas(total,n.deadSpaceGas.xy);
     for(uint row=0;row<21;++row) human_respiration::addGas(total,n.bloodGas[row].xy);
+    human_respiration::addGas(total,n.externalBlood.total.zw-n.externalBlood.compensation.zw);
     const float2 balance=total.xy-n.environmentGas.xy+
         float2(n.metabolicGas.x,-n.metabolicGas.y)-n.gasBudget.xy;
     n.gasBudget.zw=max(n.gasBudget.zw,abs(balance));
@@ -1419,43 +1798,3 @@ kernel void nm_human_resting_capture_vertices(
     uint i [[thread_position_in_grid]]) {
     if(i<vertexCount)destination[i]=source[i];
 }
-
-
-// BEGIN material-frame skin tissue layer
-// Dispatch only after the existing outer-skin update has completed. Loader
-// validation requires distinct output IDs, no output among any parent IDs,
-// source-pinned parents, normalized barycentrics, and finite source offsets.
-// Thus one dispatch has no inter-thread read/write dependency. Rejected steps
-// cannot advance this map: it consumes accepted outer vertices and has no clock.
-kernel void nm_human_resting_skin_tissue_layer(
-    constant uint& count [[buffer(0)]],
-    device const MRHumanRestingSkinLayerVertexGPU* mapping [[buffer(1)]],
-    device MRVisualVertexGPUV2* vertices [[buffer(2)]],
-    uint i [[thread_position_in_grid]]) {
-    if(i>=count)return;
-    const auto m=mapping[i];
-    const float3 a=vertices[m.parentAndOutput.x].position.xyz;
-    const float3 b=vertices[m.parentAndOutput.y].position.xyz;
-    const float3 c=vertices[m.parentAndOutput.z].position.xyz;
-    const float3 edge=b-a,crossed=cross(edge,c-a);
-    const float edgeSquared=dot(edge,edge),areaSquared=dot(crossed,crossed);
-    const bool valid=all(isfinite(a))&&all(isfinite(b))&&all(isfinite(c))&&
-        edgeSquared>0.0f&&areaSquared>0.0f&&isfinite(edgeSquared)&&isfinite(areaSquared);
-    const float3 tangent=valid?edge*rsqrt(edgeSquared):float3(NAN);
-    const float3 normal=valid?crossed*rsqrt(areaSquared):float3(NAN);
-    const float3 bitangent=cross(normal,tangent);
-    const float3 position=m.barycentric.x*a+m.barycentric.y*b+m.barycentric.z*c+
-        tangent*m.offset.x+bitangent*m.offset.y+normal*m.offset.z;
-    const float3 movedNormal=tangent*m.normal.x+bitangent*m.normal.y+normal*m.normal.z;
-    const float normalSquared=dot(movedNormal,movedNormal);
-    auto output=vertices[m.parentAndOutput.w];
-    output.position=float4(position,1);
-    output.normalAndTangentSign=float4(
-        normalSquared>0.0f&&isfinite(normalSquared)?movedNormal*rsqrt(normalSquared):float3(NAN),1);
-    output.tangent=float4(tangent,0);
-    vertices[m.parentAndOutput.w]=output;
-}
-// END material-frame skin tissue layer
-
-// Presentation layout identity, never dispatched.
-kernel void nm_human_resting_local_cardiac_layout_v4(uint i [[thread_position_in_grid]]) { (void)i; }

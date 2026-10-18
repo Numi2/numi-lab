@@ -8,6 +8,7 @@
 #include "metalrobo/numi_human_resting_bed_gpu.h"
 
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -41,6 +42,7 @@ class NumiHumanRestingSupportGeometry final {
     __strong id<MTLBuffer> influences_ = nil;
     __strong id<MTLBuffer> regionForVertex_ = nil;
     __strong id<MTLBuffer> regions_ = nil;
+    __strong id<MTLBuffer> lineage_ = nil;
     __strong id<MTLBuffer> worldZKeys_ = nil;
     __strong id<MTLBuffer> predictedWorldZKeys_ = nil;
     __strong id<MTLBuffer> minimumHeightKeys_ = nil;
@@ -629,6 +631,7 @@ class NumiHumanRestingSupportGeometry final {
         [publish setBuffer:bodies offset:0u atIndex:11u];
         [publish setBuffer:bodyLow offset:0u atIndex:12u];
         [publish setBuffer:normalizedOrientations_ offset:0u atIndex:13u];
+        [publish setBuffer:lineage_ offset:0u atIndex:18u];
         if (bed_.counts.z) {
             [publish setBytes:&bed_ length:sizeof(bed_) atIndex:16u];
             [publish setBuffer:bedHeights_ offset:0u atIndex:17u];
@@ -772,6 +775,7 @@ public:
         id<MTLBuffer> influences, std::span<const MRHumanRestingInfluence> hostInfluences,
         std::span<const std::uint32_t> regionForVertex,
         std::span<const MRHumanRestingSupportRegionGPU> regions,
+        std::span<const MRHumanRestingSupportLineageGPU> lineage,
         std::span<const MRNumiHumanStandContactGPU> contacts,
         const std::uint32_t environmentCount,
         const std::uint32_t validatedFirstBody,
@@ -822,6 +826,7 @@ public:
                     static_cast<std::uint64_t>(hostMap.size()) * environmentCount_ <=
                         std::numeric_limits<std::uint32_t>::max() &&
                     !regions.empty() && regions.size() == contacts.size() &&
+                    regions.size() == lineage.size() &&
                     regions.size() <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
                     regionForVertex.size() == hostMap.size() && fingerprint_ != 0u &&
                     !hostInfluences.empty() && validatedFirstBody_ != MR_INVALID_INDEX &&
@@ -884,22 +889,33 @@ public:
                             std::isfinite(influence.positionAndWeight.w) &&
                             influence.positionAndWeight.w > 0.0f,
                         "registered skin influence has an invalid body or static weight");
+                const auto role = regions[region].reserved0;
+                if (role == MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR ||
+                    role == MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR) {
+                    require(map.influenceCount == 1u && influence.body.x == contacts[region].bodyIndex &&
+                                influence.positionAndWeight.w == 1.0f,
+                            "stable anatomy ID 4 support vertices must use one exact dynamic rigid-body influence");
+                }
             }
             ++regionCounts[region];
         }
-        // Role 1 reserves a source query for the rope/interface boundary and
-        // owns no floor skin. Role 2 is a derived spatial floor patch whose
-        // source-row lineage remains in reserved1. Every actual floor patch
-        // must own skin vertices; no contact candidate may be dropped.
+        // Role 1 reserves a source query for a moving boundary and owns no
+        // floor vertices. Role 2 is the four-point foot manifold. Roles 3/4
+        // are a registered-organ four-bin floor manifold with separate typed
+        // source lineage; every selected row must own actual source vertices.
+        std::vector<std::array<bool, 4u>> organBins(regions.size());
         for (std::size_t r = 0u; r < regions.size(); ++r) {
             const auto role = regions[r].reserved0;
-            require(role <= MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR &&
+            const auto& source = lineage[r];
+            require(role <= MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR &&
                         (role == MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY
                             ? regionCounts[r] == 0u : regionCounts[r] > 0u),
                     "support boundary/floor region ownership is inconsistent");
             if (role == MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR) {
                 const auto parent = regions[r].reserved1;
-                require((parent == 20u || parent == 30u) && parent < r &&
+                require(source.kind == MR_HUMAN_RESTING_SUPPORT_LINEAGE_NONE &&
+                            source.sourceStableId == 0u && source.binIndex == MR_INVALID_INDEX &&
+                            (parent == 20u || parent == 30u) && parent < r &&
                             regions[parent].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR &&
                             regions[parent].sourceGeometryIndex ==
                                 regions[r].sourceGeometryIndex &&
@@ -907,10 +923,36 @@ public:
                                 contacts[r].sourceGeometryIndex &&
                             contacts[parent].bodyIndex == contacts[r].bodyIndex,
                         "derived foot support region lost its source-row lineage");
+            } else if (role == MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR ||
+                       role == MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR) {
+                const auto parent = source.parentRegion;
+                const bool isBase = role == MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR;
+                require(source.kind == MR_HUMAN_RESTING_SUPPORT_LINEAGE_ORGAN_SURFACE &&
+                            source.sourceStableId == 4u && source.binIndex < 4u &&
+                            parent < regions.size() && parent <= r &&
+                            source.binIndex < 4u &&
+                            (isBase
+                                ? (parent == r && regions[r].reserved1 == 0u)
+                                : (parent < r && regions[r].reserved1 == parent &&
+                                   regions[parent].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR)) &&
+                            regions[parent].sourceGeometryIndex == regions[r].sourceGeometryIndex &&
+                            contacts[parent].sourceGeometryIndex == contacts[r].sourceGeometryIndex &&
+                            contacts[parent].bodyIndex == contacts[r].bodyIndex &&
+                            !organBins[parent][source.binIndex],
+                        "organ floor row lost its registered stable-ID/bin lineage");
+                organBins[parent][source.binIndex] = true;
             } else {
-                require(regions[r].reserved1 == 0u,
+                require(source.kind == MR_HUMAN_RESTING_SUPPORT_LINEAGE_NONE &&
+                            source.sourceStableId == 0u && source.binIndex == MR_INVALID_INDEX &&
+                            regions[r].reserved1 == 0u,
                         "base support region has unexpected derived lineage");
             }
+        }
+        for (std::size_t r = 0u; r < regions.size(); ++r) {
+            if (regions[r].reserved0 == MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR)
+                require(std::all_of(organBins[r].begin(), organBins[r].end(),
+                            [](bool present) { return present; }),
+                        "registered organ floor requires all four nonempty spatial bins");
         }
         for (std::size_t region = 0u; region < regions.size(); ++region) {
             require(regions[region].pointQueryIndex == contacts[region].pointQueryIndex &&
@@ -925,8 +967,10 @@ public:
             length:regionForVertex.size_bytes() options:MTLResourceStorageModeShared];
         regions_ = [device_ newBufferWithBytes:regions.data()
             length:regions.size_bytes() options:MTLResourceStorageModeShared];
-        require(regionForVertex_ != nil && regions_ != nil,
-                "resting support region buffers could not be uploaded");
+        lineage_ = [device_ newBufferWithBytes:lineage.data()
+            length:lineage.size_bytes() options:MTLResourceStorageModeShared];
+        require(regionForVertex_ != nil && regions_ != nil && lineage_ != nil,
+                "resting support region and lineage buffers could not be uploaded");
         // The specialized minimum pass may omit only the static influence
         // guards proven above. Its dynamic body-pose/basis checks and all
         // invalid-region publication remain in the shader.

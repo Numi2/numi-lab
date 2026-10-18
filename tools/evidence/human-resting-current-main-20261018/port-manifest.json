@@ -1,0 +1,616 @@
+{
+  "task": "port tested current-main resting tissue app and header closure into W",
+  "base_head": "e485510233fa6c4d093990a04beeb1f4eeda6805",
+  "resolved_candidate_sha256": "15d1ede6b9eb1252f68cf86c7109e669f2874da9a1b91f9d64b5d5914bbb29e4",
+  "source_candidate_sha256": "3f66e731a69864293ffe8240396da5106c2b388ce9b6f63a656884ca866e9fcf",
+  "native_evidence": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/native-current-main-64ms-002",
+  "binary_sha256": "ee606a1b14d12116d556d37bb9557cfc8d0ce7b069f8bbdf496009672e170590",
+  "runtime_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+  "notes": [
+    "No commit or staging performed.",
+    "Preserved initial W blood/intercostal source changes; live blood tool headers were not overwritten.",
+    "Original overwritten dirty app/header sources are saved under port-input-backup; sparse tracked helper was restored from exact current HEAD bytes.",
+    "Current W compile dependency file proves the app uses live W human_resting_runtime.hpp and human_respiration_parameters.hpp."
+  ],
+  "copied_source_headers": [
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanAcceptedGeometryCadence.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanAcceptedGeometryCadence.hpp",
+      "sha256": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanAcceptedQAuditWindow.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanAcceptedQAuditWindow.hpp",
+      "sha256": "c4b4102077418f351b6b5e17295cdb3ef103253309f9622c145025288cc85f4b"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanBrainController.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanBrainController.hpp",
+      "sha256": "200bffcde0b93f7d523fa143ec1f7aeb7d5d6938d6d8b5075ab6f676b41a52a1"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanBrainReceptors.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanBrainReceptors.hpp",
+      "sha256": "e5fc7ab2a1031a429a7ca7c13ae9e11f224ba2f42f402840bdbbc1369d72c55a"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanBrainSource.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanBrainSource.hpp",
+      "sha256": "81f90a062cca8507cc1bea616153c54235e892bcced9f7343ab83d3d6ccc4841"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanInferredACL.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanInferredACL.hpp",
+      "sha256": "c9549051b5e930aee1aec1c29ca4120197be280811df01650a80781c0f662e69"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanOrganEventRollbackProbe.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanOrganEventRollbackProbe.hpp",
+      "sha256": "88b0c486ea600551323582bfbe01b71cb4ae8a8ec61d2fd3644e4e74b29faabf"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanOrganFloorPartition.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanOrganFloorPartition.hpp",
+      "sha256": "3f69f688db1a675c156c2b57f8cec767fd7ba223748c1a28a07a8c7515564879"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanOrganRelease.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanOrganRelease.hpp",
+      "sha256": "23c8aaeb954ee7679f218dd1bd85665e34650cb901195ad9282e2352e9221c21"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanPassiveCoordinateRemap.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanPassiveCoordinateRemap.hpp",
+      "sha256": "5dfc09a2b49a9636e3aa891ca033f795517759f03aca887cdb6c66c18f6e8c0f"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanReducedPassiveFascia.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanReducedPassiveFascia.hpp",
+      "sha256": "43c7270a3afc13ba2080770ecd44f0ec3348581d8b3cf9309844a290c5f2972e"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingBedSurface.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingBedSurface.hpp",
+      "sha256": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingCardiacIdentity.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingCardiacIdentity.hpp",
+      "sha256": "55eb77477725b0b3e3a1f66c05dac21a6ee45d9ab01d87d9d6cafbeaf14dc24a"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingInitialPosture.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingInitialPosture.hpp",
+      "sha256": "a9bee15d294f15bc44dcd45069c41b860489d73e65b13bb73f10579c0c3f257d"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingInspectionLayers.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingInspectionLayers.hpp",
+      "sha256": "18fef903c126a0bf8ddb1fec0f3753cf5ac4317253d9011b28034a2a25ece498"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingIntercostalRibAttachment.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+      "sha256": "756de263495264cb0412a0826597d868fd03d02352c75e28a71f6070a4cd3c3e"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingOcularWindow.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingOcularWindow.hpp",
+      "sha256": "a6ffc51b4924d38cd71c87edb0e3339001e9db1c6667055284cea8f81678dbc7"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingRopeSupport.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingRopeSupport.hpp",
+      "sha256": "ff5f8f008741c7fc620a81924cba283b20882dbabe089aa32c884d77c71c8bd3"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingRopeVisual.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingRopeVisual.hpp",
+      "sha256": "2919dd6aa649758f9d974f2a5a65af677020103cae713aa916d0587130feac7b"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingSourceAllocation.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingSourceAllocation.hpp",
+      "sha256": "b2e759745d6ff1badb63a1d7baa61f13970314a2407be3e2f3cc12c25889673c"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingSurfaceAuditDiagnostic.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingSurfaceAuditDiagnostic.hpp",
+      "sha256": "3900fd0939c5d4c3592466e58c76eedb1aa0bf127f07d9c8316f6861a3f1c82f"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingTissueParents.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingTissueParents.hpp",
+      "sha256": "e6c38385940e28103a3e8575c96ec7e7ba751feb6983efc30d57333919a281a9"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanRestingVascularBindings.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingVascularBindings.hpp",
+      "sha256": "5569402ba5b4951d503d103a8ad1f5ab920e61cb8bb57159cb1eb98d3fdeed9a"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanSeparationBodyRemap.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSeparationBodyRemap.hpp",
+      "sha256": "582aa9586b783974059e409e3739ac5d3d92afacdfc4e1cb5dafa37619308640"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanSeparationForce.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSeparationForce.hpp",
+      "sha256": "10559ac7445ba5471a924ce6bed6b5eb0af996f10b16fc2953fc108b10bfa9a9"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanSeparationModel.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSeparationModel.hpp",
+      "sha256": "601d907ed476816718606417f621257283e5bf3c8453f8b8555305f89e3bd0fb"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanSeparationRoutes.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSeparationRoutes.hpp",
+      "sha256": "3096bc840f73e77b39b77e4d5a6a2db5df3dc8abe65dbf00d32368986f1b5ded"
+    },
+    {
+      "source": "/Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/NumiHumanSeparationSupport.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSeparationSupport.hpp",
+      "sha256": "564fd186d43b00da0255484b141b88bb2702e5ba46c104c3c59cf317c57903c4"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/surface-frame-rebase-174/NumiHumanSurfaceFrameRebase.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSurfaceFrameRebase.hpp",
+      "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659"
+    }
+  ],
+  "overrides": [
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/overrides/NumiHumanRestingCoupling.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "f7ce9807a6c59fe069ff3717153ee40cdfb82ed6f10a0f9f4f3e561d7cf439b1"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/overrides/NumiHumanRestingTransactionProbe.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingTransactionProbe.hpp",
+      "sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/overrides/NumiHumanRestingVisual.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "4ad0e9a121eea0ad9477c88530c0c860b50d99d2eb7a339f071cbd1cd8df6eee"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/overrides/NumiHumanRestingSupportGeometry.hpp",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingSupportGeometry.hpp",
+      "sha256": "684851e2a354fafdd0cdd3dca95efa80e9824f5cb8017c7f038cbe628df792cf"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/current-main-181/overrides/metalrobo/numi_human_support_geometry_gpu.h",
+      "destination": "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/numi_human_support_geometry_gpu.h",
+      "sha256": "30e58505965f066019ea4834dc70096c5bc10de3ead74bd4573d976184f30706"
+    }
+  ],
+  "files_after": [
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "15d1ede6b9eb1252f68cf86c7109e669f2874da9a1b91f9d64b5d5914bbb29e4",
+      "size": 1772232
+    },
+    {
+      "path": "apps/NumiHumanAcceptedGeometryCadence.hpp",
+      "sha256": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+      "size": 1244
+    },
+    {
+      "path": "apps/NumiHumanAcceptedQAuditWindow.hpp",
+      "sha256": "c4b4102077418f351b6b5e17295cdb3ef103253309f9622c145025288cc85f4b",
+      "size": 5602
+    },
+    {
+      "path": "apps/NumiHumanBrainController.hpp",
+      "sha256": "200bffcde0b93f7d523fa143ec1f7aeb7d5d6938d6d8b5075ab6f676b41a52a1",
+      "size": 53400
+    },
+    {
+      "path": "apps/NumiHumanBrainReceptors.hpp",
+      "sha256": "e5fc7ab2a1031a429a7ca7c13ae9e11f224ba2f42f402840bdbbc1369d72c55a",
+      "size": 36500
+    },
+    {
+      "path": "apps/NumiHumanBrainSource.hpp",
+      "sha256": "81f90a062cca8507cc1bea616153c54235e892bcced9f7343ab83d3d6ccc4841",
+      "size": 18914
+    },
+    {
+      "path": "apps/NumiHumanInferredACL.hpp",
+      "sha256": "c9549051b5e930aee1aec1c29ca4120197be280811df01650a80781c0f662e69",
+      "size": 30530
+    },
+    {
+      "path": "apps/NumiHumanOrganEventRollbackProbe.hpp",
+      "sha256": "88b0c486ea600551323582bfbe01b71cb4ae8a8ec61d2fd3644e4e74b29faabf",
+      "size": 23412
+    },
+    {
+      "path": "apps/NumiHumanOrganFloorPartition.hpp",
+      "sha256": "3f69f688db1a675c156c2b57f8cec767fd7ba223748c1a28a07a8c7515564879",
+      "size": 4818
+    },
+    {
+      "path": "apps/NumiHumanOrganRelease.hpp",
+      "sha256": "23c8aaeb954ee7679f218dd1bd85665e34650cb901195ad9282e2352e9221c21",
+      "size": 44207
+    },
+    {
+      "path": "apps/NumiHumanPassiveCoordinateRemap.hpp",
+      "sha256": "5dfc09a2b49a9636e3aa891ca033f795517759f03aca887cdb6c66c18f6e8c0f",
+      "size": 3802
+    },
+    {
+      "path": "apps/NumiHumanReducedPassiveFascia.hpp",
+      "sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f",
+      "size": 15280
+    },
+    {
+      "path": "apps/NumiHumanRestingBedSurface.hpp",
+      "sha256": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4",
+      "size": 5148
+    },
+    {
+      "path": "apps/NumiHumanRestingCardiacIdentity.hpp",
+      "sha256": "55eb77477725b0b3e3a1f66c05dac21a6ee45d9ab01d87d9d6cafbeaf14dc24a",
+      "size": 633
+    },
+    {
+      "path": "apps/NumiHumanRestingInitialPosture.hpp",
+      "sha256": "a9bee15d294f15bc44dcd45069c41b860489d73e65b13bb73f10579c0c3f257d",
+      "size": 19187
+    },
+    {
+      "path": "apps/NumiHumanRestingInspectionLayers.hpp",
+      "sha256": "18fef903c126a0bf8ddb1fec0f3753cf5ac4317253d9011b28034a2a25ece498",
+      "size": 4107
+    },
+    {
+      "path": "apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+      "sha256": "756de263495264cb0412a0826597d868fd03d02352c75e28a71f6070a4cd3c3e",
+      "size": 15325
+    },
+    {
+      "path": "apps/NumiHumanRestingOcularWindow.hpp",
+      "sha256": "a6ffc51b4924d38cd71c87edb0e3339001e9db1c6667055284cea8f81678dbc7",
+      "size": 25081
+    },
+    {
+      "path": "apps/NumiHumanRestingRopeSupport.hpp",
+      "sha256": "ff5f8f008741c7fc620a81924cba283b20882dbabe089aa32c884d77c71c8bd3",
+      "size": 12457
+    },
+    {
+      "path": "apps/NumiHumanRestingRopeVisual.hpp",
+      "sha256": "2919dd6aa649758f9d974f2a5a65af677020103cae713aa916d0587130feac7b",
+      "size": 15818
+    },
+    {
+      "path": "apps/NumiHumanRestingSourceAllocation.hpp",
+      "sha256": "b2e759745d6ff1badb63a1d7baa61f13970314a2407be3e2f3cc12c25889673c",
+      "size": 3426
+    },
+    {
+      "path": "apps/NumiHumanRestingSurfaceAuditDiagnostic.hpp",
+      "sha256": "3900fd0939c5d4c3592466e58c76eedb1aa0bf127f07d9c8316f6861a3f1c82f",
+      "size": 9085
+    },
+    {
+      "path": "apps/NumiHumanRestingTissueParents.hpp",
+      "sha256": "e6c38385940e28103a3e8575c96ec7e7ba751feb6983efc30d57333919a281a9",
+      "size": 11621
+    },
+    {
+      "path": "apps/NumiHumanRestingVascularBindings.hpp",
+      "sha256": "5569402ba5b4951d503d103a8ad1f5ab920e61cb8bb57159cb1eb98d3fdeed9a",
+      "size": 5048
+    },
+    {
+      "path": "apps/NumiHumanSeparationBodyRemap.hpp",
+      "sha256": "582aa9586b783974059e409e3739ac5d3d92afacdfc4e1cb5dafa37619308640",
+      "size": 4736
+    },
+    {
+      "path": "apps/NumiHumanSeparationForce.hpp",
+      "sha256": "10559ac7445ba5471a924ce6bed6b5eb0af996f10b16fc2953fc108b10bfa9a9",
+      "size": 15326
+    },
+    {
+      "path": "apps/NumiHumanSeparationModel.hpp",
+      "sha256": "601d907ed476816718606417f621257283e5bf3c8453f8b8555305f89e3bd0fb",
+      "size": 33312
+    },
+    {
+      "path": "apps/NumiHumanSeparationRoutes.hpp",
+      "sha256": "3096bc840f73e77b39b77e4d5a6a2db5df3dc8abe65dbf00d32368986f1b5ded",
+      "size": 13225
+    },
+    {
+      "path": "apps/NumiHumanSeparationSupport.hpp",
+      "sha256": "564fd186d43b00da0255484b141b88bb2702e5ba46c104c3c59cf317c57903c4",
+      "size": 7915
+    },
+    {
+      "path": "apps/NumiHumanSurfaceFrameRebase.hpp",
+      "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659",
+      "size": 3290
+    },
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "f7ce9807a6c59fe069ff3717153ee40cdfb82ed6f10a0f9f4f3e561d7cf439b1",
+      "size": 44122
+    },
+    {
+      "path": "apps/NumiHumanRestingTransactionProbe.hpp",
+      "sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18",
+      "size": 103416
+    },
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "sha256": "4ad0e9a121eea0ad9477c88530c0c860b50d99d2eb7a339f071cbd1cd8df6eee",
+      "size": 308268
+    },
+    {
+      "path": "apps/NumiHumanRestingSupportGeometry.hpp",
+      "sha256": "684851e2a354fafdd0cdd3dca95efa80e9824f5cb8017c7f038cbe628df792cf",
+      "size": 61220
+    },
+    {
+      "path": "include/metalrobo/numi_human_support_geometry_gpu.h",
+      "sha256": "30e58505965f066019ea4834dc70096c5bc10de3ead74bd4573d976184f30706",
+      "size": 4286
+    }
+  ],
+  "backup": [
+    {
+      "path": "port-input-backup/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "af18ddd3647fc6752223c621e38910fffaf0154f1589121fc00fa0a02901f155"
+    },
+    {
+      "path": "port-input-backup/apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "3ab8a74cd54d27fb39f1611c244e87dc4d3909f5f6c33f8950d31fe0dc680200"
+    },
+    {
+      "path": "port-input-backup/apps/NumiHumanRestingTransactionProbe.hpp",
+      "sha256": "5281cac7a0fb924102c1b868cfabf80a450e6ffc8e7a72ee3859a6ee407d6eb5"
+    },
+    {
+      "path": "port-input-backup/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "76f088b816a60ff76dad47ba6025ae6a02d1682e353614f567d5e059bd588c36"
+    },
+    {
+      "path": "port-input-backup/include/metalrobo/numi_human_support_geometry_gpu.h",
+      "sha256": "fb876149bf76246f45deeba6863b578d107f3acc32acd1e39dd5a9c893deb5fb"
+    }
+  ],
+  "current_head": "e485510233fa6c4d093990a04beeb1f4eeda6805",
+  "recovered_sparse_head_file": {
+    "path": "apps/NumiHumanReducedPassiveFascia.hpp",
+    "sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f",
+    "same_as_HEAD": true,
+    "note": "Restored byte-exact from HEAD after rejecting the older frozen helper variant."
+  },
+  "current_W_build": {
+    "build_receipt": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/w-current-main-build-002/build-receipt.json",
+    "build_receipt_sha256": "dead07b538fb1babd343aa635477362b9e8aecc0787525b7b6fd582c99d07c38",
+    "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "link_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "object_sha256": "db81ff52a05f4ace407ca19156ddd04ee8400004a9d1b4ef0b5066fb3ab6ce3a",
+    "binary": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/w-current-main-build-002/numi-human-native",
+    "binary_sha256": "b47796400e66e1aa440db034357430ae0f93ad48e16e7c859a7016127e138efc",
+    "runtime_library": "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib/libmetalrobo.dylib",
+    "runtime_library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+    "compile_source_sha256": "15d1ede6b9eb1252f68cf86c7109e669f2874da9a1b91f9d64b5d5914bbb29e4",
+    "reduced_fascia_header_sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f"
+  },
+  "current_W_16ms_smoke": {
+    "directory": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/native-current-main-w-port-16ms-001",
+    "invocation_sha256": "cd1c63eb193cd37388a93c22f1696add1629150144f8423e027579c17273c5cf",
+    "process_result_sha256": "56f11fcb49d95f6009c5bdf278c807825dc11105e87ad6492ff737b01a023984",
+    "launcher_log_sha256": "868dabf35818aa0c855f9f6fe392289bbdd6f11ae557cad560f7e33a2a65d089",
+    "argv": [
+      "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/w-current-main-build-002/numi-human-native",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/native-current-main-w-port-16ms-001",
+      "--persistent-metal-stand",
+      "--muscle-step-seconds",
+      "0.00025",
+      "--muscle-step-count",
+      "64",
+      "--support-contact-payload",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "--joint-equality-payload",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "--tendon-payload",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+      "--resting-scene",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+      "--vascular-dense45",
+      "--resting-reference-mass-kg",
+      "97.13195069110952",
+      "--skin-payload",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/bilateral-hand-skin-repair-20261018-001/source-hand-wrist-preserved-025/bodyparts3d-myosim-skinned-shell.nhskin",
+      "--soft-tissue-payload",
+      "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "--torso-anatomy-payload",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+      "--resting-anatomy-receipt",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+      "--dimension",
+      "512",
+      "--muscle-activation",
+      "0.01",
+      "--resting-release-initialization",
+      "--resting-rigid-hands",
+      "--stand-contact-iterations",
+      "64",
+      "--pectoralis-fascia-payload",
+      "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia"
+    ],
+    "environment": {
+      "DYLD_LIBRARY_PATH": "/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib",
+      "DYLD_PRINT_LIBRARIES": "1",
+      "NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT": "0",
+      "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "0",
+      "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "0",
+      "NUMI_HUMAN_EXECUTION_STAGES": "1",
+      "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING": "1",
+      "NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS": "0",
+      "NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES": "1",
+      "NUMI_HUMAN_RESPIRATORY_SUBCYCLING": "1",
+      "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/native-current-main-w-port-16ms-001/common-field-failure.json",
+      "NUMI_HUMAN_RESTING_CONSOLIDATE_LINEAR_BOUNDS": "1",
+      "NUMI_HUMAN_RESTING_ELIMINATE_FIXED_BOUNDS": "1",
+      "NUMI_HUMAN_RESTING_INSPECTION_PERIOD_SECONDS": "0.05",
+      "NUMI_HUMAN_RESTING_INSPECTION_TOUR": "0",
+      "NUMI_HUMAN_RESTING_TRANSACTION_PROBE": "0",
+      "NUMI_HUMAN_ROPE_ANCHOR": "0,0,0.8,0.8",
+      "NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE": "1",
+      "NUMI_HUMAN_ROPE_CAMERA_PERIOD_S": "0.05",
+      "NUMI_HUMAN_ROPE_CAMERA_PERIOD_SECONDS": "0.15",
+      "NUMI_HUMAN_ROPE_SITE": "-0.0545973483,0.1411030829,-0.00279765767",
+      "NUMI_HUMAN_ROPE_SWING": "0.30,4.0,3.0",
+      "NUMI_HUMAN_SKIN_INFLUENCE_TILE32": "0",
+      "NUMI_HUMAN_SPLIT_STAND": "1",
+      "NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS": "0",
+      "NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN": "0",
+      "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY": "0",
+      "NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM": "1",
+      "NUMI_HUMAN_STAND_CONTACT_WARMSTART": "0",
+      "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA": "0",
+      "NUMI_HUMAN_STAND_DEFER_EQUALITY_DIAGNOSTICS": "0",
+      "NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT": "none",
+      "NUMI_HUMAN_STAND_FIRST_SIMD_CONTACT_SWEEP": "0",
+      "NUMI_HUMAN_STAND_FORCE_PARITY_DIAGNOSTIC": "0",
+      "NUMI_HUMAN_STAND_FREE_SPLIT": "0",
+      "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES": "0",
+      "NUMI_HUMAN_STAND_HYBRID_EQUALITY_FACTOR_CACHE": "0",
+      "NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS": "0",
+      "NUMI_HUMAN_STAND_PGS_VELOCITY_RESIDUAL_TOLERANCE": "0.0",
+      "NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION": "1",
+      "NUMI_HUMAN_STAND_REDUCED_CHOLESKY": "0",
+      "NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES": "0",
+      "NUMI_HUMAN_STAND_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/StandSource.metal",
+      "NUMI_HUMAN_STAND_SOURCE_ASSEMBLY_DUMP": "0",
+      "NUMI_HUMAN_STAND_SOURCE_SHA256": "9cffe1fb1113392354f5c4ca2c3beb8bc63c351f3106a645939aaa897a2ab896",
+      "NUMI_HUMAN_STAND_SPARSE_OPERATOR": "0",
+      "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M": "0.02",
+      "NUMI_HUMAN_STAND_ZERO_CONTACT_RESPONSE_FASTPATH": "0",
+      "NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE": "1",
+      "NUMI_HUMAN_TRAINING_PROFILE": "1",
+      "NUMI_HUMAN_ROPE_VIEW_SCALE": "1.2",
+      "NUMI_HUMAN_RESTING_PASSIVE_FASCIA": "1",
+      "NUMI_HUMAN_RESTING_INFERRED_ACL": "1",
+      "NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE": "1",
+      "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+      "NUMI_MATTER_TEST_SOURCE_SHA256": "6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de",
+      "NUMANX_HUMAN_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/HumanMatterSource.metal",
+      "NUMANX_HUMAN_MATTER_TEST_SOURCE_SHA256": "716ce8bf5da667f4e9b33af9c05a87df34e95ad617d5025e348394fde10c1e4b",
+      "METALROBO_TEST_ARTICULATED_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/operator-modules.tsv",
+      "METALROBO_TEST_ARTICULATED_SOURCE_SHA256": "a9c7662cd40fef6a306bdfd1ead10ef2341f08bc312bdc1f0418ad175b19e915",
+      "NUMANX_COUPLED_HUMAN_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/NumanXCoupledHuman-181-current-main.metal",
+      "NUMANX_COUPLED_HUMAN_TEST_SOURCE_SHA256": "02815e02294f2fed78d895d34ab437445243fbfda946db96596b50646c202692",
+      "NUMI_MATTER_METALLIB": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal"
+    },
+    "output_csvs": {
+      "resting-coupled.csv": "e4bfcc5886aaa32fe694d07b67c6512a82d59814fc182313f57fb5b0f7baac62",
+      "resting-surface-audit.csv": "c310058a5432b619bd1e192f267fedcf70f86ff1a6bd22c9aa49e8c89d040f9e"
+    },
+    "accepted_steps": 64,
+    "requested_step_seconds": 0.00025,
+    "requested_horizon_seconds": 0.016,
+    "exit_code": 0,
+    "metrics": {
+      "min_J": 0.999808698962,
+      "max_J": 1.00030655319,
+      "max_displacement_m": 0.000422826486297,
+      "max_anchor_reaction_N": 0.585306726458,
+      "fascia_strips": 8,
+      "fascia_endpoint_force_l1_N": 0.00325191253796,
+      "fascia_max_tension_N": 0.00064882991137,
+      "fascia_force_residual_N": 0.0,
+      "fascia_moment_residual_Nm": 9.0965455984e-12,
+      "physiology_body_clock": "matched",
+      "root_assistance": false,
+      "presentation_qualification": "pending"
+    },
+    "scope": "short integration smoke only; no full tissue, physiology, or presentation qualification"
+  },
+  "selected_compile_dependencies": [
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/../matter/tools/human_resting_runtime.hpp",
+      "sha256": "7547fddd31416ad88705b772d16b5962a13b46f49efca5b0daacc09031a63209"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/../matter/tools/human_respiration_parameters.hpp",
+      "sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanReducedPassiveFascia.hpp",
+      "sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "f7ce9807a6c59fe069ff3717153ee40cdfb82ed6f10a0f9f4f3e561d7cf439b1"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingTransactionProbe.hpp",
+      "sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "4ad0e9a121eea0ad9477c88530c0c860b50d99d2eb7a339f071cbd1cd8df6eee"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanRestingSupportGeometry.hpp",
+      "sha256": "684851e2a354fafdd0cdd3dca95efa80e9824f5cb8017c7f038cbe628df792cf"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/numi_human_support_geometry_gpu.h",
+      "sha256": "30e58505965f066019ea4834dc70096c5bc10de3ead74bd4573d976184f30706"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "3654c85b6fe67cc445a53a789cd537e3a914b3f149df86143e35258ee5eeb440"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/matter/include/numi/matter/matter.hpp",
+      "sha256": "f1d6a72e344ed58176503bd64e633c98081e9046f1895b1677def2dcf359f318"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/NumiHumanTissueMass.hpp",
+      "sha256": "d311f341c2bc94e76c5d552f43d55864cd334e24a5ffa8bc436b6922967aa4ee"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/apps/NumiHumanSurfaceFrameRebase.hpp",
+      "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659"
+    }
+  ],
+  "dependency_file_sha256": "390018d08cb2d0a927505423962c530cb755ff555cb3141da1d47f4eb2ca059e",
+  "patch": {
+    "path": "/Users/n/numi-human-separation-20261018/C/passive-fascia-reduction-203/main-merge-candidate/w-port-delta.patch",
+    "sha256": "d1e362815f62fd8f7c8a75311cd76438d3e01575bc8a5a5eab1b1d6a1f12017c",
+    "bytes": 439178,
+    "basis": "actual pre-port W working source for backed-up dirty files; HEAD for tracked files initially absent from sparse worktree; /dev/null for new files",
+    "includes": [
+      "apps/numilab_human_myosim_visual_probe.mm",
+      "apps/NumiHumanRestingCoupling.hpp",
+      "apps/NumiHumanRestingTransactionProbe.hpp",
+      "apps/NumiHumanRestingVisual.hpp",
+      "include/metalrobo/numi_human_support_geometry_gpu.h",
+      "apps/NumiHumanRestingSupportGeometry.hpp",
+      "apps/NumiHumanSeparationBodyRemap.hpp",
+      "apps/NumiHumanSeparationModel.hpp",
+      "apps/NumiHumanOrganEventRollbackProbe.hpp",
+      "apps/NumiHumanOrganFloorPartition.hpp",
+      "apps/NumiHumanOrganRelease.hpp",
+      "apps/NumiHumanPassiveCoordinateRemap.hpp",
+      "apps/NumiHumanSurfaceFrameRebase.hpp"
+    ]
+  }
+}

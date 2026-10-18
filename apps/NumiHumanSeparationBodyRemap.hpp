@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace metalrobo::separation {
@@ -62,6 +64,40 @@ void remapLoadedBodyReferences(
         for (auto& record : anatomy->records) apply(record.bodyIndex);
     if (contacts)
         for (auto& record : contacts->records) apply(record.bodyIndex);
+}
+
+
+template<class Model, class Muscles>
+void setRuntimeTendonBodyCount(
+    const Model& model, Muscles& muscles,
+    const std::uint32_t expectedSourceBodyCount) {
+    auto& payload = muscles.tendonPayload;
+    if (model.world.bodyCount != model.bodies.size() ||
+        model.bodies.empty() ||
+        model.bodies.size() > std::numeric_limits<std::uint32_t>::max() ||
+        payload.bodyCount != expectedSourceBodyCount) {
+        throw std::runtime_error(
+            "NHTENDON runtime body-count derivation has inconsistent source/model counts");
+    }
+    const std::size_t runtimeBodyCount = model.bodies.size();
+    const auto requireRuntimeBody = [runtimeBodyCount](
+        const std::uint32_t bodyIndex, const char* owner, const std::size_t index) {
+        if (bodyIndex != MR_INVALID_INDEX && bodyIndex >= runtimeBodyCount) {
+            throw std::runtime_error(
+                std::string("remapped NHTENDON ") + owner + " body index out of runtime range at " +
+                std::to_string(index) + ": " + std::to_string(bodyIndex));
+        }
+    };
+    for (std::size_t i = 0u; i < payload.bindings.size(); ++i)
+        requireRuntimeBody(payload.bindings[i].bodyIndex, "binding", i);
+    for (std::size_t i = 0u; i < payload.triangles.size(); ++i)
+        requireRuntimeBody(payload.triangles[i].bodyIndex, "triangle", i);
+    for (std::size_t i = 0u; i < payload.envelopes.size(); ++i)
+        requireRuntimeBody(payload.envelopes[i].bodyIndex, "envelope", i);
+    // bodyCount is an execution bound, not source provenance. The original
+    // payload bytes and sourceSha256 remain unchanged; this derived count
+    // admits remapped body indices after inserted seam/organ bodies.
+    payload.bodyCount = static_cast<std::uint32_t>(runtimeBodyCount);
 }
 
 } // namespace metalrobo::separation

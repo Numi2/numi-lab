@@ -1828,6 +1828,17 @@ if(BUILD_TESTING)
         COMMAND metalrobo_numi_human_accepted_force_observer_test)
     set_tests_properties(numi_human_accepted_force_observer PROPERTIES
         LABELS "numi-human;accepted-force-observer;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_intercostal_rib_field_test
+        tools/test_intercostal_rib_field.cpp)
+    target_include_directories(metalrobo_numi_human_intercostal_rib_field_test
+        PRIVATE apps)
+    target_compile_features(metalrobo_numi_human_intercostal_rib_field_test PRIVATE cxx_std_17)
+    target_compile_options(metalrobo_numi_human_intercostal_rib_field_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_intercostal_rib_field
+        COMMAND metalrobo_numi_human_intercostal_rib_field_test)
+    set_tests_properties(numi_human_intercostal_rib_field PROPERTIES
+        LABELS "numi-human;intercostal;mapping;cpu" TIMEOUT 30)
     add_executable(metalrobo_numi_human_separation_model_test
         tools/test_human_separation_model.cpp)
     target_include_directories(metalrobo_numi_human_separation_model_test

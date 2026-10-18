@@ -69,9 +69,14 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
         if(end==period||*end!='\0'||!std::isfinite(_ropeCameraPeriodSeconds)||_ropeCameraPeriodSeconds<=0)
             throw std::runtime_error("rope camera period must be positive finite seconds");
     }
-    window.title=std::getenv("NUMI_HUMAN_SEPARATION_STEP")
-        ?@"Numi Human — mechanical cut test; post-cut physiology unsupported; no bleeding model"
-        :@"Numi Human — mixed-source resting reference";
+    if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+        const char* bleedingSetting=std::getenv("NUMI_HUMAN_BLEEDING_ENABLED");
+        window.title=bleedingSetting&&std::strcmp(bleedingSetting,"0")==0
+            ?@"Numi Human — cut; outlet-closed control; injury response unsupported"
+            :@"Numi Human — cut; reduced blood outlet; injury response unsupported";
+    } else {
+        window.title=@"Numi Human — mixed-source resting reference";
+    }
     window.delegate=self;
     window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     window.backgroundColor=[NSColor colorWithCalibratedWhite:0.035 alpha:1];

@@ -1,4 +1,10 @@
+#include "NumiHumanSurfaceFrameRebase.hpp"
 #include "NumiHumanSeparationModel.hpp"
+#include "NumiHumanOrganRelease.hpp"
+#include "NumiHumanInferredACL.hpp"
+#include "NumiHumanReducedPassiveFascia.hpp"
+#include "NumiHumanOrganEventRollbackProbe.hpp"
+#include "NumiHumanPassiveCoordinateRemap.hpp"
 #include "NumiHumanSeparationBodyRemap.hpp"
 #include "NumiHumanSeparationSupport.hpp"
 #include "metalrobo/NumiHumanSupport.hpp"
@@ -933,6 +939,7 @@ struct LoadedBones {
     BoneHeader header{};
     metalrobo::NumiHumanLoadedKneeDigest payloadSha256{};
     std::vector<BoneRecord> records;
+    std::vector<std::uint32_t> sourceRecordIndices;
     std::vector<BoneVertex> vertices;
     std::vector<std::uint32_t> indices;
     bool sourceOwnerBindingsVerified = false;
@@ -989,6 +996,9 @@ struct LoadedTorsoAnatomy {
     std::vector<TorsoAnatomyRecord> records;
     std::vector<TorsoAnatomyVertex> vertices;
     std::vector<std::uint32_t> indices;
+    // Derived render records use unique runtime IDs while retaining source
+    // anatomy identity through this explicit, non-ABI display lineage map.
+    std::map<std::uint32_t,std::uint32_t> sourceStableIdByRuntimeDisplayId;
 };
 
 struct LoadedSupportContacts {
@@ -2230,6 +2240,7 @@ LoadedBones loadBones(
             input, result.header.boneCount, "BodyParts3D source-bound bone records", &identity
         );
         result.records.reserve(records.size());
+        result.sourceRecordIndices.reserve(records.size());
         for (const BoundBoneRecord& record : records) {
             require(record.sourceRecordIndex < reference.sourceToCore.size(),
                     "BodyParts3D bone stable_id=" + std::to_string(record.bone.stableId) +
@@ -2242,12 +2253,14 @@ LoadedBones loadBones(
                     " owner mismatch: Core=" + std::to_string(record.bone.bodyIndex) +
                     " NHRIGID2 requires Core=" + std::to_string(expectedOwner));
             result.records.push_back(record.bone);
+            result.sourceRecordIndices.push_back(record.sourceRecordIndex);
         }
         result.sourceOwnerBindingsVerified = true;
     } else {
         result.records = readVector<BoneRecord>(
             input, result.header.boneCount, "BodyParts3D legacy bone records", &identity
         );
+        result.sourceRecordIndices.assign(result.records.size(), MR_INVALID_INDEX);
     }
     result.vertices = readVector<BoneVertex>(
         input, result.header.vertexCount, "BodyParts3D bone vertices", &identity
@@ -3096,6 +3109,125 @@ LoadedPectoralisFascia loadPectoralisFascia(
     return result;
 }
 
+// Regional physical admission uses the existing NHFASC4 byte layout. It does
+// not claim that unused legacy regions match repaired anatomical surfaces.
+LoadedPectoralisFascia loadRestingRegionalPassiveFascia(
+    const std::filesystem::path& path,const LoadedSoftTissues& tissues,
+    const LoadedMuscles& muscles) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.is_open(), "cannot open pectoralis fascia payload " + path.string());
+    LoadedPectoralisFascia result;
+    readObject(input, result.header, "pectoralis fascia header");
+    require(result.header.magic == kPectoralisFasciaMagic &&
+                result.header.payloadAbi == kPectoralisFasciaPayloadAbi &&
+                result.header.regionCount == kThoracoabdominalFasciaRegionCount &&
+                result.header.nodeCount > 0u && result.header.nodeCount <= 100'000u &&
+                result.header.tetrahedronCount > 0u &&
+                result.header.tetrahedronCount <= 300'000u &&
+                std::isfinite(result.header.thicknessMeters) &&
+                result.header.thicknessMeters >= 0.0002f &&
+                result.header.thicknessMeters <= 0.0012f &&
+                std::isfinite(result.header.muscleLoadFraction) &&
+                result.header.muscleLoadFraction > 0.0f &&
+                result.header.muscleLoadFraction <= 0.25f &&
+                result.header.presentationTriangleCount >= 5'000u &&
+                result.header.presentationTriangleCount <= 100'000u &&
+                result.header.reserved1 == 0u,
+            "pectoralis fascia header is malformed");
+    result.regions = readVector<PectoralisFasciaRegion>(
+        input, result.header.regionCount, "pectoralis fascia regions"
+    );
+    result.nodes = readVector<PectoralisFasciaNode>(
+        input, result.header.nodeCount, "pectoralis fascia nodes"
+    );
+    result.tetrahedra = readVector<PectoralisFasciaTetrahedron>(
+        input, result.header.tetrahedronCount, "pectoralis fascia tetrahedra"
+    );
+    result.presentationTriangles =
+        readVector<PectoralisFasciaPresentationTriangle>(
+            input, result.header.presentationTriangleCount,
+            "pectoralis fascia exact anterior presentation triangles"
+        );
+    require(input.peek() == std::char_traits<char>::eof(),
+            "pectoralis fascia payload has trailing bytes");
+    // Validate the complete serialized structure before selecting a physical
+    // region. Unused source indices are never interpreted as repaired indices.
+    for(const auto& r:result.regions) {
+        require(r.firstNode<=result.nodes.size() && r.nodeCount>0 &&
+            r.nodeCount<=result.nodes.size()-r.firstNode &&
+            r.firstTetrahedron<=result.tetrahedra.size() &&
+            r.tetrahedronCount<=result.tetrahedra.size()-r.firstTetrahedron,
+            "regional fascia serialized region range invalid");
+    }
+    for(const auto& n:result.nodes)
+        require(n.regionIndex<result.regions.size() && (n.flags&~3u)==0u &&
+            n.reserved0==0 && std::isfinite(n.compiledMassKg)&&n.compiledMassKg>0 &&
+            std::all_of(std::begin(n.sourcePosition),std::end(n.sourcePosition),
+                        [](float x){return std::isfinite(x);}),
+            "regional fascia serialized node invalid");
+    for(const auto& t:result.tetrahedra) {
+        require(t.regionIndex<result.regions.size(),"regional fascia tetrahedron region invalid");
+        const auto& r=result.regions[t.regionIndex];
+        for(auto i:t.node) require(i>=r.firstNode&&i<r.firstNode+r.nodeCount&&
+            result.nodes[i].regionIndex==t.regionIndex,
+            "regional fascia tetrahedron escapes source region");
+    }
+    for(const auto& t:result.presentationTriangles)
+        require(t.regionIndex<result.regions.size() &&
+            t.sourceVertex[0]!=t.sourceVertex[1]&&t.sourceVertex[0]!=t.sourceVertex[2]&&
+            t.sourceVertex[1]!=t.sourceVertex[2],"regional fascia serialized presentation invalid");
+    auto r=result.regions.at(0);
+    require(r.softTissueStableId==69u&&r.muscleIndex<muscles.gpuMuscles.size()&&
+        r.nodeCount>=12u&&r.nodeCount%2u==0u&&r.tetrahedronCount>0u,
+        "regional fascia active source identity invalid");
+    const auto ti=std::find_if(tissues.records.begin(),tissues.records.end(),
+        [&](const auto& x){return x.stableId==r.softTissueStableId;});
+    require(ti!=tissues.records.end()&&ti->layer==kSoftTissueLayerMuscle,
+        "regional fascia registered source surface absent");
+    std::vector<PectoralisFasciaNode> nodes(result.nodes.begin()+r.firstNode,
+        result.nodes.begin()+r.firstNode+r.nodeCount);
+    const unsigned half=r.nodeCount/2u;
+    std::vector<unsigned> used;
+    for(unsigned i=0;i<half;++i) {
+        const auto& raw=nodes[i];const auto& upper=nodes[i+half];
+        require(raw.regionIndex==0u&&upper.regionIndex==0u&&
+            raw.sourceVertexIndex==upper.sourceVertexIndex&&
+            raw.sourcePosition[0]==upper.sourcePosition[0]&&
+            raw.sourcePosition[2]==upper.sourcePosition[2]&&
+            std::abs((upper.sourcePosition[1]-raw.sourcePosition[1])-
+                result.header.thicknessMeters)<1.e-6f,
+            "regional fascia paired source-layer ancestry invalid");
+        unsigned found=MR_INVALID_INDEX,matches=0;
+        for(unsigned j=0;j<ti->vertexCount;++j) {
+            const auto& v=tissues.vertices.at(ti->firstVertex+j);
+            if(v.positionX==raw.sourcePosition[0]&&v.positionY==raw.sourcePosition[1]&&
+               v.positionZ==raw.sourcePosition[2]){found=j;++matches;}
+        }
+        require(matches==1u&&std::find(used.begin(),used.end(),found)==used.end(),
+            "regional fascia requires unique exact Float32 source-coordinate correspondence");
+        used.push_back(found);
+        std::cout<<"resting_fascia_source_correspondence region=0 source_vertex="
+            <<raw.sourceVertexIndex<<" registered_vertex="<<found
+            <<" residual_m=0\n";
+        nodes[i].sourceVertexIndex=found;nodes[i+half].sourceVertexIndex=found;
+    }
+    std::vector<PectoralisFasciaTetrahedron> tets(
+        result.tetrahedra.begin()+r.firstTetrahedron,
+        result.tetrahedra.begin()+r.firstTetrahedron+r.tetrahedronCount);
+    for(auto& t:tets)for(auto& i:t.node)i-=r.firstNode;
+    r.firstNode=0;r.firstTetrahedron=0;
+    result.regions={r};result.nodes=std::move(nodes);result.tetrahedra=std::move(tets);
+    // This owner has no FEM presentation map. Existing repaired anatomical
+    // surfaces retain presentation ownership; no deformed-surface claim.
+    result.presentationTriangles.clear();result.header.regionCount=1u;
+    result.header.nodeCount=r.nodeCount;result.header.tetrahedronCount=r.tetrahedronCount;
+    result.header.presentationTriangleCount=0u;
+    std::cout<<"resting_fascia_regional_admission=exact active_regions=1 unused_regions=25"
+        <<" source_coordinate_units=m correspondence=unique_Float32"
+        <<" fem_presentation_binding=none full_source_loader=unchanged\n";
+    return result;
+}
+
 LoadedAnteriorThorax loadAnteriorThorax(
     const std::filesystem::path& path,
     const LoadedMuscles& muscles
@@ -3656,7 +3788,19 @@ metalrobo::MetalNumiHumanTendonLoadProgram tendonLoadProgramChain(
     };
 }
 
+struct RestingFEMAuditRange {
+    std::string objectName;
+    std::uint32_t firstNode = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t firstTetrahedron = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+};
+
 struct HumanTendonContinuumTransaction {
+    bool restingSharedPassiveOwner = false;
+    std::vector<std::array<std::uint32_t,4>> restingAuditTetrahedra;
+    std::vector<RestingFEMAuditRange> restingFEMAuditRanges;
+    std::vector<std::uint32_t> restingFEMAuditAnchorBodies;
     struct AcceptedStep {
         numi::matter::RuntimeStateSnapshot matter;
         numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 adapter;
@@ -3861,6 +4005,8 @@ void abortTendonLoadAudit(void* opaque, void*) {
 struct MetalMujocoVisualQueries {
     std::vector<MRArticulatedPointImpulseGPU> points;
     std::vector<MRNumiHumanStandContactGPU> supportContacts;
+    // Runtime rows may include manifold children; retain each exact authored row.
+    std::vector<std::uint32_t> supportSourceRecordIndices;
     std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
 };
 
@@ -3868,13 +4014,18 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     const metalrobo::EngineModel& model,
     const LoadedSupportContacts* support = nullptr,
     const std::span<const double> supportNormalForce = {},
-    const bool deriveFootManifold = false
+    const bool deriveFootManifold = false,
+    const bool deriveOrganManifold = false
 ) {
     require(!deriveFootManifold || support != nullptr,
         "four-point foot manifold requires source support contacts");
+    const auto& organWitness = metalrobo::organ_release::activeRuntimeSupportWitness;
+    require(!deriveOrganManifold || (support != nullptr && organWitness.active),
+        "four-bin organ floor requires an admitted source-derived organ witness");
     const std::uint64_t supportQueryCount = support == nullptr ? 0u :
         static_cast<std::uint64_t>(support->records.size()) +
-            (deriveFootManifold ? 6u : 0u);
+            (deriveFootManifold ? 6u : 0u) +
+            (deriveOrganManifold ? 3u : 0u);
     require(
         model.articulations.size() == 1u &&
             model.articulations.front().bodyCount == model.bodies.size() &&
@@ -3888,7 +4039,8 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
     result.points.reserve(
         4u * model.bodies.size() +
         (support == nullptr ? 0u : support->records.size()) +
-        (deriveFootManifold ? 6u : 0u)
+        (deriveFootManifold ? 6u : 0u) +
+        (deriveOrganManifold ? 3u : 0u)
     );
     for (std::uint32_t body = 0u;
          body < model.bodies.size();
@@ -3912,7 +4064,11 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                 supportNormalForce.size() == support->records.size(),
             "MyoSim source support force count does not match support witnesses");
         result.supportContacts.reserve(support->records.size() +
-            (deriveFootManifold ? 6u : 0u));
+            (deriveFootManifold ? 6u : 0u) +
+            (deriveOrganManifold ? 3u : 0u));
+        result.supportSourceRecordIndices.reserve(support->records.size() +
+            (deriveFootManifold ? 6u : 0u) +
+            (deriveOrganManifold ? 3u : 0u));
         for (std::size_t supportIndex = 0u;
              supportIndex < support->records.size();
              ++supportIndex) {
@@ -3944,6 +4100,8 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                 static_cast<float>(sourceSupportForce),
             };
             result.supportContacts.push_back(contact);
+            result.supportSourceRecordIndices.push_back(
+                static_cast<std::uint32_t>(supportIndex));
         }
         if (deriveFootManifold) {
             constexpr std::uint32_t sourceRows = 32u;
@@ -3968,10 +4126,95 @@ MetalMujocoVisualQueries makeMetalMujocoVisualQueries(
                 contact.frictionSlopAndStabilization.w = 0.0f;
                 result.points.push_back(point);
                 result.supportContacts.push_back(contact);
+                result.supportSourceRecordIndices.push_back(parent);
             }
         }
+        if (deriveOrganManifold) {
+            constexpr std::uint32_t sourceRows = 32u;
+            constexpr std::array<std::uint32_t, 2> footParents = {20u, 30u};
+            require(support->records.size() == sourceRows &&
+                        organWitness.contactIndex < sourceRows &&
+                        organWitness.bodyIndex < model.bodies.size() &&
+                        std::find(footParents.begin(), footParents.end(),
+                                  organWitness.contactIndex) == footParents.end(),
+                    "organ floor row must be a reserved non-foot source contact");
+            auto& parentContact = result.supportContacts.at(organWitness.contactIndex);
+            require(parentContact.pointQueryIndex < result.points.size(),
+                    "organ floor parent query is outside the articulated query buffer");
+            parentContact.bodyIndex = organWitness.bodyIndex;
+            auto& parentPoint = result.points.at(parentContact.pointQueryIndex);
+            parentPoint.bodyIndex = organWitness.bodyIndex;
+            parentPoint.localPoint = organWitness.localPoint;
+            const auto sourceContact = parentContact;
+            const auto sourcePoint = parentPoint;
+            for (std::uint32_t bin = 1u; bin < 4u; ++bin) {
+                auto point = sourcePoint;
+                auto contact = sourceContact;
+                point.localPoint = {0.0f, 0.0f, 0.0f, 0.0f};
+                contact.pointQueryIndex = static_cast<std::uint32_t>(result.points.size());
+                contact.frictionSlopAndStabilization.w = 0.0f;
+                result.points.push_back(point);
+                result.supportContacts.push_back(contact);
+                result.supportSourceRecordIndices.push_back(organWitness.contactIndex);
+            }
+        }
+        require(result.supportContacts.size() == result.supportSourceRecordIndices.size(),
+                "runtime support contacts lost their authored source-row lineage");
+        if (support != nullptr) {
+            for (const std::uint32_t sourceRow : result.supportSourceRecordIndices)
+                require(sourceRow < support->records.size(),
+                        "runtime support contact maps outside the authored source rows");
+        }
+        if (deriveOrganManifold) {
+            const std::size_t organStart = support->records.size() +
+                (deriveFootManifold ? 6u : 0u);
+            require(organWitness.contactIndex < support->records.size() &&
+                        organStart + 3u == result.supportContacts.size() &&
+                        result.supportSourceRecordIndices[organWitness.contactIndex] ==
+                            organWitness.contactIndex &&
+                        result.supportSourceRecordIndices[organStart] == organWitness.contactIndex &&
+                        result.supportSourceRecordIndices[organStart + 1u] == organWitness.contactIndex &&
+                        result.supportSourceRecordIndices[organStart + 2u] == organWitness.contactIndex,
+                    "organ floor query lineage does not preserve parent row and three bins");
+            std::cout << "resting_support_query_lineage=rows="
+                      << result.supportContacts.size() << " source_record_indices=[";
+            for (std::size_t i = 0u; i < result.supportSourceRecordIndices.size(); ++i)
+                std::cout << (i ? "," : "") << result.supportSourceRecordIndices[i];
+            std::cout << "] organ_source_stable_id="
+                      << metalrobo::organ_release::kRightKidneyStableId
+                      << " organ_parent_row=" << organWitness.contactIndex
+                      << " organ_derived_rows=" << organStart << "," << organStart + 1u
+                      << "," << organStart + 2u
+                      << " organ_body_index=" << organWitness.bodyIndex << '\n';
+        }
+        require(result.supportContacts.size() <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
+                "derived support rows exceed the existing Human stand contact capacity");
     }
     return result;
+}
+
+std::uint32_t sourceRecordIndexForSupportQuery(
+    const MetalMujocoVisualQueries& queries,
+    const LoadedSupportContacts& support,
+    const std::size_t queryIndex
+) {
+    require(queryIndex < queries.supportContacts.size() &&
+                queries.supportContacts.size() == queries.supportSourceRecordIndices.size(),
+            "support query has no source-record lineage entry");
+    const std::uint32_t sourceIndex = queries.supportSourceRecordIndices[queryIndex];
+    require(sourceIndex < support.records.size(),
+            "support query lineage references an absent authored row");
+    const auto& source = support.records[sourceIndex];
+    const auto& query = queries.supportContacts[queryIndex];
+    const auto& organ = metalrobo::organ_release::activeRuntimeSupportWitness;
+    const std::uint32_t expectedBody = organ.active && sourceIndex == organ.contactIndex
+        ? organ.bodyIndex : source.bodyIndex;
+    require(query.sourceGeometryIndex == source.sourceGeometryIndex &&
+                query.bodyIndex == expectedBody &&
+                query.pointQueryIndex < queries.points.size() &&
+                queries.points[query.pointQueryIndex].bodyIndex == expectedBody,
+            "support query body or geometry does not match its typed source-row lineage");
+    return sourceIndex;
 }
 
 std::vector<float> packMetalConfiguration(
@@ -4662,14 +4905,18 @@ std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>
 persistentPassiveCoordinateCouplings(
     const metalrobo::EngineModel& model,
     const bool includeUpperBodyReference,
-    const std::optional<double> sharedMtpStiffnessNmPerRad
+    const std::optional<double> sharedMtpStiffnessNmPerRad,
+    const std::span<const std::uint32_t> sourceQToRuntime = {},
+    const std::span<const std::uint32_t> sourceVToRuntime = {}
 ) {
     using Coupling = metalrobo::NumiHumanPassiveCoordinateCoupling;
     std::vector<Coupling> result = includeUpperBodyReference
         ? wholeBodyUpperPassiveCoordinateCouplings()
         : std::vector<Coupling>{};
-    if (!sharedMtpStiffnessNmPerRad.has_value()) return result;
+    require(sourceQToRuntime.empty() == sourceVToRuntime.empty(),
+        "passive separation remap requires both admitted q and V maps");
 
+    if (sharedMtpStiffnessNmPerRad.has_value()) {
     require(!model.articulations.empty(),
             "shared MTP reference requires a loaded full-body articulation");
     const auto& articulation = model.articulations.front();
@@ -4677,32 +4924,22 @@ persistentPassiveCoordinateCouplings(
                 articulation.vOffset <= model.dofs.size() &&
                 articulation.nv <= model.dofs.size() - articulation.vOffset,
             "shared MTP reference requires the single full-body MyoSim articulation");
-    const auto dofBegin = model.dofs.begin() + articulation.vOffset;
-    const auto dofEnd = dofBegin + articulation.nv;
-    for (const auto [qIndex, expectedVIndex] :
-         {std::pair{111u, 110u}, std::pair{125u, 124u}}) {
-        const auto dof = std::find_if(
-            dofBegin, dofEnd,
-            [qIndex](const MRDofPropertiesGPU& value) {
-                return value.qIndex == qIndex;
-            });
-        require(dof != dofEnd &&
-                    static_cast<std::uint32_t>(std::distance(dofBegin, dof)) ==
-                        expectedVIndex,
-                "shared MTP reference q/v mapping differs from source MyoSim");
-    }
+    constexpr std::array< numi_human_passive_coordinate_remap::SourceQvPair, 2> mtpSourcePairs{{
+        {111u, 110u}, {125u, 124u}}};
+    numi_human_passive_coordinate_remap::validateMappedSourceQvPairs(
+        std::span<const MRDofPropertiesGPU>(model.dofs), articulation.qOffset,
+        articulation.nq, articulation.vOffset, articulation.nv,
+        sourceQToRuntime, sourceVToRuntime, mtpSourcePairs);
     std::vector<Coupling> mtpCouplings;
     std::string error;
     require(metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
                 *sharedMtpStiffnessNmPerRad, mtpCouplings, error),
             "invalid shared MTP passive reference: " + error);
     result.insert(result.end(), mtpCouplings.begin(), mtpCouplings.end());
-    if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")&&model.world.nv==131u)
-        for(auto& term:result) {
-            if(term.targetDofIndex>=21u)term.targetDofIndex+=3u;
-            if(term.sourceDofIndex>=21u)term.sourceDofIndex+=3u;
-        }
-
+    }
+    if (!sourceVToRuntime.empty())
+        numi_human_passive_coordinate_remap::remapSourceCouplings(
+            result, sourceVToRuntime, model.world.nv);
     return result;
 }
 
@@ -5620,8 +5857,42 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool preserveRestingInitialPosture = false,
     const std::span<const std::uint32_t> sourceBodyIndexMap = {},
     const metalrobo::MetalNumiHumanTendonLoadProgram*
-        separationForceProgram = nullptr
+        separationForceProgram = nullptr,
+    const std::span<const std::uint32_t> organCaudalReleaseQ = {},
+    const std::span<const std::uint32_t> separationReleaseEqualityQ = {},
+    const std::span<const MRNumiHumanJointEqualityGPU> separationCrossingReleaseRows = {},
+    const std::uint32_t organReleaseStep = MR_INVALID_INDEX,
+    const std::uint32_t organReleaseTerminalBody = MR_INVALID_INDEX,
+    const std::span<const std::uint32_t> sourceQIndexMap = {},
+    const std::span<const std::uint32_t> sourceVIndexMap = {},
+    const std::span<const std::uint32_t> separationCarrierReleaseQ = {},
+    const std::span<const std::uint32_t> separationCarrierReleaseV = {}
 ) {
+    require((organCaudalReleaseQ.empty()&&separationReleaseEqualityQ.empty())==
+                (organReleaseStep==MR_INVALID_INDEX) &&
+                organCaudalReleaseQ.empty()==separationReleaseEqualityQ.empty(),
+            "organ/seam release step and both coordinate sets must be admitted together");
+    require(organCaudalReleaseQ.empty()||
+                (organCaudalReleaseQ.size()==6u&&organReleaseStep>0u&&organReleaseStep<stepCount&&
+                 organReleaseTerminalBody<model.bodies.size()),
+            "organ release needs six caudal coordinates, a terminal body, and remaining post-cut horizon steps");
+    require(sourceBodyIndexMap.empty() == sourceQIndexMap.empty() &&
+                sourceBodyIndexMap.empty() == sourceVIndexMap.empty(),
+            "separation passive-coordinate remap lacks an admitted q/V map");
+    auto* eventRollbackProbe =
+        numi::human::event_rollback::Probe::fromProgram(restingProgram);
+    const bool organEventRollbackTest = eventRollbackProbe != nullptr;
+    void* restingCouplingContext = eventRollbackProbe != nullptr
+        ? eventRollbackProbe->delegateContext()
+        : (restingProgram != nullptr ? restingProgram->context : nullptr);
+    require(!organEventRollbackTest ||
+                (eventRollbackProbe->releaseStep() == organReleaseStep &&
+                 !verifyDeterminism && organCaudalReleaseQ.size() == 6u &&
+                 separationCarrierReleaseQ.size() == 5u &&
+                 separationCarrierReleaseV.size() == 5u &&
+                 separationReleaseEqualityQ.size() == 11u + separationCrossingReleaseRows.size() &&
+                 stepCount > organReleaseStep),
+            "event rollback probe must match one non-replay organ-release horizon");
     const std::uint32_t mappedTorsoBodyIndex = sourceBodyIndexMap.size() > 20u
         ? sourceBodyIndexMap[20u] : 20u;
     std::vector<std::uint8_t> internalSeamConstraintRows(supportContacts.records.size(),0u);
@@ -5645,7 +5916,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 (restingProgram->valid() && acceptedObserver != nullptr &&
                  !verifyDeterminism && !enableRootAssistance && !removeRootAssistance &&
                  !muscleFeedback.has_value() && !standBrainLibraryPath.has_value() &&
-                 continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
+                 (continuumTransaction == nullptr ||
+                  (continuumTransaction->restingSharedPassiveOwner &&
+                   continuumTransaction->runtime && continuumTransaction->adapter &&
+                   continuumTransaction->program.valid())) &&
+                 additionalTendonLoadProgram == nullptr &&
                  !capturePersistentStandTrace && !endpointEnergy),
             "resting physiology requires one unassisted physical owner and accepted observer");
     require(!restingReleaseInitialization || restingProgram != nullptr,
@@ -5778,7 +6053,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "endpoint energy requires an unassisted source-only authoritative horizon");
     const auto persistentPassiveCouplings =
         persistentPassiveCoordinateCouplings(
-            model, sourcePassiveJointTissue, sharedMtpStiffnessNmPerRad);
+            model, sourcePassiveJointTissue, sharedMtpStiffnessNmPerRad,
+            sourceQIndexMap, sourceVIndexMap);
     GroundAlignedSupport aligned;
     if (preserveRestingInitialPosture) {
         // Construction-only world pose. Re-aligning its rigid NHCNT seeds to
@@ -5982,11 +6258,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             model,
             &supportContacts,
             compiledActivation.supportNormalForce,
-            deriveFootManifold
+            deriveFootManifold,
+            metalrobo::organ_release::activeRuntimeSupportWitness.active
         );
     if(ropeModeRequested) {
         require(queries.supportContacts.size()>=32u&&queries.supportContacts.size()<=MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
-                "rope mode requires the 32 authored rows and bounded derived contact rows");
+                "rope mode requires authored support rows and bounded derived contacts");
         std::uint32_t ropeContactIndex=MR_INVALID_INDEX;
         unsigned ropeContactMatches=0u;
         for(std::uint32_t i=0u;i<queries.supportContacts.size();++i) {
@@ -6006,8 +6283,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "rope posture retained a nonzero source contact-support seed");
         std::cout<<"rope_native_contact_replacement=existing_contact_index="
             <<ropeContactIndex<<" source_body=20 runtime_body="<<mappedTorsoBodyIndex
-            <<" authored_source_contact_count=32 runtime_contact_count="
-            <<queries.supportContacts.size()
+            <<" contact_count=32"
             <<" static_support_seeds_all_zero=1 selected_friction=0 other_contact_friction=preserved"
             <<" support_contact_force_owner=existing_unilateral_gpu_contact\n";
     }
@@ -6368,6 +6644,186 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
+    if (const char* requested = std::getenv("NUMI_HUMAN_ORGAN_FK_AUDIT")) {
+        require(std::strcmp(requested, "1") == 0,
+                "NUMI_HUMAN_ORGAN_FK_AUDIT must be 1 when set");
+        // Re-run the prepared state through only the existing articulated FK/J
+        // GPU owner. This isolates q, body poses, point transforms and Jacobians
+        // from MyoSim, stand contacts, support callbacks and physics stepping.
+        metalrobo::MetalArticulatedOperatorInput fkInput;
+        fkInput.articulationIndex = input.articulationIndex;
+        fkInput.environmentCount = input.environmentCount;
+        fkInput.pointCount = input.pointCount;
+        fkInput.q = input.q;
+        fkInput.rootTranslations = input.rootTranslations;
+        fkInput.points = input.points;
+        metalrobo::MetalArticulatedOperatorConfig fkConfig;
+        fkConfig.pointJacobiansOnly = true;
+        fkConfig.mujocoActivationTimestepSeconds =
+            config.mujocoActivationTimestepSeconds;
+        metalrobo::MetalArticulatedOperatorContext fkContext(fkConfig);
+        metalrobo::MetalArticulatedOperatorResult fkResult;
+        const auto fkDiagnostics = fkContext.run(model, fkInput, fkResult);
+        const auto finite4 = [](const mr_float4 value) {
+            return std::isfinite(double(value.x)) &&
+                std::isfinite(double(value.y)) &&
+                std::isfinite(double(value.z)) &&
+                std::isfinite(double(value.w));
+        };
+        const auto print4 = [](const mr_float4 value) {
+            std::cout << '[' << value.x << ',' << value.y << ','
+                      << value.z << ',' << value.w << ']';
+        };
+        std::uint32_t firstBadQ = MR_INVALID_INDEX;
+        for (std::uint32_t i = 0u; i < fkInput.q.size(); ++i) {
+            if (!std::isfinite(fkInput.q[i])) {
+                firstBadQ = i;
+                break;
+            }
+        }
+        std::uint32_t firstBadBody = MR_INVALID_INDEX;
+        std::size_t badBodyCount = 0u;
+        for (std::uint32_t body = 0u; body < fkResult.bodyPoses.size(); ++body) {
+            const auto& pose = fkResult.bodyPoses[body];
+            if (!finite4(pose.position) || !finite4(pose.orientation)) {
+                ++badBodyCount;
+                if (firstBadBody == MR_INVALID_INDEX) firstBadBody = body;
+            }
+        }
+        std::cout << std::setprecision(std::numeric_limits<float>::max_digits10)
+                  << "organ_fk_only_pre_point_j"
+                  << " owner_succeeded=" << fkDiagnostics.succeeded()
+                  << " dispatched=" << fkDiagnostics.dispatched
+                  << " published=" << fkDiagnostics.published
+                  << " success_envs=" << fkDiagnostics.successfulEnvironmentCount
+                  << " failed_envs=" << fkDiagnostics.failedEnvironmentCount
+                  << " message=" << fkDiagnostics.message
+                  << " bodies=" << model.articulations.at(0u).bodyCount
+                  << " nq=" << model.articulations.at(0u).nq
+                  << " nv=" << model.articulations.at(0u).nv
+                  << " q_count=" << fkInput.q.size()
+                  << " q_first_bad=" << firstBadQ
+                  << " q_first_bad_value="
+                  << (firstBadQ < fkInput.q.size() ? fkInput.q[firstBadQ] : 0.0f)
+                  << " q_root7=[";
+        for (std::size_t i = 0u; i < std::min<std::size_t>(7u, fkInput.q.size()); ++i)
+            std::cout << (i == 0u ? "" : ",") << fkInput.q[i];
+        std::cout << "] q_tail6=[";
+        const std::size_t tailBegin =
+            fkInput.q.size() > 6u ? fkInput.q.size() - 6u : 0u;
+        for (std::size_t i = tailBegin; i < fkInput.q.size(); ++i)
+            std::cout << (i == tailBegin ? "" : ",") << fkInput.q[i];
+        std::cout << "] bad_bodies=" << badBodyCount
+                  << " first_bad_body=" << firstBadBody;
+        if (!fkResult.statuses.empty()) {
+            const auto& status = fkResult.statuses.front();
+            std::cout << " gpu_status={code:" << status.code
+                      << ",env:" << status.environment
+                      << ",articulation:" << status.articulationIndex
+                      << ",failing_index:" << status.failingIndex
+                      << ",body_count:" << status.bodyCount
+                      << ",nq:" << status.nq << ",nv:" << status.nv
+                      << ",point_count:" << status.pointCount
+                      << ",diag:[" << status.diagnostics.x << ','
+                      << status.diagnostics.y << ',' << status.diagnostics.z
+                      << ',' << status.diagnostics.w << "]}";
+        } else {
+            std::cout << " gpu_status=missing";
+        }
+        if (firstBadBody < fkResult.bodyPoses.size()) {
+            const auto& pose = fkResult.bodyPoses[firstBadBody];
+            std::cout << " first_bad_body_pose={position:";
+            print4(pose.position);
+            std::cout << ",orientation:";
+            print4(pose.orientation);
+            std::cout << '}';
+        }
+        if (!fkInput.rootTranslations.empty()) {
+            const auto& root = fkInput.rootTranslations.front();
+            std::cout << " root_translation={reference:";
+            print4(root.reference);
+            std::cout << ",displacement:";
+            print4(root.displacement);
+            std::cout << ",correction:";
+            print4(root.correction);
+            std::cout << '}';
+        }
+        std::cout << std::endl;
+
+        std::uint32_t firstBadPoint = MR_INVALID_INDEX;
+        std::size_t badPointCount = 0u;
+        for (std::uint32_t point = 0u; point < fkResult.pointWorld.size(); ++point) {
+            if (!finite4(fkResult.pointWorld[point].position)) {
+                ++badPointCount;
+                if (firstBadPoint == MR_INVALID_INDEX) firstBadPoint = point;
+            }
+        }
+        std::size_t firstBadJacobian = std::numeric_limits<std::size_t>::max();
+        std::size_t badJacobianCount = 0u;
+        for (std::size_t index = 0u; index < fkResult.pointJacobians.size(); ++index) {
+            if (!std::isfinite(fkResult.pointJacobians[index])) {
+                ++badJacobianCount;
+                if (firstBadJacobian == std::numeric_limits<std::size_t>::max())
+                    firstBadJacobian = index;
+            }
+        }
+        std::cout << "organ_fk_only_point_j"
+                  << " point_count=" << fkInput.pointCount
+                  << " world_stride=" << fkResult.layout.dispatch.pointWorldStride
+                  << " jac_stride=" << fkResult.layout.dispatch.pointJacobianStride
+                  << " world_size=" << fkResult.pointWorld.size()
+                  << " jac_size=" << fkResult.pointJacobians.size()
+                  << " bad_points=" << badPointCount
+                  << " first_bad_point=" << firstBadPoint
+                  << " bad_jacobians=" << badJacobianCount;
+        if (firstBadPoint < fkResult.pointWorld.size() &&
+            firstBadPoint < fkInput.points.size()) {
+            const auto& query = fkInput.points[firstBadPoint];
+            std::cout << " first_bad_point_query={index:" << firstBadPoint
+                      << ",body:" << query.bodyIndex << ",local:";
+            print4(query.localPoint);
+            std::cout << ",world:";
+            print4(fkResult.pointWorld[firstBadPoint].position);
+            std::cout << '}';
+            if (query.bodyIndex < fkResult.bodyPoses.size()) {
+                const auto& pose = fkResult.bodyPoses[query.bodyIndex];
+                std::cout << " query_body_pose={position:";
+                print4(pose.position);
+                std::cout << ",orientation:";
+                print4(pose.orientation);
+                std::cout << '}';
+            }
+            for (std::size_t row = 0u; row < queries.supportContacts.size(); ++row) {
+                if (queries.supportContacts[row].pointQueryIndex == firstBadPoint) {
+                    const auto& contact = queries.supportContacts[row];
+                    std::cout << " support_row={row:" << row
+                              << ",body:" << contact.bodyIndex
+                              << ",source_geometry:" << contact.sourceGeometryIndex
+                              << '}';
+                    break;
+                }
+            }
+        }
+        if (firstBadJacobian != std::numeric_limits<std::size_t>::max()) {
+            const std::size_t dofs = model.articulations.at(0u).nv;
+            const std::size_t valuesPerPoint = 3u * dofs;
+            const std::size_t point =
+                valuesPerPoint == 0u ? 0u : firstBadJacobian / valuesPerPoint;
+            const std::size_t inPoint =
+                valuesPerPoint == 0u ? 0u : firstBadJacobian % valuesPerPoint;
+            std::cout << " first_bad_jacobian={flat:" << firstBadJacobian
+                      << ",point:" << point
+                      << ",axis:" << (dofs == 0u ? 0u : inPoint / dofs)
+                      << ",dof:" << (dofs == 0u ? 0u : inPoint % dofs)
+                      << ",value:" << fkResult.pointJacobians[firstBadJacobian]
+                      << '}';
+        }
+        std::cout << " support_query_begin="
+                  << 4u * model.articulations.at(0u).bodyCount
+                  << " support_rows=" << queries.supportContacts.size()
+                  << " physics_steps_advanced=0" << std::endl;
+        std::exit(0);
+    }
     // Exercise the native environment dimension on the prepared Human scene
     // before adding Brain cohort ownership. This is a diagnostic pilot: the
     // normal single-Human horizon below remains the published output path.
@@ -7177,7 +7633,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::uint32_t maximumSubmissionSteps = acceptedObserver != nullptr
         ? acceptedComMomentumAuditSegmentSteps
         : kMaximumAuthoritativeSubmissionSteps;
-    const bool captureExactContinuumSteps = continuumTransaction != nullptr;
+    // Exact per-step snapshots belong to bounded tissue qualification. The
+    // integrated resting scene keeps the continuum state on the device and
+    // reads only its terminal accepted state unless explicitly requested.
+    const bool captureExactContinuumSteps = continuumTransaction != nullptr &&
+        (restingProgram == nullptr ||
+         (std::getenv("NUMI_HUMAN_CAPTURE_CONTINUUM_STEPS") != nullptr &&
+          std::string(std::getenv("NUMI_HUMAN_CAPTURE_CONTINUUM_STEPS")) == "1"));
     const bool useSegmentedAuthoritativeHorizon =
         acceptedObserver != nullptr || standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy ||
         muscleFeedback.has_value() ||
@@ -7194,6 +7656,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         // accepted GPU status used by borrowed consumers. All configuration
         // and other status bits must still agree.
         constexpr std::uint32_t perRootExecutionReceipts =
+            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES |
+            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY |
+            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED |
             MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
             MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED |
             MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED |
@@ -7395,7 +7860,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, qIntegrationWindow, &queries](
+                                           restingProgram, eventRollbackProbe, organEventRollbackTest, restingCouplingContext, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, qIntegrationWindow, &queries, &jointEqualities, organCaudalReleaseQ, separationCarrierReleaseQ, separationCarrierReleaseV, separationReleaseEqualityQ, separationCrossingReleaseRows, organReleaseStep, organReleaseTerminalBody](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
@@ -7411,7 +7876,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.stand.rootMomentumDiagnosticLastAcceptedStep =
                 qIntegrationWindow.lastAcceptedStep;
         }
-        if (acceptedObserver == nullptr && standBrainController == nullptr &&
+        if (eventRollbackProbe == nullptr && acceptedObserver == nullptr && standBrainController == nullptr &&
             (!useSegmentedAuthoritativeHorizon ||
              (!captureExactContinuumSteps &&
              requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
@@ -7445,10 +7910,138 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.stand.usePerContactSupportPlanes=supportGeometryProgram->usePerContactSupportPlanes;
         }
 #ifdef NUMI_HUMAN_RESTING_SCENE
+        // Opt-in one-step factor/callback isolation on a local input copy.
+        const char* organStageMode=std::getenv("NUMI_HUMAN_ORGAN_STAGE_DIAG");
+        if(organStageMode!=nullptr&&organStageMode[0]!='\0'&&
+           std::strcmp(organStageMode,"0")!=0) {
+            const bool keepSupport=std::strcmp(organStageMode,"support")==0;
+            const bool keepTransaction=std::strcmp(organStageMode,"transaction")==0;
+            require(keepSupport||keepTransaction||std::strcmp(organStageMode,"factor")==0,
+                    "NUMI_HUMAN_ORGAN_STAGE_DIAG must be factor, support, or transaction");
+            const bool sourceTransactionValid=horizonInput.stand.numanXTransactionProgram.valid();
+            const bool sourceMatterValid=horizonInput.stand.numanXHumanMatterProgram.valid();
+            const std::uint32_t sourceMatterDof=horizonInput.stand.numanXHumanMatterProgram.dofCount;
+            auto diagnosticInput=horizonInput;
+            diagnosticInput.stand.stepCount=1u;
+            diagnosticInput.stand.stepIndexOffset=0u;
+            diagnosticInput.stand.authoritativeStepCount=1u;
+            diagnosticInput.residentContinuation={};
+            diagnosticInput.publishAcceptedResidentState=false;
+            diagnosticInput.collectFullResultToHost=true;
+            diagnosticInput.stand.numanXHumanMatterProgram={};
+            if(!keepTransaction)diagnosticInput.stand.numanXTransactionProgram={};
+            if(!keepSupport) {
+                diagnosticInput.stand.supportGeometryProgram={};
+                diagnosticInput.stand.usePerContactSupportPlanes=false;
+            }
+            diagnosticInput.stand.tendonLoadProgram={};
+            if(std::strcmp(organStageMode,"factor")==0)
+                diagnosticInput.stand.enableContact=false;
+            diagnosticInput.stand.enableRootAssistance=false;
+            auto diagnosticConfig=config;
+            // Preserve the admitted point-Jacobian-only articulation mode. The
+            // stand owner assembles/factors its physical mass operator and
+            // publishes pivot extrema through stand status; the generic dense
+            // diagnostic matrix is invalid in this supported path.
+            diagnosticConfig.writeDiagnosticMassMatrix=false;
+            diagnosticConfig.readStandConstraintDiagnostics=true;
+            metalrobo::MetalArticulatedOperatorContext diagnosticContext(diagnosticConfig);
+            metalrobo::MetalArticulatedOperatorResult diagnosticResult;
+            const auto diagnostic=diagnosticContext.run(model,diagnosticInput,diagnosticResult);
+            const std::size_t nv=model.articulations.at(0u).nv;
+            std::size_t finiteMass=0u,finiteJac=0u;
+            double minMassDiagonal=std::numeric_limits<double>::infinity();
+            double maxMassDiagonal=-std::numeric_limits<double>::infinity();
+            for(float value:diagnosticResult.diagnosticMassMatrix)
+                if(std::isfinite(value))++finiteMass;
+            if(diagnosticResult.diagnosticMassMatrix.size()==nv*nv) {
+                for(std::size_t i=0u;i<nv;++i) {
+                    const double value=diagnosticResult.diagnosticMassMatrix[i*nv+i];
+                    minMassDiagonal=std::min(minMassDiagonal,value);
+                    maxMassDiagonal=std::max(maxMassDiagonal,value);
+                }
+            }
+            for(float value:diagnosticResult.pointJacobians)
+                if(std::isfinite(value))++finiteJac;
+            const MRNumiHumanStandStatusGPU standStatus=diagnosticResult.standStatuses.empty()
+                ? MRNumiHumanStandStatusGPU{}:diagnosticResult.standStatuses.front();
+            std::cout<<std::setprecision(9)
+                <<"organ_stage_diagnostic=1 mode="<<organStageMode
+                <<" model_bodies="<<model.world.bodyCount
+                <<" model_nq="<<model.world.nq
+                <<" model_nv="<<nv
+                <<" input_q="<<diagnosticInput.q.size()
+                <<" input_v="<<diagnosticInput.stand.v.size()
+                <<" mujoco_muscles="<<diagnosticInput.mujoco.muscles.size()
+                <<" mujoco_states="<<diagnosticInput.mujoco.states.size()
+                <<" passive_program_floats="<<diagnosticInput.stand.passiveJointProgram.size()
+                <<" equality_rows="<<diagnosticInput.stand.jointEqualities.size()
+                <<" source_numanx_transaction_valid="<<sourceTransactionValid
+                <<" source_numanx_matter_valid="<<sourceMatterValid
+                <<" source_numanx_matter_dof="<<sourceMatterDof
+                <<" generic_numanx_has_dof_field=0"
+                <<" support_callback="<<diagnosticInput.stand.supportGeometryProgram.valid()
+                <<" tendon_callback="<<diagnosticInput.stand.tendonLoadProgram.valid()
+                <<" contact_enabled="<<diagnosticInput.stand.enableContact
+                <<" owner_status="<<static_cast<unsigned>(diagnostic.status)
+                <<" dispatched="<<diagnostic.dispatched
+                <<" published="<<diagnostic.published
+                <<" completed_steps="<<diagnostic.completedStandSteps
+                <<" first_stand_code="<<diagnostic.firstStandGPUStatusCode
+                <<" stand_code="<<standStatus.code
+                <<" stand_failing_index="<<standStatus.failingIndex
+                <<" stand_completed="<<standStatus.completedSteps
+                <<" min_factor_pivot="<<standStatus.factorAndAssistance.x
+                <<" max_factor_pivot="<<standStatus.factorAndAssistance.y
+                <<" mass_matrix_count="<<diagnosticResult.diagnosticMassMatrix.size()
+                <<" mass_matrix_finite="<<finiteMass
+                <<" mass_diagonal_min="<<minMassDiagonal
+                <<" mass_diagonal_max="<<maxMassDiagonal
+                <<" point_jacobian_count="<<diagnosticResult.pointJacobians.size()
+                <<" point_jacobian_finite="<<finiteJac
+                <<" message="<<diagnostic.message<<std::endl;
+            std::exit(0);
+        }
+        if(organReleaseStep!=MR_INVALID_INDEX) {
+            const auto& rows=jointEqualities.payload.records;
+            constexpr std::size_t carrierLockCount=5u;
+            const std::size_t crossCount=separationCrossingReleaseRows.size();
+            require(organCaudalReleaseQ.size()==6u&&
+                    separationReleaseEqualityQ.size()==carrierLockCount+crossCount+6u&&
+                    rows.size()>separationReleaseEqualityQ.size(),
+                "timed seam/organ release requires five carrier locks, exact source crossing rows, and six organ locks");
+            const auto retained=rows.size()-separationReleaseEqualityQ.size();
+            for(std::size_t k=0;k<rows.size();++k) {
+                const auto& row=rows[k];
+                if(k<retained) {
+                    require(std::find(separationReleaseEqualityQ.begin(),separationReleaseEqualityQ.end(),
+                                row.indices.x)==separationReleaseEqualityQ.end(),
+                        "organ release coordinate aliases a retained source equality");
+                } else {
+                    const std::size_t tail=k-retained;
+                    require(row.indices.x==separationReleaseEqualityQ[tail],
+                        "organ release equality tail coordinate order changed");
+                    if(tail>=carrierLockCount&&tail<carrierLockCount+crossCount) {
+                        const auto& expected=separationCrossingReleaseRows[tail-carrierLockCount];
+                        require(std::memcmp(&row,&expected,sizeof(row))==0,
+                            "cut-crossing NHEQ row bytes differ from the admitted source row");
+                    } else {
+                        require(row.indices.z==MR_INVALID_INDEX&&row.indices.w==MR_INVALID_INDEX,
+                            "carrier/organ attachment equality tail row is not a fixed-coordinate lock");
+                    }
+                }
+            }
+            horizonInput.stand.jointEqualityPrefixRelease={
+                organReleaseStep,static_cast<std::uint32_t>(retained)};
+        }
         const char* transactionProbe=std::getenv("NUMI_HUMAN_RESTING_TRANSACTION_PROBE");
         if(restingProgram&&transactionProbe&&std::strcmp(transactionProbe,"1")==0)
             numi::human::transaction_probe::run(model,config,horizonInput,
-                *static_cast<NumiHumanRestingCoupling*>(restingProgram->context));
+                *static_cast<NumiHumanRestingCoupling*>(restingCouplingContext),
+                continuumTransaction != nullptr ? continuumTransaction->runtime : nullptr,
+                continuumTransaction != nullptr ? continuumTransaction->adapter : nullptr,
+                continuumTransaction != nullptr ? continuumTransaction->program
+                                                : metalrobo::MetalNumiHumanTendonLoadProgram{});
 #endif
         const bool residentResting=restingProgram!=nullptr;
         horizonInput.publishAcceptedResidentState=residentResting;
@@ -7537,13 +8130,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         double energyInitialPassive = 0.0, energyFinalPassive = 0.0;
         double energyFreeWorkGap = 0.0, energyCoupledWorkGap = 0.0;
         double energyGeometryDelta = 0.0, energyProjectionDelta = 0.0;
+        bool rollbackPredecessorSaved = false;
+        bool rollbackEventVerified = false;
+        std::uint64_t rollbackFingerprintBefore = 0u;
+        std::uint64_t rollbackGenerationBefore = 0u;
+        std::uint32_t rollbackFullEqualityCount = 0u;
+        std::uint32_t rollbackRetainedEqualityCount = 0u;
         while (completedSteps < requestedSteps) {
-            const std::uint32_t segmentSteps =
+            std::uint32_t segmentSteps =
                 (standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy)
                 ? 1u
                 : qIntegrationWindow.segmentSteps(
                     completedSteps, requestedSteps - completedSteps,
                     maximumSubmissionSteps);
+            if(organReleaseStep!=MR_INVALID_INDEX&&completedSteps<organReleaseStep)
+                segmentSteps=std::min(segmentSteps,organReleaseStep-completedSteps);
+            if (organEventRollbackTest &&
+                completedSteps == organReleaseStep)
+                segmentSteps = 1u;
             horizonInput.stand.stepCount = segmentSteps;
             horizonInput.stand.stepIndexOffset = completedSteps;
             // The opt-in COM audit reads only accepted segment endpoints. It
@@ -7551,7 +8155,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             // it does not add a physical/controller update or per-step readback.
             horizonInput.collectFullResultToHost =
                 !residentResting || acceptedComMomentumAudit ||
-                completedSteps + segmentSteps == requestedSteps;
+                completedSteps + segmentSteps == requestedSteps ||
+                (organEventRollbackTest &&
+                 completedSteps + segmentSteps == organReleaseStep);
             const bool residentStep=residentResting&&completedSteps!=0;
             horizonInput.residentContinuation=residentStep?restingContinuation:
                 metalrobo::MetalArticulatedOperatorResidentStateContinuation{};
@@ -7566,15 +8172,196 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "authoritative_segment_begin", completedSteps
             );
             const auto segmentStart = std::chrono::steady_clock::now();
-            auto segmentDiagnostics = context.run(
-                model, horizonInput, segmentResult
-            );
+            double rejectedAttemptMilliseconds = 0.0;
+            metalrobo::MetalArticulatedOperatorDiagnostics segmentDiagnostics{};
+            if (organEventRollbackTest &&
+                completedSteps == organReleaseStep) {
+                require(rollbackPredecessorSaved && !rollbackEventVerified &&
+                            segmentSteps == 1u &&
+                            eventRollbackProbe->injectedCount() == 0u,
+                        "rollback event lacks its immediate accepted predecessor");
+                const auto eventInput = horizonInput;
+                const auto prefixReleaseBefore =
+                    eventInput.stand.jointEqualityPrefixRelease;
+                const std::vector<MRNumiHumanJointEqualityGPU> fullRowsBefore(
+                    eventInput.stand.jointEqualities.begin(),
+                    eventInput.stand.jointEqualities.end());
+                const std::uint32_t expectedRetained =
+                    rollbackFullEqualityCount -
+                    static_cast<std::uint32_t>(separationReleaseEqualityQ.size());
+                const auto eventFingerprint =
+                    eventInput.residentContinuation.previousTransactionFingerprint;
+                const auto eventGeneration =
+                    eventInput.residentContinuation.previousPhysicsGeneration;
+                require(eventInput.stand.stepIndexOffset == organReleaseStep &&
+                            eventInput.stand.stepCount == 1u &&
+                            eventInput.stand.authoritativeStepCount ==
+                                requestedSteps &&
+                            eventInput.stand.jointEqualities.size() ==
+                                rollbackFullEqualityCount &&
+                            prefixReleaseBefore.releaseStep == organReleaseStep &&
+                            prefixReleaseBefore.retainedPrefixCount ==
+                                expectedRetained &&
+                            expectedRetained == rollbackRetainedEqualityCount &&
+                            eventInput.residentContinuation.valid() &&
+                            eventFingerprint == rollbackFingerprintBefore &&
+                            eventGeneration == rollbackGenerationBefore &&
+                            eventInput.residentContinuation
+                                    .previousAcceptedTokenFingerprint == 0u &&
+                            eventInput.residentContinuation
+                                    .previousHumanIOProgramFingerprint == 0u,
+                        "rollback retry input differs from the accepted event boundary");
+
+                auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+                    restingCouplingContext);
+                numi::human::transaction_probe::PhysicalSnapshot physicalSnapshot(
+                    coupled.physiology.device, model, eventInput);
+                const auto beforePhysical =
+                    numi::human::transaction_probe::observePhysicalState(
+                        context, physicalSnapshot, eventFingerprint,
+                        eventGeneration);
+                const auto beforeMatter = coupled.physiology.runtime.snapshot();
+                const auto beforeMemory =
+                    numi::human::transaction_probe::captureCouplingMemory(coupled);
+                metalrobo::MetalArticulatedOperatorResult rejectedResult;
+                const auto rejectedDiagnostics = context.run(
+                    model, eventInput, rejectedResult);
+                rejectedAttemptMilliseconds =
+                    rejectedDiagnostics.elapsedMilliseconds;
+                require(eventRollbackProbe->injectedCount() == 1u &&
+                            eventRollbackProbe->releaseAcceptedPublicationCount() == 1u &&
+                            rejectedDiagnostics.dispatched &&
+                            !rejectedDiagnostics.succeeded() &&
+                            !rejectedDiagnostics.published &&
+                            rejectedDiagnostics.firstStandGPUStatusCode ==
+                                MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+                            rejectedDiagnostics.completedStandSteps ==
+                                organReleaseStep &&
+                            rejectedDiagnostics.residentStateGeneration == 0u &&
+                            rejectedDiagnostics.residentStateTransactionFingerprint == 0u,
+                        "GPU postDynamics rejection did not retain the previous accepted resident token");
+
+                // Observe the owner buffers before retry. The same token must
+                // still name the accepted physics and accepted controller image.
+                const auto afterPhysical =
+                    numi::human::transaction_probe::observePhysicalState(
+                        context, physicalSnapshot, eventFingerprint,
+                        eventGeneration);
+                const auto afterMatter = coupled.physiology.runtime.snapshot();
+                const auto afterMemory =
+                    numi::human::transaction_probe::captureCouplingMemory(coupled);
+                const bool physicalBytesUnchanged =
+                    numi::human::transaction_probe::samePhysicalState(
+                        beforePhysical, afterPhysical);
+                const bool matterBytesUnchanged =
+                    numi::human::transaction_probe::sameMatterAcceptedState(
+                        beforeMatter, afterMatter) &&
+                    numi::human::transaction_probe::sameMatterCirculation(
+                        beforeMatter, afterMatter);
+                const bool controllerBytesUnchanged =
+                    numi::human::transaction_probe::sameAcceptedCouplingMemory(
+                        beforeMemory, afterMemory);
+                require(physicalBytesUnchanged && matterBytesUnchanged &&
+                            controllerBytesUnchanged,
+                        "rejected event changed accepted physics, vascular clock/state, or controller publication bytes");
+
+                // Retry the same immutable value object on the same context.
+                segmentDiagnostics = context.run(
+                    model, eventInput, segmentResult);
+                require(segmentDiagnostics.succeeded() &&
+                            segmentDiagnostics.dispatched &&
+                            segmentDiagnostics.published &&
+                            segmentDiagnostics.completedStandSteps ==
+                                organReleaseStep + 1u &&
+                            segmentDiagnostics.residentStateTransactionFingerprint ==
+                                rollbackFingerprintBefore &&
+                            segmentDiagnostics.residentStateGeneration ==
+                                rollbackGenerationBefore + 1u &&
+                            segmentResult.standStatuses.size() == 1u &&
+                            segmentResult.standStatuses.front().code ==
+                                MR_NUMI_HUMAN_STAND_SUCCESS &&
+                            segmentResult.standStatuses.front().jointEqualityCounts.x ==
+                                expectedRetained &&
+                            eventInput.stand.stepIndexOffset == organReleaseStep &&
+                            eventInput.stand.stepCount == 1u &&
+                            eventInput.stand.jointEqualityPrefixRelease.releaseStep ==
+                                prefixReleaseBefore.releaseStep &&
+                            eventInput.stand.jointEqualityPrefixRelease.retainedPrefixCount ==
+                                prefixReleaseBefore.retainedPrefixCount &&
+                            eventInput.stand.jointEqualities.size() ==
+                                fullRowsBefore.size() &&
+                            std::memcmp(eventInput.stand.jointEqualities.data(),
+                                        fullRowsBefore.data(),
+                                        fullRowsBefore.size() *
+                                            sizeof(MRNumiHumanJointEqualityGPU)) == 0 &&
+                            eventRollbackProbe->injectedCount() == 1u &&
+                            eventRollbackProbe->releaseAcceptedPublicationCount() == 2u,
+                        "same-context exact retry failed or changed the immutable equality/event input");
+                const bool bodyPropertiesBytesUnchanged =
+                    eventRollbackProbe->bodyPropertiesBytesUnchanged();
+                const bool dofPropertiesBytesUnchanged =
+                    eventRollbackProbe->dofPropertiesBytesUnchanged();
+                const bool dofPostMutationMatchesExpected =
+                    eventRollbackProbe->postMutationDofPropertiesMatchExpected();
+                const std::uint32_t dofPostMutationChangedRecords =
+                    eventRollbackProbe->postMutationChangedRecordCount();
+                require(bodyPropertiesBytesUnchanged &&
+                            eventRollbackProbe->bodyPropertiesSnapshotCount() == 2u &&
+                            dofPropertiesBytesUnchanged &&
+                            eventRollbackProbe->dofPropertiesSnapshotCount() == 2u &&
+                            dofPostMutationMatchesExpected &&
+                            eventRollbackProbe->postMutationDofSnapshotCount() == 1u &&
+                            dofPostMutationChangedRecords > 0u,
+                        "retry preDynamics did not observe exact accepted body-property and DoF-property bytes restored by the rejected event");
+                rollbackEventVerified = true;
+                std::cout << "organ_event_rollback_test=passed"
+                          << " release_step=" << organReleaseStep
+                          << " rejected_gpu_status="
+                          << rejectedDiagnostics.firstStandGPUStatusCode
+                          << " failure_accepted_publication_forwarded=1"
+                          << " retry_accepted_publication_forwarded=1"
+                          << " q_v_root_muscle_bytes_unchanged="
+                          << physicalBytesUnchanged
+                          << " matter_accepted_and_vascular_clock_bytes_unchanged="
+                          << matterBytesUnchanged
+                          << " controller_accepted_and_presentation_bytes_unchanged="
+                          << controllerBytesUnchanged
+                          << " accepted_body_properties_bytes_unchanged="
+                          << bodyPropertiesBytesUnchanged
+                          << " body_properties_snapshot_count="
+                          << eventRollbackProbe->bodyPropertiesSnapshotCount()
+                          << " accepted_dof_properties_bytes_unchanged="
+                          << dofPropertiesBytesUnchanged
+                          << " dof_properties_snapshot_count="
+                          << eventRollbackProbe->dofPropertiesSnapshotCount()
+                          << " post_release_dof_patch_matches_expected="
+                          << dofPostMutationMatchesExpected
+                          << " post_release_dof_patch_records="
+                          << eventRollbackProbe->dofPatchRecordCount()
+                          << " post_release_dof_changed_records="
+                          << dofPostMutationChangedRecords
+                          << " post_release_dof_snapshot_count="
+                          << eventRollbackProbe->postMutationDofSnapshotCount()
+                          << " generation_before=" << rollbackGenerationBefore
+                          << " generation_after="
+                          << segmentDiagnostics.residentStateGeneration
+                          << " fingerprint="
+                          << segmentDiagnostics.residentStateTransactionFingerprint
+                          << " equality_rows_full=" << rollbackFullEqualityCount
+                          << " equality_rows_retained="
+                          << segmentResult.standStatuses.front()
+                                 .jointEqualityCounts.x
+                          << " retry_without_reset=1" << std::endl;
+            } else {
+                segmentDiagnostics = context.run(
+                    model, horizonInput, segmentResult);
+            }
             const auto physicalEnd = std::chrono::steady_clock::now();
             reportHumanExecutionStage(
                 "authoritative_segment_end",
                 segmentDiagnostics.completedStandSteps
             );
-            elapsedMilliseconds += segmentDiagnostics.elapsedMilliseconds;
+            elapsedMilliseconds += rejectedAttemptMilliseconds + segmentDiagnostics.elapsedMilliseconds;
             if (!segmentDiagnostics.succeeded() ||
                 !segmentDiagnostics.dispatched ||
                 !segmentDiagnostics.published ||
@@ -7590,9 +8377,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segmentResult.standStatuses.front().code !=
                     MR_NUMI_HUMAN_STAND_SUCCESS) {
 #ifdef NUMI_HUMAN_RESTING_SCENE
-                if (restingProgram != nullptr && restingProgram->context != nullptr) {
+                if (restingProgram != nullptr && restingCouplingContext != nullptr) {
                     auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
-                        restingProgram->context);
+                        restingCouplingContext);
                     const auto* candidate = static_cast<const NMHumanRespirationState*>(
                         coupled.physiology.respiration->candidate.contents);
                     const auto* accepted = static_cast<const NMHumanRespirationState*>(
@@ -7602,6 +8389,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     const auto snapshot = coupled.physiology.runtime.snapshot();
                     const NMMatterStatusGPU matter = snapshot.statuses.empty()
                         ? NMMatterStatusGPU{} : snapshot.statuses.front();
+                    const MRMetalWorldStatusGPU terminalWorld = coupled.physiology.statuses == nil
+                        ? MRMetalWorldStatusGPU{}
+                        : *static_cast<const MRMetalWorldStatusGPU*>(coupled.physiology.statuses.contents);
                     const MRNumiHumanStandStatusGPU stand =
                         segmentResult.standStatuses.empty()
                             ? MRNumiHumanStandStatusGPU{}
@@ -7694,6 +8484,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     std::cerr << "] matter_diagnostics=["
                               << matter.diagnostics.x << ',' << matter.diagnostics.y << ','
                               << matter.diagnostics.z << ',' << matter.diagnostics.w << ']'
+                              << " terminal_world_code=" << terminalWorld.code
+                              << " terminal_world_environment=" << terminalWorld.environment
+                              << " terminal_world_control_step=" << terminalWorld.controlStep
+                              << " terminal_world_successful_substeps=" << terminalWorld.successfulSubsteps
+                              << " terminal_world_aba_code=" << terminalWorld.abaCode
+                              << " terminal_world_failing_substep=" << terminalWorld.failingSubstep
+                              << " terminal_world_failing_index=" << terminalWorld.failingIndex
+                              << " terminal_world_flags=" << terminalWorld.flags
+                              << " terminal_world_diagnostics=["
+                              << terminalWorld.diagnostics.x << ',' << terminalWorld.diagnostics.y << ','
+                              << terminalWorld.diagnostics.z << ',' << terminalWorld.diagnostics.w << ']'
                               << " box_match=" << (matchedBox ? 1 : 0)
                               << " excitation_buffer=[" << excitation->x << ','
                               << excitation->y << ',' << excitation->z << ','
@@ -7750,7 +8551,21 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                             writeJsonFloat(matter.diagnostics.y); receipt << ',';
                             writeJsonFloat(matter.diagnostics.z); receipt << ',';
                             writeJsonFloat(matter.diagnostics.w);
-                            receipt << "],\n  \"common_status\": " << common->status.x << ",\n"
+                            receipt << "],\n  \"terminal_world_status\": {\n"
+                                    << "    \"code\": " << terminalWorld.code
+                                    << ", \"environment\": " << terminalWorld.environment
+                                    << ", \"control_step\": " << terminalWorld.controlStep
+                                    << ", \"successful_substeps\": " << terminalWorld.successfulSubsteps
+                                    << ", \"aba_code\": " << terminalWorld.abaCode
+                                    << ", \"failing_substep\": " << terminalWorld.failingSubstep
+                                    << ", \"failing_index\": " << terminalWorld.failingIndex
+                                    << ", \"flags\": " << terminalWorld.flags
+                                    << ", \"diagnostics\": [";
+                            writeJsonFloat(terminalWorld.diagnostics.x); receipt << ',';
+                            writeJsonFloat(terminalWorld.diagnostics.y); receipt << ',';
+                            writeJsonFloat(terminalWorld.diagnostics.z); receipt << ',';
+                            writeJsonFloat(terminalWorld.diagnostics.w);
+                            receipt << "]},\n  \"common_status\": " << common->status.x << ",\n"
                                     << "  \"common_iterations\": " << common->status.y << ",\n"
                                     << "  \"common_box\": " << boxIndex << ",\n"
                                     << "  \"common_box_match\": " << (matchedBox ? "true" : "false") << ",\n"
@@ -7872,12 +8687,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                     writeJsonFloat(value.z); receipt << ',';
                                     writeJsonFloat(value.w); receipt << ']';
                                 };
-                                receipt << ",\n  \"first_failure_latch\": {\n    \"step\": "
-                                        << f.identity.x << ",\n    \"matter_code\": " << f.identity.y
+                                receipt << ",\n  \"legacy_first_failure_latch\": {\n    \"binding_note\": \"legacy MSL buffer(2) was bound to MRMetalWorldStatusGPU but declared NMMatterStatusGPU; matter-labelled values are world-layout reinterpretations\",\n    \"step\": "
+                                        << f.identity.x << ",\n    \"legacy_world_code\": " << f.identity.y
                                         << ",\n    \"stand_code\": " << f.identity.z
-                                        << ",\n    \"matter_status\": ";
+                                        << ",\n    \"legacy_world_status_words\": ";
                                 writeU32Array(f.matterStatus);
-                                receipt << ",\n    \"matter_diagnostics\": ";writeF32Array(f.matterDiagnostics);
+                                receipt << ",\n    \"legacy_world_diagnostics\": ";writeF32Array(f.matterDiagnostics);
                                 receipt << ",\n    \"stand_status\": ";writeU32Array(f.standStatus);
                                 receipt << ",\n    \"respiration_candidate_status\": ";writeU32Array(f.respirationCandidateStatus);
                                 receipt << ",\n    \"respiration_accepted_status\": ";writeU32Array(f.respirationAcceptedStatus);
@@ -7926,6 +8741,143 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 }
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            if (organEventRollbackTest &&
+                !rollbackPredecessorSaved &&
+                completedSteps + segmentSteps == organReleaseStep) {
+                require(segmentResult.standStatuses.size() == 1u &&
+                            segmentResult.standStatuses.front().code ==
+                                MR_NUMI_HUMAN_STAND_SUCCESS &&
+                            segmentResult.standStatuses.front().jointEqualityCounts.x ==
+                                jointEqualities.payload.records.size() &&
+                            segmentDiagnostics.residentStateGeneration != 0u &&
+                            segmentDiagnostics.residentStateTransactionFingerprint != 0u,
+                        "pre-event accepted state lacks full equality rows or a resident token");
+                rollbackFullEqualityCount = static_cast<std::uint32_t>(
+                    segmentResult.standStatuses.front().jointEqualityCounts.x);
+
+                const auto& carrierArticulation =
+                    model.articulations.at(horizonInput.articulationIndex);
+                const auto& carrierCertificate =
+                    segmentResult.standStatuses.front();
+                require(separationCarrierReleaseQ.size() == 5u &&
+                            separationCarrierReleaseV.size() == 5u &&
+                            segmentResult.standQ.size() == carrierArticulation.nq &&
+                            segmentResult.standV.size() == carrierArticulation.nv,
+                        "pre-event carrier audit lacks five mapped coordinates or full accepted q/v");
+                const std::array<float, 12> certificateValues{{
+                    carrierCertificate.jointEqualityDiagnostics.x,
+                    carrierCertificate.jointEqualityDiagnostics.y,
+                    carrierCertificate.jointEqualityDiagnostics.z,
+                    carrierCertificate.jointEqualityDiagnostics.w,
+                    carrierCertificate.jointEqualityProjectionDiagnostics.x,
+                    carrierCertificate.jointEqualityProjectionDiagnostics.y,
+                    carrierCertificate.jointEqualityProjectionDiagnostics.z,
+                    carrierCertificate.jointEqualityProjectionDiagnostics.w,
+                    carrierCertificate.preProjectionPreStepConstraintDiagnostics.x,
+                    carrierCertificate.preProjectionPreStepConstraintDiagnostics.y,
+                    carrierCertificate.preProjectionPreStepConstraintDiagnostics.z,
+                    carrierCertificate.preProjectionPreStepConstraintDiagnostics.w
+                }};
+                require(std::all_of(certificateValues.begin(), certificateValues.end(),
+                                    [](float value) { return std::isfinite(value); }),
+                        "pre-event carrier equality certificate contains a non-finite diagnostic");
+                double carrierQResidualMax = 0.0;
+                double carrierVResidualMax = 0.0;
+                std::cout << std::setprecision(17)
+                          << "seam_carrier_pre_event_audit step="
+                          << completedSteps + segmentSteps
+                          << " q_count=" << separationCarrierReleaseQ.size()
+                          << " v_count=" << separationCarrierReleaseV.size();
+                for (std::size_t carrier = 0u;
+                     carrier < separationCarrierReleaseQ.size(); ++carrier) {
+                    const std::uint32_t qGlobal = separationCarrierReleaseQ[carrier];
+                    const std::uint32_t vGlobal = separationCarrierReleaseV[carrier];
+                    require(qGlobal >= carrierArticulation.qOffset &&
+                                qGlobal < carrierArticulation.qOffset +
+                                    carrierArticulation.nq &&
+                                vGlobal >= carrierArticulation.vOffset &&
+                                vGlobal < carrierArticulation.vOffset +
+                                    carrierArticulation.nv,
+                            "pre-event carrier coordinate is outside its admitted articulation");
+                    const std::size_t qLocal =
+                        static_cast<std::size_t>(qGlobal - carrierArticulation.qOffset);
+                    const std::size_t vLocal =
+                        static_cast<std::size_t>(vGlobal - carrierArticulation.vOffset);
+                    const auto matchesCarrier = [qLocal, vLocal](
+                        const MRNumiHumanJointEqualityGPU& candidate) {
+                        return candidate.indices.x == qLocal &&
+                            candidate.indices.y == vLocal &&
+                            candidate.indices.z == MR_INVALID_INDEX &&
+                            candidate.indices.w == MR_INVALID_INDEX;
+                    };
+                    const auto row = std::find_if(
+                        jointEqualities.payload.records.begin(),
+                        jointEqualities.payload.records.end(), matchesCarrier);
+                    require(row != jointEqualities.payload.records.end() &&
+                                std::count_if(jointEqualities.payload.records.begin(),
+                                    jointEqualities.payload.records.end(), matchesCarrier) == 1,
+                            "pre-event carrier lacks one unique admitted fixed-coordinate equality row");
+                    const double q = segmentResult.standQ[qLocal];
+                    const double v = segmentResult.standV[vLocal];
+                    const double qTarget = row->referencesAndCoefficients0.x;
+                    const double qResidual = q - qTarget;
+                    const double vResidual = v;
+                    require(std::isfinite(q) && std::isfinite(v) &&
+                                std::isfinite(qTarget),
+                            "pre-event carrier q/v or fixed-row target is non-finite");
+                    carrierQResidualMax = std::max(carrierQResidualMax,
+                                                   std::abs(qResidual));
+                    carrierVResidualMax = std::max(carrierVResidualMax,
+                                                   std::abs(vResidual));
+                    std::cout << " carrier" << carrier
+                              << "={q_global:" << qGlobal
+                              << ",v_global:" << vGlobal
+                              << ",q:" << q
+                              << ",q_target:" << qTarget
+                              << ",q_residual:" << qResidual
+                              << ",v:" << v
+                              << ",v_target:0,v_residual:" << vResidual << '}';
+                }
+                std::cout << " q_residual_max=" << carrierQResidualMax
+                          << " v_residual_max=" << carrierVResidualMax
+                          << " equality_rows_active="
+                          << carrierCertificate.jointEqualityCounts.x
+                          << " equality_rows_max="
+                          << carrierCertificate.jointEqualityCounts.y
+                          << " equality_failed_rows="
+                          << carrierCertificate.jointEqualityCounts.z
+                          << " max_preprojection_position_error="
+                          << carrierCertificate.jointEqualityDiagnostics.x
+                          << " max_preprojection_velocity_error="
+                          << carrierCertificate.jointEqualityDiagnostics.y
+                          << " max_abs_bilateral_impulse="
+                          << carrierCertificate.jointEqualityDiagnostics.z
+                          << " sum_abs_bilateral_impulse="
+                          << carrierCertificate.jointEqualityDiagnostics.w
+                          << " projected_q_max="
+                          << carrierCertificate.jointEqualityProjectionDiagnostics.x
+                          << " projected_q_sum="
+                          << carrierCertificate.jointEqualityProjectionDiagnostics.y
+                          << " projected_v_max="
+                          << carrierCertificate.jointEqualityProjectionDiagnostics.z
+                          << " projected_v_sum="
+                          << carrierCertificate.jointEqualityProjectionDiagnostics.w
+                          << " pre_projection_contact_limit_equality="
+                          << carrierCertificate.preProjectionPreStepConstraintDiagnostics.x << ','
+                          << carrierCertificate.preProjectionPreStepConstraintDiagnostics.y << ','
+                          << carrierCertificate.preProjectionPreStepConstraintDiagnostics.z << ','
+                          << carrierCertificate.preProjectionPreStepConstraintDiagnostics.w
+                          << std::endl;
+
+                rollbackRetainedEqualityCount =
+                    rollbackFullEqualityCount -
+                    static_cast<std::uint32_t>(separationReleaseEqualityQ.size());
+                rollbackFingerprintBefore =
+                    segmentDiagnostics.residentStateTransactionFingerprint;
+                rollbackGenerationBefore =
+                    segmentDiagnostics.residentStateGeneration;
+                rollbackPredecessorSaved = true;
             }
             if(residentResting) {
                 restingContinuation.previousTransactionFingerprint=segmentDiagnostics.residentStateTransactionFingerprint;
@@ -8339,6 +9291,28 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << " root_assistance_force_n=" << accepted.factorAndAssistance.z
                           << " root_assistance_torque_nm=" << accepted.factorAndAssistance.w
                           << std::endl;
+                if(!organCaudalReleaseQ.empty()) {
+                    require(segmentResult.bodyPoses.size()==model.bodies.size(),
+                            "organ release pose audit lacks the accepted body-pose array");
+                    std::uint32_t hostBody=organReleaseTerminalBody;
+                    for(unsigned hop=0;hop<6u;++hop) {
+                        require(hostBody<model.bodies.size(),"organ release pose audit parent chain is invalid");
+                        hostBody=model.bodies[hostBody].parentBody;
+                    }
+                    require(hostBody<model.bodies.size(),"organ release pose audit did not reach its host body");
+                    const auto& childPose=segmentResult.bodyPoses[organReleaseTerminalBody].position;
+                    const auto& hostPose=segmentResult.bodyPoses[hostBody].position;
+                    std::cout<<std::setprecision(12)<<"organ_release_accepted_pose=step"
+                        <<(completedSteps+segmentSteps)<<" simulated_seconds="<<(completedSteps+segmentSteps)*timestepSeconds
+                        <<" terminal_body="<<organReleaseTerminalBody<<" host_body="<<hostBody
+                        <<" child_world_com_m=["<<childPose.x<<","<<childPose.y<<","<<childPose.z<<"]"
+                        <<" host_world_com_m=["<<hostPose.x<<","<<hostPose.y<<","<<hostPose.z<<"]"
+                        <<" child_minus_host_m=["<<(childPose.x-hostPose.x)<<","<<(childPose.y-hostPose.y)<<","<<(childPose.z-hostPose.z)<<"]"
+                        <<" caudal_q=[";
+                    for(std::size_t axis=0;axis<organCaudalReleaseQ.size();++axis)
+                        std::cout<<(axis?",":"")<<segmentResult.standQ[organCaudalReleaseQ[axis]];
+                    std::cout<<"]"<<std::endl;
+                }
             }
             if (capturedSteps != nullptr) {
                 HumanTendonContinuumTransaction::AcceptedStep captured;
@@ -8442,6 +9416,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << " integration_bias_and_quadrature_remainder=unresolved"
                       << " closure=not_established" << std::endl;
         }
+        if (organEventRollbackTest)
+            require(rollbackPredecessorSaved && rollbackEventVerified &&
+                        eventRollbackProbe->injectedCount() == 1u &&
+                        eventRollbackProbe->releaseAcceptedPublicationCount() == 2u &&
+                        eventRollbackProbe->bodyPropertiesBytesUnchanged(),
+                    "deferred organ event rollback fixture did not complete the failure, exact retry, and mass-restore check");
         require(haveStatus && horizonResult.standStatuses.size() == 1u,
                 "segmented Human horizon published no status");
         aggregateStatus.completedSteps = requestedSteps;
@@ -8476,7 +9456,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     reportHumanExecutionStage("native_horizon_begin");
     auto diagnostics = runAuthoritativeHorizon(
         input, metalResult,
-        continuumTransaction == nullptr
+        !captureExactContinuumSteps
             ? nullptr : &continuumTransaction->acceptedSteps);
     reportHumanExecutionStage("native_horizon_end", diagnostics.completedStandSteps);
     if (!diagnostics.succeeded() && continuumTransaction != nullptr) {
@@ -8485,7 +9465,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         if (!failed.statuses.empty()) {
             const auto& status = failed.statuses.front();
             std::cerr << " matter_status=" << status.code
-                      << " matter_failing_index=" << status.failingIndex;
+                      << " matter_failing_index=" << status.failingIndex
+                      << " matter_object_index=" << status.objectIndex
+                      << " matter_diagnostics=[" << status.diagnostics.x << ','
+                      << status.diagnostics.y << ',' << status.diagnostics.z << ','
+                      << status.diagnostics.w << "]"
+                      << " failure_owner=passive_tissue_runtime";
         }
         std::cerr << "\n";
         reportDeformableContactFailures(failed);
@@ -8535,10 +9520,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << " reference=single_Human_accepted_endpoint\n";
     }
     const MRNumiHumanStandStatusGPU& status = metalResult.standStatuses.front();
+    const std::size_t finalActiveEqualityCount =
+        organReleaseStep!=MR_INVALID_INDEX && stepCount>organReleaseStep
+            ? jointEqualities.payload.records.size()-separationReleaseEqualityQ.size()
+            : jointEqualities.payload.records.size();
     require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                 status.completedSteps == stepCount &&
-                status.jointEqualityCounts.x ==
-                    jointEqualities.payload.records.size() &&
+                status.jointEqualityCounts.x == finalActiveEqualityCount &&
                 status.jointEqualityCounts.z == 0u,
             "persistent Human stand returned an incomplete device status");
     require(
@@ -9089,6 +10077,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                      tendonEnvelopeBindingCount) *
                     borrowedTendonLocalStatusSteps &&
                   borrowedTendonStatus->tendonFailureCount == 0u);
+        // Completed GPU rejection is an encoded attempt, not an encoding abort.
+        const std::uint32_t expectedRejectedAuditPasses =
+            organEventRollbackTest ? eventRollbackProbe->injectedCount() : 0u;
+        const std::uint32_t expectedInitialAuditPasses =
+            stepCount + expectedRejectedAuditPasses;
         tendonBorrowedConsumerVerified =
             status.tendonTransferCount ==
                 tendonProgram.bindings.size() * stepCount &&
@@ -9098,7 +10091,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 (tendonProgram.bindings.size() - tendonEnvelopeBindingCount) *
                     stepCount &&
             status.tendonFailureCount == 0u &&
-            acceptedTendonConsumer.encodedPassCount == stepCount &&
+            acceptedTendonConsumer.encodedPassCount == expectedInitialAuditPasses &&
             acceptedTendonConsumer.abortCount == 0u &&
             acceptedTendonConsumer.transferSnapshot != nil &&
             acceptedTendonConsumer.correctionSnapshot != nil &&
@@ -9117,7 +10110,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             ) == 0 &&
             borrowedTendonStatusMatchesPublication;
         require(tendonBorrowedConsumerVerified,
-                "persistent Human borrowed tendon-load snapshot disagreed with publication");
+                "persistent Human borrowed tendon-load snapshot disagreed with publication: passes=" +
+                    std::to_string(acceptedTendonConsumer.encodedPassCount) +
+                    " expected=" + std::to_string(expectedInitialAuditPasses) +
+                    " aborts=" + std::to_string(acceptedTendonConsumer.abortCount) +
+                    " expected_aborts=" + std::to_string(0u));
     }
     const MRNumiHumanStandStatusGPU assistedStatus = status;
     const std::vector<float> assistedQ = metalResult.standQ;
@@ -9159,13 +10156,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const MRNumiHumanStandStatusGPU& finalStatus =
         metalResult.standStatuses.front();
     if (continuumTransaction != nullptr) {
-        require(continuumTransaction->acceptedSteps.size() == stepCount &&
-                    !continuumTransaction->acceptedSteps.empty(),
-                "persistent Human continuum did not capture every accepted step");
-        continuumTransaction->accepted =
-            continuumTransaction->acceptedSteps.back().matter;
-        continuumTransaction->acceptedAdapter =
-            continuumTransaction->acceptedSteps.back().adapter;
+        if (captureExactContinuumSteps) {
+            require(continuumTransaction->acceptedSteps.size() == stepCount &&
+                        !continuumTransaction->acceptedSteps.empty(),
+                    "persistent Human continuum did not capture every accepted step");
+            continuumTransaction->accepted =
+                continuumTransaction->acceptedSteps.back().matter;
+            continuumTransaction->acceptedAdapter =
+                continuumTransaction->acceptedSteps.back().adapter;
+        } else {
+            continuumTransaction->accepted = continuumTransaction->runtime->snapshot();
+            if (continuumTransaction->adapter != nullptr)
+                continuumTransaction->acceptedAdapter =
+                    continuumTransaction->adapter->snapshot();
+        }
         require(continuumTransaction->accepted.available &&
                     metalrobo::sameMatterSnapshotAuthority(
                         continuumTransaction->accepted,
@@ -9176,6 +10180,213 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                             continuumTransaction->acceptedAdapter,
                             continuumTransaction->adapter->snapshot())),
                 "persistent Human continuum accepted state is unavailable or stale");
+    }
+    if(continuumTransaction && continuumTransaction->restingSharedPassiveOwner) {
+        const auto& a=continuumTransaction->accepted;
+        const auto& z=continuumTransaction->initial;
+        // Runtime stores the zero-based last accepted request index.
+        const bool clockMatches=z.controlStep==0u && stepCount>0u &&
+            a.controlStep==stepCount-1u && a.physicsSubstep==0u;
+        const bool passesMatch=continuumTransaction->acceptedAdapter.encodedPassCount-
+                    continuumTransaction->initialAdapter.encodedPassCount==stepCount;
+        require(a.femNodes.size()==z.femNodes.size()&&!a.femNodes.empty(),
+            "resting FEM terminal node extent changed");
+        const auto det=[](const auto& nodes,const auto& t){
+            const auto& a=nodes.at(t[0]).positionAndMass;
+            const auto& b=nodes.at(t[1]).positionAndMass;
+            const auto& c=nodes.at(t[2]).positionAndMass;
+            const auto& d=nodes.at(t[3]).positionAndMass;
+            const double bx=double(b.x)-a.x,by=double(b.y)-a.y,bz=double(b.z)-a.z;
+            const double cx=double(c.x)-a.x,cy=double(c.y)-a.y,cz=double(c.z)-a.z;
+            const double dx=double(d.x)-a.x,dy=double(d.y)-a.y,dz=double(d.z)-a.z;
+            return bx*(cy*dz-cz*dy)-by*(cx*dz-cz*dx)+bz*(cx*dy-cy*dx);
+        };
+        double minJ=std::numeric_limits<double>::infinity(),maxJ=0,maxDisplacement=0,maxReaction=0;
+        for(const auto& t:continuumTransaction->restingAuditTetrahedra) {
+            const double J=det(a.femNodes,t)/det(z.femNodes,t);
+            require(std::isfinite(J)&&J>0.35,"resting FEM terminal determinant invalid");
+            minJ=std::min(minJ,J);maxJ=std::max(maxJ,J);
+        }
+        for(unsigned i=0;i<a.femNodes.size();++i) {
+            const auto& p=a.femNodes[i].positionAndMass;const auto& q=z.femNodes[i].positionAndMass;
+            const double d=std::hypot(double(p.x)-q.x,double(p.y)-q.y,double(p.z)-q.z);
+            require(std::isfinite(d),"resting FEM terminal displacement nonfinite");
+            maxDisplacement=std::max(maxDisplacement,d);
+        }
+        for(const auto& r:continuumTransaction->acceptedAdapter.anchorReactionAcceptedHistory) {
+            const double f=std::hypot(double(r.x),double(r.y),double(r.z));
+            require(std::isfinite(f),"resting FEM accepted reaction nonfinite");
+            maxReaction=std::max(maxReaction,f);
+        }
+        require(clockMatches && passesMatch,"resting FEM accepted cursors disagree with physical steps");
+        std::cout<<"resting_FEM_terminal_audit=passed expected_steps="<<stepCount<<" initial_control="<<z.controlStep<<" final_control="<<a.controlStep<<" initial_substep="<<z.physicsSubstep<<" final_substep="<<a.physicsSubstep<<" accepted_steps="<<continuumTransaction->acceptedAdapter.encodedPassCount-continuumTransaction->initialAdapter.encodedPassCount
+            <<" adapter_passes="<<continuumTransaction->acceptedAdapter.encodedPassCount-
+                  continuumTransaction->initialAdapter.encodedPassCount
+            <<" min_J="<<minJ<<" max_J="<<maxJ<<" max_displacement_m="<<maxDisplacement
+            <<" max_anchor_reaction_N="<<maxReaction<<" capture=terminal_only"<<std::endl;
+        if (continuumTransaction->adapter != nullptr) {
+            const auto passive = continuumTransaction->adapter->diagnostics();
+            const bool passiveFinite =
+                std::isfinite(passive.passiveLigamentEndpointForceL1Newtons) &&
+                std::isfinite(passive.passiveLigamentMaximumTensionNewtons) &&
+                std::isfinite(passive.passiveLigamentMinimumEffectiveStretch) &&
+                std::isfinite(passive.passiveLigamentMaximumEffectiveStretch) &&
+                std::isfinite(passive.passiveLigamentForceResidualNewtons) &&
+                std::isfinite(passive.passiveLigamentMomentResidualNewtonMeters);
+            require(passive.initialized && passive.passiveLigamentCount == 8u &&
+                        passive.passiveLigamentLatestTransactionAccepted &&
+                        passiveFinite &&
+                        passive.passiveLigamentMinimumEffectiveStretch > 0.0 &&
+                        passive.passiveLigamentMaximumEffectiveStretch >=
+                            passive.passiveLigamentMinimumEffectiveStretch,
+                    "resting passive fascia terminal ligament audit is invalid");
+            std::cout << "resting_passive_fascia_ligament_terminal_audit=passed"
+                << " count=" << passive.passiveLigamentCount
+                << " accepted=" << passive.passiveLigamentLatestTransactionAccepted
+                << " endpoint_force_l1_N="
+                << passive.passiveLigamentEndpointForceL1Newtons
+                << " max_tension_N=" << passive.passiveLigamentMaximumTensionNewtons
+                << " min_effective_stretch="
+                << passive.passiveLigamentMinimumEffectiveStretch
+                << " max_effective_stretch="
+                << passive.passiveLigamentMaximumEffectiveStretch
+                << " force_residual_N="
+                << passive.passiveLigamentForceResidualNewtons
+                << " moment_residual_Nm="
+                << passive.passiveLigamentMomentResidualNewtonMeters
+                << " capture=terminal_only" << std::endl;
+        }
+        const auto& reactionHistory =
+            continuumTransaction->acceptedAdapter.anchorReactionAcceptedHistory;
+        const std::size_t reactionHistoryBegin =
+            continuumTransaction->initialAdapter.anchorReactionAcceptedHistory.size();
+        const std::size_t reactionHistoryAvailable =
+            reactionHistory.size() >= reactionHistoryBegin
+                ? std::min<std::size_t>(stepCount,
+                    reactionHistory.size() - reactionHistoryBegin)
+                : 0u;
+        double reactionImpulseX = 0.0, reactionImpulseY = 0.0,
+               reactionImpulseZ = 0.0, reactionImpulseMagnitude = 0.0,
+               reactionForceMagnitudeSum = 0.0, reactionPeakForce = 0.0;
+        for (std::size_t i = 0u; i < reactionHistoryAvailable; ++i) {
+            const auto& r = reactionHistory[reactionHistoryBegin + i];
+            const double magnitude = std::hypot(double(r.x), double(r.y), double(r.z));
+            require(std::isfinite(magnitude),
+                    "resting FEM reaction history contains non-finite force");
+            reactionImpulseX += double(r.x) * timestepSeconds;
+            reactionImpulseY += double(r.y) * timestepSeconds;
+            reactionImpulseZ += double(r.z) * timestepSeconds;
+            reactionImpulseMagnitude += magnitude * timestepSeconds;
+            reactionForceMagnitudeSum += magnitude;
+            reactionPeakForce = std::max(reactionPeakForce, magnitude);
+        }
+        std::cout << "resting_FEM_reaction_history_audit"
+            << " expected_steps=" << stepCount
+            << " captured_steps=" << reactionHistoryAvailable
+            << " complete=" << (reactionHistoryAvailable == stepCount)
+            << " dt_s=" << timestepSeconds
+            << " net_impulse_x_Ns=" << reactionImpulseX
+            << " net_impulse_y_Ns=" << reactionImpulseY
+            << " net_impulse_z_Ns=" << reactionImpulseZ
+            << " integrated_force_magnitude_Ns=" << reactionImpulseMagnitude
+            << " mean_force_magnitude_N="
+            << (reactionHistoryAvailable > 0u
+                    ? reactionForceMagnitudeSum / reactionHistoryAvailable : 0.0)
+            << " peak_force_magnitude_N=" << reactionPeakForce
+            << " capture=existing_accepted_history_terminal_only" << std::endl;
+        const char* endpointCapture=std::getenv("NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE");
+        if(endpointCapture && std::string(endpointCapture)=="1") {
+            const auto& ranges=continuumTransaction->restingFEMAuditRanges;
+            const auto& anchorBodies=continuumTransaction->restingFEMAuditAnchorBodies;
+            require(!ranges.empty() && anchorBodies.size()==a.femNodes.size(),
+                    "resting FEM endpoint capture lacks typed object or anchor ranges");
+            std::uint64_t coveredNodes=0u,coveredTets=0u;
+            for(const auto& range:ranges) {
+                require(range.nodeCount>0u && range.tetrahedronCount>0u &&
+                            range.firstNode<=a.femNodes.size() &&
+                            range.nodeCount<=a.femNodes.size()-range.firstNode &&
+                            range.firstTetrahedron<=continuumTransaction->restingAuditTetrahedra.size() &&
+                            range.tetrahedronCount<=continuumTransaction->restingAuditTetrahedra.size()-range.firstTetrahedron,
+                        "resting FEM endpoint capture range is malformed");
+                coveredNodes+=range.nodeCount; coveredTets+=range.tetrahedronCount;
+            }
+            require(coveredNodes==a.femNodes.size() &&
+                        coveredTets==continuumTransaction->restingAuditTetrahedra.size(),
+                    "resting FEM endpoint capture ranges do not cover accepted state");
+            const auto precision=std::cout.precision();
+            std::cout<<std::setprecision(10)
+                <<"resting_FEM_endpoint_capture=begin version=1 steps="<<stepCount
+                <<" dt_s="<<timestepSeconds<<" objects="<<ranges.size()
+                <<" nodes="<<coveredNodes<<" tetrahedra="<<coveredTets
+                <<" reactions="<<reactionHistoryAvailable<<std::endl;
+            for(const auto& range:ranges) {
+                double objectMaxDisplacement=0.0,objectMaxFreeDisplacement=0.0;
+                double objectMaxAnchoredDisplacement=0.0,objectMaxSpeed=0.0;
+                std::uint32_t maxDisplacementNode=0u,maxFreeNode=NM_INVALID_INDEX;
+                std::uint32_t maxAnchoredNode=NM_INVALID_INDEX,maxSpeedNode=0u;
+                for(std::uint32_t local=0u;local<range.nodeCount;++local) {
+                    const std::uint32_t global=range.firstNode+local;
+                    const auto& current=a.femNodes[global];
+                    const auto& initialNode=z.femNodes[global];
+                    const auto& p=current.positionAndMass;
+                    const auto& p0=initialNode.positionAndMass;
+                    const auto& v=current.velocityAndInverseMass;
+                    const auto& rest=current.restAndFixed;
+                    const double dx=double(p.x)-p0.x,dy=double(p.y)-p0.y,dz=double(p.z)-p0.z;
+                    const double displacement=std::hypot(dx,dy,dz);
+                    const double speed=std::hypot(double(v.x),double(v.y),double(v.z));
+                    require(std::isfinite(displacement)&&std::isfinite(speed),
+                            "resting FEM endpoint capture contains non-finite node data");
+                    if(displacement>objectMaxDisplacement){objectMaxDisplacement=displacement;maxDisplacementNode=local;}
+                    const bool anchored=anchorBodies[global]!=NM_INVALID_INDEX;
+                    if(anchored&&displacement>objectMaxAnchoredDisplacement){objectMaxAnchoredDisplacement=displacement;maxAnchoredNode=local;}
+                    if(!anchored&&displacement>objectMaxFreeDisplacement){objectMaxFreeDisplacement=displacement;maxFreeNode=local;}
+                    if(speed>objectMaxSpeed){objectMaxSpeed=speed;maxSpeedNode=local;}
+                    std::cout<<"resting_FEM_node,object="<<range.objectName
+                        <<",local="<<local<<",global="<<global
+                        <<",anchor_body="<<anchorBodies[global]
+                        <<",constraint_tag="<<rest.w
+                        <<",initial_x="<<p0.x<<",initial_y="<<p0.y<<",initial_z="<<p0.z
+                        <<",accepted_x="<<p.x<<",accepted_y="<<p.y<<",accepted_z="<<p.z
+                        <<",delta_x="<<dx<<",delta_y="<<dy<<",delta_z="<<dz
+                        <<",vx="<<v.x<<",vy="<<v.y<<",vz="<<v.z
+                        <<",mass_kg="<<p.w<<",inverse_mass="<<v.w<<std::endl;
+                }
+                double objectMinJ=std::numeric_limits<double>::infinity();
+                double objectMaxJ=-std::numeric_limits<double>::infinity();
+                std::uint32_t minJLocalTet=0u,maxJLocalTet=0u;
+                for(std::uint32_t localTet=0u;localTet<range.tetrahedronCount;++localTet) {
+                    const auto globalTet=range.firstTetrahedron+localTet;
+                    const auto& tet=continuumTransaction->restingAuditTetrahedra[globalTet];
+                    const double j0=det(z.femNodes,tet),j1=det(a.femNodes,tet),J=j1/j0;
+                    require(std::isfinite(J)&&J>0.35,
+                            "resting FEM endpoint capture determinant invalid");
+                    if(J<objectMinJ){objectMinJ=J;minJLocalTet=localTet;}
+                    if(J>objectMaxJ){objectMaxJ=J;maxJLocalTet=localTet;}
+                    std::cout<<"resting_FEM_tet,object="<<range.objectName
+                        <<",local="<<localTet<<",global="<<globalTet
+                        <<",n0="<<tet[0]<<",n1="<<tet[1]<<",n2="<<tet[2]<<",n3="<<tet[3]
+                        <<",J="<<J<<std::endl;
+                }
+                std::cout<<"resting_FEM_object_capture=summary object="<<range.objectName
+                    <<" first_node="<<range.firstNode<<" node_count="<<range.nodeCount
+                    <<" first_tet="<<range.firstTetrahedron<<" tet_count="<<range.tetrahedronCount
+                    <<" max_displacement_m="<<objectMaxDisplacement<<" max_displacement_local_node="<<maxDisplacementNode
+                    <<" max_free_displacement_m="<<objectMaxFreeDisplacement<<" max_free_local_node="<<maxFreeNode
+                    <<" max_anchored_displacement_m="<<objectMaxAnchoredDisplacement<<" max_anchored_local_node="<<maxAnchoredNode
+                    <<" max_speed_m_s="<<objectMaxSpeed<<" max_speed_local_node="<<maxSpeedNode
+                    <<" min_J="<<objectMinJ<<" min_J_local_tet="<<minJLocalTet
+                    <<" max_J="<<objectMaxJ<<" max_J_local_tet="<<maxJLocalTet<<std::endl;
+            }
+            for(std::uint32_t step=0u;step<reactionHistoryAvailable;++step) {
+                const auto& r=reactionHistory[reactionHistoryBegin + step];
+                std::cout<<"resting_FEM_anchor_reaction,step="<<step
+                    <<",x_N="<<r.x<<",y_N="<<r.y<<",z_N="<<r.z
+                    <<",magnitude_N="<<std::hypot(double(r.x),double(r.y),double(r.z))<<std::endl;
+            }
+            std::cout<<"resting_FEM_endpoint_capture=end"<<std::endl;
+            std::cout.precision(precision);
+        }
     }
     const bool standContactWarmStartExpected =
         config.standContactWarmStart && config.splitStandSolve &&
@@ -9220,7 +10431,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         reportHumanExecutionStage("deterministic_replay_begin");
         auto replayDiagnostics = runAuthoritativeHorizon(
             input, replayResult,
-            continuumTransaction == nullptr
+            !captureExactContinuumSteps
                 ? nullptr : &continuumTransaction->replayedSteps);
         reportHumanExecutionStage("deterministic_replay_end", replayDiagnostics.completedStandSteps);
         require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
@@ -9322,7 +10533,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             continuumTransaction->replayVerified =
                 continuumTransaction->replayedSteps.size() ==
                     continuumTransaction->acceptedSteps.size() &&
-                !continuumTransaction->replayedSteps.empty() &&
+                (!captureExactContinuumSteps ||
+                 !continuumTransaction->replayedSteps.empty()) &&
                 metalrobo::sameMatterSnapshotAuthority(
                     replayContinuum, continuumTransaction->accepted) &&
                 (continuumTransaction->adapter == nullptr ||
@@ -9346,20 +10558,31 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
 
     if (!tendonProgram.bindings.empty()) {
-        const std::uint32_t expectedConsumerPasses =
+        const std::uint32_t expectedAcceptedConsumerPasses =
             stepCount * phaseCount * (verifyDeterminism ? 2u : 1u);
+        // Completed GPU rejection is an encoded attempt, not an encoding abort.
+        const std::uint32_t expectedRejectedAuditPasses =
+            organEventRollbackTest ? eventRollbackProbe->injectedCount() : 0u;
+        const std::uint32_t expectedConsumerPasses =
+            expectedAcceptedConsumerPasses + expectedRejectedAuditPasses;
+        std::vector<std::uint32_t> expectedConsumerStepIndices;
+        expectedConsumerStepIndices.reserve(expectedConsumerPasses);
+        const std::uint32_t consumerPhases =
+            phaseCount * (verifyDeterminism ? 2u : 1u);
+        for (std::uint32_t phase = 0u; phase < consumerPhases; ++phase) {
+            for (std::uint32_t step = 0u; step < stepCount; ++step) {
+                expectedConsumerStepIndices.push_back(step);
+                if (organEventRollbackTest && phase == 0u &&
+                    step == organReleaseStep) {
+                    for (std::uint32_t retry = 0u;
+                         retry < expectedRejectedAuditPasses; ++retry)
+                        expectedConsumerStepIndices.push_back(step);
+                }
+            }
+        }
         const bool exactConsumerStepSequence =
-            acceptedTendonConsumer.acceptedStepIndices.size() ==
-                expectedConsumerPasses &&
-            std::all_of(
-                acceptedTendonConsumer.acceptedStepIndices.begin(),
-                acceptedTendonConsumer.acceptedStepIndices.end(),
-                [stepCount, index = std::uint32_t{0u}](
-                    const std::uint32_t step) mutable {
-                    const bool matches = step == index % stepCount;
-                    ++index;
-                    return matches;
-                });
+            acceptedTendonConsumer.acceptedStepIndices ==
+                expectedConsumerStepIndices;
         tendonBorrowedConsumerVerified = tendonBorrowedConsumerVerified &&
             acceptedTendonConsumer.encodedPassCount == expectedConsumerPasses &&
             exactConsumerStepSequence &&
@@ -9377,7 +10600,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     sizeof(float)
             ) == 0;
         require(tendonBorrowedConsumerVerified,
-                "persistent Human final borrowed tendon-load transaction diverged");
+                "persistent Human final borrowed tendon-load transaction diverged: passes=" +
+                    std::to_string(acceptedTendonConsumer.encodedPassCount) +
+                    " expected=" + std::to_string(expectedConsumerPasses) +
+                    " aborts=" + std::to_string(acceptedTendonConsumer.abortCount) +
+                    " expected_aborts=" + std::to_string(0u) +
+                    " sequence=" + std::to_string(exactConsumerStepSequence));
     }
 
     // Terminal native state permits equal-duration timestep comparisons.
@@ -16472,6 +17700,590 @@ struct PectoralisFasciaVisual {
     std::string deviceName;
 };
 
+struct PassiveFasciaRuntimeOwner {
+    numi::matter::Runtime runtime;
+    numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
+    HumanTendonContinuumTransaction transaction;
+    std::vector<metalrobo::NumiHumanTissueMassPartition> massPartitions;
+    std::vector<metalrobo::inferred_acl::Provenance> aclProvenance;
+    std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+    std::vector<std::array<std::uint32_t,4u>> fasciaStripAnchorIdentity;
+    std::vector<std::array<std::uint32_t,4>> auditTetrahedra;
+};
+
+std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+    const LoadedPectoralisFascia& fascia, LoadedSoftTissues& tissues,
+    LoadedMuscles& muscles, metalrobo::EngineModel& model,
+    LoadedSupportContacts& support, LoadedBones* bones, LoadedSkin* skin,
+    LoadedTorsoAnatomy* anatomy,
+    std::span<const std::uint32_t> sourceBodyMap,
+    bool includeInferredACL,
+    std::span<const float> q, double dt,
+    const std::filesystem::path& matterMetallib
+) {
+    require(fascia.regions.size()==1u &&
+            model.articulations.size()==1u && dt>0.0 && std::isfinite(dt),
+            "resting passive fascia source/model is invalid");
+    constexpr std::uint32_t ri=0u;
+    const auto& region=fascia.regions[ri];
+    require((region.softTissueStableId&kFasciaRouteBodyBit)==0u &&
+            region.muscleIndex<muscles.gpuMuscles.size() &&
+            region.nodeCount>=12u && region.nodeCount%2u==0u &&
+            region.firstNode<=fascia.nodes.size() &&
+            region.nodeCount<=fascia.nodes.size()-region.firstNode &&
+            region.firstTetrahedron<=fascia.tetrahedra.size() &&
+            region.tetrahedronCount>0u &&
+            region.tetrahedronCount<=fascia.tetrahedra.size()-region.firstTetrahedron,
+            "resting passive fascia region is incomplete");
+    const auto tissue=std::find_if(tissues.records.begin(),tissues.records.end(),
+        [&region](const SoftTissueRecord& t){return t.stableId==region.softTissueStableId;});
+    require(tissue!=tissues.records.end(),"resting fascia source surface missing");
+
+    metalrobo::MetalArticulatedOperatorInput pi;
+    pi.articulationIndex=0u; pi.environmentCount=1u; pi.q=q;
+    metalrobo::MetalArticulatedOperatorConfig pc; pc.pointJacobiansOnly=true;
+    metalrobo::MetalArticulatedOperatorResult pr;
+    const auto ps=metalrobo::runMetalArticulatedOperator(model,pi,pr,pc);
+    require(ps.succeeded()&&ps.dispatched&&ps.published&&
+            pr.bodyPoses.size()==model.bodies.size(),
+            "resting fascia source-pose FK failed: "+ps.message);
+    const auto bodies=visualBodyStates(model,pr.bodyPoses);
+    const std::uint32_t half=region.nodeCount/2u;
+    std::vector<mr_float4> points(region.nodeCount);
+    std::vector<std::array<double,3u>> rest;
+    rest.reserve(region.nodeCount);
+    for(std::uint32_t i=0;i<region.nodeCount;++i){
+        const auto& n=fascia.nodes[region.firstNode+i];
+        require(n.regionIndex==ri&&n.sourceVertexIndex<tissue->vertexCount,
+                "resting fascia node escaped its source region");
+        const auto& sv=tissues.vertices[tissue->firstVertex+n.sourceVertexIndex];
+        auto p=softTissueVertexBlendedWorld(*tissue,sv,bodies);
+        if(i>=half){
+            const auto normal=softTissueVertexBlendedNormalWorld(*tissue,sv,bodies);
+            p.x-=fascia.header.thicknessMeters*normal.x;
+            p.y-=fascia.header.thicknessMeters*normal.y;
+            p.z-=fascia.header.thicknessMeters*normal.z;
+        }
+        require(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),
+                "resting fascia source node is non-finite");
+        p.w=1.0f; points[i]=p; rest.push_back({p.x,p.y,p.z});
+    }
+    std::array<std::uint32_t,2u> terminals{MR_INVALID_INDEX,MR_INVALID_INDEX};
+    std::uint32_t nt=0;
+    for(std::uint32_t i=0;i<muscles.tendonPayload.bindings.size();++i)
+        if(muscles.tendonPayload.bindings[i].muscleIndex==region.muscleIndex){
+            require(nt<2u,"resting fascia route has >2 tendon terminals");
+            terminals[nt++]=i;
+        }
+    require(nt==2u,"resting fascia route requires two tendon terminals");
+    mr_float4 fixed{0,0,0,0},second{0,0,0,0};
+    std::uint32_t nf=0,ns=0;
+    for(std::uint32_t i=0;i<region.nodeCount;++i){
+        const auto flags=fascia.nodes[region.firstNode+i].flags;
+        require((flags&3u)!=3u,"resting fascia node has ambiguous endpoint flags");
+        if(flags&1u){fixed=femAdd(fixed,points[i]);++nf;}
+        if(flags&2u){second=femAdd(second,points[i]);++ns;}
+    }
+    require(nf&&ns,"resting fascia source lacks two attachment bands");
+    fixed=femScale(fixed,1.0f/float(nf)); second=femScale(second,1.0f/float(ns));
+    const auto endpoint=[&](std::uint32_t i){
+        const auto& b=muscles.tendonPayload.bindings[i];
+        require(b.bodyIndex<bodies.size(),"resting fascia terminal body invalid");
+        const auto& body=bodies[b.bodyIndex];
+        return femAdd(body.position,rotatePoint(body.orientation,
+            {float(b.resolvedLocalPoint[0]),float(b.resolvedLocalPoint[1]),
+             float(b.resolvedLocalPoint[2]),0.0f}));
+    };
+    const auto e0=endpoint(terminals[0]),e1=endpoint(terminals[1]);
+    const float a0=femLength(femSubtract(e0,second))+femLength(femSubtract(e1,fixed));
+    const float a1=femLength(femSubtract(e1,second))+femLength(femSubtract(e0,fixed));
+    require(std::isfinite(a0)&&std::isfinite(a1)&&std::abs(a0-a1)>1.0e-5f,
+            "resting fascia endpoint-band assignment is ambiguous");
+    const std::uint32_t bSecond=a0<=a1?terminals[0]:terminals[1];
+    const std::uint32_t bFixed=bSecond==terminals[0]?terminals[1]:terminals[0];
+    const auto tv=femSubtract(endpoint(bSecond),endpoint(bFixed));
+    const float tl=femLength(tv);
+    require(std::isfinite(tl)&&tl>0.01f,"resting fascia source terminals coincide");
+
+    require(includeInferredACL,
+            "reduced passive fascia requires registered bilateral ACL FEM");
+    numi::matter::WorldSource source;
+    source.environmentCount=1u; source.frameTimestep=dt;
+    source.gravity={model.world.gravityAndTimestep.x,model.world.gravityAndTimestep.y,model.world.gravityAndTimestep.z};
+    source.mixedSolver.newtonIterations=12u;
+    source.mixedSolver.fgmresRestart=16u;
+    source.mixedSolver.fgmresIterations=64u;
+    source.mixedSolver.lineSearchSteps=12u;
+    auto parsed=numi::matter::parseMatterFile(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL);
+    require(parsed.succeeded(),"resting fascia material parse failed");
+    auto material=parsed.material;
+    material.name="resting_passive_pectoralis_region_0"; material.fingerprint=0u;
+    const auto fiber=femScale(tv,1.0f/tl);
+    setMatterMaterialParameter(material,"density",1000.0);
+    setMatterMaterialParameter(material,"matrix_shear",1840.0);
+    setMatterMaterialParameter(material,"bulk",500000.0);
+    setMatterMaterialParameter(material,"fiber_k1",10000.0);
+    setMatterMaterialParameter(material,"fiber_k2",2.36);
+    setMatterMaterialParameter(material,"fiber_x",fiber.x);
+    setMatterMaterialParameter(material,"fiber_y",fiber.y);
+    setMatterMaterialParameter(material,"fiber_z",fiber.z);
+    setMatterMaterialParameter(material,"tension_smoothing",1.0e-4);
+    setMatterMaterialParameter(material,"minimum_valid_J",0.35);
+    setMatterMaterialParameter(material,"numerical_viscosity",0.0);
+    const auto parameterValue=[&](std::string_view name) {
+        const auto found=std::find_if(material.parameters.begin(),material.parameters.end(),
+            [name](const auto& parameter){return parameter.name==name;});
+        require(found!=material.parameters.end()&&std::isfinite(found->defaultValue),
+                "resting fascia source parameter missing: "+std::string(name));
+        return found->defaultValue;
+    };
+    const double density=parameterValue("density");
+    const double matrixShear=parameterValue("matrix_shear");
+    const double fiberK1=parameterValue("fiber_k1");
+    const double fiberK2=parameterValue("fiber_k2");
+    const double smoothing=parameterValue("tension_smoothing");
+    namespace fascia_reduction = numi::human::reduced_passive_fascia;
+    const double fitMin=fascia_reduction::kFitMinimumStretch;
+    const double fitMax=fascia_reduction::kFitMaximumStretch;
+    std::vector<fascia_reduction::Node> reductionNodes;
+    reductionNodes.reserve(region.nodeCount);
+    for(std::uint32_t i=0u;i<region.nodeCount;++i) {
+        const auto& sourceNode=fascia.nodes[region.firstNode+i];
+        reductionNodes.push_back({
+            {rest[i][0],rest[i][1],rest[i][2]},
+            sourceNode.sourceVertexIndex,sourceNode.flags});
+    }
+    std::vector<fascia_reduction::Tetrahedron> reductionTetrahedra;
+    reductionTetrahedra.reserve(region.tetrahedronCount);
+    for(std::uint32_t t=0u;t<region.tetrahedronCount;++t) {
+        const auto& sourceTet=fascia.tetrahedra[region.firstTetrahedron+t];
+        require(sourceTet.regionIndex==ri,
+                "resting fascia tetrahedron region mismatch");
+        fascia_reduction::Tetrahedron tet{};
+        for(unsigned c=0u;c<4u;++c) {
+            require(sourceTet.node[c]>=region.firstNode&&
+                        sourceTet.node[c]<region.firstNode+region.nodeCount,
+                    "resting fascia tetrahedron crosses source region");
+            tet.node[c]=sourceTet.node[c]-region.firstNode;
+        }
+        reductionTetrahedra.push_back(tet);
+    }
+    const fascia_reduction::Material reductionMaterial{
+        density,matrixShear,fiberK1,fiberK2,smoothing};
+    const auto evaluateOwnerStress=[](
+        const fascia_reduction::FiberLaw& law,double length,double area,
+        double stretch,double& stress)->bool {
+        NMNumiHumanPassiveLigamentGPU ligament{};
+        ligament.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
+        ligament.material={float(law.c3Pascals),float(law.c4),
+                           float(law.c5Pascals),float(law.maximumStretch)};
+        ligament.reference={float(length),float(area),1.0f,0.0f};
+        numi::matter::NumiHumanPassiveLigamentFiberEvaluation evaluated;
+        if(!numi::matter::evaluateNumiHumanPassiveLigamentFiber(
+                ligament,length*stretch,evaluated))return false;
+        stress=evaluated.fiberStressPascals;
+        return std::isfinite(stress);
+    };
+    fascia_reduction::Result cookedReduction;
+    std::string reductionError;
+    require(fascia_reduction::cook(
+                reductionNodes,reductionTetrahedra,reductionMaterial,
+                {fiber.x,fiber.y,fiber.z},evaluateOwnerStress,
+                cookedReduction,reductionError),
+            "resting fascia reduction failed: "+reductionError);
+    require(cookedReduction.distributedStripMassKg==0.0,
+            "massless passive fascia rows unexpectedly own mass");
+    const double totalSourceVolume=cookedReduction.sourceVolumeCubicMeters;
+    std::vector<fascia_reduction::Strip> strips=
+        std::move(cookedReduction.strips);
+    std::vector<std::array<std::uint32_t,4u>> stripIdentities;
+    stripIdentities.reserve(strips.size());
+    double maximumFitError=0.0,maximumFitRMS=0.0;
+    for(const auto& strip:strips) {
+        stripIdentities.push_back({strip.firstNode,strip.firstSourceVertex,
+                                   strip.secondNode,strip.secondSourceVertex});
+        maximumFitError=std::max(maximumFitError,
+                                 strip.peakNormalizedMaximumError);
+        maximumFitRMS=std::max(maximumFitRMS,strip.peakNormalizedRmsError);
+    }
+    std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+    passiveLigaments.reserve(strips.size());
+    const auto toLocal=[&](std::uint32_t node,std::uint32_t bindingIndex) {
+        const auto& binding=muscles.tendonPayload.bindings[bindingIndex];
+        require(binding.bodyIndex<bodies.size(),
+                "fascia strip donor body is invalid");
+        const auto& body=bodies[binding.bodyIndex];
+        const mr_float4 inverse{-body.orientation.x,-body.orientation.y,
+            -body.orientation.z,body.orientation.w};
+        return rotatePoint(inverse,femSubtract(points[node],body.position));
+    };
+    for(const auto& strip:strips) {
+        NMNumiHumanPassiveLigamentGPU passive{};
+        passive.firstBodyIndex=muscles.tendonPayload.bindings[bFixed].bodyIndex;
+        passive.secondBodyIndex=muscles.tendonPayload.bindings[bSecond].bodyIndex;
+        passive.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
+        const auto firstLocal=toLocal(strip.firstNode,bFixed);
+        const auto secondLocal=toLocal(strip.secondNode,bSecond);
+        passive.firstLocalPoint={firstLocal.x,firstLocal.y,firstLocal.z,0.0f};
+        passive.secondLocalPoint={secondLocal.x,secondLocal.y,secondLocal.z,0.0f};
+        passive.material={float(strip.law.c3Pascals),float(strip.law.c4),
+                          float(strip.law.c5Pascals),float(strip.law.maximumStretch)};
+        passive.reference={float(strip.restLengthMeters),
+                           float(strip.areaSquareMeters),1.0f,0.0f};
+        passiveLigaments.push_back(passive);
+        std::cout<<"resting_fascia_strip=admitted layer="<<strip.layer
+            <<" first_node="<<stripIdentities[passiveLigaments.size()-1u][0]
+            <<" first_source_vertex="<<strip.firstSourceVertex
+            <<" second_node="<<stripIdentities[passiveLigaments.size()-1u][2]
+            <<" second_source_vertex="<<strip.secondSourceVertex
+            <<" first_body="<<passive.firstBodyIndex
+            <<" second_body="<<passive.secondBodyIndex
+            <<" rest_length_m="<<strip.restLengthMeters
+            <<" area_m2="<<strip.areaSquareMeters
+            <<" volume_m3="<<strip.sourceVolumeCubicMeters
+            <<" fiber_alignment="<<strip.fiberAlignment
+            <<" c3_pa="<<strip.law.c3Pascals
+            <<" c4="<<strip.law.c4
+            <<" c5_pa="<<strip.law.c5Pascals
+            <<" fit_rms_fraction="<<strip.peakNormalizedRmsError
+            <<" fit_max_fraction="<<strip.peakNormalizedMaximumError
+            <<" fit_error_normalization=peak_target_stress\n";
+    }
+    std::cout<<"resting_fascia_reduced_owner=accepted representation=two_point_axial_strips"
+        <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
+        <<" strips="<<passiveLigaments.size()<<" endpoint_anchors="<<stripIdentities.size()*2u
+        <<" source_volume_m3="<<totalSourceVolume<<" source_mass_kg="<<totalSourceVolume*density
+        <<" thickness_m="<<fascia.header.thicknessMeters
+        <<" max_fit_fraction="<<maximumFitError<<" max_fit_rms_fraction="<<maximumFitRMS
+        <<" fit_stretch_range="<<fitMin<<","<<fitMax<<" linear_extension_beyond="<<fitMax
+        <<" fit_error_normalization=peak_target_stress"
+        <<" mass_owner=original_rigid_donors mass_partitioned=0"
+        <<" myosim_force_owner=existing_NHTENDON"
+        <<" passive_fascia_force_owner=existing_Matter_passive_ligament"
+        <<" compression_shear=not_represented visual_deformation=not_represented\n";
+    std::vector<metalrobo::inferred_acl::BuiltObject> aclObjects;
+    if(includeInferredACL) {
+        require(bones&&bones->sourceOwnerBindingsVerified&&
+                    bones->sourceRecordIndices.size()==bones->records.size(),
+                "inferred ACL requires source-bound registered bone records");
+        const auto runtimeBody=[&](std::uint32_t sourceBody) {
+            require(sourceBodyMap.empty() || sourceBody<sourceBodyMap.size(),
+                    "inferred ACL source body outside runtime map");
+            return sourceBodyMap.empty()?sourceBody:sourceBodyMap[sourceBody];
+        };
+        const auto sourceBoneStableID=[](std::uint32_t sourceBody)->std::uint32_t {
+            switch(sourceBody) {
+                case 131u:return 2u; case 145u:return 3u; // FJ3365/FJ3259 femur
+                case 136u:return 4u; case 150u:return 5u; // FJ3387/FJ3282 tibia, not fibula
+                case 142u:return 24u;case 156u:return 25u; // FJ3381/FJ3275 patella
+                default:throw std::runtime_error("inferred ACL source bone identity unsupported");
+            }
+        };
+        const auto uniqueBoneRecord=[&](std::uint32_t body,std::uint32_t stableID) {
+            std::uint32_t found=MR_INVALID_INDEX;
+            for(std::uint32_t i=0;i<bones->records.size();++i)
+                if(bones->records[i].bodyIndex==body && bones->records[i].stableId==stableID) {
+                    require(found==MR_INVALID_INDEX,
+                        "inferred ACL bone body has multiple registered source records: "+
+                        std::to_string(body));
+                    found=i;
+                }
+            require(found!=MR_INVALID_INDEX&&
+                        bones->sourceRecordIndices[found]!=MR_INVALID_INDEX,
+                    "inferred ACL bone body lacks a source-bound surface record: "+
+                    std::to_string(body));
+            return found;
+        };
+        const auto surface=[&](std::uint32_t sourceBody) {
+            const auto body=runtimeBody(sourceBody);
+            const auto recordIndex=uniqueBoneRecord(body,sourceBoneStableID(sourceBody));
+            return metalrobo::inferred_acl::bakeRegisteredBoneSurface(
+                bones->records[recordIndex],bones->sourceRecordIndices[recordIndex],
+                std::span<const BoneVertex>(bones->vertices),
+                std::span<const std::uint32_t>(bones->indices),bodies.at(body),
+                bones->payloadSha256);
+        };
+        const std::array<std::array<std::uint32_t,3u>,2u> sourceKneeBodies{{
+            {metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+             metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY,
+             metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY},
+            {metalrobo::NUMI_HUMAN_KNEE_RIGHT_FEMUR_BODY,
+             metalrobo::NUMI_HUMAN_KNEE_RIGHT_TIBIA_BODY,
+             metalrobo::NUMI_HUMAN_KNEE_RIGHT_PATELLA_BODY}}};
+        auto aclMaterial=numi::matter::parseMatterFile(
+            NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL);
+        require(aclMaterial.succeeded(),
+            "inferred ACL reference material parse failed");
+        for(std::uint32_t side=0;side<sourceKneeBodies.size();++side) {
+            const auto femurBody=runtimeBody(sourceKneeBodies[side][0]);
+            const auto tibiaBody=runtimeBody(sourceKneeBodies[side][1]);
+            const auto patellaBody=runtimeBody(sourceKneeBodies[side][2]);
+            const auto patellaRecord=uniqueBoneRecord(patellaBody,sourceBoneStableID(sourceKneeBodies[side][2]));
+            auto femurSurface=surface(sourceKneeBodies[side][0]);
+            auto tibiaSurface=surface(sourceKneeBodies[side][1]);
+            const auto frame=metalrobo::inferred_acl::deriveRegisteredKneeFrame(
+                model,bodies,side,femurBody,tibiaBody,patellaBody,
+                bones->records[patellaRecord].stableId);
+            const std::array<metalrobo::inferred_acl::BoneSurface,2u> surfaces{
+                femurSurface.view(),tibiaSurface.view()};
+            auto built=metalrobo::inferred_acl::buildRegisteredSkeletonACL(
+                frame,surfaces,aclMaterial.material);
+            built.object.materialIndex=
+                static_cast<std::uint32_t>(source.materials.size());
+            source.materials.push_back(std::move(built.material));
+            source.objects.push_back(built.object);
+            aclObjects.push_back(std::move(built));
+        }
+    }
+    std::size_t totalNodeCount=0u;
+    for(const auto& acl:aclObjects) totalNodeCount+=acl.object.femNodes.size();
+    require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
+            "resting tissue stack node count exceeds runtime index range");
+    numi::matter::CompileOptions opts; opts.maximumRateExponent=0u;
+    auto compiled=numi::matter::compileWorld(source,opts);
+    std::string detail;
+    for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
+    require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
+    require(compiled.world.fem.nodes.size()==totalNodeCount,
+            "resting fascia/ACL cooked node count differs from source");
+    require(compiled.world.objects.size()==source.objects.size(),
+            "resting FEM audit object descriptors differ from authored stack");
+    std::vector<RestingFEMAuditRange> auditRanges;
+    auditRanges.reserve(source.objects.size());
+    std::uint64_t authoredNodeCount=0u, authoredTetCount=0u;
+    std::vector<std::uint8_t> nodeCoverage(totalNodeCount,0u);
+    std::vector<std::uint8_t> tetCoverage(compiled.world.fem.tetrahedra.size(),0u);
+    for(std::uint32_t objectIndex=0u;objectIndex<source.objects.size();++objectIndex) {
+        const auto& object=source.objects[objectIndex];
+        const auto& descriptor=compiled.world.objects[objectIndex];
+        require(object.representation==numi::matter::Representation::fem &&
+                    descriptor.representation==NM_REPRESENTATION_FEM &&
+                    descriptor.stateOffset<=compiled.world.fem.nodes.size() &&
+                    object.femNodes.size()<=compiled.world.fem.nodes.size()-descriptor.stateOffset &&
+                    descriptor.elementOffset<=compiled.world.fem.tetrahedra.size() &&
+                    object.tetrahedra.size()<=compiled.world.fem.tetrahedra.size()-descriptor.elementOffset,
+                "resting FEM audit range is outside its compiled object arenas");
+        for(std::size_t localNode=0u;localNode<object.femNodes.size();++localNode) {
+            const auto globalNode=static_cast<std::size_t>(descriptor.stateOffset)+localNode;
+            require(nodeCoverage[globalNode]==0u,
+                    "resting FEM audit node ranges overlap");
+            nodeCoverage[globalNode]=1u;
+        }
+        for(std::size_t localTet=0u;localTet<object.tetrahedra.size();++localTet) {
+            const auto globalTet=static_cast<std::size_t>(descriptor.elementOffset)+localTet;
+            require(tetCoverage[globalTet]==0u,
+                    "resting FEM audit tetrahedron ranges overlap");
+            tetCoverage[globalTet]=1u;
+            const auto& cooked=compiled.world.fem.tetrahedra[globalTet];
+            require(cooked.identity.y==objectIndex && (cooked.identity.w&NM_OBJECT_ACTIVE)!=0u,
+                    "resting FEM audit tetrahedron lineage differs from its authored object");
+            const std::array<std::uint32_t,4u> cookedNodes{
+                cooked.nodes.x,cooked.nodes.y,cooked.nodes.z,cooked.nodes.w};
+            for(unsigned corner=0u;corner<4u;++corner)
+                require(cookedNodes[corner]>=descriptor.stateOffset &&
+                            cookedNodes[corner]<descriptor.stateOffset+object.femNodes.size(),
+                        "resting FEM audit tetrahedron escapes its object node range");
+        }
+        auditRanges.push_back({object.name,descriptor.stateOffset,
+            static_cast<std::uint32_t>(object.femNodes.size()),descriptor.elementOffset,
+            static_cast<std::uint32_t>(object.tetrahedra.size())});
+        authoredNodeCount+=object.femNodes.size(); authoredTetCount+=object.tetrahedra.size();
+    }
+    const auto activeCookedTets=static_cast<std::uint64_t>(std::count_if(
+        compiled.world.fem.tetrahedra.begin(),compiled.world.fem.tetrahedra.end(),
+        [](const auto& tet){return (tet.identity.w&NM_OBJECT_ACTIVE)!=0u;}));
+    require(std::all_of(nodeCoverage.begin(),nodeCoverage.end(),
+                        [](std::uint8_t covered){return covered==1u;}) &&
+                std::all_of(tetCoverage.begin(),tetCoverage.end(),
+                        [](std::uint8_t covered){return covered==1u;}) &&
+                authoredNodeCount==totalNodeCount &&
+                auditRanges.size()==aclObjects.size() &&
+                authoredTetCount==activeCookedTets &&
+                authoredTetCount==compiled.world.fem.tetrahedra.size(),
+            "resting FEM audit ranges do not cover the authored object stack");
+
+    std::vector<NMNumiHumanTendonFEMNodeLoadGPU> loads(totalNodeCount);
+    for(auto& l:loads){std::fill_n(l.endpointIndex,4u,NM_INVALID_INDEX);l.scale={0,0,0,0};}
+    std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> anchors(totalNodeCount);
+    for(auto& a:anchors)a.bodyIndex=NM_INVALID_INDEX;
+    std::uint32_t aclFirstNode=0u;
+    for(const auto& acl:aclObjects) {
+        require(acl.nodeAnchors.size()==acl.object.femNodes.size()&&
+                    acl.nodeLoads.size()==acl.object.femNodes.size(),
+                "inferred ACL anchor/load map differs from its object node count");
+        std::copy(acl.nodeAnchors.begin(),acl.nodeAnchors.end(),
+                  anchors.begin()+aclFirstNode);
+        std::copy(acl.nodeLoads.begin(),acl.nodeLoads.end(),
+                  loads.begin()+aclFirstNode);
+        aclFirstNode+=static_cast<std::uint32_t>(acl.object.femNodes.size());
+    }
+    require(aclFirstNode==totalNodeCount,
+            "resting ACL stack node offsets do not cover compiled world");
+    std::vector<metalrobo::NumiHumanTissueMassNode> massNodes;
+    massNodes.reserve(totalNodeCount);
+    aclFirstNode=0u;
+    for(const auto& acl:aclObjects) {
+        std::vector<float> cookedMasses;
+        cookedMasses.reserve(acl.object.femNodes.size());
+        for(std::size_t i=0;i<acl.object.femNodes.size();++i)
+            cookedMasses.push_back(
+                compiled.world.fem.nodes[aclFirstNode+i].positionAndMass.w);
+        auto aclMassNodes=metalrobo::inferred_acl::makeCookedMassNodes(
+            acl,aclFirstNode,cookedMasses);
+        massNodes.insert(massNodes.end(),aclMassNodes.begin(),aclMassNodes.end());
+        aclFirstNode+=static_cast<std::uint32_t>(acl.object.femNodes.size());
+    }
+    require(massNodes.size()==totalNodeCount,
+            "resting fascia/ACL mass map does not cover every compiled FEM node");
+    double initialPhysicalMass=0.0; for(const auto& b:model.bodies)initialPhysicalMass+=b.massAndInverseMass.x;
+    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes);
+    require(mass.succeeded(),"resting fascia donor mass partition failed: "+mass.error);
+    metalrobo::EngineModel rebased;
+    std::string massError;
+    require(metalrobo::rebaseNumiHumanTissueMassPartition(
+        model,mass.partitions,rebased,massError),
+        "resting fascia rigid mass rebase failed: "+massError);
+    const auto offset=[&](std::uint32_t body)->std::array<double,3> {
+        for(const auto& p:mass.partitions)if(p.donorBody==body)return p.remainingCOMOffsetM;
+        return {};
+    };
+    const auto shift=[&](auto& p,std::uint32_t b) {
+        auto o=offset(b);p.x=float(double(p.x)-o[0]);
+        p.y=float(double(p.y)-o[1]);p.z=float(double(p.z)-o[2]);
+    };
+    const auto shiftArray=[&](auto& p,std::uint32_t b) {
+        auto o=offset(b);for(unsigned a=0;a<3;++a)p[a]-=o[a];
+    };
+    for(auto& p:muscles.sites) {
+        auto o=offset(p.bodyIndex);p.x=float(double(p.x)-o[0]);
+        p.y=float(double(p.y)-o[1]);p.z=float(double(p.z)-o[2]);
+    }
+    for(auto& p:muscles.referenceSites)shiftArray(p.localPoint,p.bodyIndex);
+    for(auto& p:muscles.gpuSites)shift(p.localPoint,p.bodyIndex);
+    for(auto& p:muscles.wraps) {
+        auto o=offset(p.bodyIndex);p.centerX=float(double(p.centerX)-o[0]);
+        p.centerY=float(double(p.centerY)-o[1]);p.centerZ=float(double(p.centerZ)-o[2]);
+    }
+    for(auto& p:muscles.referenceWraps)shiftArray(p.localCenter,p.bodyIndex);
+    for(auto& p:muscles.gpuWraps)shift(p.localCenter,p.bodyIndex);
+    for(auto& p:muscles.tendonPayload.bindings)shiftArray(p.resolvedLocalPoint,p.bodyIndex);
+    for(auto& p:muscles.tendonPayload.triangles)
+        for(auto& v:p.localVertices)shiftArray(v,p.bodyIndex);
+    for(auto& p:muscles.tendonPayload.envelopes)
+        for(auto& v:p.localNodes)shiftArray(v,p.bodyIndex);
+    for(auto& p:support.records) {
+        auto o=offset(p.bodyIndex);p.localPointX=float(double(p.localPointX)-o[0]);
+        p.localPointY=float(double(p.localPointY)-o[1]);p.localPointZ=float(double(p.localPointZ)-o[2]);
+    }
+    for(auto& a:anchors)if(a.flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)
+        shift(a.localPoint,a.bodyIndex);
+    for(auto& ligament:passiveLigaments) {
+        shift(ligament.firstLocalPoint,ligament.firstBodyIndex);
+        shift(ligament.secondLocalPoint,ligament.secondBodyIndex);
+    }
+    rebaseNumiHumanSurfaceFrames(bones,skin,&tissues,anatomy,mass.partitions);
+    double executedPhysicalMass=0.0;for(const auto& b:rebased.bodies)executedPhysicalMass+=b.massAndInverseMass.x;
+    double continuumMass=0.0;for(const auto& n:massNodes)continuumMass+=n.massKg;
+    executedPhysicalMass+=continuumMass;
+    require(std::abs(executedPhysicalMass-initialPhysicalMass)<1.e-5,
+        "resting tissue stack total physical mass changed");
+    std::cout<<"resting_tissue_mass_partition=conserved initial_kg="<<initialPhysicalMass
+        <<" executed_rigid_plus_FEM_kg="<<executedPhysicalMass<<" FEM_kg="<<continuumMass<<"\n";
+    model=std::move(rebased);
+    auto owner=std::make_unique<PassiveFasciaRuntimeOwner>();
+    owner->massPartitions=mass.partitions;
+    owner->passiveLigaments=std::move(passiveLigaments);
+    owner->fasciaStripAnchorIdentity=std::move(stripIdentities);
+    for(const auto& tet:compiled.world.fem.tetrahedra)owner->auditTetrahedra.push_back({tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w});
+    for(const auto& acl:aclObjects) owner->aclProvenance.push_back(acl.provenance);
+    const auto init=owner->runtime.initialize(compiled.world,{
+        .metallib=matterMetallib,.environmentCount=1u,.captureEvents=true,
+        .captureDiagnostics=true,.automaticIdentification=false,.adaptiveTransfer=false});
+    require(init.encoded&&owner->runtime.valid(),
+            "resting fascia runtime init failed: "+init.message);
+    const auto initial=owner->runtime.snapshot();
+    require(initial.available&&initial.femNodes.size()==totalNodeCount,
+            "resting fascia/ACL initial runtime state unavailable");
+    require(owner->adapter.initialize(owner->runtime,{
+        .nodeLoads=loads,.nodeAnchors=anchors,.endpointReplacements={},
+        .passiveLigaments=owner->passiveLigaments,
+        .endpointCount=static_cast<std::uint32_t>(muscles.tendonPayload.bindings.size()),
+        .environmentCount=1u,.productionForceOwnerFraction=0.0},
+        {.metallib=matterMetallib}),
+        "resting fascia passive adapter initialization failed");
+    const auto initialAdapter=owner->adapter.snapshot();
+    require(initialAdapter.available&&initialAdapter.encodedPassCount==0u&&
+            initialAdapter.abortCount==0u,"resting fascia adapter initial state unavailable");
+    owner->transaction.restingSharedPassiveOwner=true;
+    owner->transaction.restingAuditTetrahedra=owner->auditTetrahedra;
+    owner->transaction.restingFEMAuditRanges=std::move(auditRanges);
+    owner->transaction.restingFEMAuditAnchorBodies.resize(anchors.size(),NM_INVALID_INDEX);
+    for(std::size_t node=0u;node<anchors.size();++node)
+        if((anchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)!=0u)
+            owner->transaction.restingFEMAuditAnchorBodies[node]=anchors[node].bodyIndex;
+    owner->transaction.program=owner->adapter.program();
+    owner->transaction.runtime=&owner->runtime; owner->transaction.adapter=&owner->adapter;
+    owner->transaction.initial=initial; owner->transaction.initialAdapter=initialAdapter;
+    std::cout<<"resting_passive_fascia=admitted region="<<ri
+             <<" source_surface_id="<<region.softTissueStableId
+             <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
+             <<" body_anchors="<<owner->fasciaStripAnchorIdentity.size()*2u
+             <<" active_node_loads=0 endpoint_replacements=0 reduced_strips="<<owner->passiveLigaments.size()<<"\n"
+             <<" myosim_force_owner=existing_NHTENDON passive_fascia_force_owner=existing_Matter_passive_ligament passive_material_calibration=not_claimed"
+             <<" mass_rebase=cooked_node_partition gravity=source_body_gravity"
+             <<" inferred_acl_selection="<<(includeInferredACL?"enabled":"disabled")
+             <<" same_world_acl_objects="<<aclObjects.size()
+             <<" total_nodes="<<totalNodeCount<<"\n";
+    for(const auto& acl:aclObjects) {
+        std::cout<<"resting_inferred_acl=admitted side="<<acl.provenance.side
+                 <<" femur_body="<<acl.provenance.femurBody
+                 <<" femur_stable_id="<<acl.provenance.femurBoneStableId
+                 <<" femur_source_record="<<acl.provenance.femurSourceRecord
+                 <<" tibia_body="<<acl.provenance.tibiaBody
+                 <<" tibia_stable_id="<<acl.provenance.tibiaBoneStableId
+                 <<" tibia_source_record="<<acl.provenance.tibiaSourceRecord
+                 <<" patella_stable_id="<<acl.provenance.patellaBoneStableId
+                 <<" nodes="<<acl.object.femNodes.size()
+                 <<" tetrahedra="<<acl.object.tetrahedra.size()
+                 <<" max_attachment_projection_m="
+                 <<acl.provenance.maximumAttachmentProjectionResidualMeters
+                 <<" max_attachment_footprint_radius_m="
+                 <<acl.provenance.maximumAttachmentFootprintRadiusMeters
+                 <<" minimum_interbone_facing_normal_dot="
+                 <<acl.provenance.minimumInterboneFacingNormalDot
+                 <<" minimum_patch_normal_alignment_dot="
+                 <<acl.provenance.minimumPatchNormalAlignmentDot
+                 <<" footprint_radius_limit_m="
+                 <<acl.provenance.inferredFootprintRadiusLimitMeters
+                 <<" patch_normal_angle_limit_rad="
+                 <<acl.provenance.inferredPatchNormalAngleLimitRadians
+                 <<" minimum_interbone_facing_normal_dot_limit="
+                 <<acl.provenance.minimumInterboneFacingNormalDotLimit
+                 <<" minimum_patch_normal_alignment_dot_limit="
+                 <<acl.provenance.minimumPatchNormalAlignmentDotLimit
+                 <<" maximum_attachment_projection_residual_limit_m="
+                 <<acl.provenance.maximumAttachmentProjectionResidualLimitMeters
+                 <<" assumed_length_range_m="
+                 <<acl.provenance.minimumAssumedLengthMeters
+                 <<","<<acl.provenance.maximumAssumedLengthMeters
+                 <<" inferred_dimensions_m="<<acl.provenance.assumedLengthMeters
+                 <<","<<acl.provenance.assumedWidthMeters
+                 <<","<<acl.provenance.assumedThicknessMeters
+                 <<" selected_record_local_triangles="
+                 <<acl.provenance.selectedSurfaceTriangles[0]
+                 <<","<<acl.provenance.selectedSurfaceTriangles[1]
+                 <<" femur_anchor_record_local_triangles=";
+    for(std::size_t i=0;i<acl.provenance.femurAnchorTriangles.size();++i)
+        std::cout<<(i?",":"")<<acl.provenance.femurAnchorTriangles[i];
+    std::cout<<" tibia_anchor_record_local_triangles=";
+    for(std::size_t i=0;i<acl.provenance.tibiaAnchorTriangles.size();++i)
+        std::cout<<(i?",":"")<<acl.provenance.tibiaAnchorTriangles[i];
+    std::cout<<" class=inferred_reference_geometry"
+                 <<" separate_OpenKnee_ACL_or_passive_row=disabled\n";
+    }
+    return owner;
+}
+
 PectoralisFasciaVisual runPectoralisFascia(
     const LoadedPectoralisFascia& fascia,
     const LoadedSoftTissues& tissues,
@@ -20308,6 +22120,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 kNeuralRegionReferenceSemantic, kVentricularRegionReferenceSemantic,
                 kJunctionReferenceSemantic, kOcularRegionReferenceSemantic, kOcularMuscleReferenceSemantic
             };
+            const auto sourceIdentity=torsoAnatomyPayload->sourceStableIdByRuntimeDisplayId.find(surface.stableId);
+            const std::uint32_t sourceStableId=sourceIdentity==torsoAnatomyPayload->sourceStableIdByRuntimeDisplayId.end()
+                ? surface.stableId : sourceIdentity->second;
             appendInstance(
                 appendTorsoAnatomyGeometry(pack, *torsoAnatomyPayload, surface),
                 materials.at(surface.layer - 1u), semantics.at(surface.layer - 1u),
@@ -20316,7 +22131,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 surface.stableId
             );
             if ((torsoAnatomyLayerMask & (1u << (surface.layer - 1u))) == 0u ||
-                std::binary_search(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end(), surface.stableId)) {
+                std::binary_search(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end(), sourceStableId)) {
                 pack.instances.back().binding.w = 0u;
             }
             ++renderedTorsoAnatomySurfaces;
@@ -22288,9 +24103,12 @@ int main(int argc, char** argv) {
             if (pectoralisFasciaPayloadPath.has_value()) {
                 require(softTissuePayload.has_value(),
                         "--pectoralis-fascia-payload requires --soft-tissue-payload");
-                pectoralisFasciaPayload.emplace(loadPectoralisFascia(
-                    *pectoralisFasciaPayloadPath, *softTissuePayload, musclePayload
-                ));
+                const bool regionalPassive=restingScene.has_value() &&
+                    std::getenv("NUMI_HUMAN_RESTING_PASSIVE_FASCIA") &&
+                    std::string(std::getenv("NUMI_HUMAN_RESTING_PASSIVE_FASCIA"))=="1";
+                pectoralisFasciaPayload.emplace(regionalPassive ?
+                    loadRestingRegionalPassiveFascia(*pectoralisFasciaPayloadPath,*softTissuePayload,musclePayload) :
+                    loadPectoralisFascia(*pectoralisFasciaPayloadPath,*softTissuePayload,musclePayload));
             }
             std::optional<LoadedAnteriorThorax> anteriorThoraxPayload;
             if (anteriorThoraxPayloadPath.has_value()) {
@@ -22311,6 +24129,8 @@ int main(int argc, char** argv) {
                     "--hidden-anatomy-stable-id requires --torso-anatomy-payload");
             std::sort(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end());
             std::optional<LoadedTorsoAnatomy> torsoAnatomyPayload;
+            std::optional<LoadedTorsoAnatomy> organVisualAnatomyPayload;
+            const LoadedTorsoAnatomy* visualTorsoAnatomyPayload = nullptr;
             if (torsoAnatomyPayloadPath.has_value()) {
                 require(bodypartsBoneVisual,
                         "--torso-anatomy-payload requires a BodyParts3D bone payload");
@@ -23390,12 +25210,24 @@ int main(int argc, char** argv) {
                     restingFixedBoundReceipt;
                 std::vector<metalrobo::NumiHumanRestingLinearBoundReceiptRecord>
                     restingLinearBoundReceipt;
+                // Preserve the immutable source graphs across the optional rigid-hand
+                // reductions. A cut must classify NHEQ endpoints using authored source
+                // body ownership, not the post-reduction coordinate ordering.
+                std::optional<metalrobo::NumiHumanJointEqualityPayload> seamSourceEqualities;
+                std::vector<MRDofPropertiesGPU> seamSourceDofs;
+                std::vector<std::uint32_t> separationCrossSourceRows;
+                std::vector<MRNumiHumanJointEqualityGPU> separationCrossReleaseRows;
+                std::vector<std::uint32_t> separationCrossDependentQ;
+                std::vector<std::uint32_t> separationDofPatchIndices;
+                std::vector<MRDofPropertiesGPU> separationDofPatchRecords;
                 if(restingRigidHands) {
                     const char* cachePath=std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH");
                     require(cachePath==nullptr||cachePath[0]=='\0',
                         "rigid-hand reduction requires fresh source equilibrium initialization");
                     const auto sourceEqualities = jointEqualityPayload->payload;
                     const auto sourceDofs = rigid.model.dofs;
+                    seamSourceEqualities=sourceEqualities;
+                    seamSourceDofs=sourceDofs;
                     std::vector<MRNumiHumanJointEqualityGPU> reduced;
                     std::string reductionError;
                     require(metalrobo::compileNumiHumanRestingHandReduction(
@@ -23700,13 +25532,24 @@ int main(int argc, char** argv) {
                         << "contact_normal_solver_iterate_work_segment_j,contact_tangent_solver_iterate_work_segment_j,"
                         << "equality_solver_iterate_work_segment_j,source_limit_solver_iterate_work_segment_j,"
                         << "contact_normal_absolute_solver_iterate_work_segment_j,contact_tangent_absolute_solver_iterate_work_segment_j,"
-                        << "equality_absolute_solver_iterate_work_segment_j,source_limit_absolute_solver_iterate_work_segment_j\n";
+                        << "equality_absolute_solver_iterate_work_segment_j,source_limit_absolute_solver_iterate_work_segment_j,"
+                        << "gpu_root_momentum_free_same_q_x_kg_m_s,gpu_root_momentum_free_same_q_y_kg_m_s,gpu_root_momentum_free_same_q_z_kg_m_s,"
+                        << "gpu_root_momentum_post_constraints_same_q_x_kg_m_s,gpu_root_momentum_post_constraints_same_q_y_kg_m_s,gpu_root_momentum_post_constraints_same_q_z_kg_m_s,"
+                        << "gpu_root_momentum_previous_velocity_same_q_x_kg_m_s,gpu_root_momentum_previous_velocity_same_q_y_kg_m_s,gpu_root_momentum_previous_velocity_same_q_z_kg_m_s,"
+                        << "gpu_root_momentum_accepted_velocity_same_q_x_kg_m_s,gpu_root_momentum_accepted_velocity_same_q_y_kg_m_s,gpu_root_momentum_accepted_velocity_same_q_z_kg_m_s,"
+                        << "same_q_post_constraints_minus_free_minus_external_support_x_ns,same_q_post_constraints_minus_free_minus_external_support_y_ns,same_q_post_constraints_minus_free_minus_external_support_z_ns,"
+                        << "same_q_accepted_velocity_minus_free_minus_external_support_x_ns,same_q_accepted_velocity_minus_free_minus_external_support_y_ns,same_q_accepted_velocity_minus_free_minus_external_support_z_ns,"
+                        << "endpoint_cpu_com_momentum_minus_same_q_accepted_x_kg_m_s,endpoint_cpu_com_momentum_minus_same_q_accepted_y_kg_m_s,endpoint_cpu_com_momentum_minus_same_q_accepted_z_kg_m_s,"
+                        << "accepted_endpoint_body_com_momentum_gpu_fk_x_kg_m_s,accepted_endpoint_body_com_momentum_gpu_fk_y_kg_m_s,accepted_endpoint_body_com_momentum_gpu_fk_z_kg_m_s,"
+                        << "accepted_endpoint_gpu_minus_same_q_accepted_x_kg_m_s,accepted_endpoint_gpu_minus_same_q_accepted_y_kg_m_s,accepted_endpoint_gpu_minus_same_q_accepted_z_kg_m_s,"
+                        << "accepted_endpoint_gpu_minus_cpu_com_x_kg_m_s,accepted_endpoint_gpu_minus_cpu_com_y_kg_m_s,accepted_endpoint_gpu_minus_cpu_com_z_kg_m_s,"
+                        << "gpu_root_momentum_same_q_available,gpu_accepted_endpoint_momentum_available\n";
                     supportImpulseTrace.open(std::filesystem::path(positional.back())/
                         "resting-com-support-impulses.csv");
                     require(supportImpulseTrace.good(),
                             "accepted support impulse trace path unavailable");
                     supportImpulseTrace << std::setprecision(17)
-                        << "sample_start_step,accepted_step,segment_steps,contact_index,body_index,source_geometry_index,row_class,"
+                        << "sample_start_step,accepted_step,segment_steps,contact_index,source_record_index,body_index,source_geometry_index,row_class,"
                         << "normal_impulse_ns,tangent0_impulse_ns,tangent1_impulse_ns,"
                         << "impulse_world_x_ns,impulse_world_y_ns,impulse_world_z_ns,"
                         << "normal_x,normal_y,normal_z,tangent0_x,tangent0_y,tangent0_z,tangent1_x,tangent1_y,tangent1_z";
@@ -23756,6 +25599,7 @@ int main(int argc, char** argv) {
                         << "source_body_linear_momentum_accepted_qv_x_kg_m_s,source_body_linear_momentum_accepted_qv_y_kg_m_s,source_body_linear_momentum_accepted_qv_z_kg_m_s,"
                         << "gpu_body_kinetic_root_momentum_free_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_z_kg_m_s,"
                         << "gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_z_kg_m_s,"
+                        << "gpu_body_kinetic_root_momentum_accepted_endpoint_qv_x_kg_m_s,gpu_body_kinetic_root_momentum_accepted_endpoint_qv_y_kg_m_s,gpu_body_kinetic_root_momentum_accepted_endpoint_qv_z_kg_m_s,"
                         << "gpu_body_kinetic_root_mass_row_x_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_y_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_z_f32_by_local_v_index_semicolon,"
                         << "gpu_stand_constraint_vectors_captured,"
                         << "gpu_stand_free_velocity_count,gpu_stand_free_velocity_f32_by_local_v_index_semicolon,"
@@ -23854,7 +25698,7 @@ int main(int argc, char** argv) {
                         require(qSupportSlipTrace.good(),
                                 "bounded accepted Q support-slip trace path unavailable");
                         qSupportSlipTrace << std::setprecision(17)
-                            << "accepted_step,time_s,contact_index,body_index,source_geometry_index,point_query_index"
+                            << "accepted_step,time_s,contact_index,source_record_index,body_index,source_geometry_index,point_query_index"
                             << ",slip_pre_step_contact_J_v_before_tangent0_m_s,slip_pre_step_contact_J_v_before_tangent1_m_s,slip_pre_step_contact_J_v_before_speed_m_s"
                             << ",slip_pre_step_contact_J_v_free_tangent0_m_s,slip_pre_step_contact_J_v_free_tangent1_m_s,slip_pre_step_contact_J_v_free_speed_m_s"
                             << ",slip_pre_step_contact_J_v_preprojection_velocity_same_q_tangent0_m_s,slip_pre_step_contact_J_v_preprojection_velocity_same_q_tangent1_m_s,slip_pre_step_contact_J_v_preprojection_velocity_same_q_speed_m_s"
@@ -23920,6 +25764,20 @@ int main(int argc, char** argv) {
                         std::as_bytes(std::span(rigid.model.dofs)));
                 }
                 appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
+                const char* passiveFasciaSetting=std::getenv("NUMI_HUMAN_RESTING_PASSIVE_FASCIA");
+                require(passiveFasciaSetting==nullptr||std::strcmp(passiveFasciaSetting,"0")==0||
+                        std::strcmp(passiveFasciaSetting,"1")==0,
+                        "NUMI_HUMAN_RESTING_PASSIVE_FASCIA must be 0 or 1");
+                const bool restingPassiveFasciaEnabled=passiveFasciaSetting&&
+                    std::strcmp(passiveFasciaSetting,"1")==0;
+                require(!restingPassiveFasciaEnabled||
+                    (restingScene.has_value()&&persistentMetalStand&&muscleStepSeconds.has_value()&&
+                     pectoralisFasciaPayload.has_value()&&softTissuePayload.has_value()&&
+                     std::getenv("NUMI_HUMAN_SEPARATION_STEP")==nullptr),
+                    "passive fascia requires intact persistent stand and registered source payloads");
+                if(restingPassiveFasciaEnabled)
+                    appendSource("resting_passive_pectoralis_fascia_payload_v1",
+                                 payloadBytes(*pectoralisFasciaPayloadPath));
                 if(!restingAnatomyReceipt.empty())appendSource("resting_functional_anatomy",payloadBytes(restingAnatomyReceipt));
                 std::optional<NumiHumanRestingBedSurface> fixedBed;
                 if(!restingBedSurface.empty()) {
@@ -23963,6 +25821,17 @@ int main(int argc, char** argv) {
                 if(restingDriveIntervention)appendSource("resting_drive_intervention",std::as_bytes(std::span(*restingDriveIntervention)));
 
                 std::vector<std::uint32_t> activeSeparationBodyMap;
+                std::vector<std::uint32_t> activeSeparationQMap;
+                std::vector<std::uint32_t> activeSeparationVMap;
+                std::vector<metalrobo::organ_release::FragmentChain> organReleaseChains;
+                std::optional<metalrobo::organ_release::SplitResult> organReleaseSplit;
+                metalrobo::organ_release::Vec3 organReleaseCutPlanePointGeometry{};
+                metalrobo::organ_release::Vec3 organReleaseCutPlaneNormalGeometry{};
+                std::vector<std::uint32_t> organCaudalReleaseQ;
+                std::vector<std::uint32_t> separationCarrierReleaseQ;
+                std::vector<std::uint32_t> separationCarrierReleaseV;
+                std::vector<std::uint32_t> separationReleaseEqualityQ;
+                std::uint32_t separationSeamDofIndex=MR_INVALID_INDEX;
                 std::vector<std::uint8_t> comAuditInternalSeamRows(
                     supportContactPayload->records.size(), 0u);
                 std::optional<std::uint32_t> separationReleaseStep;
@@ -23977,15 +25846,80 @@ int main(int argc, char** argv) {
                     char* end=nullptr;const auto step=std::strtoul(release,&end,10);
                     require(end!=release&&*end=='\0'&&step>0&&step<=1000000,"invalid separation step");
                     const std::vector<float> originalPose(poseQ.begin(),poseQ.end());
-                    metalrobo::EngineModel separated;
-                    metalrobo::separation::TranslationCarrierChain chain;
-                    std::string error;
+                    require(seamSourceEqualities.has_value()&&seamSourceDofs.size()==rigid.model.dofs.size(),
+                        "seam release requires immutable source NHEQ and DoF records");
                     require(rigid.model.bodies.size()==157&&rigid.model.world.nv==128,
                         "separation requires the pinned original Human graph");
-                    require(metalrobo::separation::insertTranslationCarriers(
+                    constexpr std::uint32_t sourceSeamJoint=16u;
+                    const auto sourceSeam=rigid.model.joints.at(sourceSeamJoint);
+                    const auto isCaudalBody=[&](std::uint32_t body) {
+                        require(body<rigid.model.bodies.size(),"NHEQ source endpoint body is out of range");
+                        std::uint32_t cursor=body;
+                        while(cursor!=MR_INVALID_INDEX) {
+                            if(cursor==sourceSeam.childBody)return true;
+                            cursor=rigid.model.bodies.at(cursor).parentBody;
+                        }
+                        return false;
+                    };
+                    const auto sourceEndpointCaudal=[&](std::uint32_t q,std::uint32_t v) {
+                        require(v<seamSourceDofs.size(),"NHEQ source endpoint DoF is out of range");
+                        const auto& dof=seamSourceDofs[v];
+                        require(dof.qIndex==q&&dof.vIndex==v&&dof.jointIndex<rigid.model.joints.size(),
+                            "NHEQ endpoint does not map to its authored source DoF/joint");
+                        return isCaudalBody(rigid.model.joints.at(dof.jointIndex).childBody);
+                    };
+                    separationCrossSourceRows.clear();
+                    for(std::uint32_t sourceRow=0;sourceRow<seamSourceEqualities->records.size();++sourceRow) {
+                        const auto& row=seamSourceEqualities->records[sourceRow];
+                        if(row.indices.z==MR_INVALID_INDEX&&row.indices.w==MR_INVALID_INDEX)continue;
+                        require(row.indices.z<seamSourceEqualities->nq&&row.indices.w<seamSourceEqualities->nv,
+                            "NHEQ cut dependency is malformed");
+                        if(sourceEndpointCaudal(row.indices.x,row.indices.y)!=
+                           sourceEndpointCaudal(row.indices.z,row.indices.w))
+                            separationCrossSourceRows.push_back(sourceRow);
+                    }
+                    require(!separationCrossSourceRows.empty(),
+                        "seam partition found no source NHEQ dependencies crossing its body cut");
+                    metalrobo::EngineModel separated;
+                    metalrobo::separation::SeverableSeamCarrierChain chain;
+                    std::string error;
+                    require(metalrobo::separation::insertSeverableSeamCarriers(
                         rigid.model,16u,"L1_L2_separation",separated,chain,error),error);
                     rigid.model=std::move(separated);
                     activeSeparationBodyMap=chain.oldBodyToNew;
+                    // The source seam's own interval was part of the authored
+                    // revolute. Linear-bound consolidation temporarily transfers
+                    // that interval to its master; restore the source record for
+                    // pre-cut dynamics while retaining the master's pre-cut
+                    // intersection. The event later installs the derived free record.
+                    const auto sourceSeamV=seamSourceDofs.at(sourceSeam.vOffset);
+                    MRDofPropertiesGPU restoredSeamDof=sourceSeamV;
+                    restoredSeamDof.jointIndex=chain.oldJointToNew.at(sourceSeamV.jointIndex);
+                    restoredSeamDof.qIndex=chain.oldQToNew.at(sourceSeamV.qIndex);
+                    restoredSeamDof.vIndex=chain.oldVToNew.at(sourceSeamV.vIndex);
+                    rigid.model.dofs.at(restoredSeamDof.vIndex)=restoredSeamDof;
+                    separationCarrierReleaseQ.assign(chain.qIndices.begin(),chain.qIndices.end());
+                    separationCarrierReleaseV.assign(chain.vIndices.begin(),chain.vIndices.end());
+                    separationReleaseEqualityQ=separationCarrierReleaseQ;
+                    separationSeamDofIndex=chain.oldVToNew.at(sourceSeamV.vIndex);
+                    const MRDofPropertiesGPU& sourceSeamDof=
+                        rigid.model.dofs.at(separationSeamDofIndex);
+                    require(sourceSeamV.jointIndex==sourceSeamJoint&&
+                            sourceSeamV.qIndex==sourceSeam.qOffset&&
+                            sourceSeamDof.jointIndex==chain.oldJointToNew.at(sourceSeamV.jointIndex) &&
+                            sourceSeamDof.qIndex==chain.oldQToNew.at(sourceSeamV.qIndex) &&
+                            sourceSeamDof.vIndex==chain.oldVToNew.at(sourceSeamV.vIndex) &&
+                            (sourceSeamDof.flags&MR_DOF_FLAG_POSITION_LIMIT)!=0u &&
+                            std::isfinite(sourceSeamDof.limits.x) &&
+                            std::isfinite(sourceSeamDof.limits.y) &&
+                            sourceSeamDof.limits.x<sourceSeamDof.limits.y &&
+                            std::isfinite(sourceSeamDof.drive.y) &&
+                            sourceSeamDof.drive.y>0.0f &&
+                            std::isfinite(sourceSeamDof.drive.z) &&
+                            sourceSeamDof.drive.z>0.0f,
+                        "severable seam lost the original limited, damped revolute DoF");
+                    activeSeparationQMap=chain.oldQToNew;
+                    activeSeparationVMap=chain.oldVToNew;
                     metalrobo::separation::remapLoadedBodyReferences(
                         activeSeparationBodyMap,rigid,musclePayload,
                         bonePayload?&*bonePayload:nullptr,
@@ -24010,7 +25944,6 @@ int main(int argc, char** argv) {
                     overriddenPoseQ.assign(rigid.model.world.nq,0);
                     for(std::size_t old=0;old<originalPose.size();++old)
                         overriddenPoseQ[chain.oldQToNew.at(old)]=originalPose[old];
-                    poseQ=overriddenPoseQ;
                     for(auto& value:requestedBoneBodyIndices)
                         value=metalrobo::separation::mapSourceBodyIndex(activeSeparationBodyMap,value);
                     if(focusBodyIndex) *focusBodyIndex=metalrobo::separation::mapSourceBodyIndex(activeSeparationBodyMap,*focusBodyIndex);
@@ -24029,16 +25962,330 @@ int main(int argc, char** argv) {
                         if(row.indices.z!=MR_INVALID_INDEX)row.indices.z=chain.oldQToNew.at(row.indices.z);
                         if(row.indices.w!=MR_INVALID_INDEX)row.indices.w=chain.oldVToNew.at(row.indices.w);
                     }
-                    for(unsigned source=21;source<=23;++source) {
-                        auto& dof=rigid.model.dofs.at(chain.oldVToNew.at(source));
-                        dof.flags=0;dof.limits={};dof.drive={};
+                    // Resolve the cut-crossing equations in the admitted reduced
+                    // program by their immutable source endpoints, preserve their
+                    // full source row bytes, and move them to the timed release tail.
+                    separationCrossReleaseRows.clear();
+                    separationCrossDependentQ.clear();
+                    for(const auto sourceRow:separationCrossSourceRows) {
+                        const auto& original=seamSourceEqualities->records.at(sourceRow);
+                        const auto dx=chain.oldQToNew.at(original.indices.x);
+                        const auto dv=chain.oldVToNew.at(original.indices.y);
+                        const auto mx=chain.oldQToNew.at(original.indices.z);
+                        const auto mv=chain.oldVToNew.at(original.indices.w);
+                        std::size_t found=jointEqualityPayload->payload.records.size();
+                        for(std::size_t i=0;i<jointEqualityPayload->payload.records.size();++i) {
+                            const auto& candidate=jointEqualityPayload->payload.records[i];
+                            if(candidate.indices.x==dx&&candidate.indices.y==dv&&
+                               candidate.indices.z==mx&&candidate.indices.w==mv) {
+                                require(found==jointEqualityPayload->payload.records.size(),
+                                    "source NHEQ crossing has duplicate reduced rows");
+                                found=i;
+                            }
+                        }
+                        require(found<jointEqualityPayload->payload.records.size(),
+                            "source NHEQ crossing was lost by the admitted rigid-hand reduction");
+                        separationCrossReleaseRows.push_back(
+                            jointEqualityPayload->payload.records[found]);
+                        separationCrossDependentQ.push_back(dx);
+                        jointEqualityPayload->payload.records.erase(
+                            jointEqualityPayload->payload.records.begin()+static_cast<std::ptrdiff_t>(found));
                     }
+                    require(separationCrossReleaseRows.size()==separationCrossDependentQ.size(),
+                        "source NHEQ cut-row release mapping is incomplete");
+                    // Precompute changed post-cut DoF records from the exact
+                    // accepted linear-bound receipt: each affected master starts
+                    // at its authored interval and intersects only non-crossing
+                    // dependent intervals. The release kernel installs these
+                    // records from the immutable accepted checkpoint.
+                    separationDofPatchIndices.clear();
+                    separationDofPatchRecords.clear();
+                    const auto setPostDofPatch=[&](std::uint32_t index,
+                                                   const MRDofPropertiesGPU& record) {
+                        const auto found=std::find(separationDofPatchIndices.begin(),
+                                                   separationDofPatchIndices.end(),index);
+                        if(found==separationDofPatchIndices.end()) {
+                            separationDofPatchIndices.push_back(index);
+                            separationDofPatchRecords.push_back(record);
+                        } else separationDofPatchRecords.at(static_cast<std::size_t>(
+                            found-separationDofPatchIndices.begin()))=record;
+                    };
+                    for(const auto sourceRow:separationCrossSourceRows) {
+                        const auto& row=seamSourceEqualities->records.at(sourceRow);
+                        const std::uint32_t sourceMasterV=row.indices.w;
+                        const auto& sourceMaster=seamSourceDofs.at(sourceMasterV);
+                        if((sourceMaster.flags&MR_DOF_FLAG_POSITION_LIMIT)==0u)continue;
+                        bool hasConsolidatedMaster=false;
+                        float lower=sourceMaster.limits.x,upper=sourceMaster.limits.y;
+                        for(const auto& receipt:restingLinearBoundReceipt) {
+                            if(receipt.masterVIndex!=sourceMasterV)continue;
+                            hasConsolidatedMaster=true;
+                            if(std::find(separationCrossSourceRows.begin(),
+                                         separationCrossSourceRows.end(),
+                                         receipt.equalityIndex)!=separationCrossSourceRows.end())
+                                continue;
+                            lower=std::max(lower,receipt.inverseMasterLower);
+                            upper=std::min(upper,receipt.inverseMasterUpper);
+                        }
+                        if(!hasConsolidatedMaster)continue;
+                        require(std::isfinite(lower)&&std::isfinite(upper)&&lower<upper,
+                            "post-cut surviving master interval is empty or nonfinite");
+                        const auto mappedMasterV=chain.oldVToNew.at(sourceMasterV);
+                        MRDofPropertiesGPU post=rigid.model.dofs.at(mappedMasterV);
+                        post.limits.x=lower;post.limits.y=upper;
+                        setPostDofPatch(mappedMasterV,post);
+                    }
+                    MRDofPropertiesGPU postSeam=rigid.model.dofs.at(separationSeamDofIndex);
+                    postSeam.flags&=~MR_DOF_FLAG_POSITION_LIMIT;
+                    // An inactive interval must be canonical zero for the
+                    // articulated owner, not merely ignored by the stand solve.
+                    postSeam.limits.x=0.0f;postSeam.limits.y=0.0f;
+                    postSeam.drive.y=0.0f;postSeam.drive.z=0.0f;
+                    setPostDofPatch(separationSeamDofIndex,postSeam);
+                    for(const auto& post:separationDofPatchRecords)
+                        require((post.flags&MR_DOF_FLAG_POSITION_LIMIT)!=0u ||
+                                    (post.limits.x==0.0f && post.limits.y==0.0f),
+                            "post-release unlimited DoF retains an inactive interval");
+                    require(!separationDofPatchIndices.empty()&&
+                                separationDofPatchIndices.size()==separationDofPatchRecords.size(),
+                        "seam release has no complete post-cut DoF property patch");
+                    require(torsoAnatomyPayload&&torsoAnatomyPayloadPath,
+                        "source-bound organ release requires the immutable NHANAT source payload");
+                    const auto anatomyDigest=loadedKneeFileSHA256(*torsoAnatomyPayloadPath);
+                    require(std::equal(metalrobo::organ_release::kExpectedNhaSha256.begin(),
+                                metalrobo::organ_release::kExpectedNhaSha256.end(),anatomyDigest.begin()),
+                        "organ release NHANAT source SHA-256 differs from the pinned source");
+                    require(loadedKneeSHA256Hex(rigid.payloadSha256)==
+                                "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+                        "organ release mass-owner map requires the pinned NHRIGID source payload");
+                    const auto kidney=std::find_if(torsoAnatomyPayload->records.begin(),
+                        torsoAnatomyPayload->records.end(),[](const TorsoAnatomyRecord& r){
+                            return r.stableId==metalrobo::organ_release::kRightKidneyStableId;});
+                    const auto geometryBody=chain.oldBodyToNew.at(metalrobo::organ_release::kRegisteredGeometryBodySource);
+                    const auto massOwnerBody=chain.oldBodyToNew.at(metalrobo::organ_release::kMassOwnerBodySource);
+                    const auto coreAnatomyBody=chain.oldBodyToNew.at(metalrobo::organ_release::kCoreAnatomyBodySource);
+                    require(kidney!=torsoAnatomyPayload->records.end()&&kidney->bodyIndex==geometryBody,
+                        "source stable ID 4 must retain exact NHANAT registered body-20 binding after seam remap; actual="+
+                            (kidney==torsoAnatomyPayload->records.end()?std::string("missing"):std::to_string(kidney->bodyIndex))+
+                            " expected="+std::to_string(geometryBody));
+                    std::vector<mr_float4> kidneyVertices;kidneyVertices.reserve(kidney->vertexCount);
+                    for(std::uint32_t i=0;i<kidney->vertexCount;++i) {
+                        const auto& v=torsoAnatomyPayload->vertices[kidney->firstVertex+i];
+                        kidneyVertices.push_back({v.positionX,v.positionY,v.positionZ,1.0f});
+                    }
+                    std::vector<std::uint32_t> kidneyIndices;kidneyIndices.reserve(kidney->indexCount);
+                    for(std::uint32_t i=0;i<kidney->indexCount;++i)
+                        kidneyIndices.push_back(torsoAnatomyPayload->indices[kidney->firstIndex+i]-kidney->firstVertex);
+                    std::vector<double> organKinematicQ(overriddenPoseQ.begin(),overriddenPoseQ.end());
+                    std::vector<double> organKinematicV(rigid.model.world.nv,0.0);
+                    std::vector<metalrobo::ArticulatedBodyKinematics> organKinematics(rigid.model.bodies.size());
+                    require(metalrobo::computeArticulatedBodyKinematics(
+                                rigid.model,0u,organKinematicQ,organKinematicV,organKinematics).succeeded(),
+                        "source anatomy-to-mass-owner reference kinematics failed");
+                    const auto& geometryPose=organKinematics.at(geometryBody);
+                    const auto& massOwnerPose=organKinematics.at(massOwnerBody);
+                    const auto& coreAnatomyPose=organKinematics.at(coreAnatomyBody);
+                    const std::array<double,4> geometryOrientation=geometryPose.orientation;
+                    const std::array<double,4> massOwnerOrientation=massOwnerPose.orientation;
+                    const std::array<double,4> coreAnatomyOrientation=coreAnatomyPose.orientation;
+                    const auto inverseGeometryOrientation=metalrobo::organ_release::quaternionConjugate(geometryOrientation);
+                    const auto inverseMassOwnerOrientation=metalrobo::organ_release::quaternionConjugate(massOwnerOrientation);
+                    const auto coreBody7ToGeometryBody20Rotation=metalrobo::organ_release::quaternionProduct(
+                        inverseGeometryOrientation,coreAnatomyOrientation);
+                    const metalrobo::organ_release::Vec3 geometryWorldPosition{
+                        geometryPose.centerOfMassPosition[0],geometryPose.centerOfMassPosition[1],geometryPose.centerOfMassPosition[2]};
+                    const metalrobo::organ_release::Vec3 massOwnerWorldPosition{
+                        massOwnerPose.centerOfMassPosition[0],massOwnerPose.centerOfMassPosition[1],massOwnerPose.centerOfMassPosition[2]};
+                    const metalrobo::organ_release::Vec3 coreAnatomyWorldPosition{
+                        coreAnatomyPose.centerOfMassPosition[0],coreAnatomyPose.centerOfMassPosition[1],coreAnatomyPose.centerOfMassPosition[2]};
+                    const auto coreBody7ToGeometryBody20Translation=metalrobo::organ_release::rotateVector(
+                        metalrobo::organ_release::sub(coreAnatomyWorldPosition,geometryWorldPosition),
+                        inverseGeometryOrientation);
+                    organReleaseCutPlanePointGeometry=metalrobo::organ_release::add(
+                        coreBody7ToGeometryBody20Translation,
+                        metalrobo::organ_release::rotateVector(metalrobo::organ_release::Vec3{
+                            metalrobo::organ_release::kCutPlanePointBody7[0],metalrobo::organ_release::kCutPlanePointBody7[1],
+                            metalrobo::organ_release::kCutPlanePointBody7[2]},coreBody7ToGeometryBody20Rotation));
+                    organReleaseCutPlaneNormalGeometry=metalrobo::organ_release::rotateVector(
+                        metalrobo::organ_release::Vec3{metalrobo::organ_release::kCutPlaneNormalBody7[0],
+                            metalrobo::organ_release::kCutPlaneNormalBody7[1],metalrobo::organ_release::kCutPlaneNormalBody7[2]},
+                        coreBody7ToGeometryBody20Rotation);
+                    organReleaseSplit.emplace();
+                    require(metalrobo::organ_release::splitClosedSurfaceByPlane(
+                                kidneyVertices,kidneyIndices,organReleaseCutPlanePointGeometry,
+                                organReleaseCutPlaneNormalGeometry,
+                                metalrobo::organ_release::kReferenceRightKidneyMassKg,
+                                *organReleaseSplit,error),
+                        "source kidney cut/cap/mass partition failed: "+error);
+                    const std::span<const metalrobo::organ_release::Fragment> caudalFragment(
+                        &organReleaseSplit->fragments[0],1u);
+                    const auto geometryToMassOwnerRotation=metalrobo::organ_release::quaternionProduct(
+                        inverseMassOwnerOrientation,geometryOrientation);
+                    const auto organTranslationBody20=metalrobo::organ_release::rotateVector(
+                        metalrobo::organ_release::sub(geometryWorldPosition,massOwnerWorldPosition),
+                        inverseMassOwnerOrientation);
+                    const auto organCaudalWorldCom=metalrobo::organ_release::add(
+                        geometryWorldPosition,metalrobo::organ_release::rotateVector(
+                            organReleaseSplit->fragments[0].mass.centerOfMass,geometryOrientation));
+                    double sourceTotalMass=0.0;
+                    metalrobo::organ_release::Vec3 sourceFirstMoment{};
+                    for(std::size_t bi=0;bi<rigid.model.bodies.size();++bi) {
+                        const double mass=rigid.model.bodies[bi].massAndInverseMass.x;
+                        if(mass<=0.0)continue;
+                        sourceTotalMass+=mass;
+                        sourceFirstMoment=metalrobo::organ_release::add(sourceFirstMoment,
+                            metalrobo::organ_release::mul({organKinematics[bi].centerOfMassPosition[0],
+                                organKinematics[bi].centerOfMassPosition[1],organKinematics[bi].centerOfMassPosition[2]},mass));
+                    }
+                    require(sourceTotalMass>0.0,"source whole-body mass is not positive");
+                    const auto sourceWholeBodyCom=metalrobo::organ_release::mul(sourceFirstMoment,1.0/sourceTotalMass);
+                    const auto hostMassOwnerCom=metalrobo::organ_release::Vec3{
+                        massOwnerWorldPosition[0],massOwnerWorldPosition[1],massOwnerWorldPosition[2]};
+                    const auto changedWholeBodyCom=metalrobo::organ_release::add(sourceWholeBodyCom,
+                        metalrobo::organ_release::mul(metalrobo::organ_release::sub(organCaudalWorldCom,hostMassOwnerCom),
+                            organReleaseSplit->fragments[0].mass.massKg/sourceTotalMass));
+                    metalrobo::organ_release::Fragment massOwnerCaudal=*caudalFragment.begin();
+                    massOwnerCaudal.mass=metalrobo::organ_release::transformMassProperties(
+                        massOwnerCaudal.mass,geometryToMassOwnerRotation,organTranslationBody20);
+                    const std::span<const metalrobo::organ_release::Fragment> massOwnerFragment(&massOwnerCaudal,1u);
+                    auto& torsoMassOwner=rigid.model.bodies.at(massOwnerBody);
+                    require(metalrobo::organ_release::subtractMassFromFixedFrameHost(
+                                torsoMassOwner,massOwnerFragment,error),
+                        "source torso mass-owner caudal organ inertia partition failed: "+error);
+                    const std::array<double,7> coreToRegisteredGeometry{
+                        coreBody7ToGeometryBody20Rotation[0],coreBody7ToGeometryBody20Rotation[1],
+                        coreBody7ToGeometryBody20Rotation[2],coreBody7ToGeometryBody20Rotation[3],
+                        coreBody7ToGeometryBody20Translation[0],coreBody7ToGeometryBody20Translation[1],
+                        coreBody7ToGeometryBody20Translation[2]};
+                    appendSource("organ_release_core_body7_to_registered_geometry_body20",
+                        std::as_bytes(std::span(coreToRegisteredGeometry)));
+                    const std::array<double,7> geometryToMassOwner{
+                        geometryToMassOwnerRotation[0],geometryToMassOwnerRotation[1],
+                        geometryToMassOwnerRotation[2],geometryToMassOwnerRotation[3],
+                        organTranslationBody20[0],organTranslationBody20[1],organTranslationBody20[2]};
+                    appendSource("organ_release_geometry_to_mass_owner_body20_to_body20",
+                        std::as_bytes(std::span(geometryToMassOwner)));
+                    appendSource("organ_release_mass_owner_caudal_mass_properties",
+                        std::as_bytes(std::span(&massOwnerCaudal.mass,1u)));
+                    std::cout<<std::setprecision(12)
+                        <<"organ_release_mass_partition=reference_fixed_host_COM geometry_owner_source_body=20 core_anatomy_source_body=7 mass_owner_source_body=20"
+                        <<" core_body7_to_geometry_body20_t=["<<coreBody7ToGeometryBody20Translation[0]<<" "<<coreBody7ToGeometryBody20Translation[1]<<" "<<coreBody7ToGeometryBody20Translation[2]<<"]"
+                        <<" geometry_to_mass_owner_t=["<<organTranslationBody20[0]<<" "<<organTranslationBody20[1]<<" "<<organTranslationBody20[2]<<"]"
+                        <<" source_whole_body_COM_m=["<<sourceWholeBodyCom[0]<<" "<<sourceWholeBodyCom[1]<<" "<<sourceWholeBodyCom[2]<<"]"
+                        <<" redistributed_whole_body_COM_m=["<<changedWholeBodyCom[0]<<" "<<changedWholeBodyCom[1]<<" "<<changedWholeBodyCom[2]<<"]"
+                        <<" total_mass_kg="<<sourceTotalMass<<std::endl;
+                    std::vector<MRNumiHumanJointEqualityGPU> organRows=jointEqualityPayload->payload.records;
+                    for(std::size_t carrier=0;carrier<chain.qIndices.size();++carrier) {
+                        MRNumiHumanJointEqualityGPU row{};
+                        row.indices={chain.qIndices[carrier],chain.vIndices[carrier],
+                                     MR_INVALID_INDEX,MR_INVALID_INDEX};
+                        row.referencesAndCoefficients0.x=0.0f;
+                        organRows.push_back(row);
+                    }
+                    for(const auto& crossing:separationCrossReleaseRows) {
+                        organRows.push_back(crossing);
+                        separationReleaseEqualityQ.push_back(crossing.indices.x);
+                    }
+                    require(metalrobo::organ_release::appendFragmentBodies(
+                                rigid.model,geometryBody,
+                                caudalFragment,organReleaseChains,organRows,error),
+                        "same-articulation caudal organ free-body insertion failed: "+error);
+                    metalrobo::separation::setRuntimeTendonBodyCount(
+                        rigid.model, musclePayload, rigid.header.engineBodyCount);
+                    const std::uint32_t runtimeTendonBodyCount =
+                        static_cast<std::uint32_t>(rigid.model.bodies.size());
+                    appendSource("NHTENDON_runtime_body_count_v1",
+                        std::as_bytes(std::span(&runtimeTendonBodyCount, 1u)));
+                    std::cout << "NHTENDON_body_count=derived_runtime"
+                              << " source_body_count="
+                              << rigid.header.engineBodyCount
+                              << " runtime_body_count="
+                              << runtimeTendonBodyCount
+                              << " source_payload_sha256_preserved=1"
+                              << std::endl;
+                    jointEqualityPayload->payload.records=std::move(organRows);
+                    jointEqualityPayload->payload.nq=rigid.model.world.nq;
+                    jointEqualityPayload->payload.nv=rigid.model.world.nv;
+                    organCaudalReleaseQ.assign(organReleaseChains.front().q.begin(),
+                                               organReleaseChains.front().q.end());
+                    separationReleaseEqualityQ.insert(separationReleaseEqualityQ.end(),
+                        organCaudalReleaseQ.begin(),organCaudalReleaseQ.end());
+                    organVisualAnatomyPayload=metalrobo::organ_release::makeVisualAnatomyPayload(
+                        *torsoAnatomyPayload,*organReleaseSplit,organReleaseChains);
+                    std::cout<<std::setprecision(12)
+                        <<"organ_release_admitted=1 anatomy_source_sha256=1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108"
+                        <<" source_stable_id=4 source_member_sha256=e21e2ebd5224b1cbf8cabbcf4fa788d894819a328a006dcdb2eb8aa6eee5875a"
+                        <<" input_faces="<<organReleaseSplit->inputFaceCount
+                        <<" caudal_volume_m3="<<organReleaseSplit->fragments[0].mass.volumeM3
+                        <<" cranial_volume_m3="<<organReleaseSplit->fragments[1].mass.volumeM3
+                        <<" total_volume_m3="<<(organReleaseSplit->fragments[0].mass.volumeM3+organReleaseSplit->fragments[1].mass.volumeM3)
+                        <<" reference_density_kg_m3="<<organReleaseSplit->referenceDensityKgM3
+                        <<" caudal_mass_kg="<<organReleaseSplit->fragments[0].mass.massKg
+                        <<" cranial_mass_retained_in_host_kg="<<organReleaseSplit->fragments[1].mass.massKg
+                        <<" cut_area_m2="<<organReleaseSplit->cutAreaM2<<std::endl;
+                    auto& witness=metalrobo::organ_release::activeRuntimeSupportWitness;
+                    witness={};witness.active=true;
+                    witness.bodyIndex=organReleaseChains.front().terminalBody;
+                    double lowest=std::numeric_limits<double>::infinity();
+                    const auto& caudal=organReleaseSplit->fragments.front();
+                    const auto& planePoint=organReleaseCutPlanePointGeometry;
+                    const auto& planeNormal=organReleaseCutPlaneNormalGeometry;
+                    for(const auto& p:caudal.surface.vertices) {
+                        const double projection=metalrobo::organ_release::dot(
+                            metalrobo::organ_release::sub(p,planePoint),
+                            planeNormal);
+                        if(projection<lowest) {
+                            lowest=projection;
+                            const auto local=metalrobo::organ_release::sub(p,caudal.mass.centerOfMass);
+                            witness.localPoint={float(local[0]),float(local[1]),float(local[2]),0.0f};
+                        }
+                    }
+                    for(std::uint32_t row=0;row<supportContactPayload->records.size();++row) {
+                        if(std::find(accountingRows.begin(),accountingRows.end(),row)!=accountingRows.end())continue;
+                        if(supportContactPayload->records[row].bodyIndex==chain.oldBodyToNew.at(20u))continue;
+                        witness.contactIndex=row;break;
+                    }
+                    require(witness.contactIndex!=MR_INVALID_INDEX,
+                        "no source support row remains to reserve for the organ floor witness");
+                    overriddenPoseQ.resize(rigid.model.world.nq,0.0f);
+                    for(std::size_t q=chain.oldQToNew.size()+5u;q<rigid.model.world.nq;++q)
+                        overriddenPoseQ[q]=rigid.model.defaultQ[q];
+                    poseQ=overriddenPoseQ;
+                    for(std::size_t i=0;i<organReleaseSplit->fragments.size();++i) {
+                        const auto& faces=organReleaseSplit->fragments[i].surface.sourceFace;
+                        appendSource("organ_release_child_"+std::to_string(i)+"_source_faces",
+                                     std::as_bytes(std::span(faces)));
+                        appendSource("organ_release_child_"+std::to_string(i)+"_mass",
+                                     std::as_bytes(std::span(&organReleaseSplit->fragments[i].mass,1u)));
+                    }
+                    appendSource("organ_release_derived_bodies",std::as_bytes(std::span(rigid.model.bodies)));
+                    appendSource("organ_release_derived_joints",std::as_bytes(std::span(rigid.model.joints)));
+                    appendSource("organ_release_derived_equalities",std::as_bytes(std::span(jointEqualityPayload->payload.records)));
                     appendSource("separation_body_index_map",std::as_bytes(std::span(chain.oldBodyToNew)));
                     appendSource("separation_coordinate_map_q",std::as_bytes(std::span(chain.oldQToNew)));
                     appendSource("separation_coordinate_map_v",std::as_bytes(std::span(chain.oldVToNew)));
+                    appendSource("separation_release_equality_tail_q",std::as_bytes(std::span(separationReleaseEqualityQ)));
+                    appendSource("separation_source_seam_dof_index",std::as_bytes(std::span(&separationSeamDofIndex,1u)));
+                    appendSource("separation_source_seam_dof_properties",
+                        std::as_bytes(std::span(&rigid.model.dofs.at(separationSeamDofIndex),1u)));
                     appendSource("separation_derived_equalities",std::as_bytes(std::span(jointEqualityPayload->payload.records)));
                     appendSource("separation_derived_dofs",std::as_bytes(std::span(rigid.model.dofs)));
                     std::string reason;require(rigid.model.valid(&reason),"separation graph invalid: "+reason);
+                    std::uint32_t float32BoundaryInertiaBodies=0u;
+                    for(std::uint32_t bodyIndex=0u;bodyIndex<rigid.model.bodies.size();++bodyIndex) {
+                        const auto& body=rigid.model.bodies[bodyIndex];
+                        if(!(body.massAndInverseMass.x>0.0f) ||
+                           !(body.massAndInverseMass.y>0.0f)) continue;
+                        const auto inertiaClass=metalrobo::organ_release::classifyStoredFloat32Inertia(
+                            metalrobo::organ_release::readInertia(body));
+                        require(inertiaClass!=metalrobo::organ_release::StoredInertiaClass::invalid,
+                            "derived dynamic body inertia is physically unrealizable or unresolved at runtime body "+
+                            std::to_string(bodyIndex));
+                        if(inertiaClass==metalrobo::organ_release::StoredInertiaClass::float32RoundingBoundary)
+                            ++float32BoundaryInertiaBodies;
+                    }
+                    std::cout<<"derived_dynamic_inertia_admission=passed float32_rounding_boundary_bodies="
+                        <<float32BoundaryInertiaBodies<<" guard=mass-inertia-121"<<std::endl;
                     appendSource("derived_separation_bodies",std::as_bytes(std::span(rigid.model.bodies)));
                     appendSource("derived_separation_joints",std::as_bytes(std::span(rigid.model.joints)));
                     appendSource("derived_separation_q",std::as_bytes(std::span(poseQ)));
@@ -24046,30 +26293,182 @@ int main(int argc, char** argv) {
                     separationReleaseStep=releaseStep;
                     appendSource("separation_release_step",std::as_bytes(std::span(&releaseStep,1)));
                     std::cout<<"separation_graph=prepared nv="<<rigid.model.world.nv<<" nq="<<rigid.model.world.nq
-                        <<" seam_joint=16 parent_runtime_body=16 carrier_runtime_body="<<chain.bodyIndices[2]
+                        <<" seam_joint=16 parent_runtime_body=16 final_carrier_runtime_body="<<chain.bodyIndices[4]
                         <<" source_torso_body=20 runtime_torso_body="<<chain.oldBodyToNew[20u]
                         <<" release_step="<<step
-                        <<" source_mass_and_inertia_preserved=1 complete_cut=false\n";
+                        <<" source_total_mass_conserved=1 fixed_host_COM_inertia_partition=1 complete_cut=false\n";
+                    const auto organReceiptPath=std::filesystem::path(positional.back())/
+                        "organ-release-scope.json";
+                    std::ofstream organReceipt(organReceiptPath);
+                    require(organReceipt.good(),"organ release provenance receipt path unavailable");
+                    organReceipt<<std::setprecision(12)
+                        <<"{\n  \"schema\": \"numi.human.source-bound-organ-release.v1\",\n"
+                        <<"  \"anatomy_source_sha256\": \"1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108\",\n"
+                        <<"  \"source_member\": \"BodyParts3D FJ3147\", \"source_stable_id\": 4, \"geometry_owner_source_body\": 20, \"core_anatomy_source_body\": 7, \"mass_owner_source_body\": 20,\n"
+                        <<"  \"source_member_sha256\": \"e21e2ebd5224b1cbf8cabbcf4fa788d894819a328a006dcdb2eb8aa6eee5875a\",\n"
+                        <<"  \"cut_plane_core_body7_local\": {\"point\":[-0.03372473683,0.05810004997,-0.00946755672],\"normal\":[0,1,0]},\n"
+                        <<"  \"cut_plane_registered_body20_local\": {\"point\":["<<organReleaseCutPlanePointGeometry[0]<<","<<organReleaseCutPlanePointGeometry[1]<<","<<organReleaseCutPlanePointGeometry[2]<<"],\"normal\":["<<organReleaseCutPlaneNormalGeometry[0]<<","<<organReleaseCutPlaneNormalGeometry[1]<<","<<organReleaseCutPlaneNormalGeometry[2]<<"]},\n"
+                        <<"  \"event_step\": "<<step<<", \"caudal_child\": 0, \"cranial_child\": 1,\n"
+                        <<"  \"runtime_lineage\": [{\"child_ordinal\":0,\"role\":\"caudal_dynamic\",\"runtime_display_surface_id\":\"0x"
+                        <<std::hex<<metalrobo::organ_release::runtimeDisplaySurfaceId(4u,0u)<<"\",\"source_stable_id\":4},"
+                        <<"{\"child_ordinal\":1,\"role\":\"cranial_retained\",\"runtime_display_surface_id\":\"0x"
+                        <<metalrobo::organ_release::runtimeDisplaySurfaceId(4u,1u)<<"\",\"source_stable_id\":4}],\n"<<std::dec
+                        <<"  \"source_face_ancestry_count_by_child\": ["
+                        <<std::count_if(organReleaseSplit->fragments[0].surface.sourceFace.begin(),organReleaseSplit->fragments[0].surface.sourceFace.end(),[](std::uint32_t face){return face!=MR_INVALID_INDEX;})<<", "
+                        <<std::count_if(organReleaseSplit->fragments[1].surface.sourceFace.begin(),organReleaseSplit->fragments[1].surface.sourceFace.end(),[](std::uint32_t face){return face!=MR_INVALID_INDEX;})<<"],\n"
+                        <<"  \"cap_face_count_by_child\": ["
+                        <<std::count(organReleaseSplit->fragments[0].surface.sourceFace.begin(),organReleaseSplit->fragments[0].surface.sourceFace.end(),MR_INVALID_INDEX)<<", "
+                        <<std::count(organReleaseSplit->fragments[1].surface.sourceFace.begin(),organReleaseSplit->fragments[1].surface.sourceFace.end(),MR_INVALID_INDEX)<<"],\n"
+                        <<"  \"input_faces\": "<<organReleaseSplit->inputFaceCount<<", \"crossing_faces\": "<<organReleaseSplit->crossingFaceCount
+                        <<", \"cap_triangles\": "<<organReleaseSplit->capTriangleCount<<", \"cut_contour_edges\": "<<organReleaseSplit->cutContourEdgeCount<<",\n"
+                        <<"  \"cut_area_m2\": "<<organReleaseSplit->cutAreaM2<<", \"reference_mass_kg\": 0.140, \"mass_source\": \"inferred right-kidney Swiss autopsy median; range 0.120-0.170 kg, not individual\",\n"
+                        <<"  \"caudal_mass_kg\": "<<organReleaseSplit->fragments[0].mass.massKg<<", \"cranial_mass_retained_in_host_kg\": "<<organReleaseSplit->fragments[1].mass.massKg<<",\n"
+                        <<"  \"fragment_volume_m3\": ["<<organReleaseSplit->fragments[0].mass.volumeM3<<", "<<organReleaseSplit->fragments[1].mass.volumeM3<<"], \"reference_density_kg_m3\": "<<organReleaseSplit->referenceDensityKgM3<<",\n"
+                        <<"  \"mass_partition_assumption\": \"registered geometry and mass-owner body 20 fixed COM frame; caudal organ inertia removed about that frame; residual bulk COM held fixed by inferred-reference approximation\",\n"
+                        <<"  \"source_whole_body_COM_m\": ["<<sourceWholeBodyCom[0]<<", "<<sourceWholeBodyCom[1]<<", "<<sourceWholeBodyCom[2]<<"], \"redistributed_whole_body_COM_m\": ["<<changedWholeBodyCom[0]<<", "<<changedWholeBodyCom[1]<<", "<<changedWholeBodyCom[2]<<"],\n"
+                        <<"  \"attachment\": \"inferred ideal rigid renal-fascia attachment; five pre-cut seam carrier locks plus six organ locks, eleven ordered rows removed at event; original revolute position-limit flag, passive damping, and seam armature cleared at release; the source record is retained for provenance\",\n"
+                        <<"  \"floor_contact\": \"one source-derived caudal kidney witness reserved before skin partition and routed through existing articulated point/Jacobian contact owner\",\n"
+                        <<"  \"limits\": [\"convex contact proxy\",\"no cavity-wall contact\",\"Euler-chain rotation singularity near middle-axis +/-90 degrees\",\"no injury or organ-function qualification\"]\n}\n";
+                    require(bool(organReceipt),"organ release provenance receipt write failed");
                     const auto scopeReceiptPath=std::filesystem::path(positional.back())/
                         "mechanical-separation-scope.json";
                     std::ofstream scopeReceipt(scopeReceiptPath);
                     require(scopeReceipt.good(),"mechanical separation scope receipt path unavailable");
-                    scopeReceipt<<"{\n  \"schema\": \"numi.human.mechanical-separation-scope.v1\",\n"
-                        <<"  \"mode\": \"mechanical_topology_release\",\n"
+                    const char* bloodEnabledSetting=std::getenv("NUMI_HUMAN_BLEEDING_ENABLED");
+                    require(!bloodEnabledSetting||std::strcmp(bloodEnabledSetting,"0")==0||
+                            std::strcmp(bloodEnabledSetting,"1")==0,
+                            "NUMI_HUMAN_BLEEDING_ENABLED must be exactly 0 or 1");
+                    const bool bleedingEnabled=!bloodEnabledSetting||
+                        std::strcmp(bloodEnabledSetting,"1")==0;
+                    scopeReceipt<<"{\n  \"schema\": \"numi.human.mechanical-separation-scope.v2\",\n"                        <<"  \"mode\": \"mechanical_topology_release\",\n"
                         <<"  \"release_step\": "<<step<<",\n"
-                        <<"  \"seam\": {\"joint_index\": 16, \"parent_runtime_body\": 16, \"last_carrier_runtime_body\": "<<chain.bodyIndices[2]
+                        <<"  \"seam\": {\"joint_index\": 16, \"parent_runtime_body\": 16, \"last_carrier_runtime_body\": "<<chain.bodyIndices[4]
                         <<", \"source_torso_body\": 20, \"runtime_torso_body\": "<<chain.oldBodyToNew[20u]<<"},\n"
-                        <<"  \"post_release_physiology\": \"unsupported; intact reference physiology continues\",\n"
-                        <<"  \"blood_loss\": \"not_modelled\",\n"
+                        <<"  \"post_release_physiology\": \""<<(bleedingEnabled?"CVSim21 compartment-7 pressure outlet continues; systemic injury response unsupported":"closed-outlet control; systemic injury response unsupported")<<"\",\n"
+                        <<"  \"blood_loss\": \""<<(bleedingEnabled?"pressure_driven_compartment7_outlet":"closed_outlet_control_run")<<"\",\n"
+                        <<"  \"blood_outlet\": {\"source_anatomy_id\": 9, \"runtime_body\": 7, \"donor_compartment_id\": 7, \"outer_surface_section_area_m2\": 0.000241926012369, \"lumen_patency_verified\": false},\n"
+                        <<"  \"external_phase\": \"8 ms aggregated reduced ballistic parcels and grounded volume pool; not a free-surface fluid solver\",\n"                        <<"  \"bleeding_enabled\": "<<(bleedingEnabled?"true":"false")<<",\n"
                         <<"  \"injury_qualification\": \"none\",\n"
                         <<"  \"source_physiology_mutated\": false\n}\n";
                     require(bool(scopeReceipt),"mechanical separation scope receipt write failed");
                     std::cout<<"separation_scope_receipt=written path="<<scopeReceiptPath.string()
-                        <<" post_release_physiology=unsupported_intact_reference_continues=1"
-                        <<" blood_loss=not_modelled injury_qualification=none\n";
+                        <<" post_release_physiology="<<(bleedingEnabled?"CVSim21_compartment7_outlet":"closed_outlet_control")<<";injury_response_unsupported"
+                        <<" blood_loss="<<(bleedingEnabled?"pressure_driven":"closed_control")
+                        <<" external_phase=reduced_ballistic_packets injury_qualification=none\n";                }
+                if(!separationCrossReleaseRows.empty()) {
+                    appendSource("separation_cut_crossing_nheq_source_rows_v1",
+                        std::as_bytes(std::span(separationCrossSourceRows)));
+                    appendSource("separation_cut_crossing_nheq_rows_v1",
+                        std::as_bytes(std::span(separationCrossReleaseRows)));
+                    appendSource("separation_post_release_dof_patch_indices_v1",
+                        std::as_bytes(std::span(separationDofPatchIndices)));
+                    appendSource("separation_post_release_dof_patch_records_v1",
+                        std::as_bytes(std::span(separationDofPatchRecords)));
                 }
+                visualTorsoAnatomyPayload=
+                    organVisualAnatomyPayload?&*organVisualAnatomyPayload:
+                    (torsoAnatomyPayload?&*torsoAnatomyPayload:nullptr);
+                std::unique_ptr<PassiveFasciaRuntimeOwner> restingPassiveFasciaOwner;
+                if(restingPassiveFasciaEnabled) {
+                    const std::vector<float> initialTissueQ(poseQ.begin(),poseQ.end());
+                    require(!organVisualAnatomyPayload.has_value(),
+                        "passive fascia currently requires the intact anatomy owner");
+                    const char* inferredAclSetting=
+                        std::getenv("NUMI_HUMAN_RESTING_INFERRED_ACL");
+                    require(inferredAclSetting==nullptr||
+                                std::strcmp(inferredAclSetting,"0")==0||
+                                std::strcmp(inferredAclSetting,"1")==0,
+                            "NUMI_HUMAN_RESTING_INFERRED_ACL must be 0 or 1");
+                    const bool selectInferredACL=
+                        inferredAclSetting==nullptr||
+                        std::strcmp(inferredAclSetting,"1")==0;
+                    restingPassiveFasciaOwner=makeRestingPassiveFasciaOwner(
+                        *pectoralisFasciaPayload,*softTissuePayload,musclePayload,
+                        rigid.model,*supportContactPayload,
+                        bonePayload?&*bonePayload:nullptr,skinPayload?&*skinPayload:nullptr,
+                        torsoAnatomyPayload?&*torsoAnatomyPayload:nullptr,
+                        activeSeparationBodyMap,
+                        selectInferredACL&&bonePayload.has_value()&&
+                            !openKneePayload.has_value()&&
+                            bonePayload->sourceOwnerBindingsVerified,
+                        initialTissueQ,*muscleStepSeconds,
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB));
+                    overriddenPoseQ=initialTissueQ;poseQ=overriddenPoseQ;
+                    appendSource("resting_fascia_executed_body_mass_frames_v1",
+                        std::as_bytes(std::span(rigid.model.bodies)));
+                    appendSource("resting_fascia_executed_joints_v1",
+                        std::as_bytes(std::span(rigid.model.joints)));
+                    appendSource("resting_fascia_executed_sites_v1",
+                        std::as_bytes(std::span(musclePayload.gpuSites)));
+                    if(!restingPassiveFasciaOwner->fasciaStripAnchorIdentity.empty()) {
+                        appendSource("resting_fascia_reduced_strip_anchor_ids_v1",
+                            std::as_bytes(std::span(restingPassiveFasciaOwner->fasciaStripAnchorIdentity)));
+                        appendSource("resting_fascia_reduced_strip_rows_v1",
+                            std::as_bytes(std::span(restingPassiveFasciaOwner->passiveLigaments)));
+                    }
+                    for(const auto& partition:restingPassiveFasciaOwner->massPartitions) {
+                        appendSource("resting_fascia_COM_offset_v1",
+                            std::as_bytes(std::span(partition.remainingCOMOffsetM)));
+                    }
+                    for(const auto& provenance:restingPassiveFasciaOwner->aclProvenance) {
+                        const std::string side=std::to_string(provenance.side);
+                        const std::array<std::uint32_t,9u> anatomyIds{
+                            provenance.side,provenance.femurBody,provenance.tibiaBody,
+                            provenance.patellaBody,provenance.femurBoneStableId,
+                            provenance.tibiaBoneStableId,provenance.patellaBoneStableId,
+                            provenance.femurSourceRecord,provenance.tibiaSourceRecord};
+                        appendSource("resting_acl_anatomy_ids_side_"+side,
+                            std::as_bytes(std::span(anatomyIds)));
+                        appendSource("resting_acl_femur_payload_sha256_side_"+side,
+                            std::as_bytes(std::span(provenance.femurPayloadSha256)));
+                        appendSource("resting_acl_tibia_payload_sha256_side_"+side,
+                            std::as_bytes(std::span(provenance.tibiaPayloadSha256)));
+                        appendSource("resting_acl_material_sha256_side_"+side,
+                            std::as_bytes(std::span(provenance.materialSha256.data(),
+                                                    provenance.materialSha256.size())));
+                        appendSource("resting_acl_selected_record_local_triangles_side_"+side,
+                            std::as_bytes(std::span(provenance.selectedSurfaceTriangles)));
+                        appendSource("resting_acl_femur_anchor_record_local_triangles_side_"+side,
+                            std::as_bytes(std::span(provenance.femurAnchorTriangles)));
+                        appendSource("resting_acl_tibia_anchor_record_local_triangles_side_"+side,
+                            std::as_bytes(std::span(provenance.tibiaAnchorTriangles)));
+                        const std::array<double,16u> footprintMetrics{
+                            provenance.maximumAttachmentProjectionResidualMeters,
+                            provenance.maximumAttachmentFootprintRadiusMeters,
+                            provenance.minimumInterboneFacingNormalDot,
+                            provenance.minimumPatchNormalAlignmentDot,
+                            provenance.inferredFootprintRadiusLimitMeters,
+                            provenance.inferredPatchNormalAngleLimitRadians,
+                            provenance.assumedLengthMeters,
+                            provenance.assumedWidthMeters,
+                            provenance.assumedThicknessMeters,
+                            provenance.densityKgM3,
+                            provenance.initialStretch,
+                            provenance.maximumAttachmentProjectionResidualLimitMeters,
+                            provenance.minimumInterboneFacingNormalDotLimit,
+                            provenance.minimumPatchNormalAlignmentDotLimit,
+                            provenance.minimumAssumedLengthMeters,
+                            provenance.maximumAssumedLengthMeters};
+                        appendSource("resting_acl_femur_seed_base_side_"+side,std::as_bytes(std::span(provenance.femurSeedBasePosteriorProximalLateralMeters)));
+                        appendSource("resting_acl_femur_seed_adjustment_side_"+side,std::as_bytes(std::span(provenance.femurSeedAdjustmentPosteriorProximalLateralMeters)));
+                        appendSource("resting_acl_tibia_seed_base_side_"+side,std::as_bytes(std::span(provenance.tibiaSeedBasePosteriorProximalLateralMeters)));
+                        appendSource("resting_acl_tibia_seed_adjustment_side_"+side,std::as_bytes(std::span(provenance.tibiaSeedAdjustmentPosteriorProximalLateralMeters)));
+                        appendSource("resting_acl_femur_seed_offsets_side_"+side,
+                            std::as_bytes(std::span(provenance.femurSeedOffsetsPosteriorProximalLateralMeters)));
+                        appendSource("resting_acl_tibia_seed_offsets_side_"+side,
+                            std::as_bytes(std::span(provenance.tibiaSeedOffsetsPosteriorProximalLateralMeters)));
+                        const std::array<double,9> seedAxes{
+                            provenance.seedPosteriorAxisWorld[0],provenance.seedPosteriorAxisWorld[1],provenance.seedPosteriorAxisWorld[2],
+                            provenance.seedProximalAxisWorld[0],provenance.seedProximalAxisWorld[1],provenance.seedProximalAxisWorld[2],
+                            provenance.seedLateralAxisWorld[0],provenance.seedLateralAxisWorld[1],provenance.seedLateralAxisWorld[2]};
+                        appendSource("resting_acl_seed_axes_side_"+side,std::as_bytes(std::span(seedAxes)));
+                        appendSource("resting_acl_footprint_metrics_side_"+side,
+                            std::as_bytes(std::span(footprintMetrics)));
+                    }                }
                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
-                    rigid.model,sourceIdentity,restingDenseVascular);
+                    rigid.model,sourceIdentity,restingDenseVascular,
+                    separationReleaseStep.value_or(MR_INVALID_INDEX),separationSeamDofIndex,
+                    separationDofPatchIndices,separationDofPatchRecords);
                 std::cout<<"resting_body_source_fingerprint="<<sourceIdentity<<" coupled_program_fingerprint="
                     <<coupled.brain.rootProgramIdentity<<"\n";
                 if(restingDriveIntervention) {
@@ -24093,11 +26492,16 @@ int main(int argc, char** argv) {
                     const auto initialBodies=nativePose(poseQ),restBodies=nativePose(rigid.model.defaultQ);
                     std::array<unsigned,10> counts{};
                     auto pack=makeMarkerPack(rigid.model,musclePayload,&*bonePayload,nullptr,nullptr,&*softTissuePayload,&*skinPayload,
-                        &*torsoAnatomyPayload,0xffffffffu,{},initialBodies,restBodies,nullptr,nullptr,false,{},{},{},false,false,false,nullptr,
+                        visualTorsoAnatomyPayload,0xffffffffu,{},initialBodies,restBodies,nullptr,nullptr,false,{},{},{},false,false,false,nullptr,
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
+                    const auto ropeSiteMassPartitions=restingPassiveFasciaOwner
+                        ? std::span<const metalrobo::NumiHumanTissueMassPartition>(
+                            restingPassiveFasciaOwner->massPartitions)
+                        : std::span<const metalrobo::NumiHumanTissueMassPartition>{};
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
-                        fixedBed?&*fixedBed:nullptr,&*torsoAnatomyPayload);
+                        fixedBed?&*fixedBed:nullptr,visualTorsoAnatomyPayload,nullptr,
+                        ropeSiteMassPartitions);
                     // The existing GPU buffer now owns these static motion maps.
                     softTissuePayload->parentInfluences.clear();
                     softTissuePayload->anatomyParentInfluences.clear();
@@ -24112,6 +26516,40 @@ int main(int argc, char** argv) {
                     if(!mechanicsOnly)liveVisual->present();
                 }
                 auto restingProgram=coupled.program();
+                std::unique_ptr<numi::human::event_rollback::Probe>
+                    eventRollbackOwner;
+                const char* eventRollbackSetting =
+                    std::getenv("NUMI_HUMAN_ORGAN_EVENT_ROLLBACK_TEST");
+                require(eventRollbackSetting == nullptr ||
+                            std::strcmp(eventRollbackSetting, "0") == 0 ||
+                            std::strcmp(eventRollbackSetting, "1") == 0,
+                        "NUMI_HUMAN_ORGAN_EVENT_ROLLBACK_TEST must be 0 or 1");
+                if (eventRollbackSetting != nullptr &&
+                    std::strcmp(eventRollbackSetting, "1") == 0) {
+                    require(separationReleaseStep.has_value() &&
+                                organCaudalReleaseQ.size() == 6u &&
+                                separationCarrierReleaseQ.size()==5u &&
+                                separationCarrierReleaseV.size()==5u &&
+                                separationReleaseEqualityQ.size()==11u+separationCrossReleaseRows.size() &&
+                                !separationDofPatchIndices.empty() &&
+                                separationDofPatchIndices.size()==separationDofPatchRecords.size() &&
+                                restingProgram.valid() &&
+                                restingProgram.deferAcceptedPublication,
+                            "event rollback requires the admitted organ release and deferred transaction owner");
+                    eventRollbackOwner =
+                        std::make_unique<numi::human::event_rollback::Probe>(
+                            restingProgram, *separationReleaseStep,
+                            std::span<const std::uint32_t>(separationDofPatchIndices),
+                            std::span<const MRDofPropertiesGPU>(separationDofPatchRecords));
+                    restingProgram = eventRollbackOwner->program();
+                    std::cout << "organ_event_rollback_fixture=armed"
+                              << " release_step=" << *separationReleaseStep
+                              << " failure_phase=postDynamics"
+                              << " finalization_phase=acceptedPublication"
+                              << " injection=GPU_stand_status_9"
+                              << " delegate_fingerprint="
+                              << restingProgram.fingerprint << std::endl;
+                }
                 const auto skinSupportProgram=liveVisual?liveVisual->supportProgram():metalrobo::MetalNumiHumanSupportGeometryProgram{};
                 if (restingQIntegrationAudit) {
                     std::cout << "resting_q_audit_support_slip=pre_step_contact_query_J_times_stage_velocity "
@@ -24174,13 +26612,11 @@ int main(int argc, char** argv) {
                     hipCapsuleBase5NmGapRad=14.5*std::numbers::pi/180.0;
                 }
                 bool terminalAcceptedSnapshotObserved=false;
+                bool observerSupportQueryCountObserved = false;
+                std::size_t retainedObserverSupportQueryCount = 0u;
                 std::vector<float> terminalAcceptedQ;
                 MRCompensatedRootTranslationGPU terminalAcceptedRoot{};
                 MRNumiHumanStandStatusGPU terminalAcceptedStandStatus{};
-                // Runtime manifold rows retain their authored NHCNT source lineage.
-                // Rows 32..37 resolve by (bodyIndex, sourceGeometryIndex) to
-                // source rows 20/20/20/30/30/30; no source record is duplicated.
-                std::vector<std::size_t> runtimeSupportSourceRecordIndices;
                 const std::function<void(
                     std::uint32_t,
                     std::span<const float>,
@@ -24195,58 +26631,18 @@ int main(int argc, char** argv) {
                         const MRCompensatedRootTranslationGPU& rootBefore,
                         const metalrobo::MetalArticulatedOperatorResult& result,
                         const MetalMujocoVisualQueries& queries) {
-                        if (runtimeSupportSourceRecordIndices.empty()) {
-                            runtimeSupportSourceRecordIndices.assign(
-                                queries.supportContacts.size(),
-                                std::numeric_limits<std::size_t>::max());
-                            std::vector<std::uint8_t> sourceRecordSeen(
-                                supportContactPayload->records.size(), 0u);
-                            for (std::size_t runtimeRow = 0u;
-                                 runtimeRow < queries.supportContacts.size(); ++runtimeRow) {
-                                const auto& runtimeContact =
-                                    queries.supportContacts[runtimeRow];
-                                std::size_t match = std::numeric_limits<std::size_t>::max();
-                                unsigned matchCount = 0u;
-                                for (std::size_t sourceRow = 0u;
-                                     sourceRow < supportContactPayload->records.size();
-                                     ++sourceRow) {
-                                    const auto& sourceContact =
-                                        supportContactPayload->records[sourceRow];
-                                    if (runtimeContact.bodyIndex == sourceContact.bodyIndex &&
-                                        runtimeContact.sourceGeometryIndex ==
-                                            sourceContact.sourceGeometryIndex) {
-                                        match = sourceRow;
-                                        ++matchCount;
-                                    }
-                                }
-                                require(matchCount == 1u,
-                                    "runtime support row has ambiguous or missing NHCNT lineage");
-                                runtimeSupportSourceRecordIndices[runtimeRow] = match;
-                                sourceRecordSeen[match] = 1u;
-                                if (runtimeRow < supportContactPayload->records.size()) {
-                                    require(match == runtimeRow,
-                                        "authored support row ordering changed before observer");
-                                } else {
-                                    require(runtimeRow < 38u &&
-                                                (match == 20u || match == 30u),
-                                        "derived support row is not a four-point foot child");
-                                }
-                            }
-                            require(std::all_of(sourceRecordSeen.begin(),
-                                        sourceRecordSeen.end(),
-                                        [](std::uint8_t seen) { return seen == 1u; }),
-                                "runtime support lineage omitted an authored NHCNT row");
-                            std::cout << "support_runtime_source_lineage runtime_rows="
-                                << queries.supportContacts.size()
-                                << " source_records="
-                                << supportContactPayload->records.size()
-                                << " derived_parent_rows=20,20,20,30,30,30"
-                                << " mapping=bodyIndex+sourceGeometryIndex"
-                                << std::endl;
+                        require(queries.supportContacts.size() ==
+                                    queries.supportSourceRecordIndices.size(),
+                                "accepted observer lost runtime support-query lineage");
+                        if (!observerSupportQueryCountObserved) {
+                            retainedObserverSupportQueryCount =
+                                queries.supportContacts.size();
+                            observerSupportQueryCountObserved = true;
+                        } else {
+                            require(retainedObserverSupportQueryCount ==
+                                        queries.supportContacts.size(),
+                                    "runtime support-query count changed across accepted observer callbacks");
                         }
-                        require(runtimeSupportSourceRecordIndices.size() ==
-                                    queries.supportContacts.size(),
-                            "runtime support lineage changed within the accepted observer");
                         const auto observerProfileStart = trainingProfile
                             ? std::chrono::steady_clock::now()
                             : std::chrono::steady_clock::time_point{};
@@ -24395,6 +26791,19 @@ int main(int argc, char** argv) {
                                             return std::isfinite(value);
                                         });
                                 };
+                                const std::size_t fullEqualityCount =
+                                    jointEqualityPayload.has_value()
+                                        ? jointEqualityPayload->payload.records.size()
+                                        : 0u;
+                                const std::uint32_t releaseStep =
+                                    separationReleaseStep.value_or(MR_INVALID_INDEX);
+                                const bool releaseTailFitsPayload =
+                                    separationReleaseEqualityQ.size() <= fullEqualityCount;
+                                const std::size_t expectedActiveEqualityCount =
+                                    releaseStep != MR_INVALID_INDEX && step > releaseStep &&
+                                            releaseTailFitsPayload
+                                        ? fullEqualityCount - separationReleaseEqualityQ.size()
+                                        : fullEqualityCount;
                                 require(step == qIntegrationWindow.firstAcceptedStep +
                                             qIntegrationAcceptedRows &&
                                             result.standPreProjectionQ.size() ==
@@ -24405,8 +26814,12 @@ int main(int argc, char** argv) {
                                                 articulation.nv &&
                                             (!qIntegrationWindow.bounded ||
                                              (jointEqualityPayload.has_value() &&
+                                              releaseTailFitsPayload &&
+                                              result.standStatuses.size() == 1u &&
+                                              result.standStatuses.front().jointEqualityCounts.x ==
+                                                  expectedActiveEqualityCount &&
                                               result.standJointEqualityImpulses.size() ==
-                                                  jointEqualityPayload->payload.records.size() &&
+                                                  expectedActiveEqualityCount &&
                                               result.standSourceLimitImpulses.size() ==
                                                   articulation.nv &&
                                               finiteDiagnosticVector(
@@ -24419,10 +26832,8 @@ int main(int argc, char** argv) {
                                             vBefore.size() == articulation.nv &&
                                             result.pointJacobians.size() ==
                                                 queries.points.size() * 3u * articulation.nv &&
-                                            result.standContactImpulses.size() ==
-                                                3u * queries.supportContacts.size() &&
-                                            runtimeSupportSourceRecordIndices.size() ==
-                                                queries.supportContacts.size(),
+                                            queries.supportContacts.size() ==
+                                                queries.supportSourceRecordIndices.size(),
                                         "accepted q-integration audit lacks a complete adjacent state, velocity, or point-Jacobian set");
                                 const auto worldConfiguration = [](
                                     const std::span<const float> source,
@@ -24550,23 +26961,19 @@ int main(int argc, char** argv) {
                                      contact < queries.supportContacts.size(); ++contact) {
                                     const auto& supportContact =
                                         queries.supportContacts[contact];
+                                    const std::uint32_t sourceRecordIndex =
+                                        sourceRecordIndexForSupportQuery(
+                                            queries, *supportContactPayload, contact);
                                     const auto& sourceContact =
-                                        supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
+                                        supportContactPayload->records[sourceRecordIndex];
                                     // These identity fields bind the support-region row
                                     // to its contact-query slot. They do not imply that
                                     // the dynamic weighted-skin witness is a one-body
                                     // contact; the pre-step operator Jacobian for this
                                     // slot is the authoritative measured linearization.
-                                    require(supportContact.bodyIndex ==
-                                                sourceContact.bodyIndex &&
-                                                supportContact.sourceGeometryIndex ==
-                                                    sourceContact.sourceGeometryIndex &&
-                                                supportContact.pointQueryIndex <
-                                                    queries.points.size() &&
-                                                queries.points[
-                                                    supportContact.pointQueryIndex].bodyIndex ==
-                                                    sourceContact.bodyIndex,
-                                            "q-integration support point query is not aligned with its source contact row");
+                                    require(supportContact.sourceGeometryIndex ==
+                                                sourceContact.sourceGeometryIndex,
+                                            "q-integration support point query lost source geometry identity");
                                     const std::uint32_t pointIndex =
                                         supportContact.pointQueryIndex;
                                     for (std::size_t stage = 0u; stage <
@@ -24594,12 +27001,16 @@ int main(int argc, char** argv) {
                                          contact < qAuditSupportPointSlip.size(); ++contact) {
                                         const auto& supportContact =
                                             queries.supportContacts[contact];
+                                        const std::uint32_t sourceRecordIndex =
+                                            sourceRecordIndexForSupportQuery(
+                                                queries, *supportContactPayload, contact);
                                         const auto& sourceContact =
-                                            supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
+                                            supportContactPayload->records[sourceRecordIndex];
                                         qSupportSlipTrace << step << ','
                                             << std::setprecision(17)
                                             << step * double(coupled.physiology.runtime.timestepSeconds())
-                                            << ',' << contact << ',' << sourceContact.bodyIndex
+                                            << ',' << contact << ',' << sourceRecordIndex
+                                            << ',' << supportContact.bodyIndex
                                             << ',' << sourceContact.sourceGeometryIndex
                                             << ',' << supportContact.pointQueryIndex;
                                         for (const auto& slip : qAuditSupportPointSlip[contact])
@@ -24676,7 +27087,7 @@ int main(int argc, char** argv) {
                                 if (qIntegrationWindow.bounded) {
                                     require(result.standBodyKineticRootMassRows.size() ==
                                                 3u * nv &&
-                                            result.standBodyKineticRootMomentumStages.size() == 6u,
+                                            result.standBodyKineticRootMomentumStages.size() == 9u,
                                             "bounded Q row lacks GPU root body-kinetic momentum evidence");
                                     for (const float component :
                                          result.standBodyKineticRootMomentumStages)
@@ -24902,8 +27313,8 @@ int main(int argc, char** argv) {
                                             result.pointJacobians.size() == queryElements &&
                                             result.pointWorld.size() == queries.points.size() &&
                                             result.pointPositionLow.size() == queries.points.size() &&
-                                            runtimeSupportSourceRecordIndices.size() ==
-                                                queries.supportContacts.size(),
+                                            queries.supportContacts.size() ==
+                                                queries.supportSourceRecordIndices.size(),
                                         "accepted support motion observer lacks same-step pre-dynamics arrays");
                                 const auto preVelocityFingerprint =
                                     metalrobo::numiHumanRuntimePayloadFingerprint(
@@ -24918,17 +27329,14 @@ int main(int argc, char** argv) {
                                      contact < queries.supportContacts.size(); ++contact) {
                                     const auto& contactQuery =
                                         queries.supportContacts[contact];
+                                    const std::uint32_t sourceRecordIndex =
+                                        sourceRecordIndexForSupportQuery(
+                                            queries, *supportContactPayload, contact);
                                     const auto& sourceContact =
-                                        supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
-                                    require(contactQuery.bodyIndex == sourceContact.bodyIndex &&
-                                                contactQuery.sourceGeometryIndex ==
-                                                    sourceContact.sourceGeometryIndex &&
-                                                contactQuery.pointQueryIndex <
-                                                    queries.points.size() &&
-                                                queries.points[
-                                                    contactQuery.pointQueryIndex].bodyIndex ==
-                                                    sourceContact.bodyIndex,
-                                            "accepted support motion observer query identity changed");
+                                        supportContactPayload->records[sourceRecordIndex];
+                                    require(contactQuery.sourceGeometryIndex ==
+                                                sourceContact.sourceGeometryIndex,
+                                            "accepted support motion observer source geometry identity changed");
                                     const auto pointVelocity =
                                         metalrobo::human::observer::makeSupportPointVelocity(
                                             result.pointJacobians,
@@ -24952,7 +27360,7 @@ int main(int argc, char** argv) {
                                         << double(step - 1u) * observerDt << ','
                                         << contact << ','
                                         << sourceContact.sourceGeometryIndex << ','
-                                        << sourceContact.bodyIndex << ','
+                                        << contactQuery.bodyIndex << ','
                                         << contactQuery.pointQueryIndex << ','
                                         << pointX << ',' << pointY << ',' << pointZ << ','
                                         << preVelocityFingerprint << ','
@@ -25034,7 +27442,9 @@ int main(int argc, char** argv) {
                             const auto& supportNormal = supportContactPayload->header;
                             const bool fullContactVector =
                                 result.standContactImpulses.size() ==
-                                3u * queries.supportContacts.size();
+                                3u * queries.supportContacts.size() &&
+                                queries.supportContacts.size() ==
+                                    queries.supportSourceRecordIndices.size();
                             require(fullContactVector,
                                     "accepted COM audit lacks every support-contact impulse triple");
                             const std::array<double,3u> referencePlaneNormal{
@@ -25043,6 +27453,9 @@ int main(int argc, char** argv) {
                             std::uint32_t designatedInternalSeamRowCount=0u;
                             for (std::size_t contact = 0u;
                                  contact < queries.supportContacts.size(); ++contact) {
+                                const std::uint32_t sourceRecordIndex =
+                                    sourceRecordIndexForSupportQuery(
+                                        queries, *supportContactPayload, contact);
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
                                     queries.supportContacts.size(),(!restingBedSurface.empty()||NumiHumanRestingRopeSupport::configuredFromEnvironment()),referencePlaneNormal);
                                 const double normalComponent =
@@ -25055,7 +27468,7 @@ int main(int argc, char** argv) {
                                             std::isfinite(tangent0Component) &&
                                             std::isfinite(tangent1Component),
                                         "accepted support impulse component is non-finite");
-                                if (comAuditInternalSeamRows[runtimeSupportSourceRecordIndices.at(contact)]) {
+                                if (comAuditInternalSeamRows.at(sourceRecordIndex)) {
                                     ++designatedInternalSeamRowCount;
                                 } else {
                                     for (std::size_t axis = 0u; axis < 3u; ++axis) {
@@ -25091,6 +27504,83 @@ int main(int argc, char** argv) {
                                     unaccountedDeltaP[axis] =
                                         deltaComMomentum[axis] - gravityImpulse -
                                         worldExternalSupportImpulse[axis];
+                                }
+                            }
+                            // These GPU root-momentum stages use the same mass rows
+                            // assembled at the pre-step configuration. The free and
+                            // post-constraint stages therefore isolate the solver's
+                            // same-q impulse response from the CPU endpoint q/v product.
+                            const std::size_t momentumNv = articulation.nv;
+                            const auto& gpuRootMassRows =
+                                result.standBodyKineticRootMassRows;
+                            const auto& gpuRootMomentumStages =
+                                result.standBodyKineticRootMomentumStages;
+                            const bool gpuRootMomentumSameQAvailable =
+                                gpuRootMassRows.size() == 3u * momentumNv &&
+                                (gpuRootMomentumStages.size() == 6u ||
+                                 gpuRootMomentumStages.size() == 9u) &&
+                                result.standPreviousVelocity.size() == momentumNv &&
+                                result.standV.size() == momentumNv;
+                            std::array<double, 3u> gpuFreeMomentumSameQ{};
+                            std::array<double, 3u> gpuPostConstraintsMomentumSameQ{};
+                            std::array<double, 3u> gpuPreviousVelocityMomentumSameQ{};
+                            std::array<double, 3u> gpuAcceptedVelocityMomentumSameQ{};
+                            std::array<double, 3u> sameQPostConstraintImpulseResidual{};
+                            std::array<double, 3u> sameQAcceptedImpulseResidual{};
+                            std::array<double, 3u> endpointConfigurationMomentumDelta{};
+                            const bool gpuAcceptedEndpointMomentumAvailable =
+                                gpuRootMomentumStages.size() == 9u;
+                            const bool endpointMomentumCaptureExpected =
+                                restingComMomentumAudit &&
+                                qIntegrationWindow.bounded &&
+                                step >= qIntegrationWindow.firstAcceptedStep &&
+                                step <= qIntegrationWindow.lastAcceptedStep;
+                            require(gpuAcceptedEndpointMomentumAvailable ==
+                                        endpointMomentumCaptureExpected,
+                                    "accepted endpoint GPU momentum capture does not match the pinned audit window");
+                            std::array<double, 3u> gpuAcceptedEndpointMomentum{};
+                            std::array<double, 3u> endpointGpuMinusSameQAccepted{};
+                            std::array<double, 3u> endpointGpuMinusCpuCom{};
+                            if (gpuAcceptedEndpointMomentumAvailable) {
+                                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                    gpuAcceptedEndpointMomentum[axis] =
+                                        double(gpuRootMomentumStages[6u + axis]);
+                                    endpointGpuMinusCpuCom[axis] =
+                                        gpuAcceptedEndpointMomentum[axis] - comMomentum[axis];
+                                }
+                            }
+                            if (gpuRootMomentumSameQAvailable) {
+                                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                    gpuFreeMomentumSameQ[axis] =
+                                        double(gpuRootMomentumStages[axis]);
+                                    gpuPostConstraintsMomentumSameQ[axis] =
+                                        double(gpuRootMomentumStages[3u + axis]);
+                                    double previousSameQ = 0.0;
+                                    double acceptedSameQ = 0.0;
+                                    for (std::size_t dof = 0u; dof < momentumNv; ++dof) {
+                                        const double massRow = double(
+                                            gpuRootMassRows[axis * momentumNv + dof]);
+                                        previousSameQ = std::fma(massRow,
+                                            double(result.standPreviousVelocity[dof]),
+                                            previousSameQ);
+                                        acceptedSameQ = std::fma(massRow,
+                                            double(result.standV[dof]), acceptedSameQ);
+                                    }
+                                    gpuPreviousVelocityMomentumSameQ[axis] = previousSameQ;
+                                    gpuAcceptedVelocityMomentumSameQ[axis] = acceptedSameQ;
+                                    sameQPostConstraintImpulseResidual[axis] =
+                                        gpuPostConstraintsMomentumSameQ[axis] -
+                                        gpuFreeMomentumSameQ[axis] -
+                                        worldExternalSupportImpulse[axis];
+                                    sameQAcceptedImpulseResidual[axis] =
+                                        acceptedSameQ - gpuFreeMomentumSameQ[axis] -
+                                        worldExternalSupportImpulse[axis];
+                                    endpointConfigurationMomentumDelta[axis] =
+                                        comMomentum[axis] - acceptedSameQ;
+                                    if (gpuAcceptedEndpointMomentumAvailable) {
+                                        endpointGpuMinusSameQAccepted[axis] =
+                                            gpuAcceptedEndpointMomentum[axis] - acceptedSameQ;
+                                    }
                                 }
                             }
                             const auto comCsvProfileStart = trainingProfile
@@ -25162,7 +27652,41 @@ int main(int argc, char** argv) {
                             }
                             for (const double value : absoluteValues)
                                 comMomentumTrace << ',' << value;
-                            comMomentumTrace << '\n';
+                            const auto writeMomentumTriple = [&](const
+                                std::array<double, 3u>& values) {
+                                for (const double value : values) {
+                                    comMomentumTrace << ',';
+                                    if (gpuRootMomentumSameQAvailable)
+                                        comMomentumTrace << value;
+                                }
+                            };
+                            writeMomentumTriple(gpuFreeMomentumSameQ);
+                            writeMomentumTriple(gpuPostConstraintsMomentumSameQ);
+                            writeMomentumTriple(gpuPreviousVelocityMomentumSameQ);
+                            writeMomentumTriple(gpuAcceptedVelocityMomentumSameQ);
+                            writeMomentumTriple(sameQPostConstraintImpulseResidual);
+                            writeMomentumTriple(sameQAcceptedImpulseResidual);
+                            writeMomentumTriple(endpointConfigurationMomentumDelta);
+                            const auto writeOptionalMomentumTriple = [&](const
+                                std::array<double, 3u>& values, bool available) {
+                                for (const double value : values) {
+                                    comMomentumTrace << ',';
+                                    if (available) comMomentumTrace << value;
+                                }
+                            };
+                            writeOptionalMomentumTriple(
+                                gpuAcceptedEndpointMomentum,
+                                gpuAcceptedEndpointMomentumAvailable);
+                            writeOptionalMomentumTriple(
+                                endpointGpuMinusSameQAccepted,
+                                gpuAcceptedEndpointMomentumAvailable &&
+                                    gpuRootMomentumSameQAvailable);
+                            writeOptionalMomentumTriple(
+                                endpointGpuMinusCpuCom,
+                                gpuAcceptedEndpointMomentumAvailable);
+                            comMomentumTrace << ',' <<
+                                (gpuRootMomentumSameQAvailable ? 1 : 0) << ',' <<
+                                (gpuAcceptedEndpointMomentumAvailable ? 1 : 0) << '\n';
                             if (trainingProfile) {
                                 restingObserverProfile.comMomentumCsvMilliseconds +=
                                     profileElapsedMilliseconds(comCsvProfileStart);
@@ -25172,8 +27696,13 @@ int main(int argc, char** argv) {
                                 : std::chrono::steady_clock::time_point{};
                             for (std::size_t contact = 0u;
                                  contact < queries.supportContacts.size(); ++contact) {
+                                const std::uint32_t sourceRecordIndex =
+                                    sourceRecordIndexForSupportQuery(
+                                        queries, *supportContactPayload, contact);
                                 const auto& sourceContact =
-                                    supportContactPayload->records[runtimeSupportSourceRecordIndices.at(contact)];
+                                    supportContactPayload->records[sourceRecordIndex];
+                                const auto& contactQuery =
+                                    queries.supportContacts[contact];
                                 const double components[3]{
                                     result.standContactImpulses[3u * contact],
                                     result.standContactImpulses[3u * contact + 1u],
@@ -25189,9 +27718,10 @@ int main(int argc, char** argv) {
                                             impulseBasis[basis][axis];
                                 supportImpulseTrace << sampleStartStep << ',' << step
                                     << ',' << sampleSteps << ',' << contact << ','
-                                    << sourceContact.bodyIndex << ','
+                                    << sourceRecordIndex << ','
+                                    << contactQuery.bodyIndex << ','
                                     << sourceContact.sourceGeometryIndex << ','
-                                    << (comAuditInternalSeamRows[runtimeSupportSourceRecordIndices.at(contact)]
+                                    << (comAuditInternalSeamRows.at(sourceRecordIndex)
                                         ? "internal_seam_constraint"
                                         : "external_support_contact") << ','
                                     << components[0] << ',' << components[1] << ','
@@ -25348,7 +27878,9 @@ int main(int argc, char** argv) {
                 const auto start=std::chrono::steady_clock::now();
                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
                     *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
-                    nullptr,std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,standContactIterationCount.value_or(16u),
+                    restingPassiveFasciaOwner?&restingPassiveFasciaOwner->transaction:nullptr,
+                    std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,
+                    standContactIterationCount.value_or(16u),
                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
@@ -25358,7 +27890,14 @@ int main(int argc, char** argv) {
                      (std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
                       std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)),
                     activeSeparationBodyMap,
-                    separationForceProgram);
+                    separationForceProgram,
+                    organCaudalReleaseQ,
+                    separationReleaseEqualityQ,
+                    separationCrossReleaseRows,
+                    separationReleaseStep.value_or(MR_INVALID_INDEX),
+                    organReleaseChains.empty()?MR_INVALID_INDEX:organReleaseChains.front().terminalBody,
+                    activeSeparationQMap,activeSeparationVMap,
+                    separationCarrierReleaseQ,separationCarrierReleaseV);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();
@@ -25486,11 +28025,11 @@ int main(int argc, char** argv) {
                             "accepted Q-integration trace did not retain every requested window step");
                     require(qComMomentumAuditRows == qIntegrationWindow.rowCount(),
                             "accepted COM momentum trace did not retain every requested Q-window step");
-                    require(!runtimeSupportSourceRecordIndices.empty(),
-                            "accepted Q-window lacks the runtime support-row lineage map");
+                    require(observerSupportQueryCountObserved,
+                            "accepted support impulse audit lacks an observed runtime contact count");
                     const std::uint64_t expectedQSupportImpulseRows =
                         std::uint64_t(qIntegrationWindow.rowCount()) *
-                        runtimeSupportSourceRecordIndices.size();
+                        retainedObserverSupportQueryCount;
                     require(qSupportImpulseAuditRows == expectedQSupportImpulseRows,
                             "accepted support impulse trace did not retain every Q-window contact row");
                     qIntegrationTrace.flush();
@@ -26588,7 +29127,7 @@ int main(int argc, char** argv) {
                 openKneeLigamentFEM.has_value() ? &*openKneeLigamentFEM : nullptr,
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 skinPayload.has_value() ? &*skinPayload : nullptr,
-                torsoAnatomyPayload.has_value() ? &*torsoAnatomyPayload : nullptr,
+                visualTorsoAnatomyPayload,
                 torsoAnatomyLayerMask,
                 hiddenAnatomyStableIds,
                 bodies, restBodies,
@@ -26629,7 +29168,7 @@ int main(int argc, char** argv) {
                         renderedOpenKneeRegions == expectedRenderedOpenKneeRegions,
                     "native Human visual Open Knee(s) presentation region count drifted");
             require(!torsoAnatomyPayload.has_value() ||
-                        renderedTorsoAnatomySurfaces == torsoAnatomyPayload->records.size(),
+                        renderedTorsoAnatomySurfaces == visualTorsoAnatomyPayload->records.size(),
                     "native Human visual torso anatomy did not render every source surface");
             const CameraFraming cameraFraming = makeCameraFraming(
                 pack, bodies, rigid.model.joints, focusBodyIndex,
