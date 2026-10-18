@@ -306,6 +306,10 @@ struct ParticleSource {
     std::array<double, 3> velocity{};
     double mass = 0.0;
     double referenceVolume = 0.0;
+    // Capacity slots keep finite positive authored mass/volume, but dormant
+    // slots are excluded from the physical mass and skipped by MPM kernels.
+    // Appending this default preserves existing four-field aggregate callers.
+    bool active = true;
 };
 
 struct TetrahedronSource {

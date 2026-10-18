@@ -1546,6 +1546,8 @@ CompileResult compileWorld(
             if (std::ranges::any_of(
                     object.particles,
                     [](const ParticleSource& particle) {
+                        // Dormant capacity slots still have finite positive
+                        // capacity mass/volume; activity is a separate phase bit.
                         return
                             !finite(particle.position) ||
                             !finite(particle.velocity) ||
@@ -1863,7 +1865,7 @@ CompileResult compileWorld(
                     objectIndex,
                     object.materialIndex,
                     1u,
-                    NM_OBJECT_ACTIVE,
+                    sourceParticle.active ? NM_OBJECT_ACTIVE : 0u,
                 };
                 world.mpm.particles.push_back(particle);
             }
@@ -3164,6 +3166,9 @@ CompileResult compileWorld(
             for (std::uint32_t local = 0u; local < descriptor.stateCount; ++local) {
                 const NMParticleStateGPU& particle =
                     world.mpm.particles[descriptor.stateOffset + local];
+                if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                    continue;
+                }
                 const double mass = particle.positionAndMass.w;
                 restMass += mass;
                 restMoment[0] += mass * particle.referenceAndTemperature.x;

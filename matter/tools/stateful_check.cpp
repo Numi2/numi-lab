@@ -854,12 +854,126 @@ void verifyLearnedMaterialRoundTrip() {
     );
 }
 
+
+void verifyDormantMPMCapacitySlot() {
+    using namespace numi::matter;
+    const auto parsed = parseMatterFile(NUMI_MATTER_STATEFUL_MATERIAL);
+    require(parsed.succeeded(), "dormant-slot material did not parse");
+
+    constexpr double spacing = 0.005;
+    constexpr double volume = spacing * spacing * spacing;
+    constexpr double mass = 1100.0 * volume;
+    ParticleSource legacyAggregate{
+        {-0.020, 0.0, 0.025},
+        {0.0, 0.0, 0.0},
+        mass,
+        volume,
+    };
+    require(
+        legacyAggregate.active,
+        "four-field ParticleSource aggregate no longer defaults active"
+    );
+
+    ParticleSource dormant = legacyAggregate;
+    dormant.position[0] += spacing;
+    dormant.active = false;
+
+    WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, -9.81};
+    source.materials.push_back(parsed.material);
+
+    ObjectSource object;
+    object.name = "dormant_capacity_check";
+    object.materialIndex = 0u;
+    object.representation = Representation::mpm;
+    object.characteristicLength = 0.01;
+    object.mpmGridMinimum = {-0.03, -0.02, -0.01};
+    object.mpmGridMaximum = {0.01, 0.02, 0.06};
+    object.deformableContact = false;
+    object.particles = {legacyAggregate, dormant};
+    source.objects.push_back(std::move(object));
+
+    const auto compiled = compileWorld(source);
+    require(compiled.succeeded(), "dormant MPM capacity world did not compile");
+    std::string validationError;
+    require(
+        validateCompiledWorldLayout(compiled.world, &validationError),
+        "dormant MPM capacity world failed cooked validation: " + validationError
+    );
+    require(
+        compiled.world.dispatch.particleCount == 2u &&
+            compiled.world.objects.front().stateCount == 2u,
+        "dormant slot was not retained as bounded compiled capacity"
+    );
+
+    const NMParticleStateGPU& activeState = compiled.world.mpm.particles[0];
+    const NMParticleStateGPU& dormantState = compiled.world.mpm.particles[1];
+    require(
+        (activeState.identity.w & NM_OBJECT_ACTIVE) != 0u &&
+            (dormantState.identity.w & NM_OBJECT_ACTIVE) == 0u &&
+            dormantState.positionAndMass.w > 0.0f &&
+            dormantState.velocityAndReferenceVolume.w > 0.0f,
+        "dormant slot lacks finite positive capacity data or phase bit"
+    );
+    require(
+        compiled.world.adaptive.front().massAndError.x ==
+                activeState.positionAndMass.w &&
+            compiled.world.adaptive.front().massAndError.x <
+                activeState.positionAndMass.w + dormantState.positionAndMass.w,
+        "dormant capacity mass leaked into the physical object mass tally"
+    );
+
+    auto incorrectlyActivated = compiled.world;
+    incorrectlyActivated.mpm.particles[1].identity.w = NM_OBJECT_ACTIVE;
+    incorrectlyActivated.fingerprint =
+        compiledWorldFingerprint(incorrectlyActivated);
+    require(
+        incorrectlyActivated.fingerprint != compiled.world.fingerprint,
+        "compiled identity ignores the authored active phase bit"
+    );
+    validationError.clear();
+    require(
+        !validateCompiledWorldLayout(incorrectlyActivated, &validationError) &&
+            validationError.find("MPM active mass/center tally") !=
+                std::string::npos,
+        "cooked validation accepted dormant capacity mass as physical mass"
+    );
+
+    WorldSource allDormantSource = source;
+    allDormantSource.objects.front().particles.front().active = false;
+    const auto allDormant = compileWorld(allDormantSource);
+    require(
+        allDormant.succeeded(),
+        "all-dormant MPM receiver capacity did not compile"
+    );
+    validationError.clear();
+    require(
+        validateCompiledWorldLayout(allDormant.world, &validationError),
+        "all-dormant MPM receiver capacity failed validation: " +
+            validationError
+    );
+    const NMAdaptiveStateGPU& emptyMass = allDormant.world.adaptive.front();
+    require(
+        emptyMass.massAndError.x == 0.0f &&
+            emptyMass.referenceCenter.x == 0.0f &&
+            emptyMass.referenceCenter.y == 0.0f &&
+            emptyMass.referenceCenter.z == 0.0f &&
+            emptyMass.centerAndRadius.x == 0.0f &&
+            emptyMass.centerAndRadius.y == 0.0f &&
+            emptyMass.centerAndRadius.z == 0.0f,
+        "all-dormant receiver slots contributed physical mass or center"
+    );
+}
+
 } // namespace
 
 int main() {
     try {
         verifyAdaptiveLayout();
         verifyLearnedMaterialRoundTrip();
+        verifyDormantMPMCapacitySlot();
         const auto world = compileStatefulWorld();
         std::cout
             << "{\"schema\":\"numi.matter.stateful-compiler.v1\""

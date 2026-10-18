@@ -1,0 +1,18 @@
+{
+  "base": "d8697faa29f32afd9669e8ad25b00082710f3c4e",
+  "scope": "authored dormant MPM capacity slots and active physical-mass validation",
+  "files": {
+    "matter/include/numi/matter/matter.hpp": "93ce39abc6c158ee9c984839e55a4bcf4e908012df09fd5b7487ab97b6df1502",
+    "matter/src/compiler_impl.cpp": "4a4f2f0080577288ba5ff884a28ae1c4f9139ab868be40d5f4e2365de9d88bf7",
+    "matter/src/validation_impl.cpp": "fcc6ce268dce9fff97f79224590c841361c641de649223ac65c2505f6ead0305",
+    "matter/tools/stateful_check.cpp": "1a4cda1a22db44e8e636a32d3d125925ee60957c92e39cf326b4048205ed3363"
+  },
+  "patch_sha256": "eb7c86e91e0a477d9db1ebb8acfca3f710d7b79ee74df558eec49dbcced75df2",
+  "test": {
+    "compiler": "Apple clang++ C++23, O0, Wall/Wextra/Wpedantic/Werror",
+    "result": "PASS",
+    "exit_code": 0,
+    "output": "stateful-compiler.v1 fingerprint=8973917896904243881 state_stride=2 particles=2 tetrahedra=1",
+    "native_gpu": "not run"
+  }
+}

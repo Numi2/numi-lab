@@ -1740,13 +1740,63 @@ private:
                         particle.identity.x != index ||
                         particle.identity.y != object.materialIndex ||
                         particle.identity.z != object.topologyGeneration ||
-                        (particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                        particle.identity.w !=
+                            ((particle.identity.w & NM_OBJECT_ACTIVE) != 0u
+                                ? static_cast<std::uint32_t>(NM_OBJECT_ACTIVE)
+                                : 0u)) {
                         return failIndexed(
                             "MPM particle",
                             particleIndex,
                             "state or object identity is invalid"
                         );
                     }
+                }
+                double activeParticleMass = 0.0;
+                std::array<double, 3> activeParticleMoment{};
+                for (std::uint32_t local = 0u;
+                     local < object.stateCount;
+                     ++local) {
+                    const NMParticleStateGPU& particle =
+                        world_.mpm.particles[
+                            static_cast<std::size_t>(object.stateOffset) + local
+                        ];
+                    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                    const double mass = particle.positionAndMass.w;
+                    activeParticleMass += mass;
+                    activeParticleMoment[0] += mass * particle.referenceAndTemperature.x;
+                    activeParticleMoment[1] += mass * particle.referenceAndTemperature.y;
+                    activeParticleMoment[2] += mass * particle.referenceAndTemperature.z;
+                }
+                if (index >= world_.adaptive.size()) {
+                    return failIndexed(
+                        "continuum object",
+                        index,
+                        "MPM active mass tally has no adaptive-property owner"
+                    );
+                }
+                const NMAdaptiveStateGPU& massProperties = world_.adaptive[index];
+                const float expectedActiveMass =
+                    static_cast<float>(activeParticleMass);
+                const std::array<float, 3> expectedCenter =
+                    activeParticleMass > 0.0
+                        ? std::array<float, 3>{
+                              static_cast<float>(activeParticleMoment[0] / activeParticleMass),
+                              static_cast<float>(activeParticleMoment[1] / activeParticleMass),
+                              static_cast<float>(activeParticleMoment[2] / activeParticleMass)}
+                        : std::array<float, 3>{};
+                if (!std::isfinite(activeParticleMass) ||
+                    massProperties.massAndError.x != expectedActiveMass ||
+                    massProperties.referenceCenter.x != expectedCenter[0] ||
+                    massProperties.referenceCenter.y != expectedCenter[1] ||
+                    massProperties.referenceCenter.z != expectedCenter[2] ||
+                    massProperties.centerAndRadius.x != expectedCenter[0] ||
+                    massProperties.centerAndRadius.y != expectedCenter[1] ||
+                    massProperties.centerAndRadius.z != expectedCenter[2]) {
+                    return failIndexed(
+                        "continuum object",
+                        index,
+                        "MPM active mass/center tally disagrees with active particle slots"
+                    );
                 }
                 for (std::uint32_t local = 0u;
                      local < object.auxiliaryCount;

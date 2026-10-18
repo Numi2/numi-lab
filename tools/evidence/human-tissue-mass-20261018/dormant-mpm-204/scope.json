@@ -1,0 +1,12 @@
+{
+  "scope": "CPU compiler authoring and validation for dormant preallocated MPM slots",
+  "tested": "existing stateful compiler regression; no GPU dispatch",
+  "default": "legacy authored particles stay active",
+  "mass": "inactive slots retain positive finite capacity data but contribute zero physical object mass",
+  "not_implemented": [
+    "blood-to-MPM transfer",
+    "liquid constitutive qualification",
+    "accepted-step activation/rollback",
+    "full human liquid simulation"
+  ]
+}
