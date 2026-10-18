@@ -1,0 +1,30 @@
+[
+  {
+    "run": "native",
+    "outcome": "preflight rejected capture1499 before physical run"
+  },
+  {
+    "run": "native-002",
+    "outcome": "preflight rejected capture1495 before physical run"
+  },
+  {
+    "run": "native-003",
+    "outcome": "stopped at accepted4.030s for collapsed muscle158 surface triangle; guard retained"
+  },
+  {
+    "run": "native-005",
+    "outcome": "manually interrupted own run to synchronize moving fixture presentation"
+  },
+  {
+    "run": "native-006",
+    "outcome": "stopped at accepted11.070s for collapsed bone49 surface triangle; guard retained"
+  },
+  {
+    "run": "native-008",
+    "outcome": "stopped at accepted11.710s for another collapsed muscle158 triangle; longer-motion defect remains open"
+  },
+  {
+    "run": "native-009",
+    "outcome": "completed10simulatedseconds; eight-view video; all native triangle guards enabled"
+  }
+]

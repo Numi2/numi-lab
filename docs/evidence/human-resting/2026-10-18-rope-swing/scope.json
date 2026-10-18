@@ -1,0 +1,16 @@
+{
+  "base_native_build": "/Users/n/numi-human-rope-abi41-build-20261018-013",
+  "demo_build": "/Users/n/numi-human-rope-swing-build-20261018-003",
+  "source_policy": "Frozen build extension; shared dirty application sources preserved. Patch is against frozen source, not current main.",
+  "fixed_timestep_s": 0.002,
+  "moving_boundary": "GPU position-driven unilateral length constraint; no independent distributed rope dynamics or contact-harness model",
+  "camera_control": "Presentation-only eight-view tour, 1.25 simulated seconds per view",
+  "step_clock": "SupportGeometryPass authoritative stepIndex; same index on retry; visual accepted timestamp",
+  "limitations": [
+    "Position-level moving-plane drive does not explicitly supply a support velocity term.",
+    "Rope is ideal massless unilateral length limit.",
+    "Hands have rigid reference digits and free wrist joints.",
+    "Resting anatomical admission does not qualify swing poses."
+  ],
+  "longer_motion_defect": "muscle158 triangle8861 rejected at11.710simulatedseconds"
+}

@@ -1,0 +1,18 @@
+{
+  "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/native-009/rope-suspension-reference.mov": {
+    "sha256": "8fa87ac9246099bcb943262c2e7d9e3241678a51dade6e015014605dcf83073e",
+    "bytes": 1440663
+  },
+  "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/rope-swing-eight-angles-preview.mp4": {
+    "sha256": "5a1cb434c9b62006ee6076468cf4a422c636766616a19de608553d24bb84d8d7",
+    "bytes": 1440275
+  },
+  "/Users/n/numi-human-rope-swing-build-20261018-003/bin/numi-human-native": {
+    "sha256": "f7d3d83ccf09df58005505036a0fbd2c8833d6849d92fccc328d36930e97dd28",
+    "bytes": 2517552
+  },
+  "/Users/n/numi-human-rope-swing-build-20261018-003/rope.metal": {
+    "sha256": "4ea1de019f2b1f411b9f1d0ca6db661d05ae29f47626b217ca4b21023fc2c763",
+    "bytes": 12835
+  }
+}

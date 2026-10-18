@@ -1,0 +1,94 @@
+{
+  "status": "PASS_DEMONSTRATION",
+  "captures": [
+    {
+      "step": 0,
+      "time_s": 0,
+      "camera_index": 0,
+      "anchor_m": [
+        -0.022202338790521026,
+        0.2539973258972168,
+        2.6483030319213867
+      ],
+      "site_m": [
+        -0.02220234620117586,
+        0.2539973436592929,
+        1.848302899800184
+      ],
+      "visual_anchor_error_m": 0.0,
+      "attachment_error_m": 6.32526956550727e-08,
+      "chord_m": 0.8000001321212029,
+      "fixture_center_error_m": 1.1929162913633333e-09,
+      "pack_sha256": "a1cafa422f482808e5474d308c0ea1d589315a0c57ca41a1fdad54843a114bb3"
+    },
+    {
+      "step": 1023,
+      "time_s": 2.0460000971797854,
+      "camera_index": 5,
+      "anchor_m": [
+        -0.03979536099359393,
+        0.010623648937325925,
+        2.6483030319213867
+      ],
+      "site_m": [
+        0.044704995411947446,
+        0.025176784215472328,
+        1.8524684540857617
+      ],
+      "visual_anchor_error_m": 3.461682993221332e-08,
+      "attachment_error_m": 3.696260522550082e-08,
+      "chord_m": 0.8004403658348916,
+      "fixture_center_error_m": 7.908748392021255e-10,
+      "pack_sha256": "84a943e9faad24919c7e02971f9eb15c4c682c2a04dba9be0bc47ed69bcae80c"
+    },
+    {
+      "step": 3071,
+      "time_s": 6.142000291729346,
+      "camera_index": 2,
+      "anchor_m": [
+        -0.08856503572314978,
+        -0.04228663397952914,
+        2.6483030319213867
+      ],
+      "site_m": [
+        -0.22331252030228635,
+        0.04879315296273018,
+        1.865182205537913
+      ],
+      "visual_anchor_error_m": 1.3641420199760185e-07,
+      "attachment_error_m": 7.711104454014033e-08,
+      "chord_m": 0.7998316328486806,
+      "fixture_center_error_m": 7.232755670990372e-10,
+      "pack_sha256": "62d3da8c9527484c78eeb42f5e9315d70534436e9dac12fd89832f4679e03226"
+    },
+    {
+      "step": 5000,
+      "time_s": 10.000000474974513,
+      "camera_index": 8,
+      "anchor_m": [
+        -0.022202541818842292,
+        -0.04600268602371216,
+        2.6483030319213867
+      ],
+      "site_m": [
+        0.015965986008503956,
+        -0.22057197005913995,
+        1.8682673779703582
+      ],
+      "visual_anchor_error_m": 2.397232500316229e-08,
+      "attachment_error_m": 4.020385888301254e-08,
+      "chord_m": 0.800241771516557,
+      "fixture_center_error_m": 6.478855187973103e-10,
+      "pack_sha256": "c1c908efb439aa22a8f9b3ff2d79bcd113721c9eccbada88c54cb9ea3c8a6bba"
+    }
+  ],
+  "completion": {
+    "simulated_s": 10.000000474974513,
+    "wall_s": 48.289181875,
+    "real_time_factor": 0.20708572990240817
+  },
+  "other_contact_normal_impulse_ns_max": 0.0,
+  "max_zero_area_triangles": 0.0,
+  "max_nonfinite_area_triangles": 0.0,
+  "scope": "Driven rope visual/attachment consistency and completed native path. Position-driven ideal length limit; not distributed rope or full swing-pose anatomical qualification."
+}
