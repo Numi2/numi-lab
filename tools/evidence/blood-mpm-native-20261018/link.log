@@ -1,0 +1,3 @@
+ARGV=["/usr/bin/xcrun", "--sdk", "macosx", "clang++", "-arch", "arm64", "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/matter_physics_probe-207.o", "-o", "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/bin/metalrobo_matter_physics_probe_207", "-L/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib", "-lmetalrobo", "-Wl,-rpath,/Users/numi/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib", "-framework", "Foundation", "-framework", "Metal"]
+EXIT=0
+ELAPSED=0.04584408400114626

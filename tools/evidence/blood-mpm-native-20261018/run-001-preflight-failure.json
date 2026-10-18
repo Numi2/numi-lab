@@ -1,0 +1,9 @@
+{
+  "schema": "numi.matter.blood_mpm_preflight_attempt.v1",
+  "attempt": "run-001",
+  "result": "stopped before native dispatch",
+  "reason": "wrapper SHA pin included an extra trailing digit",
+  "wanted_wrapper_sha256": "081073dd757e2ae8d11fc7635f571ed3be456f2dab180b3b610a78466b03b98e2",
+  "actual_wrapper_sha256": "081073dd757e2ae8d11fc7635f571ed3be456f2dab180b3b610a78466b03b98e",
+  "native_process_started": false
+}

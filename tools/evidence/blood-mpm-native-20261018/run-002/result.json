@@ -1,0 +1,52 @@
+{
+  "schema": "numi.matter.blood_mpm_native_invocation.v1",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/usr/bin/env",
+    "NUMI_MATTER_TEST_SOURCE=/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256=6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/bin/metalrobo_matter_physics_probe_207",
+    "--blood-mpm"
+  ],
+  "env": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de"
+  },
+  "pins": {
+    "binary": {
+      "path": "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/bin/metalrobo_matter_physics_probe_207",
+      "sha256": "b3440858fb2d3ed6a9fbd1695597fff261c5c81b3cf88695835202b7aa041319"
+    },
+    "probe_source": {
+      "path": "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/source/apps/matter_physics_probe.mm",
+      "sha256": "06010e7c9c8c6b5c9178a4c9c4039e140763cfa7c7d64a97c0512be99a0b6c32"
+    },
+    "probe_object": {
+      "path": "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-207/native-probe-207/matter_physics_probe-207.o",
+      "sha256": "1980602c37d53ad44eefde3c6d94893a929a926418d53ff9ffb2414eaf9e05d9"
+    },
+    "runtime_library": {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/lib/libmetalrobo.dylib",
+      "sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56"
+    },
+    "matter_source": {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/MatterSource.metal",
+      "sha256": "6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de"
+    },
+    "blood_material": {
+      "path": "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+      "sha256": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2"
+    },
+    "wrapper": {
+      "path": "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+      "sha256": "081073dd757e2ae8d11fc7635f571ed3be456f2dab180b3b610a78466b03b98e"
+    }
+  },
+  "scope": "bounded current-main native MPM high-shear proxy accepted-step plus injected GPU rejection/rollback; isolated material fixture only, no circulation-stock transfer",
+  "exit_code": 0,
+  "elapsed_seconds": 144.13642501831055,
+  "stdout_sha256": "1f5e9cf64ec40adc4a4b9d31ed0be5921f57e1de64379988fdc74d767f852729",
+  "stderr_sha256": "dc9425e325d02f80545d578414ea0cec1174876b963fa2bfd27ec70957fd83e7"
+}

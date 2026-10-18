@@ -1270,6 +1270,126 @@ void runStatefulMaterial(
     }
 }
 
+numi::matter::CompiledWorld compileBloodMPMCase(
+    double& densityKgPerM3,
+    double& viscosityPaS,
+    double& numericalBulkProxyPa
+) {
+    const std::filesystem::path referenceMaterialPath(NUMI_MATTER_MATERIAL);
+    require(!referenceMaterialPath.empty(),
+        "blood MPM probe needs the existing matter-material directory");
+    const auto bloodMaterialPath = referenceMaterialPath.parent_path() /
+        "blood_high_shear_newtonian_proxy.nmatter";
+    const auto parsed = numi::matter::parseMatterFile(bloodMaterialPath.string());
+    require(parsed.succeeded(),
+        "source-pinned high-shear blood material did not parse: " +
+            bloodMaterialPath.string());
+
+    const auto parameterValue = [&](const char* name) {
+        const auto found = std::find_if(
+            parsed.material.parameters.begin(),
+            parsed.material.parameters.end(),
+            [name](const numi::matter::Parameter& parameter) {
+                return parameter.name == name;
+            });
+        require(found != parsed.material.parameters.end(),
+            std::string("blood material is missing parameter ") + name);
+        return found->defaultValue;
+    };
+    densityKgPerM3 = parameterValue("density");
+    viscosityPaS = parameterValue("eta_high_shear");
+    numericalBulkProxyPa = parameterValue("numerical_bulk_proxy");
+    require(std::isfinite(densityKgPerM3) && densityKgPerM3 > 0.0 &&
+            std::isfinite(viscosityPaS) && viscosityPaS > 0.0 &&
+            std::isfinite(numericalBulkProxyPa) && numericalBulkProxyPa > 0.0,
+        "blood material parameters are not finite and positive");
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 8000.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.materials.push_back(parsed.material);
+
+    numi::matter::ObjectSource object;
+    object.name = "blood_high_shear_mpm_probe";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::mpm;
+    object.characteristicLength = 0.005;
+    object.adaptive = false;
+    object.deformableContact = false;
+    object.deformableSelfContact = false;
+    object.mpmGridMinimum = {-0.015, -0.015, -0.015};
+    object.mpmGridMaximum = { 0.015,  0.015,  0.015};
+
+    constexpr double spacing = 0.005;
+    constexpr double particleVolume = spacing * spacing * spacing;
+    constexpr double shearRatePerSecond = 1000.0;
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                numi::matter::ParticleSource particle;
+                particle.position = {
+                    x == 0 ? -0.0025 : 0.0025,
+                    y == 0 ? -0.0025 : 0.0025,
+                    z == 0 ? -0.0025 : 0.0025,
+                };
+                // A bounded 1000 s^-1 simple-shear initial field exercises the
+                // objective high-shear viscous bytecode in the existing MPM
+                // material owner. It is a solver fixture, not a vessel-flow
+                // or whole-blood model.
+                particle.velocity = {
+                    shearRatePerSecond * particle.position[1], 0.0, 0.0
+                };
+                particle.referenceVolume = particleVolume;
+                particle.mass = densityKgPerM3 * particleVolume;
+                object.particles.push_back(particle);
+            }
+        }
+    }
+
+    // A finite positive dormant capacity slot verifies that the active mask
+    // excludes reserve capacity from physical inventory and MPM evolution.
+    numi::matter::ParticleSource reserve;
+    reserve.position = {0.0, 0.0, 0.0};
+    reserve.velocity = {0.0, 0.0, 0.0};
+    reserve.referenceVolume = particleVolume;
+    reserve.mass = densityKgPerM3 * particleVolume;
+    reserve.active = false;
+    object.particles.push_back(reserve);
+    source.objects.push_back(std::move(object));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = NM_MAX_RATE_EXPONENT;
+    const auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(),
+        "high-shear blood MPM fixture did not compile");
+    require(compiled.world.mpm.particles.size() == 9u,
+        "blood MPM fixture did not retain eight active slots plus one reserve slot");
+
+    std::uint32_t activeCount = 0u;
+    std::uint32_t dormantCount = 0u;
+    double activeMass = 0.0;
+    for (const NMParticleStateGPU& particle : compiled.world.mpm.particles) {
+        if ((particle.identity.w & NM_OBJECT_ACTIVE) != 0u) {
+            ++activeCount;
+            activeMass += particle.positionAndMass.w;
+        } else {
+            ++dormantCount;
+            require(std::isfinite(particle.positionAndMass.w) &&
+                    particle.positionAndMass.w > 0.0f &&
+                    std::isfinite(particle.velocityAndReferenceVolume.w) &&
+                    particle.velocityAndReferenceVolume.w > 0.0f,
+                "dormant blood reserve was not fully initialized");
+        }
+    }
+    const double expectedMass = densityKgPerM3 * 1.0e-6;
+    require(activeCount == 8u && dormantCount == 1u,
+        "blood MPM active/dormant classification is incorrect");
+    require(std::abs(activeMass - expectedMass) <= expectedMass * 2.0e-6,
+        "compiled active blood mass does not match density times reference volume");
+    return std::move(compiled.world);
+}
+
 struct Outcome {
     double gpuMilliseconds = 0.0;
     std::size_t residentBytes = 0u;
@@ -1279,6 +1399,16 @@ struct Outcome {
     std::uint64_t requestedThreads = 0u;
     std::uint64_t requestedThreadgroups = 0u;
     std::uint32_t environmentCount = 0u;
+    std::uint32_t activeMPMParticleCount = 0u;
+    double initialActiveMPMMass = 0.0;
+    double finalActiveMPMMass = 0.0;
+    double minimumActiveMPMMass = std::numeric_limits<double>::infinity();
+    double maximumActiveMPMMass = 0.0;
+    double initialActiveMPMKineticEnergy = 0.0;
+    double finalActiveMPMKineticEnergy = 0.0;
+    std::array<double, 3> initialActiveMPMMomentum{};
+    std::array<double, 3> finalActiveMPMMomentum{};
+    bool activeMPMInventoryRecorded = false;
     std::uint32_t contactSamples = 0u;
     std::uint32_t minimumContactSamples =
         std::numeric_limits<std::uint32_t>::max();
@@ -1330,7 +1460,8 @@ Outcome runCase(
     std::uint32_t controlSteps,
     bool forceRollback = false,
     bool updateLearned = false,
-    bool verifyTopologyRestore = false
+    bool verifyTopologyRestore = false,
+    bool recordMPMInventory = false
 );
 
 void runIdentification() {
@@ -2888,7 +3019,8 @@ Outcome runCase(
     const std::uint32_t controlSteps,
     const bool forceRollback,
     const bool updateLearned,
-    const bool verifyTopologyRestore
+    const bool verifyTopologyRestore,
+    const bool recordMPMInventory
 ) {
     @autoreleasepool {
         const std::uint32_t environmentCount = world.dispatch.environmentCount;
@@ -2978,6 +3110,48 @@ Outcome runCase(
         }
         auto recordSnapshot = [&](const numi::matter::RuntimeStateSnapshot& snapshot) {
             require(snapshot.available, label + std::string(" snapshot: ") + snapshot.message);
+            if (recordMPMInventory) {
+                double activeMass = 0.0;
+                double kineticEnergy = 0.0;
+                std::array<double, 3> momentum{};
+                std::uint32_t activeCount = 0u;
+                for (const NMParticleStateGPU& particle : snapshot.particles) {
+                    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                        continue;
+                    }
+                    const double mass = particle.positionAndMass.w;
+                    const std::array<double, 3> velocity{
+                        particle.velocityAndReferenceVolume.x,
+                        particle.velocityAndReferenceVolume.y,
+                        particle.velocityAndReferenceVolume.z,
+                    };
+                    ++activeCount;
+                    activeMass += mass;
+                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                        momentum[axis] += mass * velocity[axis];
+                    }
+                    kineticEnergy += 0.5 * mass * (
+                        velocity[0] * velocity[0] +
+                        velocity[1] * velocity[1] +
+                        velocity[2] * velocity[2]);
+                }
+                require(activeCount > 0u,
+                    label + std::string(" snapshot has no active MPM blood particles"));
+                if (!outcome.activeMPMInventoryRecorded) {
+                    outcome.initialActiveMPMMass = activeMass;
+                    outcome.initialActiveMPMKineticEnergy = kineticEnergy;
+                    outcome.initialActiveMPMMomentum = momentum;
+                    outcome.activeMPMInventoryRecorded = true;
+                }
+                outcome.activeMPMParticleCount = activeCount;
+                outcome.finalActiveMPMMass = activeMass;
+                outcome.finalActiveMPMKineticEnergy = kineticEnergy;
+                outcome.finalActiveMPMMomentum = momentum;
+                outcome.minimumActiveMPMMass = std::min(
+                    outcome.minimumActiveMPMMass, activeMass);
+                outcome.maximumActiveMPMMass = std::max(
+                    outcome.maximumActiveMPMMass, activeMass);
+            }
             if (!snapshot.particles.empty()) {
                 for (const NMParticleStateGPU& particle : snapshot.particles) {
                     outcome.minimumHeight = std::min(
@@ -3100,6 +3274,9 @@ Outcome runCase(
                 });
             }
         };
+        if (recordMPMInventory) {
+            recordSnapshot(runtime.snapshot());
+        }
         for (std::uint32_t step = 0u; step < controlSteps; ++step) {
             id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
             require(commandBuffer != nil, "failed to allocate Matter command buffer");
@@ -3367,6 +3544,74 @@ Outcome runCase(
     }
 }
 
+
+void runBloodMPM() {
+    double densityKgPerM3 = 0.0;
+    double viscosityPaS = 0.0;
+    double numericalBulkProxyPa = 0.0;
+    const auto world = compileBloodMPMCase(
+        densityKgPerM3, viscosityPaS, numericalBulkProxyPa);
+    const auto accepted = runCase(
+        world, "high-shear blood MPM accepted path",
+        false, false, 8u, false, false, false, true);
+    const auto rejected = runCase(
+        world, "high-shear blood MPM rejected path",
+        false, false, 1u, true, false, false, true);
+
+    const double expectedActiveMassKg = densityKgPerM3 * 1.0e-6;
+    const auto nearMass = [](const double value, const double expected) {
+        return std::isfinite(value) &&
+            std::abs(value - expected) <= std::max(1.0e-12, expected * 2.0e-6);
+    };
+    require(accepted.activeMPMInventoryRecorded &&
+            accepted.activeMPMParticleCount == 8u &&
+            nearMass(accepted.initialActiveMPMMass, expectedActiveMassKg) &&
+            nearMass(accepted.finalActiveMPMMass, expectedActiveMassKg) &&
+            nearMass(accepted.minimumActiveMPMMass, expectedActiveMassKg) &&
+            nearMass(accepted.maximumActiveMPMMass, expectedActiveMassKg),
+        "accepted blood MPM run changed active physical particle mass");
+    require(std::isfinite(accepted.minimumDeterminant) &&
+            accepted.minimumDeterminant > 0.0f,
+        "accepted blood MPM run produced invalid J");
+    require(rejected.activeMPMInventoryRecorded &&
+            rejected.activeMPMParticleCount == 8u &&
+            rejected.initialActiveMPMMass == rejected.finalActiveMPMMass &&
+            rejected.minimumActiveMPMMass == rejected.maximumActiveMPMMass,
+        "rejected blood MPM run changed active blood inventory");
+
+    const std::array<double, 3> momentumDelta{
+        accepted.finalActiveMPMMomentum[0] - accepted.initialActiveMPMMomentum[0],
+        accepted.finalActiveMPMMomentum[1] - accepted.initialActiveMPMMomentum[1],
+        accepted.finalActiveMPMMomentum[2] - accepted.initialActiveMPMMomentum[2],
+    };
+    std::cout
+        << "{\"schema\":\"numi.matter.blood-mpm-probe.v1\""
+        << ",\"scope\":\"native MPM high-shear material and rollback only; no circulation-stock transfer\""
+        << ",\"material\":\"blood_high_shear_newtonian_proxy\""
+        << ",\"density_kg_m3\":" << densityKgPerM3
+        << ",\"high_shear_viscosity_Pa_s\":" << viscosityPaS
+        << ",\"numerical_bulk_proxy_Pa\":" << numericalBulkProxyPa
+        << ",\"initial_shear_rate_s_1\":1000"
+        << ",\"active_particles\":"
+        << accepted.activeMPMParticleCount
+        << ",\"dormant_reserve_slots\":1"
+        << ",\"reference_active_volume_m3\":1e-6"
+        << ",\"accepted_active_mass_kg\":"
+        << accepted.finalActiveMPMMass
+        << ",\"accepted_minimum_J\":" << accepted.minimumDeterminant
+        << ",\"accepted_initial_kinetic_J\":"
+        << accepted.initialActiveMPMKineticEnergy
+        << ",\"accepted_final_kinetic_J\":"
+        << accepted.finalActiveMPMKineticEnergy
+        << ",\"accepted_momentum_delta_kg_m_s\":["
+        << momentumDelta[0] << "," << momentumDelta[1] << ","
+        << momentumDelta[2] << "]"
+        << ",\"rejection_restored_particles_and_material_state\":true"
+        << ",\"scope_limits\":[\"high-shear Newtonian proxy\","
+        << "\"no low-shear aggregation or clotting\","
+        << "\"no free-surface or circulation-stock transfer\"]"
+        << "}\n";
+}
 
 // Independent rigid load/friction oracle through the actual MetalWorld/Matter
 // candidate service, nonlinear FGMRES, line search and accepted transaction.
@@ -3929,6 +4174,7 @@ int main(int argc, const char* argv[]) {
         const bool mpmBatch = argc == 2 &&
             std::string_view(argv[1]) == "--mpm-batch";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
+        const bool bloodMPM = argc == 2 && std::string_view(argv[1]) == "--blood-mpm";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
         const bool multiphysics = argc == 2 && std::string_view(argv[1]) == "--multiphysics";
         const bool topologyMutation = argc == 2 &&
@@ -3973,7 +4219,7 @@ int main(int argc, const char* argv[]) {
             argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
                 mpmSingleContact || mpmGentle || mpmBatch || mpmRollback ||
-                metalWorldCoupling || multiphysics ||
+                bloodMPM || metalWorldCoupling || multiphysics ||
                 topologyMutation || topologyRollback || cohesiveMutation ||
                 smallScaleRemesh || punctureMutation || learnedMaterial ||
                 productionRollback || poroelasticCompression ||
@@ -3986,8 +4232,12 @@ int main(int argc, const char* argv[]) {
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--puncture-channel-exit-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--puncture-channel-exit-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--blood-mpm|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
+        if (bloodMPM) {
+            runBloodMPM();
+            return 0;
+        }
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
         }

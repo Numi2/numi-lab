@@ -1,0 +1,60 @@
+{
+  "schema": "numi.matter.blood_mpm_native_evidence.v1",
+  "source_repository_head": "a8d7312ff273e4a4e6707a829504d797e0b551f1",
+  "source_baseline_path": "apps/matter_physics_probe.mm",
+  "source_baseline_sha256": "e7b8ea670da4a512d7ab2a7a5a95cc29a4e46902f207268afb8d23ede853e535",
+  "source_after_patch_sha256": "06010e7c9c8c6b5c9178a4c9c4039e140763cfa7c7d64a97c0512be99a0b6c32",
+  "test_patch": "matter_physics_probe.patch.gz",
+  "compile": {
+    "receipt": "compile.json",
+    "exit_code": 0,
+    "probe_source_sha256": "06010e7c9c8c6b5c9178a4c9c4039e140763cfa7c7d64a97c0512be99a0b6c32",
+    "object_sha256": "1980602c37d53ad44eefde3c6d94893a929a926418d53ff9ffb2414eaf9e05d9",
+    "dependency_file_sha256": "6f5250cfe3d7c69ae8327d4c049b0e01d892fcbe69ecdf614c765e5e8842e759",
+    "log_sha256": "960358f9990cf8109ca246692e619d7f2ea8aa68640b20d61bcd64596d7a2014"
+  },
+  "link": {
+    "receipt": "link.json",
+    "exit_code": 0,
+    "binary_sha256": "b3440858fb2d3ed6a9fbd1695597fff261c5c81b3cf88695835202b7aa041319",
+    "library_content_at_link_sha256": "032d7fc4bf39ce8d59ad46cfc9250677c5364535db9a5f2fb7435631beeae86e",
+    "log_sha256": "9683d15adc0d1b551ccf192d94ae286a3990cf79c0402e9c456ff7f6b9e393a1"
+  },
+  "runtime": {
+    "result": "run-002/result.json",
+    "exit_code": 0,
+    "elapsed_seconds": 144.13642501831055,
+    "runtime_library_sha256": "460476dd4b5eefe1cae2e438857140ee141cbd4671814b908985fbd664b13c56",
+    "metal_source_sha256": "6a9f80472cad8e32f90af4f00cea937b59eff693968bcd99abfba30582ded7de",
+    "exclusive_wrapper_sha256": "081073dd757e2ae8d11fc7635f571ed3be456f2dab180b3b610a78466b03b98e",
+    "material": {
+      "path": "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+      "sha256": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+      "matches_current_main_tracked_material": true
+    },
+    "measured": {
+      "density_kg_m3": 1050.6,
+      "high_shear_viscosity_Pa_s": 0.004,
+      "numerical_bulk_proxy_Pa": 2500000.0,
+      "active_particles": 8,
+      "dormant_reserve_slots": 1,
+      "reference_active_volume_m3": 1e-06,
+      "accepted_active_mass_kg": 0.0010506,
+      "accepted_minimum_J": 1,
+      "accepted_initial_kinetic_J": 0.00328312,
+      "accepted_final_kinetic_J": 0.000466047,
+      "accepted_momentum_delta_kg_m_s": [
+        4.04741e-07,
+        6.46754e-10,
+        1.95689e-12
+      ],
+      "rejection_restored_particles_and_material_state": true
+    },
+    "native_result_sha256": "752015eb14cabec838335ca8240f0ac7e16af7fd1a2805d323bb5c45965f7742",
+    "stdout_sha256": "1f5e9cf64ec40adc4a4b9d31ed0be5921f57e1de64379988fdc74d767f852729",
+    "stderr_sha256": "dc9425e325d02f80545d578414ea0cec1174876b963fa2bfd27ec70957fd83e7"
+  },
+  "scope": "Existing Matter MPM owner, high-shear proxy material, active/dormant particle admission, accepted finite-J execution, and injected GPU rejection/rollback. This does not transfer circulation stock, model a free surface, or qualify a complete blood-flow model.",
+  "observed_limit": "Kinetic energy fell from 0.00328312 J to 0.000466047 J over the accepted fixture. A rough ideal high-shear viscous-work estimate is about 4e-6 J for 1 ms, so MPM transfer/grid damping remains unexplained; no dissipation or fluid-accuracy claim is made.",
+  "reference": "Blood material parameters use the published high-shear Newtonian approximation; low-shear, aggregation, clotting, free-surface, and circulation-transfer regimes remain outside this test."
+}
