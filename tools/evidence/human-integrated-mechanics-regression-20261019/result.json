@@ -1,0 +1,30 @@
+{
+  "source_revision": "5fa1f48594f755879131648f1a753ae3b787af2d",
+  "runtime_source_sha256": "c3ac4a50a5b2ab74806275abb66c86f175a14a4a4c06bdf429069ca0b28e9dee",
+  "engine_source_sha256": "f0ac35e1b8887ab693302efb102e42fca07dbb2963ef6177eadfcf67c8da4b43",
+  "native_process_exit": 0,
+  "end_to_end_wall_seconds": 96.88160066702403,
+  "requested_simulated_seconds": 0.002,
+  "actual_simulated_seconds": 0.0020000000949949026,
+  "body_run_wall_seconds": 86.193168416,
+  "body_run_real_time_factor": 2.3203696206434423e-05,
+  "baseline_trace_byte_equal": true,
+  "trace_rows": 2,
+  "trace_columns": 77,
+  "trace_sha256": "ce98943fa135142c37e9039b5d49abb56e7afcc1dcf3082024b4486cbfd3f59b",
+  "active_blood_mpm_particles": 5,
+  "actual_active_mpm_mass_kg": 0.00021960985759506002,
+  "represented_mpm_mass_kg": 0.00021960985759506002,
+  "mpm_mass_ledger_residual_kg": 0.0,
+  "external_blood_mass_kg": 0.00026338189491070807,
+  "pending_mass_kg": 4.377203731564805e-05,
+  "runtime_library_sha256": "9bb747dfa4c39e7f53374e98250470cb1f54ed53f220d6a68da8cc913d5ecc95",
+  "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+  "visual_verification": false,
+  "limitations": [
+    "Only8steps/2ms; no full heartbeat, breath or fall qualified.",
+    "FEM/MPM rollback was tested separately; this full scene has no new FEM adapter enabled.",
+    "No contact, pooling, long-run blood capacity or tissue realism qualification.",
+    "No performance claim; stage and end-to-end timing are reported separately."
+  ]
+}

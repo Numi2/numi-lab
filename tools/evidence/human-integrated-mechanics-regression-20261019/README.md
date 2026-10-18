@@ -1,0 +1,7 @@
+# Integrated body regression after mechanics transaction fixes
+
+Headless native Apple M6 run using the retained 008 full-scene app and a library relinked with the published contact-free FEM/MPM finalizer and deferred body reconciliation ordering. All 8 physical steps accepted (2 ms). Body and physiology clocks matched, root assistance was false, and the complete 77-column, two-row coupled trace is byte-identical to the unchanged 4861 baseline. Actual accepted liquid mass equals the represented ledger exactly at the printed precision; pending blood remains separately accounted.
+
+This checks preservation of the existing integrated body/circulation/liquid accepted path. The new shared FEM adapter is not enabled here. It does not qualify an anatomical tissue stack, complete breath/heartbeat, long fall, fluid contact/pooling, or long-run stability. No screenshot, video or visual inspection was performed. Stage execution took 86.193 s and end-to-end launch 96.882 s for 2 ms; no performance improvement is claimed.
+
+Exact executable, linked objects, runtime assets, shaders, invocation and baseline trace are pinned. Full output remains on SSH numi under the invocation output directory. The first preflight incorrectly treated inherited sparse compile-header paths as runtime assets and stopped before GPU execution; the runner now distinguishes runtime assets from dependencies of the already pinned app binary. No physical failure was concealed.
