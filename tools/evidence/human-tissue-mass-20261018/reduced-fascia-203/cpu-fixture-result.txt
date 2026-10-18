@@ -1,0 +1,1 @@
+reduced_passive_fascia_fixture=PASS strips=8 anchors=16 layers=2 source_volume_m3=0.002 source_mass_kg=2 distributed_strip_mass_kg=0 max_peak_normalized_fit=0.00666983 actual_owner_evaluator=true malformed_inputs_fail_closed=true

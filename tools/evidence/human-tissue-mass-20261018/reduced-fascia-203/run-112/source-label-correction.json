@@ -1,0 +1,16 @@
+{
+  "schema": "numi.human.passive-fascia-source-label-correction.v1",
+  "run": "native-run-112-tissue-202",
+  "binary_sha256": "a173994573c885e4eb083bfd221284054816e81fda46685b849290ae705e63d0",
+  "compiled_source_sha256": "237aed321bbc6446e9cd8c23a3106cb912a724d7e9e2d6221ae1507226b1d795",
+  "scope": "descriptive receipt correction only; no solver, force, state, material, or geometry change",
+  "stale_logged_field": "force_owner=existing_NHTENDON",
+  "correct_force_ownership": {
+    "skeletal_muscle_force": "existing_NHTENDON MyoSim owner (unchanged)",
+    "reduced_passive_fascia_force": "existing Matter passive-ligament adapter/kernel",
+    "fascia_mass": "retained with original rigid donors; not debited or counted again"
+  },
+  "fit_error_normalization": "peak_target_stress",
+  "fit_scope": "each strip RMS and maximum absolute stress residual are divided by peak source stress over fitted stretch interval 1.005 to 1.12; law extends linearly beyond 1.12",
+  "evidence": "The run log retains the original emitted fields verbatim; this sidecar corrects their interpretation without rewriting that evidence."
+}

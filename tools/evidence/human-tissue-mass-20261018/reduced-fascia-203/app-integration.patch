@@ -1,0 +1,309 @@
+--- /Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-202/compile-source/numilab_human_myosim_visual_probe.mm	2026-10-18 13:16:07
++++ /Users/numi/numi-human-separation-20261018/native-tissue-mechanics-build-203/compile-source/numilab_human_myosim_visual_probe.mm	2026-10-18 13:22:29
+@@ -2,6 +2,7 @@
+ #include "NumiHumanSeparationModel.hpp"
+ #include "NumiHumanOrganRelease.hpp"
+ #include "NumiHumanInferredACL.hpp"
++#include "NumiHumanReducedPassiveFascia.hpp"
+ #include "NumiHumanOrganEventRollbackProbe.hpp"
+ #include "NumiHumanPassiveCoordinateRemap.hpp"
+ #include "NumiHumanSeparationBodyRemap.hpp"
+@@ -17841,191 +17842,112 @@
+     const double fiberK1=parameterValue("fiber_k1");
+     const double fiberK2=parameterValue("fiber_k2");
+     const double smoothing=parameterValue("tension_smoothing");
+-    constexpr double fitMin=1.005,fitMax=1.12;
+-    constexpr unsigned fitSamples=24u;
+-    struct StripCook {
+-        std::uint32_t firstNode=0u,secondNode=0u,layer=0u;
+-        double length=0.0,volume=0.0,area=0.0,alignment=0.0;
+-        double c3=0.0,c4=0.0,c5=0.0,rms=0.0,maxError=0.0;
+-    };
+-    std::vector<std::array<std::uint32_t,4u>> sourceTets;
+-    sourceTets.reserve(region.tetrahedronCount);
+-    std::vector<double> nodalVolume(region.nodeCount,0.0);
+-    double totalSourceVolume=0.0;
++    namespace fascia_reduction = numi::human::reduced_passive_fascia;
++    const double fitMin=fascia_reduction::kFitMinimumStretch;
++    const double fitMax=fascia_reduction::kFitMaximumStretch;
++    std::vector<fascia_reduction::Node> reductionNodes;
++    reductionNodes.reserve(region.nodeCount);
++    for(std::uint32_t i=0u;i<region.nodeCount;++i) {
++        const auto& sourceNode=fascia.nodes[region.firstNode+i];
++        reductionNodes.push_back({
++            {rest[i][0],rest[i][1],rest[i][2]},
++            sourceNode.sourceVertexIndex,sourceNode.flags});
++    }
++    std::vector<fascia_reduction::Tetrahedron> reductionTetrahedra;
++    reductionTetrahedra.reserve(region.tetrahedronCount);
+     for(std::uint32_t t=0u;t<region.tetrahedronCount;++t) {
+-        const auto& src=fascia.tetrahedra[region.firstTetrahedron+t];
+-        require(src.regionIndex==ri,"resting fascia tetrahedron region mismatch");
+-        std::array<std::uint32_t,4u> tet{};
++        const auto& sourceTet=fascia.tetrahedra[region.firstTetrahedron+t];
++        require(sourceTet.regionIndex==ri,
++                "resting fascia tetrahedron region mismatch");
++        fascia_reduction::Tetrahedron tet{};
+         for(unsigned c=0u;c<4u;++c) {
+-            require(src.node[c]>=region.firstNode&&src.node[c]<region.firstNode+region.nodeCount,
+-                    "resting fascia tetrahedron crosses source region");
+-            tet[c]=src.node[c]-region.firstNode;
++            require(sourceTet.node[c]>=region.firstNode&&
++                        sourceTet.node[c]<region.firstNode+region.nodeCount,
++                    "resting fascia tetrahedron crosses source region");
++            tet.node[c]=sourceTet.node[c]-region.firstNode;
+         }
+-        const double v=std::abs(femSignedTetrahedronVolume(rest,tet));
+-        require(std::isfinite(v)&&v>1.0e-15,"resting fascia source tetrahedron is degenerate");
+-        totalSourceVolume+=v;
+-        for(auto node:tet)nodalVolume[node]+=0.25*v;
+-        sourceTets.push_back(tet);
++        reductionTetrahedra.push_back(tet);
+     }
+-    require(std::isfinite(totalSourceVolume)&&totalSourceVolume>0.0&&density>0.0,
+-            "resting fascia source volume/density invalid");
+-    std::array<std::vector<std::uint32_t>,2u> fixedByLayer,secondByLayer;
+-    for(std::uint32_t node=0u;node<region.nodeCount;++node) {
+-        const auto flags=fascia.nodes[region.firstNode+node].flags;
+-        require((flags&3u)!=3u,"resting fascia node has ambiguous endpoint flags");
+-        const std::uint32_t layer=node<half?0u:1u;
+-        if(flags&1u)fixedByLayer[layer].push_back(node);
+-        if(flags&2u)secondByLayer[layer].push_back(node);
+-    }
+-    struct StripMatch {std::uint32_t first=0u,second=0u,layer=0u;double length=0.0,volume=0.0,area=0.0,alignment=0.0,c3=0.0,c4=0.0,c5=0.0,rms=0.0,maxError=0.0;};
+-    std::vector<StripMatch> strips;
+-    strips.reserve(8u);
++    const fascia_reduction::Material reductionMaterial{
++        density,matrixShear,fiberK1,fiberK2,smoothing};
++    const auto evaluateOwnerStress=[](
++        const fascia_reduction::FiberLaw& law,double length,double area,
++        double stretch,double& stress)->bool {
++        NMNumiHumanPassiveLigamentGPU ligament{};
++        ligament.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
++        ligament.material={float(law.c3Pascals),float(law.c4),
++                           float(law.c5Pascals),float(law.maximumStretch)};
++        ligament.reference={float(length),float(area),1.0f,0.0f};
++        numi::matter::NumiHumanPassiveLigamentFiberEvaluation evaluated;
++        if(!numi::matter::evaluateNumiHumanPassiveLigamentFiber(
++                ligament,length*stretch,evaluated))return false;
++        stress=evaluated.fiberStressPascals;
++        return std::isfinite(stress);
++    };
++    fascia_reduction::Result cookedReduction;
++    std::string reductionError;
++    require(fascia_reduction::cook(
++                reductionNodes,reductionTetrahedra,reductionMaterial,
++                {fiber.x,fiber.y,fiber.z},evaluateOwnerStress,
++                cookedReduction,reductionError),
++            "resting fascia reduction failed: "+reductionError);
++    require(cookedReduction.distributedStripMassKg==0.0,
++            "massless passive fascia rows unexpectedly own mass");
++    const double totalSourceVolume=cookedReduction.sourceVolumeCubicMeters;
++    std::vector<fascia_reduction::Strip> strips=
++        std::move(cookedReduction.strips);
+     std::vector<std::array<std::uint32_t,4u>> stripIdentities;
+-    stripIdentities.reserve(8u);
+-    std::vector<std::int32_t> nodeStrip(region.nodeCount,-1);
+-    for(std::uint32_t layer=0u;layer<2u;++layer) {
+-        const auto& first=fixedByLayer[layer];
+-        const auto& second=secondByLayer[layer];
+-        require(first.size()==4u&&second.size()==4u,
+-                "fascia strip source must retain four enthesis anchors per layer");
+-        std::array<std::uint32_t,4u> perm{0u,1u,2u,3u},best{};
+-        double bestCost=std::numeric_limits<double>::infinity();
+-        do {
+-            double cost=0.0;
+-            for(unsigned i=0u;i<4u;++i) {
+-                const auto a=rest[first[i]],b=rest[second[perm[i]]];
+-                const double x=a[0]-b[0],y=a[1]-b[1],z=a[2]-b[2];
+-                cost+=x*x+y*y+z*z;
+-            }
+-            if(cost<bestCost){bestCost=cost;best=perm;}
+-        } while(std::next_permutation(perm.begin(),perm.end()));
+-        for(unsigned i=0u;i<4u;++i) {
+-            const auto a=first[i],b=second[best[i]];
+-            const auto pa=rest[a],pb=rest[b];
+-            const double x=pb[0]-pa[0],y=pb[1]-pa[1],z=pb[2]-pa[2];
+-            const double length=std::sqrt(x*x+y*y+z*z);
+-            require(std::isfinite(length)&&length>1.0e-4,
+-                    "fascia strip endpoints coincide");
+-            const auto si=static_cast<std::int32_t>(strips.size());
+-            strips.push_back({.first=a,.second=b,.layer=layer,.length=length});
+-            nodeStrip[a]=si;nodeStrip[b]=si;
+-            stripIdentities.push_back({a,fascia.nodes[region.firstNode+a].sourceVertexIndex,
+-                b,fascia.nodes[region.firstNode+b].sourceVertexIndex});
+-        }
+-    }
+-    for(std::uint32_t node=0u;node<region.nodeCount;++node) {
+-        if(nodeStrip[node]>=0) {
+-            strips[static_cast<std::size_t>(nodeStrip[node])].volume+=nodalVolume[node];
+-            continue;
+-        }
+-        const std::uint32_t layer=node<half?0u:1u;
+-        const auto x=rest[node];
+-        double bestDistance=std::numeric_limits<double>::infinity();
+-        std::size_t bestStrip=0u;
+-        for(std::size_t si=0u;si<strips.size();++si) {
+-            const auto& strip=strips[si];
+-            if(strip.layer!=layer)continue;
+-            const auto a=rest[strip.first],b=rest[strip.second];
+-            const double dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2];
+-            const double u=std::clamp(((x[0]-a[0])*dx+(x[1]-a[1])*dy+(x[2]-a[2])*dz)/
+-                (dx*dx+dy*dy+dz*dz),0.0,1.0);
+-            const double ex=x[0]-(a[0]+u*dx),ey=x[1]-(a[1]+u*dy),ez=x[2]-(a[2]+u*dz);
+-            const double distance=ex*ex+ey*ey+ez*ez;
+-            if(distance<bestDistance){bestDistance=distance;bestStrip=si;}
+-        }
+-        require(std::isfinite(bestDistance),"fascia node has no strip in its source layer");
+-        strips[bestStrip].volume+=nodalVolume[node];
++    stripIdentities.reserve(strips.size());
++    double maximumFitError=0.0,maximumFitRMS=0.0;
++    for(const auto& strip:strips) {
++        stripIdentities.push_back({strip.firstNode,strip.firstSourceVertex,
++                                   strip.secondNode,strip.secondSourceVertex});
++        maximumFitError=std::max(maximumFitError,
++                                 strip.peakNormalizedMaximumError);
++        maximumFitRMS=std::max(maximumFitRMS,strip.peakNormalizedRmsError);
+     }
+-    double distributedVolume=0.0;
+-    for(const auto& strip:strips)distributedVolume+=strip.volume;
+-    require(strips.size()==8u&&stripIdentities.size()==8u&&
+-            std::abs(distributedVolume-totalSourceVolume)<=std::max(1.0e-14,totalSourceVolume*1.0e-10),
+-            "fascia strip volume/anchor coverage is incomplete");
+-    const auto sourceStress=[&](double stretch,double fiberCos2) {
+-        const double inv=1.0/stretch;
+-        const double i4=stretch*stretch*fiberCos2+inv*(1.0-fiberCos2);
+-        const double x=i4-1.0,root=std::sqrt(x*x+smoothing*smoothing);
+-        const double e=0.5*(x+root-smoothing),de=0.5*(1.0+x/root);
+-        const double di4=2.0*stretch*fiberCos2-inv*inv*(1.0-fiberCos2);
+-        return matrixShear*(stretch-inv*inv)+fiberK1*e*std::exp(fiberK2*e*e)*de*di4;
+-    };
+     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+     passiveLigaments.reserve(strips.size());
+-    double maximumFitError=0.0,maximumFitRMS=0.0;
+     const auto toLocal=[&](std::uint32_t node,std::uint32_t bindingIndex) {
+         const auto& binding=muscles.tendonPayload.bindings[bindingIndex];
+-        require(binding.bodyIndex<bodies.size(),"fascia strip donor body is invalid");
++        require(binding.bodyIndex<bodies.size(),
++                "fascia strip donor body is invalid");
+         const auto& body=bodies[binding.bodyIndex];
+-        const mr_float4 inverse{-body.orientation.x,-body.orientation.y,-body.orientation.z,body.orientation.w};
++        const mr_float4 inverse{-body.orientation.x,-body.orientation.y,
++            -body.orientation.z,body.orientation.w};
+         return rotatePoint(inverse,femSubtract(points[node],body.position));
+     };
+-    for(auto& strip:strips) {
+-        strip.area=strip.volume/strip.length;
+-        const auto a=rest[strip.first],b=rest[strip.second];
+-        const double alignment=std::clamp(std::abs(((b[0]-a[0])*fiber.x+
+-            (b[1]-a[1])*fiber.y+(b[2]-a[2])*fiber.z)/strip.length),0.0,1.0);
+-        strip.alignment=alignment;
+-        std::array<double,fitSamples> target{},basis{};
+-        double peak=0.0;
+-        for(unsigned j=0u;j<fitSamples;++j) {
+-            const double stretch=fitMin+(fitMax-fitMin)*double(j)/double(fitSamples-1u);
+-            target[j]=sourceStress(stretch,alignment*alignment);
+-            peak=std::max(peak,std::abs(target[j]));
+-        }
+-        double bestError=std::numeric_limits<double>::infinity();
+-        for(unsigned candidate=0u;candidate<799u;++candidate) {
+-            const double c4=0.05+0.025*double(candidate);
+-            double aa=0.0,ay=0.0;
+-            for(unsigned j=0u;j<fitSamples;++j) {
+-                const double stretch=fitMin+(fitMax-fitMin)*double(j)/double(fitSamples-1u);
+-                basis[j]=std::expm1(c4*(stretch-1.0));
+-                aa+=basis[j]*basis[j];ay+=basis[j]*target[j];
+-            }
+-            if(!(aa>0.0))continue;
+-            const double c3=ay/aa;
+-            double error=0.0;
+-            for(unsigned j=0u;j<fitSamples;++j){const double r=c3*basis[j]-target[j];error+=r*r;}
+-            if(c3>0.0&&error<bestError){bestError=error;strip.c3=c3;strip.c4=c4;}
+-        }
+-        constexpr double lambdaMax=fitMax;
+-        strip.c5=strip.c3*strip.c4*std::exp(strip.c4*(lambdaMax-1.0));
+-        require(std::isfinite(strip.area)&&strip.area>0.0&&strip.c3>0.0&&strip.c4>0.0&&strip.c5>0.0,
+-                "fascia strip constitutive fit/area is invalid");
++    for(const auto& strip:strips) {
+         NMNumiHumanPassiveLigamentGPU passive{};
+         passive.firstBodyIndex=muscles.tendonPayload.bindings[bFixed].bodyIndex;
+         passive.secondBodyIndex=muscles.tendonPayload.bindings[bSecond].bodyIndex;
+         passive.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
+-        const auto firstLocal=toLocal(strip.first,bFixed),secondLocal=toLocal(strip.second,bSecond);
++        const auto firstLocal=toLocal(strip.firstNode,bFixed);
++        const auto secondLocal=toLocal(strip.secondNode,bSecond);
+         passive.firstLocalPoint={firstLocal.x,firstLocal.y,firstLocal.z,0.0f};
+         passive.secondLocalPoint={secondLocal.x,secondLocal.y,secondLocal.z,0.0f};
+-        passive.material={float(strip.c3),float(strip.c4),float(strip.c5),float(lambdaMax)};
+-        passive.reference={float(strip.length),float(strip.area),1.0f,0.0f};
+-        double error2=0.0,maxError=0.0;
+-        for(unsigned j=0u;j<fitSamples;++j) {
+-            const double stretch=fitMin+(fitMax-fitMin)*double(j)/double(fitSamples-1u);
+-            numi::matter::NumiHumanPassiveLigamentFiberEvaluation evaluation;
+-            require(numi::matter::evaluateNumiHumanPassiveLigamentFiber(
+-                        passive,strip.length*stretch,evaluation),
+-                    "fascia strip failed existing passive owner evaluator");
+-            const double residual=evaluation.fiberStressPascals-target[j];
+-            error2+=residual*residual;maxError=std::max(maxError,std::abs(residual));
+-        }
+-        strip.rms=std::sqrt(error2/double(fitSamples))/peak;
+-        strip.maxError=maxError/peak;
+-        maximumFitError=std::max(maximumFitError,strip.maxError);
+-        maximumFitRMS=std::max(maximumFitRMS,strip.rms);
+-        require(std::isfinite(strip.maxError)&&strip.maxError<=0.03&&std::isfinite(strip.rms),
+-                "fascia passive law fit exceeded the 3 percent source-curve bound");
++        passive.material={float(strip.law.c3Pascals),float(strip.law.c4),
++                          float(strip.law.c5Pascals),float(strip.law.maximumStretch)};
++        passive.reference={float(strip.restLengthMeters),
++                           float(strip.areaSquareMeters),1.0f,0.0f};
+         passiveLigaments.push_back(passive);
+-        const auto& identity=stripIdentities[passiveLigaments.size()-1u];
+         std::cout<<"resting_fascia_strip=admitted layer="<<strip.layer
+-            <<" first_node="<<identity[0]<<" first_source_vertex="<<identity[1]
+-            <<" second_node="<<identity[2]<<" second_source_vertex="<<identity[3]
+-            <<" first_body="<<passive.firstBodyIndex<<" second_body="<<passive.secondBodyIndex
+-            <<" rest_length_m="<<strip.length<<" area_m2="<<strip.area
+-            <<" volume_m3="<<strip.volume<<" fiber_alignment="<<alignment
+-            <<" c3_pa="<<strip.c3<<" c4="<<strip.c4<<" c5_pa="<<strip.c5
+-            <<" fit_rms_fraction="<<strip.rms<<" fit_max_fraction="<<strip.maxError<<"\n";
++            <<" first_node="<<stripIdentities[passiveLigaments.size()-1u][0]
++            <<" first_source_vertex="<<strip.firstSourceVertex
++            <<" second_node="<<stripIdentities[passiveLigaments.size()-1u][2]
++            <<" second_source_vertex="<<strip.secondSourceVertex
++            <<" first_body="<<passive.firstBodyIndex
++            <<" second_body="<<passive.secondBodyIndex
++            <<" rest_length_m="<<strip.restLengthMeters
++            <<" area_m2="<<strip.areaSquareMeters
++            <<" volume_m3="<<strip.sourceVolumeCubicMeters
++            <<" fiber_alignment="<<strip.fiberAlignment
++            <<" c3_pa="<<strip.law.c3Pascals
++            <<" c4="<<strip.law.c4
++            <<" c5_pa="<<strip.law.c5Pascals
++            <<" fit_rms_fraction="<<strip.peakNormalizedRmsError
++            <<" fit_max_fraction="<<strip.peakNormalizedMaximumError
++            <<" fit_error_normalization=peak_target_stress\n";
+     }
+     std::cout<<"resting_fascia_reduced_owner=accepted representation=two_point_axial_strips"
+         <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
+@@ -18034,8 +17956,11 @@
+         <<" thickness_m="<<fascia.header.thicknessMeters
+         <<" max_fit_fraction="<<maximumFitError<<" max_fit_rms_fraction="<<maximumFitRMS
+         <<" fit_stretch_range="<<fitMin<<","<<fitMax<<" linear_extension_beyond="<<fitMax
++        <<" fit_error_normalization=peak_target_stress"
+         <<" mass_owner=original_rigid_donors mass_partitioned=0"
+-        <<" myosim_force_owner=unchanged compression_shear=not_represented visual_deformation=not_represented\n";
++        <<" myosim_force_owner=existing_NHTENDON"
++        <<" passive_fascia_force_owner=existing_Matter_passive_ligament"
++        <<" compression_shear=not_represented visual_deformation=not_represented\n";
+     std::vector<metalrobo::inferred_acl::BuiltObject> aclObjects;
+     if(includeInferredACL) {
+         require(bones&&bones->sourceOwnerBindingsVerified&&
+@@ -18304,7 +18229,7 @@
+              <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
+              <<" body_anchors="<<owner->fasciaStripAnchorIdentity.size()*2u
+              <<" active_node_loads=0 endpoint_replacements=0 reduced_strips="<<owner->passiveLigaments.size()<<"\n"
+-             <<" force_owner=existing_NHTENDON passive_material_calibration=not_claimed"
++             <<" myosim_force_owner=existing_NHTENDON passive_fascia_force_owner=existing_Matter_passive_ligament passive_material_calibration=not_claimed"
+              <<" mass_rebase=cooked_node_partition gravity=source_body_gravity"
+              <<" inferred_acl_selection="<<(includeInferredACL?"enabled":"disabled")
+              <<" same_world_acl_objects="<<aclObjects.size()

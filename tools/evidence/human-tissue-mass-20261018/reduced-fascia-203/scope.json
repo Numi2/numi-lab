@@ -1,0 +1,30 @@
+{
+  "scope": "Regional fascia force reduction and 64ms integrated ACL/fascia evidence; not full human tissue qualification",
+  "native": {
+    "build": 202,
+    "simulated_seconds": 0.064,
+    "accepted_steps": 256,
+    "timestep_seconds": 0.00025,
+    "force_convergence": "unresolved",
+    "accepted_reaction_history": "empty in borrowed execution; no impulse reconstruction",
+    "visual_verification": false
+  },
+  "helper": {
+    "build": 203,
+    "cpu_current_main_closure": "PASS",
+    "native": "not run after extraction",
+    "input": "one ancestry-admitted two-layer source-envelope region, not segmented whole-body fascia",
+    "mass": "massless reduced rows; original fascia mass stays in rigid donor bodies",
+    "law": "nominal isochoric uniaxial projection; compression/shear not represented; fit error normalized to peak target stress"
+  },
+  "integration": "Frozen 202-to-203 patch retained; dirty current viewer source intentionally not replaced",
+  "remaining": [
+    "force convergence",
+    "long-horizon stability",
+    "full scene source integration",
+    "bone elasticity",
+    "broad soft tissue continuum mechanics",
+    "artery prepared-owner qualification",
+    "MPM blood transfer"
+  ]
+}
