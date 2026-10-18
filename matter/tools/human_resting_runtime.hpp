@@ -367,7 +367,11 @@ struct Respiration {
            (phase==AcceptedStepExtensionPhase::microstepComplete||
             (phase==AcceptedStepExtensionPhase::candidateReady&&
              v.microtick+1u<v.microtickCount))) return true;
-        if(outletStep&&!lease.active) return rejectLease("missing_owner_lease");
+        // Only the exchange stage borrows articulated mass/force arenas.
+        // Deferred frameComplete runs after the lease scope closes and uses
+        // accepted/checkpoint state plus the final body status gate only.
+        if(outletStep&&phase==AcceptedStepExtensionPhase::candidateReady&&!lease.active)
+            return rejectLease("missing_owner_lease");
         if(phase==AcceptedStepExtensionPhase::candidateReady&&lease.active) {
             if(!lease.bodyPropertiesCandidate||!lease.bodyPropertiesAccepted||
                !lease.bodyPropertiesReference||lease.bodyPropertyCount==0u||
@@ -698,8 +702,15 @@ struct RestingRun {
                 receiver.mpmGridMinimum={values[0],values[1],values[2]};
                 receiver.mpmGridMaximum={values[3],values[4],values[5]};
             }
+            const std::array<double,3> dormantGridCenter={
+                0.5*(receiver.mpmGridMinimum[0]+receiver.mpmGridMaximum[0]),
+                0.5*(receiver.mpmGridMinimum[1]+receiver.mpmGridMaximum[1]),
+                0.5*(receiver.mpmGridMinimum[2]+receiver.mpmGridMaximum[2])};
             for(unsigned slot=0;slot<128u;++slot) {
-                ParticleSource particle;particle.position={0,0,0};
+                // Inactive receiver slots still require finite, in-domain
+                // positions because the compiler validates their quadratic
+                // support stencil before activation.
+                ParticleSource particle;particle.position=dormantGridCenter;
                 particle.velocity={0,0,0};particle.referenceVolume=1.0e-6;
                 particle.mass=density*particle.referenceVolume;particle.active=false;
                 receiver.particles.push_back(particle);

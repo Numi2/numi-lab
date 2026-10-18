@@ -1773,7 +1773,7 @@ public:
                     "kind-7 rib field is only supported for a typed single-primitive intercostal source surface");
                 const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
                     [&](const auto& row){return row.stableId==instance.identity.w;});
-                require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==20&&
+                require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==anatomyGPU.bodyAndFlags.x&&
                     source->vertexCount>0&&source->indexCount>0,
                     "kind-7 harmonic field lacks the typed body-20 source row");
                 if(source->stableId==317)

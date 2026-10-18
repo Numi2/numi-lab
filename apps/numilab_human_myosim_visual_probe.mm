@@ -26340,6 +26340,12 @@ int main(int argc, char** argv) {
                             "NUMI_HUMAN_BLEEDING_ENABLED must be exactly 0 or 1");
                     const bool bleedingEnabled=!bloodEnabledSetting||
                         std::strcmp(bloodEnabledSetting,"1")==0;
+                    const char* bloodMpmSetting=std::getenv("NUMI_HUMAN_BLOOD_MPM_ENABLED");
+                    require(!bloodMpmSetting||std::strcmp(bloodMpmSetting,"0")==0||
+                            std::strcmp(bloodMpmSetting,"1")==0,
+                            "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+                    const bool bloodMpmEnabled=bloodMpmSetting&&
+                        std::strcmp(bloodMpmSetting,"1")==0;
                     scopeReceipt<<"{\n  \"schema\": \"numi.human.mechanical-separation-scope.v2\",\n"                        <<"  \"mode\": \"mechanical_topology_release\",\n"
                         <<"  \"release_step\": "<<step<<",\n"
                         <<"  \"seam\": {\"joint_index\": 16, \"parent_runtime_body\": 16, \"last_carrier_runtime_body\": "<<chain.bodyIndices[4]
@@ -26347,14 +26353,19 @@ int main(int argc, char** argv) {
                         <<"  \"post_release_physiology\": \""<<(bleedingEnabled?"CVSim21 compartment-7 pressure outlet continues; systemic injury response unsupported":"closed-outlet control; systemic injury response unsupported")<<"\",\n"
                         <<"  \"blood_loss\": \""<<(bleedingEnabled?"pressure_driven_compartment7_outlet":"closed_outlet_control_run")<<"\",\n"
                         <<"  \"blood_outlet\": {\"source_anatomy_id\": 9, \"runtime_body\": 7, \"donor_compartment_id\": 7, \"outer_surface_section_area_m2\": 0.000241926012369, \"lumen_patency_verified\": false},\n"
-                        <<"  \"external_phase\": \"8 ms aggregated reduced ballistic parcels and grounded volume pool; not a free-surface fluid solver\",\n"                        <<"  \"bleeding_enabled\": "<<(bleedingEnabled?"true":"false")<<",\n"
+                        <<"  \"external_phase\": \""<<(bloodMpmEnabled?
+                            "bounded noncontact MPM receiver for transferred blood parcels; no free-surface, floor-pool, or blood-contact qualification":
+                            "8 ms aggregated reduced ballistic parcels and grounded volume pool; not a free-surface fluid solver")<<"\",\n"
+                        <<"  \"blood_mpm_enabled\": "<<(bloodMpmEnabled?"true":"false")<<",\n"
+                        <<"  \"bleeding_enabled\": "<<(bleedingEnabled?"true":"false")<<",\n"
                         <<"  \"injury_qualification\": \"none\",\n"
                         <<"  \"source_physiology_mutated\": false\n}\n";
                     require(bool(scopeReceipt),"mechanical separation scope receipt write failed");
                     std::cout<<"separation_scope_receipt=written path="<<scopeReceiptPath.string()
                         <<" post_release_physiology="<<(bleedingEnabled?"CVSim21_compartment7_outlet":"closed_outlet_control")<<";injury_response_unsupported"
                         <<" blood_loss="<<(bleedingEnabled?"pressure_driven":"closed_control")
-                        <<" external_phase=reduced_ballistic_packets injury_qualification=none\n";                }
+                        <<" external_phase="<<(bloodMpmEnabled?"bounded_noncontact_MPM_receiver":"reduced_ballistic_packets")
+                        <<" injury_qualification=none\n";                }
                 if(!separationCrossReleaseRows.empty()) {
                     appendSource("separation_cut_crossing_nheq_source_rows_v1",
                         std::as_bytes(std::span(separationCrossSourceRows)));
@@ -28073,6 +28084,112 @@ int main(int argc, char** argv) {
                               << " quaternion_q=\"native quaternion increment\""
                               << " root_translation=\"compensated advance then projection\""
                               << std::endl;
+                }
+                const auto& acceptedBloodRespiration=*static_cast<const NMHumanRespirationState*>(
+                    coupled.physiology.respiration->accepted.contents);
+                const auto& acceptedExternalBlood=acceptedBloodRespiration.externalBlood;
+                const double pendingPositionMassKg=acceptedExternalBlood.pendingPositionMass.w;
+                const double totalVolumeM3=double(acceptedExternalBlood.total.x)-
+                    double(acceptedExternalBlood.compensation.x);
+                const double totalMassKg=double(acceptedExternalBlood.total.y)-
+                    double(acceptedExternalBlood.compensation.y);
+                const double representedVolumeM3=double(acceptedExternalBlood.mpmRepresented.x)-
+                    double(acceptedExternalBlood.mpmRepresentedCompensation.x);
+                const double representedMassKg=double(acceptedExternalBlood.mpmRepresented.y)-
+                    double(acceptedExternalBlood.mpmRepresentedCompensation.y);
+                std::cout<<std::setprecision(17)
+                    <<"resting_terminal_external_blood"
+                    <<" source=accepted_respiration_state"
+                    <<" total_volume_m3="<<totalVolumeM3
+                    <<" total_mass_kg="<<totalMassKg
+                    <<" total_volume_raw_m3="<<acceptedExternalBlood.total.x
+                    <<" total_mass_raw_kg="<<acceptedExternalBlood.total.y
+                    <<" total_volume_compensation_m3="<<acceptedExternalBlood.compensation.x
+                    <<" total_mass_compensation_kg="<<acceptedExternalBlood.compensation.y
+                    <<" represented_by_mpm_volume_m3="<<representedVolumeM3
+                    <<" represented_by_mpm_mass_kg="<<representedMassKg
+                    <<" represented_by_mpm_mass_raw_kg="<<acceptedExternalBlood.mpmRepresented.y
+                    <<" represented_by_mpm_mass_compensation_kg="<<acceptedExternalBlood.mpmRepresentedCompensation.y
+                    <<" pending_volume_m3="<<acceptedExternalBlood.pendingParcel.x
+                    <<" pending_mass_kg="<<acceptedExternalBlood.pendingParcel.y
+                    <<" pending_position_mass_kg="<<pendingPositionMassKg
+                    <<" pending_outlet_centroid_world_m=["
+                    <<(pendingPositionMassKg>0.0?acceptedExternalBlood.pendingPositionMass.x/pendingPositionMassKg:0.0)<<","
+                    <<(pendingPositionMassKg>0.0?acceptedExternalBlood.pendingPositionMass.y/pendingPositionMassKg:0.0)<<","
+                    <<(pendingPositionMassKg>0.0?acceptedExternalBlood.pendingPositionMass.z/pendingPositionMassKg:0.0)<<"]"
+                    <<" active_ballistic_parcels=";
+                std::uint32_t acceptedParcelCount=0u;
+                for(const auto& parcel:acceptedExternalBlood.parcels)
+                    if(parcel.gasAndFlags.z>0.5f) ++acceptedParcelCount;
+                std::cout<<acceptedParcelCount<<std::endl;
+                const char* bloodMpmFinalSetting=std::getenv("NUMI_HUMAN_BLOOD_MPM_ENABLED");
+                if(bloodMpmFinalSetting&&std::strcmp(bloodMpmFinalSetting,"1")==0) {
+                    const auto acceptedMatter=coupled.physiology.runtime.snapshot();
+                    require(acceptedMatter.available,acceptedMatter.message);
+                    const auto& receiverDispatch=coupled.physiology.respiration->dispatch;
+                    require(receiverDispatch.bloodMpmEnabled==1u&&
+                            receiverDispatch.bloodMpmObjectIndex!=NM_INVALID_INDEX&&
+                            receiverDispatch.bloodMpmParticleCount>0u&&
+                            receiverDispatch.bloodMpmMaterialIndex!=NM_INVALID_INDEX&&
+                            std::uint64_t(receiverDispatch.bloodMpmFirstParticle)+
+                                receiverDispatch.bloodMpmParticleCount<=acceptedMatter.particles.size(),
+                            "terminal blood receiver identity/range does not match the accepted Matter snapshot");
+                    std::uint64_t activeMpmParticles=0u;
+                    double activeMassKg=0.0, referenceVolumeM3=0.0, currentVolumeM3=0.0;
+                    double minimumJ=std::numeric_limits<double>::infinity();
+                    double maximumJ=0.0;
+                    for(std::uint32_t local=0u;local<receiverDispatch.bloodMpmParticleCount;++local) {
+                        const std::uint32_t particleIndex=receiverDispatch.bloodMpmFirstParticle+local;
+                        const NMParticleStateGPU& p=acceptedMatter.particles[particleIndex];
+                        require(p.identity.x==receiverDispatch.bloodMpmObjectIndex&&
+                                p.identity.y==receiverDispatch.bloodMpmMaterialIndex&&
+                                p.identity.z==receiverDispatch.bloodMpmTopologyGeneration,
+                                "terminal blood receiver particle identity differs from its compiled source range");
+                        if((p.identity.w&NM_OBJECT_ACTIVE)==0u) continue;
+                        ++activeMpmParticles;
+                        const double j=
+                            double(p.deformationRow0.x)*(double(p.deformationRow1.y)*p.deformationRow2.z-
+                                                          double(p.deformationRow1.z)*p.deformationRow2.y)-
+                            double(p.deformationRow0.y)*(double(p.deformationRow1.x)*p.deformationRow2.z-
+                                                          double(p.deformationRow1.z)*p.deformationRow2.x)+
+                            double(p.deformationRow0.z)*(double(p.deformationRow1.x)*p.deformationRow2.y-
+                                                          double(p.deformationRow1.y)*p.deformationRow2.x);
+                        const double mass=p.positionAndMass.w;
+                        const double referenceVolume=p.velocityAndReferenceVolume.w;
+                        require(std::isfinite(j)&&j>0.0&&std::isfinite(mass)&&mass>0.0&&
+                                std::isfinite(referenceVolume)&&referenceVolume>0.0,
+                                "terminal accepted blood receiver particle has invalid mass, volume, or J");
+                        activeMassKg+=mass;
+                        referenceVolumeM3+=referenceVolume;
+                        currentVolumeM3+=j*referenceVolume;
+                        minimumJ=std::min(minimumJ,j);
+                        maximumJ=std::max(maximumJ,j);
+                    }
+                    const double receiverLedgerMassErrorKg=activeMassKg-representedMassKg;
+                    const double receiverMassToleranceKg=std::max(
+                        1.0e-12,4.0e-6*std::max(activeMassKg,representedMassKg));
+                    require(std::abs(receiverLedgerMassErrorKg)<=receiverMassToleranceKg,
+                            "accepted blood receiver mass does not match compensated external represented-mass ledger");
+                    std::cout<<std::setprecision(17)
+                        <<"resting_terminal_blood_mpm_inventory"
+                        <<" source=accepted_runtime_snapshot"
+                        <<" active_particles="<<activeMpmParticles
+                        <<" receiver_object_index="<<receiverDispatch.bloodMpmObjectIndex
+                        <<" receiver_material_index="<<receiverDispatch.bloodMpmMaterialIndex
+                        <<" receiver_topology_generation="<<receiverDispatch.bloodMpmTopologyGeneration
+                        <<" receiver_first_particle="<<receiverDispatch.bloodMpmFirstParticle
+                        <<" receiver_particle_capacity="<<receiverDispatch.bloodMpmParticleCount
+                        <<" active_mass_kg="<<activeMassKg
+                        <<" represented_ledger_mass_kg="<<representedMassKg
+                        <<" receiver_minus_ledger_mass_kg="<<receiverLedgerMassErrorKg
+                        <<" receiver_mass_tolerance_kg="<<receiverMassToleranceKg
+                        <<" active_reference_volume_m3="<<referenceVolumeM3
+                        <<" active_current_volume_m3="<<currentVolumeM3
+                        <<" min_J="<<(activeMpmParticles?minimumJ:0.0)
+                        <<" max_J="<<maximumJ
+                        <<" particle_scope=accepted_blood_receiver_object_range"
+                        <<" free_surface_contact_floor_pool=not_qualified"
+                        <<std::endl;
                 }
                 emitPersistentInitialForceReference(final);
                 std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())

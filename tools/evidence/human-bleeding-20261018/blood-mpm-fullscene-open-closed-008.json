@@ -1,0 +1,192 @@
+{
+  "schema": "numi.human.blood_mpm_fullscene_smoke.v1",
+  "parent_commit": "9d34dfb02d992cb299f6a8ae56fb67434b7261d8",
+  "host": "Numi Apple Silicon",
+  "device_cpu_brand": "Apple M6",
+  "binary": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/numi-human-native",
+  "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+  "build_receipt": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/build-receipt.json",
+  "build_receipt_sha256": "078e9323ecea7755a1316596e640d55e7732aa6a50ce0cc2b382eba9abafb69b",
+  "runtime_library": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/build/libmetalrobo.dylib",
+  "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "matter_source": "/Users/n/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+  "matter_source_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "blood_material": "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+  "blood_material_sha256": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+  "matched_runs": [
+    {
+      "mode": "open",
+      "attempt": "008-open-mpm-on-8-dormant-midpoint",
+      "invocation": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/attempts/cut-open-mpm-on-8-projection1-compact500mm-dormant-midpoint/invocation.json",
+      "invocation_sha256": "6028221576f026856f31c8551db6c8533ae32c510d6773edb6324a853567a9b5",
+      "native_log": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/attempts/cut-open-mpm-on-8-projection1-compact500mm-dormant-midpoint/launcher.log",
+      "native_log_sha256": "2d504885109accfd1ea34ba019fbb3e0975ac0aa5bcc1043f1e8e4a52c3608c3",
+      "process_result": {
+        "returncode": 0,
+        "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+        "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673"
+      },
+      "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+      "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+      "accepted_physical_horizon_s": 0.0020000000949949026,
+      "wall_s": 102.497848666,
+      "real_time_factor": 1.9512605591480394e-05,
+      "accepted_steps": 8,
+      "dt_s": 0.00025,
+      "cut_release_step": 2,
+      "external_blood_terminal": {
+        "source": "accepted_respiration_state",
+        "total_volume_m3": "2.5069665099408667e-07",
+        "total_mass_kg": "0.00026338189491070807",
+        "total_volume_raw_m3": "2.5069664388865931e-07",
+        "total_mass_raw_kg": "0.00026338189491070807",
+        "total_volume_compensation_m3": "-7.1054273576010019e-15",
+        "total_mass_compensation_kg": "0",
+        "represented_by_mpm_volume_m3": "2.0903280173456551e-07",
+        "represented_by_mpm_mass_kg": "0.00021960985759506002",
+        "represented_by_mpm_mass_raw_kg": "0.00021960985031910241",
+        "represented_by_mpm_mass_compensation_kg": "-7.2759576141834259e-12",
+        "pending_volume_m3": "4.1663849259521157e-08",
+        "pending_mass_kg": "4.3772037315648049e-05",
+        "pending_position_mass_kg": "4.3772037315648049e-05",
+        "pending_outlet_centroid_world_m": "[-0.01553233278750954,0.13372234845078518,1.5501908831856739]",
+        "active_ballistic_parcels": "0"
+      },
+      "receiver_inventory_terminal": {
+        "source": "accepted_runtime_snapshot",
+        "active_particles": "5",
+        "receiver_object_index": "0",
+        "receiver_material_index": "0",
+        "receiver_topology_generation": "1",
+        "receiver_first_particle": "0",
+        "receiver_particle_capacity": "128",
+        "active_mass_kg": "0.00021960985759506002",
+        "represented_ledger_mass_kg": "0.00021960985759506002",
+        "receiver_minus_ledger_mass_kg": "0",
+        "receiver_mass_tolerance_kg": "8.7843943038024e-10",
+        "active_reference_volume_m3": "2.0903280173456551e-07",
+        "active_current_volume_m3": "2.0903258729970069e-07",
+        "min_J": "0.99999862908778525",
+        "max_J": "0.99999952316169693",
+        "particle_scope": "accepted_blood_receiver_object_range",
+        "free_surface_contact_floor_pool": "not_qualified"
+      },
+      "external_mass_partition_residual_kg": 0.0,
+      "external_volume_partition_residual_m3": 0.0,
+      "throughput": {
+        "accepted_start_step": "2",
+        "accepted_end_step": "8",
+        "simulated_s": "0.00150000007125",
+        "wall_s": "92.917426375",
+        "real_time_factor": "1.61433665327e-05",
+        "includes": "physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export",
+        "excludes": "load_compile_initial_parity_first_accepted_observer_movie_finalization"
+      }
+    },
+    {
+      "mode": "closed",
+      "attempt": "008-closed-mpm-on-8-dormant-midpoint",
+      "invocation": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/attempts/cut-closed-mpm-on-8-projection1-compact500mm-dormant-midpoint/invocation.json",
+      "invocation_sha256": "b1f2f6aab5ce4e27f449e5e1574ffb785d47163653001f773f88245de8d0356d",
+      "native_log": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-008/attempts/cut-closed-mpm-on-8-projection1-compact500mm-dormant-midpoint/launcher.log",
+      "native_log_sha256": "0348eda669932682c8c3a064528fb3c67bb2e4489d18392220c49f42074e08c3",
+      "process_result": {
+        "returncode": 0,
+        "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+        "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673"
+      },
+      "binary_sha256": "ef81d9eb48a533dd01af2881cd03983fec004eb4f3a71ece18e95ad21bbf8996",
+      "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+      "accepted_physical_horizon_s": 0.0020000000949949026,
+      "wall_s": 70.101581666,
+      "real_time_factor": 2.8530028102988205e-05,
+      "accepted_steps": 8,
+      "dt_s": 0.00025,
+      "cut_release_step": 2,
+      "external_blood_terminal": {
+        "source": "accepted_respiration_state",
+        "total_volume_m3": "0",
+        "total_mass_kg": "0",
+        "total_volume_raw_m3": "0",
+        "total_mass_raw_kg": "0",
+        "total_volume_compensation_m3": "0",
+        "total_mass_compensation_kg": "0",
+        "represented_by_mpm_volume_m3": "0",
+        "represented_by_mpm_mass_kg": "0",
+        "represented_by_mpm_mass_raw_kg": "0",
+        "represented_by_mpm_mass_compensation_kg": "0",
+        "pending_volume_m3": "0",
+        "pending_mass_kg": "0",
+        "pending_position_mass_kg": "0",
+        "pending_outlet_centroid_world_m": "[0,0,0]",
+        "active_ballistic_parcels": "0"
+      },
+      "receiver_inventory_terminal": {
+        "source": "accepted_runtime_snapshot",
+        "active_particles": "0",
+        "receiver_object_index": "0",
+        "receiver_material_index": "0",
+        "receiver_topology_generation": "1",
+        "receiver_first_particle": "0",
+        "receiver_particle_capacity": "128",
+        "active_mass_kg": "0",
+        "represented_ledger_mass_kg": "0",
+        "receiver_minus_ledger_mass_kg": "0",
+        "receiver_mass_tolerance_kg": "9.9999999999999998e-13",
+        "active_reference_volume_m3": "0",
+        "active_current_volume_m3": "0",
+        "min_J": "0",
+        "max_J": "0",
+        "particle_scope": "accepted_blood_receiver_object_range",
+        "free_surface_contact_floor_pool": "not_qualified"
+      },
+      "external_mass_partition_residual_kg": 0.0,
+      "external_volume_partition_residual_m3": 0.0,
+      "throughput": {
+        "accepted_start_step": "2",
+        "accepted_end_step": "8",
+        "simulated_s": "0.00150000007125",
+        "wall_s": "60.766971083",
+        "real_time_factor": "2.46844633608e-05",
+        "includes": "physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export",
+        "excludes": "load_compile_initial_parity_first_accepted_observer_movie_finalization"
+      }
+    }
+  ],
+  "failed_compact_grid_predecessor": {
+    "invocation": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-007/attempts/cut-open-mpm-on-8-projection1-compact500mm/invocation.json",
+    "invocation_sha256": "374588419ce6eaaf79c110dd3ae34301c8abf10d2503f07c1553d31ba5c29f61",
+    "native_log": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/fullscene-prep/fullscene-212-007/attempts/cut-open-mpm-on-8-projection1-compact500mm/launcher.log",
+    "native_log_sha256": "2e2d8626e5b3d3571b354cba614bb58a8422719694e5d55852ce05536a1a942e",
+    "binary_sha256": "02c4c615626fcf0720f38bee35f3bd35ae38ea3c9f44af2db7d743b60ab4bae2",
+    "failure": "MPM particle begins outside the cooked quadratic-support domain; inactive slots were at world origin while the compact grid was centered at the outlet.",
+    "repair": "inactive receiver slots are initialized to the declared grid midpoint; no active particle or blood-stock values changed."
+  },
+  "source_changes": {
+    "app": {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "base_sha256": "15d1ede6b9eb1252f68cf86c7109e669f2874da9a1b91f9d64b5d5914bbb29e4",
+      "tested_sha256": "a314949647dfa03197b0a5a8051a8c189bcba7a32b203f2cdd011219b88266fa",
+      "scope": "strict MPM opt-in/scope receipt plus terminal accepted external-blood and receiver inventory diagnostics"
+    },
+    "visual": {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "base_sha256": "4ad0e9a121eea0ad9477c88530c0c860b50d99d2eb7a339f071cbd1cd8df6eee",
+      "tested_sha256": "b35ec5c7ecd67d0feeed53db7e4cffd2f63421781a812e6cd9680187f7309d38",
+      "scope": "mapped anatomy body identity check"
+    },
+    "runtime_header": {
+      "path": "matter/tools/human_resting_runtime.hpp",
+      "base_sha256": "f132eab231cc9b5ca39aea9cab4c1dd9aba2cd4f0e18a03240548f867fd881dd",
+      "tested_sha256": "a7aa3ce81d4dc15d09d31eea701bbd49cd4330057dc48d3db861b254bdb2463a",
+      "scope": "deferred lease lifetime fix and dormant particle positions at grid midpoint"
+    }
+  },
+  "limitations": [
+    "Headless numeric smoke only: 8 accepted steps at 0.25 ms (2 ms simulated); open run wall time 102.50 s, real-time factor 1.95e-5.",
+    "Bounded noncontact MPM receiver with 128 slots, 5 active at terminal open state; no floor, free-surface, parcel contact, or whole-scene fluid qualification.",
+    "Open-run external circulation mass and volume partition into represented MPM plus pending transfer closes to zero at printed precision; active MPM mass exactly matches compensated represented-mass ledger.",
+    "Closed-port control retains zero external blood and zero active receiver particles.",
+    "This does not qualify aortic/venous transection physiology, general blood rheology, whole-body mass/momentum balance, or clinical/injury response."
+  ]
+}
