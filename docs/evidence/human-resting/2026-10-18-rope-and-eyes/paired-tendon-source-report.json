@@ -1,0 +1,37 @@
+{
+  "all_bytes_outside_embedded_bone_hash_112_143_exact": true,
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rib50-existing-tendon-owner-equivalence-953/compiled",
+  "baseline_payload_sha256": "4cfaf9e26e995798ee2f78c49218894ece9af9137fb167c74c684535ac2048c3",
+  "bytes": 158800,
+  "candidate_manifest_sha256": "1984ee955a9c278b1c1481b44aa0cdea0dd22b537261896a6e4af759c164bc29",
+  "candidate_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tendon-owner-rebind-validation-001/stable49-owner-replay-002/compiled-tendon-002",
+  "candidate_payload_sha256": "8f80e9cf74222c05369597cf7654d744d7bad1caa27246640a4f87eadc7c64f5",
+  "compiler_commit": "5076200e071e738a5a7019c6305a2512c959830a",
+  "compiler_source_sha256": {
+    "composed_bone_body_frame.py": "54173e845e60ac125abd8f3d060f330cad0fc5b358693d7326b70895a3556781",
+    "model.py": "980f918f4a539d7e622159acf44e40eb46829b05b117aa56591793581b4b8a56"
+  },
+  "coverage_exact": true,
+  "distributed_surface_envelope_count": 366,
+  "endpoint_count": 832,
+  "endpoint_records_exact": true,
+  "native_admission": false,
+  "source_compile_report": {
+    "admission": false,
+    "baseline_endpoint_count": 832,
+    "baseline_tendon_payload_sha256": "4cfaf9e26e995798ee2f78c49218894ece9af9137fb167c74c684535ac2048c3",
+    "bone_manifest_sha256": "db42bf860c5386c7063a1c61ad07a659439521a5b318f1e88292ddadbf4278cb",
+    "bone_payload_sha256": "01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd",
+    "composition_validation": "PASS_SOURCE_EXPORT005_PARTITION_AND_BODY20_ROWS_REREAD",
+    "elapsed_seconds": 38.562,
+    "endpoint_count": 832,
+    "endpoint_records_changed_vs_baseline": 0,
+    "envelope_count": 0,
+    "native_admission": null,
+    "owner_head": "91efe11addfee9aad2448fcc6a84d95487f48db9",
+    "status": "complete_endpoint_coverage_with_inferred_surface_envelopes_and_explicit_point_fallbacks",
+    "tendon_manifest_sha256": "1984ee955a9c278b1c1481b44aa0cdea0dd22b537261896a6e4af759c164bc29",
+    "tendon_payload_exact_baseline": false,
+    "tendon_payload_sha256": "8f80e9cf74222c05369597cf7654d744d7bad1caa27246640a4f87eadc7c64f5"
+  }
+}

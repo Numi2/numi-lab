@@ -18,31 +18,54 @@ Anchor xyz is an offset from the initial site when FROM_SITE=1, otherwise fixed 
 
 The eye presentation retains the canonical BodyParts3D ocular surfaces in Organ. Skin shows the original irises plus source-face sclera windows and posterior lens-face backing. Derived faces reuse source vertices and retain source-face ancestry. Internal ocular surfaces and opaque corneas stay in Organ to avoid hiding the irises in this renderer. Colors and dark backing are presentation approximations; this adds no optical solver, pupils as anatomical meshes, blinking, physical mass, or blood compartments. The original face vertices are unchanged. The strict eye unit verifies absent, partial, ambiguous, retired and complete source inventories. `face.png` is a static accepted-state preview, not runtime qualification.
 
-Eye source attribution: BodyParts3D, Database Center for Life Science (DBCLS), CC BY 4.0; [official source data](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/data-5.html). Mixed-source reference anatomy is not a measured individual.
+Eye source attribution: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International; [current official license](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html), [source mesh downloads](https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html). Historical source receipts retain their original license declarations; source-specific rights remain attached. Mixed-source reference anatomy is not a measured individual.
 
 ## Retained execution
 
 All execution used SSH Numi / Apple M6. Build013 strict ABI41 compilation passed against the retained runtime library, with 133 dependency-header pins. Binary SHA: `b65a5b1d90a5b3b3d5007a0641bbc4e9da50feb78da4f18cb0a05fb0c1ce078f`; caller SHA: `6c164408dda402feaf7ef6bfde6c0d5c38d990460a1f3703ee29ddc191a2963f`; Visual SHA: `796e0506286ddfbcb7ab6d25c594d3c0bca8140e29b104c2b54100cc50d642ec`. Pending intercostal RibField work is excluded from this publication.
 
-Current strongest full-scene physics result (attempt006/build012): 32 accepted steps, 0.064 simulated seconds. Last-step rope force was 815.133750439 N, tangential impulse zero, other contacts inactive, root assistance force/torque zero. This force is the last substep impulse divided by its 0.002 s timestep, not an accumulated segment integral or settled equilibrium. Existing injected rejection tests reported unchanged body, muscle/tendon, circulation, respiratory/controller history and common presentation with replay equivalence.
+Current strongest full-scene result is **attempt020/build013: 8000 accepted steps, 16.00000076 simulated seconds in 82.1152385 wall seconds (0.19485× real time)**. The continuous native scene completed three breaths and 19 cardiac filling/ejection cycles. Body and physiology clocks matched. Root assistance force/torque and other contact impulses were zero; the torso rope alone supported the body. Last-substep tension ranged 805.48–1039.62 N, with zero tangential impulse. These samples are impulse divided by 0.002 s, not accumulated segment integrals or a proof of settled equilibrium.
 
-The run then stopped at the whole-mesh presentation audit: bone semantic 51004 / stable 49 / FJ3229, four exact-zero-area triangles. Face 8798 has a pre-existing 13.43 nm edge in its remesh tail, below the 119.21 nm world-coordinate Float32 increment at z≈1.83 m. The failed audit is retained; thresholds are unchanged. This is not a successful two-second or sixteen-second suspension demonstration. Local repair and rerun remain required.
+All 252 presentation audits checked 5,251,875 triangles with zero zero-area or nonfinite triangles. Eight accepted-geometry captures passed existing receipt/hash validation and finite-coordinate checks; their accepted body poses put the 0.8 m rope within 3.13 micrometres of its constraint. Maximum functional-volume relative error was 2.5742e-5; represented Float32 mass stayed 97.1319503784 kg. The maximum blood accounting error was 0.006985 mL; oxygen/CO2 balance errors were 0.000233/0.000466 STPD mL. These are numerical consistency observations, not physiological or anatomical intersection qualification.
 
-Exact build/launch/assets/logs/video/receipts remain on SSH Numi:
+Existing injected rejection tests passed: rejected work did not advance body, muscle/tendon, circulation, respiration/controller or common presentation state, including rejected multistep suffixes. Fresh-context reseed/replay matched the uninterrupted accepted prefix. Same-context retry remains unsupported; see [rollback log](native-16s/rollback-log-excerpt.txt).
 
-- `/Users/n/numi-human-rope-abi41-build-20261018-013/build-report-abi41.json`
-- `/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-006/native-run/launch.sh`
-- The same `native-run/` directory contains `invocation.json`, traces, movie and failure receipt. Earlier failed attempts remain alongside it.
+[Native recording](native-16s/rope-suspension-reference.mov) is continuous and unretimed (84.195 s recorded duration). [Terminal frame](native-16s/rope-terminal.png) shows the 16.00 s endpoint. [Checkpoint report](native-16s/checkpoint-report.json), [capture verification](native-16s/capture-verification.json), compact CSV traces, compressed original log and exact [invocation](native-16s/invocation.json) are retained here. The [face preview](face.png) is a separate static source inspection.
 
-The included compact reports distinguish GPU visual dispatch tests, static source-preservation checks and scene execution. Storage deduplication recovered 1,505,935,360 bytes by verified identical-file hardlinks, preserving every path and byte. No five-minute coupled qualification, physiological range qualification, clinical validation or performance qualification is claimed here.
+Earlier attempts remain retained, including attempt006's bone49 precision collapse at 0.064 s and subsequent paired intercostal, passive-head and muscle precision failures. No audit threshold was relaxed. Existing constructors retired source edges below the Float32 emission scale; paired rib/intercostal repairs preserve shared coordinates. Index-only muscle repair is admitted only when allocated vertex fields, weights, bindings and identities are byte-exact. Two unmapped extensor-digitorum source vertices required bounded 0.377/0.262 micrometre separations with source-coordinate aliases moved together and incident orientations preserved. The working back and unrelated muscle rows remain exact. [Repair instruments, full compressed ancestry and report hashes](precision-repairs/source-index.json) document the modifications. Final tendon recompilation preserved all 832 endpoint records and coverage; only its embedded bone SHA changed.
 
+Exact build, assets and full accepted geometry remain on SSH Numi:
+
+- /Users/n/numi-human-rope-abi41-build-20261018-013/build-report-abi41.json
+- /Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/
+- Final paired rib/intercostal receipt: paired-rib49-intercostal-precision-009/resting-anatomy-receipt.json beside the attempt directory.
+- Final muscle payload: extensor-source-precision-separation-008/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue beside the attempt directory.
+
+This is a successful short native suspension checkpoint. Known hand/finger skin defects remain deferred. No blink mechanics, distributed harness, all-surface intersection qualification, five-minute baseline/intervention, physiological range qualification, clinical validation or real-time performance qualification is claimed.
+
+## Storage
+
+Verified hardlink deduplication preserved every existing path and content. The first two manifests account for 2,427,840,592 logical duplicate bytes; [third manifest](storage-dedup-003.json) retired another 3,894,845,440 allocated duplicate bytes across 103 generated files. For the third pass, observed free-space change was +3,616,301,056 bytes; APFS and concurrent OS activity make this distinct from the allocation sum. Numi had approximately 26 GiB free at final inspection. No sole source, current capture or recovery evidence was deleted.
 
 ## Fresh replay outputs
 
 Run tools/launch_human_rope.py INVOCATION --output NEW_DIRECTORY --exclusive-wrapper /Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py with the qualified Numi Python. It verifies declared asset hashes, the active binary and configured rope source, remaps output paths into a fresh directory, rejects escaping paths and existing outputs, records launcher/wrapper hashes, and uses the existing exclusive-job wrapper. --verify-only checks preparation without launching physics. See launcher-smoke.json; these are launcher checks, not simulation evidence.
 
-Historical attempt006 retains an obsolete build011 asset-map entry while its actual argv and binary hash identify build012. Its initial-pose description omits the loaded NHEQ projection; the execution log records it. Its failure-receipt environment points into attempt003. The historical record is retained with these limitations; the fresh launcher correctly rejects it. A corrected run must pin the actual binary, projected initialization and its own failure-receipt output.
+Historical attempt006 retains an obsolete build011 asset-map entry while its actual argv and binary hash identify build012. Its initial-pose description omits the loaded NHEQ projection; the execution log records it. Its failure-receipt environment points into attempt003. The historical record is retained with these limitations; the fresh launcher correctly rejects it. Attempt020 pins the actual binary, projected initialization and its own output paths; it passed fresh-launch verification and the native run.
 
-rib49-repair/ retains the local repair instrument, compiled-face ancestry and source-preservation report. It retires two faces around a 13.43 nm source edge, preserving all allocated positions/normals and other bone index streams. Its early ad-hoc manifest is not the owner-compiled native asset. The existing precision constructor reproduced the same payload bytes exactly; composed-owner validation and paired tendon emission are tracked separately from native admission. The report candidate-manifest hash predates the frozen metadata correction; payload SHA remains 01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd.
+rib49-repair/ retains the local repair instrument, compiled-face ancestry and source-preservation report. It retires two faces around a 13.43 nm source edge, preserving all allocated positions/normals and other bone index streams. Its early ad-hoc manifest is not the owner-compiled native asset. The existing precision constructor reproduced the same payload bytes exactly; composed-owner validation and paired tendon emission subsequently passed and attempt020 uses the final paired precision repair. The report candidate-manifest hash predates the frozen metadata correction; payload SHA remains 01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd.
 
-The second verified deduplication recovered another 921,905,232 bytes. The two retained manifests account for 2,427,840,592 bytes recovered while preserving every existing file path and content.
+
+## Replay the accepted checkpoint on SSH Numi
+
+From the retained checkout, run with a new output directory:
+
+```sh
+/Users/n/numi-human-prep-venv-20261005/bin/python3 \
+  /Users/n/numi-lab-native-replay-publish-20261017/tools/launch_human_rope.py \
+  /Users/n/numi-lab-native-replay-publish-20261017/docs/evidence/human-resting/2026-10-18-rope-and-eyes/native-16s/invocation.json \
+  --output /Users/n/numi-human-rope-fresh-replay \
+  --exclusive-wrapper /Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py
+```
+
+Add --verify-only for an asset/source preflight without launching physics. It is not native-run evidence. The original invocation pins all retained assets and runtime sources; it requires those assets on Numi. The source checkpoint is Human 40c2d287 and Lab 6fbcb759, with the binary's frozen source/header pins in the retained build report. This evidence publication changes no runtime source.

@@ -1,0 +1,43 @@
+{
+  "schema": "numi.human.registered-bone-source-rebind-report.v1",
+  "status": "PASS_EXISTING_RUNTIME_OWNER_REBIND_SOURCE_ONLY_NATIVE_MOTION_NOT_ADMITTED",
+  "source_receipt_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/pons323-348-current972-existing-owner-rebind-001/native-run-002/resting-anatomy-receipt.json",
+  "source_receipt_sha256": "a06dbc2b0802217f380cfbca32518c677ea4eef175d110a863ea1d3d4ac0408d",
+  "output_receipt_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/bone49-runtime-receipt-rebind-002/resting-anatomy-receipt.json",
+  "output_receipt_sha256": "b357948948832c225d8efa13996a431bdb9d2cb956c948d9be169d1f474e3f8c",
+  "nha_sha256": "d516b524ebe01f09c1e8a2586a5e52bd3143bc9c815bc6e007f8a754ca834be2",
+  "prior_bones_sha256": "6a1ece3a3a282873175356df7c3b0430e9657d3322fef1e992eba74b1d1e80bb",
+  "candidate_bones_sha256": "01c39cd8da439e2fed0770ff5d67e7028ea0d98d18a453721c26911dfd42d6bd",
+  "candidate_manifest_sha256": "db42bf860c5386c7063a1c61ad07a659439521a5b318f1e88292ddadbf4278cb",
+  "candidate_precision_report_sha256": "202f31ef0def7b3fc039cc317431cb25b235672969a8644896b0a9c102bbd2c6",
+  "attachment_rows": [
+    313
+  ],
+  "rib_ids": [
+    48,
+    49,
+    50
+  ],
+  "active_bone_hash_fields_rebound": 5,
+  "common_field_sidecars": {
+    "map": {
+      "path": "common-cardiac-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328
+    },
+    "domain_boxes": {
+      "path": "common-cardiac-domains-f32.bin",
+      "sha256": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+      "bytes": 8000
+    },
+    "polynomials": {
+      "path": "common-cardiac-volumes-f32.bin",
+      "sha256": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+      "bytes": 3360
+    }
+  },
+  "full_nha_geometry_changed": false,
+  "physical_state_or_force_owner_changed": false,
+  "anatomical_admission": false,
+  "native_admission": false
+}

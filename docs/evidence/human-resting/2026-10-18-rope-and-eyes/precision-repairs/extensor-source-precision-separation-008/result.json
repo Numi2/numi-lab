@@ -1,0 +1,7 @@
+{
+  "receipt_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/extensor-source-precision-separation-008/composed-receipt/resting-anatomy-receipt.json",
+  "receipt_sha256": "19702b4a325e7410daf2594f875c2283ac0b2a7b20f06994cd99b56751209aa2",
+  "payload_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/extensor-source-precision-separation-008/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "payload_sha256": "53008d847bea3cdcdd97dc65599f69eb37337a37a74ccf9566b50a91e02373c9",
+  "unchanged_rows_all_vertex_and_face_bytes": 162
+}

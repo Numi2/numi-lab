@@ -1,0 +1,78 @@
+{
+  "accepted_geometry_capture_requested" : true,
+  "accepted_geometry_capture_skipped_reason" : "surface_audit_rejected",
+  "accepted_geometry_capture_written" : false,
+  "accepted_root_fingerprint" : 3007085867290020399,
+  "accepted_root_fingerprint_hex" : "29bb50aa00eb4a2f",
+  "accepted_step" : 31,
+  "accepted_time_s" : 0.062000002944841981,
+  "accepted_timestamp_microseconds" : 62000,
+  "accepted_transaction_fingerprint" : 3007085867290020399,
+  "accepted_transaction_fingerprint_hex" : "29bb50aa00eb4a2f",
+  "first_invalid_triangle" : {
+    "area_failure_kind" : "exact_zero_area",
+    "index_buffer_offset" : 10594296,
+    "mesh_vertex_indices" : [
+      1947097,
+      1945403,
+      1945399
+    ],
+    "rendered_positions_f32_bits_hex" : [
+      [
+        "3cf215b2",
+        "3e40d598",
+        "3fea4ffb"
+      ],
+      [
+        "3cf215b2",
+        "3e40d598",
+        "3fea4ffb"
+      ],
+      [
+        "3cf379c0",
+        "3e40decc",
+        "3fea5433"
+      ]
+    ],
+    "rendered_positions_m" : [
+      [
+        0.029551360756158829,
+        0.18831479549407959,
+        1.8305658102035522
+      ],
+      [
+        0.029551360756158829,
+        0.18831479549407959,
+        1.8305658102035522
+      ],
+      [
+        0.02972114086151123,
+        0.18834990262985229,
+        1.8306945562362671
+      ]
+    ],
+    "triangle_index_in_surface" : 101289
+  },
+  "first_invalid_triangle_available" : true,
+  "invalid_triangle_present" : true,
+  "physical_endpoint" : "accepted",
+  "rejected_geometry_diagnostic_content_hash" : "sha256:4af88f55a2e9824080a1ebeaf3a9ba77caf63b17b8d67c5e00f37868d28d85cf",
+  "rejected_geometry_diagnostic_mrvpack_path" : "\/Users\/numi\/numi-human-retained-delivery-20261009\/anatomy-completion-1276\/full-anatomy-delivery-audit-1378\/rope-suspension-reference-probe-20261018-001\/attempt-011\/native-run\/rejected-surface-audit\/step-31.mrvpack",
+  "rejected_geometry_diagnostic_mrvpack_sha256" : "70c640f9650c11dbfe82bd43467a0eafcf782370814c95b8c953f8c9972e9b87",
+  "rejected_geometry_diagnostic_written" : true,
+  "rejection_stage" : "post_accept_surface_presentation",
+  "runtime_skin_influence_layout_id" : "vertex-major-v1",
+  "schema" : "numi.human.accepted_surface_audit_failure.v1",
+  "source_pack_content_hash" : "sha256:b040536a8a10e639efc98f5eced806fd44c161b46cb8258d217ed134d6e3ee35",
+  "source_pack_file_sha256" : "a7d5d5e6b32142f83775d1e2798f0cb63b05b1a7a33b5f728208c81741605245",
+  "source_pack_path" : "\/Users\/numi\/numi-human-retained-delivery-20261009\/anatomy-completion-1276\/full-anatomy-delivery-audit-1378\/rope-suspension-reference-probe-20261018-001\/attempt-011\/native-run\/resting-human.mrvpack",
+  "surface_audit_endpoint" : "rejected",
+  "surface_audit_index" : 661,
+  "surface_audit_scope" : "all_rendered_triangles",
+  "surface_semantic" : 51010,
+  "surface_stable_id" : 313,
+  "surface_status" : 2,
+  "volume_owner_mismatch" : false,
+  "volume_relative_error" : "NaN",
+  "volume_relative_error_applicable" : false
+}

@@ -1,0 +1,28 @@
+{
+  "source_revisions_at_publication": {
+    "numi-lab": {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017",
+      "head": "6fbcb759ce910287bb4c0c8adeadd55422e97998"
+    },
+    "numilab-human": {
+      "path": "/Users/n/numi-human-closed-outer-skin-20261017",
+      "head": "40c2d287a1aaa53fe4fcc6791162ada4e642313b"
+    }
+  },
+  "runtime_binary_source_pins": "invocation.json and retained build013 report; live pending RibField excluded",
+  "physical_scope": "ideal massless torso point fixture, not distributed harness; retained coupling",
+  "video": {
+    "unretimed": true,
+    "duration_s": 84.195,
+    "samples": 257,
+    "terminal_frame_extracted_pts_s": 83.078333333,
+    "terminal_hud_simulated_s": 16.0
+  },
+  "preserved_pending_lab_paths": [
+    "CMakeLists.txt",
+    "apps/NumiHumanRestingAnatomy.hpp",
+    "apps/NumiHumanRestingVisual.hpp",
+    "apps/NumiHumanRestingIntercostalRibField.hpp",
+    "tools/test_intercostal_rib_field.cpp"
+  ]
+}

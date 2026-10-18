@@ -1,0 +1,35 @@
+{
+  "source_repository_revision": "5076200e071e738a5a7019c6305a2512c959830a",
+  "binary_sha256": "b65a5b1d90a5b3b3d5007a0641bbc4e9da50feb78da4f18cb0a05fb0c1ce078f",
+  "device": "Apple M6",
+  "host": "SSH numi",
+  "native_attempts": {
+    "009": {
+      "invocation_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-009/native-run/invocation.json",
+      "invocation_sha256": "c047aa9bdcbe1a9416202be21e2b18bd322ee2e08e1fcb2d4b2a32a560a12f5d",
+      "log_sha256": "43e29ff547919f849b6aa830acdaab0aae99f157fbea7cb4608024eb61dde794",
+      "failure_sha256": "6090110cbfb89f4e0ae5bd5f6956245e57ea3cd5d516b88df67379007a6c9664",
+      "accepted_steps": 31,
+      "accepted_time_s": 0.06200000294484198,
+      "accepted_root_fingerprint_hex": "29bb50aa00eb4a2f",
+      "surface_semantic": 51010,
+      "surface_stable_id": 313,
+      "rejection_stage": "post_accept_surface_presentation",
+      "rejected_geometry_captured": false
+    },
+    "011": {
+      "invocation_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-011/native-run/invocation.json",
+      "invocation_sha256": "f2083705fe7c0b54467bbdd177d2a6741d7db88b114ba42383d4261852c997d8",
+      "log_sha256": "5835581565a34011299d480513d7980a49f2ba9bd70a3e539f47509bf6af9f71",
+      "failure_sha256": "c3ff3bd8d5444be8760ebb1892c7872597b6ba1702371b0f0747a0fec67eb49a",
+      "accepted_steps": 31,
+      "accepted_time_s": 0.06200000294484198,
+      "accepted_root_fingerprint_hex": "29bb50aa00eb4a2f",
+      "surface_semantic": 51010,
+      "surface_stable_id": 313,
+      "rejection_stage": "post_accept_surface_presentation",
+      "rejected_geometry_captured": true
+    }
+  },
+  "status": "REPEATED_REJECTED_SURFACE_POSE_NOT_SUSPENSION_QUALIFICATION"
+}

@@ -1,0 +1,40 @@
+{
+  "source_payload_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "source_sha256": "aec04723bb3abe1184df571195f48a6528d4cee7101ce8693c6ce70414d43ec7",
+  "stable_id": 138,
+  "edge": [
+    2054,
+    2055
+  ],
+  "moved_source_coordinate_alias_slots": [
+    2054
+  ],
+  "source_positions_before": [
+    [
+      0.30100247263908386,
+      -0.1517605036497116,
+      0.6849095821380615
+    ]
+  ],
+  "source_positions_after": [
+    [
+      0.3010023832321167,
+      -0.1517607420682907,
+      0.6849095225334167
+    ]
+  ],
+  "trials": [
+    {
+      "requested_world_delta_m": 2e-07,
+      "max_source_delta_m": 2.6151431761360534e-07,
+      "edge_world_length_m": 2.927613661347106e-07,
+      "all_incident_face_orientations_preserved": true
+    }
+  ],
+  "source_and_world_incident_orientations_preserved": true,
+  "closed_source_topology_preserved": true,
+  "all_face_and_binding_weight_and_normal_bytes_preserved": true,
+  "max_source_displacement_m": 2.6151431761360534e-07,
+  "native_motion_admission": false,
+  "anatomical_admission": false
+}

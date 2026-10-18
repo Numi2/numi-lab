@@ -1,0 +1,93 @@
+{
+  "run_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run",
+  "status": "COMPLETED_NATIVE_CHECKPOINT",
+  "continuous_16s_pass": true,
+  "host": "SSH numi",
+  "device": "Apple M6",
+  "binary_sha256": "b65a5b1d90a5b3b3d5007a0641bbc4e9da50feb78da4f18cb0a05fb0c1ce078f",
+  "invocation_sha256": "8cbb1bc691a06965eb9128efdf6589b0bbcf561e64396f14475456847d6716fb",
+  "log_sha256": "2f727b91026fd6ac641209ec6927050f67168e10bdc26d08aa3f5ca08c3ffd22",
+  "completion": {
+    "simulated_s": 16.00000075995922,
+    "wall_s": 82.1152385,
+    "real_time_factor": 0.19484813114144728,
+    "physiology_body_clock": "matched",
+    "root_assistance": "false"
+  },
+  "trace": {
+    "rows": 1000,
+    "time_s": {
+      "min": 0.01600000076,
+      "max": 16.00000076
+    },
+    "strictly_increasing_time": true,
+    "complete_breaths": 3.0,
+    "complete_cardiac_filling_ejection_cycles": 19.0,
+    "lung_volume_ml": {
+      "min": 2500.00157394,
+      "max": 3036.15373559
+    },
+    "airflow_ml_s": {
+      "min": -879.27619461,
+      "max": 721.895834431
+    },
+    "diaphragm_mm": {
+      "min": 7.27720907889e-05,
+      "max": 20.5969314575
+    },
+    "rib_mm": {
+      "min": -0.0171218309551,
+      "max": 2.52427482605
+    },
+    "PaO2_mmhg": {
+      "min": 99.9998245239,
+      "max": 102.732475281
+    },
+    "PaCO2_mmhg": {
+      "min": 38.8828544617,
+      "max": 40.0000534058
+    },
+    "blood_error_ml_max_abs": 0.00698491930962,
+    "oxygen_balance_error_stpd_ml_max_abs": 0.000232830643654,
+    "co2_balance_error_stpd_ml_max_abs": 0.000465661287308,
+    "aortic_ejected_ml": 1338.86758704,
+    "pulmonary_ejected_ml": 1330.29557765,
+    "root_assistance_n_max_abs": 0.0,
+    "root_assistance_nm_max_abs": 0.0
+  },
+  "rope": {
+    "existing_contact_index": 1,
+    "impulse_sample_scope": "last substep of each sampled segment; not a segment integral",
+    "last_substep_tension_force_n": {
+      "min": 805.4787516593933,
+      "max": 1039.6244525909424
+    },
+    "max_tangent_impulse_ns": 0.0,
+    "other_contact_max_normal_impulse_ns": 0.0
+  },
+  "surface_audit": {
+    "frames": 252,
+    "max_zero_area_triangles": 0.0,
+    "max_nonfinite_area_triangles": 0.0,
+    "triangles_checked": {
+      "min": 5251875.0,
+      "max": 5251875.0
+    },
+    "max_functional_volume_relative_error": 2.57420160779e-05,
+    "mass_kg": {
+      "min": 97.1319503784,
+      "max": 97.1319503784
+    }
+  },
+  "evidence_scope": "native suspension checkpoint with retained coupled state; not five-minute resting/intervention qualification, clinical validation, all-surface intersection qualification, or blinking",
+  "continuous_unretimed_native_movie": {
+    "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/rope-suspension-reference.mov",
+    "bytes": 2349962,
+    "sha256": "a2c2eb906397c0799b738f26cedbc781f60dfd21f4306bd65147792513a4e45a"
+  },
+  "retained_trace_sha256": {
+    "resting-coupled.csv": "709a1f18ce19282821ca1ffd95e7ea474d114f6101bc7dae66312e75f315f0d8",
+    "resting-surface-audit.csv": "70458562c022e5811b7fc19751264c9a6520410bb4bd32747d18f4fcabe6ad79",
+    "resting-com-support-impulses.csv": "390d82cb0d014a8c78265e73b3cbc62d9740a8bb42f0bf542d0501b1a0b4e869"
+  }
+}

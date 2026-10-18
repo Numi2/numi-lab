@@ -1,0 +1,136 @@
+{
+  "status": "PASS_CAPTURE_IDENTITY_FINITE_COORDINATES_AND_ACCEPTED_ENDPOINT",
+  "captures": [
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-0.mrvpack",
+      "pack_sha256": "92738639087108c7990ecb0567a6b0f6f1a2fd13766540d9b8a3f6e4ee5c164a",
+      "capture_receipt_sha256": "c420bd61a36e0a5231dcf9f29737f43ef650f3b89a54ba130e4157357580d741",
+      "step": 0,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.02220234454067157,
+        0.2539973407812196,
+        1.8483029101887614
+      ],
+      "rope_anchor_site_distance_m": 0.8000001198112389
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-1023.mrvpack",
+      "pack_sha256": "2413cd6fdcf17e89f4d0cf68c7a6d01b715f0997cad9c3d8064ddd04674983b3",
+      "capture_receipt_sha256": "235525eb1869c482bd039ac38beb9e160ebaf501910e2d9ff7bb9cabb0e43bcc",
+      "step": 1023,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.020571288686473885,
+        0.2718082381048901,
+        1.8485001088981292
+      ],
+      "rope_anchor_site_distance_m": 0.8000028759437174
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-2047.mrvpack",
+      "pack_sha256": "b552fa06259a636cb970ce5b61e2c02e4a074dc72c51494fe0b2a8dad72eac9c",
+      "capture_receipt_sha256": "78ac31beb38d7e61e8bcb5a16f07e5c5f239d1980dd06910ab713035fd49fcd1",
+      "step": 2047,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.018476858774060675,
+        0.3034381232195098,
+        1.8498377802990014
+      ],
+      "rope_anchor_site_distance_m": 0.8000031416267644
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-2175.mrvpack",
+      "pack_sha256": "5223fdf5a1920556cadc5e4b6a5c0d10398977e6aaf5ac498771b12ea718e7c7",
+      "capture_receipt_sha256": "6952f0451e97e56a42c54239b01378678e0e6369029b468404bc9d9b315f1e42",
+      "step": 2175,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.02316929284126429,
+        0.21532369370734356,
+        1.8492359407683174
+      ],
+      "rope_anchor_site_distance_m": 0.8000029986991503
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-4095.mrvpack",
+      "pack_sha256": "9323e2abfe79f870c7819184cdc8cafe824cf87177a9e2c471628c1b67ed32b2",
+      "capture_receipt_sha256": "c434971a140bb66eb23386558ebe1ce0aebfb61d02b9533cb740862b8fce6d54",
+      "step": 4095,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.01952201782055797,
+        0.2887039210230742,
+        1.84905919781551
+      ],
+      "rope_anchor_site_distance_m": 0.8000015219639711
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-6143.mrvpack",
+      "pack_sha256": "583b6a7095216d3d0f6f66664d9bc0d66f0139f2a8181adf36c2e057f32d402f",
+      "capture_receipt_sha256": "d326b57ba8ee2bde610e4ef3691c1673cc8f20a3a4b7a535a5098b004b0f5f86",
+      "step": 6143,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.028167840433613596,
+        0.20233580164884318,
+        1.8499967980521235
+      ],
+      "rope_anchor_site_distance_m": 0.7999983376685583
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-7999.mrvpack",
+      "pack_sha256": "81448d6a1da44cbe4aa880c97984d25392eee86200e6bad81e090e296f83145d",
+      "capture_receipt_sha256": "8d92ddd2a7b475d0c2afafcc19594406e97ce6efad1659a21dd2a3f2fffaf3dd",
+      "step": 7999,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.015591788056332684,
+        0.30135065718503085,
+        1.8497349774071965
+      ],
+      "rope_anchor_site_distance_m": 0.799998107485237
+    },
+    {
+      "pack_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/attempt-020/native-run/accepted-geometry/step-8000.mrvpack",
+      "pack_sha256": "c038864b075e326978fedcee0b3c731ebb26c1a34e72c03f624f75db49d54060",
+      "capture_receipt_sha256": "369b1e4b5f3d98ad2abef543911d98e7cf5d474e19b0b978a21fd8c605f40a06",
+      "step": 8000,
+      "accepted_body_pose_count": 157,
+      "captured_vertices_finite": true,
+      "vertex_buffer_sha256_verified": true,
+      "endpoint_receipt_validated_by_existing_owner": true,
+      "rope_site_from_accepted_pose_m": [
+        -0.015606427410424811,
+        0.30122932459508434,
+        1.8497276192143985
+      ],
+      "rope_anchor_site_distance_m": 0.7999981590306167
+    }
+  ],
+  "rope_length_m": 0.800000012,
+  "max_abs_rope_length_error_m": 3.129626764408755e-06,
+  "scope": "capture identity and accepted-state rope geometry; not all-pair anatomical intersection qualification"
+}

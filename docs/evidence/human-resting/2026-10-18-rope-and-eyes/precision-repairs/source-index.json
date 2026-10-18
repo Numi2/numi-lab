@@ -1,0 +1,107 @@
+{
+  "scope": "Existing repair constructors and full source-face ancestry; gzip preserves original JSON bytes. Instruments retain original execution paths. Assets remain pinned in native-16s/invocation.json.",
+  "reports": [
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/result.json",
+      "source_sha256": "7df7db2c5d8f5b826e755381a9caed643fa76d15d60ff4fec565c9a437535b38",
+      "published_path": "precision-repairs/paired-rib49-intercostal-precision-009/result.json",
+      "published_sha256": "7df7db2c5d8f5b826e755381a9caed643fa76d15d60ff4fec565c9a437535b38"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/repair-report.json",
+      "source_sha256": "17d88cc60d7abbef5c10cc9cb91af2ad193dca541107d7d3359d67c0937d6cf2",
+      "published_path": "precision-repairs/paired-rib49-intercostal-precision-009/repair-report.json.gz",
+      "published_sha256": "cbdffb9793ef68a80663dae3ae327f4e0f45e2f70c19f8524b37339ca4e311c3"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/extensor-source-precision-separation-008/result.json",
+      "source_sha256": "9b3de6becfa1be57babe155a6b9e3357a6fa75f289bbb3e07abcd0c9e3353a21",
+      "published_path": "precision-repairs/extensor-source-precision-separation-008/result.json",
+      "published_sha256": "9b3de6becfa1be57babe155a6b9e3357a6fa75f289bbb3e07abcd0c9e3353a21"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/extensor-source-precision-separation-008/row137-report.json",
+      "source_sha256": "5ce848274ae01f808eb0ecb9f2427cfd3989d952a5d530ff1353e981c9696f6d",
+      "published_path": "precision-repairs/extensor-source-precision-separation-008/row137-report.json",
+      "published_sha256": "5ce848274ae01f808eb0ecb9f2427cfd3989d952a5d530ff1353e981c9696f6d"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/extensor-source-precision-separation-008/row138-report.json",
+      "source_sha256": "c3be00963e0c47c15a43f5f9a1d6407b1d73d3890c49132599e1ab6b99bb8fe9",
+      "published_path": "precision-repairs/extensor-source-precision-separation-008/row138-report.json",
+      "published_sha256": "c3be00963e0c47c15a43f5f9a1d6407b1d73d3890c49132599e1ab6b99bb8fe9"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/result.json",
+      "source_sha256": "bea952dd18e5945a905b255978409bb5a120d3d3c89639a97829807e120aac14",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/result.json",
+      "published_sha256": "bea952dd18e5945a905b255978409bb5a120d3d3c89639a97829807e120aac14"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/head-subulp-edge-retirement-001/repair-report.json",
+      "source_sha256": "ef5e3039c2c74ccbe67332d6235dc7642f3ff6ff6d9293857e6ad8bc285df6bc",
+      "published_path": "precision-repairs/head-subulp-edge-retirement-001/repair-report.json.gz",
+      "published_sha256": "7bde8a9531f4b47562477de24884c12800ad35688b6d4563421994377874295b"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/head-runtime-receipt-rebind-001/rebind-report.json",
+      "source_sha256": "541548751b0d5074f92ad556ab54d8ba7f9a415513230f260fb53d59db410371",
+      "published_path": "precision-repairs/head-runtime-receipt-rebind-001/rebind-report.json",
+      "published_sha256": "541548751b0d5074f92ad556ab54d8ba7f9a415513230f260fb53d59db410371"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/intercostal313-subulp-edge-retirement-001/edge-correspondence.json",
+      "source_sha256": "56076ccedaf43d09ab05c711591bf6f4473a734c3f805dc8b9f7edd4f2f6bd09",
+      "published_path": "precision-repairs/intercostal313-subulp-edge-retirement-001/edge-correspondence.json",
+      "published_sha256": "56076ccedaf43d09ab05c711591bf6f4473a734c3f805dc8b9f7edd4f2f6bd09"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/intercostal313-subulp-edge-retirement-001/repair-report.json",
+      "source_sha256": "886b6a0742e5cfe428cc30b624476c355ae2a88bd8a360a729cf09240a59301d",
+      "published_path": "precision-repairs/intercostal313-subulp-edge-retirement-001/repair-report.json.gz",
+      "published_sha256": "d767fb4b638eeb2938c104d9b600314680bcc671fd26215f480cc7f1d8f7e64b"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row157-report.json",
+      "source_sha256": "c15bbe3808a18091774697df33a4829fba2a7c1d1a3ec12faca9d513e3b2af5b",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row157-report.json.gz",
+      "published_sha256": "0e44460c69f53963057cf7fcdfe2531ddcf5a4b79f990c7f3ae02ecab96540c4"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row137-report.json",
+      "source_sha256": "9538b15f748740a8bb07a7faef26bb56a1b58ebf8a16e2548bb7f42c01598161",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row137-report.json.gz",
+      "published_sha256": "b0d626eabfdcd94c18b5f60d4c3cf2f06115ab23c81e5dabae415cdc46072791"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row158-report.json",
+      "source_sha256": "ef000a40f6176b804acd6b70f8ad04d37a31959e6c1762d9d528154c39522b64",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row158-report.json.gz",
+      "published_sha256": "5f71d8969482f5e5d12016211fdc731e74497c4a9effe8a8cb8a49d569f93b7a"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row138-report.json",
+      "source_sha256": "6d05509ee6b513a989d7981fa0468888f3c1ef5024157ee0050cb234d4a7eed5",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row138-report.json.gz",
+      "published_sha256": "948dd51581691b04b814048b4763f5dc6cada1e1ce0bf3894a0d165797ad01c0"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row153-report.json",
+      "source_sha256": "84f883150be9eab6184aa74ab38edce6a91a15c3f7e4f61bf3d7f692a2f5e5e3",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row153-report.json.gz",
+      "published_sha256": "4f2cb6e1c82bf9f2c3bc25e63be4dead82ad14fe02b46ab80f2548694aceccc1"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row156-report.json",
+      "source_sha256": "93b148b13f71943e988711bccd9496cec34772b08e6abdda5c64f7cf5678256c",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row156-report.json.gz",
+      "published_sha256": "69be17bdc7a77a93b25cd7b1a0cf6aaa5c4cfde56212fc8baa83bbb43a95ad37"
+    },
+    {
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/row155-report.json",
+      "source_sha256": "cee2f41d0eb6b1646e51eaff6c8a41a0bf643b0530a5086227e39bd4eae2a164",
+      "published_path": "precision-repairs/tissue-native-precision-retirement-004/row155-report.json.gz",
+      "published_sha256": "9b6d599c827c4511a55b97ddcb133d37cceaebbfd569d5ed8eaaa37a1a858965"
+    }
+  ]
+}

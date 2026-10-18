@@ -1,0 +1,15 @@
+{
+  "bone_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/bodyparts3d-myosim-major-bones/bodyparts3d-myosim-major-bones.nhbones",
+  "bone_sha256": "5ff0c6e479f426da8acb5d4e4e54c0fb88ebc6b8cbfc6f607acec4ece55920d4",
+  "bone_manifest_sha256": "c46d4fa0032f492ab58cab306813206e42175fe55efa03a9a6c3514331ea298e",
+  "nha_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/resting-thorax.nhanatomy",
+  "nha_sha256": "6dec26b25d7bd3a2f750949efbbe0e39592ccc575c9ce15dbaebd795e73a5b52",
+  "receipt_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/resting-anatomy-receipt.json",
+  "receipt_sha256": "c5b752c9aaed8f297730c07945c5d3cf8ee9af793b4bccc2b8b2941cc1acdcf3",
+  "tendon_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/paired-rib49-intercostal-precision-009/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+  "tendon_sha256": "d98fdbb491662df86c1cef96125b5bb6e9ca0b097eb79b5175bc3cf267f2c43c",
+  "tendon_bytes_changed_only_bone_hash112_143": true,
+  "endpoints_exact": 832,
+  "coverage_exact": true,
+  "elapsed_s": 61.95956320798723
+}

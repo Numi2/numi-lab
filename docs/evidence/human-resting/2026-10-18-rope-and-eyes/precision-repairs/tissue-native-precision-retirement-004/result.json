@@ -1,0 +1,10 @@
+{
+  "receipt_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/composed-receipt/resting-anatomy-receipt.json",
+  "receipt_sha256": "aa481b4cdeb60deb2e4370ff2c8aa384568b07ababa2acd8836d9d523fcf318d",
+  "payload_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-suspension-reference-probe-20261018-001/tissue-native-precision-retirement-004/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "payload_sha256": "aec04723bb3abe1184df571195f48a6528d4cee7101ce8693c6ce70414d43ec7",
+  "all_rows_vertex_and_binding_bytes_exact": 164,
+  "source_sha256": "4a1c07c00d744ee4d228fb9a207bd09df399b131374df35f01151551dc2c381e",
+  "source_owner_revision": "40c2d287",
+  "elapsed_s": 11.359888667007908
+}
