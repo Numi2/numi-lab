@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check every retained floor witness; sampled viewer audits alone are insufficient."""
+"""Check retained pre-dynamics floor witnesses; sampled viewer audits alone are insufficient."""
 import argparse
 import csv
 import json
@@ -32,7 +32,9 @@ def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
                 failures.append(f"nonfinite witness step/region {step}/{region}")
                 continue
             if worst is None or xyz[2] < worst["gap_m"]:
-                worst = {"step": step, "time_s": float(row["accepted_time_s"]),
+                worst = {"accepted_step_slot": step,
+                         "pose_step": int(row.get("pre_dynamics_step_index", step - 1)),
+                         "pose_time_s": float(row.get("pre_dynamics_time_s", row["accepted_time_s"])),
                          "region": region, "gap_m": xyz[2],
                          "source_geometry_index": int(row["source_geometry_index"]),
                          "skin_vertex_local": int(row["selected_skin_vertex_local"]),
@@ -72,7 +74,7 @@ def check(run, boundary_rows, tolerance, expected_steps, expected_regions=32):
     if not surface_count:
         failures.append("missing full-surface audit")
     return {"run": str(run.resolve()), "passed": not failures,
-            "scope": "retained floor-witness and surface consistency only; not full physics qualification",
+            "scope": "retained pre-dynamics floor-witness and sampled surface consistency only; final endpoint and full physics qualification require separate evidence",
             "boundary_only_rows": sorted(boundary_rows),
             "penetration_tolerance_m": tolerance, "accepted_steps_checked": len(seen),
             "floor_witnesses_below_tolerance": below, "worst_floor_witness": worst,
