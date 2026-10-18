@@ -348,12 +348,25 @@ struct Respiration {
             }
             return false;
         };
+        // The body/Brain transaction advances once per frame. Only the
+        // noncontact blood receiver and circuit may subcycle inside it.
+        // The articulated owner consumes the recoil force after this whole
+        // preDynamics encode, for the full body-frame duration.
+        const bool bloodSubcycles=dispatch.bloodMpmEnabled&&v.microtickCount>1u;
         if((lease.active&&(lease.commandBuffer!=v.commandBuffer||
                            lease.controlStep!=v.controlStep))||
-           v.microtickCount!=1||v.environmentCount!=dispatch.environmentCount||
+           v.microtickCount==0u||v.microtick>=v.microtickCount||
+           (!dispatch.bloodMpmEnabled&&v.microtickCount!=1u)||
+           v.environmentCount!=dispatch.environmentCount||
            v.vascularStateStride!=45||
-           v.microstepTimestepSeconds!=parameters.environment.w)
+           v.frameTimestepSeconds!=parameters.environment.w||
+           v.microstepTimestepSeconds!=v.frameTimestepSeconds/float(v.microtickCount)||
+           (bloodSubcycles&&!v.vascularCheckpoint))
             return rejectLease("callback_identity_or_cadence");
+        if(bloodSubcycles&&
+           (phase==AcceptedStepExtensionPhase::microstepComplete||
+            (phase==AcceptedStepExtensionPhase::candidateReady&&
+             v.microtick+1u<v.microtickCount))) return true;
         if(outletStep&&!lease.active) return rejectLease("missing_owner_lease");
         if(phase==AcceptedStepExtensionPhase::candidateReady&&lease.active) {
             if(!lease.bodyPropertiesCandidate||!lease.bodyPropertiesAccepted||
@@ -454,7 +467,13 @@ struct Respiration {
             [enc setBytes:&stepDispatch length:sizeof(dispatch) atIndex:1];
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:candidate offset:0 atIndex:3];
-            [enc setBuffer:buffer(v.vascularAccepted) offset:0 atIndex:4];
+            // First-order frame coupling: use the final circuit flow over
+            // the body frame, with actual frame-start/end vascular volumes.
+            // Internal gas transfers remain antisymmetric and outlet debit
+            // executes once; no controller or metabolism is multiplied by
+            // the MPM tick count. The temporal approximation is qualified
+            // separately from inventory conservation.
+            [enc setBuffer:buffer(bloodSubcycles?v.vascularCheckpoint:v.vascularAccepted) offset:0 atIndex:4];
             [enc setBuffer:buffer(v.vascularCandidate) offset:0 atIndex:5];
             [enc setBuffer:buffer(v.vascularUnknowns) offset:0 atIndex:6];
             [enc setBuffer:buffer(v.vascularConnections) offset:0 atIndex:7];
@@ -628,7 +647,72 @@ struct RestingRun {
         source.gravity={0,0,0};source.vascular=n;
         source.mixedSolver.relativeResidual=1.e-7;
         source.mixedSolver.newtonIterations=12;source.mixedSolver.fgmresIterations=64;
-        auto compiled=compileWorld(source,{.maximumRateExponent=0});
+        const char* bloodMode=std::getenv("NUMI_HUMAN_BLOOD_MPM_ENABLED");
+        need(!bloodMode||std::strcmp(bloodMode,"0")==0||std::strcmp(bloodMode,"1")==0,
+             "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+        const bool bloodEnabled=bloodMode&&std::strcmp(bloodMode,"1")==0;
+        if(bloodEnabled) {
+            const char* path=std::getenv("NUMI_HUMAN_BLOOD_MPM_MATERIAL");
+            need(path&&*path,"blood MPM mode requires an explicit source material path");
+            auto material=parseMatterFile(path);
+            need(material.succeeded()&&material.material.name=="blood_high_shear_newtonian_proxy",
+                 "blood MPM source material is absent, invalid, or has the wrong identity");
+            double density=0.0;
+            for(const auto& parameter:material.material.parameters)
+                if(parameter.name=="density") density=parameter.defaultValue;
+            need(std::isfinite(density)&&density>0.0,"blood MPM source density is invalid");
+            source.materials.push_back(std::move(material.material));
+            ObjectSource receiver;
+            receiver.name="external_blood_dormant_receiver";
+            receiver.materialIndex=0u;
+            receiver.representation=Representation::mpm;
+            receiver.automaticRepresentation=false;receiver.twoWayCoupling=false;
+            receiver.adaptive=false;receiver.deformableContact=false;
+            receiver.deformableSelfContact=false;
+            // Bounded reference capacity, not pre-existing physical blood.
+            // Partial outlet batches consume slots; exhaustion rejects rather
+            // than allocating, dropping mass, or reusing live fluid particles.
+            receiver.characteristicLength=0.05;
+            receiver.mpmGridMinimum={-1.5,-1.5,-1.0};
+            receiver.mpmGridMaximum={1.5,1.5,3.0};
+            // Bounded experiments may declare a smaller world-space domain
+            // without changing cell width or the physical update schedule.
+            // Leaving the domain rejects; it never clips or drops fluid.
+            if(const char* bounds=std::getenv("NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M")) {
+                double values[6]{};
+                const char* cursor=bounds;
+                for(unsigned axis=0;axis<6u;++axis) {
+                    char* end=nullptr;values[axis]=std::strtod(cursor,&end);
+                    need(end!=cursor&&std::isfinite(values[axis]),
+                         "blood MPM grid bounds require six finite comma-separated coordinates");
+                    if(axis<5u) {
+                        need(*end==',',"blood MPM grid bounds require six comma-separated coordinates");
+                        cursor=end+1;
+                    } else need(*end=='\0',"blood MPM grid bounds have trailing content");
+                }
+                for(unsigned axis=0;axis<3u;++axis) {
+                    const double extent=values[axis+3u]-values[axis];
+                    need(extent>=4.0*receiver.characteristicLength&&extent<=10.0,
+                         "blood MPM grid extent must be between four cells and ten metres");
+                }
+                receiver.mpmGridMinimum={values[0],values[1],values[2]};
+                receiver.mpmGridMaximum={values[3],values[4],values[5]};
+            }
+            for(unsigned slot=0;slot<128u;++slot) {
+                ParticleSource particle;particle.position={0,0,0};
+                particle.velocity={0,0,0};particle.referenceVolume=1.0e-6;
+                particle.mass=density*particle.referenceVolume;particle.active=false;
+                receiver.particles.push_back(particle);
+            }
+            source.gravity={0,0,-9.81};
+            std::cerr<<"blood_mpm_source=reference slots=128 capacity_ml=128 cell_width_m=0.05"
+                     <<" grid_min_m="<<receiver.mpmGridMinimum[0]<<","<<receiver.mpmGridMinimum[1]<<","<<receiver.mpmGridMinimum[2]
+                     <<" grid_max_m="<<receiver.mpmGridMaximum[0]<<","<<receiver.mpmGridMaximum[1]<<","<<receiver.mpmGridMaximum[2]
+                     <<" gravity_m_s2=0,0,-9.81 material="<<path
+                     <<" contact=disabled maximum_rate_exponent="<<NM_MAX_RATE_EXPONENT<<"\n";
+            source.objects.push_back(std::move(receiver));
+        }
+        auto compiled=compileWorld(source,{.maximumRateExponent=bloodEnabled?NM_MAX_RATE_EXPONENT:0u});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");

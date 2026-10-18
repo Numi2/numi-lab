@@ -1,0 +1,41 @@
+{
+  "schema": "numi.blood_frame_cadence_probe_invocation.v2",
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/usr/bin/time",
+    "-l",
+    "/Users/numi/numi-human-separation-20261018/C/blood-frame-integration-212/cadence-probe/build-005/cadence_probe",
+    "/Users/numi/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/numi/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+    "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/numi/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8"
+  },
+  "binary_sha256": "01ea315e5b04ef57fc991dffced8f24d8d6a54a47c981731f223074d010a7467",
+  "probe_source": "/Users/numi/numi-human-separation-20261018/C/blood-frame-integration-212/cadence-probe/cadence_probe_grid.mm",
+  "probe_source_sha256": "b8bab6b729db55649a4e59b1db91ff37635ab967ab0b137a10a1b022a1e3c9c6",
+  "probe_header": "/Users/numi/numi-human-separation-20261018/C/blood-frame-integration-212/source/matter/tools/human_resting_runtime.hpp",
+  "probe_header_sha256": "f132eab231cc9b5ca39aea9cab4c1dd9aba2cd4f0e18a03240548f867fd881dd",
+  "runtime_library": "/Users/numi/numi-human-separation-20261018/C/blood-transfer-208/build/libmetalrobo.dylib",
+  "runtime_library_sha256": "bd1d6d273c06a5d4e00729d0a436ee341827ee67def28a0107fef6a5713f7673",
+  "matter_source": "/Users/numi/numi-human-separation-20261018/C/aortic-vascular-control-020/source/MatterSource.metal",
+  "matter_source_sha256": "e38c975f2d64c6eb7e2b37079a67b7b9a177b8b130b77c2f20fb63e50d5c4ff8",
+  "network": "/Users/numi/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+  "network_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+  "configuration": "/Users/numi/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+  "configuration_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+  "material": "/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+  "material_sha256": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+  "grid_bounds_m": "-0.25,-0.25,-0.25,0.25,0.25,0.25",
+  "requested_frame_seconds": 0.00025,
+  "started_unix": 1792360953.109162,
+  "exit_code": 0,
+  "elapsed_seconds": 5.058733940124512,
+  "finished_unix": 1792360958.168006,
+  "launcher_log_sha256": "0d82f76b0bc9e6769eecc878ed809eee5f48ce920c57251b6d1b1fb9b470fc5b"
+}

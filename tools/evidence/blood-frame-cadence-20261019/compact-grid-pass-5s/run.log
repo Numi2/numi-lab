@@ -1,0 +1,29 @@
+resting_job_lock waiting pid=92806
+resting_job_lock acquired pid=92806
+resting_gas_transport_subcycling=0 respiratory_mechanics_subcycling=0 parallel_respiratory_muscles=0 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+runtime=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M6 world_fingerprint=10076686260150823829 timestep_s=0.00025
+blood_mpm_source=reference slots=128 capacity_ml=128 cell_width_m=0.05 grid_min_m=-0.25,-0.25,-0.25 grid_max_m=0.25,0.25,0.25 gravity_m_s2=0,0,-9.81 material=/Users/numi/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter contact=disabled maximum_rate_exponent=8
+blood_mpm_receiver=enabled object=0 material=blood_high_shear_newtonian_proxy slots=128 dormant_capacity_ml=128 cell_width_m=0.05 density_kg_m3=1050.6 stock_owner=external_blood_inventory_subset
+resting_gas_transport_subcycling=0 respiratory_mechanics_subcycling=0 parallel_respiratory_muscles=0 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=1 blood_mpm_object=0 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+runtime=Numi Matter runtime initialized; dense45 ineligible (Matter material or parameter graph present), using FGMRES device=Apple M6 world_fingerprint=10502580699502569514 timestep_s=0.00025
+case=baseline accepted_frames=1 cursor_control_step=0 cursor_physics_substep=0 frame_begin_calls=1 candidate_ready_calls=1 microstep_complete_calls=1 frame_complete_calls=1 reported_microticks=1 rate_exponent=0 vascular_clock_high=0 vascular_clock_low=562949980160 brain_time_us=250 brain_accepted_root=625057839438708887 brain_expected_root=625057839438708887 receiver_particles=0 active_receiver_particles=0 receiver_grid_x=0 receiver_grid_y=0 receiver_grid_z=0 receiver_grid_nodes=0
+case=blood_mpm accepted_frames=1 cursor_control_step=0 cursor_physics_substep=0 frame_begin_calls=1 candidate_ready_calls=256 microstep_complete_calls=256 frame_complete_calls=1 reported_microticks=256 rate_exponent=8 vascular_clock_high=0 vascular_clock_low=562949980160 brain_time_us=250 brain_accepted_root=1583961948223873571 brain_expected_root=1583961948223873571 receiver_particles=128 active_receiver_particles=0 receiver_grid_x=14 receiver_grid_y=14 receiver_grid_z=14 receiver_grid_nodes=2744
+cadence_control=PASS frame_dt_s=0.00025 baseline_microticks=1 enabled_microticks=256 enabled_exponent=8 accepted_steps=1 vascular_clock_high=0 vascular_clock_low=562949980160 vascular_state_max_abs_delta=0.02850853838 metabolic_o2_frame_delta=1.041666753e-09 metabolic_o2_baseline_delta=1.041666753e-09 metabolic_o2_ratio=1 metabolic_co2_frame_delta=8.333333468e-10 metabolic_co2_baseline_delta=8.333333468e-10 metabolic_co2_ratio=1 blood_volume_m3=0.00515000103 gas_budget_o2_max_error_m3=0 gas_budget_co2_max_error_m3=0 blood_continuity_residual_m3=8.314842148e-10 brain_target_time_us=250 baseline_cursor_control_step=0 enabled_cursor_control_step=0 receiver_grid_nodes=2744 receiver_grid_dims=14,14,14 receiver_particles=128 active_receiver_particles=0 comparison_scope=one_no_outlet_frame_only_not_long_horizon_qualification
+        5.02 real         0.70 user         0.72 sys
+          2810511360  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              172798  page reclaims
+                   7  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 463  involuntary context switches
+         31278682800  instructions retired
+          6670816765  cycles elapsed
+          3795962472  peak memory footprint
