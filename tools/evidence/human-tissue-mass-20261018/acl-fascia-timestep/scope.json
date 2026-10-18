@@ -1,0 +1,96 @@
+{
+  "scope": "8 ms integrated fascia/bilateral inferred-ACL timestep experiment; not long-duration mechanics qualification",
+  "host": "ssh numi",
+  "physical_parameters_unchanged": true,
+  "runs": {
+    "103": "0.5 ms fails after 7 accepted steps: actual tissue Runtime nonlinear failure; physiology world failure is downstream",
+    "104": "0.25 ms x32 completed",
+    "105": "0.125 ms x64 completed",
+    "106": "0.1 ms x80 completed"
+  },
+  "convergence": "Not established: aggregate max FEM displacement changes substantially across successful timesteps",
+  "clinical_validation": false,
+  "visual_verification_performed": false,
+  "retained_inputs": [
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-103-tissue-197/invocation.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-103-tissue-197/invocation.json",
+      "sha256": "01b00701cf98fe0b7a3e276423eadf941ff6faff9b240f6c394bbb347f84fc75"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-103-tissue-197/process-result.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-103-tissue-197/process-result.json",
+      "sha256": "394b656ac9999ee633845c439ba7c5d355bf145276a075defc34ba2ba7ccfc42"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-103-tissue-197/resting-coupled.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-103-tissue-197/resting-coupled.csv",
+      "sha256": "a916034c2216977822b2870dabe602f102927c7a1480376ce3556cabb6d14e45"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-103-tissue-197/resting-surface-audit.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-103-tissue-197/resting-surface-audit.csv",
+      "sha256": "1cbf414a548b1651c3a4d91905e69ac54ab0b716cfd2b3b29797d8bfd6f3a909"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-104-tissue-197/invocation.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-104-tissue-197/invocation.json",
+      "sha256": "9f751f711f20b48c2dc71b679be941d4835f75cda727aa7f5217b3a527249e49"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-104-tissue-197/process-result.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-104-tissue-197/process-result.json",
+      "sha256": "212a8adfbdc8dd8ca46bc6dff7afeac6dd8629328d490d6e368e409ba639ba0e"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-104-tissue-197/resting-coupled.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-104-tissue-197/resting-coupled.csv",
+      "sha256": "509ae349c7c217c7567456d065ff44487eaf2cb6b7bc23025c28fb2372e882e1"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-104-tissue-197/resting-surface-audit.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-104-tissue-197/resting-surface-audit.csv",
+      "sha256": "ebad3c211dc3fe387038627f622eaf74e8c6b4365d86d59323df75360697f4b7"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-105-tissue-197/invocation.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-105-tissue-197/invocation.json",
+      "sha256": "95aaf3794e38ffcfb37995415b401f4728a7f69d39f8fb88c59f9c1d57a71c52"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-105-tissue-197/process-result.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-105-tissue-197/process-result.json",
+      "sha256": "fad6470a80772c947fa909ca78b04726db4a97c7f0e07812c392fc1dc81d2053"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-105-tissue-197/resting-coupled.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-105-tissue-197/resting-coupled.csv",
+      "sha256": "a781c612053719e40859fac11c3381ff27ce439c580fe5316d49a959f833a03e"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-105-tissue-197/resting-surface-audit.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-105-tissue-197/resting-surface-audit.csv",
+      "sha256": "401a3df3e7348d45bc44cc50b9cfb2adc1101949a5523430491a4f781a474c21"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-106-tissue-198/invocation.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-106-tissue-198/invocation.json",
+      "sha256": "4422283dcde532504c1a712634b2145816a3f83f5fa6325ef103fc292f688e69"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-106-tissue-198/process-result.json",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-106-tissue-198/process-result.json",
+      "sha256": "2190830b91c2d2bb48ce08c149ce2e63912a8063bd545111d4c8a928cefa6027"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-106-tissue-198/resting-coupled.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-106-tissue-198/resting-coupled.csv",
+      "sha256": "07c9cccf0daef9a4962b4e2043d1bf1edc6cb71cf30cb365e3186911dc5cdbb6"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/native-run-106-tissue-198/resting-surface-audit.csv",
+      "retained": "tools/evidence/human-tissue-mass-20261018/acl-fascia-timestep/native-run-106-tissue-198/resting-surface-audit.csv",
+      "sha256": "e822a5a13dc9bdb75e40ffc7bbaa7d960d5846c22467ed2f4484aa0d1bb1ec21"
+    }
+  ]
+}

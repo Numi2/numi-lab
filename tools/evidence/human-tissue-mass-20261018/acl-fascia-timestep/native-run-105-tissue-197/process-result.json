@@ -1,0 +1,9 @@
+{
+  "returncode": 0,
+  "wall_seconds": 27.13942845800193,
+  "invocation": "/Users/numi/numi-human-separation-20261018/native-run-105-tissue-197/invocation.json",
+  "binary_sha256": "b1b574c509e8520370bacac8af45bf078b4698cbae9ffa6885497dad1bfcad79",
+  "requested_dt_s": 0.000125,
+  "requested_step_count": 64,
+  "requested_physical_horizon_s": 0.008
+}

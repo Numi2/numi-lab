@@ -1,0 +1,4 @@
+resting_fascia_regional_admission=exact active_regions=1 unused_regions=25 source_coordinate_units=m correspondence=unique_Float32 fem_presentation_binding=none full_source_loader=unchanged
+human_execution_stage=native_horizon_begin wall_elapsed_ms=697.486875 stage_step=0
+human_execution_stage=native_horizon_end wall_elapsed_ms=21117.371916 stage_step=7
+human_joint_failure completed_steps=7 matter_status=10 matter_failing_index=4294967295
