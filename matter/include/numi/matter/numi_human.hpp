@@ -137,6 +137,15 @@ struct NumiHumanTendonFEMLoadConfiguration {
     NumiHumanTendonFEMLoadExecutionMode executionMode =
         NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
     std::uint32_t reserved0 = 0u;
+    // Optional callback for the same Runtime transaction that owns this FEM
+    // adapter. This lets a combined vascular/FEM WorldSource keep one vascular
+    // stock and one Runtime; an enclosing accepted owner may defer extension
+    // and control-cursor publication until its final physical gate.
+    void* acceptedStepExtensionContext = nullptr;
+    EncodeAcceptedStepExtension encodeAcceptedStepExtension = nullptr;
+    std::uint64_t acceptedStepExtensionFingerprint = 0u;
+    bool deferAcceptedControlCursorPublication = false;
+    bool deferAcceptedStepExtensionFinalization = false;
 };
 
 struct NumiHumanTendonFEMLoadDiagnostics {

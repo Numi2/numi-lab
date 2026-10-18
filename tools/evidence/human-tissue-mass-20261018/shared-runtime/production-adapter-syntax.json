@@ -1,0 +1,58 @@
+[
+  {
+    "source": "matter/src/numi_human.mm",
+    "exit": 0,
+    "seconds": 0.5144147872924805,
+    "argv": [
+      "clang++",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-arch",
+      "arm64",
+      "-std=c++23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-fobjc-arc",
+      "-x",
+      "objective-c++",
+      "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/src",
+      "-fsyntax-only",
+      "/Users/n/numi-lab-native-replay-publish-20261017/matter/src/numi_human.mm"
+    ]
+  },
+  {
+    "source": "apps/numi_human_tendon_fem_load_probe.mm",
+    "exit": 0,
+    "seconds": 0.5406599044799805,
+    "argv": [
+      "clang++",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-arch",
+      "arm64",
+      "-std=c++23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-fobjc-arc",
+      "-x",
+      "objective-c++",
+      "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/include",
+      "-I/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/src",
+      "-DNUMI_MATTER_METALLIB=\"unused-syntax-only\"",
+      "-DNUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL=\"unused-syntax-only\"",
+      "-fsyntax-only",
+      "/Users/n/numi-lab-native-replay-publish-20261017/apps/numi_human_tendon_fem_load_probe.mm"
+    ]
+  }
+]

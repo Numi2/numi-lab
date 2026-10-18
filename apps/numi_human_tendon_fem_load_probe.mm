@@ -1,4 +1,5 @@
 #include "numi/matter/matter.hpp"
+#include "../matter/tools/vascular_fixture.hpp"
 #include "numi/matter/numi_human.hpp"
 
 #import <Metal/Metal.h>
@@ -18,6 +19,38 @@ void require(const bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
 
+struct ExtensionMarker {
+    id<MTLBuffer> counts=nil;
+    id<MTLComputePipelineState> pipeline=nil;
+    unsigned calls[4]{};
+    static bool callback(void* context,numi::matter::AcceptedStepExtensionPhase phase,
+                         const numi::matter::AcceptedStepExtensionView& view) {
+        auto& self=*static_cast<ExtensionMarker*>(context);
+        const auto index=static_cast<unsigned>(phase);
+        require(index<4&&view.commandBuffer&&view.matterStatuses&&view.environmentCount==1u,
+                "extension did not receive the exact borrowed Runtime frame");
+        ++self.calls[index];
+        if(phase!=numi::matter::AcceptedStepExtensionPhase::frameComplete)return true;
+        auto cb=(__bridge id<MTLCommandBuffer>)view.commandBuffer;
+        auto encoder=[cb computeCommandEncoder];require(encoder!=nil,"marker encoder missing");
+        [encoder setComputePipelineState:self.pipeline];
+        [encoder setBuffer:(__bridge id<MTLBuffer>)view.matterStatuses offset:0 atIndex:0];
+        [encoder setBuffer:self.counts offset:0 atIndex:1];
+        [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [encoder endEncoding];return true;
+    }
+    void initialize(id<MTLDevice> device) {
+        const unsigned zero[2]{};
+        counts=[device newBufferWithBytes:zero length:sizeof(zero) options:MTLResourceStorageModeShared];
+        NSError* error=nil;
+        NSString* source=@"#include <metal_stdlib>\nusing namespace metal; kernel void extension_marker(device const uint* status [[buffer(0)]], device uint* count [[buffer(1)]]) { if(status[0]==0u)++count[0];else ++count[1]; }";
+        auto options=[MTLCompileOptions new];options.languageVersion=MTLLanguageVersion4_0;
+        auto library=[device newLibraryWithSource:source options:options error:&error];
+        pipeline=library?[device newComputePipelineStateWithFunction:[library newFunctionWithName:@"extension_marker"] error:&error]:nil;
+        require(counts&&pipeline,"extension marker pipeline did not compile");
+    }
+};
+
 } // namespace
 
 int main() {
@@ -25,6 +58,7 @@ int main() {
         try {
             numi::matter::WorldSource source;
             source.environmentCount = 1u;
+            source.vascular=vascularFixture();
             source.frameTimestep = 1.0e-4;
             source.gravity = {0.0, 0.0, 0.0};
             source.mixedSolver.newtonIterations = 8u;
@@ -342,8 +376,9 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed routed band did not fail closed");
+            ExtensionMarker marker;marker.initialize(MTLCreateSystemDefaultDevice());
             numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
-            require(adapter.initialize(runtime, {
+            const numi::matter::NumiHumanTendonFEMLoadSource extensionSource={
                         .nodeLoads = nodeLoads,
                         .nodeAnchors = nodeAnchors,
                         .endpointReplacements = std::span(&replacement, 1u),
@@ -359,10 +394,39 @@ int main() {
                         .endpointCount = 2u,
                         .environmentCount = 1u,
                         .productionForceOwnerFraction = 0.1f,
-                    }, {
+                    };
+            const numi::matter::NumiHumanTendonFEMLoadConfiguration extensionConfig={
                         .metallib = NUMI_MATTER_METALLIB,
-                    }),
+                        .acceptedStepExtensionContext = &marker,
+                        .encodeAcceptedStepExtension = &ExtensionMarker::callback,
+                        .acceptedStepExtensionFingerprint = 0x4558544d41524b31ull,
+                        .deferAcceptedControlCursorPublication = true,
+                        .deferAcceptedStepExtensionFinalization = false,
+                    };
+            require(adapter.initialize(runtime, extensionSource, extensionConfig),
                     "probe tendon/FEM adapter did not initialize");
+            for(unsigned variant=0u;variant<3u;++variant) {
+                auto bad=extensionConfig;
+                if(variant==0u)bad.acceptedStepExtensionContext=nullptr;
+                if(variant==1u)bad.encodeAcceptedStepExtension=nullptr;
+                if(variant==2u)bad.acceptedStepExtensionFingerprint=0u;
+                numi::matter::NumiHumanTendonFEMLoadAdapter rejected;
+                require(!rejected.initialize(runtime,extensionSource,bad),
+                        "partial extension identity did not fail closed");
+            }
+            ExtensionMarker relocated;
+            auto relocatedConfig=extensionConfig;
+            relocatedConfig.acceptedStepExtensionContext=&relocated;
+            numi::matter::NumiHumanTendonFEMLoadAdapter relocatedAdapter;
+            require(relocatedAdapter.initialize(runtime,extensionSource,relocatedConfig)&&
+                    relocatedAdapter.program().fingerprint==adapter.program().fingerprint,
+                    "extension fingerprint depends on host context address");
+            auto differentConfig=extensionConfig;
+            ++differentConfig.acceptedStepExtensionFingerprint;
+            numi::matter::NumiHumanTendonFEMLoadAdapter differentAdapter;
+            require(differentAdapter.initialize(runtime,extensionSource,differentConfig)&&
+                    differentAdapter.program().fingerprint!=adapter.program().fingerprint,
+                    "extension semantic identity was omitted from fingerprint");
             const auto program = adapter.program();
             require(program.valid(), "probe tendon/FEM program is invalid");
             const auto initialAdapterAuthority = adapter.snapshot();
@@ -537,7 +601,7 @@ int main() {
                 if (!activeProgram.encodePreDynamics(
                         activeProgram.context, pass)) {
                     throw std::runtime_error(
-                        "probe adapter rejected encoding: " +
+                        "probe adapter rejected pre encoding: " +
                         activeAdapter.diagnostics().message
                     );
                 }
@@ -556,9 +620,17 @@ int main() {
                 if (!activeProgram.encodePostValidation(
                         activeProgram.context, pass)) {
                     throw std::runtime_error(
-                        "probe adapter rejected encoding: " +
+                        "probe adapter rejected post encoding: " +
                         activeAdapter.diagnostics().message
                     );
+                }
+                if(&activeAdapter==&adapter) {
+                    numi::matter::AcceptedControlCursorGate cursor;
+                    cursor.statusCodes=(__bridge void*)standBuffer;cursor.recordCount=1u;
+                    cursor.recordStrideBytes=sizeof(MRNumiHumanStandStatusGPU);
+                    cursor.acceptedStatusCode=MR_NUMI_HUMAN_STAND_SUCCESS;
+                    const auto published=runtime.encodeAcceptedControlCursorPublication((__bridge void*)command,step,0u,cursor);
+                    require(published.encoded,"adapter deferred cursor publication rejected");
                 }
                 id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
                 require(blit != nil, "probe reaction blit is unavailable");
@@ -573,6 +645,10 @@ int main() {
             };
 
             execute(program, adapter, 0u, true);
+            require(marker.calls[0]==1u&&marker.calls[3]==1u&&
+                        static_cast<const unsigned*>(marker.counts.contents)[0]==1u&&
+                        static_cast<const unsigned*>(marker.counts.contents)[1]==0u,
+                    "standalone adapter did not finalize its extension once after acceptance");
             const auto accepted = runtime.snapshot();
             const auto acceptedAdapterAuthority = adapter.snapshot();
             std::vector<std::uint8_t> acceptedAdapterCanonicalBytes;
@@ -662,6 +738,9 @@ int main() {
                         ) == 0,
                     "probe propagated Matter failure did not roll back");
             execute(program, adapter, 1u, false);
+            require(static_cast<const unsigned*>(marker.counts.contents)[0]==1u&&
+                        static_cast<const unsigned*>(marker.counts.contents)[1]==2u,
+                    "rejected Matter/Human steps advanced the accepted extension marker");
             const auto rolledBack = runtime.snapshot();
             require(rolledBack.available &&
                         std::memcmp(
@@ -1052,6 +1131,8 @@ int main() {
                 << " adapter_authority_resigned_cursor=denied_atomic"
                 << " adapter_authority_resigned_identity=denied_atomic"
                 << " matter_failure_propagation=verified"
+                << " extension_phases=all_four extension_identity=semantic_address_independent"
+                << " extension_partial_identity=fail_closed extension_rejection_markers=verified"
                 << " production_owner_fraction=0.1"
                 << "\n";
             return 0;

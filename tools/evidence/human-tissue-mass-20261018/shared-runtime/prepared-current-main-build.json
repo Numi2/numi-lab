@@ -1,0 +1,252 @@
+{
+  "adapter_msl": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/NumanXHumanMatter-181-current-main.metal",
+    "sha256": "fcd66008c8c91adba9b290bcb2bc21ac2416859cbd4e546ef3500e1ba3f61d24"
+  },
+  "binary": {
+    "bytes": 2661488,
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/deferred-extension-probe-006",
+    "sha256": "4b2a84714d2b233a5fed2c65cfc24254894bc7acdc9247d9fe746d4501af2f7d"
+  },
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-isysroot",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "-F",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks",
+    "-arch",
+    "arm64",
+    "-std=c++23",
+    "-O3",
+    "-DNDEBUG",
+    "-fPIC",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-fobjc-arc",
+    "-x",
+    "objective-c++",
+    "-DNUMI_HUMAN_TENDON_FEM_TEST_SOURCE_PATH=\"/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/matter_kernels-181-current-main.metal\"",
+    "-DNUMI_HUMAN_TENDON_FEM_TEST_SOURCE_SHA256=\"fbb06a0a2f4f813aa01c468e8b8b9a33de4196fbd148c2fe761834568b3aa83f\"",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/include",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/include",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/matter/src",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/src",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/src/metal",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/source/apps",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003",
+    "-MMD",
+    "-MF",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.d",
+    "-MT",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.o",
+    "-c",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.o"
+  ],
+  "compile_log": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.compile.log",
+  "coupled_object": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/MetalNumanXCoupledHuman-004.mm.o",
+    "sha256": "f0bab07cea5b14ebda5c56901065d175746d7ecb550e9a4e4ddd7f5dae90b265"
+  },
+  "coupled_source_msl": {
+    "includes_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/NumanXCoupledHuman-181-current-main.includes.json",
+    "includes_sha256": "93d4600f122b7f1c6a4647b832a5bb3bdc7c01fb1480c7ded637294cc54c24eb",
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/NumanXCoupledHuman-181-current-main.metal",
+    "sha256": "02815e02294f2fed78d895d34ab437445243fbfda946db96596b50646c202692"
+  },
+  "coupled_source_overlay": {
+    "patch_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/coupled-human-test-source-loader.patch",
+    "patch_sha256": "4f9bd4cf001ea99997073dc843d73930b739620ec748a08c8ad3099ab0ae4e73",
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/MetalNumanXCoupledHuman-004.mm",
+    "sha256": "35bda7342699cab3af33804a2f55f243956e5648525ea987f484949dcf73014b"
+  },
+  "link_argv": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-005/deferred-extension-probe-005.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/ConstraintIR.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/EngineModel.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalArticulatedOperator.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/MetalNumanXCoupledHuman-004.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalNumanXHumanIO.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalNumanXHumanMatter.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalWorld.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/NumanXExactTransaction.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/OpenSimSpatialTransform.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/compiler_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/constitutive_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/fingerprint_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/human_physiology.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/language_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/matter.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/metal_world.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/package_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/runtime.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/surgical_tissue.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/validation_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/vascular_impl.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.o",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "Accelerate",
+    "-lz",
+    "-Wl,-dead_strip",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/deferred-extension-probe-006"
+  ],
+  "link_log": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/probe-006.link.log",
+  "matter_msl": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/matter_kernels-181-current-main.metal",
+    "sha256": "fbb06a0a2f4f813aa01c468e8b8b9a33de4196fbd148c2fe761834568b3aa83f"
+  },
+  "numi_human_loader": {
+    "object_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.o",
+    "object_sha256": "4b507fae4f16a62d33628ab62eb1e3228e45cc5b2a269d8eac848733bffd7aaf",
+    "patch_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi-human-current-source-loader.patch",
+    "patch_sha256": "dd9b95babf08ff7601b5278059d86f77267149ee20fdd7972696c7e5c7a859e0",
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm",
+    "sha256": "bd0108a570c910036f4c7bf6823239faf2a6b532f1352f2944c48b55e2548f59",
+    "source_shader_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/matter_kernels-181-current-main.metal",
+    "source_shader_sha256": "fbb06a0a2f4f813aa01c468e8b8b9a33de4196fbd148c2fe761834568b3aa83f"
+  },
+  "operator_source_manifest": {
+    "metadata_path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/operator-metal-sources/metalrobo-current-main-modules.json",
+    "metadata_sha256": "fddc64ef4a2af0c80f52e2a1a5f93d2fc95aeefa8f8a61f5f8123b8fec87504f",
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/operator-metal-sources/metalrobo-current-main-modules.tsv",
+    "sha256": "8db0dbe7b2623e4220855b0d8f668886ee233cb0ea4804e67e1ab55071c36b1d"
+  },
+  "probe_object": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-005/deferred-extension-probe-005.o",
+    "sha256": "b7156774cb4c0fcfd87f910ba9fb2497fdf4b55c514a44bd2d66f00bf8ab2375"
+  },
+  "probe_source": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/prepared-extension-probe-001/numanx_human_matter_deferred_extension_probe.mm",
+    "sha256": "f43994542ac802d1bec98b2606183e94e85794191789c374b0fa4c57519dbad8"
+  },
+  "reusable_objects": {
+    "ConstraintIR.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/ConstraintIR.cpp.o",
+      "sha256": "5f282a0ed2c0b8831736d21761d05bf5442dbb7a5c3378516d85567d8fad9c58"
+    },
+    "EngineModel.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/EngineModel.cpp.o",
+      "sha256": "5b15d90835bd2bb4a6f2f060e10ee96458850e6cc161980c8980749a69479e5c"
+    },
+    "MetalArticulatedOperator.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalArticulatedOperator.mm.o",
+      "sha256": "be00e841c9454494a2a7a9b72616aadab115bba3502fd2f95036be7562581030"
+    },
+    "MetalNumanXCoupledHuman.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/MetalNumanXCoupledHuman-004.mm.o",
+      "sha256": "f0bab07cea5b14ebda5c56901065d175746d7ecb550e9a4e4ddd7f5dae90b265"
+    },
+    "MetalNumanXHumanIO.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalNumanXHumanIO.mm.o",
+      "sha256": "1a71c119c37df62a5d1eea82722262475ade9a467484bd385d80235bcdd05b6c"
+    },
+    "MetalNumanXHumanMatter.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalNumanXHumanMatter.mm.o",
+      "sha256": "cd7a45dc65c356fde578a8e96975b07f8233b509ce36051b3834a4bcd29ba18b"
+    },
+    "MetalWorld.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/MetalWorld.mm.o",
+      "sha256": "44c6f304ffcfa99a2ba07342845947fa17a0aca47bbafd7f937b533285493337"
+    },
+    "NumanXExactTransaction.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/NumanXExactTransaction.cpp.o",
+      "sha256": "04ce9e0217ddfe30064887b5f33193a36b27aa38acb6a3fc16e6d7d0e2240279"
+    },
+    "OpenSimSpatialTransform.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/OpenSimSpatialTransform.cpp.o",
+      "sha256": "a5ee86d3c7310af7d9c7dfee52aa916cce7fec2c7448c0b932bbf9a7714bed08"
+    },
+    "compiler_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/compiler_impl.cpp.o",
+      "sha256": "0e44bbed777cc753d203a5fefa8864382e768525ac1ffb4968399a0f7ff7f005"
+    },
+    "constitutive_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/constitutive_impl.cpp.o",
+      "sha256": "d0f01bd99ce37d6e91ac8df8912aa94fad0033adaab0ea4cb570320ba1fd4b1e"
+    },
+    "deferred-extension-probe.o": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-005/deferred-extension-probe-005.o",
+      "sha256": "b7156774cb4c0fcfd87f910ba9fb2497fdf4b55c514a44bd2d66f00bf8ab2375"
+    },
+    "fingerprint_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/fingerprint_impl.cpp.o",
+      "sha256": "38cfc271a3929bf5ac65a2a07cda9f4f92929b0aeca196f15b77fbd56eea0d63"
+    },
+    "human_physiology.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/human_physiology.mm.o",
+      "sha256": "cd7332fedfa00985d03f80a09daa59f70b7f1932fd4599a31017c1273f4583df"
+    },
+    "language_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/language_impl.cpp.o",
+      "sha256": "78a76011cdd55c9b681e6d06b4ed0ab504a2de79b725e9c05d367c7e285ae6ac"
+    },
+    "matter.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/matter.cpp.o",
+      "sha256": "3c9b26e886e89051b3586a603e56203976cdba02db8f6d51c591a2cc791570ae"
+    },
+    "metal_world.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/metal_world.cpp.o",
+      "sha256": "b1fddb4c6128d7a1a682fe2767758b1793a656e59fb069f9515a033eafedd563"
+    },
+    "numi_human.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/numi_human-006.mm.o",
+      "sha256": "4b507fae4f16a62d33628ab62eb1e3228e45cc5b2a269d8eac848733bffd7aaf"
+    },
+    "package_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/package_impl.cpp.o",
+      "sha256": "843b2e46a33c528928c74e3ae8582a321d33cbe5499c7a7e69c84285ab0fa168"
+    },
+    "runtime.mm": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/runtime.mm.o",
+      "sha256": "e9411239a2ea35c6358b47f3dcdcf278697234348b876c5a2dc3c0d130b5599f"
+    },
+    "surgical_tissue.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/surgical_tissue.cpp.o",
+      "sha256": "e4c614f77a830ae1a1f2381efa839a554970354ebfef8fb96fbfcb0ee1222247"
+    },
+    "validation_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/validation_impl.cpp.o",
+      "sha256": "278deb90212a2abe06ac21f5022ebd83c089f32e0a315a30813ba7633985fc63"
+    },
+    "vascular_impl.cpp": {
+      "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/vascular_impl.cpp.o",
+      "sha256": "2d5a720c321a84b06cbc276ff22885ee0321b0352857396db08ec7873505db2f"
+    }
+  },
+  "runtime_environment": {
+    "METALROBO_TEST_ARTICULATED_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-003/operator-metal-sources/metalrobo-current-main-modules.tsv",
+    "METALROBO_TEST_ARTICULATED_SOURCE_SHA256": "8db0dbe7b2623e4220855b0d8f668886ee233cb0ea4804e67e1ab55071c36b1d",
+    "NUMANX_COUPLED_HUMAN_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-004/NumanXCoupledHuman-181-current-main.metal",
+    "NUMANX_COUPLED_HUMAN_TEST_SOURCE_SHA256": "02815e02294f2fed78d895d34ab437445243fbfda946db96596b50646c202692",
+    "NUMANX_HUMAN_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/NumanXHumanMatter-181-current-main.metal",
+    "NUMANX_HUMAN_MATTER_TEST_SOURCE_SHA256": "fcd66008c8c91adba9b290bcb2bc21ac2416859cbd4e546ef3500e1ba3f61d24",
+    "NUMI_HUMAN_STAND_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main/NumiHumanStand-181-current-main.metal",
+    "NUMI_HUMAN_STAND_SOURCE_SHA256": "012aed0de269314128ffe08f03acf91f495e49183cf2dd2cd2102cd97abf9b37",
+    "NUMI_MATTER_METALLIB": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/matter_kernels-181-current-main.metal",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/matter_kernels-181-current-main.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "fbb06a0a2f4f813aa01c468e8b8b9a33de4196fbd148c2fe761834568b3aa83f"
+  },
+  "schema": "numi.human-matter.deferred-extension.current-main-build.v4",
+  "source_head": "9826f4163f5a895b027b6f95c31880551f7f5dc3",
+  "stand_msl": {
+    "path": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main/NumiHumanStand-181-current-main.metal",
+    "sha256": "012aed0de269314128ffe08f03acf91f495e49183cf2dd2cd2102cd97abf9b37"
+  }
+}

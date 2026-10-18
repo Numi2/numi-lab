@@ -556,6 +556,11 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::filesystem::path metallib;
     NumiHumanTendonFEMLoadExecutionMode executionMode =
         NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
+    void* acceptedStepExtensionContext = nullptr;
+    EncodeAcceptedStepExtension encodeAcceptedStepExtension = nullptr;
+    std::uint64_t acceptedStepExtensionFingerprint = 0u;
+    bool deferAcceptedControlCursorPublication = false;
+    bool deferAcceptedStepExtensionFinalization = false;
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t activeAnchorCount = 0u;
@@ -681,6 +686,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib) ||
         (!standalone && !deferred) || configuration.reserved0 != 0u ||
+        ((configuration.acceptedStepExtensionContext == nullptr) !=
+         (configuration.encodeAcceptedStepExtension == nullptr)) ||
+        ((configuration.acceptedStepExtensionContext == nullptr) !=
+         (configuration.acceptedStepExtensionFingerprint == 0u)) ||
+        ((configuration.deferAcceptedControlCursorPublication ||
+          configuration.deferAcceptedStepExtensionFinalization) &&
+         configuration.encodeAcceptedStepExtension == nullptr) ||
+        (configuration.encodeAcceptedStepExtension != nullptr && !standalone) ||
         source.articularContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.articularContactPairRanges.size() >
@@ -1080,6 +1093,16 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     }
     candidate->metallib = configuration.metallib;
     candidate->executionMode = configuration.executionMode;
+    candidate->acceptedStepExtensionContext =
+        configuration.acceptedStepExtensionContext;
+    candidate->encodeAcceptedStepExtension =
+        configuration.encodeAcceptedStepExtension;
+    candidate->acceptedStepExtensionFingerprint =
+        configuration.acceptedStepExtensionFingerprint;
+    candidate->deferAcceptedControlCursorPublication =
+        configuration.deferAcceptedControlCursorPublication;
+    candidate->deferAcceptedStepExtensionFinalization =
+        configuration.deferAcceptedStepExtensionFinalization;
     candidate->endpointCount = source.endpointCount;
     candidate->environmentCount = source.environmentCount;
     candidate->activeAnchorCount = anchorCount;
@@ -1138,6 +1161,24 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     fingerprint = appendFingerprint(
         fingerprint, &candidate->executionMode,
         sizeof(candidate->executionMode)
+    );
+    const bool hasAcceptedStepExtension =
+        candidate->encodeAcceptedStepExtension != nullptr;
+    fingerprint = appendFingerprint(
+        fingerprint, &hasAcceptedStepExtension,
+        sizeof(hasAcceptedStepExtension)
+    );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->acceptedStepExtensionFingerprint,
+        sizeof(candidate->acceptedStepExtensionFingerprint)
+    );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->deferAcceptedControlCursorPublication,
+        sizeof(candidate->deferAcceptedControlCursorPublication)
+    );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->deferAcceptedStepExtensionFinalization,
+        sizeof(candidate->deferAcceptedStepExtensionFinalization)
     );
     fingerprint = appendFingerprint(
         fingerprint, candidate->nodeLoads.data(),
@@ -2052,6 +2093,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         request.physicsSubsteps = 1u;
         request.timestepSeconds = state_->runtime->timestepSeconds();
         request.phase = EncodePhase::preDynamics;
+        request.acceptedStepExtensionContext =
+            state_->acceptedStepExtensionContext;
+        request.encodeAcceptedStepExtension =
+            state_->encodeAcceptedStepExtension;
+        request.deferAcceptedControlCursorPublication =
+            state_->deferAcceptedControlCursorPublication;
+        request.deferAcceptedStepExtensionFinalization =
+            state_->deferAcceptedStepExtensionFinalization;
         const auto pre = state_->runtime->encode(request);
         ++state_->runtimePreDynamicsEncodeCount;
         if (!pre.encoded) {
@@ -2235,6 +2284,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             request.physicsSubsteps = 1u;
             request.timestepSeconds = state_->runtime->timestepSeconds();
             request.phase = EncodePhase::postCommit;
+            request.acceptedStepExtensionContext =
+                state_->acceptedStepExtensionContext;
+            request.encodeAcceptedStepExtension =
+                state_->encodeAcceptedStepExtension;
+            request.deferAcceptedControlCursorPublication =
+                state_->deferAcceptedControlCursorPublication;
+            request.deferAcceptedStepExtensionFinalization =
+                state_->deferAcceptedStepExtensionFinalization;
             const auto post = state_->runtime->encode(request);
             ++state_->runtimePostCommitEncodeCount;
             if (!post.encoded) {
@@ -2834,7 +2891,6 @@ NumiHumanTendonFEMLoadDiagnostics
 NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     NumiHumanTendonFEMLoadDiagnostics result{};
     if (state_ == nullptr) return result;
-    result.message = state_->message;
     result.initialized = state_->runtime != nullptr && state_->fingerprint != 0u;
     result.encodedPassCount = state_->encodedPassCount;
     result.abortCount = state_->abortCount;

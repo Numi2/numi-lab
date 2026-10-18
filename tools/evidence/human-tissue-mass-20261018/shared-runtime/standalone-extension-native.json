@@ -1,0 +1,10 @@
+{
+  "exit": 0,
+  "seconds": 0.5099329948425293,
+  "binary": {
+    "path": "/Users/n/numi-human-separation-20261018/C/shared-runtime-route-203/marker-current-root/build-010/extension-probe",
+    "sha256": "0e21676cbd5c4ae91aec4b2300fd7d4c1bc2ea69d2b699b84da6be913b9e713a"
+  },
+  "logSHA256": "1ca5586aee599f3d0f5c1a5906be597e81658e50aec0fe97d7f5bd5fd841250b",
+  "scope": "synthetic fixture; standalone extension callbacks, identity admission, rejected-step rollback/replay; no integrated body qualification"
+}

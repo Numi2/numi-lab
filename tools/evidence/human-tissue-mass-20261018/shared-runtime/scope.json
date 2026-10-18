@@ -1,0 +1,63 @@
+{
+  "device": "Apple M6",
+  "executionHost": "ssh numi",
+  "visualVerification": false,
+  "validated": [
+    "prepared mixed FEM/vascular Runtime accepts and rejects through existing HumanMatter owner with saved-state restore, retry, replay and terminal quarantine",
+    "standalone tendon/FEM adapter forwards all four existing Runtime extension callbacks",
+    "GPU marker preserves accepted-versus-rejected status distinction",
+    "partial extension registration fails closed; semantic identity is hashed and host context address is excluded",
+    "existing standalone force, contact, rollback and bitwise replay regressions"
+  ],
+  "notValidated": [
+    "full anatomical human mechanics",
+    "artery wall scene integration",
+    "whole-body deformation",
+    "bone elasticity or fracture",
+    "three dimensional liquid blood",
+    "long-run tissue stability or physiology",
+    "clinical realism"
+  ],
+  "testLoading": "Exact hashed source libraries are used by isolated test-only loaders because offline Metal compiler is unavailable; production library loading is unchanged.",
+  "standaloneConfiguration": {
+    "deferAcceptedControlCursorPublication": true,
+    "deferAcceptedStepExtensionFinalization": false
+  },
+  "retainedFiles": {
+    "prepared-current-main-native.log": {
+      "sha256": "beedf86dbfc89f9753dc82da3282c01090be919dbad74fc24f95e96835e44555",
+      "bytes": 715,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/native-current-main-probe-001/native.log"
+    },
+    "prepared-current-main-native.json": {
+      "sha256": "b44bec8f6833567582018822dfd2a8cc2390a2bbe89b963b165eeaa04f35a655",
+      "bytes": 6817,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/native-current-main-probe-001/receipt.json"
+    },
+    "prepared-current-main-build.json": {
+      "sha256": "b3a911a0518df2702a56bcbf2776f041cac15c86e0ac2d279b66c2c6f1244c02",
+      "bytes": 20237,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/humanmatter-extension-181/w-current-build-001/build/deferred-probe-matched-current-main-006/matched-current-main-probe-build-006.json"
+    },
+    "standalone-extension-native.log": {
+      "sha256": "1ca5586aee599f3d0f5c1a5906be597e81658e50aec0fe97d7f5bd5fd841250b",
+      "bytes": 2782,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/shared-runtime-route-203/marker-current-root/build-010/native.log"
+    },
+    "standalone-extension-native.json": {
+      "sha256": "a4d1eba8c18e1c3c24da0673ef844f62e6f1a38915478f5c84922286685ce358",
+      "bytes": 508,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/shared-runtime-route-203/marker-current-root/build-010/native-receipt.json"
+    },
+    "standalone-extension-build.json": {
+      "sha256": "12f75be1a5897ed6eaaf906946a41a0c6b9ac68714f92679e46620af6909cf31",
+      "bytes": 10929,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/shared-runtime-route-203/marker-current-root/build-010/receipt.json"
+    },
+    "production-adapter-syntax.json": {
+      "sha256": "c12502d61318047f5f158bb3064c9dc6fddc66594e7cc7208ab961e45666807d",
+      "bytes": 2035,
+      "retainedSourcePath": "/Users/n/numi-human-separation-20261018/C/shared-runtime-route-203/adapter/publication/published-source-syntax-receipt.json"
+    }
+  }
+}
