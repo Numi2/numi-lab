@@ -1349,6 +1349,18 @@
             contactTargetNormalVelocityForPostProjection[contact] =
                 targetNormalVelocity;
         }
+        const float3 oldLambda{
+            lambdas[3u * contact + 0u],
+            lambdas[3u * contact + 1u],
+            lambdas[3u * contact + 2u],
+        };
+        if (all(oldLambda == float3(0.0f)) &&
+            velocity.x >= targetNormalVelocity) {
+            cooperativeContactApplied[0u] = 0.0f;
+            cooperativeContactApplied[1u] = 0.0f;
+            cooperativeContactApplied[2u] = 0.0f;
+            return;
+        }
         device float* matrix = contactMatrices + 9u * contact;
         const float normalMass = matrix[0u];
         const float tangentDeterminant =
@@ -1361,11 +1373,6 @@
             fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
             return;
         }
-        const float3 oldLambda{
-            lambdas[3u * contact + 0u],
-            lambdas[3u * contact + 1u],
-            lambdas[3u * contact + 2u],
-        };
         const float normalDelta =
             (targetNormalVelocity - velocity.x) / normalMass;
         float3 newLambda = oldLambda;
@@ -1713,6 +1720,15 @@
                     contactTargetNormalVelocityForPostProjection[contact] =
                         targetNormalVelocity;
                 }
+                const float3 oldLambda{
+                    lambdas[3u * contact + 0u],
+                    lambdas[3u * contact + 1u],
+                    lambdas[3u * contact + 2u],
+                };
+                if (all(oldLambda == float3(0.0f)) &&
+                    velocity.x >= targetNormalVelocity) {
+                    continue;
+                }
                 device float* matrix = contactMatrices + 9u * contact;
                 const float normalMass = matrix[0u];
                 const float tangentDeterminant =
@@ -1725,11 +1741,6 @@
                     fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
                     return;
                 }
-                const float3 oldLambda{
-                    lambdas[3u * contact + 0u],
-                    lambdas[3u * contact + 1u],
-                    lambdas[3u * contact + 2u],
-                };
                 // Solve the unilateral normal row first. A coupled 3x3
                 // inverse may produce a negative normal candidate because
                 // tangential velocity is not an admissible pull force.

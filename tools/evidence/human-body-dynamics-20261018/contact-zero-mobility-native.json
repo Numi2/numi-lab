@@ -1,0 +1,34 @@
+{
+  "returncode": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/contact-publication-regression-167/probe",
+    "/Users/n/numi-human-separation-20261018/C/contact-publication-source-153/NumiHumanStand-contactfix-275.metal"
+  ],
+  "stdout": "gpu_available=true device=\"Apple M6\" kernel=mr_numi_human_stand_step checks=6 per_contact_normal_tangent_response=passed global_plane_parity=passed invalid_plane_atomic_reject=passed mode_count_reject=passed feasible_zero_mobility_zero_impulse=passed infeasible_zero_mobility_reject=passed\n",
+  "stderr": "resting_job_lock waiting pid=46528\nresting_job_lock acquired pid=46528\n",
+  "test_sha256": "faefa70b4a7d224c1f31278991e37b4fb3e57cf195bd82c7abe1a466a943f771",
+  "shader_sha256": "447e6281879ea42d001dfafa275852b82d16a92c71f43d7e367b6b18f42481d4",
+  "base_revision": "2751873802e072c0ca2be901934adefe3198fdfa",
+  "owner": "src/metal/NumiHumanStandSolve.metalinc",
+  "owner_sha256": "ca6b5bf7b52ea9d1569c21b9494a0b0180839246fde6863a6f85bec3f96a1587",
+  "negative_control": {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+      "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+      "--",
+      "/Users/n/numi-human-separation-20261018/contact-regression-build-149/probe",
+      "/Users/numi/numi-human-separation-20261018/C/contact-publication-source-153/NumiHumanStand-control-275.metal"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "resting_job_lock waiting pid=46461\nresting_job_lock acquired pid=46461\nfeasible zero-mobility contact did not accept with zero impulse\n",
+    "elapsed": 0.46102879097452387,
+    "shader_sha256": "0f8a353676184d8a611670f267574eda17c1ded7b0b5d7492259957df028ae22"
+  },
+  "scope": "Actual Metal stand-step contact regression only; no whole-body or long-run qualification",
+  "device": "Apple M6",
+  "visual_verification": false
+}
