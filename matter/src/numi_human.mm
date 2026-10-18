@@ -2834,6 +2834,7 @@ NumiHumanTendonFEMLoadDiagnostics
 NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     NumiHumanTendonFEMLoadDiagnostics result{};
     if (state_ == nullptr) return result;
+    result.message = state_->message;
     result.initialized = state_->runtime != nullptr && state_->fingerprint != 0u;
     result.encodedPassCount = state_->encodedPassCount;
     result.abortCount = state_->abortCount;
