@@ -1,0 +1,16 @@
+{
+  "status": "PASS_SCOPED_REJECT_RETRY",
+  "physical_seconds": 0.016,
+  "scope": "One passive 38-node/54-tet fascia region, real continuum callback, existing body/physiology owner",
+  "proves": [
+    "Late GPU rejection preserves accepted FEM, adapter histories, physical and coupled state bitwise",
+    "Same-context same-input retry matches uninterrupted two-step baseline"
+  ],
+  "not_proven": [
+    "Full-body tissue mechanics",
+    "Long-duration stability",
+    "Physiological plausibility or clinical validation",
+    "Liquid blood or deformable bone"
+  ],
+  "label_correction": "Run label accepted_passes denotes encoded passes including a rejected attempt; source195 corrects label only"
+}
