@@ -1828,6 +1828,18 @@ if(BUILD_TESTING)
         COMMAND metalrobo_numi_human_accepted_force_observer_test)
     set_tests_properties(numi_human_accepted_force_observer PROPERTIES
         LABELS "numi-human;accepted-force-observer;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_separation_model_test
+        tools/test_human_separation_model.cpp)
+    target_include_directories(metalrobo_numi_human_separation_model_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_features(metalrobo_numi_human_separation_model_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_separation_model_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_separation_model
+        COMMAND metalrobo_numi_human_separation_model_test)
+    set_tests_properties(numi_human_separation_model PROPERTIES
+        LABELS "numi-human;separation;topology;cpu" TIMEOUT 30)
+
     add_executable(metalrobo_numi_human_passive_joint_test tests/numi_human_passive_joint_test.cpp)
     target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_compile_options(metalrobo_numi_human_passive_joint_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)
@@ -6614,6 +6626,9 @@ if(APPLE AND BUILD_TESTING)
         DEPENDS tools/build_human_rope_runtime_source.py
             include/metalrobo/engine_types.h include/metalrobo/numi_human_stand_gpu.h
             include/metalrobo/numi_human_resting_rope_gpu.h
+            include/metalrobo/numi_human_tendon_gpu.h
+            matter/src/NumiHumanSeparation.metalinc
+            matter/src/NumiHumanSeparationForce.metalinc
             include/metalrobo/numi_human_resting_rope_visual_gpu.h
             include/metalrobo/visual_platform_types.h
             matter/src/NumiHumanRestingRope.metalinc
@@ -6629,4 +6644,35 @@ if(APPLE AND BUILD_TESTING)
     add_test(NAME numi_human_rope_visual
         COMMAND metalrobo_numi_human_rope_visual_test "${NUMI_HUMAN_ROPE_TEST_SOURCE}")
     set_tests_properties(numi_human_rope_visual PROPERTIES LABELS "numi-human;rope;gpu;visual" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_separation_constraints_test
+        tools/test_human_separation_constraints.mm)
+    target_include_directories(metalrobo_numi_human_separation_constraints_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_separation_constraints_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_separation_constraints_test
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_separation_constraints_test
+        PRIVATE "-framework Foundation" "-framework Metal")
+    add_test(NAME numi_human_separation_constraints
+        COMMAND metalrobo_numi_human_separation_constraints_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/matter/src/NumiHumanSeparation.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h")
+    set_tests_properties(numi_human_separation_constraints PROPERTIES
+        LABELS "numi-human;separation;gpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_separation_force_test
+        tools/test_human_separation_forces.mm)
+    target_include_directories(metalrobo_numi_human_separation_force_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_features(metalrobo_numi_human_separation_force_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_separation_force_test
+        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_separation_force_test
+        PRIVATE "-framework Foundation" "-framework Metal")
+    add_test(NAME numi_human_separation_force
+        COMMAND metalrobo_numi_human_separation_force_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/matter/src/NumiHumanSeparationForce.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h")
+    set_tests_properties(numi_human_separation_force PROPERTIES
+        LABELS "numi-human;separation;forces;gpu" TIMEOUT 30)
 endif()

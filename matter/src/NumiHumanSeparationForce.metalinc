@@ -1,0 +1,80 @@
+// Include this source fragment after metal_stdlib and
+// metalrobo/numi_human_tendon_gpu.h in the source-built Human Metal library.
+// The owning callback binds the exact source library once and supplies the
+// explicit crossing-muscle set as a resident buffer.
+
+kernel void mr_numi_human_separation_release_crossing_forces(
+    constant uint4& shape [[buffer(0)]],
+    constant uint4& forceLayout [[buffer(1)]],
+    constant uint& crossingMuscleCount [[buffer(2)]],
+    device const uint* crossingMuscleIndices [[buffer(3)]],
+    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(4)]],
+    device MRNumiHumanTendonTransferResultGPU* transfers [[buffer(5)]],
+    device float* generalizedCorrections [[buffer(6)]],
+    device float* generalizedForces [[buffer(7)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const uint environmentCount = shape.x;
+    const uint muscleCount = shape.y;
+    const uint endpointCount = shape.z;
+    const uint dofCount = shape.w;
+    const uint generalizedForceOffset = forceLayout.x;
+    const uint generalizedForceStride = forceLayout.y;
+    const uint stepIndex = forceLayout.z;
+    const uint releaseStep = forceLayout.w;
+    const uint forceWorkCount = environmentCount * dofCount;
+    const uint endpointWorkCount = environmentCount * endpointCount;
+    const uint workCount = max(forceWorkCount, endpointWorkCount);
+    if (index >= workCount || stepIndex < releaseStep ||
+        environmentCount == 0u || muscleCount == 0u || endpointCount == 0u ||
+        dofCount == 0u || generalizedForceStride != dofCount ||
+        crossingMuscleCount == 0u) {
+        return;
+    }
+
+    // Each environment/DoF lane removes the declared source rows exactly once
+    // from the existing reduction, then clears their provenance rows. No new
+    // force is accumulated, and unrelated muscle rows are left untouched.
+    if (index < forceWorkCount) {
+        const uint environment = index / dofCount;
+        const uint dof = index - environment * dofCount;
+        float releasedForce = 0.0f;
+        for (uint crossing = 0u; crossing < crossingMuscleCount; ++crossing) {
+            const uint muscle = crossingMuscleIndices[crossing];
+            if (muscle >= muscleCount) continue;
+            const uint muscleRow =
+                (environment * muscleCount + muscle) * dofCount + dof;
+            const float sourceForce = generalizedForces[muscleRow];
+            generalizedForces[muscleRow] = 0.0f;
+            releasedForce += sourceForce;
+        }
+        const uint reducedRow = environment * generalizedForceStride +
+            generalizedForceOffset + dof;
+        generalizedForces[reducedRow] -= releasedForce;
+    }
+
+    // Keep transfer status and residual diagnostics as authored by the tendon
+    // solver. Remove only the released endpoint wrench and its generalized
+    // correction so consumers cannot apply the cut muscle's terminal load.
+    if (index < endpointWorkCount) {
+        const uint environment = index / endpointCount;
+        const uint endpoint = index - environment * endpointCount;
+        const MRNumiHumanTendonBindingGPU binding = bindings[endpoint];
+        bool crossingMuscle = false;
+        for (uint crossing = 0u; crossing < crossingMuscleCount; ++crossing) {
+            crossingMuscle = crossingMuscle ||
+                crossingMuscleIndices[crossing] == binding.muscleIndex;
+        }
+        if (!crossingMuscle) return;
+        const uint transferIndex = environment * endpointCount + endpoint;
+        MRNumiHumanTendonTransferResultGPU transfer = transfers[transferIndex];
+        transfer.terminalWorldForce = float4(0.0f);
+        transfer.residualsAndForce.w = 0.0f;
+        for (uint node = 0u; node < 4u; ++node)
+            transfer.nodalWorldForces[node] = float4(0.0f);
+        transfers[transferIndex] = transfer;
+        const uint correctionBase = transferIndex * dofCount;
+        for (uint dof = 0u; dof < dofCount; ++dof)
+            generalizedCorrections[correctionBase + dof] = 0.0f;
+    }
+}

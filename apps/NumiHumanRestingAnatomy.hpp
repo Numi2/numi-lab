@@ -11,11 +11,13 @@
 #include <numeric>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 #include "NumiHumanRestingVascularBindings.hpp"
 #include "NumiHumanRestingCardiacIdentity.hpp"
 #include "NumiHumanRestingIntercostalRibAttachment.hpp"
 #include "metalrobo/numi_human_resting_common_attachment.hpp"
+#include "NumiHumanSeparationBodyRemap.hpp"
 
 // Asset admission for the functional anatomical surfaces. This only runs at
 // loading; all time-dependent deformation consumes the accepted Metal state.
@@ -224,6 +226,43 @@ struct NumiHumanRestingAnatomy {
                 else{query(node.right,p,nearest);query(node.left,p,nearest);}
             }
         }
+        void finishIndex() {
+            order.resize(triangles.size());std::iota(order.begin(),order.end(),0u);nodes.reserve(triangles.size()*2);
+            require(!triangles.empty(),"anatomical closest-surface index is empty");build(0,unsigned(triangles.size()));
+        }
+        TriangleIndex(std::vector<std::array<double,3>> sourcePoints,
+            const std::vector<std::array<unsigned,3>>& sourceTriangles):points(std::move(sourcePoints)) {
+            require(!points.empty(),"typed bone closest-surface point set is empty");
+            triangles.reserve(sourceTriangles.size());
+            for(const auto& point:points)for(double coordinate:point)
+                require(std::isfinite(coordinate),"typed bone closest-surface point is non-finite");
+            for(const auto& face:sourceTriangles) {
+                Triangle t;t.vertex=face;
+                require(t.vertex[0]!=t.vertex[1]&&t.vertex[1]!=t.vertex[2]&&t.vertex[2]!=t.vertex[0],
+                    "typed bone closest-surface triangle repeats a vertex");
+                for(unsigned k=0;k<3;++k) {
+                    require(t.vertex[k]<points.size(),"typed bone closest-surface triangle is out of range");
+                    t.lower[k]=std::numeric_limits<double>::infinity();
+                    t.upper[k]=-std::numeric_limits<double>::infinity();
+                    for(unsigned vertex:t.vertex) {
+                        t.lower[k]=std::min(t.lower[k],points[vertex][k]);
+                        t.upper[k]=std::max(t.upper[k],points[vertex][k]);
+                    }
+                    t.center[k]=(points[t.vertex[0]][k]+points[t.vertex[1]][k]+points[t.vertex[2]][k])/3;
+                }
+                std::array<double,3> u{},v{},cross{};
+                for(unsigned k=0;k<3;++k) {
+                    u[k]=points[t.vertex[1]][k]-points[t.vertex[0]][k];
+                    v[k]=points[t.vertex[2]][k]-points[t.vertex[0]][k];
+                }
+                cross={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+                const double areaSquared=cross[0]*cross[0]+cross[1]*cross[1]+cross[2]*cross[2];
+                require(std::isfinite(areaSquared)&&areaSquared>0,
+                    "typed bone closest-surface triangle is degenerate");
+                triangles.push_back(t);
+            }
+            finishIndex();
+        }
         TriangleIndex(const LoadedTorsoAnatomy& anatomy,const TorsoAnatomyRecord& surface) {
             points.reserve(surface.vertexCount);
             for(unsigned i=surface.firstVertex;i<surface.firstVertex+surface.vertexCount;++i){
@@ -236,8 +275,7 @@ struct NumiHumanRestingAnatomy {
                     t.center[k]=(points[t.vertex[0]][k]+points[t.vertex[1]][k]+points[t.vertex[2]][k])/3;}
                 triangles.push_back(t);
             }
-            order.resize(triangles.size());std::iota(order.begin(),order.end(),0u);nodes.reserve(triangles.size()*2);
-            require(!triangles.empty(),"cardiac closest-surface index is empty");build(0,unsigned(triangles.size()));
+            finishIndex();
         }
         Nearest nearest(const std::array<double,3>& p) const { Nearest result;query(0,p,result);return result; }
     };
@@ -270,7 +308,17 @@ struct NumiHumanRestingAnatomy {
         return result;
     }
     NumiHumanRestingAnatomy(const char* receipt,const std::filesystem::path& payload,
-        const LoadedTorsoAnatomy& anatomy,const LoadedBones& bones,const NMHumanRespirationParameters& physiology) {
+        const LoadedTorsoAnatomy& anatomy,const LoadedBones& bones,const NMHumanRespirationParameters& physiology,
+        const std::vector<std::uint32_t>& sourceBodyToRuntimeMap = {}) {
+        const auto authoredSourceBody=[&](const std::uint32_t runtimeIndex) {
+            if(sourceBodyToRuntimeMap.empty())return runtimeIndex;
+            const auto it=std::find(sourceBodyToRuntimeMap.begin(),sourceBodyToRuntimeMap.end(),runtimeIndex);
+            require(it!=sourceBodyToRuntimeMap.end(),"runtime body has no authored source identity");
+            return std::uint32_t(it-sourceBodyToRuntimeMap.begin());
+        };
+        const auto runtimeBody=[&](const std::uint32_t sourceBody) {
+            return metalrobo::separation::mapSourceBodyIndex(sourceBodyToRuntimeMap,sourceBody);
+        };
         NSData* data=[NSData dataWithContentsOfFile:@(receipt)];NSError* error=nil;
         NSDictionary* root=data?[NSJSONSerialization JSONObjectWithData:data options:0 error:&error]:nil;
         require([root isKindOfClass:NSDictionary.class],"invalid resting anatomy receipt");
@@ -353,12 +401,12 @@ struct NumiHumanRestingAnatomy {
             const auto rowIt=std::find_if(anatomy.records.begin(),anatomy.records.end(),
                 [&](const auto& record){return record.stableId==intercostalId;});
             const unsigned rowID=rowIt==anatomy.records.end()?0:rowIt->stableId;
-            const unsigned rowBody=rowIt==anatomy.records.end()?0:rowIt->bodyIndex;
+            const unsigned rowBody=rowIt==anatomy.records.end()?0:authoredSourceBody(rowIt->bodyIndex);
             const unsigned rowLayer=rowIt==anatomy.records.end()?0:rowIt->layer;
             const unsigned rowVertexCount=rowIt==anatomy.records.end()?0:rowIt->vertexCount;
             std::map<unsigned,unsigned> boneBodyByStableId;
             for(const auto& record:bones.records)
-                require(boneBodyByStableId.emplace(record.stableId,record.bodyIndex).second,
+                require(boneBodyByStableId.emplace(record.stableId,authoredSourceBody(record.bodyIndex)).second,
                     "intercostal attachment bone inventory has duplicate stable IDs");
             const NumiHumanIntercostalRibAttachmentContext attachmentContext{
                 rowID,rowBody,rowLayer,rowVertexCount,bones.sourceOwnerBindingsVerified,&ribs,
@@ -374,7 +422,7 @@ struct NumiHumanRestingAnatomy {
         require(lungs.size()==5,"resting lung stable IDs are duplicated");std::copy(chamberIDs.begin(),chamberIDs.end(),cavities.begin());
         NSNumber* body=bindings[@"torso_body_index"];
         require([body isKindOfClass:NSNumber.class]&&[body doubleValue]==[body unsignedIntValue],"invalid resting thorax body");
-        gpu.bodyAndFlags={body.unsignedIntValue,1,0,0};
+        gpu.bodyAndFlags={runtimeBody(body.unsignedIntValue),1,0,0};
         NSArray* axis=bindings[@"superior_axis_body"];
         require([axis isKindOfClass:NSArray.class]&&axis.count==3,"resting anatomy requires body-local superior axis");
         mr_float4 superior{[axis[0] floatValue],[axis[1] floatValue],[axis[2] floatValue],0};
@@ -473,8 +521,8 @@ struct NumiHumanRestingAnatomy {
             require(passiveViscera==expected,"passive visceral source identity set differs from the reference assembly");
             id lower=passive[@"pelvic_body_index"];
             require([lower isKindOfClass:NSNumber.class]&&[lower doubleValue]==[lower unsignedIntValue]&&
-                [lower unsignedIntValue]!=gpu.bodyAndFlags.x,"passive visceral pelvic anchor is invalid");
-            passivePelvicBody=[lower unsignedIntValue];
+                runtimeBody([lower unsignedIntValue])!=gpu.bodyAndFlags.x,"passive visceral pelvic anchor is invalid");
+            passivePelvicBody=runtimeBody([lower unsignedIntValue]);
             float anchorMinimum=INFINITY,pelvicMaximum=-INFINITY;
             std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,461};
             if(!eightPatchLiver)anchors.insert(22);
@@ -946,7 +994,7 @@ struct NumiHumanRestingAnatomy {
                     "only the inferior vena cava may declare an abdomen-to-torso attachment");
                 const auto& sourceSurface=surface(idValue);
                 require(first==nextVertex&&count==sourceSurface.vertexCount&&nextVertex<=mapRecords.unsignedIntValue&&
-                    count<=mapRecords.unsignedIntValue-nextVertex&&sourceSurface.bodyIndex==20&&
+                    count<=mapRecords.unsignedIntValue-nextVertex&&sourceSurface.bodyIndex==gpu.bodyAndFlags.x&&
                     sourceSurface.layer==expectedLayer&&bodyIndex==20,
                     "common passive range differs from its exact torso source record");
                 NSString* sourceKey=[NSString stringWithFormat:@"%u",idValue];NSDictionary* identity=sourceIdentityMap[sourceKey];
@@ -956,15 +1004,16 @@ struct NumiHumanRestingAnatomy {
                 require([sourceBody isKindOfClass:NSNumber.class]&&sourceBody.unsignedIntValue==expectedSourceBody&&
                     [sourceLayer isKindOfClass:NSNumber.class]&&sourceLayer.unsignedIntValue==expectedLayer,
                     "common passive stable ID disagrees with its pinned source body/layer identity");
+                bodyIndex=runtimeBody(bodyIndex);
                 numi_human_resting_common_field::PassiveAttachmentRangeContract contract{};
-                contract.stableId=idValue;contract.semantic=semantic;contract.bodyIndex=bodyIndex;
+                contract.stableId=idValue;contract.semantic=semantic;contract.bodyIndex=authoredSourceBody(bodyIndex);
                 contract.sourceLayer=sourceSurface.layer;contract.firstVertex=first;contract.vertexCount=count;
                 contract.hasOriginalBodyIndex=idValue==11;contract.hasAttachment=idValue==11;
                 if(idValue==11) {
                     contract.originalBodyIndex=7;contract.anchorBodyIndex=7;contract.torsoBodyIndex=20;
                     contract.sourceSuperiorAxis=1;contract.quinticSmoothstep=true;
                     contract.transitionLower=-0.10f;contract.transitionUpper=-0.055f;
-                    commonFieldPassiveAttachments.push_back({idValue,semantic,bodyIndex,first,count,7,7,1,-0.10f,-0.055f,true});
+                    commonFieldPassiveAttachments.push_back({idValue,semantic,bodyIndex,first,count,runtimeBody(7),runtimeBody(7),1,-0.10f,-0.055f,true});
                 } else commonFieldPassiveAttachments.push_back({idValue,semantic,bodyIndex,first,count});
                 attachmentContracts.push_back(contract);
                 require(commonFieldRanges.emplace(idValue,std::pair<unsigned,unsigned>{nextVertex,count}).second,
@@ -1092,7 +1141,7 @@ struct NumiHumanRestingAnatomy {
             NSString* fmaConcept=[metadata isKindOfClass:NSDictionary.class]?metadata[@"concept_id"]:nil;
             const char* conceptText=[fmaConcept isKindOfClass:NSString.class]?fmaConcept.UTF8String:nullptr;
             const bool conceptMatches=conceptText&&numiHumanRestingCardiacConceptAccepted(expected.id,conceptText);
-            require([owner isKindOfClass:NSNumber.class]&&owner.unsignedIntValue==gpu.bodyAndFlags.x&&
+            require([owner isKindOfClass:NSNumber.class]&&runtimeBody(owner.unsignedIntValue)==gpu.bodyAndFlags.x&&
                 [layer isKindOfClass:NSNumber.class]&&layer.unsignedIntValue==1&&
                 [member isKindOfClass:NSString.class]&&[member isEqualToString:[NSString stringWithUTF8String:expected.member]]&&
                 [digest isKindOfClass:NSString.class]&&[digest isEqualToString:[NSString stringWithUTF8String:expected.digest]]&&

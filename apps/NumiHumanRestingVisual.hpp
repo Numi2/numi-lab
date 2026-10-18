@@ -4,6 +4,7 @@
 #include "NumiHumanRestingOcularWindow.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
 #include "NumiHumanRestingRopeSupport.hpp"
+#include "NumiHumanSeparationSupport.hpp"
 #include "NumiHumanRestingRopeVisual.hpp"
 #include "NumiHumanRestingBedSurface.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
@@ -27,6 +28,7 @@ class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
     std::unique_ptr<NumiHumanRestingRopeSupport> ropeSupport;
+    std::unique_ptr<NumiHumanSeparationSupport> separationSupport;
     std::unique_ptr<NumiHumanRestingRopeVisual> ropeVisual;
     MRHumanRestingBedGPU bedParameters{};
     id<MTLBuffer> bedHeights=nil;
@@ -945,6 +947,7 @@ public:
         std::uint32_t ropeContactIndex=MR_INVALID_INDEX,ropeQueryIndex=MR_INVALID_INDEX;
         if(ropeConfigured) {
             ropeConfig=NumiHumanRestingRopeSupport::readConfig();
+            ropeConfig->globalBodyIndex=functional.gpu.bodyAndFlags.x;
             const char* anchorFromSite=std::getenv("NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE");
             require(!anchorFromSite||std::strcmp(anchorFromSite,"0")==0||
                     std::strcmp(anchorFromSite,"1")==0,
@@ -1609,11 +1612,12 @@ public:
                 const auto attachment=functional.intercostalRibVertexChannels.find(instance.identity.w);
                 if(attachment!=functional.intercostalRibVertexChannels.end()) {
                     require(deformation==7&&instance.geometry.y==1&&torsoAnatomy!=nullptr&&
-                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y==20,
+                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x,
                         "Intercostal rib-channel attachment is not on its registered body-20 intercostal surface");
                     const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
                         [&](const auto& row){return row.stableId==instance.identity.w;});
-                    require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==20&&
+                    require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==anatomyGPU.bodyAndFlags.x&&
                         source->vertexCount>0,
                         "Intercostal rib-channel attachment source allocation is missing or mistyped");
                     const auto& primitive=pack.primitives.at(instance.geometry.x);
@@ -2149,10 +2153,13 @@ public:
         const mr_float4 wholeBodyCamera=ropeConfig
             ?mr_float4{c.x+.35f*distance,c.y-distance,c.z+.1f*distance,0}
             :mr_float4{c.x+.55f*distance,c.y-.5f*distance,c.z+distance,0};
-        const std::array<mr_float4,4> cameras{{primaryCamera,
+        std::array<mr_float4,4> cameras{{primaryCamera,
             {c.x+distance,c.y,c.z+.2f*distance,0},{chest.x,chest.y-.12f,chest.z+.65f,0},
             wholeBodyCamera}};
-        const std::array<mr_float4,4> targets{c,c,chest,c};
+        std::array<mr_float4,4> targets{c,c,chest,c};
+        if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+            cameras={mr_float4{c.x,c.y-distance,c.z+.1f*distance,0},mr_float4{c.x+distance,c.y,c.z+.1f*distance,0},mr_float4{c.x,c.y+distance,c.z+.1f*distance,0},mr_float4{c.x-distance,c.y,c.z+.1f*distance,0}};targets={c,c,c,c};
+        }
         mr_float4 heartLocal{};
         for(const auto& center:functional.gpu.chamberCenterAndVolume)heartLocal=addPoint(heartLocal,center);
         const auto heart=addPoint(thorax.position,rotatePoint(thorax.orientation,scalePoint(heartLocal,.25f)));
@@ -2489,6 +2496,8 @@ public:
             require(ropeContactIndex<supportQueries.supportContacts.size(),
                 "rope support row selection is outside the existing contact set");
             ropeQueryIndex=supportQueries.supportContacts[ropeContactIndex].pointQueryIndex;
+            if(std::getenv("NUMI_HUMAN_SEPARATION_STEP"))
+                NumiHumanSeparationSupport::selectRows(supportQueries.supportContacts,ropeContactIndex);
             std::cout<<"resting_rope_requested=true contact_index="<<ropeContactIndex
                 <<" body_index="<<ropeConfig->globalBodyIndex
                 <<" point_query_index="<<ropeQueryIndex
@@ -2698,6 +2707,15 @@ public:
                 device,ropeRuntimeLibrary,baseProgram,*ropeConfig,ropeContactIndex,ropeQueryIndex,
                 articulation.firstBody,articulation.bodyCount,articulation.nv,
                 NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256);
+
+            if(const char* release=std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+                char* end=nullptr;const auto step=std::strtoul(release,&end,10);
+                require(end!=release&&*end=='\0'&&step>0&&step<=1000000,"invalid separation step");
+                const auto rows=NumiHumanSeparationSupport::selectRows(supportQueries.supportContacts,ropeContactIndex);
+                separationSupport=std::make_unique<NumiHumanSeparationSupport>(
+                    device,ropeRuntimeLibrary,ropeSupport->program(),16u,19u,articulation.firstBody,
+                    articulation.nv,std::uint32_t(step),supportQueries.supportContacts,rows,model.joints.at(16u).parentAnchor);
+            }
             require(ropeVisualLayout.has_value(),"rope mode did not append its presentation geometry");
             ropeVisual=std::make_unique<NumiHumanRestingRopeVisual>(
                 device,ropeRuntimeLibrary,ropeVisualParameters,*ropeVisualLayout);
@@ -3106,7 +3124,8 @@ public:
             <<"LV "<<p.circulation.y*1e6<<" mL / "<<p.cardiacPressure.x/133.322387415<<" mmHg  RV "<<p.circulation.z*1e6<<" mL  Stroke "<<p.cardiacFlow.w*1e6<<" mL  Blood "<<p.circulation.x*1e3<<" L  CO mean "
             <<(time>0?p.cardiacFlow.x*60e3/time:0)<<" L/min\n"
             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
-        if(rigidHands)metrics<<"\nRigid digits; wrists free; hand function not simulated.";
+        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP"))metrics<<"\nMechanical separation; post-cut physiology unsupported; no bleeding model.";
+        else if(rigidHands)metrics<<"\nRigid digits; wrists free; hand function not simulated.";
         if(profileTiming) {
             const double renderEnd=CACurrentMediaTime();
             std::cout<<"resting_render_profile step="<<p.status.x
@@ -3144,7 +3163,7 @@ public:
                                              timestepSeconds);
     }
     metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){
-        return ropeSupport?ropeSupport->program():skinSupport->program();
+        return separationSupport?separationSupport->program():(ropeSupport?ropeSupport->program():skinSupport->program());
     }
     id<MTLLibrary> ropeSourceLibrary() const { return ropeRuntimeLibrary; }
     ~NumiHumanRestingVisual(){[window finishRecording];}

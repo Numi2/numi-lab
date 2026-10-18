@@ -1,0 +1,54 @@
+
+// An authored ideal separation interface. Six unilateral rows implement three
+// bilateral relative-position constraints before the release step. Every row
+// uses J_B-J_A, so these are internal reactions, never fixed-world support.
+// After release all six rows have a strictly inactive gap. Inputs are regenerated
+// from accepted pose and authoritative step; no independent event history exists.
+struct MRHumanSeparationGPU {
+    uint4 bodies; // A global, B global, first body, first body probe
+    uint4 strides; // body poses, point world, point Jacobians, DOFs
+    float4 parentAnchor; // parent-local interface relative to COM
+    uint4 event; // release step (first released attempt), current step, ABI=1, 0
+    uint4 rows[6]; // contact, dedicated point query, axis, negative-normal flag
+};
+kernel void nm_human_separation_constraints(
+    constant MRHumanSeparationGPU& cfg [[buffer(0)]],
+    device const MRArticulatedBodyPoseGPU* bodies [[buffer(1)]],
+    device const float4* bodyLow [[buffer(2)]],
+    device MRArticulatedPointWorldGPU* points [[buffer(3)]],
+    device float4* pointLow [[buffer(4)]],
+    device float* jacobians [[buffer(5)]],
+    device MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
+    uint row [[thread_position_in_grid]]) {
+    if (row>=6) return;
+    uint a=cfg.bodies.x-cfg.bodies.z, b=cfg.bodies.y-cfg.bodies.z;
+    uint4 entry=cfg.rows[row];
+    float4 qa=bodies[a].orientation;
+    float3 anchor=cfg.parentAnchor.xyz;
+    float3 offset=anchor+2.f*cross(qa.xyz,cross(qa.xyz,anchor)+qa.w*anchor);
+    float3 delta=bodies[b].position.xyz-bodies[a].position.xyz;
+    float3 low=((bodies[b].position.xyz-delta)-bodies[a].position.xyz)
+        +bodyLow[b].xyz-bodyLow[a].xyz-offset;
+    float3 normal=float3(0);
+    normal[entry.z]=entry.w==0?1.0f:-1.0f;
+    bool valid=cfg.event.z==1 && cfg.event.w==0 &&
+        all(isfinite(delta)) && all(isfinite(low)) &&
+        contacts[entry.x].pointQueryIndex==entry.y &&
+        contacts[entry.x].frictionSlopAndStabilization.x==0;
+    points[entry.y].position=valid?float4(delta,1):float4(NAN);
+    pointLow[entry.y]=valid?float4(low,0):float4(NAN);
+    bool released=cfg.event.y>=cfg.event.x;
+    // A remote inactive plane avoids division by a zero contact response.
+    contacts[entry.x].planePoint=valid?
+        float4(released?delta+low-1.e6f*normal:float3(0),0):float4(NAN);
+    contacts[entry.x].planeNormal=valid?float4(normal,0):float4(NAN);
+    for(uint axis=0;axis<3;++axis)for(uint dof=0;dof<cfg.strides.w;++dof) {
+        uint pa=cfg.bodies.w+4*a, pb=cfg.bodies.w+4*b;
+        float ja=jacobians[(3*pa+axis)*cfg.strides.w+dof];
+        for(uint component=0;component<3;++component)
+            ja+=cfg.parentAnchor[component]*(jacobians[(3*(pa+1+component)+axis)*cfg.strides.w+dof]
+                -jacobians[(3*pa+axis)*cfg.strides.w+dof]);
+        float jb=jacobians[(3*pb+axis)*cfg.strides.w+dof];
+        jacobians[(3*entry.y+axis)*cfg.strides.w+dof]=valid?jb-ja:NAN;
+    }
+}

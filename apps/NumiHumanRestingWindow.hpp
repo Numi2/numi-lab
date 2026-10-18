@@ -39,6 +39,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
     int _drawableState;
     bool _inspectionTour;
     double _inspectionPeriodSeconds;
+    double _ropeCameraPeriodSeconds;
     double _lastSimulatedSeconds;
     std::string _failure;
 }
@@ -62,7 +63,16 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
         if(end==period||*end!='\0'||!std::isfinite(_inspectionPeriodSeconds)||_inspectionPeriodSeconds<=0)
             throw std::runtime_error("inspection period must be positive finite seconds");
     }
-    window.title=@"Numi Human — mixed-source resting reference";window.delegate=self;
+    _ropeCameraPeriodSeconds=1.25;
+    if(const char* period=std::getenv("NUMI_HUMAN_ROPE_CAMERA_PERIOD_SECONDS")) {
+        char* end=nullptr;_ropeCameraPeriodSeconds=std::strtod(period,&end);
+        if(end==period||*end!='\0'||!std::isfinite(_ropeCameraPeriodSeconds)||_ropeCameraPeriodSeconds<=0)
+            throw std::runtime_error("rope camera period must be positive finite seconds");
+    }
+    window.title=std::getenv("NUMI_HUMAN_SEPARATION_STEP")
+        ?@"Numi Human — mechanical cut test; post-cut physiology unsupported; no bleeding model"
+        :@"Numi Human — mixed-source resting reference";
+    window.delegate=self;
     window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     window.backgroundColor=[NSColor colorWithCalibratedWhite:0.035 alpha:1];
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();_queue=[device newCommandQueue];
@@ -95,7 +105,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
         @"Visible vessel anatomy is bound to the circulation compartments; flow within every vessel lumen is not resolved."
         forSegment:6];
     [window.contentView addSubview:_layers];
-    _cameras=[NSSegmentedControl segmentedControlWithLabels:@[@"Front",@"Side",@"Chest",@"Whole body",@"Heart detail"]
+    _cameras=[NSSegmentedControl segmentedControlWithLabels:(std::getenv("NUMI_HUMAN_ROPE_SWING")?@[@"Front",@"Right",@"Back",@"Left",@"Heart",@"Front-right",@"Back-right",@"Back-left",@"Front-left"]:@[@"Front",@"Side",@"Chest",@"Whole body",@"Heart detail"])
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
     _cameras.frame=NSMakeRect(670,140,570,26);_cameras.selectedSegment=3;
     [window.contentView addSubview:_cameras];
@@ -151,6 +161,11 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
             const unsigned layer=unsigned(std::fmod(std::floor(_lastSimulatedSeconds/_inspectionPeriodSeconds),7.0));
             _layers.selectedSegment=layer;
             _cameras.selectedSegment=layer==5u?4u:layer==4u?2u:3u;
+        }
+        if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+            static const unsigned order[8]={0,5,1,6,2,7,3,8};
+            _layers.selectedSegment=0;
+            _cameras.selectedSegment=order[unsigned(_lastSimulatedSeconds/_ropeCameraPeriodSeconds)%8];
         }
         const auto frame=_advance(unsigned(_cameras.selectedSegment),unsigned(_layers.selectedSegment));
         _lastSimulatedSeconds=frame.simulatedSeconds;

@@ -17,13 +17,14 @@ public:
     struct Config {
         std::array<float,4u> anchorAndLength{};
         std::array<float,3u> bodyLocalSite{};
-        std::uint32_t globalBodyIndex=20u;
+        std::uint32_t globalBodyIndex=MR_INVALID_INDEX;
     };
 private:
     __strong id<MTLDevice> device_=nil;
     __strong id<MTLComputePipelineState> pipeline_=nil;
     metalrobo::MetalNumiHumanSupportGeometryProgram base_{};
     MRHumanRestingRopeGPU parameters_{};
+    mr_float4 swing_{};
     std::uint64_t fingerprint_=0u;
     static void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
     static std::uint64_t mix(std::uint64_t h,std::uint64_t v) noexcept {
@@ -109,10 +110,19 @@ private:
         [enc setBuffer:bodies offset:0u atIndex:1u];[enc setBuffer:bodyLow offset:0u atIndex:2u];
         [enc setBuffer:points offset:0u atIndex:3u];[enc setBuffer:pointLow offset:0u atIndex:4u];
         [enc setBuffer:jacobians offset:0u atIndex:5u];[enc setBuffer:contacts offset:0u atIndex:6u];
+        auto motion=swing_;motion.x=float(pass.stepIndex)*.002f;
+        [enc setBytes:&motion length:sizeof(motion) atIndex:7u];
         [enc dispatchThreadgroups:MTLSizeMake(1u,1u,1u) threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
         [enc endEncoding];return true;
     }
 public:
+    static mr_float4 swingMotion(float seconds) {
+        const char* text=std::getenv("NUMI_HUMAN_ROPE_SWING");
+        if(!text)return {seconds,0,1,1};
+        const auto p=parse<3u>(text,"NUMI_HUMAN_ROPE_SWING must be amplitude_m,period_s,ramp_s");
+        require(p[0]>=0&&p[0]<=.75f&&p[1]>=2&&p[2]>=1,"rope swing bounds invalid");
+        return {seconds,p[0],p[1],p[2]};
+    }
     static bool configuredFromEnvironment() {
         return std::getenv("NUMI_HUMAN_ROPE_ANCHOR")||std::getenv("NUMI_HUMAN_ROPE_SITE");
     }
@@ -125,7 +135,9 @@ public:
     }
     static void prepareContacts(std::vector<MRNumiHumanStandContactGPU>& contacts,
                                 std::uint32_t& selectedIndex,
-                                std::uint32_t bodyIndex=20u) {
+                                std::uint32_t bodyIndex=MR_INVALID_INDEX) {
+        require(bodyIndex!=MR_INVALID_INDEX,
+            "rope contact selection requires an explicitly mapped runtime body index");
         require(contacts.size()==MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
             "rope mode requires the existing 32 support contacts");
         selectedIndex=MR_INVALID_INDEX;unsigned matches=0;
@@ -145,6 +157,7 @@ public:
         require(device_&&library&&base_.valid()&&contactIndex<MR_NUMI_HUMAN_STAND_MAX_CONTACTS&&
             firstBody!=MR_INVALID_INDEX&&bodyCount>0&&dofCount>0&&c.globalBodyIndex>=firstBody&&
             c.globalBodyIndex-firstBody<bodyCount,"rope support owner configuration is invalid");
+        swing_=swingMotion(0);
         parameters_.indices={contactIndex,queryIndex,c.globalBodyIndex,firstBody};
         parameters_.counts={1u,bodyCount,dofCount,1u};
         parameters_.anchorAndLength={c.anchorAndLength[0],c.anchorAndLength[1],
@@ -158,6 +171,7 @@ public:
         fingerprint_=mix(fingerprint_,c.globalBodyIndex);fingerprint_=mix(fingerprint_,firstBody);
         for(float x:c.anchorAndLength)fingerprint_=mix(fingerprint_,std::bit_cast<std::uint32_t>(x));
         for(float x:c.bodyLocalSite)fingerprint_=mix(fingerprint_,std::bit_cast<std::uint32_t>(x));
+        for(float x:{swing_.y,swing_.z,swing_.w})fingerprint_=mix(fingerprint_,std::bit_cast<std::uint32_t>(x));
         if(fingerprint_==0)fingerprint_=1;
         NSError* error=nil;id<MTLFunction> function=[library newFunctionWithName:@"nm_human_resting_rope_support"];
         require(function!=nil,"rope mode requires the pinned source-built Metal library");

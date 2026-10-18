@@ -28,7 +28,10 @@ def main() -> int:
       "engine_types.h": repo/"include/metalrobo/engine_types.h",
       "numi_human_stand_gpu.h": repo/"include/metalrobo/numi_human_stand_gpu.h",
       "numi_human_resting_rope_gpu.h": repo/"include/metalrobo/numi_human_resting_rope_gpu.h",
+      "numi_human_tendon_gpu.h": repo/"include/metalrobo/numi_human_tendon_gpu.h",
       "NumiHumanRestingRope.metalinc": repo/"matter/src/NumiHumanRestingRope.metalinc",
+      "NumiHumanSeparation.metalinc": repo/"matter/src/NumiHumanSeparation.metalinc",
+      "NumiHumanSeparationForce.metalinc": repo/"matter/src/NumiHumanSeparationForce.metalinc",
     }
     if bool(args.visual_kernel) != bool(args.visual_header):
         raise SystemExit("visual kernel and header must be supplied together")
@@ -44,6 +47,7 @@ def main() -> int:
     engine=raw["engine_types.h"].decode("utf-8")
     stand=raw["numi_human_stand_gpu.h"].decode("utf-8")
     rope=raw["numi_human_resting_rope_gpu.h"].decode("utf-8")
+    tendon=raw["numi_human_tendon_gpu.h"].decode("utf-8")
     pieces=[
       "#include <metal_stdlib>\nusing namespace metal;\n"
       "#define MR_ALIGN16 alignas(16)\n"
@@ -53,6 +57,12 @@ def main() -> int:
       structure(stand,"MRNumiHumanStandContactGPU"),
       structure(rope,"MRHumanRestingRopeGPU"),
       "\n".join(line for line in raw["NumiHumanRestingRope.metalinc"].decode("utf-8").splitlines()
+                     if not line.lstrip().startswith("#include")),
+      structure(tendon,"MRNumiHumanTendonBindingGPU"),
+      structure(tendon,"MRNumiHumanTendonTransferResultGPU"),
+      "\n".join(line for line in raw["NumiHumanSeparation.metalinc"].decode("utf-8").splitlines()
+                     if not line.lstrip().startswith("#include")),
+      "\n".join(line for line in raw["NumiHumanSeparationForce.metalinc"].decode("utf-8").splitlines()
                      if not line.lstrip().startswith("#include")),
     ]
     if args.visual_kernel:
@@ -75,10 +85,14 @@ def main() -> int:
       "inputs":{name:{"path":str(path.resolve()),"sha256":sha(raw[name]),"bytes":len(raw[name])}
                 for name,path in members.items()},
       "structs":["MRArticulatedBodyPoseGPU","MRArticulatedPointWorldGPU",
-                 "MRNumiHumanStandContactGPU","MRHumanRestingRopeGPU"]+
+                 "MRNumiHumanStandContactGPU","MRHumanRestingRopeGPU",
+                 "MRNumiHumanTendonBindingGPU","MRNumiHumanTendonTransferResultGPU",
+                 "MRHumanSeparationGPU"]+
                 (["MRBodyStateGPU","MRVisualVertexGPUV2","MRHumanRestingRopeVisualGPU"]
                  if args.visual_kernel else []),
-      "kernels":["nm_human_resting_rope_support"]+
+      "kernels":["nm_human_resting_rope_support",
+                 "nm_human_separation_constraints",
+                 "mr_numi_human_separation_release_crossing_forces"]+
                 (["nm_human_resting_rope_visual"] if args.visual_kernel else []),
       "metal_language":"4.0",
       "math_mode":"safe",

@@ -1,3 +1,6 @@
+#include "NumiHumanSeparationModel.hpp"
+#include "NumiHumanSeparationBodyRemap.hpp"
+#include "NumiHumanSeparationSupport.hpp"
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "NumiHumanAcceptedQAuditWindow.hpp"
 #import <Foundation/Foundation.h>
@@ -36,6 +39,9 @@
 #include "numi/matter/human_limits_gpu.h"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
+#include "NumiHumanSeparationRoutes.hpp"
+#include "NumiHumanSeparationForce.hpp"
+// BEGIN NumiHumanSeparationForce integration
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
@@ -3581,6 +3587,8 @@ struct TendonLoadAuditConsumer {
 struct TendonLoadProgramChain {
     metalrobo::MetalNumiHumanTendonLoadProgram first{};
     metalrobo::MetalNumiHumanTendonLoadProgram second{};
+    metalrobo::MetalNumiHumanTendonLoadProgram third{};
+    bool hasThird = false;
 };
 
 bool encodeTendonLoadProgramChainPreDynamics(
@@ -3588,9 +3596,13 @@ bool encodeTendonLoadProgramChainPreDynamics(
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     auto* chain = static_cast<TendonLoadProgramChain*>(opaque);
-    return chain != nullptr && chain->first.valid() && chain->second.valid() &&
-        chain->first.encodePreDynamics(chain->first.context, pass) &&
-        chain->second.encodePreDynamics(chain->second.context, pass);
+    if (chain == nullptr || !chain->first.valid() || !chain->second.valid() ||
+        (chain->hasThird && !chain->third.valid()) ||
+        (!chain->hasThird && chain->third.valid())) return false;
+    if (!chain->first.encodePreDynamics(chain->first.context, pass) ||
+        !chain->second.encodePreDynamics(chain->second.context, pass)) return false;
+    return !chain->hasThird ||
+        chain->third.encodePreDynamics(chain->third.context, pass);
 }
 
 bool encodeTendonLoadProgramChainPostValidation(
@@ -3598,14 +3610,21 @@ bool encodeTendonLoadProgramChainPostValidation(
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     auto* chain = static_cast<TendonLoadProgramChain*>(opaque);
-    return chain != nullptr && chain->first.valid() && chain->second.valid() &&
-        chain->first.encodePostValidation(chain->first.context, pass) &&
-        chain->second.encodePostValidation(chain->second.context, pass);
+    if (chain == nullptr || !chain->first.valid() || !chain->second.valid() ||
+        (chain->hasThird && !chain->third.valid()) ||
+        (!chain->hasThird && chain->third.valid())) return false;
+    if (!chain->first.encodePostValidation(chain->first.context, pass) ||
+        !chain->second.encodePostValidation(chain->second.context, pass)) return false;
+    return !chain->hasThird ||
+        chain->third.encodePostValidation(chain->third.context, pass);
 }
 
 void abortTendonLoadProgramChain(void* opaque, void* commandBuffer) {
     auto* chain = static_cast<TendonLoadProgramChain*>(opaque);
     if (chain == nullptr) return;
+    if (chain->hasThird && chain->third.valid()) {
+        chain->third.abort(chain->third.context, commandBuffer);
+    }
     if (chain->second.valid()) {
         chain->second.abort(chain->second.context, commandBuffer);
     }
@@ -3617,17 +3636,23 @@ void abortTendonLoadProgramChain(void* opaque, void* commandBuffer) {
 metalrobo::MetalNumiHumanTendonLoadProgram tendonLoadProgramChain(
     TendonLoadProgramChain& chain
 ) {
-    require(chain.first.valid() && chain.second.valid(),
+    require(chain.first.valid() && chain.second.valid() &&
+                (chain.hasThird ? chain.third.valid() : !chain.third.valid()),
             "Human tendon-load program chain is incomplete");
+    std::uint64_t fingerprint = chain.first.fingerprint ^
+        (chain.second.fingerprint + 0x9e3779b97f4a7c15ull +
+         (chain.first.fingerprint << 6u) +
+         (chain.first.fingerprint >> 2u));
+    if (chain.hasThird) {
+        fingerprint ^= chain.third.fingerprint + 0x9e3779b97f4a7c15ull +
+            (fingerprint << 6u) + (fingerprint >> 2u);
+    }
     return {
         .context = &chain,
         .encodePreDynamics = &encodeTendonLoadProgramChainPreDynamics,
         .encodePostValidation = &encodeTendonLoadProgramChainPostValidation,
         .abort = &abortTendonLoadProgramChain,
-        .fingerprint = chain.first.fingerprint ^
-            (chain.second.fingerprint + 0x9e3779b97f4a7c15ull +
-             (chain.first.fingerprint << 6u) +
-             (chain.first.fingerprint >> 2u)),
+        .fingerprint = fingerprint,
     };
 }
 
@@ -4638,6 +4663,12 @@ persistentPassiveCoordinateCouplings(
                 *sharedMtpStiffnessNmPerRad, mtpCouplings, error),
             "invalid shared MTP passive reference: " + error);
     result.insert(result.end(), mtpCouplings.begin(), mtpCouplings.end());
+    if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")&&model.world.nv==131u)
+        for(auto& term:result) {
+            if(term.targetDofIndex>=21u)term.targetDofIndex+=3u;
+            if(term.sourceDofIndex>=21u)term.sourceDofIndex+=3u;
+        }
+
     return result;
 }
 
@@ -5552,8 +5583,30 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {},
     const numiHumanAcceptedQAuditWindow::Window qIntegrationWindow = {},
     const std::optional<double> sharedMtpStiffnessNmPerRad = std::nullopt,
-    const bool preserveRestingInitialPosture = false
+    const bool preserveRestingInitialPosture = false,
+    const std::span<const std::uint32_t> sourceBodyIndexMap = {},
+    const metalrobo::MetalNumiHumanTendonLoadProgram*
+        separationForceProgram = nullptr
 ) {
+    const std::uint32_t mappedTorsoBodyIndex = sourceBodyIndexMap.size() > 20u
+        ? sourceBodyIndexMap[20u] : 20u;
+    std::vector<std::uint8_t> internalSeamConstraintRows(supportContacts.records.size(),0u);
+    if (!sourceBodyIndexMap.empty()) {
+        require(sourceBodyIndexMap.size()>127u &&
+                    std::getenv("NUMI_HUMAN_SEPARATION_STEP")!=nullptr,
+                "separation body map lacks the active cut-event configuration");
+        std::uint32_t protectedRow=MR_INVALID_INDEX;
+        for(std::uint32_t row=0;row<supportContacts.records.size();++row)
+            if(supportContacts.records[row].bodyIndex==mappedTorsoBodyIndex) {
+                protectedRow=row;break;
+            }
+        require(protectedRow!=MR_INVALID_INDEX,
+                "separation accounting cannot identify the runtime torso rope row");
+        const auto selected=NumiHumanSeparationSupport::selectIndices(
+            std::span<const SupportContactRecord>(supportContacts.records),
+            protectedRow,sourceBodyIndexMap[17u],sourceBodyIndexMap[127u]);
+        for(const auto row:selected)internalSeamConstraintRows.at(row)=1u;
+    }
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
                  !verifyDeterminism && !enableRootAssistance && !removeRootAssistance &&
@@ -5575,6 +5628,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 supportGeometryProgram!=nullptr&&supportGeometryProgram->valid()&&
                 supportGeometryProgram->usePerContactSupportPlanes),
             "rope mode requires an authored upright posture and the pinned released support callback");
+    require(separationForceProgram == nullptr ||
+                (separationForceProgram->valid() && restingProgram != nullptr &&
+                 acceptedObserver != nullptr && preserveRestingInitialPosture &&
+                 restingReleaseInitialization),
+            "separation force release requires the accepted resting owner");
     require(!acceptedComMomentumAudit || restingProgram != nullptr,
             "accepted COM momentum audit requires the resting owner");
     if (!hipCapsuleTerms.empty()) {
@@ -5888,22 +5946,29 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         for(std::uint32_t i=0u;i<queries.supportContacts.size();++i) {
             auto& contact=queries.supportContacts[i];
             contact.frictionSlopAndStabilization.w=0.0f;
-            if(contact.bodyIndex==20u) {
+            if(contact.bodyIndex==mappedTorsoBodyIndex) {
                 if(ropeContactIndex==MR_INVALID_INDEX)ropeContactIndex=i;
                 ++ropeContactMatches;
             }
         }
         require(ropeContactMatches>0u,
-                "rope mode requires at least one existing body-20 contact row");
+                "rope mode requires at least one existing runtime torso contact row (source body 20)");
         queries.supportContacts[ropeContactIndex].frictionSlopAndStabilization.x=0.0f;
         require(std::all_of(compiledActivation.supportNormalForce.begin(),
                     compiledActivation.supportNormalForce.end(),
                     [](double force){return force==0.0;}),
                 "rope posture retained a nonzero source contact-support seed");
         std::cout<<"rope_native_contact_replacement=existing_contact_index="
-            <<ropeContactIndex<<" global_body=20 contact_count=32"
+            <<ropeContactIndex<<" source_body=20 runtime_body="<<mappedTorsoBodyIndex
+            <<" contact_count=32"
             <<" static_support_seeds_all_zero=1 selected_friction=0 other_contact_friction=preserved"
             <<" support_contact_force_owner=existing_unilateral_gpu_contact\n";
+    }
+    if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+        std::uint32_t protectedRow=MR_INVALID_INDEX;
+        for(std::uint32_t i=0;i<queries.supportContacts.size();++i)
+            if(queries.supportContacts[i].bodyIndex==mappedTorsoBodyIndex){protectedRow=i;break;}
+        NumiHumanSeparationSupport::selectRows(queries.supportContacts,protectedRow);
     }
     if (supportGeometryProgram && supportGeometryProgram->usePerContactSupportPlanes) {
         for (auto& contact : queries.supportContacts) {
@@ -6922,12 +6987,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         };
         TendonLoadProgramChain rejectingProgramChain;
         metalrobo::MetalArticulatedOperatorInput rejectedInput = parityInput;
-        if (anatomicalLoadProgram == nullptr) {
+        if (separationForceProgram == nullptr &&
+            anatomicalLoadProgram == nullptr) {
             rejectedInput.stand.tendonLoadProgram = rejectingAuditProgram;
+        } else if (separationForceProgram != nullptr) {
+            // The same force edit precedes the rejecting audit. The callback
+            // owns no retry state; rejection retries regenerate the arena.
+            rejectingProgramChain.first = *separationForceProgram;
+            rejectingProgramChain.second = rejectingAuditProgram;
+            if (anatomicalLoadProgram != nullptr) {
+                rejectingProgramChain.third = *anatomicalLoadProgram;
+                rejectingProgramChain.hasThird = true;
+            }
+            rejectedInput.stand.tendonLoadProgram = tendonLoadProgramChain(
+                rejectingProgramChain
+            );
         } else {
-            // Encode the continuum first, then force the downstream audit to
-            // reject. The enclosing Human submission must call abort, and
-            // Matter must retain its exact pre-transaction accepted state.
+            // Preserve the pre-existing source-only rollback order.
             rejectingProgramChain.first = *anatomicalLoadProgram;
             rejectingProgramChain.second = rejectingAuditProgram;
             rejectedInput.stand.tendonLoadProgram = tendonLoadProgramChain(
@@ -7023,7 +7099,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .abort = &abortTendonLoadAudit,
             .fingerprint = 0x4e4854454e444f4eull,
         };
-        if (anatomicalLoadProgram == nullptr) {
+        if (separationForceProgram != nullptr) {
+            // The released force arena is authoritative before audit capture.
+            acceptedProgramChain.first = *separationForceProgram;
+            acceptedProgramChain.second = acceptedAuditProgram;
+            if (anatomicalLoadProgram != nullptr) {
+                acceptedProgramChain.third = *anatomicalLoadProgram;
+                acceptedProgramChain.hasThird = true;
+            }
+            input.stand.tendonLoadProgram = tendonLoadProgramChain(
+                acceptedProgramChain
+            );
+        } else if (anatomicalLoadProgram == nullptr) {
             input.stand.tendonLoadProgram = acceptedAuditProgram;
         } else {
             acceptedProgramChain.first = acceptedAuditProgram;
@@ -20590,6 +20677,13 @@ metalrobo::WorldTemplate makeWorld(
         makeCamera(cameraNames[3], positions[3], targets[3], dimension),
     };
     if(detailCamera)episode.sensors.push_back(*detailCamera);
+    if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+        for(unsigned i=0;i<4;++i) {
+            const float angle=(float(i)*.5f+.25f)*3.14159265359f;
+            const mr_float4 pos{center.x+framing.distance*std::sin(angle),center.y-framing.distance*std::cos(angle),center.z+.1f*framing.distance,0};
+            episode.sensors.push_back(makeCamera("rope_diagonal_"+std::to_string(i),pos,center,dimension));
+        }
+    }
     episode.task.id = "pose_snapshot_visualization";
     episode.task.robotAssetId = "myosim_human";
     episode.task.controlPeriodSeconds = 1.0 / 120.0;
@@ -23550,8 +23644,9 @@ int main(int argc, char** argv) {
                             : "reference_plane_normal_x,reference_plane_normal_y,reference_plane_normal_z,")
                         << "normal_impulse_last_physical_step_ns,normal_force_last_physical_step_n,"
                         << "max_normal_contact_impulse_segment_ns,max_tangent_contact_impulse_segment_ns,"
-                        << "active_contact_count,contact_impulse_vector_elements,contact_impulse_vector_available,"
-                        << "world_contact_impulse_x_ns,world_contact_impulse_y_ns,world_contact_impulse_z_ns,"
+                        << "active_solver_contact_row_count,solver_impulse_vector_elements,solver_impulse_vector_available,"
+                        << "designated_internal_seam_constraint_row_count,"
+                        << "world_external_support_impulse_x_ns,world_external_support_impulse_y_ns,world_external_support_impulse_z_ns,"
                         << "unaccounted_delta_p_x_ns,unaccounted_delta_p_y_ns,unaccounted_delta_p_z_ns,"
                         << "stand_q_fingerprint_fnv64,stand_v_fingerprint_fnv64,root_translation_fingerprint_fnv64,"
                         << "momentum_residual_status,"
@@ -23564,7 +23659,7 @@ int main(int argc, char** argv) {
                     require(supportImpulseTrace.good(),
                             "accepted support impulse trace path unavailable");
                     supportImpulseTrace << std::setprecision(17)
-                        << "sample_start_step,accepted_step,segment_steps,contact_index,body_index,source_geometry_index,"
+                        << "sample_start_step,accepted_step,segment_steps,contact_index,body_index,source_geometry_index,row_class,"
                         << "normal_impulse_ns,tangent0_impulse_ns,tangent1_impulse_ns,"
                         << "impulse_world_x_ns,impulse_world_y_ns,impulse_world_z_ns,"
                         << "normal_x,normal_y,normal_z,tangent0_x,tangent0_y,tangent0_z,tangent1_x,tangent1_y,tangent1_z";
@@ -23583,7 +23678,7 @@ int main(int argc, char** argv) {
                     supportImpulseTrace << '\n';
                     std::cout << "resting_com_momentum_audit=enabled cadence=accepted_segment_endpoint "
                               << "segment_cap_steps=" << restingComMomentumAuditSegmentSteps << " "
-                              << "kinematics=CPU_evidence_only contact_impulses=per_contact_pre_step_basis_and_world_sum_final_physical_step_per_segment "
+                              << "kinematics=CPU_evidence_only external_support_impulses=per_contact_pre_step_basis_and_external_world_sum_final_physical_step_per_segment internal_interface_rows=reported_separately_not_external_support "
                               << "constraint_work=GPU_solver_iterate_segment_sum_not_endpoint_energy_balance "
                               << "full_3d_interval_residual=unavailable_without_time_integrated_other_external_impulses"
                               << std::endl;
@@ -23819,6 +23914,113 @@ int main(int argc, char** argv) {
                     appendSource("resting_hip_capsule_reference.c2_toe.v1", descriptor);
                 }
                 if(restingDriveIntervention)appendSource("resting_drive_intervention",std::as_bytes(std::span(*restingDriveIntervention)));
+
+                std::vector<std::uint32_t> activeSeparationBodyMap;
+                std::vector<std::uint8_t> comAuditInternalSeamRows(
+                    supportContactPayload->records.size(), 0u);
+                std::optional<std::uint32_t> separationReleaseStep;
+                if(const char* release=std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+                    require(restingScene.has_value()&&persistentMetalStand&&restingReleaseInitialization&&
+                        supportContactPayloadPath.has_value()&&supportContactPayload.has_value()&&
+                        jointEqualityPayloadPath.has_value()&&jointEqualityPayload.has_value()&&
+                        tendonPayloadPath.has_value()&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
+                        NumiHumanRestingRopeSupport::configuredFromEnvironment()&&
+                        !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
+                        "separation requires the accepted resting release, native support/equality/tendon assets, and configured rope owner");
+                    char* end=nullptr;const auto step=std::strtoul(release,&end,10);
+                    require(end!=release&&*end=='\0'&&step>0&&step<=1000000,"invalid separation step");
+                    const std::vector<float> originalPose(poseQ.begin(),poseQ.end());
+                    metalrobo::EngineModel separated;
+                    metalrobo::separation::TranslationCarrierChain chain;
+                    std::string error;
+                    require(rigid.model.bodies.size()==157&&rigid.model.world.nv==128,
+                        "separation requires the pinned original Human graph");
+                    require(metalrobo::separation::insertTranslationCarriers(
+                        rigid.model,16u,"L1_L2_separation",separated,chain,error),error);
+                    rigid.model=std::move(separated);
+                    activeSeparationBodyMap=chain.oldBodyToNew;
+                    metalrobo::separation::remapLoadedBodyReferences(
+                        activeSeparationBodyMap,rigid,musclePayload,
+                        bonePayload?&*bonePayload:nullptr,
+                        extensorHoodPayload?&*extensorHoodPayload:nullptr,
+                        softTissuePayload?&*softTissuePayload:nullptr,
+                        skinPayload?&*skinPayload:nullptr,
+                        torsoAnatomyPayload?&*torsoAnatomyPayload:nullptr,
+                        supportContactPayload?&*supportContactPayload:nullptr);
+                    std::uint32_t protectedAccountingRow=MR_INVALID_INDEX;
+                    for(std::uint32_t row=0;row<supportContactPayload->records.size();++row)
+                        if(supportContactPayload->records[row].bodyIndex==chain.oldBodyToNew.at(20u)) {
+                            protectedAccountingRow=row;
+                            break;
+                        }
+                    require(protectedAccountingRow!=MR_INVALID_INDEX,
+                        "separation accounting cannot identify the remapped torso rope row");
+                    const auto accountingRows=NumiHumanSeparationSupport::selectIndices(
+                        std::span<const SupportContactRecord>(supportContactPayload->records),
+                        protectedAccountingRow,chain.oldBodyToNew.at(17u),
+                        chain.oldBodyToNew.at(127u));
+                    for(const auto row:accountingRows)comAuditInternalSeamRows.at(row)=1u;
+                    overriddenPoseQ.assign(rigid.model.world.nq,0);
+                    for(std::size_t old=0;old<originalPose.size();++old)
+                        overriddenPoseQ[chain.oldQToNew.at(old)]=originalPose[old];
+                    poseQ=overriddenPoseQ;
+                    for(auto& value:requestedBoneBodyIndices)
+                        value=metalrobo::separation::mapSourceBodyIndex(activeSeparationBodyMap,value);
+                    if(focusBodyIndex) *focusBodyIndex=metalrobo::separation::mapSourceBodyIndex(activeSeparationBodyMap,*focusBodyIndex);
+                    if(focusJointChildBodyIndex) *focusJointChildBodyIndex=metalrobo::separation::mapSourceBodyIndex(activeSeparationBodyMap,*focusJointChildBodyIndex);
+                    for(auto& coordinate:requestedPoseCoordinates)
+                        coordinate.first=chain.oldQToNew.at(coordinate.first);
+                    for(auto& coordinate:stanceCoordinates)
+                        coordinate.dofIndex=chain.oldVToNew.at(coordinate.dofIndex);
+                    for(auto& term:restingHipCapsuleTerms) {
+                        term.dofIndex0=chain.oldVToNew.at(term.dofIndex0);
+                        term.dofIndex1=chain.oldVToNew.at(term.dofIndex1);
+                    }
+                    for(auto& row:jointEqualityPayload->payload.records) {
+                        row.indices.x=chain.oldQToNew.at(row.indices.x);
+                        row.indices.y=chain.oldVToNew.at(row.indices.y);
+                        if(row.indices.z!=MR_INVALID_INDEX)row.indices.z=chain.oldQToNew.at(row.indices.z);
+                        if(row.indices.w!=MR_INVALID_INDEX)row.indices.w=chain.oldVToNew.at(row.indices.w);
+                    }
+                    for(unsigned source=21;source<=23;++source) {
+                        auto& dof=rigid.model.dofs.at(chain.oldVToNew.at(source));
+                        dof.flags=0;dof.limits={};dof.drive={};
+                    }
+                    appendSource("separation_body_index_map",std::as_bytes(std::span(chain.oldBodyToNew)));
+                    appendSource("separation_coordinate_map_q",std::as_bytes(std::span(chain.oldQToNew)));
+                    appendSource("separation_coordinate_map_v",std::as_bytes(std::span(chain.oldVToNew)));
+                    appendSource("separation_derived_equalities",std::as_bytes(std::span(jointEqualityPayload->payload.records)));
+                    appendSource("separation_derived_dofs",std::as_bytes(std::span(rigid.model.dofs)));
+                    std::string reason;require(rigid.model.valid(&reason),"separation graph invalid: "+reason);
+                    appendSource("derived_separation_bodies",std::as_bytes(std::span(rigid.model.bodies)));
+                    appendSource("derived_separation_joints",std::as_bytes(std::span(rigid.model.joints)));
+                    appendSource("derived_separation_q",std::as_bytes(std::span(poseQ)));
+                    const std::uint32_t releaseStep=std::uint32_t(step);
+                    separationReleaseStep=releaseStep;
+                    appendSource("separation_release_step",std::as_bytes(std::span(&releaseStep,1)));
+                    std::cout<<"separation_graph=prepared nv="<<rigid.model.world.nv<<" nq="<<rigid.model.world.nq
+                        <<" seam_joint=16 parent_runtime_body=16 carrier_runtime_body="<<chain.bodyIndices[2]
+                        <<" source_torso_body=20 runtime_torso_body="<<chain.oldBodyToNew[20u]
+                        <<" release_step="<<step
+                        <<" source_mass_and_inertia_preserved=1 complete_cut=false\n";
+                    const auto scopeReceiptPath=std::filesystem::path(positional.back())/
+                        "mechanical-separation-scope.json";
+                    std::ofstream scopeReceipt(scopeReceiptPath);
+                    require(scopeReceipt.good(),"mechanical separation scope receipt path unavailable");
+                    scopeReceipt<<"{\n  \"schema\": \"numi.human.mechanical-separation-scope.v1\",\n"
+                        <<"  \"mode\": \"mechanical_topology_release\",\n"
+                        <<"  \"release_step\": "<<step<<",\n"
+                        <<"  \"seam\": {\"joint_index\": 16, \"parent_runtime_body\": 16, \"last_carrier_runtime_body\": "<<chain.bodyIndices[2]
+                        <<", \"source_torso_body\": 20, \"runtime_torso_body\": "<<chain.oldBodyToNew[20u]<<"},\n"
+                        <<"  \"post_release_physiology\": \"unsupported; intact reference physiology continues\",\n"
+                        <<"  \"blood_loss\": \"not_modelled\",\n"
+                        <<"  \"injury_qualification\": \"none\",\n"
+                        <<"  \"source_physiology_mutated\": false\n}\n";
+                    require(bool(scopeReceipt),"mechanical separation scope receipt write failed");
+                    std::cout<<"separation_scope_receipt=written path="<<scopeReceiptPath.string()
+                        <<" post_release_physiology=unsupported_intact_reference_continues=1"
+                        <<" blood_loss=not_modelled injury_qualification=none\n";
+                }
                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
                     rigid.model,sourceIdentity,restingDenseVascular);
                 std::cout<<"resting_body_source_fingerprint="<<sourceIdentity<<" coupled_program_fingerprint="
@@ -23832,7 +24034,8 @@ int main(int argc, char** argv) {
                     require(bonePayload&&skinPayload&&softTissuePayload&&torsoAnatomyPayload&&!restingAnatomyReceipt.empty(),
                         "native resting viewer requires the registered skeleton, skin, muscle/tendon and internal-anatomy payloads");
                     NumiHumanRestingAnatomy functional(restingAnatomyReceipt.c_str(),*torsoAnatomyPayloadPath,
-                        *torsoAnatomyPayload,*bonePayload,coupled.physiology.respiration->parameters);
+                        *torsoAnatomyPayload,*bonePayload,coupled.physiology.respiration->parameters,
+                        activeSeparationBodyMap);
                     auto nativePose=[&](std::span<const float> coordinates) {
                         metalrobo::MetalArticulatedOperatorInput input;input.articulationIndex=0;input.environmentCount=1;input.q=coordinates;
                         metalrobo::MetalArticulatedOperatorConfig config;config.pointJacobiansOnly=true;
@@ -24731,7 +24934,8 @@ int main(int argc, char** argv) {
                                     "accepted COM audit lacks every support-contact impulse triple");
                             const std::array<double,3u> referencePlaneNormal{
                                 supportNormal.groundNormalX,supportNormal.groundNormalY,supportNormal.groundNormalZ};
-                            std::array<double, 3u> worldContactImpulse{};
+                            std::array<double, 3u> worldExternalSupportImpulse{};
+                            std::uint32_t designatedInternalSeamRowCount=0u;
                             for (std::size_t contact = 0u;
                                  contact < supportContactPayload->records.size(); ++contact) {
                                 const auto impulseBasis=acceptedContactBasis(result,contact,
@@ -24746,11 +24950,15 @@ int main(int argc, char** argv) {
                                             std::isfinite(tangent0Component) &&
                                             std::isfinite(tangent1Component),
                                         "accepted support impulse component is non-finite");
-                                for (std::size_t axis = 0u; axis < 3u; ++axis) {
-                                    worldContactImpulse[axis] +=
-                                        normalComponent * impulseBasis[0][axis] +
-                                        tangent0Component * impulseBasis[1][axis] +
-                                        tangent1Component * impulseBasis[2][axis];
+                                if (comAuditInternalSeamRows[contact]) {
+                                    ++designatedInternalSeamRowCount;
+                                } else {
+                                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                        worldExternalSupportImpulse[axis] +=
+                                            normalComponent * impulseBasis[0][axis] +
+                                            tangent0Component * impulseBasis[1][axis] +
+                                            tangent1Component * impulseBasis[2][axis];
+                                    }
                                 }
                             }
                             const auto qFingerprint =
@@ -24777,7 +24985,7 @@ int main(int argc, char** argv) {
                                         totalMass * gravity[axis] * h;
                                     unaccountedDeltaP[axis] =
                                         deltaComMomentum[axis] - gravityImpulse -
-                                        worldContactImpulse[axis];
+                                        worldExternalSupportImpulse[axis];
                                 }
                             }
                             const auto comCsvProfileStart = trainingProfile
@@ -24812,9 +25020,10 @@ int main(int argc, char** argv) {
                                 << b.activeContactCount << ','
                                 << result.standContactImpulses.size() << ','
                                 << (fullContactVector ? 1 : 0) << ','
-                                << worldContactImpulse[0] << ','
-                                << worldContactImpulse[1] << ','
-                                << worldContactImpulse[2] << ',';
+                                << designatedInternalSeamRowCount << ','
+                                << worldExternalSupportImpulse[0] << ','
+                                << worldExternalSupportImpulse[1] << ','
+                                << worldExternalSupportImpulse[2] << ',';
                             if (hasPerStepRemainder) {
                                 comMomentumTrace << unaccountedDeltaP[0] << ','
                                     << unaccountedDeltaP[1] << ',' << unaccountedDeltaP[2];
@@ -24824,7 +25033,7 @@ int main(int argc, char** argv) {
                             comMomentumTrace << ',' << qFingerprint << ','
                                 << vFingerprint << ',' << rootFingerprint << ','
                                 << (hasPerStepRemainder
-                                    ? "per_step_delta_p_minus_gravity_and_contact_only"
+                                    ? "per_step_delta_p_minus_gravity_and_external_support_only_internal_seam_excluded"
                                     : "not_per_step_or_initial_sample");
                             // These existing GPU accumulators use the contact solver's
                             // actual skin-support Jacobians. They are sums over the
@@ -24877,6 +25086,9 @@ int main(int argc, char** argv) {
                                     << ',' << sampleSteps << ',' << contact << ','
                                     << sourceContact.bodyIndex << ','
                                     << sourceContact.sourceGeometryIndex << ','
+                                    << (comAuditInternalSeamRows[contact]
+                                        ? "internal_seam_constraint"
+                                        : "external_support_contact") << ','
                                     << components[0] << ',' << components[1] << ','
                                     << components[2] << ',' << contactWorld[0] << ','
                                     << contactWorld[1] << ',' << contactWorld[2] << ','
@@ -24973,6 +25185,61 @@ int main(int argc, char** argv) {
                                 profileElapsedMilliseconds(observerProfileStart);
                         }
                     };
+                std::unique_ptr<metalrobo::NumiHumanSeparationForceAdapter>
+                    separationForceAdapter;
+                std::optional<metalrobo::MetalNumiHumanTendonLoadProgram>
+                    separationForceProgramStorage;
+                const metalrobo::MetalNumiHumanTendonLoadProgram*
+                    separationForceProgram = nullptr;
+                if (separationReleaseStep.has_value()) {
+                    require(liveVisual != nullptr &&
+                                liveVisual->ropeSourceLibrary() != nil,
+                            "separation force release requires the pinned runtime rope library");
+                    const auto crossingRoutes =
+                        metalrobo::separation::classifyMuscleRoutesAcrossJoint(
+                            rigid.model,
+                            musclePayload.gpuMuscles,
+                            musclePayload.gpuSites,
+                            musclePayload.gpuWraps,
+                            musclePayload.gpuRoutes,
+                            16u);
+                    require(crossingRoutes.supported() &&
+                                crossingRoutes.crossingMuscleIndices.size() == 126u,
+                            "separation route classification is unsupported or differs from the pinned 126 crossings");
+                    std::uint64_t libraryFingerprint = 14695981039346656037ull;
+#ifdef NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256
+                    for (const char* byte =
+                             NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256;
+                         *byte != '\0'; ++byte) {
+                        libraryFingerprint ^=
+                            static_cast<unsigned char>(*byte);
+                        libraryFingerprint *= 1099511628211ull;
+                    }
+                    if (libraryFingerprint == 0u) libraryFingerprint = 1u;
+#else
+                    require(false,
+                            "separation force release requires the pinned rope source digest");
+#endif
+                    separationForceAdapter =
+                        std::make_unique<metalrobo::NumiHumanSeparationForceAdapter>();
+                    require(separationForceAdapter->initialize(
+                                liveVisual->ropeSourceLibrary(),
+                                crossingRoutes.crossingMuscleIndices,
+                                *separationReleaseStep,
+                                libraryFingerprint),
+                            "could not bind the force release adapter to the pinned rope library");
+                    separationForceProgramStorage =
+                        separationForceAdapter->program();
+                    separationForceProgram =
+                        &*separationForceProgramStorage;
+                    std::cout << "separation_force_release=armed"
+                        << " release_step=" << *separationReleaseStep
+                        << " seam_joint=16"
+                        << " crossing_source_muscles="
+                        << crossingRoutes.crossingMuscleIndices.size()
+                        << " callback=existing_tendon_load_transaction"
+                        << std::endl;
+                }
                 const auto start=std::chrono::steady_clock::now();
                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
                     *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
@@ -24984,7 +25251,9 @@ int main(int argc, char** argv) {
                     sourceMtpPassiveStiffnessNmPerRad,
                     (!restingInitialPosture.empty()||
                      (std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
-                      std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)));
+                      std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)),
+                    activeSeparationBodyMap,
+                    separationForceProgram);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();
