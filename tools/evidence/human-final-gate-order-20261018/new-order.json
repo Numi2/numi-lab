@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/body-final-gate-order-215/build/final-gate-probe"
+  ],
+  "environment": {
+    "METALROBO_TEST_ARTICULATED_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/operator-modules.tsv",
+    "NUMI_HUMAN_STAND_SOURCE": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/shaders/StandSource.metal",
+    "METALROBO_TEST_ARTICULATED_SOURCE_SHA256": "a9c7662cd40fef6a306bdfd1ead10ef2341f08bc312bdc1f0418ad175b19e915",
+    "NUMI_HUMAN_STAND_SOURCE_SHA256": "9cffe1fb1113392354f5c4ca2c3beb8bc63c351f3106a645939aaa897a2ab896",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/body-final-gate-order-215/build"
+  },
+  "library_sha256": "7c3847b840fa02e2bf056f9dff6b43ee721efa4132151c35140e81c99bf87d95",
+  "binary_sha256": "253330b5d9919cdd2a1e0530d2d9f9cd4226f6bf4a6a6d7d27703caa8355ab5f",
+  "expected_exit": 0,
+  "exit": 0,
+  "wall_seconds": 0.24618512502638623,
+  "library_sha256_after": "7c3847b840fa02e2bf056f9dff6b43ee721efa4132151c35140e81c99bf87d95"
+}

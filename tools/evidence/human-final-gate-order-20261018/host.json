@@ -1,0 +1,7 @@
+{
+  "ssh_target": "numi",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425\n",
+  "cpu": "Apple M6",
+  "recorded_utc": "2026-10-18T22:43:30Z",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+}

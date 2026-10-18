@@ -12177,7 +12177,8 @@ MetalArticulatedOperatorContext::submit(
                     phase == MetalNumanXTransactionPhase::acceptedPublication
                 ) {
                     pass.accessFlags |=
-                        MetalNumanXTransactionWriteAcceptedPublication;
+                        MetalNumanXTransactionWriteAcceptedPublication |
+                        MetalNumanXTransactionWriteStandFailure;
                 }
                 if (program.writeBodyProperties &&
                     phase != MetalNumanXTransactionPhase::acceptedPublication) {
@@ -15972,6 +15973,20 @@ MetalArticulatedOperatorContext::submit(
                         );
                     }
                 }
+                // The deferred consumer can still reject its final GPU gate.
+                // Reconcile body state and commit warm-start history only after
+                // that status is final, using the existing checkpoints once.
+                if (input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication() &&
+                    !encodeNumanXTransactionPhase(
+                        MetalNumanXTransactionPhase::acceptedPublication,
+                        authoritativeStep
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                        "NumanX accepted-publication transaction rejected encoding"
+                    );
+                }
                 if (!input.stand.numanXHumanMatterProgram.valid()) {
                     id<MTLComputeCommandEncoder> reconcile = [commandBuffer computeCommandEncoder];
                     if (reconcile == nil) {
@@ -16036,17 +16051,7 @@ MetalArticulatedOperatorContext::submit(
                         [dofReconcile endEncoding];
                     }
                 }
-                if (input.stand.numanXTransactionProgram.usesDeferredAcceptedPublication() &&
-                    !encodeNumanXTransactionPhase(
-                        MetalNumanXTransactionPhase::acceptedPublication,
-                        authoritativeStep
-                    )) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
-                        "NumanX accepted-publication transaction rejected encoding"
-                    );
-                }
+
             }
             }
 

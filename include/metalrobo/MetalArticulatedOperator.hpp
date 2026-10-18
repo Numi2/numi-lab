@@ -268,8 +268,8 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     beginStep = 0u,
     preDynamics = 1u,
     postDynamics = 2u,
-    // Opt-in final phase: dispatched after tendon validation and accepted
-    // stand-state reconciliation for this step.
+    // Opt-in final phase: dispatched after tendon validation, before ordinary
+    // Stand reconciliation so its final failure status can restore this step.
     acceptedPublication = 3u,
 };
 
@@ -284,8 +284,8 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     // beginStep only: x in each MRMujocoMuscleStateGPU may be replaced by an
     // authenticated motor excitation before current-step kinematics.
     MetalNumanXTransactionWriteMujocoExcitation = 1u << 1u,
-    // postDynamics only: a consumer may change a successful stand status to
-    // a defined failure code. It may never turn failure into success.
+    // postDynamics or deferred acceptedPublication: a consumer may downgrade
+    // successful Stand status to defined failure, never failure to success.
     MetalNumanXTransactionWriteStandFailure = 1u << 2u,
     // preDynamics only, opt-in single-environment body-property transaction.
     MetalNumanXTransactionWriteBodyProperties = 1u << 3u,
@@ -305,9 +305,10 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
 // At postDynamics, q/v/status are post-stand while poses, point streams, MyoSim
 // results, and tendon transfers remain that step's pre-dynamics evaluation.
 // When deferAcceptedPublication is enabled, acceptedPublication follows tendon
-// post-validation and stand accepted-state reconciliation. The callback must
-// gate every publication write on the successful per-step stand status; this
-// phase cannot modify stand failure status or physical state.
+// post-validation, before ordinary Stand accepted-state reconciliation. A
+// consumer may downgrade success to a defined failure at its final GPU gate,
+// then must gate its own publication writes on that final status. It must not
+// mutate physical state or turn an existing failure into success.
 struct MetalNumanXTransactionPass {
     std::uint32_t abiVersion = kMetalNumanXTransactionABIVersion;
     std::uint32_t structSize = sizeof(MetalNumanXTransactionPass);
@@ -467,8 +468,9 @@ struct MetalNumanXTransactionProgram {
     std::uint64_t fingerprint = 0u;
     // Opt-in resident mass state; one environment, ordinary transaction only.
     bool writeBodyProperties = false;
-    // Delay consumer publication until tendon validation and stand reconcile
-    // have accepted this step. Uses existing tail padding; struct size is stable.
+    // Delay consumer publication until tendon validation. Its final GPU status
+    // is reconciled by Stand before body/history publication. The callback must
+    // gate its own accepted writes; struct size and tail-padding ABI are stable.
     bool deferAcceptedPublication = false;
     // ABI 6 only: candidate DoF metadata is checkpointed/reconciled by stand.
     bool writeDofProperties = false;
