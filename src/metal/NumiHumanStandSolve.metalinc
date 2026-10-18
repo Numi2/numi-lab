@@ -1045,7 +1045,7 @@
             if (support.bodyIndex < articulation.firstBody ||
                 support.bodyIndex >= articulation.firstBody + bodyCount ||
                 support.pointQueryIndex >= dispatch.pointWorldStride ||
-                support.reserved0 != 0u ||
+                !isfinite(support.boundaryNormalVelocity) ||
                 !finite4(support.frictionSlopAndStabilization) ||
                 support.frictionSlopAndStabilization.x < 0.0f ||
                 support.frictionSlopAndStabilization.y < 0.0f ||
@@ -1337,7 +1337,12 @@
         const float gap = cooperativeContactGap[contact];
         const float targetNormalVelocity =
             mrNumiHumanContactVelocityTarget(gap, timestep,
-                support.frictionSlopAndStabilization.z);
+                support.frictionSlopAndStabilization.z,
+                support.boundaryNormalVelocity);
+        if (!isfinite(targetNormalVelocity)) {
+            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
+            return;
+        }
         if (coupledSweep + 1u == coupledSweepCount ||
             useCooperativePgsResidualExit) {
             contactActiveForPostProjection[contact] = 1u;
@@ -1696,7 +1701,13 @@
                 }
                 const float targetNormalVelocity =
                     mrNumiHumanContactVelocityTarget(gap, timestep,
-                        support.frictionSlopAndStabilization.z);
+                        support.frictionSlopAndStabilization.z,
+                        support.boundaryNormalVelocity);
+                if (!isfinite(targetNormalVelocity)) {
+                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                         contact);
+                    return;
+                }
                 if (coupledSweep + 1u == coupledSweepCount) {
                     contactActiveForPostProjection[contact] = 1u;
                     contactTargetNormalVelocityForPostProjection[contact] =

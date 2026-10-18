@@ -512,6 +512,7 @@ inline bool solveFreeVelocity(
 
 struct Contact {
     float gap{}, mu{}, slop{}, stabilization{}, seedForce{};
+    float boundaryNormalVelocity{};
     bool active{};
     std::array<Velocity, 3u> jacobian{};
     std::array<float, 9u> matrix{};
@@ -615,7 +616,7 @@ inline bool prepare(
             meta.bodyIndex >= articulation.firstBody +
                 articulation.bodyCount ||
             point >= dispatch.pointWorldStride ||
-            meta.reserved0 != 0u ||
+            !std::isfinite(meta.boundaryNormalVelocity) ||
             !std::isfinite(meta.frictionSlopAndStabilization.x) ||
             !std::isfinite(meta.frictionSlopAndStabilization.y) ||
             !std::isfinite(meta.frictionSlopAndStabilization.z) ||
@@ -629,6 +630,7 @@ inline bool prepare(
         out.slop = meta.frictionSlopAndStabilization.y;
         out.stabilization = meta.frictionSlopAndStabilization.z;
         out.seedForce = meta.frictionSlopAndStabilization.w;
+        out.boundaryNormalVelocity = meta.boundaryNormalVelocity;
         out.gap = pointWorld[point].position.z + pointLow[point].z -
             dispatch.groundPointAndTimestep.z;
         out.active = out.gap <= out.slop;
@@ -750,7 +752,9 @@ inline bool solve(const Input& input, Output& out) {
                     velocity[axis] += c.jacobian[axis][dof] *
                         out.velocity[dof];
             const float target = mrNumiHumanContactVelocityTarget(
-                c.gap, input.timestep, c.stabilization);
+                c.gap, input.timestep, c.stabilization,
+                c.boundaryNormalVelocity);
+            if (!std::isfinite(target)) return false;
             const auto& w = c.matrix;
             const float tangentDeterminant =
                 w[4u] * w[8u] - w[5u] * w[7u];
@@ -935,7 +939,8 @@ inline bool publish(const Input& input, const Output& out,
             source.active ? 1u : 0u;
         next.contactTargetNormalVelocityForPostProjection[contact] =
             source.active ? mrNumiHumanContactVelocityTarget(
-                source.gap, input.timestep, source.stabilization) : 0.0f;
+                source.gap, input.timestep, source.stabilization,
+                source.boundaryNormalVelocity) : 0.0f;
         if (!std::isfinite(
                 next.contactTargetNormalVelocityForPostProjection[contact]))
             return false;

@@ -20,16 +20,28 @@ inline float mrNumiHumanContactRepresentationSlop(const float gap) {
 }
 
 inline float mrNumiHumanContactVelocityTarget(
-    const float gap, const float timestep, const float stabilization
+    const float gap, const float timestep, const float stabilization,
+    const float boundaryNormalVelocity
 ) {
     // A separated speculative witness may approach the plane. Only the
     // representational coincidence band is treated as zero gap; measurable
     // separation still receives no support and measurable penetration retains
-    // the authored stabilization policy.
+    // the authored stabilization policy. Express the target in world
+    // velocity by adding the support boundary's normal velocity.
     const float slop = mrNumiHumanContactRepresentationSlop(gap);
-    if (gap > slop) return -(gap - slop) / timestep;
-    if (gap < -slop) return -stabilization * (gap + slop) / timestep;
-    return 0.0f;
+    float correction = 0.0f;
+    if (gap > slop) correction = -(gap - slop) / timestep;
+    else if (gap < -slop)
+        correction = -stabilization * (gap + slop) / timestep;
+    if (boundaryNormalVelocity == 0.0f) return correction;
+    return boundaryNormalVelocity + correction;
+}
+
+inline float mrNumiHumanContactVelocityTarget(
+    const float gap, const float timestep, const float stabilization
+) {
+    return mrNumiHumanContactVelocityTarget(
+        gap, timestep, stabilization, 0.0f);
 }
 
 inline float mrNumiHumanSupportSeedImpulse(

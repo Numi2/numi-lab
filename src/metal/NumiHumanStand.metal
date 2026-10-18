@@ -2144,7 +2144,7 @@ kernel void mr_numi_human_stand_step(
                 if (support.bodyIndex < articulation.firstBody ||
                     support.bodyIndex >= articulation.firstBody + bodyCount ||
                     support.pointQueryIndex >= dispatch.pointWorldStride ||
-                    support.reserved0 != 0u ||
+                    !isfinite(support.boundaryNormalVelocity) ||
                     !finite4(support.frictionSlopAndStabilization) ||
                     support.frictionSlopAndStabilization.x < 0.0f ||
                     support.frictionSlopAndStabilization.y < 0.0f ||

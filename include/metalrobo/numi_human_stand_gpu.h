@@ -118,7 +118,10 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
     mr_u32 bodyIndex;
     mr_u32 pointQueryIndex;
     mr_u32 sourceGeometryIndex;
-    mr_u32 reserved0;
+    // Boundary velocity projected onto the active contact normal in m/s.
+    // Positive is along that normal. This reuses the ABI-v18 reserved word;
+    // +0 keeps stationary contacts unchanged.
+    float boundaryNormalVelocity;
 
     // x = Coulomb friction, y = source activation and warm-start slop
     // metres (operator-level speculative admission may be wider),

@@ -21,12 +21,15 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cctype>
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <cstdio>
 #include <cstdlib>
 #include <iomanip>
@@ -586,7 +589,7 @@ void appendSplitStandContacts(
         appendSplitStandValue(sink, contact.bodyIndex);
         appendSplitStandValue(sink, contact.pointQueryIndex);
         appendSplitStandValue(sink, contact.sourceGeometryIndex);
-        appendSplitStandValue(sink, contact.reserved0);
+        appendSplitStandValue(sink, contact.boundaryNormalVelocity);
         appendSplitStandValue(sink, contact.frictionSlopAndStabilization);
         // Plane values are regenerated per pose; the immutable provider fingerprint
         // binds their source, not these transient values.
@@ -2397,7 +2400,7 @@ bool validNumiHumanStand(
         if (contact.bodyIndex < articulation.firstBody ||
             static_cast<std::uint64_t>(contact.bodyIndex) >= bodyEnd ||
             contact.pointQueryIndex >= input.pointCount ||
-            contact.reserved0 != 0u ||
+            !std::isfinite(contact.boundaryNormalVelocity) ||
             !finite(contact.frictionSlopAndStabilization) ||
             contact.frictionSlopAndStabilization.x < 0.0f ||
             contact.frictionSlopAndStabilization.y < 0.0f ||
@@ -4239,6 +4242,117 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLLibrary> standLibrary = library;
+    const char* standSourcePath = std::getenv("NUMI_HUMAN_STAND_SOURCE");
+    const char* standSourceSHA256 =
+        std::getenv("NUMI_HUMAN_STAND_SOURCE_SHA256");
+    if ((standSourcePath == nullptr) !=
+        (standSourceSHA256 == nullptr)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "NUMI_HUMAN_STAND_SOURCE and "
+            "NUMI_HUMAN_STAND_SOURCE_SHA256 must be set together"
+        );
+    }
+    if (standSourcePath != nullptr) {
+        if (standSourcePath[0] == '\0' ||
+            standSourceSHA256[0] == '\0') {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned Numi Human stand source path and SHA-256 must be nonempty"
+            );
+        }
+        std::ifstream standSourceFile(standSourcePath, std::ios::binary);
+        if (!standSourceFile) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "failed to open pinned Numi Human stand source"
+            );
+        }
+        const std::string standSourceBytes{
+            std::istreambuf_iterator<char>(standSourceFile),
+            std::istreambuf_iterator<char>()};
+        if (standSourceFile.bad() || standSourceBytes.empty() ||
+            standSourceBytes.size() >
+                static_cast<std::size_t>(
+                    std::numeric_limits<CC_LONG>::max())) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned Numi Human stand source is unreadable or too large"
+            );
+        }
+        std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> standSourceDigest{};
+        CC_SHA256(
+            standSourceBytes.data(),
+            static_cast<CC_LONG>(standSourceBytes.size()),
+            standSourceDigest.data());
+        if (std::strlen(standSourceSHA256) !=
+            2u * CC_SHA256_DIGEST_LENGTH) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "Numi Human stand source SHA-256 pin must contain 64 hex digits"
+            );
+        }
+        static constexpr char kHexDigits[] = "0123456789abcdef";
+        std::string actualStandSourceSHA256(2u * CC_SHA256_DIGEST_LENGTH, '0');
+        for (std::size_t index = 0u;
+             index < standSourceDigest.size(); ++index) {
+            const std::uint8_t value = standSourceDigest[index];
+            actualStandSourceSHA256[2u * index] =
+                kHexDigits[(value >> 4u) & 0x0fu];
+            actualStandSourceSHA256[2u * index + 1u] =
+                kHexDigits[value & 0x0fu];
+        }
+        std::string expectedStandSourceSHA256(standSourceSHA256);
+        std::transform(
+            expectedStandSourceSHA256.begin(),
+            expectedStandSourceSHA256.end(),
+            expectedStandSourceSHA256.begin(),
+            [](const unsigned char value) {
+                return static_cast<char>(std::tolower(value));
+            });
+        if (expectedStandSourceSHA256.find_first_not_of(
+                "0123456789abcdef") != std::string::npos ||
+            expectedStandSourceSHA256 != actualStandSourceSHA256) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned Numi Human stand source SHA-256 does not match"
+            );
+        }
+        NSString* standSource = [[NSString alloc]
+            initWithBytes:standSourceBytes.data()
+                   length:standSourceBytes.size()
+                 encoding:NSUTF8StringEncoding];
+        if (standSource == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "pinned Numi Human stand source is not valid UTF-8"
+            );
+        }
+        MTLCompileOptions* standCompileOptions =
+            [[MTLCompileOptions alloc] init];
+        standCompileOptions.fastMathEnabled = NO;
+        standCompileOptions.languageVersion = MTLLanguageVersion4_0;
+        error = nil;
+        standLibrary = [device newLibraryWithSource:standSource
+                                            options:standCompileOptions
+                                              error:&error];
+        if (standLibrary == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+                "failed to compile pinned Numi Human stand source: " +
+                    describeError(error)
+            );
+        }
+    }
     MTLFunctionConstantValues* articulatedConstants =
         [[MTLFunctionConstantValues alloc] init];
     bool canonicalBodyProbeFusion =
@@ -4412,7 +4526,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         context.config.deferStandEqualityData;
     [operatorConstants setConstantValue:
         &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
-    id<MTLFunction> standFunction = [library
+    id<MTLFunction> standFunction = [standLibrary
         newFunctionWithName:@"mr_numi_human_stand_step"
             constantValues:operatorConstants error:&error];
     if (standFunction == nil) {
@@ -4442,7 +4556,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         [operatorConstants setConstantValue:&factorOnly
                                        type:MTLDataTypeBool atIndex:3u];
         error = nil;
-        id<MTLFunction> factorFunction = [library
+        id<MTLFunction> factorFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_step"
                 constantValues:operatorConstants error:&error];
         standFactorOnlyPipeline = factorFunction == nil ? nil :
@@ -4467,7 +4581,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standCachedFinishCounterPipeline = nil;
     id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     if (context.config.splitStandSolve) {
-        id<MTLFunction> standMassFunction = [library
+        id<MTLFunction> standMassFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_mass_assemble"
                 constantValues:operatorConstants error:&error];
         error = nil;
@@ -4485,7 +4599,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         [operatorConstants setConstantValue:
             &deferStandEqualityDataSpecialized
             type:MTLDataTypeBool atIndex:18u];
-        id<MTLFunction> standResponseFunction = [library
+        id<MTLFunction> standResponseFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_equality_response_cooperative"
                 constantValues:operatorConstants error:&error];
         error = nil;
@@ -4521,7 +4635,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             &deferStandEqualityDataSpecialized
             type:MTLDataTypeBool atIndex:18u];
         error = nil;
-        id<MTLFunction> standEqualityFunction = [library
+        id<MTLFunction> standEqualityFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
                 constantValues:equalityConstants error:&error];
         error = nil;
@@ -4557,7 +4671,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             [equalityConstants setConstantValue:&hybridEqualityFactorCache
                                            type:MTLDataTypeBool atIndex:10u];
             error = nil;
-            id<MTLFunction> hybridEqualityFunction = [library
+            id<MTLFunction> hybridEqualityFunction = [standLibrary
                 newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
                     constantValues:equalityConstants error:&error];
             error = nil;
@@ -4590,7 +4704,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool reducedResponseDiagnosticsEnabled = false;
         [projectedResponseConstants setConstantValue:
             &reducedResponseDiagnosticsEnabled type:MTLDataTypeBool atIndex:11u];
-        id<MTLFunction> standProjectedResponseFunction = [library
+        id<MTLFunction> standProjectedResponseFunction = [standLibrary
             newFunctionWithName:
                 @"mr_numi_human_stand_projected_response_cooperative"
                 constantValues:projectedResponseConstants error:&error];
@@ -4623,7 +4737,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             [diagnosticConstants setConstantValue:&diagnosticsEnabled
                                              type:MTLDataTypeBool atIndex:11u];
             error = nil;
-            id<MTLFunction> diagnosticFunction = [library
+            id<MTLFunction> diagnosticFunction = [standLibrary
                 newFunctionWithName:
                     @"mr_numi_human_stand_projected_response_cooperative"
                 constantValues:diagnosticConstants error:&error];
@@ -4688,7 +4802,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             &standPgsVelocityResidualTolerance
             type:MTLDataTypeFloat atIndex:12u];
         error = nil;
-        id<MTLFunction> standFinishFunction = [library
+        id<MTLFunction> standFinishFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_finish"
                 constantValues:finishConstants error:&error];
         standFinishPipeline = standFinishFunction == nil
@@ -4707,7 +4821,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
                                         type:MTLDataTypeBool atIndex:1u];
             error = nil;
-            id<MTLFunction> cachedFinishFunction = [library
+            id<MTLFunction> cachedFinishFunction = [standLibrary
                 newFunctionWithName:@"mr_numi_human_stand_finish"
                     constantValues:finishConstants error:&error];
             standCachedFinishPipeline = cachedFinishFunction == nil ? nil :
@@ -4737,7 +4851,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 [finishConstants setConstantValue:&cached
                                             type:MTLDataTypeBool atIndex:1u];
                 error = nil;
-                id<MTLFunction> function = [library
+                id<MTLFunction> function = [standLibrary
                     newFunctionWithName:@"mr_numi_human_stand_finish"
                         constantValues:finishConstants error:&error];
                 id<MTLComputePipelineState> pipeline = function == nil ? nil :
@@ -4791,7 +4905,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             &standPgsVelocityResidualTolerance
             type:MTLDataTypeFloat atIndex:12u];
         error = nil;
-        id<MTLFunction> standCpuFinishFunction = [library
+        id<MTLFunction> standCpuFinishFunction = [standLibrary
             newFunctionWithName:@"mr_numi_human_stand_finish"
                 constantValues:finishConstants error:&error];
         standCpuFinishPipeline = standCpuFinishFunction == nil
@@ -4806,7 +4920,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                     describeError(error));
         }
     }
-    id<MTLFunction> reconcileFunction = [library
+    id<MTLFunction> reconcileFunction = [standLibrary
         newFunctionWithName:@"mr_numi_human_stand_reconcile"];
     if (reconcileFunction == nil) {
         return reject(std::move(diagnostics),
@@ -13493,7 +13607,8 @@ MetalArticulatedOperatorContext::submit(
                                                 factorArticulation.bodyCount ||
                                             support.pointQueryIndex >=
                                                 factorDispatch.pointWorldStride ||
-                                            support.reserved0 != 0u ||
+                                            !std::isfinite(
+                                                support.boundaryNormalVelocity) ||
                                             !std::isfinite(friction.x) ||
                                             !std::isfinite(friction.y) ||
                                             !std::isfinite(friction.z) ||

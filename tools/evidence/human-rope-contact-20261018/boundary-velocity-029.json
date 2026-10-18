@@ -1,0 +1,47 @@
+{
+  "scope": "Contact instability diagnosis; not swing-and-fall qualification",
+  "host": "ssh numi",
+  "native_metal_boundary_unit": "PASS: relative velocity, unilateral separation, speculative contact, Galilean invariance, zero-boundary compatibility",
+  "runs": [
+    {
+      "path": "/Users/n/numi-human-separation-20261018/contact-stability-029/native-static-anchor-4s-001",
+      "status": "REJECTED",
+      "last_accepted_simulated_s": 2.944,
+      "root_speed_m_s": 94.7747460404,
+      "normal_force_n": 810877.075195,
+      "penetration_m": 0.0498480312526,
+      "failure": "accepted full skin intersects the bed beyond the 1 mm inspection tolerance",
+      "launcher_log_sha256": "cb9ede6d96a7d21c99c3fc828b00c4fea23451dd0c6016db483c8ab74f97c2fb"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/contact-stability-029/native-moving-boundary-4s-029-001",
+      "status": "REJECTED",
+      "last_accepted_simulated_s": 2.496,
+      "root_speed_m_s": 60.9016233289,
+      "normal_force_n": 1832187.5,
+      "penetration_m": 0.388558983803,
+      "failure": "accepted full skin intersects the bed beyond the 1 mm inspection tolerance",
+      "launcher_log_sha256": "f685312b1b01f5b44609c8e2f92d13ecab622d093d21d1b49155b8c420cc4283"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/contact-stability-029/native-moving-boundary-4s-029-dt05ms-001",
+      "status": "REJECTED",
+      "last_accepted_simulated_s": 0.4,
+      "root_speed_m_s": 0.772937899577,
+      "normal_force_n": 505.370795727,
+      "penetration_m": 0.0010172422044,
+      "failure": "accepted full skin intersects the bed beyond the 1 mm inspection tolerance",
+      "launcher_log_sha256": "67bcc543385fa3af1322fca09544dad13f5cc9061c9da58fb098f34a3408c072"
+    }
+  ],
+  "conclusion": "Boundary velocity omission fixed in candidate29 but not sufficient. Smaller timestep is not accepted workaround. Investigating omitted articulated velocity-product bias in low-speed stand owner.",
+  "storage": {
+    "manifest": "/Users/n/numi-human-separation-20261018/lossless-cold-movie-capture-compression-020.json",
+    "files": 74,
+    "restoration_verification": "each decompressed SHA256 equals original before unlink",
+    "free_gib_after": 11.85
+  },
+  "organs_and_bleeding": "Not implemented/qualified by these runs.",
+  "physical_qualification": "NOT PASSED; this increment corrects moving boundary velocity only. Exact articulated velocity bias work remains.",
+  "unit_source_sha256": "808616538a2703a530b5bd276df028fdaa92963af4c3ec8fb04775331e4e4ee5"
+}
