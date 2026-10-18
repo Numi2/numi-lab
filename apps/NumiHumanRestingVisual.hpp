@@ -1839,7 +1839,7 @@ public:
             // Relative-body skinning preserves blended motion without the
             // precision loss of adding/subtracting a world-space origin.
             unsigned localSourceBody=MR_INVALID_INDEX;
-            if(deformation==0u) {
+            if(deformation==0u&&instance.identity.x!=kSkinShellSemantic) {
                 const auto& firstMap=maps.at(vertices.front());
                 float largest=-1.0f;
                 for(unsigned j=0;j<firstMap.influenceCount;++j) {
@@ -1872,6 +1872,12 @@ public:
                     localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),instance.binding.y);
                 }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
             }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
+            if(instance.identity.x==kSkinShellSemantic) {
+                require(instance.binding.z==MR_VISUAL_BINDING_WORLD,
+                    "world-space skin must not receive a second articulated transform");
+                for(unsigned v:vertices)require(maps[v].deformationKind==3u&&maps[v].deformationWeight.w==0.0f,
+                    "contact skin cannot be converted to a rigid anatomy frame");
+            }
             instance.translationAndScale={0,0,0,1};instance.orientation={0,0,0,1};
         }
         // A cut source can contain disconnected upper/lower components.
