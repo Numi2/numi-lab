@@ -1,0 +1,127 @@
+{
+  "schema": "numi.shared_scene_publication_staging.v1",
+  "status": "staged_only_no_commit_no_checkout_mutation",
+  "source_revision_under_test": "9cc6e4e91ca41ef8c29261741171b230c486c589",
+  "physical_scope": {
+    "accepted_steps": 2,
+    "step_seconds": 0.00025,
+    "simulated_seconds": 0.000500000023749,
+    "visual_verification": false
+  },
+  "production_paths": [
+    {
+      "repository_path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "27605b2b05f5f06a474a44c431761caff834fd4c5872eee81c893bc55ba419d8"
+    },
+    {
+      "repository_path": "apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6"
+    },
+    {
+      "repository_path": "matter/tools/human_resting_runtime.hpp",
+      "sha256": "f01af406ba1a5ae872b5f91cf2e13217997e32901208b1114ffdf4be7317516a"
+    }
+  ],
+  "test_paths": [
+    {
+      "repository_path": "tests/resting_world_source_composition.mm",
+      "sha256": "f64e629793d9874243177e45ca1a923d9c36152b42748177845613914b391049"
+    }
+  ],
+  "pending_excluded": "224 native test is pending and is not represented as passing evidence.",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8a67f160de4f24dbe9da00d90eebab8a5905b2e6a71f86efb90403d6af2c61e8",
+      "bytes": 1440
+    },
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6",
+      "bytes": 52774
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "27605b2b05f5f06a474a44c431761caff834fd4c5872eee81c893bc55ba419d8",
+      "bytes": 1791014
+    },
+    {
+      "path": "evidence/009/accepted-summary.json",
+      "sha256": "04ce3b3992d2595a0fb1856be33f9db098649ac14f791d42166b6e8889863dd6",
+      "bytes": 2760
+    },
+    {
+      "path": "evidence/009/build-receipt.json",
+      "sha256": "77b0c3d06d5393d1f417ae50a605bf338dc5abf5c30582f9c632d5163a0fb001",
+      "bytes": 7502
+    },
+    {
+      "path": "evidence/009/invocation.json",
+      "sha256": "79429bed2b86b366c75620daa26117c717d8ca810e0f81210e425f6f2f6b8f8b",
+      "bytes": 16896
+    },
+    {
+      "path": "evidence/009/resting-coupled.csv",
+      "sha256": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab",
+      "bytes": 3390
+    },
+    {
+      "path": "evidence/009/runtime-221-source-pins.json",
+      "sha256": "05cd53400ca073f1c559b5468e5beae13ba742dc491919d04e054c259b7c5f20",
+      "bytes": 410
+    },
+    {
+      "path": "evidence/217/composition-test-output.txt",
+      "sha256": "cf7b9bc1cb951aa5ae5aa5123c5254fb3f526baec6f99690f4df91b45693ede1",
+      "bytes": 330
+    },
+    {
+      "path": "evidence/217/composition-test-receipt.json",
+      "sha256": "a3381ce31488986992b3a3d9d395e18238bd683645117cb64fb11e8d473131aa",
+      "bytes": 2519
+    },
+    {
+      "path": "evidence/217/human_resting_runtime.hpp",
+      "sha256": "a911e1b8e963ea03ba00d5baf82407f3d4bcfa6b4297418b4cdbcd87d22854a0",
+      "bytes": 58883
+    },
+    {
+      "path": "evidence/217/run_composition_test.original.sh",
+      "sha256": "73007d0337c9b5b848222a4a89fa946701162d69b9bd5d32e9215ac4613d7831",
+      "bytes": 1488
+    },
+    {
+      "path": "evidence/failures/failure-history.json",
+      "sha256": "8a67aa4946f9b0bea670bb3ebbfea131c4d4c5c0f5b0000d17b1d51af62b8ab8",
+      "bytes": 26226
+    },
+    {
+      "path": "evidence/run_native.py",
+      "sha256": "35c27fcda2fc596e4727b2a9a151de5849b53cf947e72db3d3921c431fbed0ff",
+      "bytes": 4984
+    },
+    {
+      "path": "matter/src/metal_encoder_timing.hpp",
+      "sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef",
+      "bytes": 2615
+    },
+    {
+      "path": "matter/tools/human_resting_runtime.hpp",
+      "sha256": "f01af406ba1a5ae872b5f91cf2e13217997e32901208b1114ffdf4be7317516a",
+      "bytes": 59572
+    },
+    {
+      "path": "tests/resting_world_source_composition.mm",
+      "sha256": "f64e629793d9874243177e45ca1a923d9c36152b42748177845613914b391049",
+      "bytes": 9626
+    }
+  ],
+  "intended_publication_parent": "17bb27ebbe0a39865bcdf7cbe3d0f3137049bcc6",
+  "build_dependencies": [
+    {
+      "repository_path": "matter/src/metal_encoder_timing.hpp",
+      "sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef",
+      "role": "required runtime timing helper present in build-009 compile overlay"
+    }
+  ]
+}

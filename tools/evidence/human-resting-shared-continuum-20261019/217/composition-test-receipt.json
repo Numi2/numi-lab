@@ -1,0 +1,28 @@
+{
+  "schema": "numi.shared_world_source_composition_test.v1",
+  "result": "PASS",
+  "scope": "CPU-side WorldSource composition and compiler validation; no GPU dispatch or physical-step claim",
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/shared-world-source-217/build/resting-world-source-composition-test-214",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+    "/Users/n/numi-human-separation-20261018/C/fem-mpm-finalizer-213/source/fem_rollback_history.nmatter"
+  ],
+  "exit_code": 0,
+  "stdout": "resting_world_source_composition=PASS default_compatibility=PASS seed_preservation=PASS append_only_material_index=1 conflicting_owner_rejection=PASS\ncompiler_composition=PASS objects=2 materials=2 fem_material_index=0 blood_receiver_material_index=1 fem_nodes=4 fem_tets=1 mpm_particles=128 cvsim_unknowns=45 gravity_preserved=1\n",
+  "source_revision": "9cc6e4e91ca41ef8c29261741171b230c486c589",
+  "source_sha256": {
+    "tests/resting_world_source_composition.mm": "f64e629793d9874243177e45ca1a923d9c36152b42748177845613914b391049",
+    "evidence/217/human_resting_runtime.hpp": "a911e1b8e963ea03ba00d5baf82407f3d4bcfa6b4297418b4cdbcd87d22854a0",
+    "evidence/217/run_composition_test.original.sh": "73007d0337c9b5b848222a4a89fa946701162d69b9bd5d32e9215ac4613d7831"
+  },
+  "executable_sha256": "99c9c37c1e7fb69e374456d7bc0bf6dbf6757fd9d2965ca97d786af07ed55ba6",
+  "runtime_library_path": "/Users/n/numi-human-separation-20261018/C/coupling-adapter-composition-214/build/libmetalrobo-214.dylib",
+  "runtime_library_sha256": "1d78903a282967658b561a769e197d3e60e62bc9af54bb51d01e1f6d014de30c",
+  "input_asset_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+    "/Users/n/numi-human-separation-20261018/C/fem-mpm-finalizer-213/source/fem_rollback_history.nmatter": "bc9f0a391a2d936c167947b7c34161dde422abd5071ada124b1e30a96a8ad3fc"
+  },
+  "note": "The composition test binary and 214 dylib are historical test dependencies; this receipt is separate from the 009 integrated native run."
+}

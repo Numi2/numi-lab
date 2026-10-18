@@ -1,0 +1,26 @@
+{
+  "scope": "two accepted intact body/FEM/fascia/CV steps, not whole-body continuum qualification",
+  "accepted_steps": 2,
+  "simulated_seconds": 0.000500000023749,
+  "visual_verification": false,
+  "body_mass_residual_kg": 0,
+  "terminal_audits": [
+    "resting_tissue_mass_partition=conserved initial_kg=97.1319507 executed_rigid_plus_FEM_kg=97.1319507 FEM_kg=0.00101686581",
+    "resting_passive_fascia_ligament_terminal_audit=passed count=8 accepted=1 endpoint_force_l1_N=3.79800781047e-06 max_tension_N=8.1900651594e-07 min_effective_stretch=1.00000202656 max_effective_stretch=1.00000321865 force_residual_N=0 moment_residual_Nm=6.68926647368e-15 capture=terminal_only",
+    "resting_FEM_object_capture=summary object=inferred_registered_left_ACL_reference_v1 first_node=0 node_count=16 first_tet=0 tet_count=18 max_displacement_m=3.271687292e-07 max_displacement_local_node=0 max_free_displacement_m=1.601874828e-07 max_free_local_node=4 max_anchored_displacement_m=3.271687292e-07 max_anchored_local_node=0 max_speed_m_s=0.06115424562 max_speed_local_node=3 min_J=0.9999822182 min_J_local_tet=15 max_J=1.000007238 max_J_local_tet=3",
+    "resting_FEM_object_capture=summary object=inferred_registered_right_ACL_reference_v1 first_node=16 node_count=16 first_tet=18 tet_count=18 max_displacement_m=3.188987756e-07 max_displacement_local_node=2 max_free_displacement_m=3.725290298e-08 max_free_local_node=6 max_anchored_displacement_m=3.188987756e-07 max_anchored_local_node=2 max_speed_m_s=0.06291359518 max_speed_local_node=14 min_J=0.9999852219 min_J_local_tet=0 max_J=1.000034772 max_J_local_tet=16",
+    "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=39.879291707999997 real_time_factor=1.2537836113283402e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "sha256": {
+    "/Users/numi/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/native.log": "846998f4028c4b3ef2d2067077b9db9aaa73d07eb90391796fe1a0830a0d6413",
+    "/Users/numi/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/invocation.json": "79429bed2b86b366c75620daa26117c717d8ca810e0f81210e425f6f2f6b8f8b",
+    "/Users/numi/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/output/resting-coupled.csv": "fed8882dbc5b4fff696521d791a3cb77a277fe4b777be96653ead9d8066428ab",
+    "/Users/numi/numi-human-separation-20261018/C/shared-fem-scene-219/build-009/build-receipt.json": "77b0c3d06d5393d1f417ae50a605bf338dc5abf5c30582f9c632d5163a0fb001"
+  },
+  "limits": [
+    "No full breath or heartbeat in 0.5ms",
+    "No deformable organ, skin, fat or nerve contact qualification",
+    "External bleeding disabled",
+    "No visual verification"
+  ]
+}

@@ -28,6 +28,8 @@ struct Respiration {
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
     bool commonGeometryGateEnabled=false;
+    std::uint32_t expectedMicrotickCount=1u;
+    bool compiledFEMSubcycling=false;
     bool parallelRespiratoryMuscles=false,parallelRespiratoryGas=false;
     NMHumanRespirationParameters parameters;
     NMHumanRespirationDispatch dispatch{};
@@ -71,6 +73,14 @@ struct Respiration {
     std::function<bool(AcceptedStepExtensionPhase,const AcceptedStepExtensionView&)> brain;
     explicit Respiration(id<MTLDevice> dev,const CompiledWorld& world,const char* config,float dt):device(dev) {
         parameters=readRespirationParameters(config,dt);
+        need(world.dispatch.maximumRateExponent<=NM_MAX_RATE_EXPONENT,
+             "resting continuum scheduler exponent exceeds the runtime bound");
+        expectedMicrotickCount=1u<<world.dispatch.maximumRateExponent;
+        compiledFEMSubcycling=world.dispatch.femNodeCount!=0u&&
+            world.dispatch.tetrahedronCount!=0u;
+        need(expectedMicrotickCount==1u || world.dispatch.femNodeCount!=0u ||
+             world.dispatch.particleCount!=0u,
+             "resting subcycling requires a compiled continuum owner");
         dispatch={};
         dispatch.environmentCount=world.dispatch.environmentCount;
         dispatch.particleCount=world.dispatch.particleCount;
@@ -349,21 +359,22 @@ struct Respiration {
             return false;
         };
         // The body/Brain transaction advances once per frame. Only the
-        // noncontact blood receiver and circuit may subcycle inside it.
+        // continuum mechanics and circuit may subcycle inside it.
         // The articulated owner consumes the recoil force after this whole
         // preDynamics encode, for the full body-frame duration.
-        const bool bloodSubcycles=dispatch.bloodMpmEnabled&&v.microtickCount>1u;
+        const bool continuumSubcycles=expectedMicrotickCount>1u;
         if((lease.active&&(lease.commandBuffer!=v.commandBuffer||
                            lease.controlStep!=v.controlStep))||
            v.microtickCount==0u||v.microtick>=v.microtickCount||
-           (!dispatch.bloodMpmEnabled&&v.microtickCount!=1u)||
+           (v.microtickCount!=expectedMicrotickCount)||
+           (continuumSubcycles&&!compiledFEMSubcycling&&!dispatch.bloodMpmEnabled)||
            v.environmentCount!=dispatch.environmentCount||
            v.vascularStateStride!=45||
            v.frameTimestepSeconds!=parameters.environment.w||
            v.microstepTimestepSeconds!=v.frameTimestepSeconds/float(v.microtickCount)||
-           (bloodSubcycles&&!v.vascularCheckpoint))
+           (continuumSubcycles&&!v.vascularCheckpoint))
             return rejectLease("callback_identity_or_cadence");
-        if(bloodSubcycles&&
+        if(continuumSubcycles&&
            (phase==AcceptedStepExtensionPhase::microstepComplete||
             (phase==AcceptedStepExtensionPhase::candidateReady&&
              v.microtick+1u<v.microtickCount))) return true;
@@ -475,9 +486,9 @@ struct Respiration {
             // the body frame, with actual frame-start/end vascular volumes.
             // Internal gas transfers remain antisymmetric and outlet debit
             // executes once; no controller or metabolism is multiplied by
-            // the MPM tick count. The temporal approximation is qualified
+            // the continuum tick count. The temporal approximation is qualified
             // separately from inventory conservation.
-            [enc setBuffer:buffer(bloodSubcycles?v.vascularCheckpoint:v.vascularAccepted) offset:0 atIndex:4];
+            [enc setBuffer:buffer(continuumSubcycles?v.vascularCheckpoint:v.vascularAccepted) offset:0 atIndex:4];
             [enc setBuffer:buffer(v.vascularCandidate) offset:0 atIndex:5];
             [enc setBuffer:buffer(v.vascularUnknowns) offset:0 atIndex:6];
             [enc setBuffer:buffer(v.vascularConnections) offset:0 atIndex:7];
@@ -637,6 +648,74 @@ struct RespiratoryBrain {
     }
 };
 
+inline bool hasVascularPayload(const VascularNetworkSource& network) {
+    for(const auto word:network.contentIdentity) if(word!=0u) return true;
+    for(const auto word:network.sourceIdentity) if(word!=0u) return true;
+    for(const auto word:network.authoredIdentity) if(word!=0u) return true;
+    return !network.species.empty()||!network.compartments.empty()||
+        !network.connections.empty()||!network.tissues.empty()||
+        !network.exchanges.empty()||!network.cavities.empty();
+}
+inline bool containsFEMObject(const WorldSource& source) {
+    for(const auto& object:source.objects)
+        if(object.representation==Representation::fem) return true;
+    return false;
+}
+inline bool containsRestingBloodReceiver(const WorldSource& source) {
+    constexpr const char* receiverName="external_blood_dormant_receiver";
+    constexpr const char* materialName="blood_high_shear_newtonian_proxy";
+    for(const auto& object:source.objects) {
+        if(object.name==receiverName) return true;
+        if(object.representation==Representation::mpm&&
+           object.materialIndex<source.materials.size()&&
+           source.materials[object.materialIndex].name==materialName) return true;
+    }
+    return false;
+}
+inline WorldSource composeRestingWorldSource(const VascularNetworkSource& network,
+                                              float timestep,
+                                              const WorldSource* tissueSeed) {
+    need(std::isfinite(timestep)&&timestep>0.0f,
+         "resting Matter timestep must be finite and positive");
+    WorldSource source;
+    if(tissueSeed) {
+        need(tissueSeed->environmentCount==1u,
+             "resting tissue seed must contain exactly one environment");
+        need(std::isfinite(tissueSeed->frameTimestep)&&tissueSeed->frameTimestep>0.0&&
+             static_cast<float>(tissueSeed->frameTimestep)==timestep,
+             "resting tissue seed timestep conflicts with the CVSim timestep");
+        need(!hasVascularPayload(tissueSeed->vascular),
+             "resting tissue seed already owns vascular state");
+        need(!containsRestingBloodReceiver(*tissueSeed),
+             "resting tissue seed already owns the blood MPM receiver");
+        source=*tissueSeed;
+    } else {
+        source.environmentCount=1u;
+        source.frameTimestep=timestep;
+        source.gravity={0.0,0.0,0.0};
+        source.mixedSolver.relativeResidual=1.e-7;
+        source.mixedSolver.newtonIterations=12u;
+        source.mixedSolver.fgmresIterations=64u;
+    }
+    source.vascular=network;
+    return source;
+}
+inline void appendRestingBloodMaterial(WorldSource& source,
+                                       MaterialProgram material,
+                                       ObjectSource receiver) {
+    need(source.materials.size()<std::numeric_limits<std::uint32_t>::max(),
+         "resting material table exceeds 32-bit object references");
+    need(material.name=="blood_high_shear_newtonian_proxy"&&
+         receiver.name=="external_blood_dormant_receiver"&&
+         receiver.representation==Representation::mpm,
+         "resting blood append requires its declared material and MPM receiver identities");
+    need(!containsRestingBloodReceiver(source),
+         "resting world already owns a blood MPM receiver");
+    receiver.materialIndex=static_cast<std::uint32_t>(source.materials.size());
+    source.materials.push_back(std::move(material));
+    source.objects.push_back(std::move(receiver));
+}
+
 struct RestingRun {
     CompiledWorld world;
     Runtime runtime;
@@ -644,17 +723,17 @@ struct RestingRun {
     id<MTLCommandQueue> queue;
     id<MTLBuffer> statuses;
     std::unique_ptr<Respiration> respiration;
-    explicit RestingRun(const char* network,const char* configuration,float dt,bool vascularDense45=false) {
+    explicit RestingRun(const char* network,const char* configuration,float dt,
+                        bool vascularDense45=false,
+                        const WorldSource* tissueSource=nullptr) {
         VascularNetworkSource n;std::string error;
         need(readHumanPhysiologyNetwork(network,n,&error),error);
-        WorldSource source;source.environmentCount=1;source.frameTimestep=dt;
-        source.gravity={0,0,0};source.vascular=n;
-        source.mixedSolver.relativeResidual=1.e-7;
-        source.mixedSolver.newtonIterations=12;source.mixedSolver.fgmresIterations=64;
+        WorldSource source;
         const char* bloodMode=std::getenv("NUMI_HUMAN_BLOOD_MPM_ENABLED");
         need(!bloodMode||std::strcmp(bloodMode,"0")==0||std::strcmp(bloodMode,"1")==0,
              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
         const bool bloodEnabled=bloodMode&&std::strcmp(bloodMode,"1")==0;
+        source=composeRestingWorldSource(n,dt,tissueSource);
         if(bloodEnabled) {
             const char* path=std::getenv("NUMI_HUMAN_BLOOD_MPM_MATERIAL");
             need(path&&*path,"blood MPM mode requires an explicit source material path");
@@ -665,10 +744,10 @@ struct RestingRun {
             for(const auto& parameter:material.material.parameters)
                 if(parameter.name=="density") density=parameter.defaultValue;
             need(std::isfinite(density)&&density>0.0,"blood MPM source density is invalid");
-            source.materials.push_back(std::move(material.material));
             ObjectSource receiver;
             receiver.name="external_blood_dormant_receiver";
-            receiver.materialIndex=0u;
+            // Assigned against the appended material table after preserving
+            // every material already owned by the tissue seed.
             receiver.representation=Representation::mpm;
             receiver.automaticRepresentation=false;receiver.twoWayCoupling=false;
             receiver.adaptive=false;receiver.deformableContact=false;
@@ -715,15 +794,18 @@ struct RestingRun {
                 particle.mass=density*particle.referenceVolume;particle.active=false;
                 receiver.particles.push_back(particle);
             }
-            source.gravity={0,0,-9.81};
+            if(!tissueSource) source.gravity={0,0,-9.81};
+            appendRestingBloodMaterial(source,std::move(material.material),std::move(receiver));
+            const auto& appendedReceiver=source.objects.back();
             std::cerr<<"blood_mpm_source=reference slots=128 capacity_ml=128 cell_width_m=0.05"
-                     <<" grid_min_m="<<receiver.mpmGridMinimum[0]<<","<<receiver.mpmGridMinimum[1]<<","<<receiver.mpmGridMinimum[2]
-                     <<" grid_max_m="<<receiver.mpmGridMaximum[0]<<","<<receiver.mpmGridMaximum[1]<<","<<receiver.mpmGridMaximum[2]
-                     <<" gravity_m_s2=0,0,-9.81 material="<<path
+                     <<" grid_min_m="<<appendedReceiver.mpmGridMinimum[0]<<","<<appendedReceiver.mpmGridMinimum[1]<<","<<appendedReceiver.mpmGridMinimum[2]
+                     <<" grid_max_m="<<appendedReceiver.mpmGridMaximum[0]<<","<<appendedReceiver.mpmGridMaximum[1]<<","<<appendedReceiver.mpmGridMaximum[2]
+                     <<" gravity_m_s2="<<source.gravity[0]<<","<<source.gravity[1]<<","<<source.gravity[2]
+                     <<" material="<<path
                      <<" contact=disabled maximum_rate_exponent="<<NM_MAX_RATE_EXPONENT<<"\n";
-            source.objects.push_back(std::move(receiver));
         }
-        auto compiled=compileWorld(source,{.maximumRateExponent=bloodEnabled?NM_MAX_RATE_EXPONENT:0u});
+        const bool fullRateWorld=bloodEnabled||containsFEMObject(source);
+        auto compiled=compileWorld(source,{.maximumRateExponent=fullRateWorld?NM_MAX_RATE_EXPONENT:0u});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");

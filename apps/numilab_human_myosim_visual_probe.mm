@@ -3798,6 +3798,7 @@ struct RestingFEMAuditRange {
 
 struct HumanTendonContinuumTransaction {
     bool restingSharedPassiveOwner = false;
+    bool restingCouplingOwnsScheduling = false;
     std::vector<std::array<std::uint32_t,4>> restingAuditTetrahedra;
     std::vector<RestingFEMAuditRange> restingFEMAuditRanges;
     std::vector<std::uint32_t> restingFEMAuditAnchorBodies;
@@ -6044,7 +6045,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "persistent Human currently admits one active anatomical load owner");
     const metalrobo::MetalNumiHumanTendonLoadProgram* anatomicalLoadProgram =
         continuumTransaction != nullptr
-            ? &continuumTransaction->program
+            ? (continuumTransaction->restingCouplingOwnsScheduling
+                ? nullptr : &continuumTransaction->program)
             : additionalTendonLoadProgram;
     require(!endpointEnergy || (!enableRootAssistance && !removeRootAssistance &&
                 !removeRuntimePassiveJointTissue &&
@@ -7526,7 +7528,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             rejectedResult.standQ.front() == -321.25f &&
             rejectingConsumer.encodedPassCount == 1u &&
             rejectingConsumer.abortCount == 1u;
-        if (continuumTransaction != nullptr) {
+        if (continuumTransaction != nullptr &&
+            continuumTransaction->restingCouplingOwnsScheduling) {
+            // This construction-time consumer test runs before the coupled
+            // owner is scheduled. It must leave that owner untouched; it is
+            // not evidence of a shared-runtime physical rollback.
+            const auto untouchedMatter=continuumTransaction->runtime->snapshot();
+            const auto untouchedAdapter=continuumTransaction->adapter->snapshot();
+            require(metalrobo::sameMatterSnapshotAuthority(
+                        untouchedMatter,continuumTransaction->initial) &&
+                    numi::matter::sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                        untouchedAdapter,continuumTransaction->initialAdapter),
+                    "construction consumer rejection changed the unscheduled shared owner");
+        } else if (continuumTransaction != nullptr) {
             const auto rejectedContinuum =
                 continuumTransaction->runtime->snapshot();
             if (continuumTransaction->adapter != nullptr) {
@@ -7630,7 +7644,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     require(acceptedComMomentumAuditSegmentSteps >= 1u &&
                 acceptedComMomentumAuditSegmentSteps <= 32u,
             "accepted observer segment cap must be in [1, 32]");
-    const std::uint32_t maximumSubmissionSteps = acceptedObserver != nullptr
+    // The shared full-rate FEM/CV path retains Metal encoder resources until
+    // submission completion. Eight frames caused 28 GiB swap on this device;
+    // bound submission lifetime to one frame without reading physical state
+    // back or changing any solver/control timestep.
+    const bool sharedContinuumSubmission = continuumTransaction != nullptr &&
+        continuumTransaction->restingCouplingOwnsScheduling;
+    const std::uint32_t maximumSubmissionSteps = sharedContinuumSubmission
+        ? 1u : acceptedObserver != nullptr
         ? acceptedComMomentumAuditSegmentSteps
         : kMaximumAuthoritativeSubmissionSteps;
     // Exact per-step snapshots belong to bounded tissue qualification. The
@@ -8035,6 +8056,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 organReleaseStep,static_cast<std::uint32_t>(retained)};
         }
         const char* transactionProbe=std::getenv("NUMI_HUMAN_RESTING_TRANSACTION_PROBE");
+        require(!(restingProgram&&transactionProbe&&std::strcmp(transactionProbe,"1")==0&&
+                  continuumTransaction&&continuumTransaction->restingCouplingOwnsScheduling),
+                "legacy direct-adapter transaction probe cannot reschedule the shared resting owner");
         if(restingProgram&&transactionProbe&&std::strcmp(transactionProbe,"1")==0)
             numi::human::transaction_probe::run(model,config,horizonInput,
                 *static_cast<NumiHumanRestingCoupling*>(restingCouplingContext),
@@ -17701,6 +17725,17 @@ struct PectoralisFasciaVisual {
 };
 
 struct PassiveFasciaRuntimeOwner {
+    // Retain authored FEM inputs so a later owner can append them before its
+    // single Runtime compile instead of compiling a duplicate standalone world.
+    numi::matter::WorldSource authoredWorldSource;
+    std::vector<NMNumiHumanTendonFEMNodeLoadGPU> nodeLoads;
+    std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> nodeAnchors;
+    std::vector<RestingFEMAuditRange> femLoadDescriptors;
+    std::vector<NMContinuumObjectGPU> compiledObjectDescriptors;
+    std::uint64_t authoredPhysicsFingerprint = 0u;
+    std::uint64_t compiledPackageFingerprint = 0u;
+    bool preparationOnly = false;
+
     numi::matter::Runtime runtime;
     numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
     HumanTendonContinuumTransaction transaction;
@@ -17719,7 +17754,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::span<const std::uint32_t> sourceBodyMap,
     bool includeInferredACL,
     std::span<const float> q, double dt,
-    const std::filesystem::path& matterMetallib
+    const std::filesystem::path& matterMetallib,
+    bool preparationOnly = false
 ) {
     require(fascia.regions.size()==1u &&
             model.articulations.size()==1u && dt>0.0 && std::isfinite(dt),
@@ -18028,6 +18064,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 femurSurface.view(),tibiaSurface.view()};
             auto built=metalrobo::inferred_acl::buildRegisteredSkeletonACL(
                 frame,surfaces,aclMaterial.material);
+            if(preparationOnly) {
+                // This retained ACL model has moving enthesis anchors but no
+                // authored generic surface-contact nodes. Declare that empty
+                // capability explicitly for the shared contact-free Runtime;
+                // never discard an authored contact boundary.
+                require(built.object.femContactNodes.empty(),
+                        "shared ACL source contains unowned generic contact nodes");
+                built.object.deformableContact=false;
+            }
             built.object.materialIndex=
                 static_cast<std::uint32_t>(source.materials.size());
             source.materials.push_back(std::move(built.material));
@@ -18194,37 +18239,47 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->massPartitions=mass.partitions;
     owner->passiveLigaments=std::move(passiveLigaments);
     owner->fasciaStripAnchorIdentity=std::move(stripIdentities);
+    owner->authoredWorldSource=std::move(source);
+    owner->nodeLoads=std::move(loads);
+    owner->nodeAnchors=std::move(anchors);
+    owner->femLoadDescriptors=auditRanges;
+    owner->compiledObjectDescriptors=compiled.world.objects;
+    owner->authoredPhysicsFingerprint=compiled.world.physicsFingerprint;
+    owner->compiledPackageFingerprint=compiled.world.fingerprint;
+    owner->preparationOnly=preparationOnly;
     for(const auto& tet:compiled.world.fem.tetrahedra)owner->auditTetrahedra.push_back({tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w});
     for(const auto& acl:aclObjects) owner->aclProvenance.push_back(acl.provenance);
-    const auto init=owner->runtime.initialize(compiled.world,{
-        .metallib=matterMetallib,.environmentCount=1u,.captureEvents=true,
-        .captureDiagnostics=true,.automaticIdentification=false,.adaptiveTransfer=false});
-    require(init.encoded&&owner->runtime.valid(),
-            "resting fascia runtime init failed: "+init.message);
-    const auto initial=owner->runtime.snapshot();
-    require(initial.available&&initial.femNodes.size()==totalNodeCount,
-            "resting fascia/ACL initial runtime state unavailable");
-    require(owner->adapter.initialize(owner->runtime,{
-        .nodeLoads=loads,.nodeAnchors=anchors,.endpointReplacements={},
-        .passiveLigaments=owner->passiveLigaments,
-        .endpointCount=static_cast<std::uint32_t>(muscles.tendonPayload.bindings.size()),
-        .environmentCount=1u,.productionForceOwnerFraction=0.0},
-        {.metallib=matterMetallib}),
-        "resting fascia passive adapter initialization failed");
-    const auto initialAdapter=owner->adapter.snapshot();
-    require(initialAdapter.available&&initialAdapter.encodedPassCount==0u&&
-            initialAdapter.abortCount==0u,"resting fascia adapter initial state unavailable");
-    owner->transaction.restingSharedPassiveOwner=true;
-    owner->transaction.restingAuditTetrahedra=owner->auditTetrahedra;
-    owner->transaction.restingFEMAuditRanges=std::move(auditRanges);
-    owner->transaction.restingFEMAuditAnchorBodies.resize(anchors.size(),NM_INVALID_INDEX);
-    for(std::size_t node=0u;node<anchors.size();++node)
-        if((anchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)!=0u)
-            owner->transaction.restingFEMAuditAnchorBodies[node]=anchors[node].bodyIndex;
-    owner->transaction.program=owner->adapter.program();
-    owner->transaction.runtime=&owner->runtime; owner->transaction.adapter=&owner->adapter;
-    owner->transaction.initial=initial; owner->transaction.initialAdapter=initialAdapter;
-    std::cout<<"resting_passive_fascia=admitted region="<<ri
+
+    if(!preparationOnly) {
+        const auto init=owner->runtime.initialize(compiled.world,{
+            .metallib=matterMetallib,.environmentCount=1u,.captureEvents=true,
+            .captureDiagnostics=true,.automaticIdentification=false,.adaptiveTransfer=false});
+        require(init.encoded&&owner->runtime.valid(),
+                "resting fascia runtime init failed: "+init.message);
+        const auto initial=owner->runtime.snapshot();
+        require(initial.available&&initial.femNodes.size()==totalNodeCount,
+                "resting fascia/ACL initial runtime state unavailable");
+        require(owner->adapter.initialize(owner->runtime,{
+            .nodeLoads=owner->nodeLoads,.nodeAnchors=owner->nodeAnchors,.endpointReplacements={},
+            .passiveLigaments=owner->passiveLigaments,
+            .endpointCount=static_cast<std::uint32_t>(muscles.tendonPayload.bindings.size()),
+            .environmentCount=1u,.productionForceOwnerFraction=0.0},
+            {.metallib=matterMetallib}),
+            "resting fascia passive adapter initialization failed");
+        const auto initialAdapter=owner->adapter.snapshot();
+        require(initialAdapter.available&&initialAdapter.encodedPassCount==0u&&
+                initialAdapter.abortCount==0u,"resting fascia adapter initial state unavailable");
+        owner->transaction.restingSharedPassiveOwner=true;
+        owner->transaction.restingAuditTetrahedra=owner->auditTetrahedra;
+        owner->transaction.restingFEMAuditRanges=std::move(auditRanges);
+        owner->transaction.restingFEMAuditAnchorBodies.resize(owner->nodeAnchors.size(),NM_INVALID_INDEX);
+        for(std::size_t node=0u;node<owner->nodeAnchors.size();++node)
+            if((owner->nodeAnchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)!=0u)
+                owner->transaction.restingFEMAuditAnchorBodies[node]=owner->nodeAnchors[node].bodyIndex;
+        owner->transaction.program=owner->adapter.program();
+        owner->transaction.runtime=&owner->runtime; owner->transaction.adapter=&owner->adapter;
+        owner->transaction.initial=initial; owner->transaction.initialAdapter=initialAdapter;
+        std::cout<<"resting_passive_fascia=admitted region="<<ri
              <<" source_surface_id="<<region.softTissueStableId
              <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
              <<" body_anchors="<<owner->fasciaStripAnchorIdentity.size()*2u
@@ -18234,6 +18289,23 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              <<" inferred_acl_selection="<<(includeInferredACL?"enabled":"disabled")
              <<" same_world_acl_objects="<<aclObjects.size()
              <<" total_nodes="<<totalNodeCount<<"\n";
+    } else {
+        require(!owner->runtime.valid() &&
+                    !owner->transaction.restingSharedPassiveOwner &&
+                    owner->transaction.runtime==nullptr &&
+                    owner->transaction.adapter==nullptr,
+                "preparation-only fascia owner unexpectedly initialized a Runtime");
+        std::cout<<"resting_passive_fascia_preparation=ready"
+                 <<" runtime_initialized=0 adapter_initialized=0"
+                 <<" authored_objects="<<owner->authoredWorldSource.objects.size()
+                 <<" fem_descriptors="<<owner->femLoadDescriptors.size()
+                 <<" load_rows="<<owner->nodeLoads.size()
+                 <<" anchor_rows="<<owner->nodeAnchors.size()
+                 <<" physics_fingerprint="<<owner->authoredPhysicsFingerprint
+                 <<" package_fingerprint="<<owner->compiledPackageFingerprint
+                 <<" mass_rebase=cooked_node_partition"
+                 <<" source_identity=retained\n";
+    }
     for(const auto& acl:aclObjects) {
         std::cout<<"resting_inferred_acl=admitted side="<<acl.provenance.side
                  <<" femur_body="<<acl.provenance.femurBody
@@ -26403,7 +26475,7 @@ int main(int argc, char** argv) {
                             !openKneePayload.has_value()&&
                             bonePayload->sourceOwnerBindingsVerified,
                         initialTissueQ,*muscleStepSeconds,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB));
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),true);
                     overriddenPoseQ=initialTissueQ;poseQ=overriddenPoseQ;
                     appendSource("resting_fascia_executed_body_mass_frames_v1",
                         std::as_bytes(std::span(rigid.model.bodies)));
@@ -26479,7 +26551,68 @@ int main(int argc, char** argv) {
                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
                     rigid.model,sourceIdentity,restingDenseVascular,
                     separationReleaseStep.value_or(MR_INVALID_INDEX),separationSeamDofIndex,
-                    separationDofPatchIndices,separationDofPatchRecords);
+                    separationDofPatchIndices,separationDofPatchRecords,
+                    restingPassiveFasciaOwner
+                        ? &restingPassiveFasciaOwner->authoredWorldSource : nullptr);
+                if(restingPassiveFasciaOwner) {
+                    auto& owner=*restingPassiveFasciaOwner;
+                    require(owner.preparationOnly && !owner.runtime.valid(),
+                            "shared resting tissue unexpectedly owns a second Runtime");
+                    const numi::matter::NumiHumanTendonFEMLoadSource source{
+                        .nodeLoads=owner.nodeLoads,.nodeAnchors=owner.nodeAnchors,
+                        .endpointReplacements={},.passiveLigaments=owner.passiveLigaments,
+                        .endpointCount=static_cast<std::uint32_t>(musclePayload.tendonPayload.bindings.size()),
+                        .environmentCount=1u,.productionForceOwnerFraction=0.0};
+                    const bool bound=coupled.bindTendonFEMSource(source,
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),sourceIdentity);
+                    require(bound,"shared resting tissue binding failed: "+coupled.error);
+                    auto* adapter=coupled.boundTendonFEMAdapter();
+                    require(adapter!=nullptr,"shared resting tissue adapter is absent");
+                    auto& transaction=owner.transaction;
+                    transaction.restingSharedPassiveOwner=true;
+                    transaction.restingCouplingOwnsScheduling=true;
+                    transaction.restingAuditTetrahedra=owner.auditTetrahedra;
+                    transaction.restingFEMAuditRanges=owner.femLoadDescriptors;
+                    transaction.restingFEMAuditAnchorBodies.resize(owner.nodeAnchors.size(),NM_INVALID_INDEX);
+                    for(std::size_t node=0;node<owner.nodeAnchors.size();++node)
+                        if(owner.nodeAnchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)
+                            transaction.restingFEMAuditAnchorBodies[node]=owner.nodeAnchors[node].bodyIndex;
+                    transaction.runtime=&coupled.physiology.runtime;
+                    transaction.adapter=adapter;
+                    transaction.program=adapter->program();
+                    transaction.initial=coupled.physiology.runtime.snapshot();
+                    transaction.initialAdapter=adapter->snapshot();
+                    require(transaction.initial.available && transaction.initialAdapter.available &&
+                            transaction.initial.femNodes.size()==owner.nodeLoads.size(),
+                            "shared resting tissue initial accepted state is unavailable");
+                    const auto& sharedWorld=coupled.physiology.world;
+                    require(sharedWorld.objects.size()>=owner.compiledObjectDescriptors.size() &&
+                            sharedWorld.fem.tetrahedra.size()==owner.auditTetrahedra.size(),
+                            "shared resting tissue object or tetrahedron extent changed");
+                    for(std::size_t i=0;i<owner.compiledObjectDescriptors.size();++i) {
+                        const auto& original=owner.compiledObjectDescriptors[i];
+                        const auto& common=sharedWorld.objects[i];
+                        require(common.representation==original.representation &&
+                                common.materialIndex==original.materialIndex &&
+                                common.stateOffset==original.stateOffset && common.stateCount==original.stateCount &&
+                                common.elementOffset==original.elementOffset && common.elementCount==original.elementCount,
+                                "shared resting tissue object indexing changed");
+                    }
+                    for(std::size_t i=0;i<owner.auditTetrahedra.size();++i) {
+                        const auto nodes=sharedWorld.fem.tetrahedra[i].nodes;
+                        require(owner.auditTetrahedra[i]==std::array<std::uint32_t,4>{nodes.x,nodes.y,nodes.z,nodes.w},
+                                "shared resting tissue node ancestry changed");
+                    }
+                    double cookedMass=0.0,partitionMass=0.0;
+                    for(const auto& node:transaction.initial.femNodes) cookedMass+=node.positionAndMass.w;
+                    for(const auto& partition:owner.massPartitions) partitionMass+=partition.tissueMassKg;
+                    require(std::abs(cookedMass-partitionMass)<=std::max(1.e-12,partitionMass*1.e-6),
+                            "shared resting tissue cooking changed the debited physical mass");
+                    std::cout<<"resting_tissue_shared_runtime=bound FEM_nodes="<<owner.nodeLoads.size()
+                             <<" passive_ligaments="<<owner.passiveLigaments.size()
+                             <<" FEM_mass_kg="<<cookedMass
+                             <<" duplicate_runtime=0 duplicate_load_schedule=0\n";
+                }
                 std::cout<<"resting_body_source_fingerprint="<<sourceIdentity<<" coupled_program_fingerprint="
                     <<coupled.brain.rootProgramIdentity<<"\n";
                 if(restingDriveIntervention) {

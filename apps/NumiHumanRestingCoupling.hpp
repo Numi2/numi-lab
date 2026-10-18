@@ -1,6 +1,7 @@
 #pragma once
 #include "../matter/tools/human_resting_runtime.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "numi/matter/numi_human.hpp"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
 #include <algorithm>
@@ -52,14 +53,23 @@ private:
     bool commonFailureCaptureEnabled=false;
     id<MTLBuffer> bodyTemplate;
     std::uint64_t fingerprint;
+    std::uint64_t baseFingerprint=0u;
+    numi::matter::NumiHumanTendonFEMLoadAdapter tendonFEMAdapter;
+    metalrobo::MetalNumiHumanTendonLoadProgram tendonFEMAdapterProgram{};
+    std::uint64_t tendonSourceRootIdentity=0u;
+    bool tendonFEMBindingAttempted=false;
+    bool tendonFEMBindingEnabled=false;
+    bool tendonFEMBindingFailed=false;
+    bool programRequested=false;
 public:
     NumiHumanRestingCoupling(const char* network,const char* parameters,float dt,
                             const metalrobo::EngineModel& model,std::uint64_t bodySourceIdentity,bool denseVascular=false,
                             std::uint32_t releaseStep=MR_INVALID_INDEX,
                             std::uint32_t sourceSeamDofIndex=MR_INVALID_INDEX,
                             std::span<const std::uint32_t> releasePatchIndices={},
-                            std::span<const MRDofPropertiesGPU> releasePatchRecords={}):
-        physiology(network,parameters,dt,denseVascular),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
+                            std::span<const MRDofPropertiesGPU> releasePatchRecords={},
+                            const numi::matter::WorldSource* tissueSource=nullptr):
+        physiology(network,parameters,dt,denseVascular,tissueSource),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
         using numi::human::need;
         need((seamDofReleaseStep==MR_INVALID_INDEX)==(seamDofIndex==MR_INVALID_INDEX),
@@ -160,6 +170,124 @@ public:
         fingerprint=brain.rootProgramIdentity^0x4e48524553543031ull;
         fingerprint^=(std::uint64_t(seamDofReleaseStep)<<32u)|seamDofIndex;
         if(!fingerprint)fingerprint=1;
+        baseFingerprint=fingerprint;
+    }
+    static std::uint64_t combineFingerprint(std::uint64_t seed,
+                                            std::uint64_t value) noexcept {
+        std::uint64_t h=seed?seed:1469598103934665603ull;
+        for(unsigned byte=0;byte<8u;++byte) {
+            h^=static_cast<std::uint8_t>(value>>(byte*8u));
+            h*=1099511628211ull;
+        }
+        return h?h:1u;
+    }
+    // Bind a source-owned FEM load map only after this RestingRun has compiled
+    // that FEM world. The adapter is never pointed at a second Runtime.
+    bool bindTendonFEMSource(
+        const numi::matter::NumiHumanTendonFEMLoadSource& source,
+        const std::filesystem::path& metallib,
+        std::uint64_t sourceRootIdentity) {
+        using numi::human::need;
+        if(tendonFEMBindingAttempted || programRequested) {
+            tendonFEMBindingFailed=true;
+            error="Human FEM adapter binding is duplicate or too late";
+            return false;
+        }
+        tendonFEMBindingAttempted=true;
+        if(sourceRootIdentity==0u || !physiology.runtime.valid() ||
+           physiology.runtime.environmentCount()!=1u ||
+           physiology.runtime.femNodeCount()==0u ||
+           source.nodeLoads.size()!=physiology.runtime.femNodeCount() ||
+           source.nodeAnchors.size()!=source.nodeLoads.size()) {
+            tendonFEMBindingFailed=true;
+            error="Human FEM adapter requires a source-root-pinned map matching this RestingRun's compiled FEM world";
+            return false;
+        }
+        numi::matter::NumiHumanTendonFEMLoadConfiguration configuration;
+        configuration.metallib=metallib;
+        configuration.executionMode=
+            numi::matter::NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
+        configuration.reserved0=
+            numi::matter::kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication;
+        configuration.expectedMicrotickCount=
+            1u<<physiology.world.dispatch.maximumRateExponent;
+        configuration.acceptedStepExtensionContext=physiology.respiration.get();
+        configuration.encodeAcceptedStepExtension=
+            &numi::human::Respiration::callback;
+        configuration.acceptedStepExtensionFingerprint=
+            combineFingerprint(baseFingerprint,sourceRootIdentity);
+        configuration.deferAcceptedControlCursorPublication=true;
+        configuration.deferAcceptedStepExtensionFinalization=true;
+        if(!tendonFEMAdapter.initialize(physiology.runtime,source,configuration)) {
+            tendonFEMBindingFailed=true;
+            const auto diagnostics=tendonFEMAdapter.diagnostics();
+            error=diagnostics.message.empty()
+                ? "Human FEM adapter initialization failed for the owning RestingRun"
+                : diagnostics.message;
+            return false;
+        }
+        tendonFEMAdapterProgram=tendonFEMAdapter.program();
+        const auto diagnostics=tendonFEMAdapter.diagnostics();
+        if(!tendonFEMAdapterProgram.valid() || !diagnostics.initialized ||
+           diagnostics.fingerprint==0u) {
+            tendonFEMBindingFailed=true;
+            error="Human FEM adapter produced no valid source/runtime program identity";
+            return false;
+        }
+        tendonSourceRootIdentity=sourceRootIdentity;
+        fingerprint=combineFingerprint(
+            combineFingerprint(baseFingerprint,sourceRootIdentity),
+            diagnostics.fingerprint);
+        tendonFEMBindingEnabled=true;
+        return true;
+    }
+    // Existing terminal evidence code borrows this adapter for snapshots only.
+    // Its physical callbacks remain scheduled exclusively by this coupling.
+    numi::matter::NumiHumanTendonFEMLoadAdapter* boundTendonFEMAdapter() noexcept {
+        return tendonFEMBindingEnabled ? &tendonFEMAdapter : nullptr;
+    }
+    static metalrobo::MetalNumiHumanTendonLoadPass makeTendonFEMPass(
+        const metalrobo::MetalNumanXTransactionPass& p) {
+        using numi::human::need;
+        auto narrow=[](std::uint64_t value,const char* name) {
+            need(value<=UINT32_MAX,std::string("Human FEM pass ")+name+
+                 " exceeds the adapter's 32-bit dimensions");
+            return static_cast<std::uint32_t>(value);
+        };
+        metalrobo::MetalNumiHumanTendonLoadPass pass{};
+        pass.commandBuffer=p.commandBuffer;
+        pass.mujocoMuscles=p.mujocoMuscles;
+        pass.mujocoSites=p.mujocoSites;
+        pass.mujocoWraps=p.mujocoWraps;
+        pass.mujocoRouteNodes=p.mujocoRouteNodes;
+        pass.mujocoResults=p.mujocoResults;
+        pass.bindings=p.tendonBindings;
+        pass.envelopes=p.tendonEnvelopes;
+        pass.transfers=p.tendonTransfers;
+        pass.generalizedCorrections=p.tendonGeneralizedCorrections;
+        pass.generalizedForces=p.mujocoGeneralizedForceArena;
+        pass.bodyPoses=p.bodyPoses;
+        pass.bodyPositionLow=p.bodyPositionLow;
+        pass.bodyPositionLowGPUAddress=p.bodyPositionLowGPUAddress;
+        pass.bodyPositionLowElementCount=p.bodyPositionLowElementCount;
+        pass.pointJacobians=p.pointJacobians;
+        pass.standStatuses=p.standStatuses;
+        pass.stepIndex=p.stepIndex;
+        pass.environmentCount=narrow(p.environmentCount,"environment count");
+        pass.endpointCount=narrow(p.tendonBindingCount,"endpoint count");
+        pass.envelopeCount=narrow(p.tendonEnvelopeCount,"envelope count");
+        pass.dofCount=narrow(p.dofCount,"DoF count");
+        pass.muscleCount=narrow(p.mujocoMuscleCount,"muscle count");
+        pass.siteCount=narrow(p.mujocoSiteCount,"site count");
+        pass.wrapCount=narrow(p.mujocoWrapCount,"wrap count");
+        pass.routeNodeCount=narrow(p.mujocoRouteNodeCount,"route count");
+        pass.generalizedForceStride=narrow(p.mujocoGeneralizedForceStride,"force stride");
+        pass.generalizedForceOffset=narrow(p.mujocoGeneralizedForceOffset,"force offset");
+        pass.pointJacobianStride=narrow(p.pointJacobianStride,"Jacobian stride");
+        pass.bodyJacobianPointOffset=p.bodyJacobianPointOffset;
+        pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
+        pass.articulationFirstBody=p.articulationFirstBody;
+        return pass;
     }
     void initializeInitialCommonCoordinates() {
         using numi::human::need;
@@ -370,6 +498,8 @@ public:
     }
     metalrobo::MetalNumanXTransactionProgram program() {
         metalrobo::MetalNumanXTransactionProgram p;
+        if(tendonFEMBindingFailed)return p;
+        programRequested=true;
         p.context=this;p.encode=&encodeCallback;p.abort=&abortCallback;p.fingerprint=fingerprint;
         p.writeBodyProperties=true;
         p.deferAcceptedPublication=true;
@@ -378,17 +508,24 @@ public:
     }
     static void abortCallback(void* context,void* commandBuffer) noexcept {
         auto& self=*static_cast<NumiHumanRestingCoupling*>(context);
+        const bool adapterOwnsCancel=self.tendonFEMBindingEnabled&&
+            self.tendonFEMAdapterProgram.abort!=nullptr;
+        if(adapterOwnsCancel)
+            self.tendonFEMAdapterProgram.abort(
+                self.tendonFEMAdapterProgram.context,commandBuffer);
         self.physiology.respiration->discardBodyPropertiesReferenceCapture(commandBuffer);
         self.physiology.respiration->clearPhysicsLease(commandBuffer);
-        self.physiology.runtime.cancel(commandBuffer);
+        if(!adapterOwnsCancel)self.physiology.runtime.cancel(commandBuffer);
     }
     static bool encodeCallback(void* context,const metalrobo::MetalNumanXTransactionPass& p) noexcept {
         auto& self=*static_cast<NumiHumanRestingCoupling*>(context);
-        try{return self.encode(p);}catch(const std::exception& e){self.error=e.what();return false;}
+        try{return self.encode(p);}catch(const std::exception& e){self.error=e.what();fprintf(stderr,"resting_transaction_encode_failure phase=%u step=%u error=%s\n",static_cast<unsigned>(p.phase),p.stepIndex,self.error.c_str());return false;}
     }
     bool encode(const metalrobo::MetalNumanXTransactionPass& p) {
         using namespace numi::matter;
         using numi::human::need;
+        need(!tendonFEMBindingFailed,
+             error.empty()?"Human FEM adapter binding failed":error);
         need(p.environmentCount==1&&p.timestepSeconds==physiology.runtime.timestepSeconds(),
              "resting body/physiology cadence differs");
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::beginStep) {
@@ -432,6 +569,15 @@ public:
             const auto finalized=physiology.runtime.finalizeAcceptedStepExtension(
                 p.commandBuffer,p.stepIndex,0u,finalGate);
             need(finalized.encoded,finalized.message);
+            if(tendonFEMBindingEnabled) {
+                // The Runtime finalizer can still fail its completion-count
+                // gate. Merge that final Matter status into Stand before any
+                // adapter accepted-audit history is allowed to publish.
+                bridge(validateMatter);
+                const auto adapterPass=makeTendonFEMPass(p);
+                need(tendonFEMAdapter.finalizeAcceptedAudits(adapterPass),
+                     tendonFEMAdapter.diagnostics().message);
+            }
 
             AcceptedControlCursorGate cursorGate;
             cursorGate.statusCodes=p.standStatuses;
@@ -533,7 +679,22 @@ public:
             void* commandBuffer;
             ~PhysicsLeaseScope(){owner.clearPhysicsLease(commandBuffer);}
         } leaseScope{respiration,p.commandBuffer};
-        auto result=physiology.runtime.encode(r);need(result.encoded,result.message);
+        if(tendonFEMBindingEnabled) {
+            const auto adapterPass=makeTendonFEMPass(p);
+            const auto encodeAdapter=p.phase==
+                    metalrobo::MetalNumanXTransactionPhase::preDynamics
+                ? tendonFEMAdapterProgram.encodePreDynamics
+                : tendonFEMAdapterProgram.encodePostValidation;
+            const bool adapterEncoded=encodeAdapter!=nullptr&&
+                encodeAdapter(tendonFEMAdapterProgram.context,adapterPass);
+            const auto adapterDiagnostic=tendonFEMAdapter.diagnostics();
+            need(adapterEncoded,adapterDiagnostic.message.empty()
+                    ? "Human FEM adapter rejected the borrowed RestingRun pass"
+                    : adapterDiagnostic.message);
+        } else {
+            auto result=physiology.runtime.encode(r);
+            need(result.encoded,result.message);
+        }
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::preDynamics) {
             auto& respiration=*physiology.respiration;
             if(respiration.commonGeometryGateEnabled) {

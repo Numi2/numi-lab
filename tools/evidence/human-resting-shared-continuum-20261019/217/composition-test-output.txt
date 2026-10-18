@@ -1,0 +1,2 @@
+resting_world_source_composition=PASS default_compatibility=PASS seed_preservation=PASS append_only_material_index=1 conflicting_owner_rejection=PASS
+compiler_composition=PASS objects=2 materials=2 fem_material_index=0 blood_receiver_material_index=1 fem_nodes=4 fem_tets=1 mpm_particles=128 cvsim_unknowns=45 gravity_preserved=1
