@@ -2204,6 +2204,7 @@ public:
             // The source viewer's normalized focal is 0.72; this distance aims
             // for about 75% vertical occupancy while preserving horizontal fit.
             framing.distance=std::max(0.96f*height+margin,0.96f*width+margin);
+            if(std::getenv("NUMI_HUMAN_ROPE_SWING"))framing.distance*=2.0f;
         }
         require(support.header.groundNormalX==0&&support.header.groundNormalY==0&&support.header.groundNormalZ==1,
                 "resting visible bed must match the native +Z support plane");
@@ -2876,7 +2877,7 @@ public:
             ropeSupport=std::make_unique<NumiHumanRestingRopeSupport>(
                 device,ropeRuntimeLibrary,baseProgram,*ropeConfig,ropeContactIndex,ropeQueryIndex,
                 articulation.firstBody,articulation.bodyCount,articulation.nv,
-                NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256);
+                NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256,owner.physiology.runtime.timestepSeconds());
 
             if(const char* release=std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
                 char* end=nullptr;const auto step=std::strtoul(release,&end,10);
@@ -3030,7 +3031,9 @@ public:
             e.dispatchThreads(e.context,airwayCount,64);
         }
         if(self.ropeVisual&&
-           !self.ropeVisual->encode(lease,self.coupled.presentationBodies))return false;
+           !self.ropeVisual->encode(lease,self.coupled.presentationBodies,self.coupled.presentationRespiration,
+               offsetof(NMHumanRespirationState,status),
+               NumiHumanRestingRopeSupport::swingMotion(self.coupled.physiology.runtime.timestepSeconds())))return false;
         if(lease.encoder->splitCommandEncoder&&
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
         const mr_uint4 volumeAuditDimensions={self.volumeAuditGroupCount,self.auditCount,0u,0u};

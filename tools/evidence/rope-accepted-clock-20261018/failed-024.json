@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "failure": "myosim_articulated_visual=failed error=\"accepted full skin intersects the bed beyond the 1 mm inspection tolerance\"",
+  "run": "/Users/n/numi-human-separation-20261018/local-anatomy-presentation-024/native-released-long-001",
+  "scope": "exploratory floor stability; no guard relaxed"
+}

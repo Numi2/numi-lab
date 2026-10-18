@@ -1,3 +1,9 @@
+inline float3 nmRopeSwingOffset(float4 motion) {
+    const float u=clamp(motion.x/motion.w,0.0f,1.0f);
+    const float ramp=u*u*u*(10.0f+u*(-15.0f+6.0f*u));
+    const float phase=6.28318530718f*motion.x/motion.z;
+    return motion.y*ramp*float3(sin(phase),0.5f*(cos(phase)-1.0f),0.0f);
+}
 // BEGIN resting rope support
 // A moving tangent plane of the sphere |p-anchor|<=L supplies exactly the
 // unilateral gap L-|p-anchor| and its gradient. The existing articulated
@@ -10,6 +16,7 @@ kernel void nm_human_resting_rope_support(
     device float4* pointLow [[buffer(4)]],
     device float* jacobians [[buffer(5)]],
     device MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
+    constant float4& motion [[buffer(7)]],
     uint env [[thread_position_in_grid]]) {
     if (env>=cfg.counts.x) return;
     // ABI2 per-contact planes are currently restricted to one environment.
@@ -39,11 +46,12 @@ kernel void nm_human_resting_rope_support(
     const float3 virtualOffset=high-pose.position.xyz;
     const float3 low=(pose.position.xyz-(high-virtualOffset))+
         (offset-virtualOffset)+bodyLow[poseIndex].xyz;
-    const float3 toward=(cfg.anchorAndLength.xyz-high)-low;
+    const float3 drivenAnchor=cfg.anchorAndLength.xyz+nmRopeSwingOffset(motion);
+    const float3 toward=(drivenAnchor-high)-low;
     const float radius=length(toward);
     valid=valid && all(isfinite(high)) && all(isfinite(low)) && radius>1e-8f;
     const float3 normal=toward/radius;
-    const float3 plane=cfg.anchorAndLength.xyz-cfg.anchorAndLength.w*normal;
+    const float3 plane=drivenAnchor-cfg.anchorAndLength.w*normal;
     points[pointIndex].position=valid?float4(high,1):float4(NAN,NAN,NAN,1);
     pointLow[pointIndex]=valid?float4(low,0):float4(NAN,NAN,NAN,0);
     contacts[cfg.indices.x].planePoint=valid?float4(plane,0):float4(NAN);

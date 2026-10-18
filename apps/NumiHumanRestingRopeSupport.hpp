@@ -25,6 +25,7 @@ private:
     metalrobo::MetalNumiHumanSupportGeometryProgram base_{};
     MRHumanRestingRopeGPU parameters_{};
     mr_float4 swing_{};
+    float timestepSeconds_=0;
     std::uint64_t fingerprint_=0u;
     static void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
     static std::uint64_t mix(std::uint64_t h,std::uint64_t v) noexcept {
@@ -110,7 +111,7 @@ private:
         [enc setBuffer:bodies offset:0u atIndex:1u];[enc setBuffer:bodyLow offset:0u atIndex:2u];
         [enc setBuffer:points offset:0u atIndex:3u];[enc setBuffer:pointLow offset:0u atIndex:4u];
         [enc setBuffer:jacobians offset:0u atIndex:5u];[enc setBuffer:contacts offset:0u atIndex:6u];
-        auto motion=swing_;motion.x=float(pass.stepIndex)*.002f;
+        auto motion=swing_;motion.x=float(pass.stepIndex)*timestepSeconds_;
         [enc setBytes:&motion length:sizeof(motion) atIndex:7u];
         [enc dispatchThreadgroups:MTLSizeMake(1u,1u,1u) threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
         [enc endEncoding];return true;
@@ -152,11 +153,13 @@ public:
     NumiHumanRestingRopeSupport(id<MTLDevice> device,id<MTLLibrary> library,
         const metalrobo::MetalNumiHumanSupportGeometryProgram& base,const Config& c,
         std::uint32_t contactIndex,std::uint32_t queryIndex,std::uint32_t firstBody,
-        std::uint32_t bodyCount,std::uint32_t dofCount,const char* sourceSHA256)
+        std::uint32_t bodyCount,std::uint32_t dofCount,const char* sourceSHA256,double timestepSeconds)
         :device_(device),base_(base) {
         require(device_&&library&&base_.valid()&&contactIndex<MR_NUMI_HUMAN_STAND_MAX_CONTACTS&&
             firstBody!=MR_INVALID_INDEX&&bodyCount>0&&dofCount>0&&c.globalBodyIndex>=firstBody&&
             c.globalBodyIndex-firstBody<bodyCount,"rope support owner configuration is invalid");
+        require(std::isfinite(timestepSeconds)&&timestepSeconds>0,"invalid rope timestep");
+        timestepSeconds_=float(timestepSeconds);
         swing_=swingMotion(0);
         parameters_.indices={contactIndex,queryIndex,c.globalBodyIndex,firstBody};
         parameters_.counts={1u,bodyCount,dofCount,1u};
@@ -167,6 +170,7 @@ public:
             "rope source SHA-256 pin is absent");
         fingerprint_=mix(0x6e756d692d726f70ULL,base_.fingerprint);
         for(const auto* c=sourceSHA256;*c;++c)fingerprint_=mix(fingerprint_,static_cast<unsigned char>(*c));
+        fingerprint_=mix(fingerprint_,std::bit_cast<std::uint32_t>(timestepSeconds_));
         fingerprint_=mix(fingerprint_,contactIndex);fingerprint_=mix(fingerprint_,queryIndex);
         fingerprint_=mix(fingerprint_,c.globalBodyIndex);fingerprint_=mix(fingerprint_,firstBody);
         for(float x:c.anchorAndLength)fingerprint_=mix(fingerprint_,std::bit_cast<std::uint32_t>(x));

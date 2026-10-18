@@ -1,0 +1,17 @@
+{
+  "resting-body-motion-partition.csv": {
+    "sha256": "9efe8a6d9c4b85841e421edc2404f8d104c687830a88ca05b181746806c3feaf",
+    "control_sha256": "9efe8a6d9c4b85841e421edc2404f8d104c687830a88ca05b181746806c3feaf",
+    "identical": true
+  },
+  "resting-coupled.csv": {
+    "sha256": "b892fd1ded2423bc1540a1c98ce8744eef82e89bed4574777994119376e4d9f1",
+    "control_sha256": "b892fd1ded2423bc1540a1c98ce8744eef82e89bed4574777994119376e4d9f1",
+    "identical": true
+  },
+  "resting-com-support-impulses.csv": {
+    "sha256": "bdee2e3963c1dd01ee154dc0cca1ff8bd5f0ce2959f4913b0faae9e48a7fe65f",
+    "control_sha256": "bdee2e3963c1dd01ee154dc0cca1ff8bd5f0ce2959f4913b0faae9e48a7fe65f",
+    "identical": true
+  }
+}

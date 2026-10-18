@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "failure": "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 2702 accepted steps: GPU rejected the Numi Human stand horizon: code=4 completed_steps=2702 failing_index=12\"",
+  "run": "/Users/n/numi-human-separation-20261018/local-anatomy-presentation-025/native-released-3s-001",
+  "scope": "exploratory floor stability; no guard relaxed"
+}

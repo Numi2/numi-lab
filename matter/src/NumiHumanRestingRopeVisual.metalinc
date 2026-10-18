@@ -17,10 +17,14 @@ kernel void nm_human_resting_rope_visual(
     constant MRHumanRestingRopeVisualGPU& visual [[buffer(1)]],
     device const MRBodyStateGPU* bodies [[buffer(2)]],
     device MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    constant uint4& acceptedStatus [[buffer(4)]],
+    constant float4& motionParameters [[buffer(5)]],
     uint vertexIndex [[thread_position_in_grid]]) {
+    float4 motion=motionParameters;
+    motion.x=float(acceptedStatus.x)*motionParameters.x;
     const uint ropeVertexCount = visual.counts.x;
     const uint harnessVertexCount = visual.counts.w;
-    if (vertexIndex >= ropeVertexCount + harnessVertexCount) return;
+    if (vertexIndex >= ropeVertexCount + harnessVertexCount + 164u) return;
     const uint bodyIndex = rope.indices.z;
     const MRBodyStateGPU body = bodies[bodyIndex];
     const float q2 = dot(body.orientation, body.orientation);
@@ -30,9 +34,24 @@ kernel void nm_human_resting_rope_visual(
         !(rope.anchorAndLength.w > 0.0f)) return;
 
     const float4 q = body.orientation * rsqrt(q2);
-    const float3 anchor = rope.anchorAndLength.xyz;
+    const float3 anchor = rope.anchorAndLength.xyz+nmRopeSwingOffset(motion);
     const float3 endpoint = body.position.xyz +
         nmRestingRopeRotate(q, rope.bodyLocalSite.xyz);
+    if(vertexIndex >= ropeVertexCount + harnessVertexCount) {
+        const uint hardware=vertexIndex-ropeVertexCount-harnessVertexCount;
+        auto out=vertices[visual.ranges.x+vertexIndex];
+        float3 p;
+        if(hardware<160u) {
+            const float theta=6.28318530718f*float(hardware/8u)/20.0f;
+            const float phi=6.28318530718f*float(hardware%8u)/8.0f;
+            const float r=.018f+.003f*cos(phi);
+            p=anchor+float3(r*cos(theta),r*sin(theta),.003f*sin(phi));
+        } else {
+            const uint k=hardware-160u;
+            p=anchor+float3((k==0u||k==3u)?-.07f:.07f,k<2u?-.07f:.07f,.012f);
+        }
+        out.position=float4(p,1);vertices[visual.ranges.x+vertexIndex]=out;return;
+    }
     const float3 chord = endpoint - anchor;
     const float chordLength = length(chord);
     if (!(chordLength > 1.0e-7f) || !isfinite(chordLength)) return;

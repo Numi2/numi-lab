@@ -179,9 +179,13 @@ public:
 
     bool encode(
         const metalrobo::MetalHybridMeshDeformationLease& lease,
-        id<MTLBuffer> acceptedBodyStates) const noexcept {
+        id<MTLBuffer> acceptedBodyStates,id<MTLBuffer> acceptedRespiration,
+        std::size_t statusOffset,const mr_float4& motionParameters) const noexcept {
         try {
-            if(!pipeline_||!device_||!acceptedBodyStates||!lease.encoder||
+            if(!pipeline_||!device_||!acceptedBodyStates||!acceptedRespiration||
+               acceptedRespiration.device.registryID!=device_.registryID||
+               statusOffset+sizeof(mr_uint4)>acceptedRespiration.length||
+               !lease.encoder||
                !lease.encoder->valid()||!lease.meshVertices)return false;
             if(acceptedBodyStates.device.registryID!=device_.registryID)return false;
             const auto bodyBytes=(std::uint64_t(rope_.indices.z)+1ull)*sizeof(MRBodyStateGPU);
@@ -197,6 +201,8 @@ public:
             e.setBytes(e.context,&layout_.gpu,sizeof(layout_.gpu),1u);
             e.setBuffer(e.context,(__bridge void*)acceptedBodyStates,0u,2u);
             e.setBuffer(e.context,lease.meshVertices,0u,3u);
+            e.setBuffer(e.context,(__bridge void*)acceptedRespiration,statusOffset,4u);
+            e.setBytes(e.context,&motionParameters,sizeof(motionParameters),5u);
             e.dispatchThreads(e.context,layout_.dynamicVertexCount(),64u);
             return true;
         } catch(...) { return false; }
