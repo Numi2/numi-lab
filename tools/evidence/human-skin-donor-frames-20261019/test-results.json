@@ -1,0 +1,14 @@
+[
+  {
+    "binary": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-reduction-284/integration-001/mixed-donor-normal-test-baseline",
+    "sha256": "b6f2c71af1338e957eac631914e94cabfeabb1adcec56887ffec95048590b080",
+    "exit_code": 1,
+    "stdout": "mixed_donor_frame_max_error_m=0.00264766\n"
+  },
+  {
+    "binary": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-reduction-284/integration-001/mixed-donor-normal-test",
+    "sha256": "6d405cf87f0de19a0223fe9d912e8b524770f778d3b64e04861d3bfd6c2bffd1",
+    "exit_code": 0,
+    "stdout": "mixed_donor_frame_max_error_m=1.30104e-18\n"
+  }
+]

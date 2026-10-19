@@ -344,8 +344,21 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
     }else if(!outwardVertexNormals(skin.donorLocalPoints,skin.faces,localNormals,error))return false;
     const auto skinInner=offsetRegisteredSurface(skin,worldNormals,localNormals,ref.skinThicknessM);
     std::vector<V3> innerWorldNormals,innerLocalNormals;
-    if(!outwardVertexNormals(skinInner.worldPoints,skin.faces,innerWorldNormals,error)||
-       !outwardVertexNormals(skinInner.donorLocalPoints,skin.faces,innerLocalNormals,error))return false;
+    if(!outwardVertexNormals(skinInner.worldPoints,skin.faces,innerWorldNormals,error))return false;
+    if(!skin.worldToDonorLocalLinear.empty()){
+        // Donor-local points belong to different bone frames. Triangulating
+        // them together cannot produce a meaningful local surface normal.
+        innerLocalNormals.resize(innerWorldNormals.size());
+        for(std::size_t i=0;i<innerWorldNormals.size();i++){
+            const auto& m=skin.worldToDonorLocalLinear[i];const auto& n=innerWorldNormals[i];
+            V3 q{m[0]*n[0]+m[1]*n[1]+m[2]*n[2],
+                 m[3]*n[0]+m[4]*n[1]+m[5]*n[2],
+                 m[6]*n[0]+m[7]*n[1]+m[8]*n[2]};
+            const double l=norm(q);
+            if(!std::isfinite(l)||l<=1e-12){error="world-to-donor inner normal map is singular";return false;}
+            innerLocalNormals[i]=mul(q,1.0/l);
+        }
+    }else if(!outwardVertexNormals(skinInner.donorLocalPoints,skin.faces,innerLocalNormals,error))return false;
     const auto fatInner=offsetRegisteredSurface(skinInner,innerWorldNormals,innerLocalNormals,fatThicknessM);
     GeometryAudit innerAudit,fatAudit;
     if(!auditClosedSurface(skinInner,innerAudit,error,true)||!auditClosedSurface(fatInner,fatAudit,error,true))return false;

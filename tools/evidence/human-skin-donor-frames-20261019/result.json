@@ -1,0 +1,9 @@
+{
+  "test": "mixed donor local normal transform",
+  "old_error_m": 0.00264766,
+  "new_error_m": 1.30104e-18,
+  "baseline_exit": 1,
+  "candidate_exit": 0,
+  "scope": "CPU asset preparation only; no per-step physics changed",
+  "candidate_sha256": "3c881499ebd590a03d7a104bf3e65d2198a9b62df66af1ed0301de66fe6b4bd1"
+}
