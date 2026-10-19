@@ -1,0 +1,22 @@
+{
+  "mapping_method": "e303 flat owner baseline plus interval fallback and wrapper call mapped to the exact e303 contact.metalinc owner; source expansion matches the independently prepared contact-only flat shader byte-for-byte",
+  "flat_baseline_sha256": "e3033e1a1bc220fc9323669025ab3ba9a1bd15401595f679533e7e5e72879b14",
+  "flat_candidate_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+  "independent_contact_only_flat_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+  "flat_byte_exact_match": true,
+  "contact_source_baseline_sha256": "b34caa89e152d9a42379a48a5e561710667f9cb9355dabe43e7c475bc527aa7a",
+  "contact_source_candidate_sha256": "95639e34ca00f353be8b666d6a0ca3c1fd057ee61adee226fbc6cfc66ccd31f0",
+  "current_head_contact_source_sha256": "08829e02544b57752dabc105f4e009bd7b39a46240d7ae871447bc0f73daacb5",
+  "source_patch_sha256": "89ba7d65a83c365305752c11da5ddd3045308d53610cb542ef677db4aa8f33ea",
+  "source_path": "matter/src/metal/contact.metalinc",
+  "algorithm_parameters": {
+    "speed_bound_inflation": "1 + 16*kEpsilon",
+    "effective_thickness": "unchanged",
+    "interval_evaluations_max": 64,
+    "interval_stack_capacity": 64
+  },
+  "limitations": [
+    "strict captured pair fixture stopped at status 10 nonlinear failure on frame 3, no CCD witness",
+    "wall 6-step rollback/retry fixture passed on the same tested flat shader and unchanged host runtime"
+  ]
+}

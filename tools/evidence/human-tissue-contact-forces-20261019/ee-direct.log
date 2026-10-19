@@ -1,0 +1,4 @@
+wall-step4-pair433-1057 legacy=0,0,0.3762399852,1.053764936e-05 composed=0,1,1,1.024179255e-05 plane=0,1,1,1.024179255e-05 endpoint=0,inf,0,0 legacyParity=0 norm2=0 params=0,0 point=0,0
+static-clear legacy=0,1,0,0.05000000447 composed=0,1,0,0.05000000447 plane=0,1,0,0.05000000447 endpoint=0,inf,0,0 legacyParity=1 norm2=0 params=0,0 point=0,0
+transient-crossing-endpoint-clear legacy=1,1,0.4994962215,1.00757743e-05 composed=1,1,0.4994962215,1.00757743e-05 plane=1,1,0.4994962215,1.00757743e-05 endpoint=0,inf,0,0 legacyParity=1 norm2=1 params=0.5,0.5 point=0,0
+endpoint-contact legacy=1,1,0.9998310804,1.006674211e-05 composed=1,1,0.9998310804,1.006674211e-05 plane=1,1,0.9998310804,1.006674211e-05 endpoint=1,4.999999874e-06,0.2999999821,0 legacyParity=1 norm2=0.9999998808 params=0.2999999821,0 point=0.02999999933,5.033371053e-06

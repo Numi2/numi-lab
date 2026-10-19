@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/force-runtime-002/retry-diagnostic-001/build/aortic_wall_force_probe",
+    "/Users/n/numi-human-separation-20261018/C/tissue-contact-publication-268/MatterSource-contact-only-001.metal"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/force-runtime-002/retry-diagnostic-001/native/contact-only-wall6-001",
+  "timeout_s": 120,
+  "elapsed_s": 10.599983215332031,
+  "exit_code": 0,
+  "pins": {
+    "exe": "bccac1c057cc88ecb73fb9068173b4d415a2e5032f3fa653d8eab8b5f47ac581",
+    "source": "2d73e5ef1bedead9ff1938154acf8c06590557d3c8a549dc672320f4c557ab1b",
+    "msl": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+    "lib": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b"
+  },
+  "loaded_library_lines": [
+    "dyld[96993]: <9C7DF2DF-7FEC-39EA-9249-7EE3E1103AD8> /Users/numi/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib"
+  ],
+  "loaded_library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/tissue-contact-publication-268/MatterSource-contact-only-001.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+    "NUMI_MATTER_SOURCE": "/Users/n/numi-human-separation-20261018/C/tissue-contact-publication-268/MatterSource-contact-only-001.metal",
+    "NUMI_MATTER_SOURCE_SHA256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15"
+  },
+  "stdout_sha256": "4ca5bb5914b1fee859948bd40817c78318b78c1aa684a9bcf0941c62f4e6d59a",
+  "stderr_sha256": "9428250abd4f3f331dea7fa7eebe6774547d05121b749547a7dd40c518fd1800",
+  "scope": "contact-only HEAD FEM kernels; five accepted contact frames plus pristine step6, injected rejection, exact rollback and retry; no model changes"
+}

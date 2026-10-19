@@ -1,0 +1,63 @@
+{
+  "classification": "strict 1e-6 registered kidney+spleen approach fails; preserved as a separate negative result",
+  "case": "approach",
+  "failure": {
+    "frame": 3,
+    "status_code": 10,
+    "object": 0,
+    "failing_index": 8,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 20,
+    "contact_count": 0,
+    "diagnostics": [
+      3.77430388e-06,
+      1.47221717e-05,
+      0.0078125,
+      8.0
+    ],
+    "ccd_witness_populated": false
+  },
+  "controls": "quiet-separated control and moving-separated control passed; three approach frames completed before frame-3 failure",
+  "fixture_pins": {
+    "exe": "31a30256b7ac2a89c925880b0a6e846fb3caa95594238e67b98c528547ad4726",
+    "source": "d49e2d246b5c11536f4da3ce38c374032b63709ce21f41610b56d438cbb6a3e4",
+    "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "msl": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "lib": "a2963a4efbc0a4bf86d80d7b45d400e9d7856a4d1cd4645be06ca6b3976c45ef"
+  },
+  "loaded_library_path": "dyld[96967]: <95A2E4DC-E229-3FB3-BBBF-B9D5842DC319> /Users/numi/numi-human-separation-20261018/C/pure-multifem-full-residual-266/build-runtime-003/libmetalrobo.dylib",
+  "loaded_library_sha256": "a2963a4efbc0a4bf86d80d7b45d400e9d7856a4d1cd4645be06ca6b3976c45ef",
+  "elapsed_s": 4.469403417024296,
+  "exit_code": 1,
+  "source_invocation": {
+    "argv": [
+      "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/build/registered_organ_pair_contact",
+      "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal"
+    ],
+    "cwd": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/native-strict-270-001",
+    "timeout_s": 120,
+    "relative_residual": "1e-6",
+    "solver_budget": {
+      "newton": 12,
+      "fgmres": 64
+    },
+    "environment": {
+      "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/build-runtime-003",
+      "DYLD_PRINT_LIBRARIES": "1",
+      "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal",
+      "NUMI_MATTER_TEST_SOURCE_SHA256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+      "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": "all",
+      "NUMI_TEST_RELATIVE_RESIDUAL": "1e-6"
+    },
+    "pins": {
+      "exe": "31a30256b7ac2a89c925880b0a6e846fb3caa95594238e67b98c528547ad4726",
+      "source": "d49e2d246b5c11536f4da3ce38c374032b63709ce21f41610b56d438cbb6a3e4",
+      "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+      "msl": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+      "lib": "a2963a4efbc0a4bf86d80d7b45d400e9d7856a4d1cd4645be06ca6b3976c45ef"
+    }
+  },
+  "stdout_sha256": "85188ee205e6e8b34b99a8147854ef8ccb3885d92e38bd1327af49c8bb9e0fcc",
+  "stderr_sha256": "16c9c02e8d134df55b85907f60140a2d0e2ee4a36ea3b375b6c52d81e0270917",
+  "source_log_path_for_full_receipt": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/native-strict-270-001"
+}

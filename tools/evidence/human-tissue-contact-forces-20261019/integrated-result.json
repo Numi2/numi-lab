@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 54.928732292028144,
+  "stdout_sha256": "2a5b4612f45e5dcb5d30bc3a4c06da0a9e8d6ce1db0e8c038e9bf0a24b0b2feb",
+  "stderr_sha256": "91f0d4c0cae679f055937bd959009932c1fd6fe8ef1c3ac677c5e95e287278a6",
+  "library_sha256": "4fc9eb903d7cf3360d88303cf0faa076e4e4eab88dc42afaa3f537c9b467a595",
+  "msl_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+  "loaded_library_lines": [
+    "dyld[97307]: <73A2EB79-63DE-3A76-AB06-F40A13198FE9> /Users/numi/numi-human-separation-20261018/C/tissue-contact-publication-268/build-contact-only-runtime-001/libmetalrobo.dylib"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "title": "Bounded VT interval fallback contact-source evidence",
+  "source": {
+    "path": "matter/src/metal/contact.metalinc",
+    "candidate": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270-contact-source/source/matter/src/metal/contact.metalinc",
+    "candidate_sha256": "95639e34ca00f353be8b666d6a0ca3c1fd057ee61adee226fbc6cfc66ccd31f0",
+    "patch": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270-contact-source/contact-interval-270.patch",
+    "patch_sha256": "89ba7d65a83c365305752c11da5ddd3045308d53610cb542ef677db4aa8f33ea",
+    "mapping_proof": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270-contact-source/mapping-proof.json",
+    "mapping_proof_sha256": "dd3e9825681a8f553bc1290bc00a694caadf7179425bdeb4d7da75879e4a4187",
+    "expanded_flat_shader": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270-contact-source/MatterSource.contact-interval-270.metal",
+    "expanded_flat_shader_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15"
+  },
+  "algorithm": {
+    "legacy_first": true,
+    "endpoint_and_plane_fallbacks_preserved": true,
+    "interval_fallback_max_evaluations": 64,
+    "stack_capacity": 64,
+    "lipschitz_speed_bound_inflation": "1 + 16*kEpsilon",
+    "effective_thickness_changed": false,
+    "shared_line_search_core_changed": false,
+    "legacy_iteration_cap_changed": false
+  },
+  "direct_metal": {
+    "candidate_msl": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal",
+    "candidate_msl_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "strict_vt_witness": {
+      "binary": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/build/vt_trace",
+      "binary_sha256": "e394eed6343674bec35d9e7edb48905ac64c4ea4a2b17eed2188e2585fe22034",
+      "host_source": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/source/vt_trace.mm",
+      "host_source_sha256": "9b3b629140f1ba0445e2689785891af3ee0a87724259cb9c44a95a2620b167e1",
+      "log": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/build/vt-interval-direct-002.log",
+      "log_sha256": "4d6bc43c0c2de725afc695b1221c0fa9840cb192869786baea2166e508de4725",
+      "result": "legacy and plane CA remain uncertified at toi 0.3183132708; bounded interval wrapper returns a sampled contact at toi 0.375, separation 3.129252946e-6 m"
+    },
+    "controls": {
+      "binary": "/Users/n/numi-human-separation-20261018/C/ccd-plane-advance-267/build/ccd_plane_wrapper_probe",
+      "binary_sha256": "ae7b9def0448f577ea95abc832e78275983d12564740eebf235ebaf00ce1e06f",
+      "host_source": "/Users/n/numi-human-separation-20261018/C/ccd-plane-advance-267/source/ccd_plane_wrapper_probe.mm",
+      "host_source_sha256": "fcc7ae3f033e05649bf380964eba8e19a942d0b6b7d9d253b23db2ffb46f2ec5",
+      "log": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/build/vt-controls-direct-001.log",
+      "log_sha256": "722691289bfda50a2dcba49ae891157f037f44e10375dee1f709ddbd5e524b2d",
+      "result": "already-certified regional, transient-crossing, and static-clear results are bitwise identical; captured 433/1057 endpoint near-miss is certified clear at toi 1 with separation 1.024179255e-5 m; two endpoint-overlap cases return sampled contacts"
+    }
+  },
+  "native": {
+    "wall": {
+      "receipt": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/force-runtime-002/retry-diagnostic-001/native/contact-only-wall6-001/invocation-result.json",
+      "exe_sha256": "bccac1c057cc88ecb73fb9068173b4d415a2e5032f3fa653d8eab8b5f47ac581",
+      "source_sha256": "2d73e5ef1bedead9ff1938154acf8c06590557d3c8a549dc672320f4c557ab1b",
+      "msl_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+      "loaded_library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+      "result": "PASS, five approach frames plus pristine step 6, injected rejection, exact rollback, and retry; contact rows 50/34/32 with force norms 0.701559001/0.107798081/0.0266988924 N"
+    },
+    "strict_pair": {
+      "receipt": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-005/native-interval270-strict-001/invocation-result.json",
+      "exe_sha256": "bc9ebc02f75eb4ee1700cbfb05cec9b0caa29cc97e7cd6d915a8be7b5faab938",
+      "source_sha256": "0ea032b60ee3cbc65a36aa8ef7a1761afe777efcb6565a1855ab7c6503b682d3",
+      "msl_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+      "loaded_library_sha256": "a2963a4efbc0a4bf86d80d7b45d400e9d7856a4d1cd4645be06ca6b3976c45ef",
+      "result": "FAIL at frame 3 with Matter status 10, object 0, index 8, FGMRES 20; no CCD witness was recorded, so no claim that this strict run passed"
+    }
+  }
+}

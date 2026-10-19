@@ -1,0 +1,15 @@
+{
+  "exit_code": 0,
+  "accepted_steps": 1,
+  "simulated_seconds": 0.00025,
+  "physiology_csv_byte_identical_to_261": true,
+  "physiology_csv_sha256": "bf0e381e146d32ce03b7ee2d3ff933f4440cfb13dc2ca07341174068f40740cf",
+  "source_changes": "contact owner only; unchanged runtime261",
+  "visual_verification_performed": false,
+  "scope": "native integrated smoke only, not sustained whole-body qualification",
+  "selected_log_lines": [
+    "resting_aortic_wall_outer_contact=accepted interface=outer_lateral_only outer_ring_rigid_query_nodes=216 canonical_surface_faces=1112 canonical_surface_faces_after_flags=1112 retained_wall_faces=384 excluded_wall_nonouter_faces=672 self_contact=disabled pressure_cavity=unchanged mass=unchanged map=immutable_static_fem",
+    "resting_aortic_wall_runtime_contact_verified=1 selected_faces=384 disabled_faces=672 canonical_faces=1112 mpm_particles=0",
+    "resting_integrated_body=completed simulated_s=0.00025000001187436283 wall_s=42.363342082999999 real_time_factor=5.9013288277528372e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ]
+}
