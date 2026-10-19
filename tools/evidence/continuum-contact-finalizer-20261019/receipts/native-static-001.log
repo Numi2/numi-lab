@@ -1,0 +1,36 @@
+resting_job_lock waiting pid=17484
+resting_job_lock acquired pid=17484
+scope objects=1 fem_nodes=4 tets=1 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=1 attachments=0 dt_s=0.00025
+FAIL failed to compile test-only pinned Numi Matter Metal source: program_source:23062:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+program_source:23071:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+program_source:23062:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+program_source:23052:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+program_source:23508:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+program_source:23525:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+program_source:23508:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+program_source:23388:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+program_source:71379:10: error: use of undeclared identifier 'environmentHealthy'; did you mean 'numi_matter_metal::environmentHealthy'?
+    if (!environmentHealthy(statuses, environment)) {
+         ^~~~~~~~~~~~~~~~~~
+         numi_matter_metal::environmentHealthy
+program_source:10678:13: note: 'numi_matter_metal::environmentHealthy' declared here
+inline bool environmentHealthy(
+            ^

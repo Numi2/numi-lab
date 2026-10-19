@@ -10055,3 +10055,24 @@ kernel void nm_publish_primal_free_rigid_candidate(
 }
 
 } // namespace numi_matter_metal
+
+namespace numi_matter_metal {
+// Late owner rejection restores both accepted and candidate friction state.
+kernel void nm_contact_rollback_histories_v2(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* accepted [[buffer(2)]],
+    device float4* candidate [[buffer(3)]],
+    device const float4* checkpoint [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment)) {
+        accepted[global] = checkpoint[global];
+        candidate[global] = checkpoint[global];
+    }
+}
+
+} // namespace numi_matter_metal

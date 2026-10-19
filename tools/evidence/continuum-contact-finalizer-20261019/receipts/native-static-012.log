@@ -1,0 +1,8 @@
+resting_job_lock waiting pid=19619
+resting_job_lock acquired pid=19619
+scope objects=1 fem_nodes=4 tets=1 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=1 attachments=0 dt_s=0.00025
+device=Apple M6 fingerprint=7847821605718909631
+initial_snapshot_fem_nodes=4 fem_history=4 particles=1 particle_history=4 certificates=1
+attempt_accept=0 matter_status=10 diagnostic=3.1243e-05,0.000297702,0,0 object=0 failing=4294967295 completed_microsteps=0 gpu_seconds=0.279456 callbacks=1,1,1,1 fem_node_count=4 fem_history_count=4
+attempt_accept=1 matter_status=10 diagnostic=3.1243e-05,0.000297702,0,0 object=0 failing=4294967295 completed_microsteps=0 gpu_seconds=0.0607313 callbacks=1,1,1,1 fem_node_count=4 fem_history_count=4
+FAIL external gate acceptance mismatch

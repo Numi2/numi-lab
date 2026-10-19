@@ -1,0 +1,4 @@
+resting_job_lock waiting pid=19961
+resting_job_lock acquired pid=19961
+compile_diagnostic=FEM tetrahedron is inverted or degenerate in the rest state
+FAIL static-contact FEM compile failed

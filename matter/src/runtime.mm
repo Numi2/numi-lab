@@ -2530,9 +2530,10 @@ struct Runtime::State {
     // Initialization-time proof that the authored objects are all
     // nonadaptive, contact-disabled MPM/FEM continua. Deferred owner
     // finalization uses only the corresponding accepted-state rollback arenas;
-    // rigid, coupled, adaptive, and contact worlds remain excluded.
+    // Moving rigid, coupled, and adaptive worlds remain excluded.
     bool acceptedStepExtensionMPMOnlyWorld = false;
     bool acceptedStepExtensionContactFreeFEMMPMWorld = false;
+    bool acceptedStepExtensionContactContinuumWorld = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
     // Immutable contact-pair admission mirror used by the bounded capsule
     // residual-Armijo slice. It does not participate in simulation state.
@@ -4176,6 +4177,26 @@ RuntimeDiagnostics Runtime::initialize(
             world.dispatch.tetrahedronCount != 0u &&
             (world.dispatch.flags & NM_MATTER_CONTACT) == 0u &&
             allObjectsAreContactFreeContinuum();
+        // Immutable continuum contact owns checkpointed friction histories.
+        // Moving/attached/coupled proxies remain outside local finalization.
+        candidate->acceptedStepExtensionContactContinuumWorld =
+            ((world.dispatch.flags & NM_MATTER_CONTACT) != 0u ||
+             world.dispatch.deformableContactCapacity != 0u) &&
+            (world.dispatch.flags & (NM_MATTER_ADAPTIVE | NM_MATTER_MIXED_FEM |
+                NM_MATTER_MULTIPHYSICS)) == 0u &&
+            world.dispatch.objectCount != 0u &&
+            world.objects.size() == world.dispatch.objectCount &&
+            std::all_of(world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.representation == NM_REPRESENTATION_MPM ||
+                            object.representation == NM_REPRESENTATION_FEM) &&
+                        (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MIXED_FEM |
+                            NM_OBJECT_MULTIPHYSICS)) == 0u;
+                }) &&
+            std::all_of(world.contact.rigidProxies.begin(),
+                world.contact.rigidProxies.end(), [](const NMRigidProxyGPU& proxy) {
+                    return proxy.flags == 0u && proxy.bodyIndex == NM_INVALID_INDEX;
+                });
         candidate->device = MTLCreateSystemDefaultDevice();
         if (candidate->device == nil) {
             diagnostics.message = "no Metal device is available";
@@ -5091,6 +5112,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_compact_active",
             "nm_contact_compact_active_sparse",
             "nm_contact_checkpoint_histories",
+            "nm_contact_rollback_histories_v2",
             "nm_contact_commit_histories",
             "nm_contact_rollback_histories",
             "nm_contact_clear_remapped_suture_histories",
@@ -8503,8 +8525,9 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         state.hasAdaptive || state.requiresCurrentBodies ||
         state.requiresSceneBodies || state.requiresRodNodes ||
         state.requiresCoupledCandidate || state.hasPrescribedTranslation ||
-        d.rigidProxyCount != 0u ||
-        d.contactPairCount != 0u || d.femHumanAttachmentCount != 0u ||
+        ((!state.acceptedStepExtensionContactContinuumWorld) &&
+         (d.rigidProxyCount != 0u || d.contactPairCount != 0u)) ||
+        d.femHumanAttachmentCount != 0u ||
         d.learnedWeightCount != 0u || d.learnedMaterialCount != 0u ||
         d.cohesiveFaceCount != 0u || d.mutationCommandCount != 0u ||
         state.hasMutableFEMTopology ||
@@ -8557,8 +8580,12 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         state.acceptedStepExtensionContactFreeFEMMPMWorld &&
         !commonUnsupportedState && hasFEM && validFEMShape && validMPMShape &&
         (hasMPM || d.particleCount == 0u) && immutableFEMScope;
+    const bool contactContinuumScope =
+        state.acceptedStepExtensionContactContinuumWorld &&
+        !commonUnsupportedState && validFEMShape && validMPMShape &&
+        (hasFEM || hasMPM) && immutableFEMScope;
     const bool objectContinuumScope =
-        mpmOnlyScope || contactFreeFEMMPMScope;
+        mpmOnlyScope || contactFreeFEMMPMScope || contactContinuumScope;
     if (!vascularOnlyScope && !objectContinuumScope) {
         diagnostics.message =
             "deferred local finalization scope rejected: vascularOnly=" +
@@ -8566,7 +8593,8 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             std::to_string(objectContinuumScope) + " mpmOnly=" +
             std::to_string(mpmOnlyScope) + " femMpm=" +
             std::to_string(contactFreeFEMMPMScope) + " proof=" +
-            std::to_string(state.acceptedStepExtensionContactFreeFEMMPMWorld) +
+            std::to_string(state.acceptedStepExtensionContactFreeFEMMPMWorld ||
+             state.acceptedStepExtensionContactContinuumWorld) +
             " commonUnsupported=" + std::to_string(commonUnsupportedState) +
             " immutable=" + std::to_string(immutableObjectScope) +
             " hasFEM=" + std::to_string(hasFEM) + " hasMPM=" +
@@ -8593,6 +8621,23 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         state.pipelines.find("nm_scheduler_reconcile");
     const auto invalidateCertificatePipeline =
         state.pipelines.find("nm_invalidate_solver_certificate_after_late_failure");
+    const auto contactRollbackPipeline =
+        state.pipelines.find("nm_contact_rollback_histories_v2");
+    const auto deformableRollbackPipeline =
+        state.pipelines.find("nm_contact_rollback_deformable_contact_histories");
+    const bool missingContactResources = contactContinuumScope &&
+        ((d.contactPairCount != 0u &&
+          (contactRollbackPipeline == state.pipelines.end() ||
+           contactRollbackPipeline->second == nil ||
+           state.contactHistoriesAccepted == nil ||
+           state.contactHistoriesCandidate == nil ||
+           state.contactHistoriesCheckpoint == nil)) ||
+         (d.deformableContactCapacity != 0u &&
+          (deformableRollbackPipeline == state.pipelines.end() ||
+           deformableRollbackPipeline->second == nil ||
+           state.deformableContactHistoriesAccepted == nil ||
+           state.deformableContactHistoriesCandidate == nil ||
+           state.deformableContactHistoriesCheckpoint == nil)));
     const bool missingMPMResources = hasMPM &&
         (mpmRollbackPipeline == state.pipelines.end() ||
          mpmRollbackPipeline->second == nil ||
@@ -8626,7 +8671,8 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
          state.solverCertificates == nil);
     if (gatePipeline == state.pipelines.end() || gatePipeline->second == nil ||
         rollbackPipeline == state.pipelines.end() || rollbackPipeline->second == nil ||
-        missingMPMResources || missingFEMResources || missingObjectResources) {
+        missingMPMResources || missingFEMResources || missingObjectResources ||
+        missingContactResources) {
         diagnostics.message =
             "accepted-step finalization or a required FEM/MPM rollback/reconcile pipeline and arena is unavailable";
         return diagnostics;
@@ -8791,6 +8837,33 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             [encoder dispatchThreads:MTLSizeMake(femNodeTotal, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(
                     mixedRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+    }
+
+    if (contactContinuumScope) {
+        if (d.contactPairCount != 0u) {
+            [encoder setComputePipelineState:contactRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:3u];
+            [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:4u];
+            const NSUInteger total = static_cast<NSUInteger>(environmentCount) * d.contactPairCount;
+            [encoder dispatchThreads:MTLSizeMake(total, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(contactRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+        if (d.deformableContactCapacity != 0u) {
+            [encoder setComputePipelineState:deformableRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.deformableContactHistoriesAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.deformableContactHistoriesCandidate offset:0u atIndex:3u];
+            [encoder setBuffer:state.deformableContactHistoriesCheckpoint offset:0u atIndex:4u];
+            const NSUInteger total = static_cast<NSUInteger>(environmentCount) * d.deformableContactCapacity;
+            [encoder dispatchThreads:MTLSizeMake(total, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(deformableRollbackPipeline->second.threadExecutionWidth, 1u, 1u)];
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         }
     }
@@ -9129,7 +9202,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         if (request.deferAcceptedStepExtensionFinalization &&
             (state.acceptedStepExtensionMPMOnlyWorld ||
-             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
+             state.acceptedStepExtensionContactFreeFEMMPMWorld ||
+             state.acceptedStepExtensionContactContinuumWorld) &&
             (request.resetMasks != nullptr ||
              request.resetMaskStepStride != 0u || request.runIdentification ||
              state.automaticIdentification ||
@@ -9722,7 +9796,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         std::unique_lock ownershipLock(ownership->mutex);
         if (request.deferAcceptedStepExtensionFinalization &&
             (state.acceptedStepExtensionMPMOnlyWorld ||
-             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
+             state.acceptedStepExtensionContactFreeFEMMPMWorld ||
+             state.acceptedStepExtensionContactContinuumWorld) &&
             ownership->identificationAdvanced) {
             diagnostics.message =
                 "deferred MPM/FEM owner finalization rejects an advanced material-identification transaction";
@@ -11693,7 +11768,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const bool preserveDeferredFixedMaterialParameters =
             request.deferAcceptedStepExtensionFinalization &&
             (state.acceptedStepExtensionMPMOnlyWorld ||
-             state.acceptedStepExtensionContactFreeFEMMPMWorld) &&
+             state.acceptedStepExtensionContactFreeFEMMPMWorld ||
+             state.acceptedStepExtensionContactContinuumWorld) &&
             state.identificationDistributionCount != 0u &&
             state.dispatch.identificationCandidateCount == 0u &&
             !state.automaticIdentification && !request.runIdentification &&

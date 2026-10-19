@@ -1,0 +1,9 @@
+resting_job_lock waiting pid=18488
+resting_job_lock acquired pid=18488
+scope objects=1 fem_nodes=4 tets=1 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=1 attachments=0 dt_s=0.00025
+device=Apple M6 fingerprint=3632642008462178590
+initial_snapshot_fem_nodes=4 fem_history=4 particles=1 particle_history=4 certificates=1
+attempt_accept=0 matter_status=9 completed_microsteps=256 gpu_seconds=6.33389 callbacks=1,256,256,1 fem_node_count=4 fem_history_count=4
+attempt_accept=1 matter_status=0 completed_microsteps=256 gpu_seconds=6.33725 callbacks=1,256,256,1 fem_node_count=4 fem_history_count=4
+accepted_contact_history_l1=0 history_records=1
+FAIL accepted friction history stayed zero

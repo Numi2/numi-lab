@@ -1,0 +1,266 @@
+[
+  {
+    "attempt": "native-deformable-014",
+    "exit": 2,
+    "wall_seconds": 0.29716008401010185,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "3264111333a0e8b093c8356afec1005c4e20cecfa3ab53d1c7bc17eef68a142d",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "16d0a6cc4bee977d7e82884512a781449c4c1db0b4ba970ab73f8577bdd98357",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-deformable-015",
+    "exit": 2,
+    "wall_seconds": 0.3103196669835597,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "b1ff1ae13928cb8a280e581636b311970e4914b3e3d8a894ec55c4296147ed7f",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "1ae377842a5f78f58d13e56a81632a0f927ad331c466b8a0aeba0656e1ae9dbd",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-deformable-016",
+    "exit": 2,
+    "wall_seconds": 0.6510428749606945,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "b1ff1ae13928cb8a280e581636b311970e4914b3e3d8a894ec55c4296147ed7f",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "1ae377842a5f78f58d13e56a81632a0f927ad331c466b8a0aeba0656e1ae9dbd",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-deformable-017",
+    "exit": 2,
+    "wall_seconds": 4.708732083963696,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "951c9602593e39372c05bfcc3643202681c50988c578a72ad204f95dcf3ebf26",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "ca25fe0c4052153e9b30e99d4ceb3faacb95c3c72d9aa70aca316aae2f16ce2b",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-deformable-018",
+    "exit": 2,
+    "wall_seconds": 9.661490083963145,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "0d8c52e1aca7dd8e1c7340e797f89d3d5c7952ec7e598cf88368a55fa99dca8a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "60d943c4067b180c018f6f46a509558969c7ddc6e132dc8e7f4a3ea28b29d379",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-deformable-019",
+    "exit": 2,
+    "wall_seconds": 0.2934784999815747,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "6c33aeb916fd9dd28bbe39c9eb93d209098ef367bb4ee509c22494d0fa543899",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "d3d1503dc9563c2863ed7543975c916b8948283ad2b2b706c3241f2d203c710e",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-deformable-020",
+    "exit": 2,
+    "wall_seconds": 4.71200920798583,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "245c46eb92443d58138742c7ac37a65ba02b38350a48ed35cd6dd5bef1bbbb5c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "e91636eb7ec6333ad3560ef5339d7cd36d008207797239df392dd9d5968651c9",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-deformable-021",
+    "exit": 2,
+    "wall_seconds": 4.90462866704911,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "c793fe5345de43fbbaaf09bf790870556c284e7db7ad9de2dda45202ea9b6f80",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "a0cf3ffc9950e8f4a8bd86ca5e19c3913e09f0f221b1b79438a7750e9b937ae1",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  },
+  {
+    "attempt": "native-static-001",
+    "exit": 2,
+    "wall_seconds": 1.3709607920027338,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "1b25548666538306e8a9d9d364e8d5b11f3f93f8f420e1b6d2f51b1e63106838",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "91124ec448bf0b82d4a8c0bb7c818a83c7c61196327a53171faeb50fce963c31",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "9d5058d25de3622a4cca14d5cf1569d02c6ccb3ab4ea1fa881823e2c8575d9e5",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "c80dee297894684ac116a9404881d83e515a0bf04f7fa71b62e338504324de6f",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-002",
+    "exit": 2,
+    "wall_seconds": 2.916162667039316,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "91124ec448bf0b82d4a8c0bb7c818a83c7c61196327a53171faeb50fce963c31",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "c80dee297894684ac116a9404881d83e515a0bf04f7fa71b62e338504324de6f",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-003",
+    "exit": 2,
+    "wall_seconds": 19.252586957998574,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "feb662e201cd1b4c113716b5a0e956c3e4b160b215c9347f54df7e9d4adeda7b",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "a1a4f9ef819b0cfd65b502b7fc9fe1b0d8cce8813c576b47af1b1298ff859ee2",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-004",
+    "exit": 2,
+    "wall_seconds": 18.474258666974492,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "e808ddf18f1dc5abbe621e727b1628095389f07cef12566a3e521c01a3e66533",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "fcd803afc13bda2fcb870731c9a26d6724037c7f417d8d7ad0d36ad0185954ab",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-005",
+    "exit": 2,
+    "wall_seconds": 18.87235983397113,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "59d3cf7115a32288d438d08f3cb2fa159b162341cecde7138b96e97bcbfad0c1",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "15f0639aad6232db158947b37faca4475130dbff9fe0171066412c87cc11e693",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-006",
+    "exit": 2,
+    "wall_seconds": 17.195992916997056,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "0c19e55e27e561ecc0da851f36863b887c1a29e82d8b4a3d0f8ece1adad53d38",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "c46542472a7d47760bedf72be07cce93a107e974f29451fa8b741f5b2c6511c9",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-007",
+    "exit": -15,
+    "wall_seconds": 84.57931358396308,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "0a64a0ba5391f6695c7c72c478b55809b9f36e03ec0bacc6f4f7648c20d658a3",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "554ef0c996fa8e2938165d24755fd5f369dc608fba27ecd3eb4570d07363665a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-008",
+    "exit": 2,
+    "wall_seconds": 0.6283545409678482,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "9cbcc4944daa65b64e3f792ccb0d2fee815dbe4920e3a9082897008d22f4641b",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "d3463e6faff718e12f77bb768ca4852b5276ed8a4cef69171f53afecb5a7da3d",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-009",
+    "exit": 2,
+    "wall_seconds": 0.6538254579645582,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "695e4c38080bfca89063cfecf6b899b67fd4772a9d92a032587c20a544cb4d59",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "b212f7ecaca4c2d5735dabebf539aa9ff2fa85559bd4e023eee7601c1cadbbb3",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-010",
+    "exit": 2,
+    "wall_seconds": 0.25515620794612914,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "695e4c38080bfca89063cfecf6b899b67fd4772a9d92a032587c20a544cb4d59",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "b212f7ecaca4c2d5735dabebf539aa9ff2fa85559bd4e023eee7601c1cadbbb3",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-011",
+    "exit": 2,
+    "wall_seconds": 0.5752791669801809,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "d8ed9c32245a9ace1354e6e71f47757ff7c97e9d4449d608f94779601084ee29",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "765acbb263c2429103cc0c5e0d9199bd14997b71d09c9095778710fd370c347a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-012",
+    "exit": 2,
+    "wall_seconds": 0.786680500023067,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "72ea9a33d4e2ddae19d69082385e905f03ac4a2924567d7ba65fe0ae5d1c5ea4",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "8459d05cd9e68867a37630a4d1fd7e918a5d146fa17cdffdfd92873109100a4c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-013",
+    "exit": 0,
+    "wall_seconds": 1.1726914580212906,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "4e2221881f578da00b889b220f5856f9f7e13abb2b6b4f286a5ea2102aedab84",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "6a179d01445ef3ddf7d0523d2c61a0a009ae11c15e3ee007ac4d4329140f191a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "b3f78294a3ef76563885b4fedd76b4cc8f57c23021d7839aa2654d20b642fe7a",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+    }
+  },
+  {
+    "attempt": "native-static-022",
+    "exit": 0,
+    "wall_seconds": 0.9672716670320369,
+    "source_sha256": {
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "c793fe5345de43fbbaaf09bf790870556c284e7db7ad9de2dda45202ea9b6f80",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "a0cf3ffc9950e8f4a8bd86ca5e19c3913e09f0f221b1b79438a7750e9b937ae1",
+      "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+    }
+  }
+]

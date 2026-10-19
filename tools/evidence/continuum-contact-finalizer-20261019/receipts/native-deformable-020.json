@@ -1,0 +1,33 @@
+{
+  "scope": "FEM/static-plane contact with CV late external rejection, retry and clean acceptance; numerical regression only",
+  "expected": [
+    "external rejection restores FEM/material/contact/vascular authority bitwise",
+    "accepted contact friction history nonzero",
+    "retry equals clean restored control bitwise"
+  ],
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact"
+  ],
+  "environment": {
+    "NUMI_CONTACT_TWO_TISSUES": "1",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+    "NUMI_FEM_MPM_COMBINED": "0",
+    "NUMI_FEM_MPM_VASCULAR_ONLY": "0",
+    "DYLD_PRINT_LIBRARIES": "1"
+  },
+  "sha256": {
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "e9f169c4c40514f3e1c586f91771524aab47768aba094c33440d03bd95cdb06c",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "245c46eb92443d58138742c7ac37a65ba02b38350a48ed35cd6dd5bef1bbbb5c",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "7116dcca01a34e3ea54cb060a4dbad52516dc9ab5eeb2c18a1c72aba3e358fba",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "e91636eb7ec6333ad3560ef5339d7cd36d008207797239df392dd9d5968651c9",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "baeefe6b44ef62616677b8697c73b186dd86e3dcfa2cea22cf60e7a56448159f"
+  },
+  "visual_verification": false,
+  "exit": 2,
+  "wall_seconds": 4.71200920798583
+}

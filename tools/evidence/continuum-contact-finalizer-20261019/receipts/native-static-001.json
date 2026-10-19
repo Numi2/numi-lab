@@ -1,0 +1,32 @@
+{
+  "scope": "FEM/static-plane contact with CV late external rejection, retry and clean acceptance; numerical regression only",
+  "expected": [
+    "external rejection restores FEM/material/contact/vascular authority bitwise",
+    "accepted contact friction history nonzero",
+    "retry equals clean restored control bitwise"
+  ],
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact"
+  ],
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "1b25548666538306e8a9d9d364e8d5b11f3f93f8f420e1b6d2f51b1e63106838",
+    "NUMI_FEM_MPM_COMBINED": "0",
+    "NUMI_FEM_MPM_VASCULAR_ONLY": "0",
+    "DYLD_PRINT_LIBRARIES": "1"
+  },
+  "sha256": {
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "1b25548666538306e8a9d9d364e8d5b11f3f93f8f420e1b6d2f51b1e63106838",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/finalizer-contact": "91124ec448bf0b82d4a8c0bb7c818a83c7c61196327a53171faeb50fce963c31",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "9d5058d25de3622a4cca14d5cf1569d02c6ccb3ab4ea1fa881823e2c8575d9e5",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/finalizer-contact.mm": "c80dee297894684ac116a9404881d83e515a0bf04f7fa71b62e338504324de6f",
+    "/Users/numi/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/runtime.mm": "5808da5bc316875d0c7960990fc153d258dab4652fe69e7bd94fdd268715a911"
+  },
+  "visual_verification": false,
+  "exit": 2,
+  "wall_seconds": 1.3709607920027338
+}

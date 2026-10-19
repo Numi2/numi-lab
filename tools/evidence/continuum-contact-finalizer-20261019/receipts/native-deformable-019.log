@@ -1,0 +1,4 @@
+resting_job_lock waiting pid=20793
+resting_job_lock acquired pid=20793
+compile_diagnostic=reference-displacement FEM requires authored reference nodes and regional materials on explicit immutable non-mixed FEM without nodal fields, Human attachments, or identification
+FAIL static-contact FEM compile failed

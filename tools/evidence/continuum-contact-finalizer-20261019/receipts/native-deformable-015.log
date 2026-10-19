@@ -1,0 +1,6 @@
+resting_job_lock waiting pid=19999
+resting_job_lock acquired pid=19999
+scope objects=2 fem_nodes=8 tets=2 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=0 attachments=0 dt_s=0.00025
+device=Apple M6 fingerprint=17201794762098195691
+initial_snapshot_fem_nodes=8 fem_history=4 particles=1 particle_history=4 certificates=2
+FAIL deferred local finalization scope rejected: vascularOnly=0 objectScope=0 mpmOnly=0 femMpm=0 proof=0 commonUnsupported=0 immutable=1 hasFEM=1 hasMPM=0 globalFlags=257 objectCount=2 topologyCapacity=8 idCandidates=0 idDistributions=0 eventStride=16 eventMinimum=16 mutableTopology=0

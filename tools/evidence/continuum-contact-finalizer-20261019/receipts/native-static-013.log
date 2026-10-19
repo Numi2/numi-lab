@@ -1,0 +1,11 @@
+resting_job_lock waiting pid=19687
+resting_job_lock acquired pid=19687
+scope objects=1 fem_nodes=4 tets=1 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=1 attachments=0 dt_s=0.00025
+device=Apple M6 fingerprint=3650910126246385875
+initial_snapshot_fem_nodes=4 fem_history=4 particles=1 particle_history=4 certificates=1
+attempt_accept=0 matter_status=9 diagnostic=0.999917,0,0,0 object=4294967295 failing=0 completed_microsteps=1 gpu_seconds=0.278356 callbacks=1,1,1,1 fem_node_count=4 fem_history_count=4
+attempt_accept=1 matter_status=0 diagnostic=0.999917,0,0,0 object=4294967295 failing=4294967295 completed_microsteps=1 gpu_seconds=0.270995 callbacks=1,1,1,1 fem_node_count=4 fem_history_count=4
+accepted_contact_history_l1=0.000706032 history_records=1
+accepted_node_max_abs_delta_m=0.0269444 accepted_material_history_max_abs_delta=0.000119186 accepted_particle_max_abs_delta=0 initial_history=0,0,0,0, accepted_history=0,0.000119186,0,0,
+attempt_accept=1 matter_status=0 diagnostic=0.999917,0,0,0 object=4294967295 failing=4294967295 completed_microsteps=1 gpu_seconds=0.270481 callbacks=1,1,1,1 fem_node_count=4 fem_history_count=4
+PASS static_contact_FEM_vascular_late_reject_retry
