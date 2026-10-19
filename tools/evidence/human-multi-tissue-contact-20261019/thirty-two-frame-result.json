@@ -1,0 +1,18 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "elapsed_s": 14.67408779199468,
+  "pins": {
+    "executable": "ebdf3d40bf36a51dcb036bf196de8fb80e971c71977a58a2bd162080986acdc6",
+    "source": "d211f85b46c2c76cbac20ca6dd8a0383e712c840eb5fdc235ea087ef41d1a3a1",
+    "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "msl": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "library": "e3ba162bfa7bda96ba97e0592d1e04fabfe43ac770577e0ba9f62cdf5b7c0d80",
+    "runtime_source": "50787fc9719d51dca0cd06b43af3f7f864df59c1c42b8b9ad681d7b4ceff4075"
+  },
+  "stdout.log_sha256": "219ddd9ee1325146d056adb5a8ac4cb5e6cfe2ec164f9c27be267ebbfd2cbfc0",
+  "stderr.log_sha256": "0cf136e6169233c880f5051558ae48be93e7e82869ec3d54756cc12a30365724",
+  "loaded_library_lines": [
+    "dyld[805]: <CFB38B5B-09DC-31C5-9F65-B9A157A1A166> /Users/numi/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build/libmetalrobo.dylib"
+  ]
+}

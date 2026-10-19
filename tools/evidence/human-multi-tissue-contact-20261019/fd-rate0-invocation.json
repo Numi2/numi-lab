@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "case": "singleton fem operator FD with inert scalar state",
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/build/fd_singleton_probe",
+    "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-rate0-001",
+  "env": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "NM_FEM_OPERATOR_FD_SELECTOR": "0:0",
+    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-rate0-001/fd-capture"
+  },
+  "compile_options": {
+    "maximumRateExponent": 0
+  },
+  "world": {
+    "environment_count": 1,
+    "object_count": 1,
+    "object": "registered/right-kidney/FJ3147",
+    "nodes": 126,
+    "tets": 369,
+    "material_state_stride": 1,
+    "inert_state": "diagnostic_memory=0, identity update",
+    "contact": false,
+    "fixed_nodes": 1,
+    "dt_s": 0.00025,
+    "gravity_m_s2": [
+      0,
+      0,
+      -9.81
+    ]
+  },
+  "pins": {
+    "exe_sha256": "5cd148428d9d87d060cf6c1cde7482ebecf93bdbed662f7b417837d72d0547d5",
+    "source_sha256": "11f3c26416cb61a2337c6712c570e925c1e4713d67073aa9ac28b5506c69ac9f",
+    "asset_header_sha256": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "runtime_sha256": "e3ba162bfa7bda96ba97e0592d1e04fabfe43ac770577e0ba9f62cdf5b7c0d80",
+    "msl_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "loaded_runtime_path": "/Users/numi/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build/libmetalrobo.dylib"
+  }
+}

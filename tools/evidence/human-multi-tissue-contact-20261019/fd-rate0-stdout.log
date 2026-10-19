@@ -1,0 +1,1 @@
+{"case":"single_explicit_fem_operator_fd","object_count":1,"nodes":126,"tets":369,"self_contact":false,"deformable_contact":false,"fixed_reference_nodes":1,"gravity_m_s2":[0,0,-9.81],"dt_s":0.00025000000000000001,"newton_iterations":12,"fgmres_iterations":64,"status":0}

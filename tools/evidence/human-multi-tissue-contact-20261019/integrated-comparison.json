@@ -1,0 +1,11 @@
+{
+  "physiology_csv_byte_equal": true,
+  "baseline_csv_sha256": "bf0e381e146d32ce03b7ee2d3ff933f4440cfb13dc2ca07341174068f40740cf",
+  "candidate_csv_sha256": "bf0e381e146d32ce03b7ee2d3ff933f4440cfb13dc2ca07341174068f40740cf",
+  "loaded_library_lines": [
+    "dyld[973]: <A124C49E-1A6C-32E1-9868-B1594403AB75> /Users/numi/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build-guarded/libmetalrobo.dylib"
+  ],
+  "no_visual_verification": true,
+  "accepted_horizon_s": 0.00025,
+  "sustained_performance_claim": false
+}

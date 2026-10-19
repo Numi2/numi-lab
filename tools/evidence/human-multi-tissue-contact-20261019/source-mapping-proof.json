@@ -1,0 +1,18 @@
+{
+  "base_commit": "e9a3dd8da0bed3dec0929423120d7fea043eaac6",
+  "runtime_source_sha256": "50787fc9719d51dca0cd06b43af3f7f864df59c1c42b8b9ad681d7b4ceff4075",
+  "fem_source_sha256": "01b19e3e22fca649a7fb1786d9c56b8abe51b29cb01f40d643dae037e8e26ae4",
+  "reconstructed_flat_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+  "tested_flat_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+  "exact_composition_equal": true,
+  "modified_kernel_names": [
+    "nm_fem_armijo_begin_trial",
+    "nm_fem_armijo_begin_bounded_trial",
+    "nm_fem_armijo_validate_geometry",
+    "nm_fem_armijo_decide"
+  ],
+  "fgmres_kernel_changed": false,
+  "newton_trials_changed": false,
+  "tolerances_changed": false,
+  "line_search_ccd_changed": false
+}

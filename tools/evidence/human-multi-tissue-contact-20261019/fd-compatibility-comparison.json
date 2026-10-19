@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "comparison": "same executable, source, asset, compiled world, and selected root/iteration; only runtime dylib and MSL source differ",
+  "run_runtime272_msl270": {
+    "runtime_sha256": "e3ba162bfa7bda96ba97e0592d1e04fabfe43ac770577e0ba9f62cdf5b7c0d80",
+    "msl_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "status": 0,
+    "world_fingerprint": 1805934846214197696,
+    "execution_fingerprint": 9475188199008243593
+  },
+  "run_runtime261_contact_only": {
+    "runtime_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+    "msl_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+    "status": 0,
+    "world_fingerprint": 1805934846214197696,
+    "execution_fingerprint": 16013726532124292562
+  },
+  "fingerprints": {
+    "world_equal": true,
+    "execution_equal": false,
+    "execution_values": [
+      9475188199008243593,
+      16013726532124292562
+    ]
+  },
+  "status_equal": true,
+  "epsilon_comparisons": [
+    {
+      "epsilon": 0.03125,
+      "exact_equal_numeric_fields": {
+        "stage_status_codes_plus_minus": [
+          0,
+          0
+        ],
+        "minimum_j_plus_minus": [
+          0.999984801,
+          0.999991119
+        ],
+        "residual_plus_l2": 4.16484472e-05,
+        "residual_minus_l2": 4.42735e-05,
+        "operator_action_l2": 4.2034113e-05,
+        "centered_fd_l2": 4.30801301e-05,
+        "error_l2": 5.71254122e-06,
+        "relative_error": 0.132602692,
+        "action_dot_fd": 1.79506565e-09,
+        "action_fd_cosine": 0.991291642,
+        "operator_status_code": 0,
+        "input_integrity_flag": 1,
+        "maximum_delta_velocity": 0.002753017,
+        "maximum_position_perturbation": 2.15079456e-08
+      },
+      "exact_equal_other_fields": {
+        "direction_nonzero": true
+      },
+      "relative_operator_fd_error": 0.132602692
+    },
+    {
+      "epsilon": 0.015625,
+      "exact_equal_numeric_fields": {
+        "stage_status_codes_plus_minus": [
+          0,
+          0
+        ],
+        "minimum_j_plus_minus": [
+          0.999995112,
+          0.999994278
+        ],
+        "residual_plus_l2": 4.23216552e-05,
+        "residual_minus_l2": 4.36020964e-05,
+        "operator_action_l2": 4.2034113e-05,
+        "centered_fd_l2": 4.22959929e-05,
+        "error_l2": 8.96806523e-06,
+        "relative_error": 0.212031081,
+        "action_dot_fd": 1.73769565e-09,
+        "action_fd_cosine": 0.977400601,
+        "operator_status_code": 0,
+        "input_integrity_flag": 1,
+        "maximum_delta_velocity": 0.002753017,
+        "maximum_position_perturbation": 1.07539728e-08
+      },
+      "exact_equal_other_fields": {
+        "direction_nonzero": true
+      },
+      "relative_operator_fd_error": 0.212031081
+    }
+  ],
+  "qualification": "Compatibility/readback check only. Relative operator-vs-centered-FD errors are 13.2602692% and 21.2031081%; neither is claimed as tangent-accuracy qualification.",
+  "limitations": [
+    "one isolated explicit FEM object",
+    "diagnostic inert scalar state enables material-state scratch allocation",
+    "no contact",
+    "one gravity-perturbed step",
+    "cached tangent snapshot unavailable"
+  ]
+}

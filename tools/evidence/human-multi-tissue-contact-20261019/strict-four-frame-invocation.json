@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-001/build/registered_organ_pair_contact",
+    "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-001/native-strict-reference-003",
+  "timeout_s": 120,
+  "solver_budget": {
+    "newton": 12,
+    "fgmres": 64
+  },
+  "relative_residual": "1e-6",
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/ccd-vt-interval-270/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": "all",
+    "NUMI_TEST_RELATIVE_RESIDUAL": "1e-6"
+  },
+  "pins": {
+    "executable": "adf1927c38df36e748841e3420873b3813bb81819c59a7d8b3b29cd7ba13ce45",
+    "source": "d63603247b65f4eb5168dad9ad0b49a5d03d1b371b43bb6e94bca1b1a00ca882",
+    "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "msl": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+    "library": "e3ba162bfa7bda96ba97e0592d1e04fabfe43ac770577e0ba9f62cdf5b7c0d80",
+    "runtime_source": "50787fc9719d51dca0cd06b43af3f7f864df59c1c42b8b9ad681d7b4ceff4075"
+  }
+}

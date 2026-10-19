@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "case": "same singleton FD world compatibility run",
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/build/fd_singleton_probe",
+    "/Users/n/numi-human-separation-20261018/C/tissue-contact-publication-268/MatterSource-contact-only-001.metal"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-compat-261-001",
+  "env": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/tissue-contact-publication-268/MatterSource-contact-only-001.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+    "NM_FEM_OPERATOR_FD_SELECTOR": "0:0",
+    "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-compat-261-001/fd-capture"
+  },
+  "compile_options": {
+    "maximumRateExponent": 0
+  },
+  "pins": {
+    "exe_sha256": "5cd148428d9d87d060cf6c1cde7482ebecf93bdbed662f7b417837d72d0547d5",
+    "source_sha256": "11f3c26416cb61a2337c6712c570e925c1e4713d67073aa9ac28b5506c69ac9f",
+    "asset_header_sha256": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "runtime_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+    "msl_sha256": "13af0a43bfe7b9079b8d62f655d3ec16038cbce4e58380f5549a20646a886e15",
+    "loaded_runtime_path": "/Users/numi/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib"
+  },
+  "same_world_as_runtime272_run": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-rate0-001"
+}

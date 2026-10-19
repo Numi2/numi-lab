@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "exit_code": 0,
+  "loaded_runtime_path": "/Users/numi/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+  "loaded_runtime_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "native_stdout_sha256": "16243db5f14f0caac67c0b59a29ae2a488799d032d58375287f0ab6d36787757",
+  "native_stderr_sha256": "e934e5b7d2180841a3d75ef85a1a88d301eccc4d003b427938ed183c06f6320e",
+  "fd_capture_sha256": "19349069b73e0eb4666b090dd4ed651afcc3ab663260e22e4c3e23d686ec78a6",
+  "fd_enabled": {
+    "schema": 1,
+    "root": 0,
+    "iteration": 0,
+    "epsilons": [
+      0.03125,
+      0.015625
+    ],
+    "unknown": "velocity correction; paired positions shift by dt*epsilon*delta_v",
+    "operator": "production FEM element tangent plus production FGMRES node gather",
+    "residual": "production assembled free-node mechanical impulse",
+    "mutation_check": "bitwise accepted material history, tetrahedron frame/reference data, and production status"
+  },
+  "fd_iteration": {
+    "schema": 1,
+    "root": 0,
+    "newton_iteration": 0,
+    "world_fingerprint": 1805934846214197696,
+    "execution_fingerprint": 16013726532124292562,
+    "contract": {
+      "unknown": "velocity correction",
+      "position_delta": "dt*epsilon*delta_v",
+      "residual_units": "impulse",
+      "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+      "scope": "no-contact explicit FEM"
+    },
+    "production_inputs_bitwise_unchanged": true,
+    "cached_tangent_snapshot_available": false,
+    "cached_tangent_snapshot_bitwise_guard_included": false,
+    "environments": [
+      {
+        "epsilon_pairs": [
+          {
+            "epsilon": 0.03125,
+            "dt": 0.000250000012,
+            "position_delta": 7.81250037e-06,
+            "free_node_count": 125,
+            "residual_plus_l2": 4.16484472e-05,
+            "residual_minus_l2": 4.42735e-05,
+            "operator_action_l2": 4.2034113e-05,
+            "centered_fd_l2": 4.30801301e-05,
+            "error_l2": 5.71254122e-06,
+            "relative_error": 0.132602692,
+            "action_dot_fd": 1.79506565e-09,
+            "action_fd_cosine": 0.991291642,
+            "stage_status_codes_plus_minus": [
+              0,
+              0
+            ],
+            "minimum_j_plus_minus": [
+              0.999984801,
+              0.999991119
+            ],
+            "operator_status_code": 0,
+            "input_integrity_flag": 1,
+            "direction_nonzero": true,
+            "maximum_delta_velocity": 0.002753017,
+            "maximum_position_perturbation": 2.15079456e-08
+          },
+          {
+            "epsilon": 0.015625,
+            "dt": 0.000250000012,
+            "position_delta": 3.90625019e-06,
+            "free_node_count": 125,
+            "residual_plus_l2": 4.23216552e-05,
+            "residual_minus_l2": 4.36020964e-05,
+            "operator_action_l2": 4.2034113e-05,
+            "centered_fd_l2": 4.22959929e-05,
+            "error_l2": 8.96806523e-06,
+            "relative_error": 0.212031081,
+            "action_dot_fd": 1.73769565e-09,
+            "action_fd_cosine": 0.977400601,
+            "stage_status_codes_plus_minus": [
+              0,
+              0
+            ],
+            "minimum_j_plus_minus": [
+              0.999995112,
+              0.999994278
+            ],
+            "operator_status_code": 0,
+            "input_integrity_flag": 1,
+            "direction_nonzero": true,
+            "maximum_delta_velocity": 0.002753017,
+            "maximum_position_perturbation": 1.07539728e-08
+          }
+        ]
+      }
+    ]
+  },
+  "runtime272_comparison": {
+    "reference_result": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/armijo-multifem-001/fd-singleton-minj-001/diagnostic-inert-state-rate0-003/native-fd-rate0-001/result.json",
+    "same_world_fingerprint": true,
+    "same_execution_fingerprint": false,
+    "all_metrics_identical": true,
+    "compared_fields": [
+      "stage_status_codes_plus_minus",
+      "minimum_j_plus_minus",
+      "residual_plus_l2",
+      "residual_minus_l2",
+      "operator_action_l2",
+      "centered_fd_l2",
+      "error_l2",
+      "relative_error",
+      "action_dot_fd",
+      "action_fd_cosine",
+      "input_integrity_flag",
+      "direction_nonzero",
+      "maximum_delta_velocity",
+      "maximum_position_perturbation"
+    ],
+    "differences": {}
+  },
+  "interpretation": "The FD metrics are numerically identical across runtime261/contact-only MSL and runtime272/MSL270 for this singleton diagnostic. Relative errors remain 13.26% and 21.20%; this validates compatibility and the minimum-J readback path, not tangent accuracy."
+}

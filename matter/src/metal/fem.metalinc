@@ -4527,15 +4527,12 @@ kernel void nm_fem_armijo_begin_trial(
     constant NMMixedSolverGPU& solver [[buffer(6)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u) return;
-    const uint objectSlot = environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u) return;
+    const uint objectBase = environment * dispatch.objectCount;
     float4 state = metrics[environment];
     const float proposedAlpha = exp2(-float(trialIndex));
-    // The final relative certificate divides by max(referenceNorm, 1).
-    // This absolute threshold is a conservative bound for that same gate.
-    // Once the current iterate meets it,
-    // test that exact candidate with alpha zero. The private geometry,
-    // material and residual evaluations below still have to certify it.
+    // The existing residual certificate is unchanged. A converged environment
+    // tests its unchanged state at alpha zero through the same private gates.
     const float certificateBound = solver.residualTolerances.x;
     const bool alreadyConverged = trialIndex == 0u && isfinite(state.x) &&
         isfinite(certificateBound) && state.x <= certificateBound;
@@ -4544,10 +4541,14 @@ kernel void nm_fem_armijo_begin_trial(
         state.z = alpha;
         trialStatuses[environment] = {};
         state.y = INFINITY;
-        lineSearch[objectSlot] = float4(
-            0.0f, INFINITY, float(trialIndex), float(microstep.solverIteration));
+        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+             ++objectIndex) {
+            lineSearch[objectBase + objectIndex] = float4(
+                0.0f, INFINITY, float(trialIndex),
+                float(microstep.solverIteration));
+        }
     } else {
-        // A selected alpha makes later trials for this environment no-ops.
+        // An accepted environment makes later private trials no-ops.
         trialStatuses[environment] = {};
         trialStatuses[environment].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
     }
@@ -4568,18 +4569,22 @@ kernel void nm_fem_armijo_begin_bounded_trial(
     constant NMMixedSolverGPU& solver [[buffer(6)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+    if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u)
         return;
-    const uint objectSlot = environment * dispatch.objectCount;
-    float4 state = metrics[environment];
-    const float initialBound = trialIndex == 0u
-        ? lineSearch[objectSlot].x : lineSearch[objectSlot].z;
+    const uint objectBase = environment * dispatch.objectCount;
+    float initialBound = trialIndex == 0u
+        ? lineSearch[objectBase].x : lineSearch[objectBase].z;
+    for (uint objectIndex = 1u; objectIndex < dispatch.objectCount;
+         ++objectIndex) {
+        const float objectBound = trialIndex == 0u
+            ? lineSearch[objectBase + objectIndex].x
+            : lineSearch[objectBase + objectIndex].z;
+        initialBound = min(initialBound, objectBound);
+    }
     const float proposedAlpha = initialBound * exp2(-float(trialIndex));
-    // The final relative certificate divides by max(referenceNorm, 1).
-    // This absolute threshold is a conservative bound for that same gate.
-    // Once the current iterate meets it,
-    // test that exact candidate with alpha zero. The private geometry,
-    // material and residual evaluations below still have to certify it.
+    float4 state = metrics[environment];
+    // The existing residual certificate is unchanged. A converged environment
+    // tests its unchanged state at alpha zero through the same private gates.
     const float certificateBound = solver.residualTolerances.x;
     const bool alreadyConverged = trialIndex == 0u && isfinite(state.x) &&
         isfinite(certificateBound) && state.x <= certificateBound;
@@ -4588,9 +4593,12 @@ kernel void nm_fem_armijo_begin_bounded_trial(
         state.z = alpha;
         trialStatuses[environment] = {};
         state.y = INFINITY;
-        lineSearch[objectSlot] = float4(
-            0.0f, INFINITY, initialBound,
-            float(microstep.solverIteration));
+        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+             ++objectIndex) {
+            lineSearch[objectBase + objectIndex] = float4(
+                0.0f, INFINITY, initialBound,
+                float(microstep.solverIteration));
+        }
     } else {
         trialStatuses[environment] = {};
         trialStatuses[environment].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
@@ -4651,38 +4659,53 @@ kernel void nm_fem_armijo_validate_geometry(
     device const NMFEMNodeStateGPU* trialCandidate [[buffer(7)]],
     device NMMatterStatusGPU* trialStatuses [[buffer(8)]],
     device float4* lineSearch [[buffer(9)]],
+    constant uint& writeObjectLineSearch [[buffer(10)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u ||
+    if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u ||
         !environmentHealthy(trialStatuses, environment)) return;
-    const NMContinuumObjectGPU object = objects[0];
-    const NMSchedulerStateGPU scheduler = schedulers[environment];
-    const NMAdaptiveStateGPU adaptiveState = adaptive[environment];
-    if (!objectDue(object, scheduler, adaptiveState, microstep)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
-    float minimumJ = INFINITY;
-    for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
-        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
-            dispatch, tetrahedra, environment, local);
-        if (tetrahedron.identity.y != 0u ||
-            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
-        const float determinantValue = determinant(
-            tetrahedronDeformation(tetrahedron, trialCandidate, nodeBase));
-        const NMMaterialGPU material = materials[tetrahedron.identity.x];
-        minimumJ = min(minimumJ, determinantValue);
-        if (!isfinite(determinantValue) ||
-            determinantValue < max(dispatch.numericalLimits.z, material.validity.x) ||
-            determinantValue > material.validity.y) {
-            recordFailure(trialStatuses[environment],
-                NM_STATUS_INVALID_DEFORMATION, 0u, microstep.solverIteration,
-                float4(determinantValue, material.validity.x,
-                    material.validity.y, dispatch.numericalLimits.z));
-            break;
+    const uint objectBase = environment * dispatch.objectCount;
+    for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+         ++objectIndex) {
+        if (!environmentHealthy(trialStatuses, environment)) break;
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const NMSchedulerStateGPU scheduler =
+            schedulers[objectBase + objectIndex];
+        const NMAdaptiveStateGPU adaptiveState =
+            adaptive[objectBase + objectIndex];
+        if (object.representation != NM_REPRESENTATION_FEM ||
+            !objectDue(object, scheduler, adaptiveState, microstep)) continue;
+        float minimumJ = INFINITY;
+        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                dispatch, tetrahedra, environment, local);
+            if (tetrahedron.identity.y != objectIndex ||
+                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            const float determinantValue = determinant(
+                tetrahedronDeformation(tetrahedron, trialCandidate, nodeBase));
+            const NMMaterialGPU material = materials[tetrahedron.identity.x];
+            minimumJ = min(minimumJ, determinantValue);
+            if (!isfinite(determinantValue) ||
+                determinantValue < max(dispatch.numericalLimits.z,
+                    material.validity.x) ||
+                determinantValue > material.validity.y) {
+                recordFailure(trialStatuses[environment],
+                    NM_STATUS_INVALID_DEFORMATION, objectIndex,
+                    microstep.solverIteration,
+                    float4(determinantValue, material.validity.x,
+                        material.validity.y, dispatch.numericalLimits.z));
+                break;
+            }
+        }
+        if (writeObjectLineSearch != 0u) {
+            const uint lineSlot = objectBase + objectIndex;
+            float4 line = lineSearch[lineSlot];
+            line.x = 0.0f;
+            line.y = minimumJ;
+            lineSearch[lineSlot] = line;
         }
     }
-    lineSearch[environment] = float4(
-        0.0f, minimumJ, lineSearch[environment].z,
-        lineSearch[environment].w);
 }
 
 kernel void nm_fem_armijo_measure_trial(
@@ -4759,7 +4782,7 @@ kernel void nm_fem_armijo_decide(
     constant uint& fallbackAllowed [[buffer(11)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+    if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u)
         return;
     (void)fgmresStates;
     float4 state = metrics[environment];
@@ -4768,35 +4791,28 @@ kernel void nm_fem_armijo_decide(
     const float bound = (1.0f - solver.globalization.x * alpha) * state.x;
     const bool statusesHealthy = environmentHealthy(statuses, environment) &&
         environmentHealthy(trialStatuses, environment);
-    const bool armijoAccept = state.w <= 0.5f && statusesHealthy &&
-        alpha > 0.0f && state.y < state.x &&
-        isfinite(state.x) && isfinite(state.y) && isfinite(bound) &&
-        state.y <= bound;
-    // A zero step preserves an already-converged candidate. This is a
-    // convergence test, not a relaxation of Armijo or final acceptance.
+    const bool armijoAccept = statusesHealthy && alpha > 0.0f &&
+        state.y < state.x && isfinite(state.x) && isfinite(state.y) &&
+        isfinite(bound) && state.y <= bound;
+    // A zero step preserves an already-converged candidate. The same certified
+    // no-op rule and residual gate apply regardless of the object count.
     const float certificateResidualBound = solver.residualTolerances.x;
-    const bool certifiedNoop = state.w <= 0.5f && trialIndex == 0u &&
-        alpha == 0.0f && statusesHealthy &&
-        isfinite(certificateResidualBound) && isfinite(state.x) &&
-        isfinite(state.y) && state.x <= certificateResidualBound &&
+    const bool certifiedNoop = trialIndex == 0u && alpha == 0.0f &&
+        statusesHealthy && isfinite(certificateResidualBound) &&
+        isfinite(state.x) && isfinite(state.y) &&
+        state.x <= certificateResidualBound &&
         state.y <= certificateResidualBound;
+    const uint objectBase = environment * dispatch.objectCount;
     if (armijoAccept || certifiedNoop) {
-        float4 nextState = state;
-        nextState.w = certifiedNoop ? 2.0f : 1.0f;
-        metrics[environment] = nextState;
-        const uint slot = environment * dispatch.objectCount;
-        float4 line = lineSearch[slot];
+        state.w = certifiedNoop ? 2.0f : 1.0f;
+        metrics[environment] = state;
         // Empty coupled-block limiters require a positive shared alpha.
         // Represent a certified no-op as an exactly zero correction with
-        // alpha one; this preserves the tested candidate without weakening
-        // any residual or geometry gate.
+        // alpha one, preserving the tested candidate and all final gates.
         if (certifiedNoop) {
             const uint nodeBase = environment * dispatch.femNodeCount;
             for (uint node = 0u; node < dispatch.femNodeCount; ++node)
                 correction[nodeBase + node] = float4(0.0f);
-            // Keep the mixed-vector layout expression local to this FEM
-            // include. fem.metalinc is included before fgmres.metalinc, so
-            // calling fgmresRigidBase here is an include-order dependency.
             const uint rigidBase = 2u * dispatch.environmentCount *
                 dispatch.femNodeCount +
                 dispatch.environmentCount * dispatch.mpmActiveNodeCapacity +
@@ -4805,42 +4821,45 @@ kernel void nm_fem_armijo_decide(
                  dof < dispatch.rigidGeneralizedCapacity; ++dof)
                 correction[rigidBase + dof] = float4(0.0f);
         }
-        line.x = certifiedNoop ? 1.0f : alpha;
-        line.z = float(trialIndex + 1u);
-        line.w = float(microstep.solverIteration);
-        lineSearch[slot] = line;
-        // FEM and free-rigid generalized rows share one Newton correction.
-        // Publish the tested alpha to the environment-wide arena in the same
-        // decision that accepts this trial, before either block is applied.
-        environmentLineSearch[environment] = line.x;
+        const float acceptedAlpha = certifiedNoop ? 1.0f : alpha;
+        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+             ++objectIndex) {
+            const uint slot = objectBase + objectIndex;
+            float4 line = lineSearch[slot];
+            line.x = acceptedAlpha;
+            line.z = float(trialIndex + 1u);
+            line.w = float(microstep.solverIteration);
+            lineSearch[slot] = line;
+        }
+        environmentLineSearch[environment] = acceptedAlpha;
     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
         if (fallbackAllowed != 0u && statusesHealthy) {
-            // The primary Newton line search exhausted only its smooth,
-            // healthy residual tests. A later explicitly requested
-            // base-state Cauchy pass may replace this direction; keep the
-            // transaction status healthy but mark the private metrics so
-            // no primary direction is accidentally applied in between.
+            // Preserve explicit fallback state while publishing zero alpha to
+            // every object row before the replacement direction.
             state.w = 3.0f;
             metrics[environment] = state;
-            const uint slot = environment * dispatch.objectCount;
+            for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+                 ++objectIndex) {
+                const uint slot = objectBase + objectIndex;
+                float4 line = lineSearch[slot];
+                line.x = 0.0f;
+                line.z = 0.0f;
+                line.w = float(microstep.solverIteration);
+                lineSearch[slot] = line;
+            }
+            environmentLineSearch[environment] = 0.0f;
+            return;
+        }
+        // Reject the environment-wide correction consistently.
+        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+             ++objectIndex) {
+            const uint slot = objectBase + objectIndex;
             float4 line = lineSearch[slot];
             line.x = 0.0f;
             line.z = 0.0f;
             line.w = float(microstep.solverIteration);
             lineSearch[slot] = line;
-            environmentLineSearch[environment] = 0.0f;
-            return;
         }
-        // No tested candidate was accepted. Both production apply kernels
-        // execute after this decision, including on the failure path. Leaving
-        // the rigid environment alpha at its geometry-limiter value would
-        // apply an untested rigid correction while FEM uses zero.
-        const uint slot = environment * dispatch.objectCount;
-        float4 line = lineSearch[slot];
-        line.x = 0.0f;
-        line.z = 0.0f;
-        line.w = float(microstep.solverIteration);
-        lineSearch[slot] = line;
         environmentLineSearch[environment] = 0.0f;
         recordFailure(statuses[environment],
             NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u,
