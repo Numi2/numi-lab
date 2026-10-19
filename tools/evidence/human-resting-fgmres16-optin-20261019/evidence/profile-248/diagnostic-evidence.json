@@ -1,0 +1,41 @@
+{
+  "schema": "numi.solver_profile_248_diagnostic_receipt.v1",
+  "run_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/app-profile/build/run-plan.json",
+  "run_plan_sha256": "0cf52490b7acf1f84d2ce593e9ae262ba1667dd5c6c9ee3425b9fc0c90e3145b",
+  "invocation_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/native-run-001/joint/invocation.json",
+  "invocation_sha256": "3565a9044e0ab65de461ae2601699952c5f318e79d276aa2577d95b7803ad34d",
+  "summary_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/native-run-001/summary.json",
+  "summary_sha256": "a8f5d5dd4e9b62b55b917af36a29543810c835cec2fbff97f7cfe682b55786f4",
+  "native_log_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/native-run-001/joint/native.log",
+  "native_log_sha256": "5eded85834137f4d8fbf48e0c6bffec9a6df7510a1984f03c831b70275afe718",
+  "scenario": "joint",
+  "step_count": 1,
+  "step_seconds": 0.00025,
+  "process_exit": 0,
+  "runner_wall_seconds": 82.69418308296008,
+  "accepted_log": "resting_native_profile step=1 command_ms=69791.615583 gpu_ms=69751.521125 host_copy_ms=0.441542 full_state_readback=1",
+  "accepted_status": "matter_solver_iteration_diagnostic accepted_step=1 status_code=0 completed_microsteps=256 last_microstep_fgmres_iterations_max=16 configured_newton_budget=12 configured_fgmres_budget=64 count_scope=max_total_used_in_last_microstep_not_per_newton",
+  "solver_budget_entry_count": 3072,
+  "solver_budget_entry_shape": "256 microticks x Newton entry indices 0 through 11 (12 budget entries per microtick)",
+  "encoded_solver_parameters": {
+    "newton_budget": 12,
+    "fgmres_budget": 64,
+    "restart": 16,
+    "restart_cycles": 4,
+    "unknown_count": 1922
+  },
+  "fgmres_timing": {
+    "valid_samples": 32,
+    "sum_valid_sample_ns": 694700790,
+    "unavailable_samples": 3040,
+    "unavailable_reason": "counter_buffer_allocation: Cannot allocate sample buffer",
+    "interpretation": "Timing coverage is partial; valid samples cover only 32 encoders and cannot explain the remaining runtime."
+  },
+  "accepted_physics_output": {
+    "resting_coupled_csv_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/native-run-001/joint/output/resting-coupled.csv",
+    "sha256": "7e5d177ae7cbfe5c7c470bcfa8814e394f469678d1cd62289bedbb6a94b0a800",
+    "matches_profile_006_joint_csv_sha256": "7e5d177ae7cbfe5c7c470bcfa8814e394f469678d1cd62289bedbb6a94b0a800"
+  },
+  "visual_verification": false,
+  "qualification_limit": "One accepted coupled step is a functional check and profiling sample, not a horizon/performance qualification."
+}

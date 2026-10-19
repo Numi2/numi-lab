@@ -1,0 +1,15 @@
+{
+  "schema": "numi.continuum_integrated_vessel_skin_prostate_run_summary.v1",
+  "plan_sha256": "0cf52490b7acf1f84d2ce593e9ae262ba1667dd5c6c9ee3425b9fc0c90e3145b",
+  "binary_sha256": "618ee942f626ca949ce3e85b11155122d1a6fe359e672343bcbd47a3ac9922cb",
+  "runtime_library_sha256": "3c3b01bd10d8f37424ec80ffc2bd98083d59b8cd0c004873236e69d2c773ff9b",
+  "attempts": [
+    {
+      "scenario": "joint",
+      "process_exit": 0,
+      "seconds": 82.69418308296008,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/profile-248/native-run-001/joint/invocation.json"
+    }
+  ],
+  "visual_verification": false
+}

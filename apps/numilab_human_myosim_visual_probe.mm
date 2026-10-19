@@ -27328,6 +27328,27 @@ int main(int argc, char** argv) {
                         ? &restingPassiveFasciaOwner->authoredWorldSource : nullptr,
                     restingPassiveFasciaOwner&&restingPassiveFasciaOwner->aorticWall
                         ? &*restingPassiveFasciaOwner->aorticWall : nullptr);
+                const char* restingFgmresBudgetSetting =
+                    std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
+                require(restingFgmresBudgetSetting == nullptr ||
+                            std::strcmp(restingFgmresBudgetSetting, "0") == 0 ||
+                            std::strcmp(restingFgmresBudgetSetting, "16") == 0,
+                        "NUMI_HUMAN_RESTING_FGMRES_BUDGET must be unset, 0, or 16");
+                const auto cookedFgmresBudget =
+                    coupled.physiology.runtime.fgmresIterationBudget();
+                if (restingFgmresBudgetSetting != nullptr &&
+                    std::strcmp(restingFgmresBudgetSetting, "16") == 0) {
+                    require(cookedFgmresBudget >= 16u &&
+                                coupled.physiology.runtime.setFGMRESIterationBudget(16u) &&
+                                coupled.physiology.runtime.fgmresIterationBudget() == 16u,
+                            "Matter rejected the opt-in 16-iteration FGMRES budget");
+                }
+                std::cout << "resting_fgmres_budget_selection requested="
+                          << (restingFgmresBudgetSetting == nullptr ? "default" : restingFgmresBudgetSetting)
+                          << " cooked=" << cookedFgmresBudget
+                          << " effective=" << coupled.physiology.runtime.fgmresIterationBudget()
+                          << " restart_width=" << coupled.physiology.world.mixedSolver.nonlinearIterations.y
+                          << std::endl;
                 if(restingPassiveFasciaOwner) {
                     auto& owner=*restingPassiveFasciaOwner;
                     require(owner.preparationOnly && !owner.runtime.valid(),
