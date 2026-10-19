@@ -1,0 +1,55 @@
+{
+  "scope": "short native numerical consistency only; not sustained stability or physiological qualification",
+  "loaded_pinned_runtime": true,
+  "registered_source_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "accepted_trace_rows": 2,
+  "accepted_final_step": 2.0,
+  "accepted_simulated_seconds": 0.000500000023749,
+  "whole_body_shell": [
+    {
+      "resting_FEM_object_capture": "summary",
+      "object": "BodyParts3D whole-body skin-fat bonded shell",
+      "first_node": "564",
+      "node_count": "6996",
+      "first_tet": "1620",
+      "tet_count": "27714",
+      "max_displacement_m": "6.186827122e-06",
+      "max_displacement_local_node": "5416",
+      "max_free_displacement_m": "2.867573513e-06",
+      "max_free_local_node": "2070",
+      "max_anchored_displacement_m": "6.186827122e-06",
+      "max_anchored_local_node": "5416",
+      "max_speed_m_s": "0.02450240126",
+      "max_speed_local_node": "5416",
+      "min_J": "0.5844423591",
+      "min_J_local_tet": "20402",
+      "max_J": "1.572459291",
+      "max_J_local_tet": "22442"
+    }
+  ],
+  "initialized_inner_boundary_render": {
+    "accepted_fem_boundary_render": "prepared",
+    "object_name": "BodyParts3D whole-body skin-fat bonded shell",
+    "object_index": "3",
+    "layers": "inner_skin,deep_fat",
+    "nodes_per_layer": "2332",
+    "faces": "4619",
+    "rendered_layers": "2",
+    "inner_vertex_range": "[2920390,2922722)",
+    "deep_fat_vertex_range": "[2922722,2925054)",
+    "accepted_snapshot_owner": "Runtime::snapshot",
+    "layer_masks": "128,256",
+    "self_contact": "material_column_bound",
+    "layer_configuration": "skin_bounds_m=0.00050000000000000001,0.0025000000000000001;fat_bounds_m=0.00050000000000000001,0.01;skin_field_range_m=0.00054920999092352243,0.0024543071441299109;fat_field_range_m=0.00051969976517374,0.0099028902653912707;geometry=precomputed_exact_boundaries;layer_fit_method=frozen bounded direct-coordinate fit; passed exact Float32 geometry, closed boundary, full-size FromLayers and negative API regression gates; no native evolution or anatomical qualification;layer_receipt_sha256=f99da232e900ad80bad3dc13f4dc9e1479aa1b9b81d7e285d98c97aef769d7bb;mechanical_moved_vertices=404;max_retained_node_delta_m=0.0029461144892161235;skin_volume_m3=0.0034525707761420958;fat_volume_m3=0.011652343293850826;direction_sha256=7bd6fb3d0ff822e03cfb05d69292f3368d726f0fb27056fdb412269e50f674e4;coordinates_sha256=0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a"
+  },
+  "inner_boundary_render_scope": "accepted endpoint GPU presentation completed; no visual inspection or sustained stability claim",
+  "accepted_rendered_steps": [
+    0,
+    2
+  ],
+  "FEM_object_count": 10,
+  "all_FEM_min_J": 0.5844423591,
+  "root_assistance_zero": true,
+  "body_mass_residual_within_1e-5_kg": true,
+  "trace_sha256": "f8466d9471471b0c3e7295ef16e03810c382affea130fc06e04155d9e433726c"
+}

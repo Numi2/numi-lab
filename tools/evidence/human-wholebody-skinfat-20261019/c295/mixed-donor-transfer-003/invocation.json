@@ -1,0 +1,19 @@
+{
+  "schema": "numi.wholebody_mixed_donor_include_layout_test.invocation.v1",
+  "argv": [
+    "clang++",
+    "-std=c++17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/source/apps",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/human_accepted_fem_skin_transfer.cpp",
+    "-o",
+    "/tmp/wholebody-mixed-donor-transfer-003"
+  ],
+  "include_path_role": "maps to published W/apps after allowlisted app headers are installed",
+  "source_sha256": "8ea6a63c70a1e02efdeaa7f292929955d746014d665bee4f112681fb1ed9b497",
+  "header_sha256": "cfaf30fa406af669615c6be591ce11345652bfa5642f6846404a732814a4de6c"
+}

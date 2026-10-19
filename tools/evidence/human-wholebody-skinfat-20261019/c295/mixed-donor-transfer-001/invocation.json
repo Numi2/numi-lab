@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "c++",
+    "-std=c++17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/human_accepted_fem_skin_transfer.cpp",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/evidence/mixed-donor-transfer-001/human_accepted_fem_skin_transfer"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295",
+  "host": "numi",
+  "source_sha256": "94c11dc66331f2171fd14e999624049adf13521f57fbe651ba83f4c60864a5ce",
+  "transfer_helper_sha256": "8f77b87f643c8ba56fef48984f0a8add6cb6f8df9ca6effd90c509f3d3352afd",
+  "ancestry_header_sha256": "1e4cadd15a3b36d9d439f297da704764e139379cd2c04914f1c45298e06d5732",
+  "app_source_sha256": "8759ba3d2ba040447f742ab2015b1251ed041991d17826e6a35a9c4bc27f41df",
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)"
+}

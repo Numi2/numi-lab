@@ -23,6 +23,7 @@
 #include <cstring>
 #include <filesystem>
 #include <set>
+#include "NumiHumanAcceptedFEMSkinRenderPass.hpp"
 #include <string_view>
 // Included after the existing Human source loaders and visual-pack compiler.
 // It adds a persistent presentation consumer, not another dynamics owner.
@@ -62,6 +63,12 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> skinTissueLayerMap=nil;
     id<MTLComputePipelineState> skinTissueLayerPipeline=nil;
     unsigned skinTissueLayerCount=0;
+    std::unique_ptr<numi::human::AcceptedFEMSkinRenderPass> acceptedFEMSkinRenderPass;
+    std::unique_ptr<numi::human::AcceptedFEMBoundaryRenderPass> acceptedFEMBoundaryRenderPass;
+    std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point> acceptedFEMBoundaryPositions;
+    std::uint32_t acceptedFEMBoundaryFirstInner=MR_INVALID_INDEX,acceptedFEMBoundaryFirstFat=MR_INVALID_INDEX;
+    std::uint32_t acceptedFEMBoundaryNodeCount=0u;
+    unsigned skinFirstVertex=MR_INVALID_INDEX;
 
     id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
     id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline,skinAuditReducePipeline;
@@ -967,7 +974,14 @@ public:
         const NumiHumanRestingBedSurface* bedSurface=nullptr,
         const LoadedTorsoAnatomy* torsoAnatomy=nullptr,
         const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr,
-        std::span<const metalrobo::NumiHumanTissueMassPartition> massPartitions={}):
+        std::span<const metalrobo::NumiHumanTissueMassPartition> massPartitions={},
+        std::span<const std::array<double,3>> acceptedSkinInnerRest={},
+        std::span<const std::array<double,3>> acceptedFatRest={},
+        std::span<const std::array<std::uint32_t,3>> acceptedBoundaryFaces={},
+        std::string acceptedBoundaryObjectName={},
+        std::uint32_t acceptedBoundaryObjectIndex=MR_INVALID_INDEX,
+        bool acceptedBoundarySelfContactBound=false,
+        std::string acceptedBoundaryLayerConfiguration={}):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         const bool ropeConfigured=NumiHumanRestingRopeSupport::configuredFromEnvironment();
@@ -1076,7 +1090,6 @@ public:
         auto framing=makeCameraFraming(pack,initialBodies,model.joints,std::nullopt,std::nullopt,std::nullopt,false,nullptr);
         std::vector<MRHumanRestingVertexMap> maps(pack.vertices.size());
         std::vector<MRHumanRestingInfluence> weights;
-        unsigned skinFirstVertex=MR_INVALID_INDEX;
         std::vector<mr_float4> skinRestWorld(skin.header.vertexCount);
         std::vector<MRHumanRestingSurfaceAuditGPU> audits;
         std::vector<mr_uint4> wallNormalRanges;
@@ -2848,6 +2861,71 @@ public:
             bloodVisualLayout=NumiHumanRestingBloodVisual::appendGeometry(pack);
             visibleLayers.insert(visibleLayers.end(),NumiHumanRestingBloodVisual::capacity,127u);
         }
+        if(!acceptedSkinInnerRest.empty()||!acceptedFatRest.empty()||!acceptedBoundaryFaces.empty()) {
+            require(acceptedBoundaryObjectName=="BodyParts3D whole-body skin-fat bonded shell"&&
+                    acceptedBoundaryObjectIndex!=MR_INVALID_INDEX&&acceptedBoundarySelfContactBound&&
+                    !acceptedBoundaryLayerConfiguration.empty(),
+                "accepted FEM boundary renderer is not matched to the bound whole-body skin/fat object and layer configuration");
+            require(acceptedSkinInnerRest.size()>=4u&&
+                    acceptedSkinInnerRest.size()==acceptedFatRest.size()&&
+                    acceptedSkinInnerRest.size()<=16384u&&!acceptedBoundaryFaces.empty()&&
+                    acceptedBoundaryFaces.size()<=32768u,
+                "accepted whole-body boundary render topology has invalid bounds");
+            acceptedFEMBoundaryNodeCount=static_cast<std::uint32_t>(acceptedSkinInnerRest.size());
+            const auto appendBoundary=[&](std::span<const std::array<double,3>> points,
+                                          std::uint32_t stableID,std::uint32_t material,
+                                          std::uint32_t inspectionMask) {
+                require(points.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                    pack.vertices.size()<=std::numeric_limits<std::uint32_t>::max()-points.size(),
+                    "accepted whole-body boundary render vertex range overflows");
+                const auto first=static_cast<std::uint32_t>(pack.vertices.size());
+                mr_float4 lo{INFINITY,INFINITY,INFINITY,1.0f};
+                mr_float4 hi{-INFINITY,-INFINITY,-INFINITY,1.0f};
+                for(const auto& point:points) {
+                    const float x=static_cast<float>(point[0]),y=static_cast<float>(point[1]),z=static_cast<float>(point[2]);
+                    require(std::isfinite(x)&&std::isfinite(y)&&std::isfinite(z),
+                        "accepted whole-body boundary render point is nonfinite");
+                    pack.vertices.push_back({{x,y,z,1.0f},{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
+                    lo={std::min(lo.x,x),std::min(lo.y,y),std::min(lo.z,z),1.0f};
+                    hi={std::max(hi.x,x),std::max(hi.y,y),std::max(hi.z,z),1.0f};
+                }
+                require(pack.indices.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                        acceptedBoundaryFaces.size()<=
+                            (std::numeric_limits<std::uint32_t>::max()-pack.indices.size())/3u,
+                    "accepted whole-body boundary render index range overflows");
+                const auto firstIndex=static_cast<std::uint32_t>(pack.indices.size());
+                for(const auto& face:acceptedBoundaryFaces) {
+                    require(face[0]<points.size()&&face[1]<points.size()&&face[2]<points.size(),
+                        "accepted whole-body boundary render face is outside its node range");
+                    pack.indices.insert(pack.indices.end(),{first+face[0],first+face[1],first+face[2]});
+                }
+                const auto instanceIndex=static_cast<std::uint32_t>(pack.instances.size());
+                MRVisualPrimitiveGPUV2 primitive{};
+                primitive.geometry={firstIndex,static_cast<std::uint32_t>(pack.indices.size()-firstIndex),material,instanceIndex};
+                primitive.identity={kSkinShellSemantic,instanceIndex,MR_INVALID_INDEX,stableID};
+                primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+                const auto primitiveIndex=static_cast<std::uint32_t>(pack.primitives.size());
+                pack.primitives.push_back(primitive);
+                MRVisualInstanceGPUV2 instance{};instance.translationAndScale={0,0,0,1};instance.orientation={0,0,0,1};
+                instance.binding={0,MR_INVALID_INDEX,MR_VISUAL_BINDING_WORLD,
+                    MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_CASTS_SHADOW|MR_VISUAL_INSTANCE_RECEIVES_SHADOW};
+                instance.identity=primitive.identity;instance.geometry={primitiveIndex,1,0,0};
+                pack.instances.push_back(instance);visibleLayers.push_back(inspectionMask);
+                return first;
+            };
+            acceptedFEMBoundaryFirstInner=appendBoundary(acceptedSkinInnerRest,0xFFFFFD11u,
+                static_cast<std::uint32_t>(pack.materials.size()),1u<<7u);
+            pack.materials.push_back(makeMaterial({.76f,.31f,.28f,1.0f},{0,0,0,0},.82f));
+            acceptedFEMBoundaryFirstFat=appendBoundary(acceptedFatRest,0xFFFFFD12u,
+                static_cast<std::uint32_t>(pack.materials.size()),1u<<8u);
+            pack.materials.push_back(makeMaterial({.91f,.68f,.22f,1.0f},{0,0,0,0},.92f));
+            acceptedFEMBoundaryPositions.resize(2u*acceptedFEMBoundaryNodeCount);
+            for(std::size_t i=0;i<acceptedFEMBoundaryNodeCount;++i) {
+                acceptedFEMBoundaryPositions[i]={float(acceptedSkinInnerRest[i][0]),float(acceptedSkinInnerRest[i][1]),float(acceptedSkinInnerRest[i][2]),1.0f};
+                acceptedFEMBoundaryPositions[acceptedFEMBoundaryNodeCount+i]={float(acceptedFatRest[i][0]),float(acceptedFatRest[i][1]),float(acceptedFatRest[i][2]),1.0f};
+            }
+            pack.preprocessingProvenance+="/accepted_fem_inner_skin_and_deep_fat_inspection_boundaries";
+        }
         maps.resize(pack.vertices.size());
         pack.preprocessingProvenance+=bedSurface
             ? "/accepted_native_body_skinning_no_truncated_weights/fixed_world_contoured_contact_bed"
@@ -2921,6 +2999,25 @@ public:
                 <<" source_asset_identity=unchanged\n";
         }
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
+        if(acceptedFEMBoundaryNodeCount) {
+            acceptedFEMBoundaryRenderPass=std::make_unique<numi::human::AcceptedFEMBoundaryRenderPass>();
+            std::string boundaryError;
+            require(acceptedFEMBoundaryRenderPass->initialize(device,acceptedBoundaryFaces,
+                        acceptedFEMBoundaryNodeCount,acceptedFEMBoundaryFirstInner,
+                        acceptedFEMBoundaryFirstFat,&boundaryError),
+                "accepted FEM inner-skin/deep-fat render pass initialization failed: "+boundaryError);
+            require(acceptedFEMBoundaryRenderPass->updateAcceptedState(acceptedFEMBoundaryPositions,&boundaryError),
+                "accepted FEM inner-skin/deep-fat initial state failed: "+boundaryError);
+            std::cout<<"accepted_fem_boundary_render=prepared object_name="<<acceptedBoundaryObjectName
+                <<" object_index="<<acceptedBoundaryObjectIndex
+                <<" layers=inner_skin,deep_fat nodes_per_layer="<<acceptedFEMBoundaryNodeCount
+                <<" faces="<<acceptedBoundaryFaces.size()<<" rendered_layers=2 inner_vertex_range=["
+                <<acceptedFEMBoundaryFirstInner<<","<<acceptedFEMBoundaryFirstInner+acceptedFEMBoundaryNodeCount
+                <<") deep_fat_vertex_range=["<<acceptedFEMBoundaryFirstFat<<"," 
+                <<acceptedFEMBoundaryFirstFat+acceptedFEMBoundaryNodeCount<<")"
+                <<" accepted_snapshot_owner=Runtime::snapshot layer_masks=128,256 self_contact=material_column_bound"
+                <<" layer_configuration="<<acceptedBoundaryLayerConfiguration<<"\n";
+        }
         if(bedSurface) {
             bedHeights=[device newBufferWithBytes:bedSurface->heights.data()
                 length:bedSurface->heights.size()*sizeof(float) options:MTLResourceStorageModeShared];
@@ -3844,6 +3941,43 @@ public:
             movie:[NSString stringWithUTF8String:movie.c_str()]];
         [window showWindow:nil];[NSApp activateIgnoringOtherApps:YES];wallOrigin=CACurrentMediaTime();
     }
+    void configureAcceptedFEMSkinTransfer(
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::GPUTransferRow>& rows,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& initialBaseline) {
+        require(skinFirstVertex!=MR_INVALID_INDEX&&rows.size()>0u&&
+                    rows.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                    !initialBaseline.empty()&&
+                    initialBaseline.size()<=std::numeric_limits<std::uint32_t>::max(),
+                "accepted FEM skin transfer has invalid render or coarse dimensions");
+        acceptedFEMSkinRenderPass=
+            std::make_unique<numi::human::AcceptedFEMSkinRenderPass>();
+        std::string error;
+        require(acceptedFEMSkinRenderPass->initialize(
+                    coupled.physiology.device,rows,
+                    static_cast<std::uint32_t>(initialBaseline.size()),&error),
+                "accepted FEM skin render pass initialization failed: "+error);
+        std::vector<std::array<float,4>> zero(initialBaseline.size(),{0,0,0,0});
+        require(acceptedFEMSkinRenderPass->updateAcceptedState(zero,initialBaseline,&error),
+                "accepted FEM skin initial render reference failed: "+error);
+    }
+    void updateAcceptedFEMSkinTransfer(
+        const std::vector<std::array<float,4>>& deltas,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& baseline) {
+        require(acceptedFEMSkinRenderPass!=nullptr,
+                "accepted FEM skin transfer was not initialized");
+        std::string error;
+        require(acceptedFEMSkinRenderPass->updateAcceptedState(deltas,baseline,&error),
+                "accepted FEM skin render update failed: "+error);
+    }
+    void updateAcceptedFEMBoundaries(
+        const std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point>& positions) {
+        require(acceptedFEMBoundaryRenderPass!=nullptr&&
+                    positions.size()==2ull*acceptedFEMBoundaryNodeCount,
+                "accepted FEM inner-skin/deep-fat boundary update has invalid dimensions");
+        std::string error;
+        require(acceptedFEMBoundaryRenderPass->updateAcceptedState(positions,&error),
+                "accepted FEM inner-skin/deep-fat boundary update failed: "+error);
+    }
     static bool deform(void* context,const metalrobo::MetalHybridMeshDeformationLease& lease) {
         auto& self=*static_cast<NumiHumanRestingVisual*>(context);const auto& e=*lease.encoder;
         const mr_uint4 d={lease.meshVertexCount,lease.meshInstanceCount,self.layer,self.auditCount};
@@ -3871,6 +4005,12 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.commonFieldMapBuffer,0,11);
         e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
         e.dispatchThreads(e.context,lease.meshVertexCount,64);
+        if(self.acceptedFEMSkinRenderPass&&
+           !self.acceptedFEMSkinRenderPass->encode(e,lease.meshVertices,self.skinFirstVertex))
+            return false;
+        if(self.acceptedFEMBoundaryRenderPass&&(self.layer==7u||self.layer==8u)&&
+           !self.acceptedFEMBoundaryRenderPass->encode(e,lease.meshVertices,lease.meshVertexCount))
+            return false;
         if(self.skinTissueLayerCount) {
             // The hidden tissue uses this same accepted outer geometry. A
             // rejected physical step cannot advance a separate skin history.

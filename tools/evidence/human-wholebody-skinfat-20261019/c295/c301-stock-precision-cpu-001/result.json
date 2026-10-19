@@ -1,0 +1,94 @@
+{
+  "kind": "CPU-only mass conservation and retained native dump stock-compiler regressions",
+  "results": [
+    {
+      "name": "conservation",
+      "source_path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole_body_mass_reference.cpp",
+      "source_sha256": "17064386b1bcf2ed0429005023b1792fdd502d396c10cf3c5f8958d372b81d13",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/source/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+        "-L/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001",
+        "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole_body_mass_reference.cpp",
+        "-lmetalrobo",
+        "-framework",
+        "Foundation",
+        "-o",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/conservation/conservation"
+      ],
+      "compile_exit_code": 0,
+      "compile_elapsed_seconds": 0.6862871249904856,
+      "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary_path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/conservation/conservation",
+      "header_sha256": "eed8b6ed6abf2b1b4bac173b4c8121f2949ba2509a9f6e527ce5188f842eb820",
+      "library_path": "/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001/libmetalrobo.dylib",
+      "library_sha256": "d7346955d809affa3ace4d67729f94583e7047a6a9269f552e6666ca893744e2",
+      "binary_sha256": "0b6050952982f0d9a9c467d5cac5b5e97af71231cf4aec1d035582f70a97fc40",
+      "run_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/conservation/conservation"
+      ],
+      "run_environment": {
+        "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.1837644160259515,
+      "stdout_sha256": "9c8ba25ef7ed0ea9dda2474f408a5106f11b5795d1f5dc233d74c48daf76fe6d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "native-dump-all-donors",
+      "source_path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole_body_stock_dump_replay.cpp",
+      "source_sha256": "7d0fe0a7687e8a457e6099b5ad4acaa9f38bb5fc38b42c2edb1551dbf9509a71",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/source/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+        "-L/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001",
+        "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole_body_stock_dump_replay.cpp",
+        "-lmetalrobo",
+        "-framework",
+        "Foundation",
+        "-o",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/native-dump-all-donors/native-dump-all-donors"
+      ],
+      "compile_exit_code": 0,
+      "compile_elapsed_seconds": 0.5454520840430632,
+      "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary_path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/native-dump-all-donors/native-dump-all-donors",
+      "header_sha256": "eed8b6ed6abf2b1b4bac173b4c8121f2949ba2509a9f6e527ce5188f842eb820",
+      "library_path": "/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001/libmetalrobo.dylib",
+      "library_sha256": "d7346955d809affa3ace4d67729f94583e7047a6a9269f552e6666ca893744e2",
+      "binary_sha256": "c220f0963b286e41cc3f57b3f4eef48c8ac6046f934071793e87941f4670ea57",
+      "run_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/c301-stock-precision-cpu-001/native-dump-all-donors/native-dump-all-donors",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-006/tissue-mass-input.txt"
+      ],
+      "run_environment": {
+        "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/tissue-mass-symmetric-301/build-runtime-001"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.18965387501521036,
+      "stdout_sha256": "8099c28ed63cf1e9bcaabd71f1f67ceb56359dcd09f75e06e59343fdba27562c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

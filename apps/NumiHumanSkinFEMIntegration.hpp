@@ -5,6 +5,9 @@
 #include "NumiHumanCoarseTissuePreparation.hpp"
 #include "numi/matter/numi_human_shared.h"
 #include <string_view>
+#include <fstream>
+#include <cstdlib>
+#include <iomanip>
 
 namespace metalrobo::human::coarse_tissue {
 template<class LoadedSkinT,class PositionFn,class NormalFn,class DonorLocalFn,class OwnerFn,class WorldToDonorFn>
@@ -47,6 +50,17 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         const auto a=skin.indices[index],b=skin.indices[index+1],c=skin.indices[index+2];
         if(a>=skin.vertices.size()||b>=skin.vertices.size()||c>=skin.vertices.size())return fail("registered skin source index is out of range");
         source.faces.push_back({a,b,c});
+    }
+    // Initialization-only source-coordinate observation; no simulation update.
+    if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_DUMP")){
+        std::ofstream dump(path);if(!dump){error="cannot open skin reference observation";return false;}
+        dump<<std::setprecision(17)<<"vertex,donor,wx,wy,wz,nx,ny,nz,lx,ly,lz,m00,m01,m02,m10,m11,m12,m20,m21,m22\n";
+        for(std::size_t i=0;i<source.worldPoints.size();i++){
+            dump<<i<<','<<source.donorBodyIndices[i];
+            for(const auto& p:{source.worldPoints[i],source.outwardWorldNormals[i],source.donorLocalPoints[i]})for(double x:p)dump<<','<<x;
+            for(double x:source.worldToDonorLocalLinear[i])dump<<','<<x;dump<<'\n';
+        }
+        if(!dump){error="skin reference observation write failed";return false;}
     }
     // Parent maps let the existing adapter consult the original full-weight
     // 86-body skin payload for precisely the retained coarse mechanical nodes.

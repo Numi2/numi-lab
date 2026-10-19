@@ -1,0 +1,11 @@
+{
+  "schema": "numi.wholebody_mixed_donor_include_layout_test.result.v1",
+  "compile_exit": 0,
+  "run_exit": 0,
+  "elapsed_s": 0.536122,
+  "source_sha256": "8ea6a63c70a1e02efdeaa7f292929955d746014d665bee4f112681fb1ed9b497",
+  "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "run_stdout_sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+  "run_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

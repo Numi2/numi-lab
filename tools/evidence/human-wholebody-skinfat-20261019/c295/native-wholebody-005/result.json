@@ -1,0 +1,17 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "elapsed_s": 5.5498994999798015,
+  "binary_sha256": "a8de18149251731e1fe6025bcac46038a21332b573e8698aca3e8460de79dab2",
+  "library_sha256": "99238e053810d99f90d7f846eeb198799b7d4c2e87456850f0abbdf590e5f1ff",
+  "msl_sha256": "b24a3bc0693d587af6d148e9f40ce52319ea4c774aad957d4d6ffe9dd7f3acd1",
+  "stdout_sha256": "378df108486b2f2a168f7316de19769621646dfcca433dd716158c481ec4ed7b",
+  "stderr_sha256": "4e4fd4dd1738980486165dd3d03c57d5006f76d4830cc78dbd5faea48adceddb",
+  "skin_reference_dump": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "outputs": {
+    "output/resting-coupled.csv": {
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769
+    }
+  }
+}

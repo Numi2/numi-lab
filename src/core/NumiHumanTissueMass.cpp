@@ -97,9 +97,14 @@ NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
         p.tissueMassKg += node.massKg;
         for (std::size_t i = 0; i < 3; ++i) {
             p.tissueFirstMomentKgM[i] += node.massKg * node.localPosition[i];
-            for (std::size_t j = 0; j < 3; ++j)
+            // Compute each symmetric entry once: cancellation against a large
+            // cooked-tissue moment can otherwise amplify harmless multiplication
+            // order differences beyond the residual's symmetry tolerance.
+            for (std::size_t j = i; j < 3; ++j) {
                 p.tissueSecondMomentKgM2[3*i+j] +=
                     node.massKg * node.localPosition[i] * node.localPosition[j];
+                p.tissueSecondMomentKgM2[3*j+i] = p.tissueSecondMomentKgM2[3*i+j];
+            }
         }
     }
     NumiHumanTissueMassResult result;
@@ -117,9 +122,11 @@ NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
         for (std::size_t i = 0; i < 3; ++i)
             p.remainingCOMOffsetM[i] = -p.tissueFirstMomentKgM[i] / remaining;
         for (std::size_t i = 0; i < 3; ++i)
-            for (std::size_t j = 0; j < 3; ++j)
+            for (std::size_t j = i; j < 3; ++j) {
                 central[3*i+j] -= p.tissueSecondMomentKgM2[3*i+j] +
                     remaining * p.remainingCOMOffsetM[i] * p.remainingCOMOffsetM[j];
+                central[3*j+i] = central[3*i+j];
+            }
         if (!positiveDefinite(central))
             return fail("tissue partition leaves an impossible residual mass distribution");
         const Matrix residualInertia = inertiaFromSecond(central);

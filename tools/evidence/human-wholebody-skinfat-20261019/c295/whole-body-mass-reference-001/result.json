@@ -1,0 +1,43 @@
+{
+  "kind": "CPU-only whole-body mass reference regression; no native simulation",
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/source/apps",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "-L/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001",
+    "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole_body_mass_reference.cpp",
+    "-lmetalrobo",
+    "-framework",
+    "Foundation",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole-body-mass-reference-001/evidence-001/whole_body_mass_reference"
+  ],
+  "compile_exit_code": 0,
+  "compile_elapsed_seconds": 0.6656847500125878,
+  "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "262a604a39c515ea24503dea745d114f016ff1141c005f202ab978d400f28c8e",
+  "header_sha256": "eed8b6ed6abf2b1b4bac173b4c8121f2949ba2509a9f6e527ce5188f842eb820",
+  "library_path": "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001/libmetalrobo.dylib",
+  "library_sha256": "8aaeb62878698c340885ea4b5fb598fef99eebc2c3847b55585134b45081383f",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole-body-mass-reference-001/evidence-001/whole_body_mass_reference",
+  "binary_sha256": "7a70353f8502ee307a52fe48844792c33fa5df74e97d63fcf310f2254760d8f2",
+  "run_argv": [
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/tests/whole-body-mass-reference-001/evidence-001/whole_body_mass_reference"
+  ],
+  "run_environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 0.1681706250528805,
+  "stdout_sha256": "9c8ba25ef7ed0ea9dda2474f408a5106f11b5795d1f5dc233d74c48daf76fe6d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

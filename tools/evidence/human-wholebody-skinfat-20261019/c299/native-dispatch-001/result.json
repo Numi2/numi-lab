@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/accepted-boundary-render-299/test_accepted_boundaries"
+  ],
+  "helper_sha256": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+  "test_sha256": "f42ca40d440aecc93276dfe7cdf43b6e6a442c37788a4087d40fdc5934c1c0b2",
+  "binary_sha256": "65f48f65c559d1d4636ca1e75b0d3cd4cc737b8d72f9cf2d6d3381182ee84e0a",
+  "scope": "actual Apple GPU numerical dispatch only; no visual verification",
+  "exit_code": 0,
+  "elapsed_s": 0.35022212500916794,
+  "stdout_sha256": "c303360ef2bd0d98b0192031d68641b63b6a0d2c81bf1a439ea0d7fd4e285b12",
+  "stderr_sha256": "95a1dd35bb0b99d2f6b93d815c6542c788dce91c821328346dfc9408412ae868"
+}

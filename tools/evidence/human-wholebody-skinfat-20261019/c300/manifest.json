@@ -1,0 +1,169 @@
+{
+  "scope": "compact offline audit package; no production/source changes",
+  "external_inputs": [
+    {
+      "name": "candidate topology",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/input/candidate.txt",
+      "sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+      "owner_bundle": "Tissue bundle; not copied"
+    },
+    {
+      "name": "solve-032c admitted layer coordinates",
+      "path": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/column-direction-trial-001/direct-coordinate-repair-025/solve-032-local-fat-separation/admitted-layer-coordinates.csv",
+      "sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+      "owner_bundle": "Tissue bundle; not copied"
+    },
+    {
+      "name": "solve-031 negative-control layer coordinates",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/run-solve031/layers.csv",
+      "sha256": "dbde813c5787f6a7e625e956fc757aa71153daeb44c90dfaa0720e701cce085f",
+      "owner_bundle": "Retained original C300 negative-control input; not copied into publication"
+    },
+    {
+      "name": "registered donor mapping",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/input/registered-skin-mechanical.csv",
+      "sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+      "owner_bundle": "C300 input reference; not copied into publication"
+    },
+    {
+      "name": "C296 prep helper header",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/input/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "f45bb655c20f65a527678f4631269c0698eed733687c4b0efb83225dc4fa7abb",
+      "owner_bundle": "C296 dependency; external"
+    }
+  ],
+  "compile": {
+    "argv": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/input",
+      "-I/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/apps",
+      "-I/Users/n/numi-lab-native-replay-publish-20261017/apps",
+      "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+      "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/compact_boundary_audit.cpp",
+      "-o",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/build/compact_boundary_audit"
+    ],
+    "exit_code": 0,
+    "source_sha256": "a3f322ac4a23e5cbd2020ee1d6810238fb475adecf643049df5e41dfd1804f20",
+    "executable_sha256": "21bfc5081d989713cb603fd4347d790b3a2aa9c6932aa10199f6867e728cc12a",
+    "strict_flags": [
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror"
+    ]
+  },
+  "runs": {
+    "solve031-negative": {
+      "expected_exit_code": 1,
+      "result_sha256": "9d53cc1500117bd7d71b791c7dcdd2c9be198b6d80460b5bca837ea07604483d",
+      "stdout_sha256": "16dec508826e30dda7062c76a0b575bae989dc9c7d25b64967a2d93b57d26ab1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "solve032c-pass": {
+      "expected_exit_code": 0,
+      "result_sha256": "744494ab33d8ba3cd49e16f0cf58f474ff0fdddccd7790ed08dc21eedec7e05e",
+      "stdout_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build_pins_sha256": "ea2f9922517b4ad2c3d5ec7f5d64d17a1dee587a407ca973f4506c84ecd86023",
+      "invocation_sha256": "07fe222ec3b3c81d6c6f690954704d61a5b3c21416a74e4292e97779d9774c3f"
+    }
+  },
+  "summary": {
+    "pass": true,
+    "vertices_per_layer": 2332,
+    "source_faces": 4619,
+    "tetrahedra": 27714,
+    "exposed_boundary_faces": 9418,
+    "rim_sidewall_faces": 180,
+    "boundary_edge_errors": 0,
+    "self_crossings": 0,
+    "signed_volume_m3": 0.015104914069993062
+  },
+  "publication_files": [
+    {
+      "path": "README.md",
+      "sha256": "0f0f099c7ddc94a6bd2e6372d4f311b35b4a213ef4902aad35daea7f8a18a01e",
+      "bytes": 1482
+    },
+    {
+      "path": "auditor.cpp",
+      "sha256": "a3f322ac4a23e5cbd2020ee1d6810238fb475adecf643049df5e41dfd1804f20",
+      "bytes": 12207
+    },
+    {
+      "path": "compile-receipt.json",
+      "sha256": "44be86db83fe2fa01526ca8c374f45bed24da1d764fa4fd75c8217eb94e1657f",
+      "bytes": 1127
+    },
+    {
+      "path": "replay.sh",
+      "sha256": "bb0c83bf8fd73e7cd1eeb182d87598c14958c70d983b8d267bd1ba7d8534fa80",
+      "bytes": 1160
+    },
+    {
+      "path": "runs/solve031/invocation.json",
+      "sha256": "0f8c962329d7fd00ea70bcbdac72afda927b4085872b11e48994410f4d352745",
+      "bytes": 1034
+    },
+    {
+      "path": "runs/solve031/process-result.json",
+      "sha256": "a5f98f32914072243f9b51a38693396d592085f100488dde17d087a776d8fbfc",
+      "bytes": 320
+    },
+    {
+      "path": "runs/solve031/result.json",
+      "sha256": "9d53cc1500117bd7d71b791c7dcdd2c9be198b6d80460b5bca837ea07604483d",
+      "bytes": 1464
+    },
+    {
+      "path": "runs/solve031/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "runs/solve031/stdout.log",
+      "sha256": "16dec508826e30dda7062c76a0b575bae989dc9c7d25b64967a2d93b57d26ab1",
+      "bytes": 166
+    },
+    {
+      "path": "runs/solve032c/build-pins.json",
+      "sha256": "ea2f9922517b4ad2c3d5ec7f5d64d17a1dee587a407ca973f4506c84ecd86023",
+      "bytes": 437
+    },
+    {
+      "path": "runs/solve032c/invocation.json",
+      "sha256": "07fe222ec3b3c81d6c6f690954704d61a5b3c21416a74e4292e97779d9774c3f",
+      "bytes": 1050
+    },
+    {
+      "path": "runs/solve032c/process-result.json",
+      "sha256": "573463a6ff8ac5ce6cb769293d776e46f6753f5c62fb5110a11f69e265e8b866",
+      "bytes": 320
+    },
+    {
+      "path": "runs/solve032c/result.json",
+      "sha256": "744494ab33d8ba3cd49e16f0cf58f474ff0fdddccd7790ed08dc21eedec7e05e",
+      "bytes": 1438
+    },
+    {
+      "path": "runs/solve032c/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "runs/solve032c/stdout.log",
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "bytes": 123
+    }
+  ]
+}

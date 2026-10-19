@@ -1,0 +1,788 @@
+{
+  "schema": "numi.wholebody_skin_infeasible_cone_remesh.v2",
+  "base_candidate": "donor23-headstar-remesh-001/candidate-023",
+  "scope": "9 persistent-audited local interior 2-to-2 flips for the cone stars, one same-donor interior edge collapse 52297<-52600 (7.129829 mm) for source52555, then one audited 2-to-2 flip for source52606. Retained coordinates, donor IDs, and full-weight rows are unchanged; the removed vertex full-weight row is recorded by hash and its 21 full-source assignment entries are remapped to the same-donor survivor. Two collapsed faces with parent IDs 90090 and 90143 are removed; all other per-face parent IDs remain in row order, with each flip preserving its two-face parent-ID union. The 7.129829 mm collapse is an explicit local coarsening/source-ancestry change; the earlier 2 mm/3 mm cluster caps remain construction choices and are not a uniform bound on this candidate.",
+  "input_hashes": {
+    "npz": "615e110faaa7a3cbd2b9b067e2b9801539aa1bbca87065badec9fb38b5242181",
+    "txt": "5e308ac119ff9ab5471a31eb3a754f0a2e5fcde81cd2d931fef7b87fa38cb204",
+    "header": "388f36fc273e12555a691d09be6e570f2519780b023ae38962e4c3733a6202d7",
+    "csv": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5"
+  },
+  "counts": {
+    "base_vertices": 2333,
+    "base_faces": 4621,
+    "out_vertices": 2332,
+    "out_faces": 4619,
+    "changed_face_rows_before_collapse": [
+      347,
+      513,
+      537,
+      604,
+      644,
+      1389,
+      1390,
+      1508,
+      1512,
+      1543,
+      1563,
+      1986,
+      2070,
+      3575,
+      3576,
+      3722,
+      3725
+    ],
+    "collapse_removed_face_rows": [
+      3789,
+      3791
+    ],
+    "postcollapse_final_flip_rows": [
+      3790,
+      3791
+    ]
+  },
+  "topology": {
+    "vertices": 2332,
+    "faces": 4619,
+    "edges": 6951,
+    "boundary_edges": 45,
+    "boundary_loops": 2
+  },
+  "topology_invariant": {
+    "boundary_edges": 45,
+    "boundary_loops": 2,
+    "face_components": 1
+  },
+  "collapse": {
+    "survivor_source_vertex": 52297,
+    "removed_source_vertex": 52600,
+    "donor_body_index": 99,
+    "edge_length_m": 0.007129829376935959,
+    "removed_faces": 2,
+    "removed_source_face_parent_ids": [
+      90090,
+      90143
+    ],
+    "removed_vertex_full_weights_sha256": "3d16e676094d2b3a7aa460dd03d86dd4c9b37b5d58936b780b612e9c3bf61760",
+    "assignment_entries_remapped": 21
+  },
+  "cone_margins": {
+    "1619": {
+      "margin": 0.2840057281115106,
+      "incident_faces": 8,
+      "direction": [
+        0.10957609884506596,
+        0.006655125885127725,
+        -1.0
+      ]
+    },
+    "1673": {
+      "margin": 0.3009237363911417,
+      "incident_faces": 7,
+      "direction": [
+        -1.0,
+        -0.3405517794804011,
+        -0.4999801184705257
+      ]
+    },
+    "7989": {
+      "margin": 0.42764644789274003,
+      "incident_faces": 8,
+      "direction": [
+        0.20629832190000127,
+        -0.33919690506574524,
+        -1.0
+      ]
+    },
+    "8540": {
+      "margin": 0.2694407732435731,
+      "incident_faces": 9,
+      "direction": [
+        -1.0,
+        0.5033546502580453,
+        0.0998274578152039
+      ]
+    },
+    "16541": {
+      "margin": 1.0,
+      "incident_faces": 6,
+      "direction": [
+        -1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "26313": {
+      "margin": 0.23805600422178977,
+      "incident_faces": 7,
+      "direction": [
+        -0.30404397308253495,
+        -0.41030438626851423,
+        -1.0
+      ]
+    },
+    "47921": {
+      "margin": 0.5010140761057894,
+      "incident_faces": 9,
+      "direction": [
+        0.3210228839165421,
+        1.0,
+        -0.7138490620470558
+      ]
+    },
+    "51196": {
+      "margin": 0.07060038173384271,
+      "incident_faces": 8,
+      "direction": [
+        0.25937189670321226,
+        0.04244001542260243,
+        -1.0
+      ]
+    },
+    "52555": {
+      "margin": 0.1572735137678931,
+      "incident_faces": 6,
+      "direction": [
+        0.09079537963975436,
+        0.017184273644403635,
+        -1.0
+      ]
+    },
+    "52606": {
+      "margin": 0.7180534573129748,
+      "incident_faces": 6,
+      "direction": [
+        0.4933370363080953,
+        -1.0,
+        1.0
+      ]
+    },
+    "27019": {
+      "margin": 0.09833602278328502,
+      "incident_faces": 7,
+      "direction": [
+        0.2496623740500216,
+        -0.7568002092431899,
+        -1.0
+      ]
+    },
+    "31512": {
+      "margin": 0.15330646184152166,
+      "incident_faces": 12,
+      "direction": [
+        0.8885620086118498,
+        -0.27027791924059374,
+        -1.0
+      ]
+    }
+  },
+  "source_geometry_audit": {
+    "float32": "1 0",
+    "float64_csv": "1 0"
+  },
+  "triangle_quality": {
+    "base_global_min_angle_deg": 0.5178977284696912,
+    "output_global_min_angle_deg": 0.5178977284696912,
+    "base_min_area_m2": 2.3276533010040894e-07,
+    "output_min_area_m2": 2.3276533010040894e-07
+  },
+  "flips": [
+    {
+      "op": "flip",
+      "source": 1619,
+      "edge_source_vertex_ids": [
+        1080,
+        1619
+      ],
+      "face_rows_before_compaction": [
+        347,
+        604
+      ],
+      "old_faces": [
+        [
+          176,
+          170,
+          306
+        ],
+        [
+          170,
+          301,
+          306
+        ]
+      ],
+      "new_faces": [
+        [
+          176,
+          170,
+          301
+        ],
+        [
+          176,
+          301,
+          306
+        ]
+      ],
+      "parent_ids": [
+        2218,
+        3200
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 1619,
+      "edge_source_vertex_ids": [
+        1099,
+        1619
+      ],
+      "face_rows_before_compaction": [
+        513,
+        604
+      ],
+      "old_faces": [
+        [
+          176,
+          306,
+          302
+        ],
+        [
+          176,
+          301,
+          306
+        ]
+      ],
+      "new_faces": [
+        [
+          302,
+          176,
+          301
+        ],
+        [
+          302,
+          301,
+          306
+        ]
+      ],
+      "parent_ids": [
+        2763,
+        3200
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 1673,
+      "edge_source_vertex_ids": [
+        1099,
+        1673
+      ],
+      "face_rows_before_compaction": [
+        537,
+        644
+      ],
+      "old_faces": [
+        [
+          198,
+          176,
+          310
+        ],
+        [
+          176,
+          356,
+          310
+        ]
+      ],
+      "new_faces": [
+        [
+          198,
+          176,
+          356
+        ],
+        [
+          198,
+          356,
+          310
+        ]
+      ],
+      "parent_ids": [
+        3049,
+        3699
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 7989,
+      "edge_source_vertex_ids": [
+        7989,
+        13199
+      ],
+      "face_rows_before_compaction": [
+        1508,
+        1512
+      ],
+      "old_faces": [
+        [
+          759,
+          682,
+          782
+        ],
+        [
+          782,
+          682,
+          2322
+        ]
+      ],
+      "new_faces": [
+        [
+          759,
+          682,
+          2322
+        ],
+        [
+          759,
+          2322,
+          782
+        ]
+      ],
+      "parent_ids": [
+        23742,
+        23846
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 8540,
+      "edge_source_vertex_ids": [
+        8540,
+        9636
+      ],
+      "face_rows_before_compaction": [
+        1389,
+        1390
+      ],
+      "old_faces": [
+        [
+          695,
+          713,
+          709
+        ],
+        [
+          713,
+          695,
+          701
+        ]
+      ],
+      "new_faces": [
+        [
+          709,
+          695,
+          701
+        ],
+        [
+          709,
+          701,
+          713
+        ]
+      ],
+      "parent_ids": [
+        17774,
+        17787
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 16541,
+      "edge_source_vertex_ids": [
+        9346,
+        16541
+      ],
+      "face_rows_before_compaction": [
+        1543,
+        1563
+      ],
+      "old_faces": [
+        [
+          708,
+          843,
+          776
+        ],
+        [
+          708,
+          784,
+          843
+        ]
+      ],
+      "new_faces": [
+        [
+          776,
+          708,
+          784
+        ],
+        [
+          776,
+          784,
+          843
+        ]
+      ],
+      "parent_ids": [
+        25266,
+        26364
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 26313,
+      "edge_source_vertex_ids": [
+        26313,
+        27128
+      ],
+      "face_rows_before_compaction": [
+        1986,
+        2070
+      ],
+      "old_faces": [
+        [
+          1214,
+          1262,
+          1285
+        ],
+        [
+          1285,
+          1262,
+          1353
+        ]
+      ],
+      "new_faces": [
+        [
+          1214,
+          1262,
+          1353
+        ],
+        [
+          1214,
+          1353,
+          1285
+        ]
+      ],
+      "parent_ids": [
+        45687,
+        49576
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 47921,
+      "edge_source_vertex_ids": [
+        47921,
+        48239
+      ],
+      "face_rows_before_compaction": [
+        3575,
+        3576
+      ],
+      "old_faces": [
+        [
+          2082,
+          2049,
+          2081
+        ],
+        [
+          2049,
+          2083,
+          2081
+        ]
+      ],
+      "new_faces": [
+        [
+          2082,
+          2049,
+          2083
+        ],
+        [
+          2082,
+          2083,
+          2081
+        ]
+      ],
+      "parent_ids": [
+        82776,
+        82952
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 51196,
+      "edge_source_vertex_ids": [
+        50708,
+        51196
+      ],
+      "face_rows_before_compaction": [
+        3722,
+        3725
+      ],
+      "old_faces": [
+        [
+          2225,
+          2240,
+          2234
+        ],
+        [
+          2240,
+          2225,
+          2226
+        ]
+      ],
+      "new_faces": [
+        [
+          2234,
+          2225,
+          2226
+        ],
+        [
+          2234,
+          2226,
+          2240
+        ]
+      ],
+      "parent_ids": [
+        87113,
+        87186
+      ]
+    },
+    {
+      "op": "flip",
+      "source": 52606,
+      "edge_source_vertex_ids": [
+        51609,
+        52606
+      ],
+      "face_rows_after_collapse": [
+        3790,
+        3791
+      ],
+      "old_faces": [
+        [
+          2276,
+          2246,
+          2272
+        ],
+        [
+          2272,
+          2246,
+          2273
+        ]
+      ],
+      "new_faces": [
+        [
+          2276,
+          2246,
+          2273
+        ],
+        [
+          2276,
+          2273,
+          2272
+        ]
+      ],
+      "parent_ids": [
+        90202,
+        90204
+      ]
+    }
+  ],
+  "header_syntax": {
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-I",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/../general-tissue-preparation-232/source/matter/include",
+      "-I",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/../general-tissue-preparation-232/source/include",
+      "-I",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296",
+      "-fsyntax-only",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/infeasible-cone-remesh-024/header_syntax_check.cpp"
+    ],
+    "exit": 0,
+    "stderr": ""
+  },
+  "output": {
+    "directory": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/infeasible-cone-remesh-024/candidate-024-safe",
+    "npz_sha256": "b9f0f3cec8a5b86e5af7db0e0f71e6f6b091e0822c6846e43961eeb2d357226c",
+    "txt_sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "header_sha256": "3d2c79393943e27dbda32750c3697ddd071e63e357d10cfcc639a2737f442a37",
+    "mechanical_csv_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5"
+  },
+  "source_ancestry_checks": {
+    "retained_full_weight_rows_equal_base_after_removed_vertex": true,
+    "retained_full_weight_rows_sha256": "30a36bb58e939f70a2822599bec7104915b7f47d19a2155eb4b7d76176bd2534",
+    "output_full_weight_rows_sha256": "30a36bb58e939f70a2822599bec7104915b7f47d19a2155eb4b7d76176bd2534",
+    "retained_source_face_parent_ids_equal_base_after_two_removed_rows": true,
+    "output_source_face_parent_ids_sha256": "d0e248ce3001a09ba4383cdfde3f1531da65ff04197fd3a19d50cd776e2a2549",
+    "removed_source_vertex_full_weight_row_sha256": "3d16e676094d2b3a7aa460dd03d86dd4c9b37b5d58936b780b612e9c3bf61760",
+    "removed_source_face_parent_ids": [
+      90090,
+      90143
+    ],
+    "flip_parent_id_unions": [
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          1080,
+          1619
+        ],
+        "source_face_parent_ids_before": [
+          2218,
+          3200
+        ],
+        "source_face_parent_ids_after": [
+          2218,
+          3200
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          1099,
+          1619
+        ],
+        "source_face_parent_ids_before": [
+          2763,
+          3200
+        ],
+        "source_face_parent_ids_after": [
+          2763,
+          3200
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          1099,
+          1673
+        ],
+        "source_face_parent_ids_before": [
+          3049,
+          3699
+        ],
+        "source_face_parent_ids_after": [
+          3049,
+          3699
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          7989,
+          13199
+        ],
+        "source_face_parent_ids_before": [
+          23742,
+          23846
+        ],
+        "source_face_parent_ids_after": [
+          23742,
+          23846
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          8540,
+          9636
+        ],
+        "source_face_parent_ids_before": [
+          17774,
+          17787
+        ],
+        "source_face_parent_ids_after": [
+          17774,
+          17787
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          9346,
+          16541
+        ],
+        "source_face_parent_ids_before": [
+          25266,
+          26364
+        ],
+        "source_face_parent_ids_after": [
+          25266,
+          26364
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          26313,
+          27128
+        ],
+        "source_face_parent_ids_before": [
+          45687,
+          49576
+        ],
+        "source_face_parent_ids_after": [
+          45687,
+          49576
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          47921,
+          48239
+        ],
+        "source_face_parent_ids_before": [
+          82776,
+          82952
+        ],
+        "source_face_parent_ids_after": [
+          82776,
+          82952
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          50708,
+          51196
+        ],
+        "source_face_parent_ids_before": [
+          87113,
+          87186
+        ],
+        "source_face_parent_ids_after": [
+          87113,
+          87186
+        ],
+        "union_preserved": true
+      },
+      {
+        "operation": "flip",
+        "edge_source_vertex_ids": [
+          51609,
+          52606
+        ],
+        "source_face_parent_ids_before": [
+          90202,
+          90204
+        ],
+        "source_face_parent_ids_after": [
+          90202,
+          90204
+        ],
+        "union_preserved": true
+      }
+    ]
+  }
+}

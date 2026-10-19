@@ -1,0 +1,220 @@
+{
+  "evidence_runs": {
+    "accepted_endpoint_reference_native008": {
+      "binary_sha256": "856b2749a6728007314f986a3648733bd22a524eb687d0e2b70749b2a672aecf",
+      "invocation_json_sha256": "6f3a8398b01c53919a4a24d20ab1cb7fffc1fcf53db6121af07a7c2e33fdd4bd",
+      "msl_sha256": "b24a3bc0693d587af6d148e9f40ce52319ea4c774aad957d4d6ffe9dd7f3acd1",
+      "result_json_sha256": "bb9a735787df9126e191bd0976423126c81d5d09f4b265fed0e5eb811f9e801c",
+      "run_dir": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-008",
+      "runtime_library_sha256": "d7346955d809affa3ace4d67729f94583e7047a6a9269f552e6666ca893744e2",
+      "source_revision": "16c27b39a9f581ef2b01f18243b80bdee7635af1 plus pinned private wholebody build inputs",
+      "stdout_log_sha256": "de7c494ece1ef45e078f0c4594106e06924f5ae1ad9182f62ccf49af0733ca2a"
+    },
+    "failed_native010": {
+      "binary_sha256": "60c96f2a46b4dfbd7425ff548687ef937e3f776ffa2e2d1a2de8fd5af1c21689",
+      "common-field-failure_json_sha256": "69edaed1b80bffb8bce57ecef9dc65ae184fc25ae7446e45d780c203d703762b",
+      "invocation_json_sha256": "3ab587c1ba5b56303ca97a4d3fb016e0ad8007d4f7453479d885e1cd1e11d058",
+      "msl_sha256": "b24a3bc0693d587af6d148e9f40ce52319ea4c774aad957d4d6ffe9dd7f3acd1",
+      "result_json_sha256": "1ae0d41ec4fb02c254b6dd06cb53e116f73147af29d1d9f5ab474503af44588e",
+      "run_dir": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-010",
+      "runtime_library_sha256": "d7346955d809affa3ace4d67729f94583e7047a6a9269f552e6666ca893744e2",
+      "source_revision": "16c27b39a9f581ef2b01f18243b80bdee7635af1 plus pinned private wholebody build inputs",
+      "stderr_log_sha256": "ff29cdbe0c37e0f5612d7a9a12c571568f8ceedfe91af2d8a778550e3d108a4b",
+      "stdout_log_sha256": "bef7e969e6a66bfda5b6c6fc2bcf993df030df6c57442c682464d50e25bb1d55"
+    }
+  },
+  "index_mapping": {
+    "alternate_object_local_interpretation_rejected": {
+      "candidate_local_tet": 19805,
+      "native008_global_tet": 21425,
+      "native008_minimum_altitude_m": 0.000667200696825685,
+      "reason": "The status producer indexes the full dispatch tetrahedron array; native008 independently reports object-local 19805 at global 21425."
+    },
+    "index_basis": "Global environment dispatch tetrahedron index, not object-local. Kernel sets tetrahedronIndex=global-environment*dispatch.tetrahedronCount and passes it to recordFailure; source lines 1060-1067 and 1150-1157.",
+    "kernel": "nm_fem_internal_forces",
+    "kernel_source_path": "/Users/n/numi-lab-native-replay-publish-20261017/matter/src/metal/fem.metalinc",
+    "kernel_source_sha256": "01b19e3e22fca649a7fb1786d9c56b8abe51b29cb01f40d643dae037e8e26ae4",
+    "object_first_global_node": 564,
+    "object_first_global_tet": 1620,
+    "object_node_count": 6996,
+    "object_tet_count": 27714,
+    "resolution": "19805 - 1620 = 18185; corroborated by native008 tet capture row local=18185,global=19805.",
+    "resolved_object_local_tet": 18185,
+    "status_failing_index_global_tet": 19805,
+    "status_object_index": 3
+  },
+  "initial_float32_tet_quality_from_native008_initial_node_coordinates": {
+    "absolute_volume_m3": 4.7272016647752015e-11,
+    "calculation": "Volume and altitudes computed from the captured initial Float32 node coordinates. Rank uses all whole-body shell tets in native008.",
+    "corner_altitudes_m_in_tet_node_order": [
+      1.3644645445820905e-06,
+      1.0007408701079548e-06,
+      2.3344028097912816e-06,
+      1.4393738517763134e-06
+    ],
+    "longest_edge_m": 0.033194382906066924,
+    "max_edge_over_min_altitude": 33169.80838654674,
+    "minimum_altitude_corner_index": 1,
+    "minimum_altitude_m": 1.0007408701079548e-06,
+    "minimum_altitude_rank_one_based": 118,
+    "rank_percentile_from_low_end": 0.42216930071444037,
+    "shortest_edge_m": 0.006488264716042318,
+    "total_wholebody_tets_ranked": 27714
+  },
+  "interpretation": {
+    "actionable_basis": "This is consistent with a local thin-prism/anchor interaction. Prefer the existing incident-tet-quality screen for deep-fat anchor selection; it excludes this 1.00 micrometer incident altitude under the current 50 micrometer threshold.",
+    "finding": "The resolved failure tet is a very low-altitude fat prism and includes a hard-anchored deep-fat corner. Its prior accepted endpoint remains valid and all four accepted displacements are below 0.28 micrometers.",
+    "uncertainty": [
+      "No rejected-candidate node coordinates were captured, so the failed-step deformation path cannot be localized further.",
+      "No contact pair or contact impulse is recorded for this status; a contact-driven jump is not demonstrated.",
+      "This read-only comparison does not prove that the quality-screened anchor set resolves native010."
+    ]
+  },
+  "nodes": [
+    {
+      "accepted_delta_xyz_m": [
+        -1.490116119e-08,
+        -1.676380634e-08,
+        -2.682209015e-07
+      ],
+      "anchor_body": 4294967295,
+      "constraint_tag": 0,
+      "global_node": 3589,
+      "initial_xyz_m": [
+        -0.1618053317,
+        0.03124668263,
+        0.4184368253
+      ],
+      "native008_stdout_line": 5476,
+      "object_local_node": 3025,
+      "tet_corner": 0
+    },
+    {
+      "accepted_delta_xyz_m": [
+        2.980232239e-08,
+        3.725290298e-08,
+        -1.788139343e-07
+      ],
+      "anchor_body": 4294967295,
+      "constraint_tag": 0,
+      "global_node": 5921,
+      "initial_xyz_m": [
+        -0.1576617807,
+        0.0344802402,
+        0.4222411215
+      ],
+      "native008_stdout_line": 7808,
+      "object_local_node": 5357,
+      "tet_corner": 1
+    },
+    {
+      "accepted_delta_xyz_m": [
+        -7.450580597e-08,
+        -5.401670933e-08,
+        -8.940696716e-08
+      ],
+      "anchor_body": 139,
+      "constraint_tag": 1,
+      "global_node": 5956,
+      "initial_xyz_m": [
+        -0.1321055591,
+        0.01670080982,
+        0.4213018119
+      ],
+      "native008_stdout_line": 7843,
+      "object_local_node": 5392,
+      "role": "deep-fat node for reduced vertex 728; hard kinematic anchor",
+      "tet_corner": 2
+    },
+    {
+      "accepted_delta_xyz_m": [
+        -4.470348358e-08,
+        -6.332993507e-08,
+        -1.788139343e-07
+      ],
+      "anchor_body": 4294967295,
+      "constraint_tag": 0,
+      "global_node": 5957,
+      "initial_xyz_m": [
+        -0.1375325173,
+        0.02692940645,
+        0.4256739616
+      ],
+      "native008_stdout_line": 7844,
+      "object_local_node": 5393,
+      "tet_corner": 3
+    }
+  ],
+  "pinned_input_assets": {
+    "admitted_layer_coordinates_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/column-direction-trial-001/direct-coordinate-repair-025/solve-032-local-fat-separation/admitted-layer-coordinates.csv",
+      "sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a"
+    },
+    "admitted_reduction_header": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200"
+    },
+    "bone_asset": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+    },
+    "muscle_model": {
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b"
+    },
+    "registered_skin_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-008/registered-skin.csv",
+      "sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "rigid_model": {
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+    },
+    "skin_payload": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    }
+  },
+  "purpose": "Read-only diagnosis of the first whole-body skin-fat FEM invalid-deformation failure; no source, geometry, or runtime edits.",
+  "schema": "numi.human.wholebody_tet_failure_diagnosis.v1",
+  "tetrahedron": {
+    "global_node_ids_in_tet_order": [
+      3589,
+      5921,
+      5956,
+      5957
+    ],
+    "layer": "fat",
+    "layer_tet_offset": 13857,
+    "native008_accepted_endpoint_J": 1.033201163,
+    "native008_stdout_line": 27632,
+    "native010_accepted_steps_before_failure": 1,
+    "native010_raw_failure_diagnostic_x": -1.1986520290374756,
+    "native010_status_code": 5,
+    "object_local_node_ids_in_tet_order": [
+      3025,
+      5357,
+      5392,
+      5393
+    ],
+    "object_name": "BodyParts3D whole-body skin-fat bonded shell",
+    "prism_tet_index_zero_based": 2,
+    "reduced_face_ordered": [
+      693,
+      729,
+      728
+    ],
+    "reduced_face_sorted_for_tet": [
+      693,
+      728,
+      729
+    ],
+    "source_face_id": 21035,
+    "source_vertex_ids_in_authored_face_order": [
+      8473,
+      10684,
+      10674
+    ],
+    "surface_face_index_zero_based": 1442
+  }
+}

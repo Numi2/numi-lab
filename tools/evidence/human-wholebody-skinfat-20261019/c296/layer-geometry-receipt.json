@@ -1,0 +1,188 @@
+{
+  "scope": "Whole-body coarse layered-surface geometry passed exact Float32 geometry, closed exposed-boundary, full-size FromLayers assembly, and negative API regression gates. Thickness fields remain bounded geometric construction parameters, not subject-specific measurements; this is not native evolution, anatomical, physiological, or clinical qualification.",
+  "source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "registered_source_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "mechanical_source_csv_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+  "topology_reduction_sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+  "topology_header_sha256": "3d2c79393943e27dbda32750c3697ddd071e63e357d10cfcc639a2737f442a37",
+  "topology_repair_receipt_sha256": "9de43cf559818cbc270bce83989b086e6c8211fa6c8a5d044a4211c0eb4bbcd2",
+  "direction_csv_sha256": "7bd6fb3d0ff822e03cfb05d69292f3368d726f0fb27056fdb412269e50f674e4",
+  "layer_coordinates_csv_sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+  "float32_geometry_audit_sha256": "649f1de52ff4bb233fe42f6e2fa2eeac9eb85797907fcdbda5235a4c4a8b3455",
+  "compact_closed_boundary_audit_sha256": "744494ab33d8ba3cd49e16f0cf58f474ff0fdddccd7790ed08dc21eedec7e05e",
+  "compact_closed_boundary_audit": {
+    "scope": "offline compact exposed-boundary audit of exact two-band three-tet prism connectivity from C296 preparePairedBoundaryFEM; no geometry repair or production qualification",
+    "candidate_txt_sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "layers_csv_sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+    "registered_csv_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+    "vertices_per_layer": 2332,
+    "source_faces": 4619,
+    "bands": 2,
+    "tetrahedra": 27714,
+    "raw_face_orientation": {
+      "expected_sign_pattern": "[-parity,+parity,-parity] per band; parity is raw input face to sorted vertex order",
+      "tet_mismatch_count": 0,
+      "zero_or_nonfinite_tets": 0,
+      "weak_abs_volume_le_1e-15": 0,
+      "min_positive_tet_volume_m3": 7.748779894799076e-14,
+      "sum_positive_tet_volume_m3": 0.015104914069993028
+    },
+    "source_edges": {
+      "open": 45,
+      "nonmanifold": 0
+    },
+    "compact_boundary": {
+      "audit_surface_vertices": 4709,
+      "full_volume_nodes": 6996,
+      "volume_nodes_not_on_exposed_boundary": 2287,
+      "rim_sidewall_faces": 180,
+      "expected_rim_sidewall_faces": 180,
+      "count_one_faces": 9418,
+      "expected_2nf_plus_4_open_edges": 9418,
+      "count_matches": true,
+      "nonmanifold_tet_faces": 0,
+      "internal_face_orientation_ok": true,
+      "bad_boundary_edges": 0,
+      "boundary_edge_orientation_errors": 0,
+      "helper_ok": true,
+      "helper_error": "",
+      "helper_boundary_edges": 0,
+      "helper_boundary_loops": 0,
+      "self_crossings": 0,
+      "signed_volume_m3": 0.015104914069993062
+    },
+    "overall_ok": true
+  },
+  "full_size_from_layers_gate": {
+    "status": "PASS",
+    "tested_header_sha256": "c85f7fb334bbdf7b33ac5b590df510e6ca39a8a9ee6d048f190daad841e26e23",
+    "stdout_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-wholebody-test-005/stdout.log",
+    "stdout_sha256": "9bb2d95b2d5084eee737c5c8ad36fd47b723e7e3d30d8968dadb2f0882eed412",
+    "stderr_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-wholebody-test-005/stderr.log",
+    "stderr_sha256": "2ff69dcba6236b5cef5a27bc169477a5fbb08cefe77c580fa6c57863832ea537",
+    "binary_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-wholebody-test-005/full_size_from_layers",
+    "binary_sha256": "373902a54d632a0c1e6eaf78ae0c26024969c2bb908cc709c730c63ddc872979",
+    "nodes": 6996,
+    "tetrahedra": 27714
+  },
+  "from_layers_negative_api_regression": {
+    "status": "PASS",
+    "stdout_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/stdout.log",
+    "stdout_sha256": "698485b662b80b72fcd297a004c8e2f2b5dcbdba0c41b8d593338846484ba8d2",
+    "stderr_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/stderr.log",
+    "stderr_sha256": "c2b8802da8dd14fb59604d5f1797ff4c1cccbbfbac7add5421457e49f2d99f21",
+    "binary_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/from_layers_test",
+    "binary_sha256": "62f51d468ccbcb430df266bc0e80a405d74b25feed9dc9124883ae6a22e8b9d4",
+    "coverage": "NaN summary, reversed winding, local prism orientation rejected transactionally; exact fit reuse, compile-bind, and variable fields passed"
+  },
+  "vertices": 2332,
+  "faces": 4619,
+  "layer_tets_per_shell": 13857,
+  "float32_audit": {
+    "vertices": 2332,
+    "faces": 4619,
+    "float32_coordinates": true,
+    "surface_self_audit": {
+      "outer_ok": 1,
+      "skin_ok": 1,
+      "fat_ok": 1,
+      "outer_crossings": 0,
+      "skin_crossings": 0,
+      "fat_crossings": 0,
+      "boundary_edges": [
+        45,
+        45,
+        45
+      ],
+      "boundary_loops": [
+        2,
+        2,
+        2
+      ],
+      "errors": [
+        "",
+        "",
+        ""
+      ]
+    },
+    "surface_cross_audit": {
+      "outer_skin_ok": 1,
+      "outer_skin_pairs": 0,
+      "outer_skin_tested": 67087,
+      "skin_fat_ok": 1,
+      "skin_fat_pairs": 0,
+      "skin_fat_tested": 55513,
+      "outer_fat_ok": 1,
+      "outer_fat_pairs": 0,
+      "outer_fat_tested": 49624,
+      "errors": [
+        "",
+        "",
+        ""
+      ]
+    },
+    "sorted_prism_tets": {
+      "skin_ok": 1,
+      "fat_ok": 1,
+      "paired_volume_gate_skin_ok": 1,
+      "paired_volume_gate_fat_ok": 1,
+      "bad_source_orientation_skin": 0,
+      "bad_source_orientation_fat": 0,
+      "weak_emitted_tets_skin": 0,
+      "weak_emitted_tets_fat": 0,
+      "gate_min_skin_tet_m3": 2.885344569527512e-13,
+      "gate_min_fat_tet_m3": 7.748779894799076e-14,
+      "skin_count": 13857,
+      "fat_count": 13857,
+      "skin_nonpositive": 0,
+      "fat_nonpositive": 0,
+      "skin_degenerate": 0,
+      "fat_degenerate": 0,
+      "skin_min_volume_m3": 2.885344569527512e-13,
+      "fat_min_volume_m3": 7.748779894799076e-14,
+      "skin_sum_m3": 0.003452570776142085,
+      "fat_sum_m3": 0.01165234329385085,
+      "skin_reference_m3": 0.003452570776142085,
+      "fat_reference_m3": 0.01165234329385085
+    },
+    "overall_float32_geometry_ok": 1
+  },
+  "thickness_bounds_m": {
+    "skin": [
+      0.0005,
+      0.0025
+    ],
+    "fat": [
+      0.0005,
+      0.01
+    ]
+  },
+  "thickness_actual_minmax_m": {
+    "skin": [
+      0.0005492099909235224,
+      0.002454307144129911
+    ],
+    "fat": [
+      0.00051969976517374,
+      0.00990289026539127
+    ]
+  },
+  "exact_prism_volume_m3": {
+    "skin": 0.0034525707761420958,
+    "fat": 0.011652343293850826
+  },
+  "layer_fit_method": "bounded direct-coordinate optimization from frozen 029 interior-target solution; 028 max-margin smoothed outward field; targeted donor-49 fat self-separation correction with 50 um SAT projection margin; outer and skin coordinates fixed during correction; exact Float32 source orientation and prism audit",
+  "layer_provenance": {
+    "skin": "Per-vertex geometric construction field constrained to 0.5-2.5 mm; inferred bounded geometry parameter, not subject-specific measured anatomy.",
+    "fat": "Per-vertex geometric construction field constrained to 0.5-10 mm; inferred bounded geometry parameter, not subject-specific measured anatomy."
+  },
+  "mechanical_delta_caps_m": {
+    "head_hand": 0.002,
+    "other_body": 0.003
+  },
+  "mechanical_delta_max_by_class_m": {
+    "head_hand": 0.0019899717092882714,
+    "other_body": 0.0029461144892161235
+  },
+  "admitted": true
+}

@@ -1,0 +1,33 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "elapsed_s": 155.51070312497905,
+  "binary_sha256": "822a013c34b973f65f2e24da9513693a7fca8843298d8c86f9f850e9f1f8d1f8",
+  "library_sha256": "d7346955d809affa3ace4d67729f94583e7047a6a9269f552e6666ca893744e2",
+  "msl_sha256": "b24a3bc0693d587af6d148e9f40ce52319ea4c774aad957d4d6ffe9dd7f3acd1",
+  "stdout_sha256": "af43fd0ec6aa35cf48084caaf7005073ee0df67b857eadd04667d6d1cdeb1b94",
+  "stderr_sha256": "ec938d6853c7c91619e834ead2e866c25969a7c5d6699f1b2a8dcdb753c45d8c",
+  "skin_reference_dump": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "outputs": {
+    "output/resting-airway-anchor-map.json": {
+      "sha256": "5b3ec85ea6ddd7cfbdbbb6be984fcd139ed0a8f4d49fc074af96f92a0bb844fb",
+      "bytes": 82571
+    },
+    "output/resting-coupled.csv": {
+      "sha256": "f8466d9471471b0c3e7295ef16e03810c382affea130fc06e04155d9e433726c",
+      "bytes": 3389
+    },
+    "output/resting-human.mrvpack": {
+      "sha256": "0ded07b6d98e909269ad8f0bd03f6b7b16804fa46e225be676bde6bf0a6448b2",
+      "bytes": 297140224
+    },
+    "output/resting-ocular-sclera-window.json": {
+      "sha256": "09760b11bd08978ece3d4299f93ba916bdf560a603b2fcabd1669935b5cdb768",
+      "bytes": 1210039
+    },
+    "output/resting-surface-audit.csv": {
+      "sha256": "8fb53e2d23089a746e31b5f2ff892d42fe92e50c1203733c8f0a8579f0897da9",
+      "bytes": 1316
+    }
+  }
+}

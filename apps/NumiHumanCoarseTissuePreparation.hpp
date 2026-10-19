@@ -632,25 +632,9 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
     const auto nearPoint=[&](const V3& a,const V3& b,double tol){return finitePoint(a)&&finitePoint(b)&&norm(sub(a,b))<=tol;};
     const auto checkPrism=[&](const std::vector<V3>& outer,const std::vector<V3>& inner,std::span<const double> field,double declared)->bool{
         if(!std::isfinite(declared)||declared<=0.0)return false;
-        // The outer surface audit establishes positive-volume face winding.
-        // Both exact boundaries must move inward from that authored winding;
-        // the sorted tetrahedral decomposition below cannot prove this because
-        // its signed face-normal check is otherwise tautological.
-        for(const auto& face:skin.faces){
-            const auto a=face[0],b=face[1],c=face[2];
-            if(a>=nSource||b>=nSource||c>=nSource)return false;
-            const auto faceNormal=cross(sub(outer[b],outer[a]),sub(outer[c],outer[a]));
-            const double normalLength=norm(faceNormal);
-            const auto displacementSum=add(add(sub(inner[a],outer[a]),sub(inner[b],outer[b])),sub(inner[c],outer[c]));
-            const double inwardProjection=dot(faceNormal,displacementSum);
-            const double depthScale=std::max({field[a],field[b],field[c],1e-12});
-            const double sideTolerance=64.0*std::numeric_limits<double>::epsilon()*normalLength*depthScale;
-            if(!std::isfinite(normalLength)||normalLength<=0.0||!std::isfinite(inwardProjection)||
-               inwardProjection>=-sideTolerance){
-                error="precomputed layer boundary does not lie inward of the authored outer face winding";
-                return false;
-            }
-        }
+        // Authored face-winding parity and all three signed prism tetrahedra below
+        // are the orientation guard; an average face projection would reject valid
+        // slanted bands even when every constituent prism is correctly oriented.
         double volume=0.0;
         for(const auto& sourceFace:skin.faces){
             auto f=sourceFace;

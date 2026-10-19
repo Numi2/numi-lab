@@ -1,0 +1,11 @@
+{
+  "compile_exit_code": 0,
+  "run_exit_code": 0,
+  "elapsed_seconds": 0.34581494331359863,
+  "binary_sha256": "3b55725814c415ebbcd55a71087523ad538cd2c53c9879a7c339f6ff1d59f659",
+  "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "run_stdout_sha256": "8420f3ee0b34c95955b6d11af4fefac12e28b874b6ee7d46859fd8e3ca6c5890",
+  "run_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "PASS mixed-donor face membership, exact one-hot ancestry, bounded source-connected one-ring fallback, fail-closed missing assignment"
+}

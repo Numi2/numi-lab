@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "stdout_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "result_json_sha256": "744494ab33d8ba3cd49e16f0cf58f474ff0fdddccd7790ed08dc21eedec7e05e",
+  "exit_matches_expected": true
+}

@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300",
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/build/compact_boundary_audit",
+    "input/candidate.txt",
+    "run-solve031/layers.csv",
+    "input/registered-skin-mechanical.csv",
+    "run-solve031",
+    "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "dbde813c5787f6a7e625e956fc757aa71153daeb44c90dfaa0720e701cce085f",
+    "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5"
+  ],
+  "candidate_sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+  "layers_sha256": "dbde813c5787f6a7e625e956fc757aa71153daeb44c90dfaa0720e701cce085f",
+  "registered_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+  "executable_sha256": "21bfc5081d989713cb603fd4347d790b3a2aa9c6932aa10199f6867e728cc12a",
+  "source_sha256": "a3f322ac4a23e5cbd2020ee1d6810238fb475adecf643049df5e41dfd1804f20",
+  "expected_exit_code": 1
+}

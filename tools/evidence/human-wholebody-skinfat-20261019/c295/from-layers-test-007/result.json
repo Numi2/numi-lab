@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "test": "negative_api",
+  "status": "PASS",
+  "cpu_only": true,
+  "run_exit_code": 0,
+  "binary_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/from_layers_test",
+  "binary_sha256": "62f51d468ccbcb430df266bc0e80a405d74b25feed9dc9124883ae6a22e8b9d4",
+  "stdout_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/stdout.log",
+  "stdout_sha256": "698485b662b80b72fcd297a004c8e2f2b5dcbdba0c41b8d593338846484ba8d2",
+  "stderr_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-007/stderr.log",
+  "stderr_sha256": "c2b8802da8dd14fb59604d5f1797ff4c1cccbbfbac7add5421457e49f2d99f21",
+  "loaded_library_path": "/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001/libmetalrobo.dylib",
+  "loaded_library_sha256": "8aaeb62878698c340885ea4b5fb598fef99eebc2c3847b55585134b45081383f",
+  "source_and_header_sha256": {
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-001/from_layers_test.cpp": "45be6e61875d09364839bcdd8ef507aee2819e19b45f114f5e7a630cf7638619",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanCoarseTissuePreparation.hpp": "482c1c732d0102e957b763835a05962167d5095ee5de8a79b47a735794e4b15a",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanWholeBodySkinReduction.hpp": "c85f7fb334bbdf7b33ac5b590df510e6ca39a8a9ee6d048f190daad841e26e23",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "4443836c698af635687795e7f46a1073a9f67a40730229369fb102c94314e2e1",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanMaterialColumnSelfContact.hpp": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86"
+  },
+  "pinned_geometry_inputs_sha256": {
+    "source_registered_skin_csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "reduced_topology_candidate_txt": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "frozen_layer_coordinates_csv": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a"
+  },
+  "tested_reduction_header_sha256": "c85f7fb334bbdf7b33ac5b590df510e6ca39a8a9ee6d048f190daad841e26e23",
+  "final_admitted_reduction_header_sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+  "summary": {
+    "status": "PASS",
+    "checks": [
+      "precomputed layers reused",
+      "NaN summary rejected transactionally",
+      "reversed winding rejected",
+      "local prism orientation rejected transactionally",
+      "compile_bind_world passed: 18 nodes, 48 tets, 16 compact faces, 18 tags",
+      "variable fields passed: mass residual 6.56166e-15 kg, donor-rotation error 1.11024e-16 m"
+    ]
+  }
+}

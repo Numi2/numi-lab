@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300",
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/wholebody-closed-boundary-audit-300/build/compact_boundary_audit",
+    "input/candidate.txt",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/column-direction-trial-001/direct-coordinate-repair-025/solve-032-local-fat-separation/admitted-layer-coordinates.csv",
+    "input/registered-skin-mechanical.csv",
+    "run-solve032c",
+    "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+    "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5"
+  ],
+  "expected_exit_code": 0,
+  "input_hashes": {
+    "candidate_txt": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "layers_csv": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+    "registered_csv": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5"
+  }
+}

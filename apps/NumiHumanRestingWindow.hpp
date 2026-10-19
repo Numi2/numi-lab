@@ -91,9 +91,9 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
     _measurements.textColor=NSColor.whiteColor;
     _measurements.font=[NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular];
     [window.contentView addSubview:_measurements];
-    _layers=[NSSegmentedControl segmentedControlWithLabels:@[@"Skin",@"Muscles",@"Skeleton",@"Organs (passive)",@"Lungs",@"Heart",@"Vessels"]
+    _layers=[NSSegmentedControl segmentedControlWithLabels:@[@"Skin",@"Muscles",@"Skeleton",@"Organs (passive)",@"Lungs",@"Heart",@"Vessels",@"Skin inner",@"Deep fat"]
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
-    _layers.frame=NSMakeRect(24,140,620,26);_layers.selectedSegment=0;
+    _layers.frame=NSMakeRect(24,140,850,26);_layers.selectedSegment=0;
     // Reference anatomy combines registered sources; these labels describe
     // the existing owners, not measured-person or organ-wide physiology.
     _layers.toolTip=@"Registered reference adult assembled from multiple sources, not measurements of one person. Source identities and repair provenance are retained with the scene.";
@@ -112,7 +112,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
     [window.contentView addSubview:_layers];
     _cameras=[NSSegmentedControl segmentedControlWithLabels:(std::getenv("NUMI_HUMAN_ROPE_SWING")?@[@"Front",@"Right",@"Back",@"Left",@"Heart",@"Front-right",@"Back-right",@"Back-left",@"Front-left"]:@[@"Front",@"Side",@"Chest",@"Whole body",@"Heart detail"])
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
-    _cameras.frame=NSMakeRect(670,140,570,26);_cameras.selectedSegment=3;
+    _cameras.frame=NSMakeRect(890,140,350,26);_cameras.selectedSegment=3;
     [window.contentView addSubview:_cameras];
     NSError* error=nil;
     NSString* shader=@"#include <metal_stdlib>\nusing namespace metal;\n"
@@ -163,7 +163,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
         if(_inspectionTour) {
             // Optional presentation-only tour of the same continuing state.
             // It never changes the owner clock, forces, or intervention.
-            const unsigned layer=unsigned(std::fmod(std::floor(_lastSimulatedSeconds/_inspectionPeriodSeconds),7.0));
+            const unsigned layer=unsigned(std::fmod(std::floor(_lastSimulatedSeconds/_inspectionPeriodSeconds),9.0));
             _layers.selectedSegment=layer;
             _cameras.selectedSegment=layer==5u?4u:layer==4u?2u:3u;
         }

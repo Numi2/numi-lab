@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-render-297/test_accepted_skin_render_dispatch"
+  ],
+  "output": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-render-297/native-dispatch-002",
+  "source_sha256": "8f2d57221d5323636cb96b81a73710657acc26001f9867871e95e963c9776fb5",
+  "helper_sha256": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+  "renderer_abi_header": "/Users/n/numi-lab-native-replay-publish-20261017/include/metalrobo/visual_platform_types.h",
+  "renderer_abi_header_sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601",
+  "binary_sha256": "c9d53f17c7e66c6d8309edf9caed2782509cdc7071bb6dbd6e9421dab4833f37",
+  "device_test": "MTLCreateSystemDefaultDevice; actual newLibraryWithSource + pipeline + command-buffer dispatch",
+  "started_utc": "2026-10-19T15:19:19.279763+00:00"
+}
