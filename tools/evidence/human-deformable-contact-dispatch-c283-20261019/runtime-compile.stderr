@@ -1,0 +1,7 @@
+/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/source/matter/src/runtime.mm:12562:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12562 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/source/matter/src/runtime.mm:16702:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16702 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

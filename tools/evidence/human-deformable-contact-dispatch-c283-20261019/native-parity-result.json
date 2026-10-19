@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 14.743366500013508,
+  "executable_sha256": "ebdf3d40bf36a51dcb036bf196de8fb80e971c71977a58a2bd162080986acdc6",
+  "library_sha256": "c8bdd35516418c812f3b16c102923c9126d9fc9c5778bf85b07bed17b6ca9b95",
+  "msl_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+  "stdout_sha256": "219ddd9ee1325146d056adb5a8ac4cb5e6cfe2ec164f9c27be267ebbfd2cbfc0",
+  "stderr_sha256": "cc1db25b81f712bd90d0a5421a4a97953a458609bbc094f9febd53490c2b803c",
+  "output_directory": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-005/candidate-c283/output"
+}

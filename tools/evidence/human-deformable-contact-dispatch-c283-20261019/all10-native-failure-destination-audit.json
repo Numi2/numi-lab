@@ -1,0 +1,47 @@
+{
+  "status": "failed_no_accepted_steps",
+  "reported_exit_code": 1,
+  "elapsed_s": 205.90885229199193,
+  "matter_code": 10,
+  "matter_microsteps": 162,
+  "matter_diagnostics": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "binary_sha256": "952062c9ceefcc20df67341013a2dfc44e04d7fbcec442a58055e5ff6f85b839",
+  "library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+  "msl_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+  "invocation_claimed_output_directory": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-002/candidate-c283/output",
+  "actual_launcher_output_directory": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output",
+  "collector_result_outputs": {},
+  "actual_launcher_output_files": [
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output/resting-airway-anchor-map.json",
+      "sha256": "39d1ad71a639110e152775a28ee86a010821ae7a0ec674cf5c887875444cea86",
+      "bytes": 82465
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output/resting-human.mrvpack",
+      "sha256": "84222ff14b61b97feb9fc582e209532b17f247a50f1bea6ebaaaa70c550c4b07",
+      "bytes": 296652800
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output/resting-ocular-sclera-window.json",
+      "sha256": "a9d78bce83f39a80f7012c49239679d88f504ac5b090ee570e017d3d3f24bd7d",
+      "bytes": 1210039
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-001/candidate-c283/output/resting-surface-audit.csv",
+      "sha256": "e081d37117fd59e735ee5436c82913157d4f972a1afaafeb6ed85f085bc0dcca",
+      "bytes": 1316
+    }
+  ],
+  "scope_note": "The invocation argv was correct but launcher_argv wrote to native-parity-001, not native-parity-002. Original invocation/result remain unchanged; this audit identifies actual execution and destination discrepancy. Not evidence of whole-body success."
+}

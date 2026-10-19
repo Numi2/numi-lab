@@ -2891,23 +2891,35 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(9)]],
     device NMMatterStatusGPU* statuses [[buffer(10)]],
     device const NMContinuumObjectGPU* objects [[buffer(11)]],
+    device const uint* candidateOffsets [[buffer(12)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
-    const uint total = dispatch.environmentCount * capacity;
-    if (global >= total || capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint slot = global - environment * capacity;
-    if (!environmentHealthy(statuses, environment)) return;
-    const uint count = candidateCounts[environment];
-    if (count > capacity) {
-        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
-            NM_INVALID_INDEX, slot,
-            float4(float(count), float(capacity), 0.0f, 1.0f));
-        return;
+    if (capacity == 0u) return;
+    // candidateOffsets is the compact prefix built from candidateCounts. The
+    // candidate/contact/history arenas remain padded by environment*capacity.
+    uint environment = dispatch.environmentCount;
+    uint slot = 0u;
+    for (uint candidateEnvironment = 0u;
+         candidateEnvironment < dispatch.environmentCount;
+         ++candidateEnvironment) {
+        const uint candidateCount = candidateCounts[candidateEnvironment];
+        const uint candidateOffset = candidateOffsets[candidateEnvironment];
+        if (candidateCount > capacity) {
+            recordFailure(statuses[candidateEnvironment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, 0u,
+                float4(float(candidateCount), float(capacity), 0.0f, 1.0f));
+            continue;
+        }
+        if (global >= candidateOffset &&
+            global - candidateOffset < candidateCount) {
+            environment = candidateEnvironment;
+            slot = global - candidateOffset;
+            break;
+        }
     }
-    if (slot >= count) return;
-
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint candidateGlobal = environment * capacity + slot;
     const NMDeformableContactCandidateGPU candidate =
@@ -3072,7 +3084,7 @@ kernel void nm_contact_validate_armijo_deformable_sweep(
         dispatch.gridNodeCount, cohesiveFaces,
         environment * dispatch.cohesiveFaceCount,
         start, finish, start + 3u, finish + 3u, collisionThickness, sweep,
-        nullptr, uint4(NM_INVALID_INDEX), global, environment, slot,
+        nullptr, uint4(NM_INVALID_INDEX), candidateGlobal, environment, slot,
         uint4(NM_INVALID_INDEX), 0u, 0.0f, 0.0f);
     if (!validPartitions || !certified) {
         const uint failureCode = !leftPartitionValid
@@ -5008,26 +5020,49 @@ kernel void nm_contact_narrowphase_deformable(
     device NMDeformableVTCCDAuditGPU* vtccdAudit [[buffer(18)]],
     constant nm_uint4& vtccdAuditSelector [[buffer(19)]],
     device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
+    device const uint* candidateOffsets [[buffer(21)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
-    const uint total = dispatch.environmentCount * capacity;
-    if (global >= total || capacity == 0u) return;
+    if (capacity == 0u) return;
+    // candidateOffsets is the compact prefix built from candidateCounts. The
+    // candidate/contact/history arenas remain padded by environment*capacity.
+    uint environment = dispatch.environmentCount;
+    uint slot = 0u;
+    for (uint candidateEnvironment = 0u;
+         candidateEnvironment < dispatch.environmentCount;
+         ++candidateEnvironment) {
+        const uint candidateCount = candidateCounts[candidateEnvironment];
+        const uint candidateOffset = candidateOffsets[candidateEnvironment];
+        if (candidateCount > capacity) {
+            recordFailure(statuses[candidateEnvironment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, 0u,
+                float4(float(candidateCount), float(capacity), 0.0f, 1.0f));
+            continue;
+        }
+        if (global >= candidateOffset &&
+            global - candidateOffset < candidateCount) {
+            environment = candidateEnvironment;
+            slot = global - candidateOffset;
+            break;
+        }
+    }
+    if (environment >= dispatch.environmentCount) return;
+    const uint candidateGlobal = environment * capacity + slot;
     // The selected candidate invocation owns this one-record diagnostic slot.
     // Clearing here also makes a missing candidate/feature an explicit empty
     // record, without another dispatch, barrier, or host/GPU wait.
-    if (vtccdAuditSelector.x == global) vtccdAudit[0] = {};
-    if (vtccdAuditSelector.x == global &&
+    if (vtccdAuditSelector.x == candidateGlobal) vtccdAudit[0] = {};
+    if (vtccdAuditSelector.x == candidateGlobal &&
         vtccdAuditSelector.w == kMortarAuditSelectorSentinel)
         mortarAudit[0] = {};
     if (deterministicStatusSelection != 0u)
-        candidateStatuses[global] = {};
-    const NMDeformableContactHistoryGPU previous = histories[global];
-    contacts[global] = {};
-    const uint environment = global / capacity;
-    const uint slot = global - environment * capacity;
-    if (slot >= candidateCounts[environment]) return;
-    const NMDeformableContactCandidateGPU candidate = candidates[global];
+        candidateStatuses[candidateGlobal] = {};
+    const NMDeformableContactHistoryGPU previous = histories[candidateGlobal];
+    contacts[candidateGlobal] = {};
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMDeformableContactCandidateGPU candidate =
+        candidates[candidateGlobal];
     if ((candidate.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (candidate.identity.x >= primitiveCount ||
@@ -5120,7 +5155,7 @@ kernel void nm_contact_narrowphase_deformable(
         if (!certified) {
             recordDeformableNarrowphaseFailure(
                 deterministicStatusSelection, statuses, candidateStatuses,
-                environment, global,
+                environment, candidateGlobal,
                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                 float4(float(candidate.identity.x),
                     float(candidate.identity.y), 0.0f, 0.0f));
@@ -5158,7 +5193,7 @@ kernel void nm_contact_narrowphase_deformable(
         if (!certified) {
             recordDeformableNarrowphaseFailure(
                 deterministicStatusSelection, statuses, candidateStatuses,
-                environment, global,
+                environment, candidateGlobal,
                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                 float4(float(candidate.identity.x),
                     float(candidate.identity.y), 1.0f, 0.0f));
@@ -5194,7 +5229,7 @@ kernel void nm_contact_narrowphase_deformable(
                     cohesiveFaces, mortarPatches)) {
                 recordDeformableNarrowphaseFailure(
                     deterministicStatusSelection, statuses, candidateStatuses,
-                    environment, global,
+                    environment, candidateGlobal,
                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                     float4(float(candidate.identity.x),
                         float(candidate.identity.y), 0.0f, 1.0f));
@@ -5226,7 +5261,7 @@ kernel void nm_contact_narrowphase_deformable(
                     environment * dispatch.cohesiveFaceCount,
                     start, finish, start + 3u, finish + 3u,
                     thickness, selected, mortarAudit, vtccdAuditSelector,
-                    global, environment, slot, candidate.identity,
+                    candidateGlobal, environment, slot, candidate.identity,
                     microstep.solverIteration,
                     objectTimestep(dispatch,
                         schedulers[environment * dispatch.objectCount +
@@ -5235,7 +5270,7 @@ kernel void nm_contact_narrowphase_deformable(
                         schedulers[environment * dispatch.objectCount +
                             right.nodesAndObject.w]));
             if (!validPartitions &&
-                vtccdAuditSelector.x == global &&
+                vtccdAuditSelector.x == candidateGlobal &&
                 vtccdAuditSelector.w == kMortarAuditSelectorSentinel &&
                 vtccdAuditSelector.y == candidate.identity.x &&
                 vtccdAuditSelector.z == candidate.identity.y) {
@@ -5256,12 +5291,12 @@ kernel void nm_contact_narrowphase_deformable(
                                 right.nodesAndObject.w]),
                         microstep.solverIteration, false, false, 0.0f, 0.0f);
                 storeMortarComplementAudit(
-                    mortarAudit, vtccdAuditSelector, global, observed);
+                    mortarAudit, vtccdAuditSelector, candidateGlobal, observed);
             }
             if (!validPartitions || !certified) {
                 recordDeformableNarrowphaseFailure(
                     deterministicStatusSelection, statuses, candidateStatuses,
-                    environment, global,
+                    environment, candidateGlobal,
                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                     float4(float(candidate.identity.x),
                         float(candidate.identity.y),
@@ -5302,7 +5337,7 @@ kernel void nm_contact_narrowphase_deformable(
                     thickness, toi, normal, barycentric, point, separation,
                     certified);
                 const uint packedFeature = direction * 3u + vertexIndex;
-                if (vtccdAuditSelector.x == global &&
+                if (vtccdAuditSelector.x == candidateGlobal &&
                     candidate.identity.x == vtccdAuditSelector.y &&
                     candidate.identity.y == vtccdAuditSelector.z &&
                     packedFeature == vtccdAuditSelector.w) {
@@ -5336,7 +5371,7 @@ kernel void nm_contact_narrowphase_deformable(
                 if (!certified) {
                     recordDeformableNarrowphaseFailure(
                         deterministicStatusSelection, statuses, candidateStatuses,
-                        environment, global,
+                        environment, candidateGlobal,
                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                         float4(float(candidate.identity.x),
                             float(candidate.identity.y),
@@ -5399,7 +5434,7 @@ kernel void nm_contact_narrowphase_deformable(
                 if (!certified) {
                     recordDeformableNarrowphaseFailure(
                         deterministicStatusSelection, statuses, candidateStatuses,
-                        environment, global,
+                        environment, candidateGlobal,
                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                         float4(float(candidate.identity.x),
                             float(candidate.identity.y),
@@ -5599,7 +5634,7 @@ kernel void nm_contact_narrowphase_deformable(
         !isfinite(bestExtraWeightsX) || !isfinite(bestExtraWeightsY)) {
         recordDeformableNarrowphaseFailure(
             deterministicStatusSelection, statuses, candidateStatuses,
-            environment, global,
+            environment, candidateGlobal,
             NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
             float4(bestSeparation, bestTOI, 0.0f, 0.0f));
         return;
@@ -5946,7 +5981,7 @@ kernel void nm_contact_narrowphase_deformable(
         contactTimestep * contactTimestep * baseBarrierEnergy /
             max(featureMollifier, 1.0e-3f),
         baseBarrier.w);
-    contacts[global] = contact;
+    contacts[candidateGlobal] = contact;
     (void)microstep;
 }
 
@@ -5981,19 +6016,23 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
 
 kernel void nm_contact_compact_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device NMDeformableContactGPU* contacts [[buffer(1)]],
     device uint* activeIndices [[buffer(2)]],
     device uint* activeCounts [[buffer(3)]],
+    device const uint* candidateCounts [[buffer(4)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
     const uint capacity = dispatch.deformableContactCapacity;
     const uint base = environment * capacity;
+    const uint candidateCount = min(candidateCounts[environment], capacity);
     uint outputCount = 0u;
     for (uint first = 0u; first < capacity; first += 32u) {
         const uint local = first + lane;
-        const bool selected = local < capacity &&
+        if (local >= candidateCount && local < capacity)
+            contacts[base + local] = {};
+        const bool selected = local < candidateCount &&
             (contacts[base + local].identity.w & NM_CONTACT_VALID) != 0u;
         const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
         const uint count = simd_sum(selected ? 1u : 0u);

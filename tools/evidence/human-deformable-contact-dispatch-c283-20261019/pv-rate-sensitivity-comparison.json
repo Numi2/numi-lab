@@ -1,0 +1,378 @@
+{
+  "title": "Aortic cavity wall PV trace: passive-FEM rate-cap sensitivity",
+  "scope": "Paired 4-step phase-0.25 wall-only circulation run; this is startup sensitivity evidence, not a selected production rate or full-cycle qualification.",
+  "runs": {
+    "rate8_exploratory": {
+      "directory": "/Users/n/numi-human-separation-20261018/C/vessel-coupling-281/native-pv-c283-runtime004-phase025-wall-only",
+      "status": "32-step run intentionally interrupted after 4 accepted steps",
+      "clock_cycle_fraction": 0.25,
+      "passive_fem_max_rate_exponent": "unset (runtime default 8)",
+      "invocation_sha256": "51b83c284baefdefb9576d7ef1208ad369b0c57d505d2e715966ea73784f10b3",
+      "pv_csv_sha256": "d9cb09454ae2702188989be5d005977d82657d1d2181ad87a11f84a340ab35df",
+      "stdout_sha256": "32a9d1cb1b58032f32612aa6912d678e10a4d46cbac0d16634f7b0fd7019ffc8",
+      "stderr_sha256": "f2e57829ab9f543c4879e1f985ba08ea0dd834408a1a48982ca5d37c1baa3825",
+      "interruption_record_sha256": "0a6e4119b3cea6d17b76aa4f056789302500908e7bc870463c88d144f576a792"
+    },
+    "rate0_control": {
+      "directory": "/Users/n/numi-human-separation-20261018/C/vessel-coupling-281/native-pv-c283-runtime004-phase025-rate0-wall-only-4step-001",
+      "status": "exit 0, 4 accepted body steps",
+      "clock_cycle_fraction": 0.25,
+      "passive_fem_max_rate_exponent": 0,
+      "invocation_sha256": "199e27065927bab763f2f84389c3e33d6ce2ed9f705eb78b5f13cc1e70f27df2",
+      "result_sha256": "7399bfc2925f8797c00101b0a61bba7055d16327129b516b704347284fce8f7a",
+      "pv_csv_sha256": "bd20e09d93fb60254c37e883273b197990dee95b354713acfffaf3132ebc0e3d",
+      "stdout_sha256": "1ff27a46a4b1999d34edd4740d4529d113b19cc91ff70c96c7950e1d5e182979",
+      "stderr_sha256": "d2cee7f356c3fb4c76ae2d58369bd59e3aeaa3a5b01068878d21ad990c17f125"
+    }
+  },
+  "shared_pins": {
+    "app_sha256": "e06018c1d4057c16142f6a71a405b8f5a3d7c3409ce86151494cae38dc5aaf71",
+    "library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+    "msl_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "app_source_sha256": "737aaa459fb3187420648c9354309d5800577e59e48bf5c80e720eff65f5c712",
+    "pv_trace_header_sha256": "1a4d1ab39c88e9c7da6f78e3b5d902525e70ad7b485e2ee1686f79e9fbf872ae",
+    "payloads": [
+      {
+        "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+        "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+      },
+      {
+        "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+        "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+        "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+        "sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d"
+      },
+      {
+        "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+        "sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+        "sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48"
+      },
+      {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+        "sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc"
+      },
+      {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+        "sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/bilateral-hand-skin-repair-20261018-001/source-hand-wrist-preserved-025/bodyparts3d-myosim-skinned-shell.nhskin",
+        "sha256": "2d6b0870d1ba0dd6b0944b6a0175ca0304f0392d9ec4458521938a3a5766ad68"
+      },
+      {
+        "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+        "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+        "sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4"
+      },
+      {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+        "sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51"
+      },
+      {
+        "path": "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+        "sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1"
+      }
+    ],
+    "aortic_pressure_source": {
+      "stable_id": 1,
+      "row": 0
+    },
+    "left_ventricular_pressure_source": {
+      "stable_id": 21,
+      "row": 20
+    },
+    "cavity": {
+      "stable_id": 9007,
+      "compartment_stable_id": 7,
+      "compartment_index": 6,
+      "pressure_row": 45
+    },
+    "wall_mass_kg": 0.0070592651342735735
+  },
+  "units": {
+    "pressures": "Pa",
+    "volumes": "mL",
+    "displacements": "mm",
+    "time_step": "0.25 ms"
+  },
+  "accepted_samples": [
+    {
+      "body_step": 0,
+      "lv_cycle_fraction_rate8": 0.25000000000000017,
+      "lv_cycle_fraction_rate0": 0.25000000000000017,
+      "runtime_control_step_rate8": -1,
+      "runtime_control_step_rate0": -1,
+      "ascending_aorta_pressure_pa": {
+        "rate8": NaN,
+        "rate0": NaN,
+        "rate0_minus_rate8": NaN
+      },
+      "lv_pressure_pa": {
+        "rate8": NaN,
+        "rate0": NaN,
+        "rate0_minus_rate8": NaN
+      },
+      "cavity_pressure_pa": {
+        "rate8": 11223.458105325699,
+        "rate0": 11223.458105325699,
+        "rate0_minus_rate8": 0.0
+      },
+      "hydraulic_volume_ml": {
+        "rate8": 18.418284785378734,
+        "rate0": 18.418284785378734,
+        "rate0_minus_rate8": 0.0
+      },
+      "geometric_volume_ml": {
+        "rate8": 18.418282613529556,
+        "rate0": 18.418282613529556,
+        "rate0_minus_rate8": 0.0
+      },
+      "geometry_minus_hydraulic_ml": {
+        "rate8": -2.171849180533647e-06,
+        "rate0": -2.171849180533647e-06,
+        "rate0_minus_rate8": 0.0
+      },
+      "delta_geometric_volume_ml": {
+        "rate8": 0.0,
+        "rate0": 0.0,
+        "rate0_minus_rate8": 0.0
+      },
+      "max_wall_displacement_mm": {
+        "rate8": 0.0,
+        "rate0": 0.0,
+        "rate0_minus_rate8": 0.0
+      },
+      "max_free_wall_displacement_mm": {
+        "rate8": 0.0,
+        "rate0": 0.0,
+        "rate0_minus_rate8": 0.0
+      }
+    },
+    {
+      "body_step": 1,
+      "lv_cycle_fraction_rate8": 0.2502916666805202,
+      "lv_cycle_fraction_rate0": 0.2502916666805202,
+      "runtime_control_step_rate8": 0,
+      "runtime_control_step_rate0": 0,
+      "ascending_aorta_pressure_pa": {
+        "rate8": 11390.9072265625,
+        "rate0": 11395.22265625,
+        "rate0_minus_rate8": 4.3154296875
+      },
+      "lv_pressure_pa": {
+        "rate8": 11003.6611328125,
+        "rate0": 11003.6611328125,
+        "rate0_minus_rate8": 0.0
+      },
+      "cavity_pressure_pa": {
+        "rate8": 12383.876687288284,
+        "rate0": 11767.264693975449,
+        "rate0_minus_rate8": -616.6119933128357
+      },
+      "hydraulic_volume_ml": {
+        "rate8": 18.313475980653383,
+        "rate0": 18.297962382126375,
+        "rate0_minus_rate8": -0.015513598527007844
+      },
+      "geometric_volume_ml": {
+        "rate8": 18.313724485986327,
+        "rate0": 18.29794901043205,
+        "rate0_minus_rate8": -0.015775475554278273
+      },
+      "geometry_minus_hydraulic_ml": {
+        "rate8": 0.0002485053329463066,
+        "rate0": -1.3371694325940578e-05,
+        "rate0_minus_rate8": -0.00026187702727224716
+      },
+      "delta_geometric_volume_ml": {
+        "rate8": -0.10455812754322685,
+        "rate0": -0.12033360309750743,
+        "rate0_minus_rate8": -0.015775475554280577
+      },
+      "max_wall_displacement_mm": {
+        "rate8": 0.6511142230405207,
+        "rate0": 0.66697597669143,
+        "rate0_minus_rate8": 0.01586175365090936
+      },
+      "max_free_wall_displacement_mm": {
+        "rate8": 0.6511142230405207,
+        "rate0": 0.66697597669143,
+        "rate0_minus_rate8": 0.01586175365090936
+      }
+    },
+    {
+      "body_step": 2,
+      "lv_cycle_fraction_rate8": 0.25058333336104033,
+      "lv_cycle_fraction_rate0": 0.25058333336104033,
+      "runtime_control_step_rate8": 1,
+      "runtime_control_step_rate0": 1,
+      "ascending_aorta_pressure_pa": {
+        "rate8": 11395.109375,
+        "rate0": 11400.015625,
+        "rate0_minus_rate8": 4.90625
+      },
+      "lv_pressure_pa": {
+        "rate8": 11046.8466796875,
+        "rate0": 11046.8466796875,
+        "rate0_minus_rate8": 0.0
+      },
+      "cavity_pressure_pa": {
+        "rate8": 11943.847131729126,
+        "rate0": 11954.404866695404,
+        "rate0_minus_rate8": 10.557734966278076
+      },
+      "hydraulic_volume_ml": {
+        "rate8": 18.154170650586586,
+        "rate0": 18.148561853654915,
+        "rate0_minus_rate8": -0.005608796931671378
+      },
+      "geometric_volume_ml": {
+        "rate8": 18.154093222165276,
+        "rate0": 18.148552788284423,
+        "rate0_minus_rate8": -0.005540433880852902
+      },
+      "geometry_minus_hydraulic_ml": {
+        "rate8": -7.742842131003096e-05,
+        "rate0": -9.065370490683646e-06,
+        "rate0_minus_rate8": 6.836305081934732e-05
+      },
+      "delta_geometric_volume_ml": {
+        "rate8": -0.2641893913642785,
+        "rate0": -0.2697298252451333,
+        "rate0_minus_rate8": -0.005540433880854789
+      },
+      "max_wall_displacement_mm": {
+        "rate8": 1.1637211123692524,
+        "rate0": 1.1850595567551228,
+        "rate0_minus_rate8": 0.021338444385870403
+      },
+      "max_free_wall_displacement_mm": {
+        "rate8": 1.1637211123692524,
+        "rate0": 1.1850595567551228,
+        "rate0_minus_rate8": 0.021338444385870403
+      }
+    },
+    {
+      "body_step": 3,
+      "lv_cycle_fraction_rate8": 0.25087500004156044,
+      "lv_cycle_fraction_rate0": 0.25087500004156044,
+      "runtime_control_step_rate8": 2,
+      "runtime_control_step_rate0": 2,
+      "ascending_aorta_pressure_pa": {
+        "rate8": 11404.04296875,
+        "rate0": 11407.56640625,
+        "rate0_minus_rate8": 3.5234375
+      },
+      "lv_pressure_pa": {
+        "rate8": 11090.0859375,
+        "rate0": 11090.0859375,
+        "rate0_minus_rate8": 0.0
+      },
+      "cavity_pressure_pa": {
+        "rate8": 12065.383166074753,
+        "rate0": 11900.965350866318,
+        "rate0_minus_rate8": -164.41781520843506
+      },
+      "hydraulic_volume_ml": {
+        "rate8": 18.011667869457508,
+        "rate0": 18.023886821327785,
+        "rate0_minus_rate8": 0.01221895187027755
+      },
+      "geometric_volume_ml": {
+        "rate8": 18.01165494207241,
+        "rate0": 18.023860336433778,
+        "rate0_minus_rate8": 0.012205394361366473
+      },
+      "geometry_minus_hydraulic_ml": {
+        "rate8": -1.2927385094200269e-05,
+        "rate0": -2.6484894006785714e-05,
+        "rate0_minus_rate8": -1.3557508912585446e-05
+      },
+      "delta_geometric_volume_ml": {
+        "rate8": -0.4066276714571434,
+        "rate0": -0.39442227709577765,
+        "rate0_minus_rate8": 0.012205394361365751
+      },
+      "max_wall_displacement_mm": {
+        "rate8": 1.825571073290121,
+        "rate0": 1.5895367741542015,
+        "rate0_minus_rate8": -0.23603429913591945
+      },
+      "max_free_wall_displacement_mm": {
+        "rate8": 1.825571073290121,
+        "rate0": 1.5895367741542015,
+        "rate0_minus_rate8": -0.23603429913591945
+      }
+    },
+    {
+      "body_step": 4,
+      "lv_cycle_fraction_rate8": 0.2511666667220805,
+      "lv_cycle_fraction_rate0": 0.2511666667220805,
+      "runtime_control_step_rate8": 3,
+      "runtime_control_step_rate0": 3,
+      "ascending_aorta_pressure_pa": {
+        "rate8": 11415.8251953125,
+        "rate0": 11415.375,
+        "rate0_minus_rate8": -0.4501953125
+      },
+      "lv_pressure_pa": {
+        "rate8": 11133.3779296875,
+        "rate0": 11133.3779296875,
+        "rate0_minus_rate8": 0.0
+      },
+      "cavity_pressure_pa": {
+        "rate8": 11913.233029842377,
+        "rate0": 11798.168939352036,
+        "rate0_minus_rate8": -115.06409049034119
+      },
+      "hydraulic_volume_ml": {
+        "rate8": 17.86615654395939,
+        "rate0": 17.929942452954407,
+        "rate0_minus_rate8": 0.06378590899501546
+      },
+      "geometric_volume_ml": {
+        "rate8": 17.86614211948358,
+        "rate0": 17.92993651796675,
+        "rate0_minus_rate8": 0.06379439848316792
+      },
+      "geometry_minus_hydraulic_ml": {
+        "rate8": -1.4424475811247684e-05,
+        "rate0": -5.934987659612706e-06,
+        "rate0_minus_rate8": 8.489488151634979e-06
+      },
+      "delta_geometric_volume_ml": {
+        "rate8": -0.5521404940459769,
+        "rate0": -0.48834609556280856,
+        "rate0_minus_rate8": 0.06379439848316831
+      },
+      "max_wall_displacement_mm": {
+        "rate8": 2.207279413167239,
+        "rate0": 1.7808680824729213,
+        "rate0_minus_rate8": -0.4264113306943176
+      },
+      "max_free_wall_displacement_mm": {
+        "rate8": 2.207279413167239,
+        "rate0": 1.7808680824729213,
+        "rate0_minus_rate8": -0.4264113306943176
+      }
+    }
+  ],
+  "interpretation": [
+    "Both modes begin at the same 18.4182826 mL geometric cavity volume. At the first accepted step, rate 8 volume is 18.3137245 mL and rate 0 is 18.2979490 mL; the wall is compressing during this initial segment.",
+    "The mode difference is material: cavity pressure differs by -616.6 Pa at step 1, -164.4 Pa at step 3, and -115.1 Pa at step 4; geometric volume and wall displacement also diverge.",
+    "Rate 0 is therefore retained only as a sensitivity control, not adopted as the production rate. Four early steps do not establish systolic behavior or full-cycle physiology.",
+    "The trace associates live circulation pressure, hydraulic cavity volume, independently integrated FEM geometric volume, and wall displacement. It is evidence of coupled owner state, not standalone physiological validation."
+  ]
+}

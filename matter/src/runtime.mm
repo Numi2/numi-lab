@@ -3511,6 +3511,20 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "runtime environment count must match the cooked matter package";
             return diagnostics;
         }
+        // Candidate IDs and the compact-prefix cursor are uint32 values, and
+        // Metal's 256-thread padded fallback rounds its flattened domain up by
+        // at most 255. Reject an unrepresentable domain before allocating or
+        // initializing any contact dispatch state.
+        const std::uint64_t deformableCandidateDomain =
+            static_cast<std::uint64_t>(world.dispatch.environmentCount) *
+            world.dispatch.deformableContactCapacity;
+        if (deformableCandidateDomain >
+            static_cast<std::uint64_t>(
+                std::numeric_limits<std::uint32_t>::max()) - 255u) {
+            diagnostics.message =
+                "deformable contact environment-capacity product exceeds the uint32 padded-dispatch domain";
+            return diagnostics;
+        }
         if (staticFEMSurfaceMapEnabled(world.dispatch)) {
             std::uint64_t nodeCapacity = 0u;
             std::uint64_t tetrahedronCapacity = 0u;
@@ -10544,6 +10558,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 indirectBufferOffset:0u
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
+            return true;
+        };
+        const auto dispatchIndirectWithPaddedFallback = [&](
+            const char* name, id<MTLBuffer> indirect, const NSUInteger width,
+            const NSUInteger paddedThreadCount, const auto& bind
+        ) {
+            if (dispatchIndirect(name, indirect, width, bind)) return true;
+            const id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            // A missing pipeline/indirect buffer is an owner failure. Only
+            // an unsupported indirect threadgroup width may use the bounded
+            // padded domain; the compact kernels return for inactive slots.
+            if (pipeline == nil || indirect == nil || width == 0u ||
+                width <= pipeline.maxTotalThreadsPerThreadgroup) return false;
+            dispatchThreads(name, paddedThreadCount, bind);
             return true;
         };
         const auto setDispatch = [&]() {
@@ -18375,11 +18403,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
                 });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                // Reuse the per-environment active prefix and indirect dispatch
+                // scratch for the candidate domain. Active-contact compaction
+                // rewrites both buffers before they are consumed again.
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_active_counts", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.deformableContactCandidateCounts
+                               offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContactActiveOffsets
+                               offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableContactActiveDispatch
+                               offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const std::uint32_t narrowphaseDeterministicFailureSelection = 0u;
-                dispatchThreads(
-                    "nm_contact_narrowphase_deformable",
-                    environments * state.dispatch.deformableContactCapacity,
-                    [&] {
+                if (!dispatchIndirectWithPaddedFallback(
+                    "nm_contact_narrowphase_deformable", state.deformableContactActiveDispatch, 256u,
+                    environments * state.dispatch.deformableContactCapacity, [&] {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -18411,8 +18453,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:19u];
                         [encoder setBuffer:state.deformableContactFailures
                                    offset:0u atIndex:20u];
+                        [encoder setBuffer:state.deformableContactActiveOffsets
+                                   offset:0u atIndex:21u];
                     }
-                );
+                )) {
+                    diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
+                    return false;
+                };
                 if (state.captureDiagnostics) {
                     dispatchThreads("nm_contact_capture_deformable_failure", environments, [&] {
                         setDispatch();
@@ -18438,6 +18485,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:2u];
                         [encoder setBuffer:state.deformableContactActiveCounts
                                    offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts
+                                   offset:0u atIndex:4u];
                     }
                 );
                 dispatchGroups32(
@@ -18992,10 +19041,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femArmijoSurfaceSortIndicesB);
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads(
-                    "nm_contact_validate_armijo_deformable_sweep",
-                    environments * state.dispatch.deformableContactCapacity,
-                    [&] {
+                // Candidate counts and per-environment offsets define one
+                // compact indirect domain; compaction later rewrites this
+                // trial scratch before active-contact consumers run.
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_active_counts", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts
+                               offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoDeformableActiveOffsets
+                               offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femArmijoDeformableActiveDispatch
+                               offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!dispatchIndirectWithPaddedFallback(
+                    "nm_contact_validate_armijo_deformable_sweep", state.femArmijoDeformableActiveDispatch, 256u,
+                    environments * state.dispatch.deformableContactCapacity, [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver
                                offset:0u atIndex:1u];
@@ -19019,15 +19081,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                offset:0u atIndex:10u];
                     [encoder setBuffer:state.objects
                                offset:0u atIndex:11u];
-                });
+                    [encoder setBuffer:state.femArmijoDeformableActiveOffsets
+                               offset:0u atIndex:12u];
+                }
+                )) {
+                    diagnostics.message = "nm_contact_validate_armijo_deformable_sweep indirect dispatch unavailable; padded fallback ineligible";
+                    return false;
+                };
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (captureTrialSummaryStatus &&
                     !captureTrialSummaryStatus(trialIndex, 4u,
                         "deformable_sweep_ccd")) return false;
                 const std::uint32_t narrowphaseDeterministicFailureSelection = 1u;
-                dispatchThreads("nm_contact_narrowphase_deformable",
-                    environments * state.dispatch.deformableContactCapacity,
-                    [&] {
+                if (!dispatchIndirectWithPaddedFallback(
+                    "nm_contact_narrowphase_deformable", state.femArmijoDeformableActiveDispatch, 256u,
+                    environments * state.dispatch.deformableContactCapacity, [&] {
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -19075,7 +19143,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? femCoupledTrialMortarAuditBuffer
                             : state.deformableContactFailures)
                                offset:0u atIndex:20u];
-                });
+                    [encoder setBuffer:state.femArmijoDeformableActiveOffsets
+                               offset:0u atIndex:21u];
+                }
+                )) {
+                    diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
+                    return false;
+                };
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
                     environments, [&] {
@@ -19099,6 +19173,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                     [encoder setBuffer:state.femArmijoDeformableActiveCounts
                                  offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts
+                                 offset:0u atIndex:4u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 buildDeformableNodeIncidence(
@@ -28591,6 +28667,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 femArmijoCohesiveFacesBinding)) {
                             diagnostics.message =
                                 "failed to encode private deformable contact Armijo trial";
+                            if (encoder != nil) {
+                                [encoder endEncoding];
+                                encoder = nil;
+                            }
                             ownership->preDynamicsOpen = false;
                             return diagnostics;
                         }

@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "elapsed_s": 205.90885229199193,
+  "binary_sha256": "952062c9ceefcc20df67341013a2dfc44e04d7fbcec442a58055e5ff6f85b839",
+  "library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+  "msl_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+  "stdout_sha256": "a8145d5c51ec9e6adef0247a29854597f2f4022df087e5add1dead79b27ddceb",
+  "stderr_sha256": "5d1ba08794adc124df2aab52e0dca88fe2636db713673553884ed6a9e4d16ce1",
+  "skin_reference_dump": "ec417e3e685c6a4bc021f52a0f2c86d16fb18b363991b4064855b57dcdd5d570",
+  "outputs": {}
+}

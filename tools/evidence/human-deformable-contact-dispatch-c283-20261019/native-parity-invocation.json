@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-002-horizon32/build/registered_organ_pair_contact",
+    "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/MatterSource-c279-c283.metal"
+  ],
+  "launcher_argv": [
+    "/Users/numi/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-002-horizon32/build/registered_organ_pair_contact",
+    "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/MatterSource-c279-c283.metal"
+  ],
+  "cwd": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-005/candidate-c283",
+  "timeout_s": 180,
+  "cases": [
+    "quiet-separated-control:1 frame",
+    "moving-separated-control:32 frames, +0.5 m/s spleen translation",
+    "approach:32 frames, -0.5 m/s spleen translation"
+  ],
+  "dt_s": 0.00025,
+  "newton": 12,
+  "fgmres": 64,
+  "relative_residual": "1e-6",
+  "maximum_rate_exponent": 0,
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-005/lib-c283-guarded",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/MatterSource-c279-c283.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": "all",
+    "NUMI_TEST_RELATIVE_RESIDUAL": "1e-6"
+  },
+  "pins": {
+    "executable": "ebdf3d40bf36a51dcb036bf196de8fb80e971c71977a58a2bd162080986acdc6",
+    "source": "fe61078a4fe91e1779e0543cbf2eb20a84ceba49b6ab620f202d98152fce7ccf",
+    "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "msl": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "library": "c8bdd35516418c812f3b16c102923c9126d9fc9c5778bf85b07bed17b6ca9b95",
+    "runtime_source": "b2d67a77ab8e967ab74ea5451b19e6887d5305cff50973f62f0ba81f0c54ff1d"
+  },
+  "base": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/native-parity-005/candidate-c283",
+  "actual_metal_sha256": "fe61078a4fe91e1779e0543cbf2eb20a84ceba49b6ab620f202d98152fce7ccf",
+  "base_invocation": "/Users/n/numi-human-separation-20261018/C/edge-edge-ee-budget-96-280/native-threecase-ee96-001/invocation.json",
+  "probe": "ebdf3d40bf36a51dcb036bf196de8fb80e971c71977a58a2bd162080986acdc6",
+  "library_path": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-005/lib-c283-guarded/libmetalrobo.dylib",
+  "msl_path": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/MatterSource-c279-c283.metal",
+  "output_relative": "output",
+  "scope": "Short three-case native parity runner for guarded C283 runtime: quiet separated, moving separated, 32-frame approach; not whole-body qualification.",
+  "required_assertions": [
+    "launcher_argv equals argv exactly",
+    "resolved cwd equals runner directory",
+    "output resolves within runner directory",
+    "argv[1] equals pinned MSL path",
+    "executable, MSL, and library SHA-256 pins match"
+  ]
+}
