@@ -1,0 +1,164 @@
+{
+  "base_commit": "b46a5d703177ebd3a381bf9c2ed60b4d73ce71f0",
+  "base_source_sha256": "e43c8c11bf0ba2c4fac02c5d3b1d1a1aa4cd5f1362d901a7095edc0c42d60680",
+  "comparison_limits": {
+    "candidate_minus_reference_positive_body_mass_kg": 0.00019836419998853216,
+    "note": "The default-pose reference is a separate app build/source, not a strict one-variable A/B. Within each run, reference and candidate positive body mass match and the logged residual is zero; the cross-run mass difference is reported rather than treated as conserved.",
+    "same_app_binary": false,
+    "same_app_source": false,
+    "same_msl_sha256": true,
+    "same_one_step_duration": true,
+    "same_runtime_sha256": true
+  },
+  "default_pose_reference": {
+    "accepted_q36_q74": [
+      4.10527053974416e-15,
+      -1.0714623734423261e-15
+    ],
+    "actual_steps_accepted": 1,
+    "app_source_sha256": "c6f1e5bbd28cd8ed2b4858e55b560b216fb5d07240d9d2cc6ea520a79cffdbbe",
+    "binary_path": "/Users/n/numi-human-separation-20261018/C/resting-construction-pose-292/build-001/numi-human-native",
+    "binary_sha256": "8bcdf068596e232254bc883f730b357adb303d525a6138438bb7e9f9a1ac7c86",
+    "contact": {
+      "contact_sweeps": 64,
+      "minimum_gap_m": -6.14277411159e-08,
+      "normal_impulse_ns": 0.23393535614,
+      "peak_penetration_m": 6.14277411159e-08,
+      "post_projection_contact_residual_m_s": 9.1298538174e-11
+    },
+    "initial_q36_q74": [
+      0,
+      0
+    ],
+    "invocation_sha256": "c3d40523d4a2985753493caeddd937d031ad8ff77502b8e5b066610fe63fae7b",
+    "mass": {
+      "candidate_positive_body_mass_kg": 96.7699661255,
+      "external_blood_mass_kg": 0.0,
+      "mpm_represented_blood_mass_kg": 0.0,
+      "reference_positive_body_mass_kg": 96.7699661255,
+      "within_run_body_mass_residual_kg": 0.0
+    },
+    "matter_source_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "path": "/Users/n/numi-human-separation-20261018/C/resting-construction-pose-292/native-baseline-001",
+    "pose_overrides": [],
+    "requested_pose_overrides": [],
+    "result_output_hashes_not_bundled": {
+      "output/resting-coupled.csv": {
+        "bytes": 2562,
+        "sha256": "160019de662a1ffcc4d8b2b4c7ee2f6c2189e727bc30a6ad5493516ac7840ae3"
+      },
+      "output/resting-surface-audit.csv": {
+        "bytes": 1739,
+        "sha256": "7f92d7008da38796dabc4369cddbe2290c620e3fda7e12156fa89ec31cd77ec3"
+      }
+    },
+    "result_sha256": "88ade452f5441a0beec212b69adaa1be13539e337d6676fe796859509bf4ee3d",
+    "rollback_retry_exercised": false,
+    "runtime_library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+    "simulated_seconds": 0.00025,
+    "stderr_sha256": "00a2aa25e8926813c424b789b3bd97f7bee7de64bbf87f012866ca709c40dc39",
+    "stdout_sha256": "a6f84b30c440f7789ddb0f2680a46e489638cc888d438890b0ecf45783b390f7"
+  },
+  "native_candidate": {
+    "actual_steps_accepted": 1,
+    "binary_path": "/Users/n/numi-human-separation-20261018/C/resting-construction-pose-292/build-003/numi-human-native",
+    "binary_sha256": "0f640c9c98c45292cf3fea5733fbb59ab4de9279deeddebf63d049dab00ac609",
+    "build_receipt_sha256": "e07f704e96d18154f8776cc448ad62b0935fd1cac6489fe9837eb05abf31cc89",
+    "build_source_sha256": "ac7052246bfeadda77540ad2f173f44ef2c807af702063514660279f38874cb9",
+    "contact": {
+      "contact_sweeps": 64,
+      "csv_step": 1,
+      "minimum_gap_m": -6.14277482214e-08,
+      "normal_impulse_ns": 0.233835414052,
+      "peak_penetration_m": 6.14277482214e-08,
+      "post_projection_contact_residual_m_s": 0.0
+    },
+    "exit_code": 0,
+    "fem_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=1 initial_control=0 final_control=0 initial_substep=0 final_substep=0 accepted_steps=1 adapter_passes=1 expected_adapter_passes=1 min_J=0.71914017515 max_J=1.03801644413 max_displacement_m=0.000665903092746 max_anchor_reaction_N=0.352448550779 capture=terminal_only",
+    "invocation_sha256": "c4affb43c576eab8143a5422915e93febfa805253a11b910d5ceb0323543e313",
+    "mass": {
+      "candidate_positive_body_mass_kg": 96.7701644897,
+      "external_blood_mass_kg": 0.0,
+      "max_abs_body_mass_residual_kg": 0.0,
+      "mpm_represented_blood_mass_kg": 0.0,
+      "reference_positive_body_mass_kg": 96.7701644897,
+      "within_run_body_mass_residual_kg": 0.0
+    },
+    "matter_source_path": "/Users/n/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/MatterSource-c279-c283.metal",
+    "matter_source_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "output_hashes_not_bundled": {
+      "output/resting-coupled.csv": {
+        "bytes": 2566,
+        "sha256": "6e25863a30d2ba6b87d0ab6630a4697b1387b03917c0ac4fc8336d72a87485e2"
+      },
+      "output/resting-surface-audit.csv": {
+        "bytes": 1740,
+        "sha256": "537fbc4c39117e739e3ebd389d9bab9061765b549cfa990e5bfec617b50c4e01"
+      }
+    },
+    "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-002",
+    "reference_positive_body_mass_delta_across_this_run_kg": 0.0,
+    "requested_pose_overrides": [
+      [
+        "--pose-q",
+        "36",
+        "0.10"
+      ],
+      [
+        "--pose-q",
+        "74",
+        "0.10"
+      ]
+    ],
+    "result_sha256": "5f8170f072a35676a2113c20b77cef51e72c8ee46a36481e5fe72916d2582dc2",
+    "rollback_retry_exercised": false,
+    "runtime_library_path": "/Users/numi/numi-human-separation-20261018/C/C283-wholebody-contact/build-runtime-004/lib-c283-guarded/libmetalrobo.dylib",
+    "runtime_library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+    "runtime_library_uuid": "3478ECEC-1898-3ECF-8301-A649614402EB",
+    "simulated_seconds": 0.00025,
+    "skin_reference_dump": null,
+    "small_output_hashes_not_bundled": {},
+    "stderr_sha256": "1c98077f32374c735e37552819effaec2cd346ebee1c33e71f1437e75d18d984",
+    "stdout_sha256": "6519b074be7f4c572bf9f8d2e61532a86d3989fb67788843b7d4ca8766bbeb33",
+    "timed_out": false,
+    "wall_elapsed_seconds": 19.19848829100374
+  },
+  "pending_work": [
+    "Only one 0.25 ms accepted step was measured; stability and sustained contact are untested.",
+    "No rejected step, rollback, or retry was exercised.",
+    "Joint 35 local repair remains pending.",
+    "No skin reference dump was produced; no CSV, MRV pack, or binary is bundled."
+  ],
+  "preservation": "Only a new staging directory was created under C/resting-construction-pose-292/evidence. Main checkout, C293 native outputs, and existing protected evidence were not modified.",
+  "projection": {
+    "enabled_range_count": 118,
+    "failed_range_count": 0,
+    "pose_q_equality_maximum_correction": 0.0395999997854,
+    "pose_q_override_count": 2,
+    "root_assistance": false,
+    "source_range_status": "passed",
+    "terminal_q36_q74_after_accepted_step": [
+      0.09999986737966537,
+      0.0999998226761818
+    ],
+    "terminal_q36_q74_initial": [
+      0.10000000149011612,
+      0.10000000149011612
+    ]
+  },
+  "proposed_product_path": "apps/numilab_human_myosim_visual_probe.mm",
+  "proposed_product_source_sha256": "ac7052246bfeadda77540ad2f173f44ef2c807af702063514660279f38874cb9",
+  "schema": "numi.human.resting-construction-pose-review.v1",
+  "source_diff": {
+    "deletions": 6,
+    "hunks": 5,
+    "insertions": 24,
+    "scope": "fresh released resting construction pose admission, projected source-range rejection, and rope initial-pose reporting only; no solver or force code changed"
+  },
+  "staged_allowlist_paths": [
+    "source/apps/numilab_human_myosim_visual_probe.mm",
+    "README.md",
+    "review-receipt.json"
+  ],
+  "status": "isolated candidate reviewed; not merged or committed"
+}

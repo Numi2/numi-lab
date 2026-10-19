@@ -25392,9 +25392,20 @@ int main(int argc, char** argv) {
                     "--muscle-step-count requires --muscle-step-seconds");
             require(selectedSourceMuscleActivations.empty() || muscleStepSeconds.has_value(),
                     "--activated-source-muscle-index requires --muscle-step-seconds");
+            // A source-range-valid, NHEQ-projected construction posture may
+            // initialize a fresh released resting transaction. This changes
+            // only initial q; it supplies no forces or retained solver history.
+            bool allowRestingConstructionPose=false;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            allowRestingConstructionPose=restingScene.has_value() &&
+                persistentMetalStand && restingReleaseInitialization &&
+                supportContactPayload.has_value() && skinPayloadPath.has_value() &&
+                restingInitialPosture.empty() && inspectTerminalState.empty();
+#endif
             require(requestedPoseCoordinates.empty() ||
-                        (!muscleStepSeconds.has_value() && jointEqualityPayload.has_value()),
-                    "--pose-q requires NHEQ1 joint equalities and cannot be combined with muscle stepping");
+                        (jointEqualityPayload.has_value() &&
+                         (!muscleStepSeconds.has_value() || allowRestingConstructionPose)),
+                    "--pose-q stepping requires NHEQ1 and a fresh released resting construction pose with skin/support contact and no history override");
             require(!requestedRootPose.has_value() ||
                         (jointEqualityPayload.has_value() &&
                          (!muscleStepSeconds.has_value() ||
@@ -26153,6 +26164,11 @@ int main(int argc, char** argv) {
                           << " bone_sha256=" << (bonePayload.has_value()
                               ? loadedKneeSHA256Hex(bonePayload->payloadSha256) : "unavailable")
                           << " boundary=consumed_enabled_native_limits_after_NHEQ_projection_not_disabled_source_limits_or_loaded_motion\n";
+                // Static previews retain their diagnostic output, but a fresh
+                // physical transaction must reject an invalid projected pose
+                // before any muscle, controller, or continuum step is run.
+                require(!muscleStepSeconds.has_value() || projectedRangeFailure.empty(),
+                    "resting construction pose failed projected source range: "+projectedRangeFailure);
                 std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
                           << " root_pose_override=" << (requestedRootPose.has_value() ? 1 : 0)
                           << " pose_q_equality_maximum_correction=" << maximumProjection
@@ -26207,9 +26223,9 @@ int main(int argc, char** argv) {
                 require(std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
                         std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr&&
                         restingInitialPosture.empty()&&!requestedRootPose.has_value()&&
-                        requestedPoseCoordinates.empty()&&poseQ.size()>=7u&&
-                        jointEqualityPayload.has_value(),
-                    "rope construction launch requires source default q and NHEQ");
+                        (requestedPoseCoordinates.empty()||allowRestingConstructionPose)&&
+                        poseQ.size()>=7u&&jointEqualityPayload.has_value(),
+                    "rope construction launch requires source default q or a range-valid projected fresh resting pose, and NHEQ");
                 overriddenPoseQ.assign(poseQ.begin(),poseQ.end());
                 const float sourceRootZ=overriddenPoseQ[2];
                 overriddenPoseQ[2]=sourceRootZ+0.35f;
@@ -26265,7 +26281,9 @@ int main(int argc, char** argv) {
                     <<" boundary=existing_loaded_NHEQ_projector\n";
                 overriddenPoseQ=std::move(projectedPoseF32);
                 poseQ=overriddenPoseQ;
-                std::cout<<std::setprecision(9)<<"rope_initial_pose=source_default_q"
+                std::cout<<std::setprecision(9)<<"rope_initial_pose="
+                    <<(requestedPoseCoordinates.empty()?"source_default_q":"source_default_q_with_projected_scalar_overrides")
+                    <<" scalar_override_count="<<requestedPoseCoordinates.size()
                     <<" root_translation_z_source_m="<<sourceRootZ
                     <<" root_lift_m=0.35 root_translation_z_initial_m="
                     <<overriddenPoseQ[2]<<" other_q=existing_NHEQ_projected_source_default"

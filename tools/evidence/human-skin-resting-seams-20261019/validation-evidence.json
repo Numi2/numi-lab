@@ -1,0 +1,47 @@
+{
+  "source_surface_audit": {
+    "argv": [
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/source-only-root-check-001/probe",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv"
+    ],
+    "exit_code": 0,
+    "stage": "source_surface",
+    "accepted": true,
+    "crossing_count": 0,
+    "stdout": "stage=source_surface accepted=1 error=",
+    "pins": {
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/source-only-root-check-001/probe": "05585efb6aa815d96b4a85370d7da314c5cb64abf2dc02b6e45c4dc0cc4d7378",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt": "4fa1146b9d153ed2bd63f19bf27214ece09e9001773fb36d9328d5fb8e331396",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "stdout_sha256": "decb804c5be24582979a4e48ff372568eaae4057a019af169991a6000100f14a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_first_step": {
+    "run_path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/native-physical-root-001",
+    "result_sha256": "a8cf17f85069eeea95663662a3c4855e3413574f4a1b10540960fcc1cafd36f2",
+    "exit_code": 0,
+    "elapsed_s": 18.63556745898677,
+    "binary_sha256": "0f640c9c98c45292cf3fea5733fbb59ab4de9279deeddebf63d049dab00ac609",
+    "library_sha256": "11ae5e0b1a0fd43cdc30d8c2be9cb5563eba775da8afa5042e23be6263a29a86",
+    "msl_sha256": "39ea750d2b6b12fe33fec456d823862e968da96c4ecb4aaa47600f6231bd04ab",
+    "skin_asset_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "accepted_step_count": 1,
+    "step_seconds": 0.00025,
+    "pose_q": {
+      "36": 0.1,
+      "74": 0.1
+    },
+    "runtime_contact_log": "resting_aortic_wall_runtime_contact_verified=1 selected_faces=384 disabled_faces=672 canonical_faces=9200 mpm_particles=0",
+    "coupled_csv_sha256": "6e25863a30d2ba6b87d0ab6630a4697b1387b03917c0ac4fc8336d72a87485e2",
+    "mrvpack_sha256": "560ec24b1cab5e3ccaf13603f3ff08f64c037159f7df4bd64091e9088152f4e7",
+    "stdout_sha256": "c14d455d0bcf0b790b04e5d51f8639bfdc0a758daf075a69f78bfed6ef2b951e",
+    "stderr_sha256": "e65362907bda7ab5e45baa9abf3cdcbf7e3abdf2653c3ee6deb17879f442e9ac",
+    "skin_reference_dump": null
+  },
+  "repair_manifest_sha256": "cc114c770706922b2471b93810de86164030f9bdc7553919f96be71abefebe6c",
+  "repair_tool_sha256": "acf2edee38eb87dd4fdf1dc981778299b970018402753d1d8bd030d0e50eaf17"
+}

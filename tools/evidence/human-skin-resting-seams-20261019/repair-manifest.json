@@ -1,0 +1,368 @@
+{
+  "candidate_asset": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+  "candidate_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "source_asset": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/bilateral-hand-skin-repair-20261018-001/source-hand-wrist-preserved-025/bodyparts3d-myosim-skinned-shell.nhskin",
+  "source_sha256": "2d6b0870d1ba0dd6b0944b6a0175ca0304f0392d9ec4458521938a3a5766ad68",
+  "fixture": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+  "fixture_sha256": "4fa1146b9d153ed2bd63f19bf27214ece09e9001773fb36d9328d5fb8e331396",
+  "registered_csv": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+  "registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "header_binding_vertex_normal_weight_bytes_identical": true,
+  "only_changed_region": "triangle index records for 20 faces in seven local seam patches",
+  "changed_source_face_ids": [
+    14898,
+    14899,
+    19569,
+    19570,
+    68004,
+    68005,
+    69149,
+    69150,
+    69153,
+    69154,
+    71300,
+    71301,
+    73682,
+    73683,
+    74617,
+    74618,
+    77824,
+    77825,
+    78385,
+    78386
+  ],
+  "face_count": 108987,
+  "vertex_count": 61950,
+  "binding_count": 86,
+  "index_count": 326961,
+  "degenerate_faces": 0,
+  "edge_use_counts": {
+    "1": 115,
+    "2": 163423
+  },
+  "boundary_edges": 115,
+  "boundary_set_unchanged": true,
+  "orientation_conflicts": 0,
+  "ancestry": [
+    {
+      "candidate_source_face_id": 68004,
+      "parent_source_face_ids": [
+        68004,
+        68005
+      ],
+      "flipped_edge_source_vertex_ids": [
+        40733,
+        55305
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55303,
+        55305,
+        55306
+      ]
+    },
+    {
+      "candidate_source_face_id": 68005,
+      "parent_source_face_ids": [
+        68004,
+        68005
+      ],
+      "flipped_edge_source_vertex_ids": [
+        40733,
+        55305
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55303,
+        55306,
+        40733
+      ]
+    },
+    {
+      "candidate_source_face_id": 71300,
+      "parent_source_face_ids": [
+        71300,
+        71301
+      ],
+      "flipped_edge_source_vertex_ids": [
+        43508,
+        55416
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55413,
+        55416,
+        55419
+      ]
+    },
+    {
+      "candidate_source_face_id": 71301,
+      "parent_source_face_ids": [
+        71300,
+        71301
+      ],
+      "flipped_edge_source_vertex_ids": [
+        43508,
+        55416
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55413,
+        55419,
+        43508
+      ]
+    },
+    {
+      "candidate_source_face_id": 74617,
+      "parent_source_face_ids": [
+        74617,
+        74618
+      ],
+      "flipped_edge_source_vertex_ids": [
+        45162,
+        55483
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55484,
+        55483,
+        55480
+      ]
+    },
+    {
+      "candidate_source_face_id": 74618,
+      "parent_source_face_ids": [
+        74617,
+        74618
+      ],
+      "flipped_edge_source_vertex_ids": [
+        45162,
+        55483
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55484,
+        55480,
+        45162
+      ]
+    },
+    {
+      "candidate_source_face_id": 19569,
+      "parent_source_face_ids": [
+        19569,
+        19570
+      ],
+      "flipped_edge_source_vertex_ids": [
+        9872,
+        55254
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55256,
+        9872,
+        9874
+      ]
+    },
+    {
+      "candidate_source_face_id": 19570,
+      "parent_source_face_ids": [
+        19569,
+        19570
+      ],
+      "flipped_edge_source_vertex_ids": [
+        9872,
+        55254
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55256,
+        9874,
+        55254
+      ]
+    },
+    {
+      "candidate_source_face_id": 69149,
+      "parent_source_face_ids": [
+        69149,
+        69150
+      ],
+      "flipped_edge_source_vertex_ids": [
+        54950,
+        55333
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55331,
+        55333,
+        55335
+      ]
+    },
+    {
+      "candidate_source_face_id": 69150,
+      "parent_source_face_ids": [
+        69149,
+        69150
+      ],
+      "flipped_edge_source_vertex_ids": [
+        54950,
+        55333
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55331,
+        55335,
+        54950
+      ]
+    },
+    {
+      "candidate_source_face_id": 73682,
+      "parent_source_face_ids": [
+        73682,
+        73683
+      ],
+      "flipped_edge_source_vertex_ids": [
+        55000,
+        55437
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55436,
+        55437,
+        55438
+      ]
+    },
+    {
+      "candidate_source_face_id": 73683,
+      "parent_source_face_ids": [
+        73682,
+        73683
+      ],
+      "flipped_edge_source_vertex_ids": [
+        55000,
+        55437
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55436,
+        55438,
+        55000
+      ]
+    },
+    {
+      "candidate_source_face_id": 14898,
+      "parent_source_face_ids": [
+        14898,
+        14899
+      ],
+      "flipped_edge_source_vertex_ids": [
+        7645,
+        55158
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55157,
+        55158,
+        55159
+      ]
+    },
+    {
+      "candidate_source_face_id": 14899,
+      "parent_source_face_ids": [
+        14898,
+        14899
+      ],
+      "flipped_edge_source_vertex_ids": [
+        7645,
+        55158
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55157,
+        55159,
+        7645
+      ]
+    },
+    {
+      "candidate_source_face_id": 69153,
+      "parent_source_face_ids": [
+        69153,
+        69154
+      ],
+      "flipped_edge_source_vertex_ids": [
+        54950,
+        55322
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55321,
+        55322,
+        55323
+      ]
+    },
+    {
+      "candidate_source_face_id": 69154,
+      "parent_source_face_ids": [
+        69153,
+        69154
+      ],
+      "flipped_edge_source_vertex_ids": [
+        54950,
+        55322
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55321,
+        55323,
+        54950
+      ]
+    },
+    {
+      "candidate_source_face_id": 77824,
+      "parent_source_face_ids": [
+        77824,
+        77825
+      ],
+      "flipped_edge_source_vertex_ids": [
+        46305,
+        55295
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55294,
+        46305,
+        55296
+      ]
+    },
+    {
+      "candidate_source_face_id": 77825,
+      "parent_source_face_ids": [
+        77824,
+        77825
+      ],
+      "flipped_edge_source_vertex_ids": [
+        46305,
+        55295
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55294,
+        55296,
+        55295
+      ]
+    },
+    {
+      "candidate_source_face_id": 78385,
+      "parent_source_face_ids": [
+        78385,
+        78386
+      ],
+      "flipped_edge_source_vertex_ids": [
+        46582,
+        55323
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55322,
+        46582,
+        55324
+      ]
+    },
+    {
+      "candidate_source_face_id": 78386,
+      "parent_source_face_ids": [
+        78385,
+        78386
+      ],
+      "flipped_edge_source_vertex_ids": [
+        46582,
+        55323
+      ],
+      "candidate_triangle_source_vertex_ids": [
+        55322,
+        55324,
+        55323
+      ]
+    }
+  ]
+}

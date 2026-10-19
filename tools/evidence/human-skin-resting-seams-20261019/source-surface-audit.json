@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/source-only-root-check-001/probe",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv"
+  ],
+  "exit_code": 0,
+  "stage": "source_surface",
+  "accepted": true,
+  "crossing_count": 0,
+  "stdout": "stage=source_surface accepted=1 error=",
+  "pins": {
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/source-only-root-check-001/probe": "05585efb6aa815d96b4a85370d7da314c5cb64abf2dc02b6e45c4dc0cc4d7378",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt": "4fa1146b9d153ed2bd63f19bf27214ece09e9001773fb36d9328d5fb8e331396",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+  },
+  "stdout_sha256": "decb804c5be24582979a4e48ff372568eaae4057a019af169991a6000100f14a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

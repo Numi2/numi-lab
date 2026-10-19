@@ -342,7 +342,7 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
         std::span<const double> skinThicknessByVertexM,std::span<const double> fatThicknessByVertexM,
         std::string_view skinThicknessProvenance,std::string_view fatThicknessProvenance,
         PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error){
-    GeometryAudit sourceAudit;if(!auditClosedSurface(skin,sourceAudit,error,true))return false;
+    GeometryAudit sourceAudit;if(!auditClosedSurface(skin,sourceAudit,error,true)){error="skin source surface: "+error;return false;}
     const std::size_t n=skin.worldPoints.size();
     if(skinThicknessByVertexM.size()!=n||fatThicknessByVertexM.size()!=n){error="per-vertex skin/fat thickness field count must exactly match registered source vertices";return false;}
     if(skinThicknessProvenance.empty()||fatThicknessProvenance.empty()){error="per-vertex thickness fields require caller-supplied provenance";return false;}
@@ -399,7 +399,8 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
         fatInner.donorLocalPoints[i]=sub(skinInner.donorLocalPoints[i],mul(innerLocalNormals[i],fatThicknessByVertexM[i]));
     }
     GeometryAudit innerAudit,fatAudit;
-    if(!auditClosedSurface(skinInner,innerAudit,error,true)||!auditClosedSurface(fatInner,fatAudit,error,true))return false;
+    if(!auditClosedSurface(skinInner,innerAudit,error,true)){error="inner skin boundary: "+error;return false;}
+    if(!auditClosedSurface(fatInner,fatAudit,error,true)){error="inner fat boundary: "+error;return false;}
     auto pairedVolume=[&](const std::vector<V3>& outer,const std::vector<V3>& inner,std::span<const double> thickness,double& total,std::uint32_t& failedFace){
         total=0;failedFace=NM_INVALID_INDEX;
         const bool uniform=std::all_of(thickness.begin(),thickness.end(),[&](double value){return value==thickness.front();});
