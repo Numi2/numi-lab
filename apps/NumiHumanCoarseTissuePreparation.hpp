@@ -511,9 +511,20 @@ inline bool fitRegisteredSkinFatLayers(RegisteredSurface& surface,const SkinFatR
         for(std::size_t i=0;i<n;i++)if(factor[i]<1.0){
             const double next=std::max(minimum,field[i]*factor[i]);
             if(next<field[i]-1e-14){field[i]=next;adjusted[i]=true;changed=true;}
+            // The deep boundary depends on skin + fat depth. Once fat reaches
+            // its declared minimum, reducing skin within its own bound can
+            // resolve a deep-boundary crossing without erasing either layer.
+            if(!fitSkin&&field[i]<=minimum+1e-14){
+                const double nextSkin=std::max(reference.minSkinThicknessM,fittedSkin[i]*factor[i]);
+                if(nextSkin<fittedSkin[i]-1e-14){
+                    fittedSkin[i]=nextSkin;adjustedSkin[i]=true;changed=true;
+                }
+            }
         }
         if(!changed){error="layer fitting reached declared thickness lower bound; local remeshing required: "+error;break;}
     }
+    report.skinAdjustedVertices=static_cast<std::uint32_t>(std::count(adjustedSkin.begin(),adjustedSkin.end(),true));
+    report.fatAdjustedVertices=static_cast<std::uint32_t>(std::count(adjustedFat.begin(),adjustedFat.end(),true));
     const auto sm=std::minmax_element(fittedSkin.begin(),fittedSkin.end()),fm=std::minmax_element(fittedFat.begin(),fittedFat.end());
     report.minSkinM=*sm.first;report.maxSkinM=*sm.second;report.minFatM=*fm.first;report.maxFatM=*fm.second;
     error="bounded skin/fat layer fitting stopped at stage "+std::to_string(report.lastFailureStage)+": "+error;

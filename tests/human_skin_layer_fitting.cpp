@@ -20,6 +20,10 @@ int main(){
  if(!ok){std::cerr<<error<<"\n";return 1;}
  if(s.worldPoints!=original||r.fatAdjustedVertices==0||fat.volumeM3<=0||r.minFatM<ref.minFatThicknessM)return 2;
  std::cout<<"fitting=PASS iterations="<<r.iterations<<" adjusted_fat="<<r.fatAdjustedVertices<<" min_fat_m="<<r.minFatM<<"\n";
+ auto coupled=s;coupled.outwardWorldNormals.clear();SkinFatReference bounded=ref;bounded.minSkinThicknessM=.0005;bounded.minFatThicknessM=.006;
+ std::vector<double> cs(original.size(),.002),cf(original.size(),.008);
+ if(!fitRegisteredSkinFatLayers(coupled,bounded,cs,cf,"test","test",skin,fat,r,error)||r.skinAdjustedVertices==0||r.minFatM<.006||r.minSkinM<.0005||coupled.worldPoints!=original){std::cerr<<error<<"\n";return 4;}
+ std::cout<<"coupled_depth_at_fat_lower_bound=PASS exterior_unchanged=PASS\n";
  auto bad=s;std::vector<double> badSkin(st.size(),.004);const auto saved=bad.worldPoints;
  if(fitRegisteredSkinFatLayers(bad,ref,badSkin,ft,"test","test",skin,fat,r,error)||bad.worldPoints!=saved)return 3;
  std::cout<<"invalid_field_rejected=PASS exterior_unchanged=PASS\n";
