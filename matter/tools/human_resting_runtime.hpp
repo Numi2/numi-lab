@@ -108,7 +108,7 @@ struct Respiration {
         dispatch.environmentCount=world.dispatch.environmentCount;
         dispatch.particleCount=world.dispatch.particleCount;
         dispatch.materialStateStride=world.dispatch.materialStateStride;
-        dispatch.vascularStride=45u;
+        dispatch.vascularStride=world.vascular.layout.ranges.z;
         dispatch.outletReleaseStep=NM_INVALID_INDEX;
         const float batchSteps=std::ceil(0.008f/parameters.environment.w);
         need(std::isfinite(batchSteps)&&batchSteps>=1.0f&&batchSteps<=float(UINT32_MAX),
@@ -421,7 +421,7 @@ struct Respiration {
            (v.microtickCount!=expectedMicrotickCount)||
            (continuumSubcycles&&!compiledFEMSubcycling&&!dispatch.bloodMpmEnabled)||
            v.environmentCount!=dispatch.environmentCount||
-           v.vascularStateStride!=45||
+           v.vascularStateStride!=dispatch.vascularStride||
            v.frameTimestepSeconds!=parameters.environment.w||
            v.microstepTimestepSeconds!=v.frameTimestepSeconds/float(v.microtickCount)||
            (continuumSubcycles&&!v.vascularCheckpoint))
@@ -724,6 +724,160 @@ inline bool containsRestingBloodReceiver(const WorldSource& source) {
     }
     return false;
 }
+inline void requireSameRestingVascularGraphWithRegisteredAorticWall(
+    const VascularNetworkSource& network,const WorldSource& tissueSeed) {
+    const auto& seed=tissueSeed.vascular;
+    need(network.cavities.empty(),
+         "authoritative CVSim graph must not pre-own the registered resting aortic cavity");
+    need(network.contentIdentity==seed.contentIdentity&&
+         network.sourceIdentity==seed.sourceIdentity&&
+         network.authoredIdentity==seed.authoredIdentity&&
+         network.species.size()==seed.species.size()&&
+         network.compartments.size()==seed.compartments.size()&&
+         network.connections.size()==seed.connections.size()&&
+         network.tissues.size()==seed.tissues.size()&&
+         network.exchanges.size()==seed.exchanges.size()&&
+         network.cavities.empty()&&seed.cavities.size()==1u,
+         "resting tissue vascular seed is not the same admitted CVSim graph plus one aortic wall");
+    for(std::size_t i=0;i<network.species.size();++i) {
+        const auto& a=network.species[i];const auto& b=seed.species[i];
+        need(a.stableIdentifier==b.stableIdentifier&&a.name==b.name&&
+             a.amountScale==b.amountScale&&
+             a.amountResidualTolerance==b.amountResidualTolerance,
+             "resting tissue vascular seed changed CVSim species");
+    }
+    const auto sameCompartment=[](const VascularCompartmentSource& a,
+                                  const VascularCompartmentSource& b) {
+        return a.stableIdentifier==b.stableIdentifier&&
+            a.anatomicalIdentifier==b.anatomicalIdentifier&&
+            a.referenceVolume==b.referenceVolume&&a.initialVolume==b.initialVolume&&
+            a.referencePressure==b.referencePressure&&a.compliance==b.compliance&&
+            a.externalPressure==b.externalPressure&&a.volumeScale==b.volumeScale&&
+            a.volumeResidualTolerance==b.volumeResidualTolerance&&
+            a.initialSpeciesAmounts==b.initialSpeciesAmounts&&
+            a.storageKind==b.storageKind&&a.pressureLaw==b.pressureLaw&&
+            a.elastanceMin==b.elastanceMin&&a.elastanceMax==b.elastanceMax&&
+            a.periodSeconds==b.periodSeconds&&a.activationStart==b.activationStart&&
+            a.activationEnd==b.activationEnd&&a.sourcePi==b.sourcePi&&
+            a.maximumVolumeDisplacement==b.maximumVolumeDisplacement&&
+            a.phaseDelay==b.phaseDelay&&
+            a.periodNumeratorSeconds==b.periodNumeratorSeconds&&
+            a.periodDenominator==b.periodDenominator;
+    };
+    std::size_t aortaIndex=network.compartments.size();
+    for(std::size_t i=0;i<network.compartments.size();++i) {
+        const auto& base=network.compartments[i];const auto& seeded=seed.compartments[i];
+        need(base.stableIdentifier==seeded.stableIdentifier,
+             "resting tissue vascular seed reordered CVSim compartments");
+        if(base.stableIdentifier!=7u) {
+            need(sameCompartment(base,seeded),
+                 "resting tissue vascular seed changed a non-aortic CVSim compartment");
+            continue;
+        }
+        need(aortaIndex==network.compartments.size()&&
+             base.anatomicalIdentifier=="source_aggregate:CVSim21:abdominal_aorta"&&
+             base.storageKind==VascularStorageKind::absoluteVolume&&
+             base.pressureLaw==VascularPressureLaw::linearCompliance&&
+             base.compliance>0.0&&base.initialVolume>0.0&&
+             base.initialSpeciesAmounts.size()==network.species.size()&&
+             base.elastanceMin==0.0&&base.elastanceMax==0.0&&
+             base.periodSeconds==0.0&&base.activationStart==0.0&&
+             base.activationEnd==0.0&&base.sourcePi==0.0&&
+             base.maximumVolumeDisplacement==0.0&&base.phaseDelay==0.0&&
+             base.periodNumeratorSeconds==0u&&base.periodDenominator==0u,
+             "authoritative CVSim compartment 7 is not the supported absolute-volume compliance reservoir");
+        aortaIndex=i;
+        need(seeded.anatomicalIdentifier==base.anatomicalIdentifier&&
+             seeded.initialVolume==base.initialVolume&&
+             seeded.externalPressure==base.externalPressure&&
+             seeded.volumeScale==base.volumeScale&&
+             seeded.volumeResidualTolerance==base.volumeResidualTolerance&&
+             seeded.initialSpeciesAmounts==base.initialSpeciesAmounts&&
+             seeded.storageKind==base.storageKind&&
+             seeded.referenceVolume==0.0&&seeded.referencePressure==0.0&&
+             seeded.compliance==0.0&&
+             seeded.pressureLaw==VascularPressureLaw::deformingCavity&&
+             seeded.elastanceMin==0.0&&seeded.elastanceMax==0.0&&
+             seeded.periodSeconds==0.0&&seeded.activationStart==0.0&&
+             seeded.activationEnd==0.0&&seeded.sourcePi==0.0&&
+             seeded.maximumVolumeDisplacement==0.0&&seeded.phaseDelay==0.0&&
+             seeded.periodNumeratorSeconds==0u&&seeded.periodDenominator==0u,
+             "resting aortic wall seed changed fields outside the declared pressure-law substitution");
+    }
+    need(aortaIndex<network.compartments.size(),
+         "authoritative CVSim graph lacks stable aortic compartment 7");
+    for(std::size_t i=0;i<network.connections.size();++i) {
+        const auto& a=network.connections[i];const auto& b=seed.connections[i];
+        need(a.stableIdentifier==b.stableIdentifier&&
+             a.fromCompartment==b.fromCompartment&&a.toCompartment==b.toCompartment&&
+             a.resistance==b.resistance&&a.inertance==b.inertance&&
+             a.initialFlow==b.initialFlow&&a.flowScale==b.flowScale&&
+             a.pressureScale==b.pressureScale&&
+             a.flowResidualTolerance==b.flowResidualTolerance&&a.flowLaw==b.flowLaw&&
+             a.orificeCoefficient==b.orificeCoefficient&&
+             a.downstreamPressureFloor==b.downstreamPressureFloor&&
+             a.reverseResistance==b.reverseResistance,
+             "resting tissue vascular seed changed CVSim connections");
+    }
+    for(std::size_t i=0;i<network.tissues.size();++i) {
+        const auto& a=network.tissues[i];const auto& b=seed.tissues[i];
+        need(a.stableIdentifier==b.stableIdentifier&&
+             a.anatomicalIdentifier==b.anatomicalIdentifier&&a.volume==b.volume&&
+             a.initialSpeciesAmounts==b.initialSpeciesAmounts&&
+             a.objectIndex==b.objectIndex&&a.mechanicsFeedback==b.mechanicsFeedback&&
+             a.bloodMomentumTransfer==b.bloodMomentumTransfer&&
+             a.bloodCompartment==b.bloodCompartment&&a.bloodDensity==b.bloodDensity&&
+             a.pressureFromCompartment==b.pressureFromCompartment&&
+             a.pressureToCompartment==b.pressureToCompartment&&
+             a.pressureDirection==b.pressureDirection&&a.pressureArea==b.pressureArea&&
+             a.femRegion.size()==b.femRegion.size(),
+             "resting tissue vascular seed changed CVSim tissue bindings");
+        for(std::size_t j=0;j<a.femRegion.size();++j)
+            need(a.femRegion[j].node==b.femRegion[j].node&&
+                 a.femRegion[j].weight==b.femRegion[j].weight,
+                 "resting tissue vascular seed changed CVSim FEM tissue weights");
+    }
+    for(std::size_t i=0;i<network.exchanges.size();++i) {
+        const auto& a=network.exchanges[i];const auto& b=seed.exchanges[i];
+        need(a.stableIdentifier==b.stableIdentifier&&a.compartment==b.compartment&&
+             a.tissue==b.tissue&&a.species==b.species&&
+             a.permeabilitySurface==b.permeabilitySurface&&
+             a.partitionCoefficient==b.partitionCoefficient,
+             "resting tissue vascular seed changed CVSim exchanges");
+    }
+    const auto& cavity=seed.cavities.front();
+    constexpr std::array<std::uint64_t,4u> expectedSource{
+        0x1a191fe2f6c4a1cbULL,0x03ee290bc850b800ULL,
+        0x11cc267577992ea8ULL,0x6abb3a4cb39f4108ULL};
+    constexpr std::array<std::uint64_t,4u> expectedMechanics{
+        0x61726f727469632dULL,0x77616c6c2d763100ULL,
+        0x6c6162726f737365ULL,0x3139333435333536ULL};
+    need(cavity.stableIdentifier==9007u&&cavity.compartment==7u&&
+         cavity.objectIndex<tissueSeed.objects.size()&&
+         cavity.sourceIdentity==expectedSource&&
+         cavity.mechanicalIdentity==expectedMechanics&&
+         !cavity.faces.empty()&&
+         tissueSeed.objects[cavity.objectIndex].representation==Representation::fem&&
+         tissueSeed.objects[cavity.objectIndex].name==
+             "Human/BodyParts3D/stable-9/reduced-cavity-wall-v1",
+         "resting vascular seed does not own the pinned registered aortic FEM cavity");
+    const auto& base=network.compartments[aortaIndex];
+    const double initialPressure=base.referencePressure+
+        (base.initialVolume-base.referenceVolume)/base.compliance;
+    need(std::isfinite(initialPressure)&&initialPressure>0.0&&
+         cavity.initialPressure==initialPressure&&cavity.pressureScale>0.0&&
+         cavity.geometryResidualTolerance>0.0,
+         "resting aortic cavity initialization differs from the admitted CVSim pressure/volume row");
+    for(const auto& face:cavity.faces) {
+        need(face.stableIdentifier>=90070000u&&
+             face.role==VascularCavityFaceRole::materialWall,
+             "resting aortic cavity contains an unregistered or non-wall boundary face");
+        for(const auto node:face.nodes)
+            need(node<tissueSeed.objects[cavity.objectIndex].femNodes.size(),
+                 "resting aortic cavity face escapes the registered wall object");
+    }
+}
+
 inline WorldSource composeRestingWorldSource(const VascularNetworkSource& network,
                                               float timestep,
                                               const WorldSource* tissueSeed) {
@@ -736,11 +890,17 @@ inline WorldSource composeRestingWorldSource(const VascularNetworkSource& networ
         need(std::isfinite(tissueSeed->frameTimestep)&&tissueSeed->frameTimestep>0.0&&
              static_cast<float>(tissueSeed->frameTimestep)==timestep,
              "resting tissue seed timestep conflicts with the CVSim timestep");
-        need(!hasVascularPayload(tissueSeed->vascular),
-             "resting tissue seed already owns vascular state");
         need(!containsRestingBloodReceiver(*tissueSeed),
              "resting tissue seed already owns the blood MPM receiver");
         source=*tissueSeed;
+        if(hasVascularPayload(tissueSeed->vascular)) {
+            requireSameRestingVascularGraphWithRegisteredAorticWall(network,*tissueSeed);
+            // Preserve the tissue world's single CVSim state and its
+            // constitutive row/cavity binding exactly; never overwrite it
+            // with a second network copy.
+        } else {
+            source.vascular=network;
+        }
     } else {
         source.environmentCount=1u;
         source.frameTimestep=timestep;
@@ -748,8 +908,8 @@ inline WorldSource composeRestingWorldSource(const VascularNetworkSource& networ
         source.mixedSolver.relativeResidual=1.e-7;
         source.mixedSolver.newtonIterations=12u;
         source.mixedSolver.fgmresIterations=64u;
+        source.vascular=network;
     }
-    source.vascular=network;
     return source;
 }
 inline void appendRestingBloodMaterial(WorldSource& source,

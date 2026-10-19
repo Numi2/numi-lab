@@ -1,0 +1,95 @@
+{
+  "schema": "numi.continuum_integrated_vessel_skin_prostate_runplan.v1",
+  "description": "Separate one-step 0.25 ms runs over the same authored CV/FEM world. Skin payload stays present in every scenario; registered skin-fat, aortic wall, and prostate mechanics each remain explicit opt-ins. No visual verification; root controls native/GPU execution.",
+  "source_invocation_path": "/Users/n/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/invocation.json",
+  "source_invocation_sha256": "79429bed2b86b366c75620daa26117c717d8ca810e0f81210e425f6f2f6b8f8b",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/numi-human-native",
+  "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+  "build_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/build-plan.json",
+  "build_plan_sha256": "1661165974c1636366f1c9f48b00d12fa0460b27943ee275dac45544daff2ee5",
+  "runtime_library_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/libmetalrobo-233.dylib",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "runtime_source_path": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal",
+  "runtime_source_sha256": "fa7e6cad2cfd7624c97e58395ac9aa8622af9b009bb27ca608346a1c52b6c845",
+  "tissue_material_paths": [
+    "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+    "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter"
+  ],
+  "tissue_material_sha256": [
+    "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+    "9ac8cfe50dbdb5aa40af5ea8debfa464bf85cb37c3696b260fb387d55636c3b3"
+  ],
+  "step_count": 1,
+  "step_seconds": 0.00025,
+  "physical_horizon_seconds": 0.00025,
+  "scenarios": [
+    {
+      "name": "baseline",
+      "skin_payload": true,
+      "skin_fat_fem": false,
+      "aortic_wall": false,
+      "prostate_fem": false
+    },
+    {
+      "name": "skinonly",
+      "skin_payload": true,
+      "skin_fat_fem": true,
+      "aortic_wall": false,
+      "prostate_fem": false
+    },
+    {
+      "name": "wallonly",
+      "skin_payload": true,
+      "skin_fat_fem": false,
+      "aortic_wall": true,
+      "prostate_fem": false
+    },
+    {
+      "name": "prostateonly",
+      "skin_payload": true,
+      "skin_fat_fem": false,
+      "aortic_wall": false,
+      "prostate_fem": true
+    },
+    {
+      "name": "joint",
+      "skin_payload": true,
+      "skin_fat_fem": true,
+      "aortic_wall": true,
+      "prostate_fem": true
+    }
+  ],
+  "run_script": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/run_006.py",
+  "output_root": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009",
+  "gpu_launched": false,
+  "skin_mechanical_toggle": "NUMI_HUMAN_RESTING_SKIN_FAT_FEM; validated exact 0/1, default 0; visual payload stays present in all cases",
+  "run_script_sha256": "27e502b972f2fa3a3e10cd45221a6dfee338ff7217502a667e5a0869a5ce3654",
+  "prostate_reference_material_path": "/Users/n/numi-lab-anatomy-parent-publication-1384/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter",
+  "prostate_reference_material_sha256": "8cc7f3e1936e4303a011b40ff287431a99be861a51a11e82913d630371825b00",
+  "prostate_mechanical_toggle": "NUMI_HUMAN_RESTING_PROSTATE_FEM; validated exact 0/1, default 0; requires the exact retained NHANATOMY payload",
+  "aortic_wall_toggle": "NUMI_HUMAN_RESTING_AORTIC_WALL; validated exact 0/1, default 0",
+  "prostate_patch_sha256": "352ae159e09f116d4f88310fb49bbccab3dde30aafcd7bd6fcaf1bef29222a33",
+  "framefix_patch_sha256": "8aad1e3572b621d6c9d2213021a1f70f762a83a28827b4d7f07eed44cafaac91",
+  "source_manifest_sha256": "c2aef908cc5e23d9c721f6abb4b2a1315fece6a09479260774f87d1dadf32c05",
+  "prostate_registered_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+  "prostate_registered_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "prostate_registered_payload_expected_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "prostate_admission_patch_sha256": "f8197301f60416d7302bd956bae9a2c64564a74c68d0fc19f2e0c16c8fd31bc2",
+  "source_app_sha256": "7405b6f4654602b4c3dfb9c90f58d5024039187953560b192485a8accc4ca3e6",
+  "resting_runtime_source_sha256": "bc16bed8b0bddb2526d5dabbe887f832664a419ba4c52c2bfd1125164865f46d",
+  "cpu_compile_exit": 0,
+  "cpu_link_exit": 0,
+  "respiration_source_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/src/HumanRespirationSustained.metal",
+  "respiration_source_sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe",
+  "respiration_abi_header_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/include/numi/matter/human_respiration.h",
+  "respiration_abi_header_sha256": "4ef52d7a0e74cbbd884d5e6365b6edbf9b8036bc3aea7632fe92d3f1da0e7807",
+  "respiration_raw_source_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/src/human_respiration.metal",
+  "respiration_raw_source_sha256": "c5c53c3b39404f4958debf3b40c4d2cc2591f7fc70b76a5f0fa8746656e3dbd2",
+  "integrated_runtime_header_sha256": "fae24b7dcfbe3fc563628f8a29be4b287a7d251c2319dbf4e4d5dabaab491324",
+  "blood_mpm_enabled_for_mechanics_cases": false,
+  "compile_status": "CPU compile and link passed; no native/GPU execution by vessel agent",
+  "coarse_tissue_helper_sha256": "16c90acd50ec4899a5fabd64341a93b0f7b232efce9d14d76b73bd33b1587dc6",
+  "wall_offset_validator_app_sha256": "7405b6f4654602b4c3dfb9c90f58d5024039187953560b192485a8accc4ca3e6",
+  "source_payload_ancestry_regression_sha256": "4733d6d2f70198b2a22337a6eb7e8ce7566d02d30c89d3e141c572c9d3b2a07d",
+  "centroid239_patch_sha256": "82b2deae8d7a2c0570234d0d6c4334545cb8eb4cc744f64835c60a10007b5a9e"
+}

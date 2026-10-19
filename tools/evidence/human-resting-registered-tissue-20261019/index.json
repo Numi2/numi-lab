@@ -1,0 +1,297 @@
+{
+  "schema": "numi.continuum_integrated_publication_bundle.v1",
+  "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+  "source_root": "source/",
+  "canonical_patch": "canonical.patch",
+  "canonical_paths": [
+    "CMakeLists.txt",
+    "apps/NumiHumanCoarseTissuePreparation.hpp",
+    "apps/NumiHumanRestingAnatomy.hpp",
+    "apps/NumiHumanRestingAorticWall.hpp",
+    "apps/NumiHumanRestingCoupling.hpp",
+    "apps/NumiHumanSkinFEMIntegration.hpp",
+    "apps/NumiHumanVesselWallCoupling.hpp",
+    "apps/actual_nha_contour.inc",
+    "apps/numilab_human_myosim_visual_probe.mm",
+    "matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+    "matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+    "matter/tools/human_respiration_parameters.hpp",
+    "matter/tools/human_resting_runtime.hpp",
+    "tests/test_registered_star_centroid_ancestry.cpp"
+  ],
+  "manifest": [
+    {
+      "path": "CMakeLists.txt",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "b6fa42ffe03ecff8696b5090d1e902f8bc7e3175ef14a20833b6634ccf52e893",
+      "candidate_sha256": "60ca50fffcb0c12729109bd319ddda0b2b0b9a855441f37603e5d4332f0e9b84"
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "16c90acd50ec4899a5fabd64341a93b0f7b232efce9d14d76b73bd33b1587dc6"
+    },
+    {
+      "path": "apps/NumiHumanRestingAnatomy.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "1457281be37684339c9e1f484b4da0b713ddeca86088a623a633d6a3d6059e33",
+      "candidate_sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6"
+    },
+    {
+      "path": "apps/NumiHumanRestingAorticWall.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4"
+    },
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6",
+      "candidate_sha256": "30d082199d1f52bfbfa2502a7143f43069f6d73ce680cf03878e3b8313ee33f2"
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "6aee7ab67ab6c7815a7d5dfb7eaf68ea5f67bb551d7b08ccaf7260a646431fb5"
+    },
+    {
+      "path": "apps/NumiHumanVesselWallCoupling.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "e880a67a904148a05f9f29be4df872333d086b688879e5c0c54e7b4f1f8ccd15"
+    },
+    {
+      "path": "apps/actual_nha_contour.inc",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1",
+      "candidate_sha256": "7405b6f4654602b4c3dfb9c90f58d5024039187953560b192485a8accc4ca3e6"
+    },
+    {
+      "path": "matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad"
+    },
+    {
+      "path": "matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "9ac8cfe50dbdb5aa40af5ea8debfa464bf85cb37c3696b260fb387d55636c3b3"
+    },
+    {
+      "path": "matter/tools/human_respiration_parameters.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd",
+      "candidate_sha256": "3647dfd239795182fadb69f494b5c34910b93492eafba18f7bd7075d222b92ed"
+    },
+    {
+      "path": "matter/tools/human_resting_runtime.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "d259ca946cb9300620a0100bc500f951c902b381c1f335b9ab1556146d67ec67",
+      "candidate_sha256": "fae24b7dcfbe3fc563628f8a29be4b287a7d251c2319dbf4e4d5dabaab491324"
+    },
+    {
+      "path": "tests/test_registered_star_centroid_ancestry.cpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "4733d6d2f70198b2a22337a6eb7e8ce7566d02d30c89d3e141c572c9d3b2a07d"
+    }
+  ],
+  "excluded_from_canonical": [
+    {
+      "path": "matter/src/HumanRespirationSustained.metal",
+      "reason": "generated flattened Metal source; exact build-time bytes are stored in evidence/generated/",
+      "sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe"
+    },
+    {
+      "path": "matter/include/numi/matter/human_respiration.h",
+      "reason": "byte-identical to W base"
+    },
+    {
+      "path": "matter/src/human_respiration.metal",
+      "reason": "byte-identical to W base"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm.orig",
+      "reason": "patch-tool backup artifact"
+    }
+  ],
+  "cmake_note": "CMakeLists.txt was materialized from the exact base commit and only the two material compile definitions were added; this staged blob is separate from the dirty W working file.",
+  "build": {
+    "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+    "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "cpu_compile_exit": 0,
+    "cpu_link_exit": 0,
+    "visual_verification": false
+  },
+  "native_cases": {
+    "source_summary": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/summary.json",
+    "source_summary_sha256": "7a90ee6df1f6b24811a0bb8bfabc695b86bfbc81a858332029c858c2ea8ba505",
+    "step_seconds": 0.00025,
+    "steps_per_case": 1,
+    "scope_note": "Three independent 0.25 ms native cases on the exact 006 binary: wall-only, prostate-only, and joint skin/fat+wall+prostate. This is a short owner execution check, not a long-horizon qualification.",
+    "case_files": [
+      {
+        "case": "wallonly",
+        "file": "invocation.json",
+        "path": "native/native-run-009/wallonly/invocation.json",
+        "sha256": "13060fc58d1fb414e017af5ec0151468ccbbbc398a608069e5d549699b2f19ea"
+      },
+      {
+        "case": "wallonly",
+        "file": "native.log",
+        "path": "native/native-run-009/wallonly/native.log",
+        "sha256": "8fd7f713f2131a1386b04a756f00a5b04cf0a68e7deef22ee651e2d167f0b81f"
+      },
+      {
+        "case": "prostateonly",
+        "file": "invocation.json",
+        "path": "native/native-run-009/prostateonly/invocation.json",
+        "sha256": "8b11b3ffb85045b415faa387dbd1db3cad3a31dd2350c8284558f1e69257f16d"
+      },
+      {
+        "case": "prostateonly",
+        "file": "native.log",
+        "path": "native/native-run-009/prostateonly/native.log",
+        "sha256": "d4eaa744e22c883ee92c7b4ebb0ecf66ffb8d0f7e4d31ffc345c4a1650b68e7b"
+      },
+      {
+        "case": "joint",
+        "file": "invocation.json",
+        "path": "native/native-run-009/joint/invocation.json",
+        "sha256": "c2dc1911329cb4bdfa022d2a2814d3fd3103df006890f59620b65b199647900d"
+      },
+      {
+        "case": "joint",
+        "file": "native.log",
+        "path": "native/native-run-009/joint/native.log",
+        "sha256": "ba03373786d5d48b9aee96b4f952f5018074d33d44b098cec8510646bc740937"
+      }
+    ]
+  },
+  "cpu_regression": {
+    "path": "/Users/n/numi-human-separation-20261018/C/continuum-preparation-centroid-239/tests/test_registered_star_centroid_ancestry",
+    "sha256": "ff28d8e0399880a1eab4dbc129dbf99f43d6ae491238e46f0f33fa0f6c8654e1",
+    "source_path": "/Users/n/numi-human-separation-20261018/C/continuum-preparation-centroid-239/tests/test_registered_star_centroid_ancestry.cpp",
+    "source_sha256": "4733d6d2f70198b2a22337a6eb7e8ce7566d02d30c89d3e141c572c9d3b2a07d",
+    "exit_code": 0,
+    "stdout": "translated_star_centroid=PASS world_center_m=17.2076,-8.0012,4.95 world_local_volume_relative_error=0 mass_residual_kg=-5.32907e-15 node_ancestry=4/4 face_ancestry=4/4"
+  },
+  "generated_shader_snapshot": {
+    "path": "evidence/generated/HumanRespirationSustained.metal",
+    "sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe",
+    "canonical_publication": false
+  },
+  "visual_verification": false,
+  "cmake_validation": {
+    "definitions_present_in_cpu_compile_argv": true,
+    "compile_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/build-plan.json",
+    "compile_plan_sha256": "1661165974c1636366f1c9f48b00d12fa0460b27943ee275dac45544daff2ee5",
+    "cmake_configure_or_native_cmake_build_executed": false,
+    "patch_dry_run_against_synthetic_exact_base_passed": true
+  },
+  "native_run_010": {
+    "summary": "native/native-run-010-summary.json",
+    "summary_sha256": "88e6cea8d9b875dd42d5fff1a536038d042a1926e8b014869b03567085155bcb",
+    "plan_sha256": "bad36efd4b193799ea930b02876be645e8ef96f2ea138e9b40f0a639db381235",
+    "runner_sha256": "8cb36eab512c49998ba7e9688c1df292bb8c269389fcb4d3caa4abb8c45b2d33",
+    "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+    "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "scope": "two 0.25 ms steps; joint skin/fat, aortic wall, and prostate opt-ins; late reject at step 1 plus same-context retry; MPM off; no visual verification",
+    "rollback_exact_state_checks": {
+      "shared_tissue_late_reject_retry=passed": true,
+      "q_v_root_muscle_unchanged=1": true,
+      "matter_vascular_unchanged=1": true,
+      "passive_adapter_history_unchanged=1": true,
+      "brain_respiration_presentation_unchanged=1": true,
+      "body_properties_restored=1": true,
+      "dof_properties_restored=1": true,
+      "same_context_retry=1": true
+    },
+    "clean_vs_retry_trace": {
+      "path": "output/resting-coupled.csv",
+      "clean_sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "retry_sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "byte_identical": true
+    },
+    "visual_verification": false,
+    "case_files": [
+      {
+        "case": "joint_clean_control",
+        "file": "invocation.json",
+        "path": "native/native-run-010-joint-rollback/joint_clean_control/invocation.json",
+        "sha256": "6b17cbddc02726941c0261a3c34445d35fe6d7f2a9329b69726f3916e6bf815c"
+      },
+      {
+        "case": "joint_clean_control",
+        "file": "native.log",
+        "path": "native/native-run-010-joint-rollback/joint_clean_control/native.log",
+        "sha256": "311d122a1b4eeca07118315e4be17c00c4058b352253f5458f37c10c4e1b7978"
+      },
+      {
+        "case": "joint_clean_control",
+        "file": "resting-coupled.csv",
+        "path": "native/native-run-010-joint-rollback/joint_clean_control/resting-coupled.csv",
+        "sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149"
+      },
+      {
+        "case": "joint_late_reject_retry",
+        "file": "invocation.json",
+        "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/invocation.json",
+        "sha256": "f7e77cf72dc618cf471d1dc5d447d8d886eefd783d23fff4dce63e02a94a2301"
+      },
+      {
+        "case": "joint_late_reject_retry",
+        "file": "native.log",
+        "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/native.log",
+        "sha256": "e9c1786ab6688b50b931c62a117b9598d65b32577a3e9b7e7f76a9cfb1438e84"
+      },
+      {
+        "case": "joint_late_reject_retry",
+        "file": "resting-coupled.csv",
+        "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/resting-coupled.csv",
+        "sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149"
+      },
+      {
+        "case": "summary",
+        "file": "native-run-010-summary.json",
+        "path": "native/native-run-010-summary.json",
+        "sha256": "88e6cea8d9b875dd42d5fff1a536038d042a1926e8b014869b03567085155bcb"
+      },
+      {
+        "case": "plan",
+        "file": "run-plan.json",
+        "path": "native/native-run-010-joint-rollback/run-plan.json",
+        "sha256": "bad36efd4b193799ea930b02876be645e8ef96f2ea138e9b40f0a639db381235"
+      },
+      {
+        "case": "runner",
+        "file": "runner.py",
+        "path": "native/native-run-010-joint-rollback/runner.py",
+        "sha256": "8cb36eab512c49998ba7e9688c1df292bb8c269389fcb4d3caa4abb8c45b2d33"
+      }
+    ]
+  }
+}

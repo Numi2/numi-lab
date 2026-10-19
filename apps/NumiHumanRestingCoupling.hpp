@@ -1,5 +1,6 @@
 #pragma once
 #include "../matter/tools/human_resting_runtime.hpp"
+#include "NumiHumanVesselWallCoupling.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "numi/matter/numi_human.hpp"
 #include "metalrobo/numi_human_stand_gpu.h"
@@ -68,10 +69,14 @@ public:
                             std::uint32_t sourceSeamDofIndex=MR_INVALID_INDEX,
                             std::span<const std::uint32_t> releasePatchIndices={},
                             std::span<const MRDofPropertiesGPU> releasePatchRecords={},
-                            const numi::matter::WorldSource* tissueSource=nullptr):
+                            const numi::matter::WorldSource* tissueSource=nullptr,
+                            const numi::human::vessel_wall_coupling::Built* aorticWallBinding=nullptr):
         physiology(network,parameters,dt,denseVascular,tissueSource),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
         using numi::human::need;
+        if(aorticWallBinding)
+            numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
+                physiology.world,*aorticWallBinding);
         need((seamDofReleaseStep==MR_INVALID_INDEX)==(seamDofIndex==MR_INVALID_INDEX),
              "seam DoF release requires both a cut step and mapped source DoF");
         auto device=physiology.device;NSError* e=nil;

@@ -1,0 +1,181 @@
+{
+  "schema": "numi.continuum_integrated_registered_tissue_source_pins.v1",
+  "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+  "canonical_patch_sha256": "dbcdafb25bfc388513923d3ec6dd16afa8c1c90c697b3e279cb749aadbee6ff2",
+  "publication_source_manifest_sha256": "3e33dc5956e561fe0f9567c023d2b9d4bfdd635a78a82ed18ef2a873566289f8",
+  "canonical_source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "b6fa42ffe03ecff8696b5090d1e902f8bc7e3175ef14a20833b6634ccf52e893",
+      "candidate_sha256": "60ca50fffcb0c12729109bd319ddda0b2b0b9a855441f37603e5d4332f0e9b84"
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "16c90acd50ec4899a5fabd64341a93b0f7b232efce9d14d76b73bd33b1587dc6"
+    },
+    {
+      "path": "apps/NumiHumanRestingAnatomy.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "1457281be37684339c9e1f484b4da0b713ddeca86088a623a633d6a3d6059e33",
+      "candidate_sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6"
+    },
+    {
+      "path": "apps/NumiHumanRestingAorticWall.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4"
+    },
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6",
+      "candidate_sha256": "30d082199d1f52bfbfa2502a7143f43069f6d73ce680cf03878e3b8313ee33f2"
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "6aee7ab67ab6c7815a7d5dfb7eaf68ea5f67bb551d7b08ccaf7260a646431fb5"
+    },
+    {
+      "path": "apps/NumiHumanVesselWallCoupling.hpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "e880a67a904148a05f9f29be4df872333d086b688879e5c0c54e7b4f1f8ccd15"
+    },
+    {
+      "path": "apps/actual_nha_contour.inc",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1",
+      "candidate_sha256": "7405b6f4654602b4c3dfb9c90f58d5024039187953560b192485a8accc4ca3e6"
+    },
+    {
+      "path": "matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad"
+    },
+    {
+      "path": "matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "9ac8cfe50dbdb5aa40af5ea8debfa464bf85cb37c3696b260fb387d55636c3b3"
+    },
+    {
+      "path": "matter/tools/human_respiration_parameters.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd",
+      "candidate_sha256": "3647dfd239795182fadb69f494b5c34910b93492eafba18f7bd7075d222b92ed"
+    },
+    {
+      "path": "matter/tools/human_resting_runtime.hpp",
+      "status": "modified",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": "d259ca946cb9300620a0100bc500f951c902b381c1f335b9ab1556146d67ec67",
+      "candidate_sha256": "fae24b7dcfbe3fc563628f8a29be4b287a7d251c2319dbf4e4d5dabaab491324"
+    },
+    {
+      "path": "tests/test_registered_star_centroid_ancestry.cpp",
+      "status": "added",
+      "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+      "base_sha256": null,
+      "candidate_sha256": "4733d6d2f70198b2a22337a6eb7e8ce7566d02d30c89d3e141c572c9d3b2a07d"
+    }
+  ],
+  "build": {
+    "build_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/build-plan.json",
+    "build_plan_sha256": "1661165974c1636366f1c9f48b00d12fa0460b27943ee275dac45544daff2ee5",
+    "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+    "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "app_source_sha256": "7405b6f4654602b4c3dfb9c90f58d5024039187953560b192485a8accc4ca3e6",
+    "matter_source_sha256": "fa7e6cad2cfd7624c97e58395ac9aa8622af9b009bb27ca608346a1c52b6c845",
+    "respiration_flattened_shader_sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe",
+    "cpu_compile_exit": 0,
+    "cpu_link_exit": 0
+  },
+  "native009": {
+    "summary_sha256": "7a90ee6df1f6b24811a0bb8bfabc695b86bfbc81a858332029c858c2ea8ba505",
+    "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+    "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "attempts": [
+      {
+        "scenario": "wallonly",
+        "process_exit": 0,
+        "seconds": 53.48046983400127,
+        "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/wallonly/invocation.json"
+      },
+      {
+        "scenario": "prostateonly",
+        "process_exit": 0,
+        "seconds": 64.02089037501719,
+        "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/prostateonly/invocation.json"
+      },
+      {
+        "scenario": "joint",
+        "process_exit": 0,
+        "seconds": 81.87459683400812,
+        "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/joint/invocation.json"
+      }
+    ],
+    "visual_verification": false
+  },
+  "native010": {
+    "plan_sha256": "bad36efd4b193799ea930b02876be645e8ef96f2ea138e9b40f0a639db381235",
+    "runner_sha256": "8cb36eab512c49998ba7e9688c1df292bb8c269389fcb4d3caa4abb8c45b2d33",
+    "summary_sha256": "88e6cea8d9b875dd42d5fff1a536038d042a1926e8b014869b03567085155bcb",
+    "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+    "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "attempts": [
+      {
+        "name": "joint_clean_control",
+        "process_exit": 0,
+        "wall_seconds": 153.36039916594746,
+        "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-010-joint-rollback/joint_clean_control/invocation.json"
+      },
+      {
+        "name": "joint_late_reject_retry",
+        "process_exit": 0,
+        "wall_seconds": 230.59674516698578,
+        "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-010-joint-rollback/joint_late_reject_retry/invocation.json"
+      }
+    ],
+    "rollback_exact_state_checks": {
+      "shared_tissue_late_reject_retry=passed": true,
+      "q_v_root_muscle_unchanged=1": true,
+      "matter_vascular_unchanged=1": true,
+      "passive_adapter_history_unchanged=1": true,
+      "brain_respiration_presentation_unchanged=1": true,
+      "body_properties_restored=1": true,
+      "dof_properties_restored=1": true,
+      "same_context_retry=1": true
+    },
+    "clean_vs_retry_trace": {
+      "path": "output/resting-coupled.csv",
+      "clean_sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "retry_sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "byte_identical": true
+    },
+    "visual_verification": false
+  }
+}

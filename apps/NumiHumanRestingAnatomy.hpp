@@ -10,6 +10,7 @@
 #include <map>
 #include <numeric>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,6 +40,9 @@ struct NumiHumanRestingAnatomy {
     struct RespiratoryBasis {
         double start=0,span=0;
         double conformingGridSpacing=0;
+        // Origin of the registered conforming Kuhn grid in the current
+        // functional local frame; shifting this preserves the authored phase.
+        std::array<double,3> conformingGridOrigin{};
         std::array<double,4> rim{};
         std::array<std::array<double,4>,2> crura{};
         std::array<double,2> rimTransition{},cruralTransition{};
@@ -63,8 +67,9 @@ struct NumiHumanRestingAnatomy {
             if(conformingGridSpacing==0)return evaluateSmooth(p,axis);
             std::array<double,3> corner{},fraction{};
             for(unsigned k=0;k<3;++k) {
-                const double u=p[k]/conformingGridSpacing;
-                corner[k]=std::floor(u)*conformingGridSpacing;fraction[k]=u-std::floor(u);
+                const double u=(p[k]-conformingGridOrigin[k])/conformingGridSpacing;
+                corner[k]=conformingGridOrigin[k]+std::floor(u)*conformingGridSpacing;
+                fraction[k]=u-std::floor(u);
             }
             const auto low=corner;
             std::array<unsigned,3> order{0,1,2};
@@ -1593,6 +1598,42 @@ struct NumiHumanRestingAnatomy {
         ventricularWallGPU.closureBoundsAndTolerance={float(closureLow),float(closureHigh),
             float(closureRelativeTolerance),0};
         ventricularWallGPU.chambersAndFlags={1,3,1,ventricularWall.vertexCount};
+        }
+    }
+
+    // Convert source-derived scalar anchors and bases into the already-authored
+    // executed local frame after source receipt checks have completed. Vector
+    // coefficients and content hashes remain unchanged because they encode
+    // displacements, not absolute positions.
+    void translateFunctionalFrame(const std::array<double,3>& translation) {
+        for(double value:translation)
+            if(!std::isfinite(value))throw std::runtime_error("nonfinite functional anatomy frame translation");
+        const double superiorShift=translation[0]*gpu.superiorAxisAndHeight.x+
+            translation[1]*gpu.superiorAxisAndHeight.y+translation[2]*gpu.superiorAxisAndHeight.z;
+        const auto shiftPoint=[&](mr_float4& point) {
+            point.x=float(double(point.x)+translation[0]);
+            point.y=float(double(point.y)+translation[1]);
+            point.z=float(double(point.z)+translation[2]);
+        };
+        shiftPoint(gpu.lungAnchorAndVolume);
+        for(auto& chamber:gpu.chamberCenterAndVolume)shiftPoint(chamber);
+        gpu.diaphragmHeight.x=float(double(gpu.diaphragmHeight.x)+superiorShift);
+        gpu.diaphragmHeight.y=float(double(gpu.diaphragmHeight.y)+superiorShift);
+        gpu.lungBasalBlend.x=float(double(gpu.lungBasalBlend.x)+superiorShift);
+        passiveTransition[0]=float(double(passiveTransition[0])+superiorShift);
+        passiveTransition[1]=float(double(passiveTransition[1])+superiorShift);
+        respiratoryBasis.start+=superiorShift;
+        for(unsigned axis=0;axis<3;++axis)
+            respiratoryBasis.conformingGridOrigin[axis]+=translation[axis];
+        respiratoryBasis.rim[0]+=translation[0];respiratoryBasis.rim[1]+=translation[2];
+        for(auto& crura:respiratoryBasis.crura) {
+            crura[0]+=translation[0];crura[1]+=translation[2];
+        }
+        for(auto& attachment:commonFieldPassiveAttachments) {
+            if(attachment.sourceSuperiorAxis>=3u)continue;
+            const double shift=translation[attachment.sourceSuperiorAxis];
+            attachment.transitionLower=float(double(attachment.transitionLower)+shift);
+            attachment.transitionUpper=float(double(attachment.transitionUpper)+shift);
         }
     }
 };

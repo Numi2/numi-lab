@@ -1,0 +1,8 @@
+{
+  "path": "/Users/n/numi-human-separation-20261018/C/continuum-preparation-centroid-239/tests/test_registered_star_centroid_ancestry",
+  "sha256": "ff28d8e0399880a1eab4dbc129dbf99f43d6ae491238e46f0f33fa0f6c8654e1",
+  "source_path": "/Users/n/numi-human-separation-20261018/C/continuum-preparation-centroid-239/tests/test_registered_star_centroid_ancestry.cpp",
+  "source_sha256": "4733d6d2f70198b2a22337a6eb7e8ce7566d02d30c89d3e141c572c9d3b2a07d",
+  "exit_code": 0,
+  "stdout": "translated_star_centroid=PASS world_center_m=17.2076,-8.0012,4.95 world_local_volume_relative_error=0 mass_residual_kg=-5.32907e-15 node_ancestry=4/4 face_ancestry=4/4"
+}

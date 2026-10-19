@@ -1,0 +1,27 @@
+{
+  "schema": "numi.continuum_integrated_vessel_skin_prostate_run_summary.v1",
+  "plan_sha256": "7c939bdbea13d5a66eeaa0f0b9c805db3cc81c77960e94da5fbf15b7e4c3feeb",
+  "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "attempts": [
+    {
+      "scenario": "wallonly",
+      "process_exit": 0,
+      "seconds": 53.48046983400127,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/wallonly/invocation.json"
+    },
+    {
+      "scenario": "prostateonly",
+      "process_exit": 0,
+      "seconds": 64.02089037501719,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/prostateonly/invocation.json"
+    },
+    {
+      "scenario": "joint",
+      "process_exit": 0,
+      "seconds": 81.87459683400812,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-009/joint/invocation.json"
+    }
+  ],
+  "visual_verification": false
+}

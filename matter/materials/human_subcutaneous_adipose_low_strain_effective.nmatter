@@ -1,0 +1,23 @@
+// Passive low-strain continuum reference for subcutaneous human adipose.
+// Alkhouli et al. measured initial tensile modulus 1.6 +/- 0.8 kPa in paired
+// subcutaneous samples (n=19); modulus rose to 11.7 +/- 6.4 kPa by 30% strain.
+// Source: Am J Physiol Endocrinol Metab 305:E1189-E1196 (2013),
+// DOI 10.1152/ajpendo.00111.2013, PMID 24105412.
+// The default is the measured initial tangent mapped to an isotropic
+// compressible neo-Hookean solid using explicit nu=0.45. This does not
+// represent the measured nonlinear stiffening, stress relaxation, or rate
+// dependence; [0.8,2.4] kPa is the reported mean +/- 1 SD sensitivity interval.
+// Density is 900 kg/m3 from five human subjects at 37 C (Fidanza 2003,
+// PMID 14618483); [850,950] is a caller sensitivity interval, not a CI.
+material human_subcutaneous_adipose_low_strain_effective {
+    parameter density : kg/m^3 = 900 in [850, 950] log;
+    parameter shear : MPa = 0.000551724138 in [0.000275862069, 0.000827586207] log;
+    parameter bulk : MPa = 0.00533333333 in [0.00266666667, 0.008] log;
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    valid = J() - 0.35;
+    supports fem;
+    interface { static_friction = 0.05; dynamic_friction = 0.03; restitution = 0.0; adhesion = 0.0; }
+    limits { minimum_J = 0.35; maximum_J = 2.5; maximum_stress = 5e6; maximum_energy_density = 5e6; }
+}

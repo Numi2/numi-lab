@@ -2,6 +2,8 @@
 #import <Foundation/Foundation.h>
 #include "numi/matter/human_respiration.h"
 #include "numi/matter/matter.hpp"
+#include <algorithm>
+#include <iterator>
 #include <cmath>
 #include <array>
 #include <cstdlib>
@@ -71,8 +73,80 @@ inline NMHumanRespirationParameters readRespirationParameters(const char* path, 
 }
 
 inline NMHumanRespirationState initializeRespiration(const NMHumanRespirationParameters& p, const CompiledWorld& w) {
-    if(w.vascular.compartments.size()!=21||w.vascular.connections.size()!=24||w.vascular.unknowns.size()!=45)
-        throw std::runtime_error("respiration requires the authored CVSim21 graph without duplicate species");
+    const auto& vascular=w.vascular;
+    const auto& layout=vascular.layout;
+    constexpr std::uint32_t kBaseUnknowns=45u;
+    constexpr std::uint32_t kAorticCompartmentStableId=7u;
+    constexpr std::uint32_t kRegisteredAorticWallStableId=9007u;
+    const bool commonGraph=vascular.compartments.size()==21u&&
+        vascular.connections.size()==24u&&vascular.species.empty()&&
+        vascular.tissues.empty()&&vascular.exchanges.empty()&&
+        vascular.tissueBindings.empty()&&layout.counts.x==21u&&
+        layout.counts.y==24u&&layout.counts.z==0u&&layout.counts.w==0u&&
+        layout.ranges.x==0u&&layout.ranges.y==0u&&layout.ranges.w==0u&&
+        layout.ranges.z==vascular.unknowns.size()&&layout.offsets.x==0u&&
+        layout.offsets.y==21u&&layout.offsets.z==kBaseUnknowns&&
+        layout.offsets.w==kBaseUnknowns;
+    const bool noCavity=vascular.cavities.empty()&&vascular.cavityFaces.empty()&&
+        vascular.unknowns.size()==kBaseUnknowns&&layout.cavities.x==0u&&
+        layout.cavities.y==0u&&layout.cavities.z==kBaseUnknowns&&
+        layout.cavities.w==0u&&vascular.compartmentCavity.size()==vascular.compartments.size()&&
+        std::all_of(vascular.compartmentCavity.begin(),vascular.compartmentCavity.end(),
+            [](std::uint32_t i){return i==NM_INVALID_INDEX;});
+    std::size_t aorticCompartmentIndex=vascular.compartments.size();
+    std::size_t aorticCompartmentCount=0u;
+    for(std::size_t i=0;i<vascular.compartments.size();++i)
+        if(vascular.compartments[i].identity.x==kAorticCompartmentStableId) {
+            aorticCompartmentIndex=i;++aorticCompartmentCount;
+        }
+    bool oneRegisteredAorticCavity=false;
+    if(vascular.cavities.size()==1u&&aorticCompartmentCount==1u&&
+       vascular.cavityFaces.size()>0u&&vascular.unknowns.size()==kBaseUnknowns+1u&&
+       layout.cavities.x==1u&&layout.cavities.y==vascular.cavityFaces.size()&&
+       layout.cavities.z==kBaseUnknowns&&layout.cavities.w==0u&&
+       vascular.compartmentCavity.size()==vascular.compartments.size()) {
+        const auto& cavity=vascular.cavities.front();
+        const auto& compartment=vascular.compartments[aorticCompartmentIndex];
+        const auto& objectIndex=cavity.identity.z;
+        const bool cavityFaceRange=cavity.faces.x==0u&&cavity.faces.y>0u&&
+            cavity.faces.y==vascular.cavityFaces.size();
+        bool validFaces=cavityFaceRange;
+        if(cavityFaceRange)for(std::uint32_t faceIndex=cavity.faces.x;
+                faceIndex<cavity.faces.x+cavity.faces.y;++faceIndex) {
+            const auto& face=vascular.cavityFaces[faceIndex];
+            validFaces=validFaces&&face.identity.x==0u&&
+                face.identity.z==static_cast<std::uint32_t>(VascularCavityFaceRole::materialWall)&&
+                face.nodes.x<w.fem.nodes.size()&&face.nodes.y<w.fem.nodes.size()&&
+                face.nodes.z<w.fem.nodes.size();
+        }
+        const auto nonzeroIdentity=[](const auto& words) {
+            return std::any_of(std::begin(words),std::end(words),[](std::uint64_t word){return word!=0u;});
+        };
+        const bool validObject=objectIndex<w.objects.size()&&
+            w.objects[objectIndex].representation==NM_REPRESENTATION_FEM&&
+            w.objects[objectIndex].stateCount>0u&&
+            std::uint64_t(w.objects[objectIndex].stateOffset)+w.objects[objectIndex].stateCount<=w.fem.nodes.size();
+        oneRegisteredAorticCavity=cavity.identity.x==kRegisteredAorticWallStableId&&
+            cavity.identity.y==aorticCompartmentIndex&&cavity.identity.w==kBaseUnknowns&&
+            compartment.identity.w==static_cast<std::uint32_t>(VascularPressureLaw::deformingCavity)&&
+            vascular.compartmentCavity[aorticCompartmentIndex]==0u&&validObject&&validFaces&&
+            nonzeroIdentity(cavity.sourceIdentity)&&nonzeroIdentity(cavity.mechanicalIdentity)&&
+            vascular.unknowns[kBaseUnknowns].initialAndScaling.x>0.0f&&
+            std::isfinite(vascular.unknowns[kBaseUnknowns].initialAndScaling.x);
+        if(validFaces)for(std::uint32_t faceIndex=cavity.faces.x;
+                faceIndex<cavity.faces.x+cavity.faces.y;++faceIndex) {
+            const auto& face=vascular.cavityFaces[faceIndex];
+            for(const auto node:{face.nodes.x,face.nodes.y,face.nodes.z})
+                oneRegisteredAorticCavity=oneRegisteredAorticCavity&&validObject&&
+                    node>=w.objects[objectIndex].stateOffset&&
+                    node<std::uint64_t(w.objects[objectIndex].stateOffset)+w.objects[objectIndex].stateCount;
+        }
+        for(std::size_t i=0;i<vascular.compartmentCavity.size();++i)
+            oneRegisteredAorticCavity=oneRegisteredAorticCavity&&
+                vascular.compartmentCavity[i]==(i==aorticCompartmentIndex?0u:NM_INVALID_INDEX);
+    }
+    if(!commonGraph||(!noCavity&&!oneRegisteredAorticCavity))
+        throw std::runtime_error("respiration requires the exact authored CVSim21 graph and at most its single registered aortic cavity; species and other cavity rows are not admitted");
     // Require the authored source mapping before interpreting circuit indices.
     const auto& pulmonary=w.vascular.connections[21];
     if(pulmonary.identity.y!=17||pulmonary.identity.z!=18)

@@ -3,6 +3,7 @@
 #include "NumiHumanOrganRelease.hpp"
 #include "NumiHumanInferredACL.hpp"
 #include "NumiHumanReducedPassiveFascia.hpp"
+#include "NumiHumanSkinFEMIntegration.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
 #include "NumiHumanSharedTissueRollbackProbe.hpp"
 #include "NumiHumanPassiveCoordinateRemap.hpp"
@@ -88,6 +89,7 @@
 #include <unistd.h>
 #ifdef NUMI_HUMAN_RESTING_SCENE
 #include "NumiHumanRestingCoupling.hpp"
+#include "NumiHumanVesselWallCoupling.hpp"
 #include "NumiHumanRestingTransactionProbe.hpp"
 #include "NumiHumanRestingWindow.hpp"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
@@ -17921,15 +17923,20 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::vector<std::array<std::uint32_t,4u>> fasciaStripAnchorIdentity;
     std::vector<std::array<std::uint32_t,4>> auditTetrahedra;
+    std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
+    std::vector<double> aorticWallNodalMassKg;
+    double aorticWallCookedMassKg=0.0;
 };
 
 std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     const LoadedPectoralisFascia& fascia, LoadedSoftTissues& tissues,
     LoadedMuscles& muscles, metalrobo::EngineModel& model,
     LoadedSupportContacts& support, LoadedBones* bones, LoadedSkin* skin,
+    std::string skinSourceMember, std::string skinSourcePayloadSHA256,
     LoadedTorsoAnatomy* anatomy,
+    const std::filesystem::path* anatomyPayloadPath,
     std::span<const std::uint32_t> sourceBodyMap,
-    bool includeInferredACL,
+    bool includeInferredACL, bool includeProstate, bool enableAorticWall, const char* restingNetwork,
     std::span<const float> q, double dt,
     const std::filesystem::path& matterMetallib,
     bool preparationOnly = false
@@ -18027,6 +18034,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     source.mixedSolver.fgmresRestart=16u;
     source.mixedSolver.fgmresIterations=64u;
     source.mixedSolver.lineSearchSteps=12u;
+    if(enableAorticWall) {
+        require(restingNetwork&&restingNetwork[0],
+                "registered aortic wall requires the admitted CVSim network source");
+        numi::matter::VascularNetworkSource vascular;
+        std::string vascularError;
+        require(numi::human::readHumanPhysiologyNetwork(
+                    restingNetwork,vascular,&vascularError),
+                "registered aortic CVSim source read failed: "+vascularError);
+        source.vascular=std::move(vascular);
+    }
     auto parsed=numi::matter::parseMatterFile(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL);
     require(parsed.succeeded(),"resting fascia material parse failed");
     auto material=parsed.material;
@@ -18257,8 +18274,405 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             aclObjects.push_back(std::move(built));
         }
     }
+    std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
+    std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> aorticWallAnchorRows;
+    std::vector<metalrobo::NumiHumanTissueMassNode> aorticWallMassNodes;
+    std::vector<double> aorticWallNodalMassKg;
+    double aorticWallCookedMassKg=0.0;
+    if(enableAorticWall) {
+        using namespace numi::human::vessel_wall_coupling;
+        const auto runtimeBody=[&](std::uint32_t sourceBody) {
+            require(sourceBodyMap.empty()||sourceBody<sourceBodyMap.size(),
+                    "aortic wall source body lies outside the admitted runtime map");
+            const std::uint32_t body=sourceBodyMap.empty()?sourceBody:sourceBodyMap[sourceBody];
+            require(body<model.bodies.size()&&body<bodies.size(),
+                    "aortic wall source body maps outside the current rigid model");
+            return body;
+        };
+        const std::uint32_t attachmentBody=runtimeBody(7u);
+        const std::uint32_t donorBody=runtimeBody(20u);
+        const auto& attachmentCOM=model.bodies[attachmentBody].centerOfMass;
+        auto built=appendRegisteredAbdominalAortaWall(source,bodies[attachmentBody],
+            {attachmentCOM.x,attachmentCOM.y,attachmentCOM.z},attachmentBody,
+            bodies[donorBody],donorBody);
+        require(built.objectIndex<source.objects.size()&&
+                    source.objects[built.objectIndex].name==built.object.name,
+                "registered aortic wall append returned a mismatched combined-world object index");
+        auto& wallSourceObject=source.objects[built.objectIndex];
+        for(const auto& attachment:built.object.femHumanAttachments) {
+            require(attachment.node<built.object.femNodes.size()&&
+                        attachment.bodyIndex==attachmentBody&&
+                        attachment.stableIdentifier!=0u,
+                    "registered aortic wall source attachment identity is invalid");
+            require(attachment.node<wallSourceObject.femNodes.size()&&
+                        std::find(wallSourceObject.femFixedNodes.begin(),wallSourceObject.femFixedNodes.end(),attachment.node)==wallSourceObject.femFixedNodes.end(),
+                    "registered aortic wall external anchor is duplicated or outside its source object");
+            wallSourceObject.femFixedNodes.push_back(attachment.node);
+            NMNumiHumanTendonFEMNodeAnchorGPU anchor{};
+            anchor.bodyIndex=attachment.bodyIndex;
+            anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            anchor.localPoint={static_cast<float>(attachment.localPoint[0]),
+                               static_cast<float>(attachment.localPoint[1]),
+                               static_cast<float>(attachment.localPoint[2]),0.0f};
+            aorticWallAnchorRows.push_back({attachment.node,anchor});
+        }
+        std::sort(wallSourceObject.femFixedNodes.begin(),wallSourceObject.femFixedNodes.end());
+        require(std::adjacent_find(wallSourceObject.femFixedNodes.begin(),wallSourceObject.femFixedNodes.end())==wallSourceObject.femFixedNodes.end(),
+                "registered aortic wall authored static anchors are not unique");
+        // The shared Human FEM adapter below owns attachment reactions once.
+        // Keep the registered wall/cavity in Matter, but remove duplicate
+        // Matter-side Human attachment rows before the single-world cook.
+        built.object.femHumanAttachments.clear();
+        source.objects[built.objectIndex].femHumanAttachments.clear();
+        aorticWall=std::move(built);
+    }
+    using namespace metalrobo::human::coarse_tissue;
+    PreparedOrganicFEM preparedSkin,preparedFat,preparedProstate;
+    std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> skinReferenceAnchors;
+    std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> prostateReferenceAnchors;
+    std::size_t aclNodeCount=0u;
+    for(const auto& acl:aclObjects)aclNodeCount+=acl.object.femNodes.size();
+    if(skin!=nullptr) {
+        require(skinSourceMember.size()>0u&&skinSourcePayloadSHA256.size()==64u,
+                "registered skin FEM requires its exact retained payload path and SHA-256");
+        RegisteredSurface region;std::string tissueError;
+        const auto pose=std::span<const MRBodyStateGPU>(bodies);
+        metalrobo::MetalArticulatedOperatorInput skinRestInput;
+        skinRestInput.articulationIndex=0u;skinRestInput.environmentCount=1u;skinRestInput.q=model.defaultQ;
+        metalrobo::MetalArticulatedOperatorConfig skinRestConfig;skinRestConfig.pointJacobiansOnly=true;
+        metalrobo::MetalArticulatedOperatorResult skinRestResult;
+        const auto skinRestStatus=metalrobo::runMetalArticulatedOperator(model,skinRestInput,skinRestResult,skinRestConfig);
+        require(skinRestStatus.succeeded()&&skinRestResult.bodyPoses.size()==model.bodies.size(),
+                "registered skin rest-pose FK failed");
+        const auto skinRestBodies=visualBodyStates(model,skinRestResult.bodyPoses);
+        const auto restPose=std::span<const MRBodyStateGPU>(skinRestBodies);
+        const auto positionAt=[&](std::uint32_t i,const SkinVertex& v){const auto p=skinVertexWorld(*skin,v,i,pose);return V3{p.x,p.y,p.z};};
+        const auto normalAt=[&](std::uint32_t i,const SkinVertex& v){const auto n=skinVertexNormalWorld(*skin,v,i,pose,restPose);return V3{n.x,n.y,n.z};};
+        const auto ownerAt=[&](std::uint32_t i,const SkinVertex&){return dominantSkinDonorBody(*skin,i);};
+        const auto localAt=[&](std::uint32_t,std::uint32_t body,const V3& world){
+            require(body<pose.size(),"registered skin donor body is outside the current Human pose");
+            const auto& b=pose[body];const mr_float4 inverse{-b.orientation.x,-b.orientation.y,-b.orientation.z,b.orientation.w};
+            const auto p=rotatePoint(inverse,femSubtract({float(world[0]),float(world[1]),float(world[2]),1.0f},b.position));
+            return V3{p.x,p.y,p.z};};
+        const auto frameAt=[&](std::uint32_t,std::uint32_t body){
+            require(body<pose.size(),"registered skin frame body is outside the current Human pose");
+            const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
+            for(unsigned c=0;c<3;c++){mr_float4 e{c==0?1.0f:0.0f,c==1?1.0f:0.0f,c==2?1.0f:0.0f,0.0f};const auto r=rotatePoint(inverse,e);m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;}return m;};
+        require(makeRegisteredSkinMechanicalRegion(*skin,"BodyParts3D",skinSourceMember,skinSourcePayloadSHA256,
+                    positionAt,normalAt,localAt,ownerAt,frameAt,
+                    std::min<std::uint32_t>(10000u,static_cast<std::uint32_t>(skin->indices.size()/3u-1u)),64u,region,tissueError),
+                "registered BodyParts3D mechanical skin patch rejected: "+tissueError);
+        const std::filesystem::path skinMaterialPath{NUMI_HUMAN_SKIN_DERMIS_MATERIAL};
+        const std::filesystem::path fatMaterialPath{NUMI_HUMAN_SUBCUTANEOUS_ADIPOSE_MATERIAL};
+        auto skinMaterial=numi::matter::parseMatterFile(skinMaterialPath);
+        auto fatMaterial=numi::matter::parseMatterFile(fatMaterialPath);
+        require(skinMaterial.succeeded()&&fatMaterial.succeeded(),
+                "registered skin/fat reference materials did not parse");
+        const auto skinMaterialName=skinMaterial.material.name,fatMaterialName=fatMaterial.material.name;
+        const auto skinMaterialIndex=static_cast<std::uint32_t>(source.materials.size());
+        source.materials.push_back(std::move(skinMaterial.material));
+        const auto fatMaterialIndex=static_cast<std::uint32_t>(source.materials.size());
+        source.materials.push_back(std::move(fatMaterial.material));
+        SkinFatReference reference;PairedBoundaryLayer skinLayer,fatLayer;
+        require(deriveRegisteredSkinFatLayers(region,reference,reference.fatThicknessM,skinLayer,fatLayer,tissueError),
+                "registered skin/fat reference layers rejected: "+tissueError);
+        const double skinDebit=skinLayer.volumeM3*1000.0,fatDebit=fatLayer.volumeM3*900.0;
+        std::string identityText="numi.human.skin-fat.reference-region.v1|"+skinSourcePayloadSHA256+"|"+
+            std::to_string(reference.skinThicknessM)+"|"+std::to_string(reference.fatThicknessM)+"|"+
+            skinMaterialName+"|"+fatMaterialName+"|"+
+            loadedKneeSHA256Hex(loadedKneeFileSHA256(skinMaterialPath))+"|"+
+            loadedKneeSHA256Hex(loadedKneeFileSHA256(fatMaterialPath));
+        const auto digest=loadedKneeSHA256(identityText.data(),identityText.size());std::array<std::uint64_t,4u> materialIdentity{};
+        for(unsigned w=0;w<4;w++){for(unsigned b=0;b<8;b++)materialIdentity[w]=(materialIdentity[w]<<8u)|digest[8u*w+b];if(materialIdentity[w]==0u)materialIdentity[w]=w+1u;}
+        require(appendRegisteredSkinFatFEM(source,region,skinMaterialIndex,skinMaterialName,
+                    "OCE 0.2-1kHz two-volunteer dermal modulus midpoint; isotropic near-incompressible reference inference; PMC11878153",
+                    skinDebit,fatMaterialIndex,fatMaterialName,
+                    "human subcutaneous-fat initial tensile modulus 1.6+/-0.8kPa, nu=0.45 inference; PMID24105412; density PMID14618483",
+                    fatDebit,reference.fatThicknessM,reference,"regional skin","regional subcutaneous fat",
+                    materialIdentity,preparedSkin,preparedFat,tissueError),
+                "registered skin/fat FEM assembly rejected: "+tissueError);
+        auto& shell=source.objects.back();
+        shell.femReferenceNodes=shell.femNodes;
+        std::string referenceIdentityText="numi.human.skin-fat.current-pose-reference.v1|"+identityText;
+        referenceIdentityText.append(reinterpret_cast<const char*>(shell.femReferenceNodes.data()),
+                                     shell.femReferenceNodes.size()*sizeof(shell.femReferenceNodes.front()));
+        const auto referenceDigest=loadedKneeSHA256(referenceIdentityText.data(),referenceIdentityText.size());
+        std::array<std::uint64_t,4u> referenceIdentity{};
+        for(unsigned w=0;w<4;w++){for(unsigned b=0;b<8;b++)referenceIdentity[w]=(referenceIdentity[w]<<8u)|referenceDigest[8u*w+b];if(referenceIdentity[w]==0u)referenceIdentity[w]=w+1u;}
+        shell.femReferenceSourceIdentity=referenceIdentity;
+        shell.femReferenceDisplacementGradient=true;
+        // Current registered scene pose is explicitly the assumed stress-free
+        // reference for this bounded inference; it is not measured unloaded skin.
+        std::vector<std::pair<float,std::uint32_t>> confidence;
+        for(std::uint32_t node=0;node<region.sourceVertexIndices.size();node++){
+            const auto sourceVertex=region.sourceVertexIndices[node];float maxWeight=0.0f;
+            if(!skin->fullWeights.empty())for(std::size_t b=0;b<skin->bindings.size();b++)maxWeight=std::max(maxWeight,skin->fullWeights[std::size_t(sourceVertex)*skin->bindings.size()+b]);
+            else for(float w:skin->vertices[sourceVertex].weight)maxWeight=std::max(maxWeight,w);
+            confidence.push_back({maxWeight,node});
+        }
+        std::sort(confidence.begin(),confidence.end(),[](auto a,auto b){return a.first>b.first;});
+        const std::size_t allNodes=aclNodeCount+shell.femNodes.size();const std::size_t maxAnchors=std::min<std::size_t>(3u,allNodes/32u);
+        for(std::size_t k=0;k<confidence.size()&&skinReferenceAnchors.size()<maxAnchors;k++){
+            const auto localNode=confidence[k].second;if(confidence[k].first<=0.0f)continue;
+            const auto global=preparedSkin.firstGlobalFEMNode+localNode;
+            const auto sourceVertex=region.sourceVertexIndices[localNode];const auto body=dominantSkinDonorBody(*skin,sourceVertex);
+            if(body>=pose.size())continue;
+            const auto row=std::find_if(preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end(),[&](const auto& x){return x.nodeIndex==global;});
+            if(row==preparedSkin.donorMassNodes.end()||row->donorBody!=body)continue;
+            NMNumiHumanTendonFEMNodeAnchorGPU anchor{};anchor.bodyIndex=body;
+            anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            anchor.localPoint={float(row->localPosition[0]),float(row->localPosition[1]),float(row->localPosition[2]),0.0f};
+            require(std::find(shell.femFixedNodes.begin(),shell.femFixedNodes.end(),localNode)==shell.femFixedNodes.end(),
+                    "registered skin external anchor is duplicated in the source object");
+            shell.femFixedNodes.push_back(localNode);
+            skinReferenceAnchors.push_back({global,anchor});
+        }
+        std::sort(shell.femFixedNodes.begin(),shell.femFixedNodes.end());
+        require(std::adjacent_find(shell.femFixedNodes.begin(),shell.femFixedNodes.end())==shell.femFixedNodes.end(),
+                "registered skin authored static anchors are not unique");
+        std::cout<<"resting_skin_fat_regional_preparation=accepted source=BodyParts3D"
+            <<" source_member="<<skinSourceMember<<" source_payload_sha256="<<skinSourcePayloadSHA256
+            <<" patch_faces="<<region.faces.size()<<" patch_vertices="<<region.worldPoints.size()
+            <<" shared_fem_nodes="<<shell.femNodes.size()<<" shared_fem_tets="<<shell.tetrahedra.size()
+            <<" skin_tets="<<preparedSkin.tetSourceFace.size()<<" fat_tets="<<preparedFat.tetSourceFace.size()
+            <<" skin_volume_m3="<<preparedSkin.volumeM3<<" fat_volume_m3="<<preparedFat.volumeM3
+            <<" skin_mass_debit_kg="<<preparedSkin.massDebitKg<<" fat_mass_debit_kg="<<preparedFat.massDebitKg
+            <<" interface_nodes_shared=1 contact_surface=skin_outer_only"
+            <<" anchor_count="<<skinReferenceAnchors.size()<<" anchor_policy=three_highest-registered-weight_reference-frame-points_or_fewer"
+            <<" assumed_reference=registered_scene_pose_not_measured_unloaded_skin"
+            <<" thickness_reference="<<reference.skinEvidence<<"; "<<reference.fatEvidence<<"\n";
+    }
+    if(includeProstate) {
+        require(anatomy&&anatomyPayloadPath,
+                "prostate FEM opt-in requires the retained registered NHANATOMY source payload");
+        constexpr std::uint32_t prostateSourceStableId=463u;
+        constexpr std::uint32_t prostateSourceBody=20u;
+        constexpr std::uint32_t prostateSourceLayer=kTorsoAnatomyLayerOrgan;
+        constexpr const char* prostateSourceMember="FJ3139";
+        constexpr const char* prostateSourceMeshSHA256="f20448e74cf6b6096248361bc4f618c1d7f4c1acac77f785abc43e40835b13cb";
+        constexpr const char* prostateCompositionPayloadSHA256="1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241";
+        constexpr const char* prostatePairedBone49PayloadSHA256="3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4";
+        const auto payloadDigest=loadedKneeSHA256Hex(loadedKneeFileSHA256(*anatomyPayloadPath));
+        // The paired-bone49 payload has a different registration fingerprint and
+        // unrelated surface set, but its stable-ID 463 prostate record was
+        // byte-compared against composition-024: all 223 six-float source vertex
+        // rows and all 442 oriented triangles are identical. Admit only these two
+        // exact payload digests and preserve the actual loaded digest/path below.
+        const bool prostateRecordPayloadIsPinned=
+            payloadDigest==prostateCompositionPayloadSHA256||
+            payloadDigest==prostatePairedBone49PayloadSHA256;
+        require(prostateRecordPayloadIsPinned,
+                "registered prostate source is not one of the exact payloads whose stable-ID 463 record was compared");
+        const TorsoAnatomyRecord* prostateRecord=nullptr;
+        for(const auto& record:anatomy->records) {
+            const auto identity=anatomy->sourceStableIdByRuntimeDisplayId.find(record.stableId);
+            const auto sourceStableId=identity==anatomy->sourceStableIdByRuntimeDisplayId.end()
+                ?record.stableId:identity->second;
+            if(sourceStableId==prostateSourceStableId) {
+                require(prostateRecord==nullptr,"registered prostate source stable ID is ambiguous");
+                prostateRecord=&record;
+            }
+        }
+        require(prostateRecord&&prostateRecord->layer==prostateSourceLayer&&
+                    prostateRecord->bodyIndex==prostateSourceBody&&
+                    prostateRecord->vertexCount==223u&&prostateRecord->indexCount==1326u,
+                "pinned prostate source member/body/layer/topology differs from BodyParts3D stable ID 463");
+        require(sourceBodyMap.empty()||prostateRecord->bodyIndex<sourceBodyMap.size(),
+                "registered prostate source body lies outside the admitted runtime map");
+        const std::uint32_t donorBody=sourceBodyMap.empty()
+            ?prostateRecord->bodyIndex:sourceBodyMap[prostateRecord->bodyIndex];
+        require(donorBody<model.bodies.size()&&donorBody<bodies.size(),
+                "registered prostate source body maps outside the current Human model");
+        const auto& body=bodies[donorBody];
+        RegisteredSurface prostate;
+        prostate.name="prostate";prostate.provider="BodyParts3D";
+        prostate.sourceMember=prostateSourceMember;
+        prostate.sourceMeshSHA256=prostateSourceMeshSHA256;
+        prostate.sourcePayloadSHA256=payloadDigest;
+        prostate.stableIdentifier=prostateSourceStableId;
+        prostate.sourceBodyIndex=donorBody;prostate.sourceLayer=prostateSourceLayer;
+        const double orientationNorm=std::sqrt(
+            double(body.orientation.x)*body.orientation.x+
+            double(body.orientation.y)*body.orientation.y+
+            double(body.orientation.z)*body.orientation.z+
+            double(body.orientation.w)*body.orientation.w);
+        require(std::isfinite(orientationNorm)&&orientationNorm>1.0e-12,
+                "registered prostate source body orientation is degenerate");
+        const double qx=double(body.orientation.x)/orientationNorm;
+        const double qy=double(body.orientation.y)/orientationNorm;
+        const double qz=double(body.orientation.z)/orientationNorm;
+        const double qw=double(body.orientation.w)/orientationNorm;
+        auto rotateRegisteredDouble=[&](const metalrobo::human::coarse_tissue::V3 point) {
+            const metalrobo::human::coarse_tissue::V3 qv{qx,qy,qz};
+            const auto qCrossP=metalrobo::human::coarse_tissue::cross(qv,point);
+            return metalrobo::human::coarse_tissue::add(point,metalrobo::human::coarse_tissue::add(
+                metalrobo::human::coarse_tissue::mul(qCrossP,2.0*qw),
+                metalrobo::human::coarse_tissue::mul(metalrobo::human::coarse_tissue::cross(qv,qCrossP),2.0)));
+        };
+        prostate.worldPoints.reserve(prostateRecord->vertexCount);
+        prostate.donorLocalPoints.reserve(prostateRecord->vertexCount);
+        prostate.sourceVertexIndices.reserve(prostateRecord->vertexCount);
+        prostate.outwardWorldNormals.reserve(prostateRecord->vertexCount);
+        for(std::uint32_t i=0;i<prostateRecord->vertexCount;i++) {
+            const auto& v=anatomy->vertices[prostateRecord->firstVertex+i];
+            const metalrobo::human::coarse_tissue::V3 sourceNormal{v.normalX,v.normalY,v.normalZ};
+            const auto rotatedNormal=rotateRegisteredDouble(sourceNormal);
+            const double normalLength=metalrobo::human::coarse_tissue::norm(rotatedNormal);
+            require(std::isfinite(normalLength)&&normalLength>1.0e-8,
+                    "registered prostate source normal is degenerate");
+            const metalrobo::human::coarse_tissue::V3 local{v.positionX,v.positionY,v.positionZ};
+            const auto rotatedPosition=rotateRegisteredDouble(local);
+            const metalrobo::human::coarse_tissue::V3 world{
+                double(body.position.x)+rotatedPosition[0],
+                double(body.position.y)+rotatedPosition[1],
+                double(body.position.z)+rotatedPosition[2]};
+            prostate.donorLocalPoints.push_back(local);
+            prostate.worldPoints.push_back(world);
+            prostate.sourceVertexIndices.push_back(prostateRecord->firstVertex+i);
+            prostate.outwardWorldNormals.push_back(metalrobo::human::coarse_tissue::mul(rotatedNormal,1.0/normalLength));
+        }
+        const std::uint32_t triangleCount=prostateRecord->indexCount/3u;
+        prostate.faces.reserve(triangleCount);prostate.sourceFaceIndices.reserve(triangleCount);
+        for(std::uint32_t t=0;t<triangleCount;t++) {
+            const auto first=prostateRecord->firstIndex+3u*t;
+            prostate.faces.push_back({
+                anatomy->indices[first]-prostateRecord->firstVertex,
+                anatomy->indices[first+1u]-prostateRecord->firstVertex,
+                anatomy->indices[first+2u]-prostateRecord->firstVertex});
+            prostate.sourceFaceIndices.push_back(first/3u);
+        }
+        const auto materialRoot=std::filesystem::path(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL).parent_path();
+        const auto prostateMaterialPath=materialRoot/"rodero2021_nonventricular_neo_hookean_passive.nmatter";
+        auto prostateMaterial=numi::matter::parseMatterFile(prostateMaterialPath);
+        require(prostateMaterial.succeeded(),
+                "existing nonventricular passive organic reference material did not parse");
+        prostateMaterial.material.name="human_prostate_passive_reference_proxy";
+        prostateMaterial.material.fingerprint=0u;
+        setMatterMaterialParameter(prostateMaterial.material,"density",1000.0);
+        const std::uint32_t prostateMaterialIndex=static_cast<std::uint32_t>(source.materials.size());
+        const std::string prostateMaterialName=prostateMaterial.material.name;
+        source.materials.push_back(std::move(prostateMaterial.material));
+        GeometryAudit prostateAudit;std::string prostateError;
+        require(auditClosedSurface(prostate,prostateAudit,prostateError),
+                "registered prostate source geometry rejected: "+prostateError);
+        const double prostateReferenceMassKg=prostateAudit.volumeM3*1000.0;
+        constexpr std::string_view prostateMaterialProvenance=
+            "Rodero et al. 2021, PLOS Computational Biology 17:e1008851, DOI 10.1371/journal.pcbi.1008851; existing nonventricular passive law used only as an inferred prostate reference proxy, not a prostate fit; density 1000 kg/m^3 is a reference inference.";
+        require(appendRegisteredStarKernelFEM(source,prostate,prostateMaterialIndex,
+                    "prostate",prostateSourceMember,prostateSourceStableId,prostateSourceLayer,
+                    prostateMaterialName,prostateMaterialProvenance,prostateReferenceMassKg,
+                    "registered_prostate_reference_fem",preparedProstate,prostateError),
+                "registered prostate FEM preparation rejected: "+prostateError);
+        auto& prostateFEMObject=source.objects.back();
+        require(prostateFEMObject.name=="registered_prostate_reference_fem",
+                "registered prostate FEM append did not return its owner object");
+        // Preserve the current registered scene pose as the explicit reference
+        // state. The compiler's existing displacement-gradient mode avoids
+        // subtracting large world coordinates in the FEM constitutive path.
+        prostateFEMObject.femReferenceNodes=prostateFEMObject.femNodes;
+        prostateFEMObject.femMaterialIndices.assign(
+            prostateFEMObject.tetrahedra.size(),prostateMaterialIndex);
+        const auto prostateMaterialSHA256=loadedKneeSHA256Hex(
+            loadedKneeFileSHA256(prostateMaterialPath));
+        std::string prostateMaterialIdentityText=
+            std::string("numi.human.prostate.passive-proxy.material.v1|")+prostateSourceMeshSHA256+"|"+
+            payloadDigest+"|"+prostateSourceMember+"|"+std::to_string(prostateSourceStableId)+"|"+
+            std::to_string(donorBody)+"|"+prostateMaterialName+"|"+
+            std::string(prostateMaterialProvenance)+"|"+prostateMaterialSHA256+"|density=1000kg/m3";
+        prostateMaterialIdentityText.append(
+            reinterpret_cast<const char*>(prostateFEMObject.femMaterialIndices.data()),
+            prostateFEMObject.femMaterialIndices.size()*sizeof(prostateFEMObject.femMaterialIndices.front()));
+        const auto prostateMaterialDigest=loadedKneeSHA256(
+            prostateMaterialIdentityText.data(),prostateMaterialIdentityText.size());
+        std::array<std::uint64_t,4u> prostateMaterialIdentity{};
+        for(unsigned w=0;w<4;w++) {
+            for(unsigned b=0;b<8;b++)
+                prostateMaterialIdentity[w]=(prostateMaterialIdentity[w]<<8u)|
+                    prostateMaterialDigest[8u*w+b];
+            if(prostateMaterialIdentity[w]==0u)prostateMaterialIdentity[w]=w+1u;
+        }
+        prostateFEMObject.femMaterialSourceIdentity=prostateMaterialIdentity;
+        std::string prostateReferenceIdentityText=
+            "numi.human.prostate.current-pose-reference.v1|"+
+            prostateMaterialIdentityText+"|source-vertex-ancestry|source-face-ancestry";
+        prostateReferenceIdentityText.append(
+            reinterpret_cast<const char*>(prostateFEMObject.femReferenceNodes.data()),
+            prostateFEMObject.femReferenceNodes.size()*sizeof(prostateFEMObject.femReferenceNodes.front()));
+        prostateReferenceIdentityText.append(
+            reinterpret_cast<const char*>(prostate.sourceVertexIndices.data()),
+            prostate.sourceVertexIndices.size()*sizeof(prostate.sourceVertexIndices.front()));
+        prostateReferenceIdentityText.append(
+            reinterpret_cast<const char*>(preparedProstate.tetSourceFace.data()),
+            preparedProstate.tetSourceFace.size()*sizeof(preparedProstate.tetSourceFace.front()));
+        const auto prostateReferenceDigest=loadedKneeSHA256(
+            prostateReferenceIdentityText.data(),prostateReferenceIdentityText.size());
+        std::array<std::uint64_t,4u> prostateReferenceIdentity{};
+        for(unsigned w=0;w<4;w++) {
+            for(unsigned b=0;b<8;b++)
+                prostateReferenceIdentity[w]=(prostateReferenceIdentity[w]<<8u)|
+                    prostateReferenceDigest[8u*w+b];
+            if(prostateReferenceIdentity[w]==0u)prostateReferenceIdentity[w]=w+1u;
+        }
+        prostateFEMObject.femReferenceSourceIdentity=prostateReferenceIdentity;
+        prostateFEMObject.femReferenceDisplacementGradient=true;
+        // Three sparse reference anchors use the existing external FEM-node
+        // anchor adapter. These are stabilization inferences, not measured
+        // organ entheses; the rest of the organ remains deformable.
+        std::array<std::uint32_t,3u> anchorVertices{0u,0u,0u};
+        for(std::uint32_t i=1u;i<prostate.worldPoints.size();i++)
+            if(prostate.sourceVertexIndices[i]<prostate.sourceVertexIndices[anchorVertices[0]])
+                anchorVertices[0]=i;
+        auto distanceSquared=[&](std::uint32_t a,std::uint32_t b) {
+            const auto delta=sub(prostate.worldPoints[a],prostate.worldPoints[b]);
+            return dot(delta,delta);
+        };
+        for(unsigned k=1u;k<3u;k++) {
+            double best=-1.0;
+            for(std::uint32_t i=0;i<prostate.worldPoints.size();i++) {
+                const double separation=std::min(distanceSquared(i,anchorVertices[0]),
+                    distanceSquared(i,anchorVertices[k-1u]));
+                if(separation>best){best=separation;anchorVertices[k]=i;}
+            }
+        }
+        for(const auto localNode:anchorVertices) {
+            const std::uint32_t globalNode=preparedProstate.firstGlobalFEMNode+localNode;
+            const auto row=std::find_if(preparedProstate.donorMassNodes.begin(),
+                preparedProstate.donorMassNodes.end(),
+                [&](const auto& n){return n.nodeIndex==globalNode;});
+            require(row!=preparedProstate.donorMassNodes.end()&&row->donorBody==donorBody,
+                    "prostate reference anchor does not match its source mass-donor row");
+            NMNumiHumanTendonFEMNodeAnchorGPU anchor{};
+            anchor.bodyIndex=donorBody;
+            anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            anchor.localPoint={float(row->localPosition[0]),float(row->localPosition[1]),
+                               float(row->localPosition[2]),0.0f};
+            require(localNode<prostateFEMObject.femNodes.size()&&
+                        std::find(prostateFEMObject.femFixedNodes.begin(),prostateFEMObject.femFixedNodes.end(),localNode)==prostateFEMObject.femFixedNodes.end(),
+                    "registered prostate external anchor is duplicated or outside its source object");
+            prostateFEMObject.femFixedNodes.push_back(localNode);
+            prostateReferenceAnchors.push_back({globalNode,anchor});
+        }
+        std::sort(prostateFEMObject.femFixedNodes.begin(),prostateFEMObject.femFixedNodes.end());
+        require(std::adjacent_find(prostateFEMObject.femFixedNodes.begin(),prostateFEMObject.femFixedNodes.end())==prostateFEMObject.femFixedNodes.end(),
+                "registered prostate authored static anchors are not unique");
+        std::cout<<"resting_prostate_regional_preparation=accepted"
+            <<" source_provider=BodyParts3D source_member="<<prostateSourceMember
+            <<" source_stable_id="<<prostateSourceStableId
+            <<" source_body="<<prostateRecord->bodyIndex<<" runtime_donor_body="<<donorBody
+            <<" source_payload_sha256="<<payloadDigest
+            <<" vertices="<<prostate.worldPoints.size()<<" source_faces="<<prostate.faces.size()
+            <<" fem_nodes="<<source.objects.back().femNodes.size()
+            <<" fem_tets="<<preparedProstate.tetSourceFace.size()
+            <<" volume_m3="<<preparedProstate.volumeM3
+            <<" mass_debit_kg="<<preparedProstate.massDebitKg
+            <<" density_kg_m3="<<preparedProstate.densityKgM3
+            <<" mass_residual_kg="<<preparedProstate.massResidualKg
+            <<" anchor_count="<<prostateReferenceAnchors.size()
+            <<" anchor_policy=three_inferred_sparse_pelvic_reference_nodes"
+            <<" constitutive_scope=passive_proxy_no_prostate_fit\n";
+    }
     std::size_t totalNodeCount=0u;
-    for(const auto& acl:aclObjects) totalNodeCount+=acl.object.femNodes.size();
+    for(const auto& object:source.objects) totalNodeCount+=object.femNodes.size();
     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
             "resting tissue stack node count exceeds runtime index range");
     numi::matter::CompileOptions opts; opts.maximumRateExponent=0u;
@@ -18267,9 +18681,50 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
     require(compiled.world.fem.nodes.size()==totalNodeCount,
-            "resting fascia/ACL cooked node count differs from source");
+            "resting fascia/ACL/aortic cooked node count differs from source");
     require(compiled.world.objects.size()==source.objects.size(),
             "resting FEM audit object descriptors differ from authored stack");
+    const auto validateExternalStaticAnchors=[&](const auto& rows,const char* ownerName,
+                                                  const std::uint32_t nodeOffset,
+                                                  const std::uint32_t ownerNodeCount) {
+        for(const auto& [localNode,anchor]:rows) {
+            const std::uint64_t globalNode64=std::uint64_t(nodeOffset)+localNode;
+            require(localNode<ownerNodeCount&&globalNode64<compiled.world.fem.nodes.size()&&
+                        anchor.flags==NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE&&
+                        anchor.bodyIndex<model.bodies.size(),
+                    std::string(ownerName)+" external anchor row is invalid after source compilation: local_node="+
+                        std::to_string(localNode)+" node_offset="+std::to_string(nodeOffset)+
+                        " owner_node_count="+std::to_string(ownerNodeCount)+
+                        " global_node="+std::to_string(globalNode64));
+            const auto& cooked=compiled.world.fem.nodes[static_cast<std::size_t>(globalNode64)];
+            if(cooked.restAndFixed.w!=1.0f||!(cooked.positionAndMass.w>0.0f)||
+               !std::isfinite(cooked.positionAndMass.w)) {
+                std::ostringstream diagnostic;
+                diagnostic<<ownerName<<" external anchor must be an authored-static FEM node with positive retained mass"
+                    <<" local_node="<<localNode<<" global_node="<<globalNode64
+                    <<" node_offset="<<nodeOffset<<" restAndFixed_w="<<cooked.restAndFixed.w
+                    <<" positionAndMass_w="<<cooked.positionAndMass.w;
+                require(false,diagnostic.str());
+            }
+        }
+    };
+    if(aorticWall) {
+        require(aorticWall->objectIndex<compiled.world.objects.size(),
+                "compiled aortic wall object is unavailable for external anchor validation");
+        const auto& wallDescriptor=compiled.world.objects[aorticWall->objectIndex];
+        validateExternalStaticAnchors(aorticWallAnchorRows,"aortic wall",
+            wallDescriptor.stateOffset,wallDescriptor.stateCount);
+    } else {
+        require(aorticWallAnchorRows.empty(),
+                "disabled aortic wall retained external anchor rows");
+    }
+    validateExternalStaticAnchors(skinReferenceAnchors,"skin",0u,
+        static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
+    validateExternalStaticAnchors(prostateReferenceAnchors,"prostate",0u,
+        static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
+    if(aorticWall)
+        numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
+            compiled.world,*aorticWall);
     std::vector<RestingFEMAuditRange> auditRanges;
     auditRanges.reserve(source.objects.size());
     std::uint64_t authoredNodeCount=0u, authoredTetCount=0u;
@@ -18319,7 +18774,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 std::all_of(tetCoverage.begin(),tetCoverage.end(),
                         [](std::uint8_t covered){return covered==1u;}) &&
                 authoredNodeCount==totalNodeCount &&
-                auditRanges.size()==aclObjects.size() &&
+                auditRanges.size()==source.objects.size() &&
                 authoredTetCount==activeCookedTets &&
                 authoredTetCount==compiled.world.fem.tetrahedra.size(),
             "resting FEM audit ranges do not cover the authored object stack");
@@ -18339,8 +18794,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                   loads.begin()+aclFirstNode);
         aclFirstNode+=static_cast<std::uint32_t>(acl.object.femNodes.size());
     }
-    require(aclFirstNode==totalNodeCount,
-            "resting ACL stack node offsets do not cover compiled world");
+    require(aclFirstNode==aclNodeCount,
+            "resting ACL stack node offsets do not cover its compiled prefix");
+    for(const auto& [node,anchor]:skinReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"skin reference anchor collides with another owner");anchors[node]=anchor;}
+    for(const auto& [node,anchor]:prostateReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"prostate reference anchor collides with another owner");anchors[node]=anchor;}
     std::vector<metalrobo::NumiHumanTissueMassNode> massNodes;
     massNodes.reserve(totalNodeCount);
     aclFirstNode=0u;
@@ -18355,8 +18812,42 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         massNodes.insert(massNodes.end(),aclMassNodes.begin(),aclMassNodes.end());
         aclFirstNode+=static_cast<std::uint32_t>(acl.object.femNodes.size());
     }
+    if(aorticWall) {
+        const auto& wall=*aorticWall;
+        require(wall.objectIndex<compiled.world.objects.size(),
+                "compiled aortic wall object index is outside the world");
+        const auto& descriptor=compiled.world.objects[wall.objectIndex];
+        require(descriptor.stateCount==wall.object.femNodes.size()&&
+                    std::uint64_t(descriptor.stateOffset)+descriptor.stateCount<=totalNodeCount,
+                "compiled aortic wall node range differs from source");
+        for(const auto& [localNode,anchor]:aorticWallAnchorRows) {
+            require(localNode<descriptor.stateCount,
+                    "aortic wall attachment node is outside its compiled object");
+            const auto globalNode=descriptor.stateOffset+localNode;
+            require(anchors[globalNode].bodyIndex==NM_INVALID_INDEX,
+                    "aortic wall attachment duplicates another tissue anchor");
+            anchors[globalNode]=anchor;
+        }
+        aorticWallMassNodes=numi::human::aortic_wall::cookedMassNodes(
+            compiled.world,wall.objectIndex,wall.donorBody,wall.donorCOMLocalNodes);
+        aorticWallNodalMassKg.reserve(aorticWallMassNodes.size());
+        for(const auto& mass:aorticWallMassNodes) {
+            require(mass.nodeIndex>=descriptor.stateOffset&&
+                        mass.nodeIndex<std::uint64_t(descriptor.stateOffset)+descriptor.stateCount,
+                    "aortic cooked mass node index escapes the registered wall object");
+            aorticWallCookedMassKg+=mass.massKg;
+            aorticWallNodalMassKg.push_back(mass.massKg);
+        }
+        require(aorticWallCookedMassKg>0.0&&std::isfinite(aorticWallCookedMassKg)&&
+                    aorticWallMassNodes.size()==descriptor.stateCount,
+                "aortic wall cooked mass is incomplete, nonpositive, or non-finite");
+        aorticWall->wallMassKg=aorticWallCookedMassKg;
+        massNodes.insert(massNodes.end(),aorticWallMassNodes.begin(),aorticWallMassNodes.end());
+    }
+    if(skin!=nullptr)massNodes.insert(massNodes.end(),preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end());
+    if(includeProstate)massNodes.insert(massNodes.end(),preparedProstate.donorMassNodes.begin(),preparedProstate.donorMassNodes.end());
     require(massNodes.size()==totalNodeCount,
-            "resting fascia/ACL mass map does not cover every compiled FEM node");
+            "resting fascia/ACL/skin-fat/aortic mass map does not cover every compiled FEM node");
     double initialPhysicalMass=0.0; for(const auto& b:model.bodies)initialPhysicalMass+=b.massAndInverseMass.x;
     const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes);
     require(mass.succeeded(),"resting fascia donor mass partition failed: "+mass.error);
@@ -18414,6 +18905,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     model=std::move(rebased);
     auto owner=std::make_unique<PassiveFasciaRuntimeOwner>();
     owner->massPartitions=mass.partitions;
+    owner->aorticWall=std::move(aorticWall);
+    owner->aorticWallNodalMassKg=std::move(aorticWallNodalMassKg);
+    owner->aorticWallCookedMassKg=aorticWallCookedMassKg;
     owner->passiveLigaments=std::move(passiveLigaments);
     owner->fasciaStripAnchorIdentity=std::move(stripIdentities);
     owner->authoredWorldSource=std::move(source);
@@ -18480,6 +18974,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                  <<" anchor_rows="<<owner->nodeAnchors.size()
                  <<" physics_fingerprint="<<owner->authoredPhysicsFingerprint
                  <<" package_fingerprint="<<owner->compiledPackageFingerprint
+                 <<" registered_aortic_wall="<<(owner->aorticWall?"enabled":"disabled")
+                 <<" aortic_wall_cooked_mass_kg="<<owner->aorticWallCookedMassKg
                  <<" mass_rebase=cooked_node_partition"
                  <<" source_identity=retained\n";
     }
@@ -26019,6 +26515,68 @@ int main(int argc, char** argv) {
                         "NUMI_HUMAN_RESTING_PASSIVE_FASCIA must be 0 or 1");
                 const bool restingPassiveFasciaEnabled=passiveFasciaSetting&&
                     std::strcmp(passiveFasciaSetting,"1")==0;
+                const char* skinFatFEMSetting=
+                    std::getenv("NUMI_HUMAN_RESTING_SKIN_FAT_FEM");
+                require(skinFatFEMSetting==nullptr||
+                            std::strcmp(skinFatFEMSetting,"0")==0||
+                            std::strcmp(skinFatFEMSetting,"1")==0,
+                        "NUMI_HUMAN_RESTING_SKIN_FAT_FEM must be exactly 0 or 1");
+                const bool restingSkinFatFEMEnabled=skinFatFEMSetting&&
+                    std::strcmp(skinFatFEMSetting,"1")==0;
+                require(!restingSkinFatFEMEnabled||restingPassiveFasciaEnabled,
+                        "registered skin-fat FEM requires the shared intact resting tissue world");
+                const char* aorticWallSetting=std::getenv("NUMI_HUMAN_RESTING_AORTIC_WALL");
+                require(aorticWallSetting==nullptr||std::strcmp(aorticWallSetting,"0")==0||
+                        std::strcmp(aorticWallSetting,"1")==0,
+                        "NUMI_HUMAN_RESTING_AORTIC_WALL must be exactly 0 or 1");
+                const bool restingAorticWallEnabled=aorticWallSetting&&
+                    std::strcmp(aorticWallSetting,"1")==0;
+                require(!restingAorticWallEnabled||restingPassiveFasciaEnabled,
+                        "registered aortic wall requires the shared intact resting tissue world");
+                const char* prostateFEMSetting=std::getenv("NUMI_HUMAN_RESTING_PROSTATE_FEM");
+                require(prostateFEMSetting==nullptr||std::strcmp(prostateFEMSetting,"0")==0||
+                            std::strcmp(prostateFEMSetting,"1")==0,
+                        "NUMI_HUMAN_RESTING_PROSTATE_FEM must be 0 or 1");
+                const bool restingProstateFEMEnabled=prostateFEMSetting&&
+                    std::strcmp(prostateFEMSetting,"1")==0;
+                require(!restingProstateFEMEnabled||restingPassiveFasciaEnabled,
+                        "registered prostate FEM requires the shared intact resting tissue world");
+                if(restingProstateFEMEnabled) {
+                    require(torsoAnatomyPayload&&torsoAnatomyPayloadPath,
+                            "registered prostate FEM requires the retained NHANATOMY source payload");
+                    const std::uint32_t sourceStableId=463u;
+                    appendSource("resting_registered_prostate_FEM_selection_v1",
+                        std::as_bytes(std::span(&sourceStableId,1u)));
+                    appendSource("resting_registered_prostate_FEM_source_payload_v1",
+                        payloadBytes(*torsoAnatomyPayloadPath));
+                    const auto prostateMaterialPath=
+                        std::filesystem::path(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL).parent_path()/
+                        "rodero2021_nonventricular_neo_hookean_passive.nmatter";
+                    appendSource("resting_registered_prostate_reference_material_v1",
+                        payloadBytes(prostateMaterialPath));
+                }
+                if(restingSkinFatFEMEnabled) {
+                    require(skinPayload.has_value()&&skinPayloadPath.has_value(),
+                            "registered skin-fat FEM requires the retained skin payload");
+                    const std::uint32_t restingSkinFatFEMSelection=1u;
+                    appendSource("resting_registered_skin_fat_FEM_selection_v1",
+                        std::as_bytes(std::span(&restingSkinFatFEMSelection,1u)));
+                    appendSource("resting_registered_skin_fat_FEM_source_payload_v1",
+                        payloadBytes(*skinPayloadPath));
+                    appendSource("resting_registered_skin_dermis_material_v1",
+                        payloadBytes(std::filesystem::path{NUMI_HUMAN_SKIN_DERMIS_MATERIAL}));
+                    appendSource("resting_registered_subcutaneous_adipose_material_v1",
+                        payloadBytes(std::filesystem::path{NUMI_HUMAN_SUBCUTANEOUS_ADIPOSE_MATERIAL}));
+                }
+                if(restingAorticWallEnabled) {
+                    const std::uint32_t restingAorticWallSelection=1u;
+                    appendSource("resting_registered_aortic_wall_selection_v1",
+                        std::as_bytes(std::span(&restingAorticWallSelection,1u)));
+                    require(restingScene.has_value(),
+                            "registered aortic wall requires the admitted resting CVSim scene");
+                    appendSource("resting_registered_aortic_wall_CVSim21_network_v1",
+                        payloadBytes(restingScene->first));
+                }
                 require(!restingPassiveFasciaEnabled||
                     (restingScene.has_value()&&persistentMetalStand&&muscleStepSeconds.has_value()&&
                      pectoralisFasciaPayload.has_value()&&softTissuePayload.has_value()&&
@@ -26628,6 +27186,15 @@ int main(int argc, char** argv) {
                 visualTorsoAnatomyPayload=
                     organVisualAnatomyPayload?&*organVisualAnatomyPayload:
                     (torsoAnatomyPayload?&*torsoAnatomyPayload:nullptr);
+                // Preserve exact registered source XYZ before COM rebasing;
+                // receipt checks use this sidecar while the render payload stays rebased.
+                std::vector<std::array<float,3>> restingAnatomySourceFramePositions;
+                if(restingPassiveFasciaEnabled && torsoAnatomyPayload) {
+                    restingAnatomySourceFramePositions.reserve(torsoAnatomyPayload->vertices.size());
+                    for(const auto& vertex:torsoAnatomyPayload->vertices)
+                        restingAnatomySourceFramePositions.push_back(
+                            {vertex.positionX,vertex.positionY,vertex.positionZ});
+                }
                 std::unique_ptr<PassiveFasciaRuntimeOwner> restingPassiveFasciaOwner;
                 if(restingPassiveFasciaEnabled) {
                     const std::vector<float> initialTissueQ(poseQ.begin(),poseQ.end());
@@ -26645,14 +27212,42 @@ int main(int argc, char** argv) {
                     restingPassiveFasciaOwner=makeRestingPassiveFasciaOwner(
                         *pectoralisFasciaPayload,*softTissuePayload,musclePayload,
                         rigid.model,*supportContactPayload,
-                        bonePayload?&*bonePayload:nullptr,skinPayload?&*skinPayload:nullptr,
+                        bonePayload?&*bonePayload:nullptr,
+                        restingSkinFatFEMEnabled&&skinPayload?&*skinPayload:nullptr,
+                        restingSkinFatFEMEnabled&&skinPayloadPath?skinPayloadPath->string():std::string{},
+                        restingSkinFatFEMEnabled&&skinPayloadPath?
+                            loadedKneeSHA256Hex(loadedKneeFileSHA256(*skinPayloadPath)):std::string{},
                         torsoAnatomyPayload?&*torsoAnatomyPayload:nullptr,
+                        torsoAnatomyPayloadPath?&*torsoAnatomyPayloadPath:nullptr,
                         activeSeparationBodyMap,
                         selectInferredACL&&bonePayload.has_value()&&
                             !openKneePayload.has_value()&&
                             bonePayload->sourceOwnerBindingsVerified,
+                        restingProstateFEMEnabled,restingAorticWallEnabled,restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
                         passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),true);
+                    if(restingPassiveFasciaOwner->aorticWall) {
+                        const auto& wall=*restingPassiveFasciaOwner->aorticWall;
+                        appendSource("resting_registered_aortic_wall_world_physics_fingerprint_v1",
+                            std::as_bytes(std::span(
+                                &restingPassiveFasciaOwner->authoredPhysicsFingerprint,1u)));
+                        appendSource("resting_registered_aortic_wall_nodes_v1",
+                            std::as_bytes(std::span(wall.object.femNodes)));
+                        appendSource("resting_registered_aortic_wall_tetrahedra_v1",
+                            std::as_bytes(std::span(wall.object.tetrahedra)));
+                        appendSource("resting_registered_aortic_wall_cavity_faces_v1",
+                            std::as_bytes(std::span(wall.cavity.faces)));
+                        appendSource("resting_registered_aortic_wall_cavity_source_identity_v1",
+                            std::as_bytes(std::span(wall.cavity.sourceIdentity)));
+                        appendSource("resting_registered_aortic_wall_cavity_mechanical_identity_v1",
+                            std::as_bytes(std::span(wall.cavity.mechanicalIdentity)));
+                        appendSource("resting_registered_aortic_wall_cooked_mass_kg_v1",
+                            std::as_bytes(std::span(
+                                &restingPassiveFasciaOwner->aorticWallCookedMassKg,1u)));
+                        appendSource("resting_registered_aortic_wall_nodal_mass_kg_v1",
+                            std::as_bytes(std::span(
+                                restingPassiveFasciaOwner->aorticWallNodalMassKg)));
+                    }
                     overriddenPoseQ=initialTissueQ;poseQ=overriddenPoseQ;
                     appendSource("resting_fascia_executed_body_mass_frames_v1",
                         std::as_bytes(std::span(rigid.model.bodies)));
@@ -26730,7 +27325,9 @@ int main(int argc, char** argv) {
                     separationReleaseStep.value_or(MR_INVALID_INDEX),separationSeamDofIndex,
                     separationDofPatchIndices,separationDofPatchRecords,
                     restingPassiveFasciaOwner
-                        ? &restingPassiveFasciaOwner->authoredWorldSource : nullptr);
+                        ? &restingPassiveFasciaOwner->authoredWorldSource : nullptr,
+                    restingPassiveFasciaOwner&&restingPassiveFasciaOwner->aorticWall
+                        ? &*restingPassiveFasciaOwner->aorticWall : nullptr);
                 if(restingPassiveFasciaOwner) {
                     auto& owner=*restingPassiveFasciaOwner;
                     require(owner.preparationOnly && !owner.runtime.valid(),
@@ -26800,9 +27397,39 @@ int main(int argc, char** argv) {
                 if(!mechanicsOnly||skinPayload) {
                     require(bonePayload&&skinPayload&&softTissuePayload&&torsoAnatomyPayload&&!restingAnatomyReceipt.empty(),
                         "native resting viewer requires the registered skeleton, skin, muscle/tendon and internal-anatomy payloads");
+                    std::optional<LoadedTorsoAnatomy> sourceFrameAnatomy;
+                    const LoadedTorsoAnatomy* functionalAnatomy=&*torsoAnatomyPayload;
+                    if(restingPassiveFasciaOwner) {
+                        require(restingAnatomySourceFramePositions.size()==torsoAnatomyPayload->vertices.size(),
+                            "resting anatomy source-frame snapshot is missing after COM rebase");
+                        sourceFrameAnatomy.emplace();
+                        sourceFrameAnatomy->header=torsoAnatomyPayload->header;
+                        sourceFrameAnatomy->records=torsoAnatomyPayload->records;
+                        sourceFrameAnatomy->vertices=torsoAnatomyPayload->vertices;
+                        sourceFrameAnatomy->indices=torsoAnatomyPayload->indices;
+                        sourceFrameAnatomy->sourceStableIdByRuntimeDisplayId=
+                            torsoAnatomyPayload->sourceStableIdByRuntimeDisplayId;
+                        for(std::size_t vertexIndex=0;vertexIndex<sourceFrameAnatomy->vertices.size();++vertexIndex) {
+                            const auto& source=restingAnatomySourceFramePositions[vertexIndex];
+                            auto& vertex=sourceFrameAnatomy->vertices[vertexIndex];
+                            vertex.positionX=source[0];vertex.positionY=source[1];vertex.positionZ=source[2];
+                        }
+                        functionalAnatomy=&*sourceFrameAnatomy;
+                    }
                     NumiHumanRestingAnatomy functional(restingAnatomyReceipt.c_str(),*torsoAnatomyPayloadPath,
-                        *torsoAnatomyPayload,*bonePayload,coupled.physiology.respiration->parameters,
+                        *functionalAnatomy,*bonePayload,coupled.physiology.respiration->parameters,
                         activeSeparationBodyMap);
+                    if(sourceFrameAnatomy) {
+                        std::array<double,3> sourceToExecutedTranslation{};
+                        const std::uint32_t torsoBody=functional.gpu.bodyAndFlags.x;
+                        require(torsoBody<rigid.model.bodies.size(),
+                            "functional torso frame body is outside the rebased Human model");
+                        for(const auto& partition:restingPassiveFasciaOwner->massPartitions)
+                            if(partition.donorBody==torsoBody)
+                                for(unsigned axis=0;axis<3;++axis)
+                                    sourceToExecutedTranslation[axis]=-partition.remainingCOMOffsetM[axis];
+                        functional.translateFunctionalFrame(sourceToExecutedTranslation);
+                    }
                     auto nativePose=[&](std::span<const float> coordinates) {
                         metalrobo::MetalArticulatedOperatorInput input;input.articulationIndex=0;input.environmentCount=1;input.q=coordinates;
                         metalrobo::MetalArticulatedOperatorConfig config;config.pointJacobiansOnly=true;

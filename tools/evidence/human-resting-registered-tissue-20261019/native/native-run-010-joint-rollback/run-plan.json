@@ -1,0 +1,72 @@
+{
+  "schema": "numi.continuum_joint_shared_tissue_rollback_retry_runplan.v1",
+  "description": "Two-step joint clean control and late reject plus same-context retry on frozen build-cpu-006; this exercises 0.5 ms total requested body horizon, not long-horizon qualification.",
+  "base_run_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/run-plan.json",
+  "base_run_plan_sha256": "7c939bdbea13d5a66eeaa0f0b9c805db3cc81c77960e94da5fbf15b7e4c3feeb",
+  "build_plan_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/build-plan.json",
+  "build_plan_sha256": "1661165974c1636366f1c9f48b00d12fa0460b27943ee275dac45544daff2ee5",
+  "source_manifest_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source-manifest.json",
+  "source_manifest_sha256": "c2aef908cc5e23d9c721f6abb4b2a1315fece6a09479260774f87d1dadf32c05",
+  "source_invocation_path": "/Users/n/numi-human-separation-20261018/C/shared-fem-scene-219/native-fem-cv-009/invocation.json",
+  "source_invocation_sha256": "79429bed2b86b366c75620daa26117c717d8ca810e0f81210e425f6f2f6b8f8b",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/numi-human-native",
+  "binary_sha256": "6dfe478188d64850e518ed5174fa564799d5662819babf9f3ed330f92ed2e798",
+  "runtime_library_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/libmetalrobo-233.dylib",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "runtime_source_path": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal",
+  "runtime_source_sha256": "fa7e6cad2cfd7624c97e58395ac9aa8622af9b009bb27ca608346a1c52b6c845",
+  "respiration_source_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/src/HumanRespirationSustained.metal",
+  "respiration_source_sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe",
+  "prostate_reference_material_path": "/Users/n/numi-lab-anatomy-parent-publication-1384/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter",
+  "prostate_reference_material_sha256": "8cc7f3e1936e4303a011b40ff287431a99be861a51a11e82913d630371825b00",
+  "skin_material_paths": [
+    "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+    "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/source/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter"
+  ],
+  "skin_material_sha256": [
+    "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+    "9ac8cfe50dbdb5aa40af5ea8debfa464bf85cb37c3696b260fb387d55636c3b3"
+  ],
+  "prostate_registered_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+  "prostate_registered_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "wrapper_path": "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+  "python_path": "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+  "step_count": 2,
+  "step_seconds": 0.00025,
+  "physical_horizon_seconds": 0.0005,
+  "cases": [
+    {
+      "name": "joint_clean_control",
+      "rollback_retry": false,
+      "skin_fat_fem": true,
+      "aortic_wall": true,
+      "prostate_fem": true,
+      "blood_mpm_enabled": false
+    },
+    {
+      "name": "joint_late_reject_retry",
+      "rollback_retry": true,
+      "reject_step": 1,
+      "skin_fat_fem": true,
+      "aortic_wall": true,
+      "prostate_fem": true,
+      "blood_mpm_enabled": false
+    }
+  ],
+  "rollback_log_markers": [
+    "shared_tissue_late_reject_retry=passed",
+    "q_v_root_muscle_unchanged=1",
+    "matter_vascular_unchanged=1",
+    "passive_adapter_history_unchanged=1",
+    "brain_respiration_presentation_unchanged=1",
+    "body_properties_restored=1",
+    "dof_properties_restored=1",
+    "same_context_retry=1"
+  ],
+  "output_root": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/native-run-010-joint-rollback",
+  "runner_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/followup-rollback-010/run_joint_rollback_010.py",
+  "runner_sha256": "8cb36eab512c49998ba7e9688c1df292bb8c269389fcb4d3caa4abb8c45b2d33",
+  "mpm_enabled": false,
+  "visual_verification": false,
+  "gpu_launched": false
+}

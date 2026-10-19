@@ -1,0 +1,126 @@
+{
+  "schema": "numi.continuum_integrated_registered_tissue_evidence_files.v1",
+  "base_commit": "0eb496f31633d9b5ba283b1343bef603ff265d0d",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8d0a35953783dab26fa74d5323480c9cc05c663b4287760f30336f41b036288f",
+      "bytes": 3300
+    },
+    {
+      "path": "build/build-plan.json",
+      "sha256": "1661165974c1636366f1c9f48b00d12fa0460b27943ee275dac45544daff2ee5",
+      "bytes": 12548
+    },
+    {
+      "path": "build/run-plan.json",
+      "sha256": "7c939bdbea13d5a66eeaa0f0b9c805db3cc81c77960e94da5fbf15b7e4c3feeb",
+      "bytes": 6398
+    },
+    {
+      "path": "build/source-manifest.json",
+      "sha256": "c2aef908cc5e23d9c721f6abb4b2a1315fece6a09479260774f87d1dadf32c05",
+      "bytes": 6639
+    },
+    {
+      "path": "cpu/centroid-239.json",
+      "sha256": "689182ace95929fcf9ec9746b9d0b0ad828aecad30e5e10aa4c34d29bca15262",
+      "bytes": 652
+    },
+    {
+      "path": "generated/HumanRespirationSustained.metal",
+      "sha256": "eff666393f6c191e988a8a3a51df0593a3df2a9da8d448a9af17b9eee97c4ebe",
+      "bytes": 1260691
+    },
+    {
+      "path": "index.json",
+      "sha256": "4235c89e600e1d7dbc8b1eb36bd10142962ea87c3c424c5be05392a5927078a6",
+      "bytes": 13424
+    },
+    {
+      "path": "native/native-run-009/joint/invocation.json",
+      "sha256": "c2dc1911329cb4bdfa022d2a2814d3fd3103df006890f59620b65b199647900d",
+      "bytes": 18179
+    },
+    {
+      "path": "native/native-run-009/joint/native.log",
+      "sha256": "ba03373786d5d48b9aee96b4f952f5018074d33d44b098cec8510646bc740937",
+      "bytes": 1201200
+    },
+    {
+      "path": "native/native-run-009/prostateonly/invocation.json",
+      "sha256": "8b11b3ffb85045b415faa387dbd1db3cad3a31dd2350c8284558f1e69257f16d",
+      "bytes": 18209
+    },
+    {
+      "path": "native/native-run-009/prostateonly/native.log",
+      "sha256": "d4eaa744e22c883ee92c7b4ebb0ecf66ffb8d0f7e4d31ffc345c4a1650b68e7b",
+      "bytes": 628791
+    },
+    {
+      "path": "native/native-run-009/wallonly/invocation.json",
+      "sha256": "13060fc58d1fb414e017af5ec0151468ccbbbc398a608069e5d549699b2f19ea",
+      "bytes": 18193
+    },
+    {
+      "path": "native/native-run-009/wallonly/native.log",
+      "sha256": "8fd7f713f2131a1386b04a756f00a5b04cf0a68e7deef22ee651e2d167f0b81f",
+      "bytes": 928515
+    },
+    {
+      "path": "native/native-run-009-summary.json",
+      "sha256": "7a90ee6df1f6b24811a0bb8bfabc695b86bfbc81a858332029c858c2ea8ba505",
+      "bytes": 1092
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_clean_control/invocation.json",
+      "sha256": "6b17cbddc02726941c0261a3c34445d35fe6d7f2a9329b69726f3916e6bf815c",
+      "bytes": 17882
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_clean_control/native.log",
+      "sha256": "311d122a1b4eeca07118315e4be17c00c4058b352253f5458f37c10c4e1b7978",
+      "bytes": 1208326
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_clean_control/resting-coupled.csv",
+      "sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "bytes": 3361
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/invocation.json",
+      "sha256": "f7e77cf72dc618cf471d1dc5d447d8d886eefd783d23fff4dce63e02a94a2301",
+      "bytes": 17919
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/native.log",
+      "sha256": "e9c1786ab6688b50b931c62a117b9598d65b32577a3e9b7e7f76a9cfb1438e84",
+      "bytes": 1209929
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/joint_late_reject_retry/resting-coupled.csv",
+      "sha256": "d70745c5dfb1020dec4c42a54bec2cfd206ad636886e86b1d9829502b1a8d149",
+      "bytes": 3361
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/run-plan.json",
+      "sha256": "bad36efd4b193799ea930b02876be645e8ef96f2ea138e9b40f0a639db381235",
+      "bytes": 4696
+    },
+    {
+      "path": "native/native-run-010-joint-rollback/runner.py",
+      "sha256": "8cb36eab512c49998ba7e9688c1df292bb8c269389fcb4d3caa4abb8c45b2d33",
+      "bytes": 9361
+    },
+    {
+      "path": "native/native-run-010-summary.json",
+      "sha256": "88e6cea8d9b875dd42d5fff1a536038d042a1926e8b014869b03567085155bcb",
+      "bytes": 1832
+    },
+    {
+      "path": "source-pins-010.json",
+      "sha256": "7f1eda59efcf0db8b7862aea5ef9e010871e7838e646b27acafb402ac5350307",
+      "bytes": 8367
+    }
+  ]
+}

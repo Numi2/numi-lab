@@ -1,0 +1,141 @@
+{
+  "base_commit": "f5f661890d37b944958b2e996619b8a439de61f3",
+  "files": [
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "a9d9026079444895abed6a32a6c05864042826582018f0fd210a6cda9bd8be5e"
+    },
+    {
+      "path": "apps/NumiHumanRestingAnatomy.hpp",
+      "status_vs_f5f": "modified",
+      "status_vs_current_w_head": "modified",
+      "base_sha256": "1457281be37684339c9e1f484b4da0b713ddeca86088a623a633d6a3d6059e33",
+      "current_w_head_sha256": "1457281be37684339c9e1f484b4da0b713ddeca86088a623a633d6a3d6059e33",
+      "candidate_sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6"
+    },
+    {
+      "path": "apps/NumiHumanRestingAorticWall.hpp",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4"
+    },
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "status_vs_f5f": "modified",
+      "status_vs_current_w_head": "modified",
+      "base_sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6",
+      "current_w_head_sha256": "423f4975dd7079ab29148a4cf1898b4eac7c98df841dfa7e4efbac214c034fd6",
+      "candidate_sha256": "30d082199d1f52bfbfa2502a7143f43069f6d73ce680cf03878e3b8313ee33f2"
+    },
+    {
+      "path": "apps/NumiHumanRestingTransactionProbe.hpp",
+      "status_vs_f5f": "unchanged",
+      "status_vs_current_w_head": "unchanged",
+      "base_sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18",
+      "current_w_head_sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18",
+      "candidate_sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18"
+    },
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "status_vs_f5f": "unchanged",
+      "status_vs_current_w_head": "unchanged",
+      "base_sha256": "b35ec5c7ecd67d0feeed53db7e4cffd2f63421781a812e6cd9680187f7309d38",
+      "current_w_head_sha256": "b35ec5c7ecd67d0feeed53db7e4cffd2f63421781a812e6cd9680187f7309d38",
+      "candidate_sha256": "b35ec5c7ecd67d0feeed53db7e4cffd2f63421781a812e6cd9680187f7309d38"
+    },
+    {
+      "path": "apps/NumiHumanSharedTissueRollbackProbe.hpp",
+      "status_vs_f5f": "unchanged",
+      "status_vs_current_w_head": "unchanged",
+      "base_sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3",
+      "current_w_head_sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3",
+      "candidate_sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3"
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.hpp",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "6aee7ab67ab6c7815a7d5dfb7eaf68ea5f67bb551d7b08ccaf7260a646431fb5"
+    },
+    {
+      "path": "apps/NumiHumanVesselWallCoupling.hpp",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "e880a67a904148a05f9f29be4df872333d086b688879e5c0c54e7b4f1f8ccd15"
+    },
+    {
+      "path": "apps/actual_nha_contour.inc",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "status_vs_f5f": "modified",
+      "status_vs_current_w_head": "modified",
+      "base_sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1",
+      "current_w_head_sha256": "a36606e0eb75e69112391cc675b0b8d340070e4c31929754e83dcff0c8df2ea1",
+      "candidate_sha256": "611079d2f4cc3691f575d81d17b0e3fc2590bb7721093d2bfc349485935c7075"
+    },
+    {
+      "path": "matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad"
+    },
+    {
+      "path": "matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "status_vs_f5f": "added",
+      "status_vs_current_w_head": "added",
+      "base_sha256": null,
+      "current_w_head_sha256": null,
+      "candidate_sha256": "9ac8cfe50dbdb5aa40af5ea8debfa464bf85cb37c3696b260fb387d55636c3b3"
+    },
+    {
+      "path": "matter/src/metal_encoder_timing.hpp",
+      "status_vs_f5f": "unchanged",
+      "status_vs_current_w_head": "unchanged",
+      "base_sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef",
+      "current_w_head_sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef",
+      "candidate_sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef"
+    },
+    {
+      "path": "matter/tools/human_respiration_parameters.hpp",
+      "status_vs_f5f": "modified",
+      "status_vs_current_w_head": "modified",
+      "base_sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd",
+      "current_w_head_sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd",
+      "candidate_sha256": "3647dfd239795182fadb69f494b5c34910b93492eafba18f7bd7075d222b92ed"
+    },
+    {
+      "path": "matter/tools/human_resting_runtime.hpp",
+      "status_vs_f5f": "modified",
+      "status_vs_current_w_head": "modified",
+      "base_sha256": "f01af406ba1a5ae872b5f91cf2e13217997e32901208b1114ffdf4be7317516a",
+      "current_w_head_sha256": "f01af406ba1a5ae872b5f91cf2e13217997e32901208b1114ffdf4be7317516a",
+      "candidate_sha256": "14f97225996845884c126fea466688917d9df7f09acacbf1a3a5ca10b891c600"
+    }
+  ],
+  "excluded_unchanged_source_copies": [
+    "apps/NumiHumanRestingVisual.hpp"
+  ],
+  "prostate_patch_sha256": "352ae159e09f116d4f88310fb49bbccab3dde30aafcd7bd6fcaf1bef29222a33",
+  "framefix_patch_sha256": "8aad1e3572b621d6c9d2213021a1f70f762a83a28827b4d7f07eed44cafaac91",
+  "source_snapshot_root": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-004/source",
+  "current_w_head_commit": "8aa4a605d47fa486d0f385f0a8a85f1b8944a209",
+  "current_w_head_equals_f5f_for_scoped_paths": true
+}
