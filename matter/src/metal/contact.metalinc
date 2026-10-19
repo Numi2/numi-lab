@@ -404,42 +404,108 @@ inline float4 ipcBarrierResponse(
     const float thickness,
     const float inverseResponse,
     const float timestep,
-    const float closingSpeed
+    const float closingSpeed,
+    const bool quadraticFloor,
+    const float mpmClearanceOffset,
+    const float frozenStiffness
 ) {
     if (!(thickness > 0.0f) || separation >= thickness ||
         !(inverseResponse > 0.0f) || !(timestep > 0.0f)) {
         return float4(0.0f, 0.0f, thickness, 0.0f);
     }
-    const float distance = max(separation, 1.0e-4f * thickness);
+    float gap = separation;
+    float width = thickness;
+    if (quadraticFloor && !nmMPMShiftBarrierGap(
+            separation, thickness, mpmClearanceOffset, gap, width)) {
+        return float4(NAN, NAN, thickness, NAN);
+    }
+    const float defaultFloor = 1.0e-4f * width;
+    const float regularizationFloor = defaultFloor;
+    const float distance = max(gap, regularizationFloor);
     const float squaredDistance = distance * distance;
-    const float squaredThickness = thickness * thickness;
+    const float squaredThickness = width * width;
     const float offset = squaredDistance - squaredThickness;
     const float logarithm = log(squaredDistance / squaredThickness);
     const float inertialStiffness = 10.0f /
         max(inverseResponse * timestep * timestep * squaredThickness,
             1.0e-20f);
-    const float remaining = max(thickness - distance,
-        1.0e-3f * thickness);
+    const float remaining = max(width - distance,
+        1.0e-3f * width);
     const float impactStiffness = max(closingSpeed, 0.0f) /
         max(inverseResponse * timestep * remaining * squaredThickness,
             1.0e-20f);
-    const float stiffness = max(inertialStiffness, impactStiffness);
+    const float stiffness = frozenStiffness > 0.0f
+        ? frozenStiffness : max(inertialStiffness, impactStiffness);
     const float firstSquared = -stiffness *
         (2.0f * offset * logarithm + offset * offset / squaredDistance);
     const float secondSquared = -stiffness *
         (2.0f * logarithm + 4.0f * offset / squaredDistance -
          offset * offset / (squaredDistance * squaredDistance));
-    const float force = -2.0f * distance * firstSquared;
-    const float hessian = separation < 1.0e-4f * thickness
-        ? 0.0f
-        : max(4.0f * squaredDistance * secondSquared +
-              2.0f * firstSquared, 0.0f);
+    float force = -2.0f * distance * firstSquared;
+    const float radialCurvature = max(
+        4.0f * squaredDistance * secondSquared +
+            2.0f * firstSquared,
+        0.0f);
+    const bool belowFloor = gap < regularizationFloor;
+    float hessian = belowFloor ? 0.0f : radialCurvature;
+    if (belowFloor && quadraticFloor) {
+        // Differentiate the same shifted-gap quadratic continuation as
+        // ipcBarrierEnergy; its exact radial curvature is constant below the
+        // cutoff and joins the IPC curvature at that cutoff.
+        const float displacement = gap - distance;
+        const float energyDerivativeAtFloor =
+            2.0f * distance * firstSquared;
+        force = -(energyDerivativeAtFloor +
+            radialCurvature * displacement);
+        hessian = radialCurvature;
+    }
     return float4(
         max(force, 0.0f) * timestep,
         hessian * timestep * timestep,
         thickness,
         stiffness
     );
+}
+
+// Freeze the MPM barrier coefficient from the accepted P2G predictor and
+// accepted rigid pose. The matrix-free contact operator differentiates the
+// barrier potential with respect to the current candidate separation, not with
+// respect to the candidate-dependent impact coefficient. Keeping this
+// coefficient fixed for one microstep makes force, curvature, and potential a
+// single variational model. The authored strict-contact certificate remains
+// independent and still rejects penetration.
+// Freeze MPM k from the accepted predictor even when that predictor is
+// already penetrating: this coefficient formula is not a barrier evaluation.
+// The live candidate response below still uses nmMPMShiftBarrierGap and
+// rejects every candidate outside its strict positive shifted-gap domain.
+inline float nmMPMReferenceBarrierStiffnessFromPredictor(
+    const float referenceSeparation,
+    const float thickness,
+    const float inverseResponse,
+    const float timestep,
+    const float referenceClosingSpeed,
+    const float mpmClearanceOffset
+) {
+    if (!(thickness > 0.0f) || !(inverseResponse > 0.0f) ||
+        !(timestep > 0.0f) || !isfinite(referenceSeparation) ||
+        !isfinite(referenceClosingSpeed) ||
+        !isfinite(mpmClearanceOffset) || mpmClearanceOffset < 0.0f) return NAN;
+    const float width = thickness - mpmClearanceOffset;
+    const float referenceGap = referenceSeparation - mpmClearanceOffset;
+    if (!(width > 0.0f) || !isfinite(width) || !isfinite(referenceGap))
+        return NAN;
+    const float regularizationFloor = 1.0e-4f * width;
+    const float distance = max(referenceGap, regularizationFloor);
+    const float squaredThickness = width * width;
+    const float inertialStiffness = 10.0f /
+        max(inverseResponse * timestep * timestep * squaredThickness,
+            1.0e-20f);
+    const float remaining = max(width - distance, 1.0e-3f * width);
+    const float impactStiffness = max(referenceClosingSpeed, 0.0f) /
+        max(inverseResponse * timestep * remaining * squaredThickness,
+            1.0e-20f);
+    const float stiffness = max(inertialStiffness, impactStiffness);
+    return isfinite(stiffness) && stiffness > 0.0f ? stiffness : NAN;
 }
 
 inline float ipcFeatureMollifierDifferential(
@@ -790,7 +856,7 @@ inline bool deformableBarrierEnergyAt(
         return false;
     }
     energy = featureMollifier * ipcBarrierEnergy(
-        separation, contact.barrier.z, contact.mollifier.w);
+        separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
     return isfinite(separation) && isfinite(energy);
 }
 
@@ -5166,9 +5232,9 @@ kernel void nm_contact_narrowphase_deformable(
     }
     const float4 baseBarrier = ipcBarrierResponse(
         bestSeparation, thickness, inverseResponse, contactTimestep,
-        max(-dot(bestNormal, relativeVelocity), 0.0f));
+        max(-dot(bestNormal, relativeVelocity), 0.0f), false, 0.0f, 0.0f);
     const float baseBarrierEnergy = ipcBarrierEnergy(
-        bestSeparation, thickness, baseBarrier.w);
+        bestSeparation, thickness, baseBarrier.w, false, 0.0f);
     float4 barrier = baseBarrier;
     barrier.x *= featureMollifier;
     barrier.y *= featureMollifier;
@@ -6972,6 +7038,305 @@ kernel void nm_contact_initialize_prescribed_fem_candidate(
     if (changed) candidate[global] = next;
 }
 
+// A grid node is an Eulerian basis sample, not a material point. Active nodes
+// on or inside one eligible immutable fixed plane use normal-velocity KKT
+// complementarity; the final G2P particle certificate independently rejects
+// any actual particle penetration. No particle state is repaired here.
+inline bool nmMPMFixedStaticPlane(
+    const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU rigid
+) {
+    return proxy.shapeKind == NM_RIGID_PLANE && proxy.flags == 0u &&
+        proxy.adaptiveObjectIndex == NM_INVALID_INDEX &&
+        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX &&
+        all(rigid.linearVelocityAndInverseMass.xyz == float3(0.0f)) &&
+        rigid.linearVelocityAndInverseMass.w == 0.0f &&
+        all(rigid.angularVelocity.xyz == float3(0.0f));
+}
+
+inline bool nmMPMFixedPlaneCandidateSeedOrigin(
+    const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU rigid,
+    const float3 gridPosition,
+    const float slop,
+    thread float3& origin,
+    thread bool& originShifted
+) {
+    origin = gridPosition;
+    originShifted = false;
+    if (!nmMPMFixedStaticPlane(proxy, rigid)) return true;
+    float separation;
+    float3 normal, witness;
+    if (!planeContact(rigid, gridPosition, separation, normal, witness) ||
+        !isfinite(separation) || !(slop > 0.0f) || !isfinite(slop))
+        return false;
+    if (separation < 0.0f) {
+        origin = witness + slop * normal;
+        originShifted = true;
+    }
+    return finite3(origin);
+}
+
+// Initial-guess helper only for the existing implicit MPM solve. Its shifted
+// origin is not used by the potential, residual/JVP, line search, reaction, or
+// final certificate. It changes only the trial candidate; accepted P2G momentum
+// and inertia/force assembly remain based on the unmodified accepted velocity.
+kernel void nm_mpm_initialize_static_plane_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(3)]],
+    device const NMContactPairGPU* pairs [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const uint* nodeToActive [[buffer(8)]],
+    device const uint* activeCounts [[buffer(9)]],
+    device NMGridNodeStateGPU* nodes [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    constant NMMixedSolverGPU& solver [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.gridNodeCount;
+    if (global >= totalNodes || dispatch.gridNodeCount == 0u ||
+        dispatch.contactPairCount == 0u || !environmentHealthy(
+            statuses, global / max(dispatch.gridNodeCount, 1u))) return;
+    const uint environment = global / dispatch.gridNodeCount;
+    const uint localNode = global - environment * dispatch.gridNodeCount;
+    const uint activeSlot = nodeToActive[global];
+    if (activeSlot == NM_INVALID_INDEX ||
+        activeSlot >= min(activeCounts[environment],
+                          dispatch.mpmActiveNodeCapacity) ||
+        !(nodes[global].positionAndMass.w > 0.0f)) return;
+
+    const uint continuumNodeCount = dispatch.gridNodeCount +
+        dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[
+        environment * continuumNodeCount + localNode];
+    if (range.count == 0u) return;
+
+    uint owningObject = NM_INVALID_INDEX;
+    float objectDt = 0.0f;
+    float3 seededVelocity = nodes[global].candidateVelocity.xyz;
+    if (!finite3(seededVelocity)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, localNode, float4(seededVelocity, 0.0f));
+        return;
+    }
+    if (range.count == 1u) {
+        const uint pairIndex = nodeIncidence[range.first];
+        if (pairIndex < dispatch.contactPairCount) {
+            const NMContactPairGPU pair = pairs[pairIndex];
+            if (pair.continuumNode == localNode &&
+                pair.objectIndex < dispatch.objectCount &&
+                pair.rigidProxy < dispatch.rigidProxyCount &&
+                objects[pair.objectIndex].representation ==
+                    NM_REPRESENTATION_MPM) {
+                const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+                const NMRigidStateGPU rigid = rigidStates[
+                    environment * dispatch.rigidProxyCount + pair.rigidProxy];
+                if (nmMPMFixedStaticPlane(proxy, rigid)) {
+                    float referenceGap;
+                    float3 normal, witness;
+                    if (planeContact(rigid, nodes[global].positionAndMass.xyz,
+                            referenceGap, normal, witness) &&
+                        isfinite(referenceGap) && referenceGap <= 0.0f) {
+                        const float inward = dot(seededVelocity, normal);
+                        if (inward < 0.0f) seededVelocity -= inward * normal;
+                        nodes[global].candidateVelocity =
+                            float4(seededVelocity, 0.0f);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // Seed only when the P2G predictor is on or inside a strict geometric
+    // floor. A genuinely negative gap is left to the existing rejection path;
+    // this phase-I guess must not conceal penetration.
+    bool needsSeed = false;
+    for (uint i = 0u; i < range.count; ++i) {
+        const uint pairIndex = nodeIncidence[range.first + i];
+        if (pairIndex >= dispatch.contactPairCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, localNode,
+                float4(float(pairIndex), float(range.first),
+                       float(range.count), 0.0f));
+            return;
+        }
+        const NMContactPairGPU pair = pairs[pairIndex];
+        if (pair.continuumNode != localNode ||
+            pair.rigidProxy >= dispatch.rigidProxyCount ||
+            pair.objectIndex >= dispatch.objectCount) continue;
+        const NMContinuumObjectGPU object = objects[pair.objectIndex];
+        const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+        if (object.representation != NM_REPRESENTATION_MPM ||
+            proxy.shapeKind != NM_RIGID_PLANE || proxy.flags != 0u ||
+            proxy.adaptiveObjectIndex != NM_INVALID_INDEX) continue;
+        const NMRigidStateGPU rigid = rigidStates[
+            environment * dispatch.rigidProxyCount + pair.rigidProxy];
+        const float normalLength = length(rigid.centerAndRadius.xyz);
+        if (!(normalLength > kGeometryFloor) ||
+            !isfinite(normalLength) ||
+            any(rigid.linearVelocityAndInverseMass.xyz != float3(0.0f)) ||
+            rigid.linearVelocityAndInverseMass.w != 0.0f ||
+            any(rigid.angularVelocity.xyz != float3(0.0f))) continue;
+        const float3 normal = rigid.centerAndRadius.xyz / normalLength;
+        const float dt = objectTimestep(
+            dispatch, schedulers[environment * dispatch.objectCount +
+                                 pair.objectIndex]);
+        if (!(dt > 0.0f) || !isfinite(dt)) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex, float4(dt, 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        if (owningObject == NM_INVALID_INDEX) {
+            owningObject = pair.objectIndex;
+            objectDt = dt;
+        } else if (owningObject != pair.objectIndex || objectDt != dt) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(owningObject), objectDt, dt, 1.0f));
+            return;
+        }
+        float3 origin;
+        bool originShifted = false;
+        if (!nmMPMFixedPlaneCandidateSeedOrigin(
+                proxy, rigid, nodes[global].positionAndMass.xyz,
+                dispatch.numericalLimits.x, origin, originShifted)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex, float4(0.0f, 0.0f, 0.0f, -3.0f));
+            return;
+        }
+        const float3 point = origin + dt * seededVelocity;
+        const float separation = dot(normal, point) - rigid.centerAndRadius.w;
+        const float3 witness = point - separation * normal;
+        const float coordinateScale = max(dispatch.numericalLimits.x,
+            max(maximumAbsoluteCoordinate(point),
+                maximumAbsoluteCoordinate(witness)));
+        const float floor = max(
+            solver.contactAcceptance.x * dispatch.numericalLimits.x,
+            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+        if (!isfinite(separation) || !isfinite(floor)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                pair.objectIndex, pairIndex,
+                float4(separation, floor, coordinateScale, 0.0f));
+            return;
+        }
+        if (separation < 0.0f && !originShifted) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(separation, floor, float(pair.rigidProxy), -1.0f));
+            return;
+        }
+        // The negative signed gap is admissible only for an interior Eulerian
+        // support node, whose contact coordinate is velocity-level. The
+        // separate post-G2P particle certificate remains geometric and strict.
+        needsSeed = needsSeed || originShifted || separation <= floor;
+    }
+    if (!needsSeed || owningObject == NM_INVALID_INDEX) return;
+
+    // Cyclic projection over the node's immutable plane incidences is a
+    // bounded initial-guess operation. It does not publish position, momentum,
+    // force, or contact impulse and leaves all final certificates unchanged.
+    for (uint sweep = 0u; sweep < 8u; ++sweep) {
+        for (uint i = 0u; i < range.count; ++i) {
+            const uint pairIndex = nodeIncidence[range.first + i];
+            if (pairIndex >= dispatch.contactPairCount) continue;
+            const NMContactPairGPU pair = pairs[pairIndex];
+            if (pair.continuumNode != localNode ||
+                pair.rigidProxy >= dispatch.rigidProxyCount ||
+                pair.objectIndex != owningObject) continue;
+            const NMContinuumObjectGPU object = objects[pair.objectIndex];
+            const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+            if (object.representation != NM_REPRESENTATION_MPM ||
+                proxy.shapeKind != NM_RIGID_PLANE || proxy.flags != 0u ||
+                proxy.adaptiveObjectIndex != NM_INVALID_INDEX) continue;
+            const NMRigidStateGPU rigid = rigidStates[
+                environment * dispatch.rigidProxyCount + pair.rigidProxy];
+            if (any(rigid.linearVelocityAndInverseMass.xyz != float3(0.0f)) ||
+                rigid.linearVelocityAndInverseMass.w != 0.0f ||
+                any(rigid.angularVelocity.xyz != float3(0.0f))) continue;
+            const float normalLength = length(rigid.centerAndRadius.xyz);
+            if (!(normalLength > kGeometryFloor) || !isfinite(normalLength)) continue;
+            const float3 normal = rigid.centerAndRadius.xyz / normalLength;
+            float3 origin;
+            bool originShifted = false;
+            if (!nmMPMFixedPlaneCandidateSeedOrigin(
+                    proxy, rigid, nodes[global].positionAndMass.xyz,
+                    dispatch.numericalLimits.x, origin, originShifted)) {
+                recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex, pairIndex,
+                    float4(0.0f, 0.0f, 0.0f, -4.0f));
+                return;
+            }
+            const float3 point = origin + objectDt * seededVelocity;
+            const float separation = dot(normal, point) - rigid.centerAndRadius.w;
+            const float3 witness = point - separation * normal;
+            const float coordinateScale = max(dispatch.numericalLimits.x,
+                max(maximumAbsoluteCoordinate(point),
+                    maximumAbsoluteCoordinate(witness)));
+            const float floor = max(
+                solver.contactAcceptance.x * dispatch.numericalLimits.x,
+                16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+            const float clearance = max(
+                0.125f * dispatch.numericalLimits.x, 2.0f * floor);
+            if (separation < clearance) {
+                seededVelocity += ((clearance - separation) / objectDt) * normal;
+            }
+        }
+    }
+
+    for (uint i = 0u; i < range.count; ++i) {
+        const uint pairIndex = nodeIncidence[range.first + i];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        const NMContactPairGPU pair = pairs[pairIndex];
+        if (pair.continuumNode != localNode ||
+            pair.rigidProxy >= dispatch.rigidProxyCount ||
+            pair.objectIndex != owningObject) continue;
+        const NMContinuumObjectGPU object = objects[pair.objectIndex];
+        const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+        if (object.representation != NM_REPRESENTATION_MPM ||
+            proxy.shapeKind != NM_RIGID_PLANE || proxy.flags != 0u ||
+            proxy.adaptiveObjectIndex != NM_INVALID_INDEX) continue;
+        const NMRigidStateGPU rigid = rigidStates[
+            environment * dispatch.rigidProxyCount + pair.rigidProxy];
+        if (any(rigid.linearVelocityAndInverseMass.xyz != float3(0.0f)) ||
+            rigid.linearVelocityAndInverseMass.w != 0.0f ||
+            any(rigid.angularVelocity.xyz != float3(0.0f))) continue;
+        const float normalLength = length(rigid.centerAndRadius.xyz);
+        if (!(normalLength > kGeometryFloor) || !isfinite(normalLength)) continue;
+        const float3 normal = rigid.centerAndRadius.xyz / normalLength;
+        float3 origin;
+        bool originShifted = false;
+        if (!nmMPMFixedPlaneCandidateSeedOrigin(
+                proxy, rigid, nodes[global].positionAndMass.xyz,
+                dispatch.numericalLimits.x, origin, originShifted)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(0.0f, 0.0f, 0.0f, -5.0f));
+            return;
+        }
+        const float3 point = origin + objectDt * seededVelocity;
+        const float separation = dot(normal, point) - rigid.centerAndRadius.w;
+        const float3 witness = point - separation * normal;
+        const float coordinateScale = max(dispatch.numericalLimits.x,
+            max(maximumAbsoluteCoordinate(point),
+                maximumAbsoluteCoordinate(witness)));
+        const float floor = max(
+            solver.contactAcceptance.x * dispatch.numericalLimits.x,
+            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+        if (!isfinite(separation) || !(separation > floor)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(separation, floor, float(pair.rigidProxy), 2.0f));
+            return;
+        }
+    }
+    nodes[global].candidateVelocity = float4(seededVelocity, 1.0f);
+}
+
 inline float rigidDirectionalResponse(
     const NMRigidStateGPU rigid,
     const float3 lever,
@@ -7325,6 +7690,7 @@ kernel void nm_contact_evaluate(
     constant uint& compactCandidates [[buffer(21)]],
     device uint* compactSampleSlotsByPair [[buffer(22)]],
     device atomic_uint* compactActiveCounts [[buffer(23)]],
+    constant NMPrimalContactArguments& contact [[buffer(24)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint pairStride = compactCandidates == 1u || compactCandidates == 2u
@@ -7386,8 +7752,15 @@ kernel void nm_contact_evaluate(
     float3 point;
     float3 velocity;
     float3 admissionVelocity;
+    float3 mpmPredictorPoint = float3(0.0f);
+    bool mpmFixedPlaneKKT = false;
+    uint mpmNodeGeneration = NM_INVALID_INDEX;
+    float mpmNodeMass = 0.0f;
     float inverseMass;
     const float dt = objectTimestep(dispatch, scheduler);
+    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy];
     if (pair.continuumNode < dispatch.gridNodeCount) {
         const uint nodeSlot =
             environment * dispatch.gridNodeCount + pair.continuumNode;
@@ -7395,13 +7768,55 @@ kernel void nm_contact_evaluate(
             return;
         }
         const NMGridNodeStateGPU node = mpmNodes[nodeSlot];
-        point = node.positionAndMass.xyz +
-            dt * node.candidateVelocity.xyz;
+        float referenceSeparation = INFINITY;
+        float3 referenceNormal = float3(0.0f);
+        float3 referenceWitness = float3(0.0f);
+        const bool fixedPlaneReference = nmMPMFixedStaticPlane(proxy, rigid) &&
+            rigidWitness(proxy, rigid, node.positionAndMass.xyz,
+                referenceSeparation, referenceNormal, referenceWitness) &&
+            referenceSeparation <= 0.0f;
+        const bool frictionInputsValid =
+            object.materialIndex < dispatch.materialCount &&
+            pair.materialInterface < dispatch.materialCount;
+        const float effectiveStaticFriction = frictionInputsValid
+            ? sqrt(max(
+                materials[object.materialIndex].interfaceResponse.x *
+                    materials[pair.materialInterface].interfaceResponse.x,
+                0.0f))
+            : NAN;
+        const float effectiveDynamicFriction = frictionInputsValid
+            ? sqrt(max(
+                materials[object.materialIndex].interfaceResponse.y *
+                    materials[pair.materialInterface].interfaceResponse.y,
+                0.0f))
+            : NAN;
+        // Use the exact combined coefficient law used below for friction.
+        // One zero interface response is sufficient to make that paired
+        // coefficient frictionless; requiring both source materials to be
+        // zero wrongly excluded blood against a frictionless plane.
+        const bool frictionlessPlane =
+            isfinite(effectiveStaticFriction) &&
+            isfinite(effectiveDynamicFriction) &&
+            effectiveStaticFriction == 0.0f &&
+            effectiveDynamicFriction == 0.0f;
+        mpmFixedPlaneKKT = object.representation == NM_REPRESENTATION_MPM &&
+            fixedPlaneReference && frictionlessPlane &&
+            nmMPMFixedPlaneKKTTopologyEligible(
+                dispatch, contact, environment, pairIndex,
+                pair.continuumNode);
+        // Fixed-plane MPM nodes admitted to the KKT path use their immutable
+        // Eulerian location. Other contacts retain the strict geometric path;
+        // do not shift an ineligible support node to a virtual velocity origin.
+        const float3 contactOrigin = node.positionAndMass.xyz;
+        point = contactOrigin + dt * node.candidateVelocity.xyz;
         velocity = node.candidateVelocity.xyz;
         // P2G owns the accepted grid velocity for the whole microstep while
         // candidateVelocity advances through Newton. Keep topology admission
         // tied to that source state rather than the final contact rebound.
         admissionVelocity = node.velocityAndInverseMass.xyz;
+        mpmPredictorPoint = contactOrigin + dt * admissionVelocity;
+        mpmNodeGeneration = mpmNodeGenerations[nodeSlot];
+        mpmNodeMass = node.positionAndMass.w;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
@@ -7430,7 +7845,6 @@ kernel void nm_contact_evaluate(
         return;
     }
 
-    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
     if (embeddedPunctureChannelAdmits(
             dispatch, environment, pair.objectIndex, pair.rigidProxy,
             point, point + dt * admissionVelocity,
@@ -7456,9 +7870,6 @@ kernel void nm_contact_evaluate(
             return;
         }
     }
-    const NMRigidStateGPU rigid = rigidStates[
-        environment * dispatch.rigidProxyCount + pair.rigidProxy
-    ];
     float separation;
     float3 normal;
     float3 witness;
@@ -7538,9 +7949,88 @@ kernel void nm_contact_evaluate(
     if (!(normalResponse > 1.0e-12f)) {
         return;
     }
-    float4 barrier = ipcBarrierResponse(
-        separation, slop, normalResponse, dt,
-        max(-normalVelocity, 0.0f));
+    const bool mpmContact =
+        object.representation == NM_REPRESENTATION_MPM;
+    const bool freezeMPMStiffness =
+        mpmContact && !strand && !mpmFixedPlaneKKT;
+    NMRigidStateGPU referenceRigid = rigid;
+    float referenceSeparation = separation;
+    float3 referenceNormal = normal;
+    float3 referenceWitness = witness;
+    float3 referenceRigidVelocity = rigidVelocity;
+    if (freezeMPMStiffness) {
+        if (proxy.bodyIndex != NM_INVALID_INDEX &&
+            proxy.bodyIndex < bridge.currentBodyCount &&
+            bridge.currentBodyStride >= bridge.currentBodyCount) {
+            const MRBodyStateGPU acceptedBody = acceptedBodies[
+                environment * bridge.currentBodyStride + proxy.bodyIndex];
+            projectProxy(proxy, acceptedBody, true, referenceRigid);
+        }
+        if (!rigidWitness(
+                proxy, referenceRigid, mpmPredictorPoint,
+                referenceSeparation, referenceNormal, referenceWitness)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(mpmPredictorPoint, -1.0f));
+            return;
+        }
+        if (proxy.bodyIndex == NM_INVALID_INDEX) {
+            const float3 referenceVelocityOrigin =
+                rigid.centerAndRadius.xyz;
+            referenceRigidVelocity =
+                rigid.linearVelocityAndInverseMass.xyz +
+                cross(rigid.angularVelocity.xyz,
+                    referenceWitness - referenceVelocityOrigin);
+        } else if (proxy.bodyIndex < bridge.currentBodyCount &&
+                   bridge.currentBodyStride >= bridge.currentBodyCount) {
+            const MRBodyStateGPU acceptedBody = acceptedBodies[
+                environment * bridge.currentBodyStride + proxy.bodyIndex];
+            referenceRigidVelocity =
+                acceptedBody.linearVelocityAndInverseMass.xyz +
+                cross(acceptedBody.angularVelocity.xyz,
+                    referenceWitness - acceptedBody.position.xyz);
+        }
+    }
+    const float mpmClearanceOffset = mpmContact && !mpmFixedPlaneKKT
+        ? nmMPMGridContactClearanceOffset(
+            slop, maximumAbsoluteCoordinate(referenceWitness))
+        : 0.0f;
+    const float referenceNormalResponse = freezeMPMStiffness
+        ? inverseMass + rigidDirectionalResponse(
+            referenceRigid, referenceWitness - referenceRigid.bodyCenter.xyz,
+            referenceNormal)
+        : normalResponse;
+    const float referenceNormalVelocity = freezeMPMStiffness
+        ? dot(admissionVelocity - referenceRigidVelocity, referenceNormal)
+        : admissionNormalVelocity;
+    const float frozenStiffness = freezeMPMStiffness
+        ? nmMPMReferenceBarrierStiffnessFromPredictor(
+            referenceSeparation, slop, referenceNormalResponse, dt,
+            max(-referenceNormalVelocity, 0.0f), mpmClearanceOffset)
+        : 0.0f;
+    if (freezeMPMStiffness &&
+        (!(referenceNormalResponse > 1.0e-12f) ||
+         !isfinite(frozenStiffness) || !(frozenStiffness > 0.0f))) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(referenceSeparation, referenceNormalResponse,
+                   referenceNormalVelocity, frozenStiffness));
+        return;
+    }
+    float4 barrier = mpmFixedPlaneKKT
+        ? float4(0.0f, 0.0f, slop, 0.0f)
+        : ipcBarrierResponse(
+            separation, slop, normalResponse, dt,
+            max(-normalVelocity, 0.0f),
+            mpmContact,
+            mpmClearanceOffset,
+            frozenStiffness);
+    if (mpmContact && !all(isfinite(barrier))) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(separation, slop, mpmClearanceOffset, barrier.x));
+        return;
+    }
     if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u) {
         float barrierScale = 1.0f;
         if (proxy.reserved2 != 0u) {
@@ -7579,6 +8069,7 @@ kernel void nm_contact_evaluate(
     const float3 tangentVelocity =
         relativeVelocity - normalVelocity * normal;
     uint contactFlags = NM_CONTACT_VALID;
+    if (mpmFixedPlaneKKT) contactFlags |= NM_CONTACT_MPM_FIXED_PLANE_KKT;
     const float tangentSpeed = length(tangentVelocity);
     const float transitionSpeed = max(
         0.05f * slop / max(dt, 1.0e-12f), 1.0e-6f);
@@ -7771,8 +8262,15 @@ kernel void nm_contact_evaluate(
     // branch. FGMRES uses them for the SO(3) contact-frame and barrier-scale
     // derivatives; multiplyRows consumes xyz only, so the spatial block is
     // unchanged for every existing contact path.
-    sample.barrierHessianRow0.w = angularFreeBoxTangent ? dt : 0.0f;
+    // Diagnostic-only: the fixed-plane MPM fixture has no angular free-BOX
+    // tangent, so preserve node generation in this otherwise-unused lane.
+    sample.barrierHessianRow0.w = mpmContact
+        ? as_type<float>(mpmNodeGeneration)
+        : (angularFreeBoxTangent ? dt : 0.0f);
     sample.barrierHessianRow1.w = angularFreeBoxTangent ? normalResponse : 0.0f;
+    // row2.w is unused by spatial Hessian multiplication; retain the
+    // microstep's immutable MPM clearance offset for response/Armijo energy.
+    sample.barrierHessianRow2.w = mpmContact ? mpmClearanceOffset : 0.0f;
     if (compactCandidates == 3u) {
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
             const uint activeSlot = atomic_fetch_add_explicit(
@@ -7817,6 +8315,7 @@ kernel void nm_contact_certify_post_commit_rigid(
     constant NMMixedSolverGPU& solver [[buffer(13)]],
     device const NMFEMNodeStateGPU* femCheckpoint [[buffer(14)]],
     device const NMRigidStateGPU* prescribedEndpoints [[buffer(15)]],
+    constant NMPrimalContactArguments& contact [[buffer(16)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -7838,6 +8337,9 @@ kernel void nm_contact_certify_post_commit_rigid(
         environment * dispatch.objectCount + pair.objectIndex];
     if (adaptiveState.activeRepresentation == NM_REPRESENTATION_RIGID)
         return;
+    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy];
 
     float3 point;
     float3 velocity = float3(0.0f);
@@ -7853,10 +8355,35 @@ kernel void nm_contact_certify_post_commit_rigid(
             environment * dispatch.gridNodeCount + pair.continuumNode;
         if (mpmNodeGenerations[nodeGlobal] != expectedMPMGeneration) return;
         const NMGridNodeStateGPU node = mpmNodes[nodeGlobal];
+        if (nmMPMFixedStaticPlane(proxy, rigid)) {
+            float referenceGap;
+            float3 referenceNormal, referenceWitness;
+            if (planeContact(rigid, node.positionAndMass.xyz,
+                    referenceGap, referenceNormal, referenceWitness) &&
+                isfinite(referenceGap) && referenceGap <= 0.0f &&
+                nmMPMFixedPlaneKKTContactPair(
+                    dispatch, contact, environment, pair.continuumNode) ==
+                    pairIndex) {
+                const float normalVelocity =
+                    dot(node.candidateVelocity.xyz, referenceNormal);
+                const float velocityRoundoff =
+                    16.0f * kEpsilon *
+                    max(maximumAbsoluteCoordinate(
+                            node.candidateVelocity.xyz), 1.0f);
+                if (!(normalVelocity >= -velocityRoundoff)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_CONTACT_FAILURE, pair.objectIndex,
+                        pairIndex, float4(normalVelocity, velocityRoundoff,
+                            referenceGap, 3.0f));
+                }
+                return;
+            }
+        }
         const NMSchedulerStateGPU scheduler = schedulers[
             environment * dispatch.objectCount + pair.objectIndex];
-        point = node.positionAndMass.xyz +
-            objectTimestep(dispatch, scheduler) * node.candidateVelocity.xyz;
+        const float3 contactOrigin = node.positionAndMass.xyz;
+        point = contactOrigin + objectTimestep(dispatch, scheduler) *
+            node.candidateVelocity.xyz;
         velocity = node.velocityAndInverseMass.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
@@ -7878,7 +8405,6 @@ kernel void nm_contact_certify_post_commit_rigid(
     if (!(inverseMass > 0.0f) &&
         (rigidProxies[pair.rigidProxy].flags & NM_RIGID_PRESCRIBED_TRANSLATION) == 0u) return;
 
-    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
     const NMSchedulerStateGPU scheduler = schedulers[
         environment * dispatch.objectCount + pair.objectIndex];
     if (embeddedPunctureChannelAdmits(
@@ -7901,8 +8427,6 @@ kernel void nm_contact_certify_post_commit_rigid(
             return;
     }
 
-    const NMRigidStateGPU rigid = rigidStates[
-        environment * dispatch.rigidProxyCount + pair.rigidProxy];
     float separation;
     float3 normal;
     float3 witness;
@@ -7952,6 +8476,134 @@ kernel void nm_contact_certify_post_commit_rigid(
             float4(
                 separation, collisionThickness,
                 float(pair.rigidProxy), coordinateScale));
+    }
+}
+
+// Certify the actual material particles after G2P, independently of the
+// Eulerian grid-node velocity-level witness. This is a read-only fail-closed
+// gate before nm_mpm_commit_microstep: it checks both accepted and candidate
+// particle endpoints against every eligible immutable plane attached to the
+// particle's old/new quadratic B-spline support. For a fixed plane, positive
+// gaps at both endpoints certify the complete affine particle sweep.
+kernel void nm_mpm_certify_fixed_plane_particles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMParticleStateGPU* accepted [[buffer(2)]],
+    device const NMParticleStateGPU* candidate [[buffer(3)]],
+    device const NMContinuumObjectGPU* objects [[buffer(4)]],
+    device const NMMPMGridGPU* grids [[buffer(5)]],
+    device const NMContactPairGPU* pairs [[buffer(6)]],
+    device const uint* nodeIncidence [[buffer(7)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(8)]],
+    device const NMRigidProxyGPU* proxies [[buffer(9)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    constant NMMixedSolverGPU& solver [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.particleCount;
+    if (global >= total || dispatch.particleCount == 0u) return;
+    const uint environment = global / dispatch.particleCount;
+    const uint particleIndex = global - environment * dispatch.particleCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMParticleStateGPU start = accepted[global];
+    const NMParticleStateGPU finish = candidate[global];
+    const uint objectIndex = start.identity.x;
+    if ((start.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
+        start.identity.x != finish.identity.x) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_MPM ||
+        object.elementCount != 1u || object.elementOffset >= dispatch.mpmGridCount ||
+        adaptiveState.activeRepresentation != NM_REPRESENTATION_MPM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) return;
+    const NMMPMGridGPU grid = grids[object.elementOffset];
+    const float3 endpoints[2] = {
+        start.positionAndMass.xyz, finish.positionAndMass.xyz};
+    for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+        const float3 position = endpoints[endpoint];
+        if (!finite3(position)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                objectIndex, particleIndex, float4(position, -8.0f));
+            return;
+        }
+        const float3 cell = position * grid.metrics.y;
+        const int3 base = int3(floor(cell - 0.5f));
+        for (int z = 0; z < 3; ++z) {
+            for (int y = 0; y < 3; ++y) {
+                for (int x = 0; x < 3; ++x) {
+                    const int3 coordinate = base + int3(x, y, z);
+                    const uint node = gridNodeIndex(grid, coordinate);
+                    if (node == NM_INVALID_INDEX ||
+                        node >= dispatch.gridNodeCount) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_CAPACITY_OVERFLOW, objectIndex,
+                            particleIndex, float4(float3(coordinate),
+                                                  float(endpoint)));
+                        return;
+                    }
+                    // Rigid contact incidence/ranges are immutable world
+                    // topology, shared across environments. Only deformable
+                    // contact ranges carry an environment stride.
+                    const NMIncidenceRangeGPU range = nodeRanges[node];
+                    for (uint incidence = 0u; incidence < range.count;
+                         ++incidence) {
+                        const uint pairIndex =
+                            nodeIncidence[range.first + incidence];
+                        if (pairIndex >= dispatch.contactPairCount) {
+                            recordFailure(statuses[environment],
+                                NM_STATUS_INVALID_DISPATCH, objectIndex,
+                                particleIndex, float4(float(pairIndex),
+                                    float(range.first), float(range.count), 0.0f));
+                            return;
+                        }
+                        const NMContactPairGPU pair = pairs[pairIndex];
+                        if (pair.continuumNode != node ||
+                            pair.objectIndex != objectIndex ||
+                            pair.rigidProxy >= dispatch.rigidProxyCount)
+                            continue;
+                        const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+                        const NMRigidStateGPU rigid = rigidStates[
+                            environment * dispatch.rigidProxyCount +
+                            pair.rigidProxy];
+                        if (!nmMPMFixedStaticPlane(proxy, rigid)) continue;
+                        float separation;
+                        float3 normal, witness;
+                        if (!rigidWitness(proxy, rigid, position,
+                                          separation, normal, witness)) {
+                            recordFailure(statuses[environment],
+                                NM_STATUS_CONTACT_FAILURE, objectIndex,
+                                particleIndex, float4(position,
+                                    float(pair.rigidProxy)));
+                            return;
+                        }
+                        const float coordinateScale = max(
+                            dispatch.numericalLimits.x,
+                            max(maximumAbsoluteCoordinate(position),
+                                maximumAbsoluteCoordinate(witness)));
+                        const float floor = max(
+                            solver.contactAcceptance.x *
+                                dispatch.numericalLimits.x,
+                            16.0f * kEpsilon *
+                                max(coordinateScale, 1.0e-12f));
+                        if (!isfinite(separation) || !isfinite(floor) ||
+                            !(separation > floor)) {
+                            recordFailure(statuses[environment],
+                                NM_STATUS_CONTACT_FAILURE, objectIndex,
+                                particleIndex, float4(separation, floor,
+                                    float(pair.rigidProxy), float(endpoint)));
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -9480,6 +10132,35 @@ kernel void nm_contact_limit_rigid_line_search(
             dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
             pair.objectIndex >= dispatch.objectCount) continue;
+        if ((sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) != 0u) {
+            if (pair.continuumNode >= dispatch.gridNodeCount ||
+                pair.objectIndex >= dispatch.objectCount) {
+                bound = 0.0f;
+                continue;
+            }
+            const uint nodeGlobal =
+                environment * dispatch.gridNodeCount + pair.continuumNode;
+            const uint slot = contact.mpmNodeToActive[nodeGlobal];
+            if (slot >= contact.mpmActiveNodeCounts[environment] ||
+                !(gridNodes[nodeGlobal].positionAndMass.w > 0.0f)) {
+                bound = 0.0f;
+                continue;
+            }
+            const float3 normal = sample.normalAndVelocity.xyz;
+            const float normalVelocity = dot(
+                gridNodes[nodeGlobal].candidateVelocity.xyz, normal);
+            const float directionalVelocity = dot(
+                correction[fgmresMPMIndex(dispatch, environment, slot)].xyz,
+                normal);
+            if (!isfinite(normalVelocity) ||
+                !isfinite(directionalVelocity)) {
+                bound = 0.0f;
+            } else if (directionalVelocity < 0.0f) {
+                bound = min(bound, max(normalVelocity, 0.0f) /
+                    -directionalVelocity);
+            }
+            continue;
+        }
         const NMContinuumObjectGPU object = objects[pair.objectIndex];
         const float dt = objectTimestep(
             dispatch,
@@ -9525,16 +10206,28 @@ kernel void nm_contact_limit_rigid_line_search(
             max(max(abs(sample.pointAndSeparation.x),
                     abs(sample.pointAndSeparation.y)),
                 abs(sample.pointAndSeparation.z)));
+        const float authoredClearance =
+            solver.contactAcceptance.x * dispatch.numericalLimits.x;
         const float collisionThickness = max(
-            solver.contactAcceptance.x * dispatch.numericalLimits.x,
+            authoredClearance,
             16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
         const float boundaryRoundoff =
             ccdDistanceRoundoff(collisionThickness, coordinateScale);
+        const bool mpmContact =
+            object.representation == NM_REPRESENTATION_MPM;
+        // collisionThickness already includes the coordinate-scale FP32
+        // floor. Keep rigid MPM step feasibility on the same strict floor as
+        // the trial/final certificates; adding boundaryRoundoff here counted
+        // numerical inflation twice and zeroed a collision-free inward trial.
         const float feasibleSeparation = collisionThickness +
-            boundaryRoundoff;
-        if (!isfinite(separation) || !isfinite(travel) ||
+            (mpmContact ? 0.0f : boundaryRoundoff);
+        const float minimumSeparation = mpmContact
+            ? max(authoredClearance - boundaryRoundoff, 0.0f)
+            : collisionThickness - boundaryRoundoff;
+        if ((mpmContact && !isfinite(authoredClearance)) ||
+            !isfinite(separation) || !isfinite(travel) ||
             !isfinite(directionalSeparation) ||
-            separation < collisionThickness - boundaryRoundoff) {
+            separation < minimumSeparation) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex,
@@ -9554,7 +10247,35 @@ kernel void nm_contact_limit_rigid_line_search(
                 // restore the FP32 margin. An inward or stationary direction
                 // receives a zero step and still has to satisfy the final,
                 // strictly-above-floor certificate.
-                if (!(directionalSeparation > 0.0f)) {
+                const float directionalRoundoff = mpmContact
+                    ? 16.0f * kEpsilon * max(travel, collisionThickness)
+                    : 0.0f;
+                const bool separating = mpmContact
+                    ? directionalSeparation > directionalRoundoff
+                    : directionalSeparation > 0.0f;
+                if (!separating) {
+                    if (mpmContact) {
+                        const uint nodeGlobal =
+                            environment * dispatch.gridNodeCount +
+                            pair.continuumNode;
+                        // Diagnostic-only phase-I receipt: candidate velocity
+                        // xyz and the finite seed marker in its unused w lane.
+                        const float4 candidateVelocity =
+                            gridNodes[nodeGlobal].candidateVelocity;
+                        // At this branch the strict start gate has already
+                        // established a nonnegative gap. Use its sign bit to
+                        // carry the diagnostic-only seed marker without
+                        // changing the exact FP32 gap magnitude.
+                        const uint gapBits = as_type<uint>(separation);
+                        const bool seeded = candidateVelocity.w == 1.0f;
+                        const float diagnosticGap = as_type<float>(
+                            seeded ? (gapBits | 0x80000000u)
+                                   : (gapBits & 0x7fffffffu));
+                        recordFailure(
+                            statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                            pair.objectIndex, pairIndex,
+                            float4(candidateVelocity.xyz, diagnosticGap));
+                    }
                     bound = 0.0f;
                 }
             } else {
@@ -9570,10 +10291,53 @@ kernel void nm_contact_limit_rigid_line_search(
                         contact.rigidProxies[pair.rigidProxy].shapeKind,
                         separation, feasibleSeparation, travel,
                         directionalSeparation, boundaryRoundoff);
-                if (!certifiedOutward)
-                bound = min(bound, clamp(
-                    0.9f * (separation - feasibleSeparation) / travel,
-                    0.0f, 1.0f));
+                bool fixedMPMPlane = false;
+                if (mpmContact && pair.rigidProxy < dispatch.rigidProxyCount) {
+                    const NMRigidProxyGPU proxy =
+                        contact.rigidProxies[pair.rigidProxy];
+                    const NMRigidStateGPU rigid = contact.rigidStates[
+                        environment * dispatch.rigidProxyCount +
+                        pair.rigidProxy];
+                    fixedMPMPlane = proxy.shapeKind == NM_RIGID_PLANE &&
+                        proxy.flags == 0u &&
+                        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX &&
+                        all(rigid.linearVelocityAndInverseMass.xyz ==
+                            float3(0.0f)) &&
+                        rigid.linearVelocityAndInverseMass.w == 0.0f &&
+                        all(rigid.angularVelocity.xyz == float3(0.0f));
+                }
+                if (fixedMPMPlane) {
+                    // A static plane's signed gap is affine in its normal
+                    // displacement. Bound only worst-case inward normal
+                    // motion; tangential travel does not consume clearance.
+                    // Include FP32 dot/geometry error in that inward amount.
+                    // Trial CCD and the strict final certificate still run.
+                    const float normalDotMagnitude =
+                        abs(sample.normalAndVelocity.x *
+                            relativeDisplacement.x) +
+                        abs(sample.normalAndVelocity.y *
+                            relativeDisplacement.y) +
+                        abs(sample.normalAndVelocity.z *
+                            relativeDisplacement.z);
+                    const float directionalRoundoff =
+                        8.0f * kEpsilon * normalDotMagnitude +
+                        boundaryRoundoff;
+                    const float worstCaseClosing = max(
+                        directionalRoundoff - directionalSeparation,
+                        0.0f);
+                    if (worstCaseClosing > 0.0f) {
+                        bound = min(bound, clamp(
+                            0.5f * (separation - feasibleSeparation) /
+                                worstCaseClosing,
+                            0.0f, 1.0f));
+                    }
+                } else if (!certifiedOutward) {
+                    const float safeFraction = mpmContact ? 0.5f : 0.9f;
+                    bound = min(bound, clamp(
+                        safeFraction *
+                            (separation - feasibleSeparation) / travel,
+                        0.0f, 1.0f));
+                }
             }
         }
         // MPM's grid-node contact is local to this barrier feature. Preserve
@@ -9581,7 +10345,9 @@ kernel void nm_contact_limit_rigid_line_search(
         // allowing a globally coupled ascent feature to be governed by the
         // feasibility bound and the complete Newton residual.
         const float currentEnergy = ipcBarrierEnergy(
-            separation, sample.barrier.z, sample.barrier.w);
+            separation, sample.barrier.z, sample.barrier.w,
+            mpmContact,
+            mpmContact ? sample.barrierHessianRow2.w : 0.0f);
         const float directionalDerivative =
             -sample.barrier.x * directionalSeparation /
                 max(dt, 1.0e-20f);
@@ -9598,18 +10364,34 @@ kernel void nm_contact_limit_rigid_line_search(
             currentEnergy > 0.0f && directionalDerivative < 0.0f &&
             bound > 0.0f) {
             const float startAlpha = min(existing, bound);
+            // Seed the local MPM Armijo search below the alpha at which
+            // sufficient decrease reaches zero. Backtracking and all strict
+            // feasibility/energy tests remain unchanged.
+            const float armijoCoefficient = 1.0e-4f;
+            const float armijoDecreaseRate =
+                -armijoCoefficient * directionalDerivative;
+            const float ratioAlpha =
+                isfinite(armijoDecreaseRate) && armijoDecreaseRate > 0.0f
+                    ? 0.5f * currentEnergy / armijoDecreaseRate
+                    : startAlpha;
+            const float armijoStartAlpha =
+                isfinite(ratioAlpha) && ratioAlpha > 0.0f
+                    ? min(startAlpha, ratioAlpha)
+                    : startAlpha;
             float armijoAlpha = 0.0f;
             const uint lineSearchSteps = min(
                 solver.nonlinearIterations.w,
                 NM_MIXED_LINE_SEARCH_MAX_STEPS);
             for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
-                const float alpha = startAlpha * exp2(-float(trial));
+                const float alpha = armijoStartAlpha * exp2(-float(trial));
                 const float trialSeparation =
                     separation + alpha * directionalSeparation;
                 const float trialEnergy = ipcBarrierEnergy(
-                    trialSeparation, sample.barrier.z, sample.barrier.w);
+                    trialSeparation, sample.barrier.z, sample.barrier.w,
+                    mpmContact,
+                    mpmContact ? sample.barrierHessianRow2.w : 0.0f);
                 const float armijoRight = currentEnergy +
-                    1.0e-4f * alpha * directionalDerivative;
+                    armijoCoefficient * alpha * directionalDerivative;
                 if (isfinite(trialEnergy) &&
                     trialSeparation > feasibleSeparation &&
                     trialEnergy <= armijoRight) {

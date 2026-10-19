@@ -1,0 +1,13 @@
+{
+  "schema": "numi.sustained_blood_mpm_grid_boundary_floor96_result.v1",
+  "exit_code": 1,
+  "timed_out": false,
+  "timeout_s": 360,
+  "wall_s": 114.726,
+  "stdout_sha256": "af5730a2cf7fd012a5b86081cc93240288a2f3eb635895c2db76833e456d83fe",
+  "dyld_library_path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/loader",
+  "floor_only": "1",
+  "library_receipt_lines": [
+    "dyld[67715]: <FABD6FBA-D117-3ADC-90F8-D905F021FCFB> /Users/numi/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/loader/libmetalrobo.dylib"
+  ]
+}

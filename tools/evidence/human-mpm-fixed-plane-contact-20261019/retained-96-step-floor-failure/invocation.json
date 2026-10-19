@@ -1,0 +1,53 @@
+{
+  "schema": "numi.sustained_blood_mpm_grid_boundary_floor96_reaction_rollback_invocation.v1",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/run_bounded_360.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/input-probe",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/input-MatterSource-reaction-rollback.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "f4ff7cf5e03b18b3ffbcc964e876c54c04cd7725ee4786d51b32ecff2d0377f0",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/loader",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_SUSTAINED_FLOOR_ONLY": "1"
+  },
+  "input_sha256": {
+    "fixture": "2307fd202ae7d00102cb1c489ba82de4ea635facf3be99090b8115de99a52076",
+    "runtime": "438911d8f1bdaa9f820c6d2bba1bbe87182d2bd14e485f5bbf5fcd2c1e01014c",
+    "matter_source": "f4ff7cf5e03b18b3ffbcc964e876c54c04cd7725ee4786d51b32ecff2d0377f0",
+    "dylib": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+    "material": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "header": "758b6b89d167a800a3292020cec3b15495b64a4aea77133ecbda9f41c22c9f48",
+    "circulation": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "respiration": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+    "probe": "d0e5aea418f512c0faa93e7494ffa9b7bc1d1ee18dcf565bb2a8f57a90b8cc08"
+  },
+  "fixture_settings": {
+    "frames": 96,
+    "late_reject_frame": 48,
+    "retry_same_accepted_state": true,
+    "frame_dt_s": 0.00025,
+    "duration_s": 0.024,
+    "microticks_per_command_buffer": 1,
+    "newton_iterations": 24,
+    "floor_only": true,
+    "free_slip_interface": {
+      "static_friction": 0.0,
+      "dynamic_friction": 0.0,
+      "restitution": 0.0,
+      "adhesion": 0.0
+    }
+  },
+  "watchdog": {
+    "max_simulation_seconds": 360,
+    "dyld_library_receipt_required": true
+  },
+  "scope": "96-frame / 24 ms fixed-plane MPM grid-velocity KKT replay with strict particle and grid certificates, physical KKT reaction ledger, and late rejection/retry; synthetic packets only"
+}

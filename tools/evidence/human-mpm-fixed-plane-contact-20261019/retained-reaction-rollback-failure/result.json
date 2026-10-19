@@ -1,0 +1,25 @@
+{
+  "schema": "numi.sustained_blood_mpm_fixed_plane_kkt_acceptance.v2",
+  "exit_code": 1,
+  "timed_out": false,
+  "timeout_s": 90,
+  "wall_s": 3.168,
+  "stdout_sha256": "508cd584133391584b7ce4b683a98d60ffa8476a2f4eed5fb54dcc14bd5b6772",
+  "fixture_executable": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005/fixed_plane_kkt",
+  "fixture_executable_sha256": "b32141e376f9ae7293c821291e345ac3e42b7c86d3c5e9bef4f55d61cdc9e7b5",
+  "runtime_library": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/loader/libmetalrobo.dylib",
+  "runtime_library_sha256": "3378217e7b89b9f5907b867f2c32b5b68f45ffd49b469a00ade057a5a93f1b37",
+  "msl_source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-MatterSource.metal",
+  "msl_source_sha256": "378c78f27c2185de3845acb2b13b8ccb9b9ff5d9d97647992efe3931e60d2102",
+  "dyld_library_path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/loader",
+  "dyld_print_libraries": "1",
+  "loaded_library_lines": [
+    "dyld[65775]: <7832BF27-2369-3C53-A3C2-E7504228D507> /Users/numi/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/loader/libmetalrobo.dylib"
+  ],
+  "fixture_scope": "one-particle zero-g/rest and gravity-loaded fixed-plane grid-support tests; not pooled fluid",
+  "fixture_args": [
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ]
+}

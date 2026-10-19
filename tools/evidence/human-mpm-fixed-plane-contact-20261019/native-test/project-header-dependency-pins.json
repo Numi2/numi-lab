@@ -1,0 +1,86 @@
+{
+  "scope": "project dependency identity of native acceptance compile; system SDK dependencies omitted",
+  "dependency_file_sha256": "ed8aa0864f7ab698d2d2f5682524720ba1971664eee25193a7aa47ffa5a7d218",
+  "files": [
+    {
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h",
+      "sha256": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include/metalrobo/compensated_translation_gpu.h",
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include/metalrobo/constraint_ir_shared.h",
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include/metalrobo/engine_types.h",
+      "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include/metalrobo/gpu_types.h",
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/include/metalrobo/mujoco_muscle_gpu.h",
+      "sha256": "3169e324f631099c79c6fa719e4633a6bcfba4f99716772bed10e9aaf7862538"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/human_equality_gpu.h",
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/human_limits_gpu.h",
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/human_physiology.hpp",
+      "sha256": "8e0a7b8fef90710ca26a0c6e08c5e86182968fdfad131418995051a2afcff5ad"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/physical_state_digest_gpu.h",
+      "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-source/matter/include/numi/matter/sha256_gpu.h",
+      "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/shared-tissue-rollback-224/build-015/compile-overlay/matter/include/numi/matter/matter.hpp",
+      "sha256": "2ab31453467b35fcf96b76efe31636acb415f05fec9007d3c13e748970d12046"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-230/source/matter/include/numi/matter/human_respiration.h",
+      "sha256": "4ef52d7a0e74cbbd884d5e6365b6edbf9b8036bc3aea7632fe92d3f1da0e7807"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-230/source/matter/include/numi/matter/shared.h",
+      "sha256": "e05373980b6262cdb03ec95477ac4563fb70ce81babceb6843fc67d0b1e96bf6"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/fixed_plane_kkt.mm",
+      "sha256": "f15068dd6fb44561a7cfb500d3df1cdd767085fc67dec62c22b9e86f44eb51d4"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/fixture_local.mm",
+      "sha256": "f40ba5d818a1d2983bf4d8b834a3f5f56fb7af35fac1b1398da72175307213be"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/support/matter/tools/../src/metal_encoder_timing.hpp",
+      "sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/support/matter/tools/human_resting_runtime.hpp",
+      "sha256": "758b6b89d167a800a3292020cec3b15495b64a4aea77133ecbda9f41c22c9f48"
+    },
+    {
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/matter/tools/human_respiration_parameters.hpp",
+      "sha256": "3647dfd239795182fadb69f494b5c34910b93492eafba18f7bd7075d222b92ed"
+    }
+  ]
+}

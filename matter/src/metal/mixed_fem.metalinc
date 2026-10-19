@@ -703,7 +703,12 @@ kernel void nm_mixed_certify(
     float maximumTangentialImpulse = 0.0f;
     float contactEnergy = 0.0f;
     float contactCoordinateScale = dispatch.numericalLimits.x;
-    uint activeContactCount = 0u;
+    // Fixed-plane velocity KKT witnesses have no positional gap. Keep their
+    // finite dual/reaction check separate from geometric IPC separation; the
+    // independent grid-velocity and particle-sweep certificates own KKT feasibility.
+    uint geometricContactCount = 0u;
+    uint fixedPlaneKKTCount = 0u;
+    bool fixedPlaneKKTValuesFinite = true;
     const uint analyticCapacity = dispatch.reservedMixed1;
     const uint analyticCount = min(
         contact.activeCounts[environment], analyticCapacity);
@@ -718,21 +723,42 @@ kernel void nm_mixed_certify(
             dispatch, contact, environment, pairIndex);
         if (pair.objectIndex != objectIndex ||
             (sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
-        ++activeContactCount;
         maximumBarrierImpulse = max(
-            maximumBarrierImpulse, max(sample.barrier.x, 0.0f));
-        minimumSeparation = min(
-            minimumSeparation, sample.pointAndSeparation.w);
+            maximumBarrierImpulse,
+            max(max(sample.barrier.x, 0.0f),
+                sample.impulseAndNormal.w));
+        const bool fixedPlaneKKT =
+            (sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) != 0u;
+        if (fixedPlaneKKT) {
+            ++fixedPlaneKKTCount;
+            const float lambda = sample.impulseAndNormal.w;
+            fixedPlaneKKTValuesFinite = fixedPlaneKKTValuesFinite &&
+                all(isfinite(sample.normalAndVelocity)) &&
+                all(isfinite(sample.impulseAndNormal)) &&
+                all(isfinite(sample.angularImpulseAndTangent)) &&
+                lambda >= 0.0f &&
+                all(sample.impulseAndNormal.xyz ==
+                    -lambda * sample.normalAndVelocity.xyz);
+        } else {
+            ++geometricContactCount;
+            minimumSeparation = min(
+                minimumSeparation, sample.pointAndSeparation.w);
+        }
         contactCoordinateScale = max(
             contactCoordinateScale,
             maximumAbsoluteCoordinate(sample.pointAndSeparation.xyz));
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             abs(sample.angularImpulseAndTangent.w));
-        contactEnergy += ipcBarrierEnergy(
-            sample.pointAndSeparation.w,
-            sample.barrier.z,
-            sample.barrier.w);
+        const bool mpmContact =
+            object.representation == NM_REPRESENTATION_MPM;
+        if (!fixedPlaneKKT)
+            contactEnergy += ipcBarrierEnergy(
+                sample.pointAndSeparation.w,
+                sample.barrier.z,
+                sample.barrier.w,
+                mpmContact,
+                mpmContact ? sample.barrierHessianRow2.w : 0.0f);
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
     const uint deformableBase = environment * deformableCapacity;
@@ -742,7 +768,7 @@ kernel void nm_mixed_certify(
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
             (deformable.identity.x != objectIndex &&
              deformable.identity.y != objectIndex)) continue;
-        ++activeContactCount;
+        ++geometricContactCount;
         maximumBarrierImpulse = max(
             maximumBarrierImpulse, max(deformable.barrier.x, 0.0f));
         minimumSeparation = min(
@@ -757,15 +783,19 @@ kernel void nm_mixed_certify(
         contactEnergy += ipcBarrierEnergy(
             deformable.pointAndSeparation.w,
             deformable.barrier.z,
-            deformable.barrier.w);
+            deformable.barrier.w,
+            false,
+            0.0f);
     }
     maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
     minimumSeparation = simd_min(minimumSeparation);
     maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
     contactEnergy = simd_sum(contactEnergy);
     contactCoordinateScale = simd_max(contactCoordinateScale);
-    activeContactCount = simd_sum(activeContactCount);
-    if (activeContactCount == 0u) minimumSeparation = 0.0f;
+    geometricContactCount = simd_sum(geometricContactCount);
+    fixedPlaneKKTCount = simd_sum(fixedPlaneKKTCount);
+    fixedPlaneKKTValuesFinite = simd_all(fixedPlaneKKTValuesFinite);
+    if (geometricContactCount == 0u) minimumSeparation = 0.0f;
     float minimumJ = INFINITY;
     float volumeNorm2 = 0.0f;
     uint activeElements = 0u;
@@ -870,8 +900,10 @@ kernel void nm_mixed_certify(
             isfinite(minimumSeparation) &&
             isfinite(maximumTangentialImpulse) &&
             isfinite(contactEnergy) &&
-            (activeContactCount == 0u ||
-             minimumSeparation > collisionThickness);
+            (geometricContactCount == 0u ||
+             (isfinite(minimumSeparation) &&
+              minimumSeparation > collisionThickness)) &&
+            (fixedPlaneKKTCount == 0u || fixedPlaneKKTValuesFinite);
         const bool transportValid = all(isfinite(transport)) &&
             all(transport <= float4(solver.residualTolerances.w));
         if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||

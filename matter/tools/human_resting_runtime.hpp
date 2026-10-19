@@ -964,8 +964,12 @@ struct RestingRun {
             constexpr const char* expectedMaterialSHA256=
                 "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2";
             bloodMaterialSHA256=nmHumanBloodSourceSHA256(path);
-            need(bloodMaterialSHA256==expectedMaterialSHA256,
-                 "blood MPM coalescence requires the exact source-pinned Newtonian proxy material");
+            // This exact variant changes only the interface to declared free slip.
+            constexpr const char* expectedFreeSlipMaterialSHA256=
+                "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f";
+            need(bloodMaterialSHA256==expectedMaterialSHA256 ||
+                 bloodMaterialSHA256==expectedFreeSlipMaterialSHA256,
+                 "blood MPM requires the exact source-pinned constitutive material or explicit free-slip variant");
             double density=0.0;
             double numericalBulkProxy=std::numeric_limits<double>::quiet_NaN();
             bool foundDensity=false,foundBulk=false;

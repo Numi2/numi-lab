@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-006/fixed_plane_kkt.o",
+    "-L/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "Accelerate",
+    "-lz",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-006/fixed_plane_kkt"
+  ],
+  "object": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-006/fixed_plane_kkt.o",
+  "object_sha256": "5039494204c4750db5235a40852ab421bb105bb01fe5f2390105e8749396c753",
+  "library": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/libmetalrobo.dylib",
+  "library_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+  "runtime_source_sha256": "438911d8f1bdaa9f820c6d2bba1bbe87182d2bd14e485f5bbf5fcd2c1e01014c",
+  "output": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-006/fixed_plane_kkt",
+  "executable_sha256": "c010d1b1301d293a7165350818e3bd952dc6245f55159329e72e31b6f6bfd263"
+}

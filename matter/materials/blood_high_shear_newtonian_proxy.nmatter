@@ -7,6 +7,12 @@ material blood_high_shear_newtonian_proxy {
     parameter eta_high_shear : Pa*s = 0.004 in [0.003, 0.005];
     parameter numerical_bulk_proxy : MPa = 2.5 in [1.0, 5.0];
 
+    // A liquid against the fixed boundary uses free-slip normal KKT contact;
+    // viscous shear dissipation remains in the MPM constitutive law above.
+    // This interface is frictionless and non-adhesive; it is not a calibrated
+    // no-slip blood-wall model.
+    interface { static_friction = 0.0; dynamic_friction = 0.0; restitution = 0.0; adhesion = 0.0; }
+
     model generic;
     energy = 0.5 * numerical_bulk_proxy * pow(J() - 1, 2);
 

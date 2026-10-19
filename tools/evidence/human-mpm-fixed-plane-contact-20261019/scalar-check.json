@@ -1,0 +1,11 @@
+{
+  "scope": "algebra only; not native GPU qualification",
+  "argv": [
+    "python3",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/fixed-plane-complementarity-scalar-check.py"
+  ],
+  "script_sha256": "3cd90351aa10568377588cf6d5bfec7d9e06a504a239573366efb66576fdefc3",
+  "exit_code": 0,
+  "stdout": "{\"checks\": 2000, \"max_mass_normalized_jvp_error\": 5.70021103066835e-10, \"rest_load_separation_inward_checks\": \"pass\", \"scope\": \"algebra only; not native GPU validation\"}\nruntime_negative_residual_sign_checks=1000_pass\n",
+  "stderr": ""
+}

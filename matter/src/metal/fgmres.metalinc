@@ -6501,7 +6501,8 @@ kernel void nm_mpm_build_implicit_residual(
         if (pair >= dispatch.contactPairCount) continue;
         const NMContactSampleGPU sample = primalContactSample(
             dispatch, contact, environment, pair);
-        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u &&
+            (sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) == 0u)
             rightHandSide -= sample.impulseAndNormal.xyz;
     }
     const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
@@ -7265,6 +7266,235 @@ kernel void nm_mpm_build_constitutive_residual(
         grids, blocks, blockLookup, blockCounts, blockOffsets,
         sortedParticleIndices, schedulers, adaptive, generations,
         nodeToActive, direction, residual, states, statuses);
+}
+
+inline uint nmMPMFixedPlaneKKTContactPair(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const uint nodeIndex
+) {
+    if (environment >= dispatch.environmentCount ||
+        nodeIndex >= dispatch.gridNodeCount) return NM_INVALID_INDEX;
+    const NMIncidenceRangeGPU rigidRange = contact.nodeRanges[nodeIndex];
+    if (rigidRange.count != 1u) return NM_INVALID_INDEX;
+    const uint pairIndex = contact.nodeIncidence[rigidRange.first];
+    if (pairIndex >= dispatch.contactPairCount) return NM_INVALID_INDEX;
+    const NMContactSampleGPU sample = primalContactSample(
+        dispatch, contact, environment, pairIndex);
+    if ((sample.identity.w & (NM_CONTACT_VALID |
+             NM_CONTACT_MPM_FIXED_PLANE_KKT)) !=
+        (NM_CONTACT_VALID | NM_CONTACT_MPM_FIXED_PLANE_KKT))
+        return NM_INVALID_INDEX;
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[environment * unifiedCount + nodeIndex];
+    const uint deformableBase = environment * dispatch.deformableContactCapacity;
+    for (uint local = 0u; local < deformableRange.count; ++local) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + local];
+        const uint slot = encoded >> 3u;
+        if (slot >= dispatch.deformableContactCapacity) continue;
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + slot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) != 0u)
+            return NM_INVALID_INDEX;
+    }
+    return pairIndex;
+}
+
+inline bool nmMPMFixedPlaneKKTTopologyEligible(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const uint pairIndex,
+    const uint nodeIndex
+) {
+    if (environment >= dispatch.environmentCount ||
+        pairIndex >= dispatch.contactPairCount ||
+        nodeIndex >= dispatch.gridNodeCount) return false;
+    const NMIncidenceRangeGPU rigidRange = contact.nodeRanges[nodeIndex];
+    if (rigidRange.count != 1u ||
+        contact.nodeIncidence[rigidRange.first] != pairIndex)
+        return false;
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[environment * unifiedCount + nodeIndex];
+    const uint deformableBase = environment * dispatch.deformableContactCapacity;
+    for (uint local = 0u; local < deformableRange.count; ++local) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + local];
+        const uint slot = encoded >> 3u;
+        if (slot >= dispatch.deformableContactCapacity) continue;
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + slot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) != 0u)
+            return false;
+    }
+    return true;
+}
+
+inline uint nmMPMMutableContactSampleIndex(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    const uint environment,
+    const uint pairIndex
+) {
+    if (environment >= dispatch.environmentCount ||
+        pairIndex >= dispatch.contactPairCount) return NM_INVALID_INDEX;
+    const uint mode = contact.sampleStorageMode[0];
+    if (mode == 0u)
+        return environment * dispatch.contactPairCount + pairIndex;
+    if (mode != 1u || contact.samplePageComplete[environment] != 1u)
+        return NM_INVALID_INDEX;
+    const uint capacity = contact.sampleCapacity[0];
+    const uint count = min(contact.sampleCounts[environment], capacity);
+    const uint slot = contact.sampleSlotsByPair[
+        environment * dispatch.contactPairCount + pairIndex];
+    if (capacity == 0u || slot == NM_INVALID_INDEX || slot >= count)
+        return NM_INVALID_INDEX;
+    return environment * capacity + slot;
+}
+
+
+// Replace the fixed-plane normal momentum row by the exact one-sided
+// complementarity residual after the complete material/inertia RHS is assembled.
+// b is a Newton impulse RHS (kg m/s), so max(-m v_n, b_n)=0 represents
+// v_n>=0, lambda=-b_n>=0, v_n*lambda=0 without a penalty potential.
+kernel void nm_mpm_apply_fixed_plane_kkt_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMGridNodeStateGPU* nodes [[buffer(1)]],
+    device float4* residual [[buffer(2)]],
+    device const uint* activeIndices [[buffer(3)]],
+    device const uint* activeCounts [[buffer(4)]],
+    device NMContactSampleGPU* writableSamples [[buffer(5)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.mpmActiveNodeCapacity;
+    if (global >= total || dispatch.mpmActiveNodeCapacity == 0u) return;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
+    if (slot >= activeCounts[environment] ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.mpmActiveNodeCapacity + slot];
+    if (nodeIndex >= dispatch.gridNodeCount) return;
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodes[nodeGlobal].positionAndMass.w <= 0.0f) return;
+    const uint pairIndex = nmMPMFixedPlaneKKTContactPair(
+        dispatch, contact, environment, nodeIndex);
+    if (pairIndex == NM_INVALID_INDEX) return;
+    const NMContactSampleGPU sample = primalContactSample(
+        dispatch, contact, environment, pairIndex);
+    const float3 normal = sample.normalAndVelocity.xyz;
+    const float mass = nodes[nodeGlobal].positionAndMass.w;
+    const float3 candidateVelocity = nodes[nodeGlobal].candidateVelocity.xyz;
+    const float4 row = residual[fgmresMPMIndex(dispatch, environment, slot)];
+    const float normalRHS = dot(row.xyz, normal);
+    const float normalVelocity = dot(candidateVelocity, normal);
+    const float constraintRHS = -mass * normalVelocity;
+    const bool active = constraintRHS > normalRHS;
+    const float projectedRHS = max(constraintRHS, normalRHS);
+    residual[fgmresMPMIndex(dispatch, environment, slot)].xyz =
+        row.xyz + (projectedRHS - normalRHS) * normal;
+    // This lane is outside the three-component Newton vector. 2 marks the
+    // active velocity row; 3 marks its free physical row for the matching JVP.
+    nodes[nodeGlobal].candidateVelocity.w = active ? 2.0f : 3.0f;
+
+    const uint sampleIndex = nmMPMMutableContactSampleIndex(
+        dispatch, contact, environment, pairIndex);
+    if (sampleIndex == NM_INVALID_INDEX) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            sample.identity.z, pairIndex,
+            float4(float(contact.sampleStorageMode[0]),
+                   float(contact.sampleCounts[environment]),
+                   float(contact.sampleCapacity[0]), 8.0f));
+        return;
+    }
+    const float lambda = active ? max(-normalRHS, 0.0f) : 0.0f;
+    const float3 rigidImpulse = -lambda * normal;
+    writableSamples[sampleIndex].impulseAndNormal =
+        float4(rigidImpulse, lambda);
+    const NMRigidStateGPU rigid = contact.rigidStates[
+        environment * dispatch.rigidProxyCount + sample.identity.y];
+    writableSamples[sampleIndex].angularImpulseAndTangent.xyz =
+        cross(sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz,
+              rigidImpulse);
+}
+
+// The active complementarity branch replaces only the normal output row.
+// Tangential physical/material rows retain the complete matrix-free operator.
+kernel void nm_fgmres_apply_mpm_fixed_plane_kkt(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const float4* direction [[buffer(4)]],
+    device float4* work [[buffer(5)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.mpmActiveNodeCapacity;
+    if (global >= total || dispatch.mpmActiveNodeCapacity == 0u) return;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
+    if (states[environment].diagnostics.z > 0.5f ||
+        slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.mpmActiveNodeCapacity + slot];
+    if (nodeIndex >= dispatch.gridNodeCount) return;
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodes[nodeGlobal].candidateVelocity.w != 2.0f) return;
+    const uint pairIndex = nmMPMFixedPlaneKKTContactPair(
+        dispatch, contact, environment, nodeIndex);
+    if (pairIndex == NM_INVALID_INDEX) return;
+    const float3 normal = primalContactSample(
+        dispatch, contact, environment, pairIndex).normalAndVelocity.xyz;
+    const uint row = fgmresMPMIndex(dispatch, environment, slot);
+    const float3 value = work[row].xyz;
+    const float3 delta = direction[row].xyz;
+    const float mass = nodes[nodeGlobal].positionAndMass.w;
+    work[row].xyz = value +
+        (mass * dot(delta, normal) - dot(value, normal)) * normal;
+}
+
+kernel void nm_fgmres_precondition_mpm_fixed_plane_kkt(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const float4* basis [[buffer(4)]],
+    device float4* preconditioned [[buffer(5)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.mpmActiveNodeCapacity;
+    if (global >= total || dispatch.mpmActiveNodeCapacity == 0u) return;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
+    if (states[environment].diagnostics.z > 0.5f ||
+        slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.mpmActiveNodeCapacity + slot];
+    if (nodeIndex >= dispatch.gridNodeCount) return;
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodes[nodeGlobal].candidateVelocity.w != 2.0f) return;
+    const uint pairIndex = nmMPMFixedPlaneKKTContactPair(
+        dispatch, contact, environment, nodeIndex);
+    if (pairIndex == NM_INVALID_INDEX) return;
+    const float3 normal = primalContactSample(
+        dispatch, contact, environment, pairIndex).normalAndVelocity.xyz;
+    const float mass = nodes[nodeGlobal].positionAndMass.w;
+    if (!(mass > 0.0f)) return;
+    const uint row = fgmresMPMIndex(dispatch, environment, slot);
+    const float3 rhs = basis[row].xyz;
+    const float3 value = preconditioned[row].xyz;
+    preconditioned[row].xyz = value +
+        (dot(rhs, normal) / mass - dot(value, normal)) * normal;
 }
 
 kernel void nm_fgmres_apply_mpm_constitutive(

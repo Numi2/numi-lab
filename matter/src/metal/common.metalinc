@@ -85,33 +85,85 @@ inline float ccdDistanceRoundoff(
         max(max(thickness, coordinateScale), 1.0e-12f);
 }
 
+inline float nmMPMGridContactClearanceOffset(
+    const float thickness,
+    const float coordinateScale
+) {
+    const float scale = max(max(thickness, coordinateScale), 1.0e-12f);
+    return max(1.0e-4f * thickness, 16.0f * kEpsilon * scale);
+}
+
+// Freeze this offset from the accepted/reference contact geometry for the
+// microstep. MPM's IPC law is evaluated on gap = separation - offset and
+// width = activationThickness - offset, so the variational barrier has its
+// zero-clearance limit at the same numerical floor as the strict CCD/final
+// contact certificates. The offset is numerical geometry policy, not a blood
+// material parameter. FEM keeps its original unshifted barrier.
+inline bool nmMPMShiftBarrierGap(
+    const float separation,
+    const float thickness,
+    const float clearanceOffset,
+    thread float& shiftedGap,
+    thread float& shiftedWidth
+) {
+    if (!isfinite(separation) || !isfinite(thickness) ||
+        !isfinite(clearanceOffset) || clearanceOffset < 0.0f ||
+        !(separation > clearanceOffset) || !(thickness > clearanceOffset)) {
+        return false;
+    }
+    shiftedGap = separation - clearanceOffset;
+    shiftedWidth = thickness - clearanceOffset;
+    return isfinite(shiftedGap) && isfinite(shiftedWidth) &&
+        shiftedGap > 0.0f && shiftedWidth > 0.0f;
+}
+
 inline float ipcBarrierEnergy(
     const float separation,
     const float thickness,
-    const float stiffness
+    const float stiffness,
+    const bool quadraticFloor,
+    const float mpmClearanceOffset
 ) {
     if (!(thickness > 0.0f) || !(stiffness > 0.0f) ||
         separation >= thickness) return 0.0f;
-    const float regularizationFloor = 1.0e-4f * thickness;
-    const float distance = max(separation, regularizationFloor);
+    float gap = separation;
+    float width = thickness;
+    if (quadraticFloor && !nmMPMShiftBarrierGap(
+            separation, thickness, mpmClearanceOffset, gap, width)) {
+        return NAN;
+    }
+    const float defaultFloor = 1.0e-4f * width;
+    const float regularizationFloor = defaultFloor;
+    const float distance = max(gap, regularizationFloor);
     const float squaredDistance = distance * distance;
-    const float squaredThickness = thickness * thickness;
+    const float squaredThickness = width * width;
     const float offset = squaredDistance - squaredThickness;
     const float logarithm = log(squaredDistance / squaredThickness);
     const float energyAtDistance = max(-stiffness * offset * offset *
         logarithm, 0.0f);
-    if (separation >= regularizationFloor) return energyAtDistance;
+    if (gap >= regularizationFloor) return energyAtDistance;
 
-    // Continue the potential linearly below the evaluation floor. The force
-    // kernel evaluates the radial derivative at this same floor, so a flat
-    // clamp here would report a nonzero force with zero energy derivative.
-    // This C1 continuation keeps the overlap force finite and consistent.
     const float firstSquared = -stiffness *
         (2.0f * offset * logarithm +
          offset * offset / squaredDistance);
     const float energyDerivativeAtFloor = 2.0f * distance * firstSquared;
-    return max(energyAtDistance + energyDerivativeAtFloor *
-        (separation - regularizationFloor), 0.0f);
+    if (!quadraticFloor) {
+        // Preserve the existing C1 linear continuation for FEM and all
+        // non-MPM callers. A flat clamp would disagree with the nonzero force.
+        return max(energyAtDistance + energyDerivativeAtFloor *
+            (gap - regularizationFloor), 0.0f);
+    }
+    const float secondSquared = -stiffness *
+        (2.0f * logarithm + 4.0f * offset / squaredDistance -
+         offset * offset / (squaredDistance * squaredDistance));
+    const float radialCurvature = max(
+        4.0f * squaredDistance * secondSquared + 2.0f * firstSquared,
+        0.0f);
+    const float displacement = gap - regularizationFloor;
+    // The quadratic Taylor continuation differentiates the same shifted-gap
+    // IPC potential as the MPM response and its Armijo evaluations.
+    return max(energyAtDistance + energyDerivativeAtFloor * displacement +
+        0.5f * radialCurvature * displacement * displacement, 0.0f);
 }
 
 inline bool finite3(const float3 value) {

@@ -1,0 +1,18 @@
+[
+  "/usr/bin/clang++",
+  "-arch",
+  "arm64",
+  "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/build/probe.o",
+  "-L/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001",
+  "-lmetalrobo",
+  "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001",
+  "-framework",
+  "Foundation",
+  "-framework",
+  "Metal",
+  "-framework",
+  "Accelerate",
+  "-lz",
+  "-o",
+  "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-floor96-reaction-rollback-002/input-probe"
+]

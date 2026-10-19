@@ -1171,4 +1171,21 @@ kernel void nm_mpm_rollback_frame(
     }
 }
 
+kernel void nm_rollback_rigid_reactions_frame(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMRigidReactionGPU* reactions [[buffer(2)]],
+    device const NMRigidReactionGPU* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total || dispatch.rigidProxyCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.rigidProxyCount;
+    if (!environmentHealthy(statuses, environment)) {
+        reactions[global] = checkpoint[global];
+    }
+}
+
 } // namespace numi_matter_metal

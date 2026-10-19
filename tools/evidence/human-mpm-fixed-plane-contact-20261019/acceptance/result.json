@@ -1,0 +1,25 @@
+{
+  "schema": "numi.sustained_blood_mpm_fixed_plane_kkt_acceptance.v2",
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_s": 180,
+  "wall_s": 12.788,
+  "stdout_sha256": "805f65102a27e005163e5549ba8652d0bcf787af81bc479496edd47cc28c9b35",
+  "fixture_executable": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-006/fixed_plane_kkt",
+  "fixture_executable_sha256": "c010d1b1301d293a7165350818e3bd952dc6245f55159329e72e31b6f6bfd263",
+  "runtime_library": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/libmetalrobo.dylib",
+  "runtime_library_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+  "msl_source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/input-MatterSource-reaction-rollback.metal",
+  "msl_source_sha256": "f4ff7cf5e03b18b3ffbcc964e876c54c04cd7725ee4786d51b32ecff2d0377f0",
+  "dyld_library_path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001",
+  "dyld_print_libraries": "1",
+  "loaded_library_lines": [
+    "dyld[67442]: <FABD6FBA-D117-3ADC-90F8-D905F021FCFB> /Users/numi/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/libmetalrobo.dylib"
+  ],
+  "fixture_scope": "one-particle zero-g/rest and gravity-loaded fixed-plane grid-support tests; not pooled fluid",
+  "fixture_args": [
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ]
+}

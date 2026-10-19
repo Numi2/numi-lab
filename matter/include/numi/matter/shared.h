@@ -336,6 +336,8 @@ enum NMContactFlags : nm_u32 {
     // Contact feature geometry is a clipped subtriangle whose shape
     // derivatives map into six parent-triangle FEM nodes.
     NM_CONTACT_MAPPED_FEATURE = 1u << 3u,
+    // Single immutable-plane MPM velocity complementarity row; KKT reaction is in impulseAndNormal.
+    NM_CONTACT_MPM_FIXED_PLANE_KKT = 1u << 8u,
 };
 
 enum NMEventClass : nm_u32 {

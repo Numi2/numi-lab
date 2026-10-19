@@ -1,0 +1,123 @@
+{
+  "schema": "numi.optic_nerve_shared_tissue_rollback_summary.v1",
+  "plan_sha256": "3ce3c32c48922896d02801e795e5f4f6e0e3a11e591c1325fa3ca35502380526",
+  "runner_sha256": "21e96acc16093b92f9b0794e7cffbefa550718b0b6d549ea3faa31fb3e8f4be6",
+  "binary_sha256": "cb3705b2f067c8110af1f85cea2b384adcc45a9150752f8432cf64dd4f5be500",
+  "runtime_library_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+  "attempts": [
+    {
+      "case": "nerve_joint_clean_control",
+      "exit": 0,
+      "wall_seconds": 18.315311666054185,
+      "log": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/candidate-blood-runtime-regression-001/native-kkt-003/nerve_joint_clean_control/native.log"
+    },
+    {
+      "case": "nerve_joint_late_reject_retry",
+      "exit": 0,
+      "wall_seconds": 16.96334683301393,
+      "log": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/candidate-blood-runtime-regression-001/native-kkt-003/nerve_joint_late_reject_retry/native.log"
+    }
+  ],
+  "scope": "two requested 0.25 ms steps with one late rejection at step 1 and same-context retry; merged general tissue source with bilateral optic nerve FEM plus skin/fat, aortic wall, and prostate opt-ins; unqualified organ batch and MPM off; no visual verification",
+  "visual_verification": false,
+  "rollback_log_checks": {
+    "shared_tissue_late_reject_retry=passed": true,
+    "q_v_root_muscle_unchanged=1": true,
+    "matter_vascular_unchanged=1": true,
+    "passive_adapter_history_unchanged=1": true,
+    "brain_respiration_presentation_unchanged=1": true,
+    "body_properties_restored=1": true,
+    "dof_properties_restored=1": true,
+    "same_context_retry=1": true
+  },
+  "accepted_nerve_fem_state": {
+    "clean": {
+      "line_count": 18527,
+      "counts": {
+        "registered_left_optic_nerve_reference_fem": {
+          "nodes": 1728,
+          "tetrahedra": 7675
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "nodes": 1701,
+          "tetrahedra": 7423
+        }
+      },
+      "sha256": "93d96ea282428576d7d40b3577bf07a12eea4f732b27df33535244381d7aa5dd"
+    },
+    "retry": {
+      "line_count": 18527,
+      "counts": {
+        "registered_left_optic_nerve_reference_fem": {
+          "nodes": 1728,
+          "tetrahedra": 7675
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "nodes": 1701,
+          "tetrahedra": 7423
+        }
+      },
+      "sha256": "93d96ea282428576d7d40b3577bf07a12eea4f732b27df33535244381d7aa5dd"
+    },
+    "byte_identical": true
+  },
+  "clean_vs_retry_csv": {
+    "clean_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+    "retry_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+    "byte_identical": true
+  },
+  "comparison_to_published_233_runtime": {
+    "nerve_joint_clean_control": {
+      "output/resting-coupled.csv": {
+        "candidate_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+        "baseline_233_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+        "byte_identical": true
+      },
+      "output/resting-surface-audit.csv": {
+        "candidate_sha256": "731b5b30961a36b392a7d235e431486ef15fd5ba5a740ff667a40e400f91999e",
+        "baseline_233_sha256": "731b5b30961a36b392a7d235e431486ef15fd5ba5a740ff667a40e400f91999e",
+        "byte_identical": true
+      },
+      "accepted_fem_state": {
+        "candidate_rows": 21911,
+        "baseline_233_rows": 21911,
+        "candidate_sha256": "5b23bab4301572d625b3c7e067cb3074d8bac6cebcd7a1ad2bccbe92a18bfce9",
+        "baseline_233_sha256": "5b23bab4301572d625b3c7e067cb3074d8bac6cebcd7a1ad2bccbe92a18bfce9",
+        "byte_identical": true
+      },
+      "loaded_runtime_path_observed": "/Users/numi/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/libmetalrobo.dylib",
+      "loaded_runtime_resolves_to_pinned_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+      "matter_override": {
+        "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/input-MatterSource-reaction-rollback.metal",
+        "sha256": "f4ff7cf5e03b18b3ffbcc964e876c54c04cd7725ee4786d51b32ecff2d0377f0",
+        "mpm_enabled": false
+      }
+    },
+    "nerve_joint_late_reject_retry": {
+      "output/resting-coupled.csv": {
+        "candidate_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+        "baseline_233_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+        "byte_identical": true
+      },
+      "output/resting-surface-audit.csv": {
+        "candidate_sha256": "731b5b30961a36b392a7d235e431486ef15fd5ba5a740ff667a40e400f91999e",
+        "baseline_233_sha256": "731b5b30961a36b392a7d235e431486ef15fd5ba5a740ff667a40e400f91999e",
+        "byte_identical": true
+      },
+      "accepted_fem_state": {
+        "candidate_rows": 21911,
+        "baseline_233_rows": 21911,
+        "candidate_sha256": "5b23bab4301572d625b3c7e067cb3074d8bac6cebcd7a1ad2bccbe92a18bfce9",
+        "baseline_233_sha256": "5b23bab4301572d625b3c7e067cb3074d8bac6cebcd7a1ad2bccbe92a18bfce9",
+        "byte_identical": true
+      },
+      "loaded_runtime_path_observed": "/Users/numi/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/libmetalrobo.dylib",
+      "loaded_runtime_resolves_to_pinned_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+      "matter_override": {
+        "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/input-MatterSource-reaction-rollback.metal",
+        "sha256": "f4ff7cf5e03b18b3ffbcc964e876c54c04cd7725ee4786d51b32ecff2d0377f0",
+        "mpm_enabled": false
+      }
+    }
+  }
+}

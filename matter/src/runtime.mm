@@ -4809,6 +4809,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
+            "nm_rollback_rigid_reactions_frame",
             "nm_checkpoint_scheduler",
             "nm_prepare_scheduler",
             "nm_apply_episode_resets",
@@ -4859,6 +4860,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_learned_rollback",
             "nm_project_rigid_states",
             "nm_contact_initialize_prescribed_fem_candidate",
+            "nm_mpm_initialize_static_plane_candidate",
             "nm_contact_capture_prescribed_endpoint",
             "nm_contact_validate_fem_rigid_armijo_path",
             "nm_contact_validate_prescribed_motion",
@@ -5058,11 +5060,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_human_support_rollback",
             "nm_mpm_build_implicit_residual",
             "nm_mpm_build_constitutive_residual",
+            "nm_mpm_apply_fixed_plane_kkt_residual",
             "nm_fgmres_precondition_mpm",
+            "nm_fgmres_precondition_mpm_fixed_plane_kkt",
             "nm_fgmres_precondition_mpm_patches",
             "nm_fgmres_precondition_mpm_objects",
             "nm_fgmres_apply_mpm",
             "nm_fgmres_apply_mpm_constitutive",
+            "nm_fgmres_apply_mpm_fixed_plane_kkt",
             "nm_fgmres_accumulate_mpm",
             "nm_fgmres_restart_residual_mpm",
             "nm_mpm_limit_implicit_line_search",
@@ -5132,6 +5137,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_accumulate_rigid_reactions",
             "nm_apply_suture_strand_reactions",
             "nm_mpm_g2p",
+            "nm_mpm_certify_fixed_plane_particles",
             "nm_fem_integrate",
             "nm_fem_validate",
             "nm_mpm_commit_microstep",
@@ -8613,6 +8619,8 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         "nm_merge_accepted_step_gate_into_status");
     const auto rollbackPipeline = state.pipelines.find("nm_vascular_rollback");
     const auto mpmRollbackPipeline = state.pipelines.find("nm_mpm_rollback_frame");
+    const auto rigidReactionRollbackPipeline =
+        state.pipelines.find("nm_rollback_rigid_reactions_frame");
     const auto mpmCommitPipeline = state.pipelines.find("nm_mpm_commit_microstep");
     const auto femRollbackPipeline = state.pipelines.find("nm_fem_rollback_frame");
     const auto mixedRollbackPipeline = state.pipelines.find("nm_mixed_rollback");
@@ -8672,7 +8680,12 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     if (gatePipeline == state.pipelines.end() || gatePipeline->second == nil ||
         rollbackPipeline == state.pipelines.end() || rollbackPipeline->second == nil ||
         missingMPMResources || missingFEMResources || missingObjectResources ||
-        missingContactResources) {
+        missingContactResources ||
+        (objectContinuumScope && d.rigidProxyCount != 0u &&
+         (rigidReactionRollbackPipeline == state.pipelines.end() ||
+          rigidReactionRollbackPipeline->second == nil ||
+          state.frameReactions == nil ||
+          state.frameReactionsPreparedCheckpoint == nil))) {
         diagnostics.message =
             "accepted-step finalization or a required FEM/MPM rollback/reconcile pipeline and arena is unavailable";
         return diagnostics;
@@ -8718,6 +8731,21 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
     if (objectContinuumScope) {
+        if (d.rigidProxyCount != 0u) {
+            const NSUInteger reactionTotal =
+                static_cast<NSUInteger>(environmentCount) * d.rigidProxyCount;
+            [encoder setComputePipelineState:rigidReactionRollbackPipeline->second];
+            [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.frameReactions offset:0u atIndex:2u];
+            [encoder setBuffer:state.frameReactionsPreparedCheckpoint
+                         offset:0u atIndex:3u];
+            [encoder dispatchThreads:MTLSizeMake(reactionTotal, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    rigidReactionRollbackPipeline->second.threadExecutionWidth,
+                    1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
         // The external owner gate can reject after a successful Matter solve.
         // Keep the numerical certificate as diagnostics but revoke its
         // publication bit so rejected FEM/MPM work is never advertised valid.
@@ -10006,6 +10034,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
         } else {
             supportInitialBodyLowArena = (__bridge void*)state.humanSupportHistoriesAccepted;
         }
+        if (firstPrePass && !request.enablePreparedState && state.dispatch.rigidProxyCount != 0u) {
+            if (state.frameReactions == nil ||
+                state.frameReactionsPreparedCheckpoint == nil ||
+                state.frameReactionsPreparedCheckpoint.length <
+                    state.frameReactions.length) {
+                diagnostics.message =
+                    "frame-reaction transaction checkpoint arena is unavailable";
+                return diagnostics;
+            }
+            id<MTLBlitCommandEncoder> reactionCheckpointBlit =
+                [commandBuffer blitCommandEncoder];
+            if (reactionCheckpointBlit == nil) {
+                diagnostics.message =
+                    "failed to create frame-reaction transaction checkpoint blit";
+                return diagnostics;
+            }
+            [reactionCheckpointBlit
+                copyFromBuffer:state.frameReactions
+                sourceOffset:0u
+                toBuffer:state.frameReactionsPreparedCheckpoint
+                destinationOffset:0u
+                size:state.frameReactions.length];
+            [reactionCheckpointBlit endEncoding];
+        }
         if (firstPrePass && request.enablePreparedState) {
             id<MTLBlitCommandEncoder> checkpointBlit =
                 [commandBuffer blitCommandEncoder];
@@ -10151,7 +10203,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const auto bindPrimalContactArguments = [&](const NSUInteger index) {
             if (primalResourcesEncoder != encoder) {
                 [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
-                [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
+                [encoder useResource:state.contactSamples
+                             usage:MTLResourceUsageRead |
+                                   MTLResourceUsageWrite];
                 [encoder useResource:state.contactSampleConfiguration
                              usage:MTLResourceUsageRead];
                 [encoder useResource:state.contactSamplePageComplete
@@ -11255,6 +11309,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:13u];
                     [encoder setBuffer:state.femCheckpoint offset:0u atIndex:14u];
                     [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:15u];
+                    bindPrimalContactArguments(16u);
                 }
             );
             // postCommit can reject a candidate that already received a
@@ -11301,6 +11356,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
             });
+            dispatchThreads(
+                "nm_rollback_rigid_reactions_frame", proxyTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.frameReactions offset:0u atIndex:2u];
+                    [encoder setBuffer:state.frameReactionsPreparedCheckpoint
+                               offset:0u atIndex:3u];
+                });
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
                 setDispatch();
@@ -12394,6 +12457,80 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 detail::validateFreeBoxCapsuleProxyScope(proxyScope)))
                         return reason;
                 }
+                return nullptr;
+            };
+            // Read-only admission for the one-object explicit MPM failure audit.
+            // This is intentionally separate from femNewtonTraceScope: solver,
+            // residual-certification, and private FEM audit guards remain FEM-only.
+            const auto mpmNewtonTraceScope = [&]() -> const char* {
+                if (request.physicsSubsteps != 1u ||
+                    request.physicsSubstep != 0u)
+                    return "requires_one_physics_substep_at_index_zero";
+                if (state.dispatch.maximumRateExponent != 0u)
+                    return "requires_maximum_rate_exponent_zero";
+                if (state.dispatch.environmentCount != 1u)
+                    return "requires_one_environment";
+                if (state.dispatch.objectCount != 1u ||
+                    state.objectLayout.size() != 1u ||
+                    state.objectLayout[0].representation != NM_REPRESENTATION_MPM)
+                    return "requires_one_explicit_mpm_object";
+                if (state.dispatch.particleCount == 0u ||
+                    state.dispatch.mpmGridCount != 1u ||
+                    state.dispatch.mpmBlockCount == 0u ||
+                    state.dispatch.mpmActiveNodeCapacity == 0u ||
+                    state.dispatch.femNodeCount != 0u ||
+                    state.dispatch.tetrahedronCount != 0u ||
+                    state.dispatch.rigidGeneralizedCapacity != 0u ||
+                    state.dispatch.rigidQCapacity != 0u ||
+                    state.dispatch.femHumanAttachmentCount != 0u ||
+                    state.fgmresLayout.supportContactCount != 0u)
+                    return "requires_mpm_only_mechanical_rows_without_fem_rigid_or_support_unknowns";
+                const std::uint64_t expectedUnknownCount =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                        state.dispatch.mpmActiveNodeCapacity +
+                    state.fgmresLayout.vascularUnknownCount;
+                if (state.fgmresLayout.unknownCount != expectedUnknownCount ||
+                    state.fgmresLayout.vascularBase !=
+                        std::uint64_t(state.dispatch.environmentCount) *
+                            state.dispatch.mpmActiveNodeCapacity)
+                    return "mpm_vascular_unknown_layout_mismatch";
+                if (state.femResidual == nil || state.fgmresStates == nil ||
+                    state.statuses == nil || state.environmentLineSearch == nil ||
+                    state.femLineSearch == nil || state.gridNodes == nil ||
+                    state.mpmActiveNodeIndices == nil ||
+                    state.mpmActiveNodeCounts == nil ||
+                    state.mpmNodeGenerations == nil)
+                    return "mpm_trace_source_buffer_unavailable";
+                const std::uint64_t residualBytes =
+                    std::uint64_t(state.fgmresLayout.unknownCount) *
+                        sizeof(nm_float4);
+                const std::uint64_t activeIndexBytes =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                        state.dispatch.mpmActiveNodeCapacity * sizeof(std::uint32_t);
+                const std::uint64_t gridNodeStateBytes =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                        state.dispatch.gridNodeCount * 4u * sizeof(nm_float4);
+                const std::uint64_t generationBytes =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                        state.dispatch.gridNodeCount * sizeof(std::uint32_t);
+                if (residualBytes > state.femResidual.length ||
+                    activeIndexBytes > state.mpmActiveNodeIndices.length ||
+                    std::uint64_t(state.dispatch.environmentCount) *
+                        sizeof(std::uint32_t) > state.mpmActiveNodeCounts.length ||
+                    gridNodeStateBytes > state.gridNodes.length ||
+                    generationBytes > state.mpmNodeGenerations.length)
+                    return "mpm_trace_source_extent_mismatch";
+                constexpr std::uint64_t maximumMPMTraceReadbackBytes =
+                    2u * 1024u * 1024u;
+                if (residualBytes + activeIndexBytes +
+                        gridNodeStateBytes + generationBytes >
+                    maximumMPMTraceReadbackBytes)
+                    return "mpm_trace_readback_exceeds_two_mib_bound";
+                return nullptr;
+            };
+            const auto diagnosticNewtonTraceScopeFailure = [&]() -> const char* {
+                if (const char* reason = femNewtonTraceScope(false, 4096u))
+                    return mpmNewtonTraceScope();
                 return nullptr;
             };
             const auto femTrueResidualCapabilityFailure = [&]() -> const char* {
@@ -16146,7 +16283,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope(false, 4096u)) {
+                if (const char* reason = diagnosticNewtonTraceScopeFailure()) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, reason);
                     return true;
@@ -16213,6 +16350,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto iteration = micro.solverIteration;
                 const auto tick = microtick;
                 const auto objectCount = state.dispatch.objectCount;
+                const auto traceIsMPM = state.dispatch.particleCount != 0u;
+                const auto traceRigidProxyCount = state.dispatch.rigidProxyCount;
+                const auto traceContactPairCount = state.dispatch.contactPairCount;
                 // The completion outlives this encoding lambda. Snapshot
                 // values locally so the Objective-C block never keeps its
                 // reference captures through the destroyed C++ closure.
@@ -16235,6 +16375,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          << "fem_newton_iterate={\"schema\":1,\"root\":" << root
                          << ",\"environment_count\":" << capturedEnvironments
                          << ",\"object_count\":" << objectCount
+                         << ",\"solver_scope\":\""
+                         << (traceIsMPM ? "single_object_mpm" : "fem")
+                         << "\",\"mpm_rigid_proxy_count\":" << traceRigidProxyCount
+                         << ",\"mpm_contact_pair_count\":" << traceContactPairCount
                          << ",\"microtick\":" << tick << ",\"iteration\":"
                          << iteration << ",\"stage\":\"" << stage << "\","
                          << "\"semantics\":{\"alpha\":\"environment line-search scalar at this capture boundary\","
@@ -16296,6 +16440,225 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setLabel:@"Numi Matter FEM Newton trace continuation"];
                 return true;
             };
+            const auto encodeMPMNewtonRHSRowsTrace = [&]() -> bool {
+                std::uint32_t root = 0u;
+                if (!selectedFEMNewtonTraceRoot(root) || microtick != 0u ||
+                    micro.solverIteration >= 32u) return true;
+                if (const char* reason = mpmNewtonTraceScope()) {
+                    if (!femNewtonTraceNoticeLogged) {
+                        femNewtonTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "mpm_newton_rhs_rows_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                            root, reason);
+                    }
+                    return true;
+                }
+                const NSUInteger environments = state.dispatch.environmentCount;
+                const NSUInteger capacity = state.dispatch.mpmActiveNodeCapacity;
+                const NSUInteger gridNodeCount = state.dispatch.gridNodeCount;
+                const NSUInteger residualBytes =
+                    state.fgmresLayout.unknownCount * sizeof(nm_float4);
+                const NSUInteger activeIndexBytes =
+                    environments * capacity * sizeof(std::uint32_t);
+                const NSUInteger activeCountBytes =
+                    environments * sizeof(std::uint32_t);
+                const NSUInteger gridNodeStateBytes =
+                    environments * gridNodeCount * 4u * sizeof(nm_float4);
+                const NSUInteger generationBytes =
+                    environments * gridNodeCount * sizeof(std::uint32_t);
+                struct MPMTraceArena {
+                    id<MTLBuffer> source;
+                    NSUInteger bytes;
+                };
+                const std::array<MPMTraceArena, 5u> arenas{{
+                    {state.femResidual, residualBytes},
+                    {state.mpmActiveNodeIndices, activeIndexBytes},
+                    {state.mpmActiveNodeCounts, activeCountBytes},
+                    {state.gridNodes, gridNodeStateBytes},
+                    {state.mpmNodeGenerations, generationBytes},
+                }};
+                const auto alignedBytes = [](const NSUInteger bytes) {
+                    return (bytes + 15u) & ~NSUInteger(15u);
+                };
+                NSUInteger bytes = 0u;
+                for (const auto& arena : arenas)
+                    bytes += alignedBytes(arena.bytes);
+                constexpr NSUInteger maximumSnapshotBytes = 2u * 1024u * 1024u;
+                if (bytes == 0u || bytes > maximumSnapshotBytes) return true;
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) return true;
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after MPM RHS row trace";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter MPM RHS row trace continuation"];
+                    return true;
+                }
+                NSUInteger offset = 0u;
+                std::array<NSUInteger, 5u> offsets{};
+                for (std::size_t index = 0u; index < arenas.size(); ++index) {
+                    offsets[index] = offset;
+                    [copy copyFromBuffer:arenas[index].source sourceOffset:0u
+                        toBuffer:snapshot destinationOffset:offset
+                        size:arenas[index].bytes];
+                    offset += alignedBytes(arenas[index].bytes);
+                }
+                [copy endEncoding];
+                const auto capturedRoot = root;
+                const auto capturedControlStep = request.controlStep;
+                const auto capturedIteration = micro.solverIteration;
+                const auto capturedUnknownCount =
+                    state.fgmresLayout.unknownCount;
+                const auto capturedActiveCapacity =
+                    state.dispatch.mpmActiveNodeCapacity;
+                const auto capturedGridNodeCount =
+                    state.dispatch.gridNodeCount;
+                const auto capturedExpectedGeneration = micro.reserved;
+                const auto capturedMPMBase =
+                    2u * state.dispatch.environmentCount *
+                        state.dispatch.femNodeCount;
+                const auto capturedVascularBase =
+                    state.fgmresLayout.vascularBase;
+                const auto capturedVascularUnknownCount =
+                    state.fgmresLayout.vascularUnknownCount;
+                const auto capturedEnvironmentCount = environments;
+                const auto capturedOffsets = offsets;
+                const auto capturedResidualBytes = residualBytes;
+                const auto capturedActiveIndexBytes = activeIndexBytes;
+                const auto capturedActiveCountBytes = activeCountBytes;
+                const auto capturedGridNodeStateBytes = gridNodeStateBytes;
+                const auto capturedGenerationBytes = generationBytes;
+                const auto capturedAppendTraceFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted ||
+                        snapshot.contents == nullptr) return;
+                    const auto* data = static_cast<const unsigned char*>(
+                        snapshot.contents);
+                    const auto* residual = reinterpret_cast<const nm_float4*>(
+                        data + capturedOffsets[0]);
+                    const auto* activeIndices = reinterpret_cast<const std::uint32_t*>(
+                        data + capturedOffsets[1]);
+                    const auto* activeCounts = reinterpret_cast<const std::uint32_t*>(
+                        data + capturedOffsets[2]);
+                    const auto* gridStates = reinterpret_cast<const nm_float4*>(
+                        data + capturedOffsets[3]);
+                    const auto* generations = reinterpret_cast<const std::uint32_t*>(
+                        data + capturedOffsets[4]);
+                    struct MPMResidualRow {
+                        std::uint32_t activeSlot;
+                        std::uint32_t physicalNode;
+                        std::uint32_t generation;
+                        nm_float4 residual;
+                        nm_float4 positionAndMass;
+                        double magnitude;
+                    };
+                    std::vector<MPMResidualRow> rows;
+                    bool mapValid = activeCounts[0] <= capturedActiveCapacity;
+                    const std::uint32_t activeCount = mapValid
+                        ? activeCounts[0] : 0u;
+                    rows.reserve(activeCount);
+                    for (std::uint32_t slot = 0u; slot < activeCount; ++slot) {
+                        const std::uint32_t node = activeIndices[slot];
+                        if (node >= capturedGridNodeCount) {
+                            mapValid = false;
+                            continue;
+                        }
+                        const std::uint32_t rowIndex = capturedMPMBase + slot;
+                        const nm_float4 r = residual[rowIndex];
+                        const nm_float4 nodeState =
+                            gridStates[(static_cast<std::size_t>(node) * 4u)];
+                        const double magnitude = std::sqrt(
+                            double(r.x) * r.x + double(r.y) * r.y +
+                            double(r.z) * r.z);
+                        if (!std::isfinite(magnitude) ||
+                            !std::isfinite(nodeState.w) || nodeState.w <= 0.0f) {
+                            mapValid = false;
+                            continue;
+                        }
+                        if (generations[node] != capturedExpectedGeneration)
+                            mapValid = false;
+                        rows.push_back(MPMResidualRow{slot, node,
+                            generations[node], r, nodeState, magnitude});
+                    }
+                    std::stable_sort(rows.begin(), rows.end(),
+                        [](const MPMResidualRow& a, const MPMResidualRow& b) {
+                            return a.magnitude > b.magnitude;
+                        });
+                    constexpr std::size_t maximumRows = 12u;
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "mpm_newton_rhs_rows={\"schema\":1,\"control_step\":"
+                         << capturedControlStep << ",\"root\":" << capturedRoot
+                         << ",\"newton_iteration\":" << capturedIteration
+                         << ",\"capture_point\":\"fully_assembled_rhs_before_FGMRES\""
+                         << ",\"rhs_units\":\"N*s\",\"map_valid\":"
+                         << (mapValid ? "true" : "false")
+                         << ",\"mpm_base\":" << capturedMPMBase
+                         << ",\"active_capacity\":" << capturedActiveCapacity
+                         << ",\"active_count\":" << activeCount
+                         << ",\"expected_generation\":"
+                         << capturedExpectedGeneration
+                         << ",\"vascular_base\":" << capturedVascularBase
+                         << ",\"vascular_unknown_count\":"
+                         << capturedVascularUnknownCount
+                         << ",\"unknown_count\":" << capturedUnknownCount
+                         << ",\"source_bytes\":[" << capturedResidualBytes
+                         << ',' << capturedActiveIndexBytes << ','
+                         << capturedActiveCountBytes << ','
+                         << capturedGridNodeStateBytes << ','
+                         << capturedGenerationBytes << "],\"largest_mpm_rows\":[";
+                    const std::size_t recordCount =
+                        std::min(maximumRows, rows.size());
+                    for (std::size_t index = 0u; index < recordCount; ++index) {
+                        if (index != 0u) line << ',';
+                        const auto& row = rows[index];
+                        line << "{\"active_slot\":" << row.activeSlot
+                             << ",\"physical_grid_node\":"
+                             << row.physicalNode << ",\"generation\":"
+                             << row.generation
+                             << ",\"generation_matches_current_microstep\":"
+                             << (row.generation == capturedExpectedGeneration
+                                     ? "true" : "false")
+                             << ",\"mass_kg\":";
+                        capturedAppendTraceFloat(line, row.positionAndMass.w);
+                        line << ",\"position_m\":[";
+                        capturedAppendTraceFloat(line, row.positionAndMass.x);
+                        line << ',';
+                        capturedAppendTraceFloat(line, row.positionAndMass.y);
+                        line << ',';
+                        capturedAppendTraceFloat(line, row.positionAndMass.z);
+                        line << "],\"residual_impulse_Ns\":[";
+                        capturedAppendTraceFloat(line, row.residual.x);
+                        line << ',';
+                        capturedAppendTraceFloat(line, row.residual.y);
+                        line << ',';
+                        capturedAppendTraceFloat(line, row.residual.z);
+                        line << "],\"l2_Ns\":";
+                        capturedAppendTraceFloat(line,
+                            static_cast<float>(row.magnitude));
+                        line << '}';
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after MPM RHS row trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter MPM RHS row trace continuation"];
+                return true;
+            };
             const auto encodeFEMNewtonCertificateTrace = [&]() -> bool {
                 std::uint32_t root = 0u;
                 if (!selectedFEMNewtonTraceRoot(root) || microtick != 0u)
@@ -16304,7 +16667,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
                     return true;
                 }
-                if (const char* reason = femNewtonTraceScope(false, 4096u)) {
+                if (const char* reason = diagnosticNewtonTraceScopeFailure()) {
                     emitFEMNewtonTraceSkip(root, reason);
                     return true;
                 }
@@ -17417,6 +17780,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:6u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:7u];
             });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (state.dispatch.gridNodeCount != 0u &&
+                state.dispatch.contactPairCount != 0u) {
+                const NSUInteger mpmGridNodeTotal = environments *
+                    state.dispatch.gridNodeCount;
+                dispatchThreads("nm_mpm_initialize_static_plane_candidate",
+                    mpmGridNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.contactPairs offset:0u atIndex:4u];
+                    [encoder setBuffer:state.contactNodeIncidence
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.contactNodeRanges
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+                    [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:8u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads("nm_fem_prepare_candidate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -18002,6 +18391,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:22u];
                     [encoder setBuffer:state.contactActiveCounts
                                  offset:0u atIndex:23u];
+                    bindPrimalContactArguments(24u);
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.compactMainContactSamples) {
@@ -21895,6 +22285,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "failed to encode implicit MPM residual work";
                 return diagnostics;
             }
+            dispatchThreads(
+                "nm_mpm_apply_fixed_plane_kkt_residual",
+                mpmActiveNodeTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mpmActiveNodeIndices
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.contactSamples
+                                 offset:0u atIndex:5u];
+                    bindPrimalContactArguments(6u);
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
             dispatchThreads("nm_fgmres_import_field_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:1u];
@@ -21902,6 +22308,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual);
+            if (!encodeMPMNewtonRHSRowsTrace()) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             if (!encodeHumanSupportTrace("assembly", false) ||
                 !encodeVascularTrace("assembly")) {
                 ownership->preDynamicsOpen = false;
@@ -23434,6 +23844,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femOperatorValue
                                      offset:0u atIndex:9u];
                     });
+                dispatchThreads(
+                    "nm_fgmres_precondition_mpm_fixed_plane_kkt",
+                    mpmActiveNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                        [encoder setBuffer:state.mpmActiveNodeIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.mpmActiveNodeCounts
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:5u];
+                        bindPrimalContactArguments(6u);
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:7u];
+                    });
                 if (state.humanEqualityDispatch.count != 0u) {
                     ++diagnostics.humanEqualityPreconditionerDispatchCount;
                     dispatchGroups32("nm_human_equality_precondition", environments, [&] {
@@ -24462,6 +24890,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "failed to encode implicit MPM constitutive action";
                     return diagnostics;
                 }
+                dispatchThreads(
+                    "nm_fgmres_apply_mpm_fixed_plane_kkt",
+                    mpmActiveNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                        [encoder setBuffer:state.mpmActiveNodeIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.mpmActiveNodeCounts
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:5u];
+                        bindPrimalContactArguments(6u);
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:7u];
+                    });
                 if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
@@ -27729,6 +28175,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     ? state.femArmijoSparseContactCandidateCounts
                                     : state.contactActiveCounts)
                                          offset:0u atIndex:23u];
+                            bindPrimalContactArguments(24u);
                         });
                     };
                     if (femSparsePrivateContactEnabled) {
@@ -28663,6 +29110,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "failed to encode final implicit MPM certificate residual";
                 return diagnostics;
             }
+            // Re-project the final reassembled physical MPM RHS and refresh
+            // its fixed-plane KKT dual before publishing reactions/certifying.
+            dispatchThreads(
+                "nm_mpm_apply_fixed_plane_kkt_residual",
+                mpmActiveNodeTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mpmActiveNodeIndices
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.contactSamples
+                                 offset:0u atIndex:5u];
+                    bindPrimalContactArguments(6u);
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
             dispatchThreads("nm_contact_reduce_rigid", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidIncidence offset:0u atIndex:1u];
@@ -28715,6 +29180,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.schedulers offset:0u atIndex:14u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:15u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchThreads("nm_mpm_certify_fixed_plane_particles",
+                particleTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.particleCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.objects offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmGrids offset:0u atIndex:5u];
+                [encoder setBuffer:state.contactPairs offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactNodeIncidence
+                             offset:0u atIndex:7u];
+                [encoder setBuffer:state.contactNodeRanges
+                             offset:0u atIndex:8u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:9u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:10u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:13u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
             });
             dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
                 setDispatch();
@@ -29135,6 +29621,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
             [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
         });
+        dispatchThreads(
+            "nm_rollback_rigid_reactions_frame", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.frameReactions offset:0u atIndex:2u];
+                [encoder setBuffer:state.frameReactionsPreparedCheckpoint
+                           offset:0u atIndex:3u];
+            });
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
                 setDispatch();

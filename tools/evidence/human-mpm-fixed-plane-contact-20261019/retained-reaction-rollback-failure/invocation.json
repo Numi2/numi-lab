@@ -1,0 +1,32 @@
+{
+  "schema": "numi.fixed_plane_kkt_acceptance.invocation.v1",
+  "source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/fixed_plane_kkt.mm",
+  "source_sha256": "2cc255c9db0c451aeb360466c36c415981c417046aa9564a5639db650472e884",
+  "fixture_support": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native/fixture_local.mm",
+  "fixture_support_sha256": "f40ba5d818a1d2983bf4d8b834a3f5f56fb7af35fac1b1398da72175307213be",
+  "args": [
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "msl_source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-MatterSource.metal",
+  "msl_sha256": "378c78f27c2185de3845acb2b13b8ccb9b9ff5d9d97647992efe3931e60d2102",
+  "runtime_source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-runtime.mm",
+  "runtime_sha256": "503f93ab4932634f3acf6becaa5fc3b7d81efcb4fbcd040d811daff89b609e57",
+  "runtime_library": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/loader/libmetalrobo.dylib",
+  "runtime_library_sha256": "3378217e7b89b9f5907b867f2c32b5b68f45ffd49b469a00ade057a5a93f1b37",
+  "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+  "fixture_scope": "one particle zero-g rest and gravity-loaded fixed-plane grid-support test; rollback/retry; not pooled fluid",
+  "build_dir": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005",
+  "compile_manifest": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005/compile-final.json",
+  "compile_manifest_sha256": "d5b52a33fb3a906673f141a3d70b9da340adc60bad28feb24fdd8b8dfd241f1d",
+  "object": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005/fixed_plane_kkt.o",
+  "object_sha256": "3945d35f8fca20e7112565d8e88338253ebb6a024ad922ae712e1bf3a026e6b8",
+  "link_manifest": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005/link-final.json",
+  "link_manifest_sha256": "cbd1eab2e0e920e089e330fb4c43e37074a5dfd83eb45400faabd4aac4c504b0",
+  "executable": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/build-diagnostic-005/fixed_plane_kkt",
+  "executable_sha256": "b32141e376f9ae7293c821291e345ac3e42b7c86d3c5e9bef4f55d61cdc9e7b5",
+  "runner": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-kkt-acceptance-001/native-rest-load-004/run_bounded.py",
+  "runner_sha256": "f1db8f9276f378d845a08168373c398e839961d08b740b2ac12c4bf6aecda2fc",
+  "native_status": "ready; not launched pending GPU slot"
+}

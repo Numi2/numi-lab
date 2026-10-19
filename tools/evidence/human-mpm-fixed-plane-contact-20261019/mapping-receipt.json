@@ -1,0 +1,733 @@
+{
+  "exact_flat_reconstruction": true,
+  "files": [
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/common.metalinc",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/mixed_fem.metalinc",
+    "matter/src/metal/mpm.metalinc"
+  ],
+  "edits": [
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        394611,
+        394611
+      ],
+      "old_source_range": [
+        4080,
+        4080
+      ],
+      "new_bytes": 1313
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        394697,
+        394723
+      ],
+      "old_source_range": [
+        4166,
+        4192
+      ],
+      "new_bytes": 93
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        394827,
+        394951
+      ],
+      "old_source_range": [
+        4296,
+        4420
+      ],
+      "new_bytes": 360
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        395006,
+        395064
+      ],
+      "old_source_range": [
+        4475,
+        4533
+      ],
+      "new_bytes": 50
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        395290,
+        395358
+      ],
+      "old_source_range": [
+        4759,
+        4827
+      ],
+      "new_bytes": 61
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        395359,
+        395663
+      ],
+      "old_source_range": [
+        4828,
+        5132
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/common.metalinc",
+      "old_flat_range": [
+        395863,
+        395974
+      ],
+      "old_source_range": [
+        5332,
+        5443
+      ],
+      "new_bytes": 941
+    },
+    {
+      "file": "matter/src/metal/mpm.metalinc",
+      "old_flat_range": [
+        539789,
+        539789
+      ],
+      "old_source_range": [
+        45932,
+        45932
+      ],
+      "new_bytes": 667
+    },
+    {
+      "file": "matter/src/metal/fgmres.metalinc",
+      "old_flat_range": [
+        1120597,
+        1120655
+      ],
+      "old_source_range": [
+        311495,
+        311553
+      ],
+      "new_bytes": 132
+    },
+    {
+      "file": "matter/src/metal/fgmres.metalinc",
+      "old_flat_range": [
+        1158693,
+        1158693
+      ],
+      "old_source_range": [
+        349591,
+        349591
+      ],
+      "new_bytes": 11500
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1724237,
+        1724271
+      ],
+      "old_source_range": [
+        32919,
+        32953
+      ],
+      "new_bytes": 355
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1725033,
+        1725063
+      ],
+      "old_source_range": [
+        33715,
+        33745
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1725100,
+        1725259
+      ],
+      "old_source_range": [
+        33782,
+        33941
+      ],
+      "new_bytes": 919
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1725535,
+        1725680
+      ],
+      "old_source_range": [
+        34217,
+        34362
+      ],
+      "new_bytes": 374
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1726185,
+        1726215
+      ],
+      "old_source_range": [
+        34867,
+        34897
+      ],
+      "new_bytes": 33
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1726840,
+        1726875
+      ],
+      "old_source_range": [
+        35522,
+        35557
+      ],
+      "new_bytes": 72
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1727170,
+        1727285
+      ],
+      "old_source_range": [
+        35852,
+        35967
+      ],
+      "new_bytes": 248
+    },
+    {
+      "file": "matter/src/metal/mixed_fem.metalinc",
+      "old_flat_range": [
+        1732145,
+        1732240
+      ],
+      "old_source_range": [
+        40827,
+        40922
+      ],
+      "new_bytes": 216
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1816567,
+        1816596
+      ],
+      "old_source_range": [
+        20729,
+        20758
+      ],
+      "new_bytes": 129
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1816775,
+        1816840
+      ],
+      "old_source_range": [
+        20937,
+        21002
+      ],
+      "new_bytes": 389
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1816895,
+        1816953
+      ],
+      "old_source_range": [
+        21057,
+        21115
+      ],
+      "new_bytes": 50
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1817220,
+        1817304
+      ],
+      "old_source_range": [
+        21382,
+        21466
+      ],
+      "new_bytes": 76
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1817458,
+        1817527
+      ],
+      "old_source_range": [
+        21620,
+        21689
+      ],
+      "new_bytes": 120
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1817816,
+        1818044
+      ],
+      "old_source_range": [
+        21978,
+        22206
+      ],
+      "new_bytes": 822
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1818183,
+        1818183
+      ],
+      "old_source_range": [
+        22345,
+        22345
+      ],
+      "new_bytes": 2211
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        1833363,
+        1833424
+      ],
+      "old_source_range": [
+        37525,
+        37586
+      ],
+      "new_bytes": 74
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2034790,
+        2034846
+      ],
+      "old_source_range": [
+        238952,
+        239008
+      ],
+      "new_bytes": 75
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2034900,
+        2034951
+      ],
+      "old_source_range": [
+        239062,
+        239113
+      ],
+      "new_bytes": 64
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2118327,
+        2118327
+      ],
+      "old_source_range": [
+        322489,
+        322489
+      ],
+      "new_bytes": 15378
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2135134,
+        2135134
+      ],
+      "old_source_range": [
+        339296,
+        339296
+      ],
+      "new_bytes": 63
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2137637,
+        2137637
+      ],
+      "old_source_range": [
+        341799,
+        341799
+      ],
+      "new_bytes": 157
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2137718,
+        2137718
+      ],
+      "old_source_range": [
+        341880,
+        341880
+      ],
+      "new_bytes": 179
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2138030,
+        2138118
+      ],
+      "old_source_range": [
+        342192,
+        342280
+      ],
+      "new_bytes": 2286
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2138457,
+        2138457
+      ],
+      "old_source_range": [
+        342619,
+        342619
+      ],
+      "new_bytes": 172
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2139496,
+        2139561
+      ],
+      "old_source_range": [
+        343658,
+        343723
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2140471,
+        2140590
+      ],
+      "old_source_range": [
+        344633,
+        344752
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2144016,
+        2144140
+      ],
+      "old_source_range": [
+        348178,
+        348302
+      ],
+      "new_bytes": 3860
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2145831,
+        2145831
+      ],
+      "old_source_range": [
+        349993,
+        349993
+      ],
+      "new_bytes": 74
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2155719,
+        2155788
+      ],
+      "old_source_range": [
+        359881,
+        359950
+      ],
+      "new_bytes": 287
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2155869,
+        2155869
+      ],
+      "old_source_range": [
+        360031,
+        360031
+      ],
+      "new_bytes": 222
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2158232,
+        2158232
+      ],
+      "old_source_range": [
+        362394,
+        362394
+      ],
+      "new_bytes": 63
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2159225,
+        2159225
+      ],
+      "old_source_range": [
+        363387,
+        363387
+      ],
+      "new_bytes": 179
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2159853,
+        2159853
+      ],
+      "old_source_range": [
+        364015,
+        364015
+      ],
+      "new_bytes": 1188
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2159979,
+        2160100
+      ],
+      "old_source_range": [
+        364141,
+        364262
+      ],
+      "new_bytes": 173
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2161010,
+        2161075
+      ],
+      "old_source_range": [
+        365172,
+        365237
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2162050,
+        2162164
+      ],
+      "old_source_range": [
+        366212,
+        366326
+      ],
+      "new_bytes": 0
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2164873,
+        2164873
+      ],
+      "old_source_range": [
+        369035,
+        369035
+      ],
+      "new_bytes": 7162
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2304256,
+        2304256
+      ],
+      "old_source_range": [
+        445724,
+        445724
+      ],
+      "new_bytes": 1316
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2306533,
+        2306533
+      ],
+      "old_source_range": [
+        448001,
+        448001
+      ],
+      "new_bytes": 109
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2306579,
+        2306648
+      ],
+      "old_source_range": [
+        448047,
+        448116
+      ],
+      "new_bytes": 31
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2306821,
+        2306821
+      ],
+      "old_source_range": [
+        448289,
+        448289
+      ],
+      "new_bytes": 400
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2306883,
+        2306971
+      ],
+      "old_source_range": [
+        448351,
+        448439
+      ],
+      "new_bytes": 336
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2307019,
+        2307085
+      ],
+      "old_source_range": [
+        448487,
+        448553
+      ],
+      "new_bytes": 46
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2307917,
+        2307972
+      ],
+      "old_source_range": [
+        449385,
+        449440
+      ],
+      "new_bytes": 1753
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2308851,
+        2309037
+      ],
+      "old_source_range": [
+        450319,
+        450505
+      ],
+      "new_bytes": 2625
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2309408,
+        2309469
+      ],
+      "old_source_range": [
+        450876,
+        450937
+      ],
+      "new_bytes": 146
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2310181,
+        2310181
+      ],
+      "old_source_range": [
+        451649,
+        451649
+      ],
+      "new_bytes": 760
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2310430,
+        2310500
+      ],
+      "old_source_range": [
+        451898,
+        451968
+      ],
+      "new_bytes": 76
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2310670,
+        2310744
+      ],
+      "old_source_range": [
+        452138,
+        452212
+      ],
+      "new_bytes": 175
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2310802,
+        2310863
+      ],
+      "old_source_range": [
+        452270,
+        452331
+      ],
+      "new_bytes": 71
+    }
+  ]
+}
