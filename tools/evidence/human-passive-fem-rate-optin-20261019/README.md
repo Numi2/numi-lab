@@ -1,0 +1,7 @@
+# Explicit FEM-only subdivision cap
+
+The existing compiler/runtime can use an explicit maximum rate exponent through `NUMI_HUMAN_PASSIVE_FEM_MAX_RATE_EXPONENT` (0 through 8). Requires FEM and rejects MPM-blood scenes. Unset preserves exponent 8. Physical frame duration, materials, acceptance tolerances, contact certificates and rollback remain unchanged. This changes numerical subdivision, so it is an opt-in experiment, not an equivalent default replacement.
+
+On SSH Numi Apple M6, rate 0 plus existing FGMRES16 accepted one combined skin/fat, prostate and aortic-reservoir frame of 0.25 ms in 1.726 s of physics (14.105 s including startup). Earlier rate8/FGMRES16 physics was 40.717 s; instrumentation differs, and this is not a general speedup qualification. Two additional 0.25 ms steps passed clean and late-reject/same-context retry, with all eight rollback checks and identical trace bytes. This is 0.5 ms only, not sustained tissue, blood, anatomy or physiological qualification.
+
+One-frame trace comparison records changes, including PaO2 differing by 0.328 mmHg; numerical convergence and gas/circuit sensitivity remain open. Regional skin/fat and closed reservoir wall do not constitute whole-body tissue contact or a patent vessel network. No visual verification was performed. Existing source assets and their rights remain with their owning evidence bundles. Exact source/binary/library/asset hashes and invocation are retained.

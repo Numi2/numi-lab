@@ -1,0 +1,38 @@
+{
+  "schema": "numi.continuum_joint_shared_tissue_rollback_retry_summary_rate252.v1",
+  "plan_sha256": "8891cbc8abc111a55b8827c78bdee72ce217ed4ada20019d1197d9a5cfec7521",
+  "runner_sha256": "22a1f14dcf7023b40b557b115b4d90ba74b41ca955fbf89aa6a0b72ad3459533",
+  "binary_sha256": "bea08f8f12d06e3785eccfb029ca8f3d21b75e400c75c78788f270f4703cb677",
+  "runtime_library_sha256": "3c3b01bd10d8f37424ec80ffc2bd98083d59b8cd0c004873236e69d2c773ff9b",
+  "attempts": [
+    {
+      "name": "joint_clean_control",
+      "process_exit": 0,
+      "wall_seconds": 12.7828125829692,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/passive-fem-rate-252/followup-rollback-253/native-run-001/joint_clean_control/invocation.json"
+    },
+    {
+      "name": "joint_late_reject_retry",
+      "process_exit": 0,
+      "wall_seconds": 14.494035292009357,
+      "receipt": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/passive-fem-rate-252/followup-rollback-253/native-run-001/joint_late_reject_retry/invocation.json"
+    }
+  ],
+  "rollback_exact_state_checks": {
+    "shared_tissue_late_reject_retry=passed": true,
+    "q_v_root_muscle_unchanged=1": true,
+    "matter_vascular_unchanged=1": true,
+    "passive_adapter_history_unchanged=1": true,
+    "brain_respiration_presentation_unchanged=1": true,
+    "body_properties_restored=1": true,
+    "dof_properties_restored=1": true,
+    "same_context_retry=1": true
+  },
+  "clean_vs_retry_trace": {
+    "path": "output/resting-coupled.csv",
+    "clean_sha256": "3f06f1f7fd4de464eac97d1e57304dac8c12748b6d3298ef2c0bb0002968fcd8",
+    "retry_sha256": "3f06f1f7fd4de464eac97d1e57304dac8c12748b6d3298ef2c0bb0002968fcd8",
+    "byte_identical": true
+  },
+  "scope": "two 0.25 ms steps on rate252 binary, FEM rate exponent 0, FGMRES budget 16; joint skin/fat, aortic wall, and prostate opt-ins; late reject at step 1 plus same-context retry; MPM off; no visual verification"
+}

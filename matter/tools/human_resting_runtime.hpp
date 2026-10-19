@@ -1084,6 +1084,18 @@ struct RestingRun {
                 maximumRateExponent=static_cast<std::uint32_t>(parsed);
             }
         }
+        if(const char* bounded=std::getenv("NUMI_HUMAN_PASSIVE_FEM_MAX_RATE_EXPONENT")) {
+            need(!bloodEnabled && containsFEMObject(source),
+                 "passive FEM rate cap requires FEM without MPM blood");
+            char* end=nullptr;
+            const unsigned long parsed=std::strtoul(bounded,&end,10);
+            need(end!=bounded && *end=='\0' && parsed<=NM_MAX_RATE_EXPONENT,
+                 "passive FEM rate cap must be an integer from 0 through 8");
+            maximumRateExponent=static_cast<std::uint32_t>(parsed);
+        }
+        std::cerr<<"passive_fem_clock_selection maximum_rate_exponent="
+                 <<maximumRateExponent<<" physical_frame_s="<<source.frameTimestep
+                 <<" blood_enabled="<<bloodEnabled<<"\n";
         auto compiled=compileWorld(source,{.maximumRateExponent=maximumRateExponent});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);

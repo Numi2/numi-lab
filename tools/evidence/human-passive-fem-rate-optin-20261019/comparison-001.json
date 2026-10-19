@@ -1,0 +1,142 @@
+{
+  "scope": "one 0.25ms step only; numerical subdivision changes; not whole-state equivalence",
+  "baseline_sha256": "7e5d177ae7cbfe5c7c470bcfa8814e394f469678d1cd62289bedbb6a94b0a800",
+  "candidate_sha256": "cec0dededff68a14f7ff21e3f03345774a99ceb090df8a18248a16ab64906714",
+  "changed_columns": {
+    "PaO2_mmhg": {
+      "rate8": 100.327064514,
+      "rate0": 99.9994125366,
+      "absolute_difference": 0.3276519773999951
+    },
+    "PaCO2_mmhg": {
+      "rate8": 40.0232963562,
+      "rate0": 39.999961853,
+      "absolute_difference": 0.023334503199997414
+    },
+    "SaO2": {
+      "rate8": 0.9724573493,
+      "rate0": 0.972219824791,
+      "absolute_difference": 0.00023752450900005329
+    },
+    "oxygen_balance_error_stpd_ml": {
+      "rate8": 0.0,
+      "rate0": 0.000116415321827,
+      "absolute_difference": 0.000116415321827
+    },
+    "lv_mmhg": {
+      "rate8": 6.71046956254,
+      "rate0": 6.71044484128,
+      "absolute_difference": 2.4721259999971323e-05
+    },
+    "rv_mmhg": {
+      "rate8": 0.789411768251,
+      "rate0": 0.789398949816,
+      "absolute_difference": 1.2818435000006012e-05
+    },
+    "aorta_mmhg": {
+      "rate8": 85.4413526344,
+      "rate0": 85.471538218,
+      "absolute_difference": 0.030185583600001564
+    },
+    "pulmonary_artery_mmhg": {
+      "rate8": 13.8290167544,
+      "rate0": 13.8288418743,
+      "absolute_difference": 0.00017488009999944154
+    },
+    "lv_ml": {
+      "rate8": 118.78443911,
+      "rate0": 118.784199003,
+      "absolute_difference": 0.00024010699999621465
+    },
+    "rv_ml": {
+      "rate8": 138.387753395,
+      "rate0": 138.387506013,
+      "absolute_difference": 0.00024738199999774224
+    },
+    "blood_ml": {
+      "rate8": 5150.00103042,
+      "rate0": 5150.00009909,
+      "absolute_difference": 0.0009313299997302238
+    },
+    "blood_error_ml": {
+      "rate8": 0.000931322574615,
+      "rate0": 0.0,
+      "absolute_difference": 0.000931322574615
+    },
+    "right_atrium_ml": {
+      "rate8": 32.254600228,
+      "rate0": 32.2548185068,
+      "absolute_difference": 0.00021827879999847255
+    },
+    "left_atrium_ml": {
+      "rate8": 47.7281901112,
+      "rate0": 47.7284556837,
+      "absolute_difference": 0.0002655724999982567
+    },
+    "blood_continuity_residual_accum_ml": {
+      "rate8": 0.000824034174229,
+      "rate0": -3.12851966555e-05,
+      "absolute_difference": 0.0008553193708845
+    },
+    "blood_physical_delta_accum_ml": {
+      "rate8": 0.000813088263385,
+      "rate0": -2.91038304567e-05,
+      "absolute_difference": 0.0008421920938417
+    },
+    "blood_residual_minus_physical_ml": {
+      "rate8": 1.09459108444e-05,
+      "rate0": -2.18136619878e-06,
+      "absolute_difference": 1.312727704318e-05
+    },
+    "blood_endpoint_minus_physical_ml": {
+      "rate8": 0.00011823431123,
+      "rate0": 2.91038304567e-05,
+      "absolute_difference": 8.91304807733e-05
+    },
+    "gas_max_donor_fraction": {
+      "rate8": 0.0143981063738,
+      "rate0": 0.00657628569752,
+      "absolute_difference": 0.007821820676280001
+    },
+    "normal_impulse_ns": {
+      "rate8": 0.234470233321,
+      "rate0": 0.234413787723,
+      "absolute_difference": 5.644559799999893e-05
+    },
+    "pre_projection_limit_residual_generalized_s": {
+      "rate8": 2.4715146596e-10,
+      "rate0": 3.80896286734e-10,
+      "absolute_difference": 1.33744820774e-10
+    },
+    "pre_projection_equality_residual_generalized_s": {
+      "rate8": 4.76220729517e-10,
+      "rate0": 9.02127261782e-10,
+      "absolute_difference": 4.25906532265e-10
+    },
+    "post_projection_contact_residual_m_s": {
+      "rate8": 4.02645937425e-11,
+      "rate0": 8.45657502357e-11,
+      "absolute_difference": 4.43011564932e-11
+    },
+    "post_projection_limit_residual_generalized_s": {
+      "rate8": 2.4715146596e-10,
+      "rate0": 3.80896286734e-10,
+      "absolute_difference": 1.33744820774e-10
+    },
+    "post_projection_equality_residual_generalized_s": {
+      "rate8": 1.37350575358e-10,
+      "rate0": 2.11094253189e-10,
+      "absolute_difference": 7.374367783100001e-11
+    },
+    "equality_position_projection_max_generalized": {
+      "rate8": 1.13686837722e-13,
+      "rate0": 2.27373675443e-13,
+      "absolute_difference": 1.1368683772099999e-13
+    },
+    "equality_velocity_projection_max_generalized_s": {
+      "rate8": 4.65661287308e-10,
+      "rate0": 9.31322574615e-10,
+      "absolute_difference": 4.6566128730699997e-10
+    }
+  }
+}
