@@ -1,0 +1,55 @@
+{
+  "header_sha256": "13986f8dec9bb6dca61286309eb765fcf731ba59d571d9a141ae2f4acc4a9d87",
+  "results": [
+    {
+      "name": "layer-fitting-test",
+      "argv": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/layer-fitting-test.cpp",
+        "-o",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/layer-fitting-test"
+      ],
+      "compile_exit": 0,
+      "compile_stderr": "",
+      "run_exit": 0,
+      "stdout": "fitting=PASS iterations=1 adjusted_fat=512 min_fat_m=0.00576\ninvalid_field_rejected=PASS exterior_unchanged=PASS\n",
+      "stderr": "",
+      "wall_seconds": 1.05600725003751
+    },
+    {
+      "name": "variable-test",
+      "argv": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/apps",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+        "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+        "/Users/n/numi-lab-native-replay-publish-20261017/tests/human_skin_variable_thickness.cpp",
+        "-o",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/variable-test"
+      ],
+      "compile_exit": 0,
+      "compile_stderr": "",
+      "run_exit": 0,
+      "stdout": "variable_fields=PASS skin_minmax_m=.0018,.0034 fat_minmax_m=.003,.019 skin_volume_m3=0.0103735 fat_volume_m3=0.0433572 unique_mass_residual_kg=6.56166e-15 shared_nodes=18 tets=48 donor_rotation_map_error_m=1.11024e-16 scalar_constant_field=bitwise_equal invalid_count_nan_range_tiny_inversion_singular_map=REJECTED\n",
+      "stderr": "",
+      "wall_seconds": 1.2974142910097726
+    }
+  ]
+}

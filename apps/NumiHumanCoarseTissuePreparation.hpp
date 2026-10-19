@@ -92,7 +92,9 @@ struct PreparedOrganicFEM {
     std::vector<NumiHumanTissueMassNode> donorMassNodes;
 };
 
-inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, std::string& error,bool allowBoundaryLoops=false) {
+inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, std::string& error,bool allowBoundaryLoops=false,
+        std::vector<std::array<std::uint32_t,2>>* crossingPairs=nullptr) {
+    if(crossingPairs)crossingPairs->clear();
     out={};
     auto fail=[&](const char* m){error=m;return false;};
     auto hashOK=[](const std::string& h){return h.size()==64&&std::all_of(h.begin(),h.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');});};
@@ -174,8 +176,9 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
         out.testedPairs++;
         bool hit=false;for(int e=0;e<3;e++)hit=hit||segTri(tri[i][e],tri[i][(e+1)%3],tri[j])||segTri(tri[j][e],tri[j][(e+1)%3],tri[i]);
         if(!hit)hit=coplanarTriangleOverlap(tri[i],a,tri[j],b,scale,std::max(eps*10.0,scale*1e-8));
-        if(hit)return fail("source has a self-intersecting triangle pair");
+        if(hit){if(crossingPairs)crossingPairs->push_back({i,j});else return fail("source has a self-intersecting triangle pair");}
     }}
+    if(crossingPairs&&!crossingPairs->empty())return fail("source has self-intersecting triangle pairs");
     out.volumeM3=out.boundaryEdgeCount==0?vol:0.0;out.minFaceAreaM2=minArea;return true;
 }
 
@@ -341,7 +344,13 @@ inline RegisteredSurface offsetRegisteredSurface(const RegisteredSurface& source
 inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const SkinFatReference& ref,
         std::span<const double> skinThicknessByVertexM,std::span<const double> fatThicknessByVertexM,
         std::string_view skinThicknessProvenance,std::string_view fatThicknessProvenance,
-        PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error){
+        PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error,
+        std::vector<std::uint32_t>* failedVertices=nullptr,std::uint32_t* failedStage=nullptr){
+    if(failedVertices)failedVertices->clear();
+    if(failedStage)*failedStage=0;
+    auto markFace=[&](std::uint32_t face){if(failedVertices&&face<skin.faces.size())for(auto v:skin.faces[face])failedVertices->push_back(v);};
+    auto markPairs=[&](const auto& pairs){for(const auto& pair:pairs){markFace(pair[0]);markFace(pair[1]);}
+        if(failedVertices){std::sort(failedVertices->begin(),failedVertices->end());failedVertices->erase(std::unique(failedVertices->begin(),failedVertices->end()),failedVertices->end());}};
     GeometryAudit sourceAudit;if(!auditClosedSurface(skin,sourceAudit,error,true)){error="skin source surface: "+error;return false;}
     const std::size_t n=skin.worldPoints.size();
     if(skinThicknessByVertexM.size()!=n||fatThicknessByVertexM.size()!=n){error="per-vertex skin/fat thickness field count must exactly match registered source vertices";return false;}
@@ -399,28 +408,33 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
         fatInner.donorLocalPoints[i]=sub(skinInner.donorLocalPoints[i],mul(innerLocalNormals[i],fatThicknessByVertexM[i]));
     }
     GeometryAudit innerAudit,fatAudit;
-    if(!auditClosedSurface(skinInner,innerAudit,error,true)){error="inner skin boundary: "+error;return false;}
-    if(!auditClosedSurface(fatInner,fatAudit,error,true)){error="inner fat boundary: "+error;return false;}
+    std::vector<std::array<std::uint32_t,2>> pairs;
+    if(!auditClosedSurface(skinInner,innerAudit,error,true,failedVertices?&pairs:nullptr)){
+        if(failedStage)*failedStage=1;markPairs(pairs);error="inner skin boundary: "+error;return false;}
+    if(!auditClosedSurface(fatInner,fatAudit,error,true,failedVertices?&pairs:nullptr)){
+        if(failedStage)*failedStage=2;markPairs(pairs);error="inner fat boundary: "+error;return false;}
     auto pairedVolume=[&](const std::vector<V3>& outer,const std::vector<V3>& inner,std::span<const double> thickness,double& total,std::uint32_t& failedFace){
-        total=0;failedFace=NM_INVALID_INDEX;
+        total=0;failedFace=NM_INVALID_INDEX;bool allValid=true;
         const bool uniform=std::all_of(thickness.begin(),thickness.end(),[&](double value){return value==thickness.front();});
         const double uniformScale=uniform?std::max(1e-8,norm(sub(outer[0],inner[0]))):0.0;
         for(std::uint32_t fi=0;fi<skin.faces.size();fi++){
             auto face=skin.faces[fi];std::sort(face.begin(),face.end());const auto a=face[0],b=face[1],c=face[2];
             const double scale=uniform?uniformScale:std::max(1e-8,std::max({thickness[a],thickness[b],thickness[c]})),tol=scale*scale*scale*1e-12;
             const double v0=tetVolume(outer[a],outer[b],outer[c],inner[c]),v1=tetVolume(outer[a],outer[b],inner[b],inner[c]),v2=tetVolume(outer[a],inner[a],inner[b],inner[c]);
-            if(!std::isfinite(v0)||!std::isfinite(v1)||!std::isfinite(v2)||std::abs(v0)<=tol||std::abs(v1)<=tol||std::abs(v2)<=tol){failedFace=fi;return false;}
+            if(!std::isfinite(v0)||!std::isfinite(v1)||!std::isfinite(v2)||std::abs(v0)<=tol||std::abs(v1)<=tol||std::abs(v2)<=tol){failedFace=fi;markFace(fi);allValid=false;if(!failedVertices)return false;continue;}
             const double sign=dot(cross(sub(outer[b],outer[a]),sub(outer[c],outer[a])),sub(inner[c],outer[c]));
-            if(!std::isfinite(sign)||std::abs(sign)<=tol||((v0>0)!=(sign>0))||((v1>0)==(sign>0))||((v2>0)!=(sign>0))){failedFace=fi;return false;}
+            if(!std::isfinite(sign)||std::abs(sign)<=tol||((v0>0)!=(sign>0))||((v1>0)==(sign>0))||((v2>0)!=(sign>0))){failedFace=fi;markFace(fi);allValid=false;if(!failedVertices)return false;continue;}
             total+=std::abs(v0)+std::abs(v1)+std::abs(v2);
         }
-        return std::isfinite(total)&&total>0;
+        return allValid&&std::isfinite(total)&&total>0;
     };
     double skinVolume=0,fatVolume=0;std::uint32_t badFace=NM_INVALID_INDEX;
     if(!pairedVolume(skin.worldPoints,skinInner.worldPoints,skinThicknessByVertexM,skinVolume,badFace)){
+        if(failedStage)*failedStage=3;markFace(badFace);
         error="skin per-vertex offset prism inverted or degenerate at local source face "+std::to_string(badFace);return false;
     }
     if(!pairedVolume(skinInner.worldPoints,fatInner.worldPoints,fatThicknessByVertexM,fatVolume,badFace)){
+        if(failedStage)*failedStage=4;markFace(badFace);
         error="fat per-vertex offset prism inverted or degenerate at local source face "+std::to_string(badFace);return false;
     }
     const auto scalarThickness=[](std::span<const double> values){return std::all_of(values.begin(),values.end(),[&](double value){return value==values.front();})?values.front():0.0;};
@@ -437,6 +451,73 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
     fatLayer.thicknessByVertexM.assign(fatThicknessByVertexM.begin(),fatThicknessByVertexM.end());
     fatLayer.thicknessProvenance=std::string(fatThicknessProvenance);fatLayer.minThicknessM=fatMin;fatLayer.maxThicknessM=fatMax;
     return true;
+}
+
+// One-time mesh preparation. This does not run in the physical time loop.
+// The source exterior, donor maps and ancestry remain unchanged. Only the
+// mechanically appropriate normals and explicitly inferred thickness fields
+// are fitted, within caller-declared anatomical reference bounds.
+struct SkinFatLayerFitReport {
+    std::uint32_t iterations=0, skinAdjustedVertices=0, fatAdjustedVertices=0;
+    std::uint32_t lastFailureStage=0;
+    std::vector<std::uint32_t> lastFailureVertices;
+    double minSkinM=0,maxSkinM=0,minFatM=0,maxFatM=0;
+};
+inline bool fitRegisteredSkinFatLayers(RegisteredSurface& surface,const SkinFatReference& reference,
+        std::vector<double>& skinField,std::vector<double>& fatField,
+        std::string_view skinProvenance,std::string_view fatProvenance,
+        PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,
+        SkinFatLayerFitReport& report,std::string& error,std::uint32_t maxIterations=32){
+    report={};
+    const auto n=surface.worldPoints.size();
+    if(n<4||n>16384||surface.faces.size()>32768||skinField.size()!=n||fatField.size()!=n||maxIterations==0||maxIterations>128){
+        error="bounded skin/fat fitting input count or iteration budget invalid";return false;}
+    GeometryAudit sourceAudit;
+    if(!auditClosedSurface(surface,sourceAudit,error,true)){error="fitting source surface: "+error;return false;}
+    std::vector<V3> mechanicalNormals;
+    if(!outwardVertexNormals(surface.worldPoints,surface.faces,mechanicalNormals,error))return false;
+    RegisteredSurface working=surface;
+    working.outwardWorldNormals=std::move(mechanicalNormals);
+    auto fittedSkin=skinField,fittedFat=fatField;
+    std::vector<bool> adjustedSkin(n),adjustedFat(n);
+    std::vector<std::vector<std::uint32_t>> neighbors(n);
+    for(const auto& face:surface.faces)for(unsigned e=0;e<3;e++){
+        const auto a=face[e],b=face[(e+1)%3];neighbors[a].push_back(b);neighbors[b].push_back(a);}
+    for(auto& row:neighbors){std::sort(row.begin(),row.end());row.erase(std::unique(row.begin(),row.end()),row.end());}
+    for(std::uint32_t iteration=0;iteration<=maxIterations;iteration++){
+        std::vector<std::uint32_t> witnesses;std::uint32_t stage=0;
+        report.iterations=iteration;
+        if(deriveRegisteredSkinFatLayers(working,reference,fittedSkin,fittedFat,
+                skinProvenance,fatProvenance,skinLayer,fatLayer,error,&witnesses,&stage)){
+            surface.outwardWorldNormals=std::move(working.outwardWorldNormals);
+            skinField=std::move(fittedSkin);fatField=std::move(fittedFat);
+            report.skinAdjustedVertices=static_cast<std::uint32_t>(std::count(adjustedSkin.begin(),adjustedSkin.end(),true));
+            report.fatAdjustedVertices=static_cast<std::uint32_t>(std::count(adjustedFat.begin(),adjustedFat.end(),true));
+            const auto s=std::minmax_element(skinField.begin(),skinField.end()),f=std::minmax_element(fatField.begin(),fatField.end());
+            report.minSkinM=*s.first;report.maxSkinM=*s.second;report.minFatM=*f.first;report.maxFatM=*f.second;
+            error.clear();return true;
+        }
+        report.lastFailureStage=stage;report.lastFailureVertices=witnesses;
+        if(iteration==maxIterations||witnesses.empty()||stage==0)break;
+        // Parallel witness updates avoid repeatedly repairing one triangle.
+        // A one-ring taper limits abrupt field gradients at patch boundaries.
+        std::vector<double> factor(n,1.0);
+        for(auto v:witnesses){factor[v]=0.72;for(auto u:neighbors[v])factor[u]=std::min(factor[u],0.90);}
+        const bool fitSkin=stage==1||stage==3;
+        auto& field=fitSkin?fittedSkin:fittedFat;
+        auto& adjusted=fitSkin?adjustedSkin:adjustedFat;
+        const double minimum=fitSkin?reference.minSkinThicknessM:reference.minFatThicknessM;
+        bool changed=false;
+        for(std::size_t i=0;i<n;i++)if(factor[i]<1.0){
+            const double next=std::max(minimum,field[i]*factor[i]);
+            if(next<field[i]-1e-14){field[i]=next;adjusted[i]=true;changed=true;}
+        }
+        if(!changed){error="layer fitting reached declared thickness lower bound; local remeshing required: "+error;break;}
+    }
+    const auto sm=std::minmax_element(fittedSkin.begin(),fittedSkin.end()),fm=std::minmax_element(fittedFat.begin(),fittedFat.end());
+    report.minSkinM=*sm.first;report.maxSkinM=*sm.second;report.minFatM=*fm.first;report.maxFatM=*fm.second;
+    error="bounded skin/fat layer fitting stopped at stage "+std::to_string(report.lastFailureStage)+": "+error;
+    return false;
 }
 inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const SkinFatReference& ref,double fatThicknessM,
         PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error){
