@@ -1,0 +1,19 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -10239,9 +10239,14 @@
+             }
+         }
+ 
++        // Full-residual FEM owns the smooth barrier onset. Its conservative
++        // plane fraction-to-boundary targets the same physical separation as
++        // the exact CCD above, rather than the barrier activation distance.
++        // Other owners retain their existing frozen-plane boundary.
++        const float planeBoundary = femFeasibilityOnly
++            ? collisionThickness : dispatch.numericalLimits.x;
+         const float gap = dot(
+-            contact.normalAndTOI.xyz, weightedPosition) -
+-            dispatch.numericalLimits.x;
++            contact.normalAndTOI.xyz, weightedPosition) - planeBoundary;
+         const float directionalGap = dot(
+             contact.normalAndTOI.xyz, weightedDirection);
+         if (gap > 0.0f && directionalGap < 0.0f) {

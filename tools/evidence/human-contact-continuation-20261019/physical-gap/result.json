@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 13.198626415978651,
+  "metal_sha256": "44d5202f14bc875cc2548c873c172c2dc5a2209451011dbdd51be0efd1c41533",
+  "stdout_sha256": "37cd0719ced7a87eb487dd9607caca8e20520d28805335f84afa70e563816904",
+  "stderr_sha256": "e77d92c9fa9f9c1eca738257c1da671ffeec070c9032f0fe8dd615570077e71a",
+  "loaded_library_lines": [
+    "dyld[2087]: <CFB38B5B-09DC-31C5-9F65-B9A157A1A166> /Users/numi/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build/libmetalrobo.dylib"
+  ]
+}

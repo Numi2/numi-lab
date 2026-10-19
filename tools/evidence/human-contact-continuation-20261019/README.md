@@ -1,0 +1,8 @@
+# Contact continuation diagnostics
+The published multi-tissue full-contact residual implementation remains the physics baseline. The only runtime change in this increment omits nonexistent cohesive-face arrays from optional private-trial captures when cohesive residual evaluation is disabled. Production kernel bindings, solver gates, and accepted state are unchanged.
+
+The exact tested capture runtime generated 118 arrays (9,076,400 payload bytes) on Apple M6. The first rejected private trial in the physical-gap experiment is code 6, primitive pair 495/2533, VT direction 0 vertex 0, uncertified narrowphase CCD rather than a certified hit. The extraction retains exact captured operands and explicitly labels reconstructed start-coordinate arithmetic.
+
+Two unpromoted GPU experiments are retained here. Aligning the supplemental frozen-normal limiter with the actual sweep threshold accepted three approach frames before rejection. A tighter relative-motion Lipschitz bound with unchanged CCD thresholds and work cap accepted four before rejection. Both controls passed; neither candidate completes the requested 32-frame approach. They are experimental evidence, not production source. Invocation pins copied from parent runs may describe the parent MSL; the result metal_sha256 and actual_metal_sha256 identify each tested candidate.
+
+The capture payload and full manifests remain on SSH Numi at the paths and hashes in failure-point-extraction.json. This increment does not qualify sustained contact, full-body tissues, physiological vessel-wall coupling, or anatomical accuracy. No visual verification was performed.

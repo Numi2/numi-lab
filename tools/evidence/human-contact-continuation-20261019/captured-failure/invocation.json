@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-003-root6-trace/build/registered_organ_pair_contact",
+    "/Users/n/numi-human-separation-20261018/C/full-residual-physical-gap-275/MatterSource.metal"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-003-root6-trace/native-onset275-private-root3-iter3-trial7-cohesive-nil-001",
+  "timeout_s": 120,
+  "case": "approach-only capture at environment/root 3, Newton 3, trial 7, both phases; runtime with optional non-cohesive capture source nil",
+  "trace": {
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": "3:3:7:both",
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-003-root6-trace/native-onset275-private-root3-iter3-trial7-cohesive-nil-001/private-trial-capture.json"
+  },
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/optional-cohesive-capture-001/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/full-residual-physical-gap-275/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "44d5202f14bc875cc2548c873c172c2dc5a2209451011dbdd51be0efd1c41533",
+    "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT": "all",
+    "NUMI_TEST_RELATIVE_RESIDUAL": "1e-6",
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_SELECTOR": "3:3:7:both",
+    "NM_FEM_COUPLED_TRIAL_CAPTURE_PATH": "/Users/n/numi-human-separation-20261018/C/regional-contact-262/fixture-006/reference-gradient-precision-003-root6-trace/native-onset275-private-root3-iter3-trial7-cohesive-nil-001/private-trial-capture.json"
+  },
+  "pins": {
+    "executable": "37f931ed7f65a0be09d04cb8fd162a5b295499939b3a0e26c0f545cf681031dd",
+    "source": "35162dd970df807802602ea2ea045d3883195d97ba56a40d8cc7bd814abc1921",
+    "assets": "e7ef8b52b7c5a5178050b1d0b568b457d83e46e698e3b0c2f945e470d7da8854",
+    "msl": "44d5202f14bc875cc2548c873c172c2dc5a2209451011dbdd51be0efd1c41533",
+    "library": "23f37afaf8f24097877b92ebbfd066ad57527aaa95a32160e93fae9bca7cc138",
+    "runtime_source": "853cf1fb1d3608c523258073eab093a01097ed043a04be636b323b003c34a7de"
+  }
+}

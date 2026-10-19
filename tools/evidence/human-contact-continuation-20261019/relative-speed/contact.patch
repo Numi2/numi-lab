@@ -1,0 +1,38 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -4054,9 +4054,15 @@
+     coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c1));
+     const float distanceRoundoff = ccdDistanceRoundoff(thickness, coordinateScale);
+     const float effectiveThickness = thickness + distanceRoundoff;
+-    const float speedBound = (length(vertex1 - vertex0) + max(
+-        length(a1 - a0), max(length(b1 - b0), length(c1 - c0)))) *
+-        (1.0f + 16.0f * kEpsilon);
++    // Distance to the moving convex triangle is Lipschitz in the maximum
++    // vertex-to-corner relative displacement. Retain an absolute arithmetic
++    // margin when common translation makes the relative displacement small.
++    const float3 vertexDelta = vertex1 - vertex0;
++    const float relativeSpeed = max(length(vertexDelta - (a1 - a0)),
++        max(length(vertexDelta - (b1 - b0)),
++            length(vertexDelta - (c1 - c0))));
++    const float speedBound = relativeSpeed * (1.0f + 16.0f * kEpsilon) +
++        16.0f * kEpsilon * max(coordinateScale, 1.0e-12f);
+     if (!isfinite(distanceRoundoff) || !isfinite(effectiveThickness) ||
+         !isfinite(speedBound) || !(speedBound > 0.0f)) return false;
+ 
+@@ -10239,9 +10245,14 @@
+             }
+         }
+ 
++        // Full-residual FEM owns the smooth barrier onset. Its conservative
++        // plane fraction-to-boundary targets the same physical separation as
++        // the exact CCD above, rather than the barrier activation distance.
++        // Other owners retain their existing frozen-plane boundary.
++        const float planeBoundary = femFeasibilityOnly
++            ? collisionThickness : dispatch.numericalLimits.x;
+         const float gap = dot(
+-            contact.normalAndTOI.xyz, weightedPosition) -
+-            dispatch.numericalLimits.x;
++            contact.normalAndTOI.xyz, weightedPosition) - planeBoundary;
+         const float directionalGap = dot(
+             contact.normalAndTOI.xyz, weightedDirection);
+         if (gap > 0.0f && directionalGap < 0.0f) {

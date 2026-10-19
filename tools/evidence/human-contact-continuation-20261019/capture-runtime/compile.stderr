@@ -1,0 +1,7 @@
+/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/optional-cohesive-capture-001/runtime.mm:12534:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12534 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/optional-cohesive-capture-001/runtime.mm:16674:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16674 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

@@ -28111,7 +28111,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 "candidate_before_private_contact_rebuild", false,
                                 state.contactSamples, nonlinearHistories,
                                 nonlinearDeformableContactHistories,
-                                state.cohesiveFacesAccepted, true)) {
+                                femCohesiveResidualArmijoEnabled
+                                    ? state.cohesiveFacesAccepted : nil,
+                                true)) {
                             diagnostics.message =
                                 "failed to resume Matter at selected pre-rebuild trial capture";
                             ownership->preDynamicsOpen = false;
@@ -28603,7 +28605,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 "private_contact_rebuild_before_free_body_terms", true,
                                 armijoContactSamples, nonlinearHistories,
                                 nonlinearDeformableContactHistories,
-                                femArmijoCohesiveFacesBinding,
+                                femCohesiveResidualArmijoEnabled
+                                    ? femArmijoCohesiveFacesBinding : nil,
                                 includeShared)) {
                             diagnostics.message =
                                 "failed to resume Matter at selected post-rebuild trial capture";
