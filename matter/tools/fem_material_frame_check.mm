@@ -67,7 +67,25 @@ struct Device {
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
-        library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];need(library!=nil,"production Matter metallib unavailable");
+        const char* sourcePath=std::getenv("NUMI_MATTER_TEST_SOURCE");
+        if(sourcePath!=nullptr&&sourcePath[0]!=0){
+            NSString* path=[NSString stringWithUTF8String:sourcePath];
+            NSString* source=[NSString stringWithContentsOfFile:path
+                encoding:NSUTF8StringEncoding error:&error];
+            need(source!=nil,"native Matter test source unavailable");
+            MTLCompileOptions* options=[MTLCompileOptions new];
+            options.languageVersion=MTLLanguageVersion4_0;
+            options.mathMode=MTLMathModeSafe;
+            options.mathFloatingPointFunctions=
+                MTLMathFloatingPointFunctionsPrecise;
+            library=[device newLibraryWithSource:source options:options
+                error:&error];
+        }else{
+            library=[device newLibraryWithURL:[NSURL fileURLWithPath:
+                [NSString stringWithUTF8String:NUMI_MATTER_METALLIB]]
+                error:&error];
+        }
+        need(library!=nil,"production Matter Metal program unavailable");
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
         operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
         tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");}

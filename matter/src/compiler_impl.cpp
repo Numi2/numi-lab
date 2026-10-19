@@ -282,7 +282,8 @@ constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
         source.fieldSmootherPasses,
         source.mutationRestarts,
         static_cast<std::uint32_t>(source.femPreconditioner),
-        source.cacheFEMAlgorithmicTangent ? 1u : 0u,
+        source.cacheFEMAlgorithmicTangent ? 1u :
+            (source.cacheFEMAlgorithmicTangentWithDirectFallback ? 2u : 0u),
     };
     result.residualTolerances = f4(
         source.relativeResidual,
@@ -649,9 +650,14 @@ void validateWorld(
         });
     }
     const MixedSolverSource& solver = source.mixedSolver;
+    if (solver.cacheFEMAlgorithmicTangent &&
+        solver.cacheFEMAlgorithmicTangentWithDirectFallback) {
+        diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+            "strict and direct-fallback FEM tangent-cache modes are mutually exclusive"});
+    }
     if (static_cast<std::uint32_t>(solver.femPreconditioner) >
         static_cast<std::uint32_t>(
-            FEMPreconditionerMode::regionalGalerkinGraphSchwarz)) {
+            FEMPreconditionerMode::coupledFEMTangentBlockJacobi)) {
         diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
             "FEM preconditioner selector is not recognized"});
     }
@@ -795,6 +801,22 @@ void validateWorld(
                     : graphSchwarzMode
                         ? "graph Schwarz FEM preconditioner requires one immutable explicit non-mixed FEM object with authored compact region IDs, at most 4096 nodes, 32768 tetrahedra, and four environments, with no contact/cohesive/rigid/field/vascular or learned coupling"
                         : "regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments"});
+        }
+    }
+    if (solver.femPreconditioner ==
+        FEMPreconditionerMode::coupledFEMTangentBlockJacobi) {
+        const bool hasEligibleFEM = std::ranges::any_of(source.objects,
+            [&source](const ObjectSource& object) {
+                return object.representation == Representation::fem &&
+                    !object.automaticRepresentation && !object.mixedFEM &&
+                    !object.multiphysics.enabled && !object.adaptive &&
+                    !object.identifiable &&
+                    object.materialIndex < source.materials.size() &&
+                    !source.materials[object.materialIndex].learned.has_value();
+            });
+        if (!hasEligibleFEM) {
+            diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "coupled FEM tangent block preconditioner requires at least one explicit, ordinary FEM object with a non-learned material"});
         }
     }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {

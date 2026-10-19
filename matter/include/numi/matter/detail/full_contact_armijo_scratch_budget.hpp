@@ -18,6 +18,7 @@ struct FullContactArmijoScratchBytes {
     std::uint64_t surfaceBVHBounds = 0u;
     std::uint64_t surfaceSortArrays = 0u;
     std::uint64_t surfaceActiveCounts = 0u;
+    std::uint64_t surfaceCacheFlags = 0u;
     std::uint64_t deformableCandidates = 0u;
     std::uint64_t candidateCounts = 0u;
     std::uint64_t candidateStatuses = 0u;
@@ -131,7 +132,9 @@ inline bool estimateFullContactArmijoScratchBytes(
             return false;
     }
 
-    if (!addTyped(envCapacity, sizeof(NMDeformableContactCandidateGPU),
+    if (!addTyped(environments, sizeof(std::uint32_t),
+                  out.surfaceCacheFlags, out.total) ||
+        !addTyped(envCapacity, sizeof(NMDeformableContactCandidateGPU),
                   out.deformableCandidates, out.total) ||
         !addTyped(environments, sizeof(std::uint32_t), out.candidateCounts,
                   out.total) ||

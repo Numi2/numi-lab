@@ -418,8 +418,8 @@ private:
             solver.executionBudgets.x >
                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
             solver.executionBudgets.y == 0u ||
-            solver.executionBudgets.z > 5u ||
-            solver.executionBudgets.w > 1u ||
+            solver.executionBudgets.z > 6u ||
+            solver.executionBudgets.w > 2u ||
             !finite4(solver.residualTolerances) ||
             !(solver.residualTolerances.x > 0.0f) ||
             solver.residualTolerances.y < 0.0f ||
@@ -506,6 +506,52 @@ private:
                     "environments of pure explicit FEM with no generalized "
                     "rigid, MPM, multiphysics, Human, learned, cohesive, "
                     "adaptive, or mutable-topology blocks and a checked cache size"
+                );
+            }
+        }
+        if (solver.executionBudgets.w == 2u) {
+            constexpr std::uint32_t maximumCachedTangentEnvironments = 4u;
+            constexpr std::uint64_t tangentScalarsPerTetrahedron = 81u;
+            const std::uint64_t tetrahedronCount = world_.dispatch.tetrahedronCount;
+            const std::uint64_t environmentCount = world_.dispatch.environmentCount;
+            const bool sizeOverflow = environmentCount != 0u &&
+                tetrahedronCount > std::numeric_limits<std::uint64_t>::max() /
+                    environmentCount;
+            const std::uint64_t entryCount = sizeOverflow ? 0u :
+                tetrahedronCount * environmentCount;
+            const bool tangentSizeOverflow = sizeOverflow ||
+                entryCount > std::numeric_limits<std::uint64_t>::max() /
+                    (tangentScalarsPerTetrahedron * sizeof(float)) ||
+                entryCount > std::numeric_limits<std::uint32_t>::max() /
+                    tangentScalarsPerTetrahedron;
+            const bool unsupportedObject = std::any_of(
+                world_.objects.begin(), world_.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    constexpr std::uint32_t unsupportedFlags =
+                        NM_OBJECT_ADAPTIVE | NM_OBJECT_MULTIPHYSICS |
+                        NM_OBJECT_MUTABLE_TOPOLOGY | NM_OBJECT_IDENTIFIABLE;
+                    return object.representation != NM_REPRESENTATION_FEM ||
+                        (object.flags & unsupportedFlags) != 0u;
+                });
+            const bool learnedOrICNN = !world_.learnedMaterials.empty() ||
+                !world_.learnedLayers.empty() || !world_.learnedWeights.empty() ||
+                std::any_of(world_.materials.begin(), world_.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.constitutiveKind ==
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN;
+                    });
+            if (environmentCount == 0u ||
+                environmentCount > maximumCachedTangentEnvironments ||
+                tetrahedronCount == 0u || world_.objects.empty() ||
+                world_.dispatch.particleCount != 0u ||
+                world_.dispatch.gridNodeCount != 0u ||
+                world_.dispatch.mpmActiveNodeCapacity != 0u ||
+                world_.dispatch.mpmGridCount != 0u ||
+                world_.dispatch.mpmBlockCount != 0u ||
+                world_.dispatch.identificationCandidateCount != 0u ||
+                tangentSizeOverflow || unsupportedObject || learnedOrICNN) {
+                return fail(
+                    "direct-fallback tangent caching requires bounded non-adaptive FEM objects without learned/ICNN material or MPM blocks; contact, cohesive, Human attachments, and vascular operators remain supported"
                 );
             }
         }
@@ -679,6 +725,29 @@ private:
                 return fail(
                     "graph Schwarz requires explicit immutable non-mixed FEM "
                     "with self and external deformable contact disabled"
+                );
+            }
+        }
+        if (solver.executionBudgets.z == 6u) {
+            const bool hasEligibleFEM = std::ranges::any_of(world_.objects,
+                [](const NMContinuumObjectGPU& object) {
+                    constexpr std::uint32_t excluded =
+                        NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                        NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY |
+                        NM_OBJECT_IDENTIFIABLE;
+                    return object.representation == NM_REPRESENTATION_FEM &&
+                        (object.flags & excluded) == 0u;
+                });
+            const bool learnedOrICNN = !world_.learnedMaterials.empty() ||
+                !world_.learnedLayers.empty() || !world_.learnedWeights.empty() ||
+                std::any_of(world_.materials.begin(), world_.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.constitutiveKind ==
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN;
+                    });
+            if (!hasEligibleFEM || learnedOrICNN) {
+                return fail(
+                    "coupled FEM tangent block preconditioner requires an eligible ordinary FEM displacement block and no learned/ICNN constitutive operators"
                 );
             }
         }

@@ -15,7 +15,7 @@ void require(bool condition, const char* message) {
 
 std::uint64_t sum(const numi::matter::detail::FullContactArmijoScratchBytes& b) {
     return b.surfacePrimitives + b.surfaceBVHBounds + b.surfaceSortArrays +
-        b.surfaceActiveCounts + b.deformableCandidates + b.candidateCounts +
+        b.surfaceActiveCounts + b.surfaceCacheFlags + b.deformableCandidates + b.candidateCounts +
         b.candidateStatuses + b.deformableContacts + b.deformableActiveIndices +
         b.deformableActiveCounts + b.nodeIncidence + b.nodeRanges +
         b.activeOffsets + b.globalActiveIndices + b.activeDispatch;
@@ -38,7 +38,8 @@ int main() {
         require(fixture.surfacePrimitives == 17u * 64u &&
                 fixture.surfaceBVHBounds == 4u * 32u * 16u &&
                 fixture.surfaceSortArrays == 4u * 17u * 4u &&
-                fixture.surfaceActiveCounts == 16u,
+                fixture.surfaceActiveCounts == 16u &&
+                fixture.surfaceCacheFlags == 16u,
                 "surface allocations must match exact runtime counts");
         require(fixture.deformableCandidates == 7u * 16u &&
                 fixture.candidateCounts == 16u &&
@@ -63,6 +64,7 @@ int main() {
                 empty.surfaceBVHBounds == sizeof(nm_float4) &&
                 empty.surfaceSortArrays == 4u * 16u &&
                 empty.surfaceActiveCounts == 16u &&
+                empty.surfaceCacheFlags == 16u &&
                 empty.candidateCounts == 16u &&
                 empty.candidateStatuses == sizeof(NMMatterStatusGPU) &&
                 empty.deformableContacts == sizeof(NMDeformableContactGPU) &&
@@ -83,7 +85,7 @@ int main() {
                 aliasOne.surfaceBVHBounds == 0u &&
                 aliasOne.surfaceSortArrays == 0u &&
                 aliasOne.surfaceActiveCounts == 0u &&
-                aliasOne.total == 131072ull * 528u + 3u * 16u + 16u + 16u &&
+                aliasOne.total == 131072ull * 528u + 3u * 16u + 16u + 16u + 16u &&
                 aliasOne.total <= kFullContactArmijoScratchBudgetBytes,
                 "E=1 boundary must include exact statuses and fit unchanged cap");
 
@@ -92,12 +94,12 @@ int main() {
         require(estimateFullContactArmijoScratchBytes(
                     2u, 0u, 0u, 127100u, 0u, true, aliasTwoFit) &&
                 aliasTwoFit.total == 2ull * 127100u * 528u +
-                    3u * 16u + 16u + 16u &&
+                    3u * 16u + 16u + 16u + 16u &&
                 aliasTwoFit.total <= kFullContactArmijoScratchBudgetBytes,
                 "E=2 exact final fitting boundary must include one shared dispatch");
         require(estimateFullContactArmijoScratchBytes(
                     2u, 0u, 0u, 127101u, 0u, true, aliasTwoOver) &&
-                aliasTwoOver.total == 134218736u &&
+                aliasTwoOver.total == 134218752u &&
                 aliasTwoOver.total > kFullContactArmijoScratchBudgetBytes,
                 "E=2 next capacity must exceed unchanged 128 MiB cap");
         const std::uint64_t aliasTwoFirstOverBytes = aliasTwoOver.total;
@@ -129,19 +131,19 @@ int main() {
         require(estimateFullContactArmijoScratchBytes(
                     1u, shippingPrimitives, shippingLeaves, 131072u,
                     shippingNodes, true, shippingOneAliased) &&
-                shippingOneAliased.total == 77661184u &&
+                shippingOneAliased.total == 77661200u &&
                 shippingOneAliased.total <= kFullContactArmijoScratchBudgetBytes,
                 "shipping-count E1 aliased-surface scratch must reconcile within cap");
         require(estimateFullContactArmijoScratchBytes(
                     1u, shippingPrimitives, shippingLeaves, 131072u,
                     shippingNodes, false, shippingOneUnaliased) &&
-                shippingOneUnaliased.total == 296269008u &&
+                shippingOneUnaliased.total == 296269024u &&
                 shippingOneUnaliased.total > kFullContactArmijoScratchBudgetBytes,
                 "shipping-count E1 unaliased BVH must fail the existing scratch cap");
         require(estimateFullContactArmijoScratchBytes(
                     2u, shippingPrimitives, shippingLeaves, 131072u,
                     shippingNodes, true, shippingTwoAliased) &&
-                shippingTwoAliased.total == 155322304u &&
+                shippingTwoAliased.total == 155322320u &&
                 shippingTwoAliased.total > kFullContactArmijoScratchBudgetBytes,
                 "shipping-count E2 aliased scratch must fail the unchanged cap");
 

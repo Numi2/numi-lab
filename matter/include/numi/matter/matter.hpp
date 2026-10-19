@@ -394,6 +394,10 @@ enum class FEMPreconditionerMode : std::uint32_t {
     // supplement the exact regional RAP coarse correction. Conditioning only;
     // it does not change the physical operator or acceptance certificate.
     regionalGalerkinGraphSchwarz = 5u,
+    // Coupled-world nodal tangent block Jacobi. Eligible ordinary FEM
+    // displacement rows use the exact local 3x3 tangent block; all other
+    // solver rows retain their existing right-preconditioner paths.
+    coupledFEMTangentBlockJacobi = 6u,
 };
 
 struct MixedSolverSource {
@@ -413,11 +417,14 @@ struct MixedSolverSource {
     // path preserves the historical implementation.
     FEMPreconditionerMode femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
-    // Opt-in per-Newton cache of the complete unsymmetric 9x9 material-frame
-    // algorithmic dP/dF map for pure-FEM FGMRES products and conditioning-only
-    // tangent preconditioners/regional AP. Private Armijo trials and final
-    // true-residual certification continue to evaluate the direct path.
+    // Strict opt-in per-Newton cache of every active FEM tetrahedron tangent.
+    // Admission is limited to the original pure-FEM scope.
     bool cacheFEMAlgorithmicTangent = false;
+    // Coupled-world mode caches only valid ordinary FEM tetrahedra. Mixed or
+    // otherwise unsupported entries retain the direct evaluator per element.
+    // Contact, cohesive, human-attachment, and vascular operators remain
+    // separate additive terms in the same accepted-state solve.
+    bool cacheFEMAlgorithmicTangentWithDirectFallback = false;
     double relativeResidual = 1.0e-4;
     double volumeTolerance = 1.0e-4;
     double pressureTolerance = 1.0e-4;

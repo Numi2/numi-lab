@@ -754,6 +754,18 @@ struct PectoralisFasciaTetrahedron {
     std::uint32_t regionIndex = MR_INVALID_INDEX;
 };
 
+// Runtime-only map from a source fascia node to one triangle of the current,
+// registered muscle surface. The serialized source vertex ID is retained for
+// provenance; repairs may reorder or replace vertices, so it is not treated
+// as an index into the repaired surface.
+struct PectoralisFasciaNodeProjection {
+    std::array<std::uint32_t, 3u> sourceVertex{
+        MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX};
+    std::array<float, 3u> barycentric{};
+    std::array<float, 3u> remapResidualMeters{};
+    float residualMeters = std::numeric_limits<float>::infinity();
+};
+
 struct PectoralisFasciaPresentationTriangle {
     std::uint32_t regionIndex = MR_INVALID_INDEX;
     std::uint32_t sourceVertex[3]{};
@@ -983,6 +995,7 @@ struct LoadedPectoralisFascia {
     std::vector<PectoralisFasciaNode> nodes;
     std::vector<PectoralisFasciaTetrahedron> tetrahedra;
     std::vector<PectoralisFasciaPresentationTriangle> presentationTriangles;
+    std::vector<PectoralisFasciaNodeProjection> currentSurfaceProjection;
 };
 
 struct LoadedAnteriorThorax {
@@ -3155,96 +3168,259 @@ LoadedPectoralisFascia loadRestingRegionalPassiveFascia(
                 result.header.reserved1 == 0u,
             "pectoralis fascia header is malformed");
     result.regions = readVector<PectoralisFasciaRegion>(
-        input, result.header.regionCount, "pectoralis fascia regions"
-    );
+        input, result.header.regionCount, "pectoralis fascia regions");
     result.nodes = readVector<PectoralisFasciaNode>(
-        input, result.header.nodeCount, "pectoralis fascia nodes"
-    );
+        input, result.header.nodeCount, "pectoralis fascia nodes");
     result.tetrahedra = readVector<PectoralisFasciaTetrahedron>(
-        input, result.header.tetrahedronCount, "pectoralis fascia tetrahedra"
-    );
-    result.presentationTriangles =
-        readVector<PectoralisFasciaPresentationTriangle>(
-            input, result.header.presentationTriangleCount,
-            "pectoralis fascia exact anterior presentation triangles"
-        );
+        input, result.header.tetrahedronCount, "pectoralis fascia tetrahedra");
+    result.presentationTriangles = readVector<PectoralisFasciaPresentationTriangle>(
+        input, result.header.presentationTriangleCount,
+        "pectoralis fascia exact anterior presentation triangles");
     require(input.peek() == std::char_traits<char>::eof(),
             "pectoralis fascia payload has trailing bytes");
-    // Validate the complete serialized structure before selecting a physical
-    // region. Unused source indices are never interpreted as repaired indices.
-    for(const auto& r:result.regions) {
-        require(r.firstNode<=result.nodes.size() && r.nodeCount>0 &&
-            r.nodeCount<=result.nodes.size()-r.firstNode &&
-            r.firstTetrahedron<=result.tetrahedra.size() &&
-            r.tetrahedronCount<=result.tetrahedra.size()-r.firstTetrahedron,
-            "regional fascia serialized region range invalid");
+
+    std::uint32_t expectedFirstNode = 0u;
+    std::uint32_t expectedFirstTet = 0u;
+    for (std::uint32_t ri = 0u; ri < result.regions.size(); ++ri) {
+        const auto& region = result.regions[ri];
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        const std::uint32_t routeBody =
+            region.softTissueStableId & ~kFasciaRouteBodyBit;
+        require(region.firstNode == expectedFirstNode &&
+                    region.nodeCount >= 12u && region.nodeCount % 2u == 0u &&
+                    region.nodeCount <= result.nodes.size() - region.firstNode &&
+                    region.firstTetrahedron == expectedFirstTet &&
+                    region.tetrahedronCount > 0u &&
+                    region.tetrahedronCount <=
+                        result.tetrahedra.size() - region.firstTetrahedron &&
+                    region.muscleIndex < muscles.gpuMuscles.size() &&
+                    routeRegion == (ri >= kPectoralisFasciaRegionCount) &&
+                    (routeRegion
+                        ? routeBody < muscles.header.engineBodyCount
+                        : (region.softTissueStableId >= 69u &&
+                           region.softTissueStableId <= 74u)),
+                "resting fascia region identity or ranges are malformed");
+        expectedFirstNode += region.nodeCount;
+        expectedFirstTet += region.tetrahedronCount;
     }
-    for(const auto& n:result.nodes)
-        require(n.regionIndex<result.regions.size() && (n.flags&~3u)==0u &&
-            n.reserved0==0 && std::isfinite(n.compiledMassKg)&&n.compiledMassKg>0 &&
-            std::all_of(std::begin(n.sourcePosition),std::end(n.sourcePosition),
-                        [](float x){return std::isfinite(x);}),
-            "regional fascia serialized node invalid");
-    for(const auto& t:result.tetrahedra) {
-        require(t.regionIndex<result.regions.size(),"regional fascia tetrahedron region invalid");
-        const auto& r=result.regions[t.regionIndex];
-        for(auto i:t.node) require(i>=r.firstNode&&i<r.firstNode+r.nodeCount&&
-            result.nodes[i].regionIndex==t.regionIndex,
-            "regional fascia tetrahedron escapes source region");
-    }
-    for(const auto& t:result.presentationTriangles)
-        require(t.regionIndex<result.regions.size() &&
-            t.sourceVertex[0]!=t.sourceVertex[1]&&t.sourceVertex[0]!=t.sourceVertex[2]&&
-            t.sourceVertex[1]!=t.sourceVertex[2],"regional fascia serialized presentation invalid");
-    auto r=result.regions.at(0);
-    require(r.softTissueStableId==69u&&r.muscleIndex<muscles.gpuMuscles.size()&&
-        r.nodeCount>=12u&&r.nodeCount%2u==0u&&r.tetrahedronCount>0u,
-        "regional fascia active source identity invalid");
-    const auto ti=std::find_if(tissues.records.begin(),tissues.records.end(),
-        [&](const auto& x){return x.stableId==r.softTissueStableId;});
-    require(ti!=tissues.records.end()&&ti->layer==kSoftTissueLayerMuscle,
-        "regional fascia registered source surface absent");
-    std::vector<PectoralisFasciaNode> nodes(result.nodes.begin()+r.firstNode,
-        result.nodes.begin()+r.firstNode+r.nodeCount);
-    const unsigned half=r.nodeCount/2u;
-    std::vector<unsigned> used;
-    for(unsigned i=0;i<half;++i) {
-        const auto& raw=nodes[i];const auto& upper=nodes[i+half];
-        require(raw.regionIndex==0u&&upper.regionIndex==0u&&
-            raw.sourceVertexIndex==upper.sourceVertexIndex&&
-            raw.sourcePosition[0]==upper.sourcePosition[0]&&
-            raw.sourcePosition[2]==upper.sourcePosition[2]&&
-            std::abs((upper.sourcePosition[1]-raw.sourcePosition[1])-
-                result.header.thicknessMeters)<1.e-6f,
-            "regional fascia paired source-layer ancestry invalid");
-        unsigned found=MR_INVALID_INDEX,matches=0;
-        for(unsigned j=0;j<ti->vertexCount;++j) {
-            const auto& v=tissues.vertices.at(ti->firstVertex+j);
-            if(v.positionX==raw.sourcePosition[0]&&v.positionY==raw.sourcePosition[1]&&
-               v.positionZ==raw.sourcePosition[2]){found=j;++matches;}
+    require(expectedFirstNode == result.nodes.size() &&
+                expectedFirstTet == result.tetrahedra.size(),
+            "resting fascia regions do not cover the source payload");
+
+    result.currentSurfaceProjection.resize(result.nodes.size());
+    for (std::uint32_t ni = 0u; ni < result.nodes.size(); ++ni) {
+        const auto& node = result.nodes[ni];
+        require(node.regionIndex < result.regions.size() &&
+                    (node.flags & ~3u) == 0u && node.reserved0 == 0u &&
+                    std::isfinite(node.compiledMassKg) && node.compiledMassKg > 0.0f &&
+                    std::all_of(std::begin(node.sourcePosition),
+                                std::end(node.sourcePosition),
+                                [](float x) { return std::isfinite(x); }),
+                "resting fascia node is malformed");
+        const auto& region = result.regions[node.regionIndex];
+        require(ni >= region.firstNode &&
+                    ni < region.firstNode + region.nodeCount,
+                "resting fascia node region ancestry disagrees with its range");
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        if (routeRegion) {
+            require(node.sourceVertexIndex < muscles.header.siteCount,
+                    "thoracoabdominal route node has no retained MyoSim site identity");
         }
-        require(matches==1u&&std::find(used.begin(),used.end(),found)==used.end(),
-            "regional fascia requires unique exact Float32 source-coordinate correspondence");
-        used.push_back(found);
-        std::cout<<"resting_fascia_source_correspondence region=0 source_vertex="
-            <<raw.sourceVertexIndex<<" registered_vertex="<<found
-            <<" residual_m=0\n";
-        nodes[i].sourceVertexIndex=found;nodes[i+half].sourceVertexIndex=found;
     }
-    std::vector<PectoralisFasciaTetrahedron> tets(
-        result.tetrahedra.begin()+r.firstTetrahedron,
-        result.tetrahedra.begin()+r.firstTetrahedron+r.tetrahedronCount);
-    for(auto& t:tets)for(auto& i:t.node)i-=r.firstNode;
-    r.firstNode=0;r.firstTetrahedron=0;
-    result.regions={r};result.nodes=std::move(nodes);result.tetrahedra=std::move(tets);
-    // This owner has no FEM presentation map. Existing repaired anatomical
-    // surfaces retain presentation ownership; no deformed-surface claim.
-    result.presentationTriangles.clear();result.header.regionCount=1u;
-    result.header.nodeCount=r.nodeCount;result.header.tetrahedronCount=r.tetrahedronCount;
-    result.header.presentationTriangleCount=0u;
-    std::cout<<"resting_fascia_regional_admission=exact active_regions=1 unused_regions=25"
-        <<" source_coordinate_units=m correspondence=unique_Float32"
-        <<" fem_presentation_binding=none full_source_loader=unchanged\n";
+    for (const auto& tetrahedron : result.tetrahedra) {
+        require(tetrahedron.regionIndex < result.regions.size(),
+                "resting fascia tetrahedron region is malformed");
+        const auto& region = result.regions[tetrahedron.regionIndex];
+        for (const std::uint32_t node : tetrahedron.node) {
+            require(node >= region.firstNode &&
+                        node < region.firstNode + region.nodeCount &&
+                        result.nodes[node].regionIndex == tetrahedron.regionIndex,
+                    "resting fascia tetrahedron crosses anatomical regions");
+        }
+    }
+
+    const auto closestTriangle = [](
+        const std::array<double, 3u>& p,
+        const std::array<double, 3u>& a,
+        const std::array<double, 3u>& b,
+        const std::array<double, 3u>& c,
+        std::array<double, 3u>& barycentric) {
+        const auto sub = [](const auto& x, const auto& y) {
+            return std::array<double, 3u>{x[0] - y[0], x[1] - y[1], x[2] - y[2]};
+        };
+        const auto dot = [](const auto& x, const auto& y) {
+            return x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+        };
+        const auto squaredDistance = [&](const auto& x, const auto& y) {
+            const auto d = sub(x, y);
+            return dot(d, d);
+        };
+        const auto ab = sub(b, a);
+        const auto ac = sub(c, a);
+        const auto ap = sub(p, a);
+        const double d00 = dot(ab, ab);
+        const double d01 = dot(ab, ac);
+        const double d11 = dot(ac, ac);
+        const double d20 = dot(ap, ab);
+        const double d21 = dot(ap, ac);
+        const double denominator = d00 * d11 - d01 * d01;
+        double bestSquared = std::numeric_limits<double>::infinity();
+        if (denominator > 1.0e-24) {
+            const double v = (d11 * d20 - d01 * d21) / denominator;
+            const double w = (d00 * d21 - d01 * d20) / denominator;
+            const double u = 1.0 - v - w;
+            if (u >= 0.0 && v >= 0.0 && w >= 0.0) {
+                const std::array<double, 3u> q{
+                    u * a[0] + v * b[0] + w * c[0],
+                    u * a[1] + v * b[1] + w * c[1],
+                    u * a[2] + v * b[2] + w * c[2]};
+                barycentric = {u, v, w};
+                bestSquared = squaredDistance(p, q);
+            }
+        }
+        const auto segment = [&](const auto& x, const auto& y,
+                                 const std::array<double, 3u> wx,
+                                 const std::array<double, 3u> wy) {
+            const auto edge = sub(y, x);
+            const double lengthSquared = dot(edge, edge);
+            if (lengthSquared <= 1.0e-24) return;
+            const double t = std::clamp(dot(sub(p, x), edge) / lengthSquared, 0.0, 1.0);
+            const std::array<double, 3u> q{
+                x[0] + t * edge[0], x[1] + t * edge[1], x[2] + t * edge[2]};
+            const double candidate = squaredDistance(p, q);
+            if (candidate < bestSquared) {
+                bestSquared = candidate;
+                for (unsigned k = 0u; k < 3u; ++k)
+                    barycentric[k] = (1.0 - t) * wx[k] + t * wy[k];
+            }
+        };
+        segment(a, b, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0});
+        segment(b, c, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0});
+        segment(c, a, {0.0, 0.0, 1.0}, {1.0, 0.0, 0.0});
+        return bestSquared;
+    };
+
+    constexpr double kMaximumProjectionResidualMeters = 0.030;
+    constexpr double kMaximumProjectionRmsMeters = 0.015;
+    double allSquaredResiduals = 0.0;
+    double globalMaximumResidual = 0.0;
+    std::size_t projectedPointCount = 0u;
+    for (std::uint32_t ri = 0u; ri < kPectoralisFasciaRegionCount; ++ri) {
+        const auto& region = result.regions[ri];
+        const auto tissue = std::find_if(
+            tissues.records.begin(), tissues.records.end(),
+            [&region](const SoftTissueRecord& value) {
+                return value.stableId == region.softTissueStableId;
+            });
+        require(tissue != tissues.records.end() &&
+                    tissue->layer == kSoftTissueLayerMuscle &&
+                    tissue->indexCount >= 3u && tissue->indexCount % 3u == 0u,
+                "registered pectoral fascia source surface is unavailable");
+        const std::uint32_t layerWidth = region.nodeCount / 2u;
+        double regionSquared = 0.0;
+        double regionMaximum = 0.0;
+        std::size_t exactCount = 0u;
+        for (std::uint32_t local = 0u; local < layerWidth; ++local) {
+            const auto& sourceNode = result.nodes[region.firstNode + local];
+            const std::array<double, 3u> p{
+                sourceNode.sourcePosition[0], sourceNode.sourcePosition[1],
+                sourceNode.sourcePosition[2]};
+            double bestSquared = std::numeric_limits<double>::infinity();
+            std::array<std::uint32_t, 3u> bestVertices{
+                MR_INVALID_INDEX, MR_INVALID_INDEX, MR_INVALID_INDEX};
+            std::array<double, 3u> bestBarycentric{};
+            std::array<double, 3u> bestPosition{};
+            for (std::uint32_t offset = 0u; offset < tissue->indexCount; offset += 3u) {
+                std::array<std::uint32_t, 3u> triangle{};
+                std::array<std::array<double, 3u>, 3u> position{};
+                for (unsigned corner = 0u; corner < 3u; ++corner) {
+                    const std::uint32_t vertexIndex =
+                        tissues.indices[tissue->firstIndex + offset + corner];
+                    require(vertexIndex >= tissue->firstVertex &&
+                                vertexIndex < tissue->firstVertex + tissue->vertexCount,
+                            "registered pectoral fascia target triangle crosses its muscle source surface");
+                    triangle[corner] = vertexIndex;
+                    const auto& vertex = tissues.vertices[vertexIndex];
+                    position[corner] = {vertex.positionX, vertex.positionY, vertex.positionZ};
+                }
+                std::array<double, 3u> barycentric{};
+                const double distanceSquared = closestTriangle(
+                    p, position[0], position[1], position[2], barycentric);
+                if (distanceSquared < bestSquared) {
+                    bestSquared = distanceSquared;
+                    bestVertices = triangle;
+                    bestBarycentric = barycentric;
+                    for(unsigned axis=0u;axis<3u;++axis)
+                        bestPosition[axis]=
+                            bestBarycentric[0]*position[0][axis]+
+                            bestBarycentric[1]*position[1][axis]+
+                            bestBarycentric[2]*position[2][axis];
+                }
+            }
+            const double residual = std::sqrt(bestSquared);
+            require(std::isfinite(residual) &&
+                        residual <= kMaximumProjectionResidualMeters &&
+                        std::all_of(bestVertices.begin(), bestVertices.end(),
+                            [](std::uint32_t index) { return index != MR_INVALID_INDEX; }),
+                    "pectoral fascia source-to-repaired-surface projection exceeds 30 mm");
+            PectoralisFasciaNodeProjection projection;
+            projection.sourceVertex = bestVertices;
+            projection.barycentric = {
+                static_cast<float>(bestBarycentric[0]),
+                static_cast<float>(bestBarycentric[1]),
+                static_cast<float>(bestBarycentric[2])};
+            for(unsigned axis=0u;axis<3u;++axis)
+                projection.remapResidualMeters[axis]=static_cast<float>(
+                    p[axis]-bestPosition[axis]);
+            projection.residualMeters = static_cast<float>(residual);
+            result.currentSurfaceProjection[region.firstNode + local] = projection;
+            result.currentSurfaceProjection[region.firstNode + local + layerWidth] = projection;
+            regionSquared += bestSquared;
+            allSquaredResiduals += bestSquared;
+            regionMaximum = std::max(regionMaximum, residual);
+            globalMaximumResidual = std::max(globalMaximumResidual, residual);
+            if (residual <= 1.0e-7) ++exactCount;
+            ++projectedPointCount;
+        }
+        const double regionRms = std::sqrt(regionSquared / layerWidth);
+        require(std::isfinite(regionRms) && regionRms <= kMaximumProjectionRmsMeters,
+                "pectoral fascia source-to-repaired-surface projection RMS exceeds 15 mm");
+        std::cout << "resting_fascia_surface_projection region=" << ri
+                  << " stable_id=" << region.softTissueStableId
+                  << " projected_nodes=" << layerWidth
+                  << " exact_nodes=" << exactCount
+                  << " rms_residual_m=" << regionRms
+                  << " max_residual_m=" << regionMaximum << '\n';
+    }
+    require(projectedPointCount > 0u,
+            "resting fascia did not produce any registered surface projections");
+    for (const auto& triangle : result.presentationTriangles)
+        require(triangle.regionIndex < result.regions.size() &&
+                    triangle.sourceVertex[0] != triangle.sourceVertex[1] &&
+                    triangle.sourceVertex[0] != triangle.sourceVertex[2] &&
+                    triangle.sourceVertex[1] != triangle.sourceVertex[2],
+                "resting fascia presentation ancestry is malformed");
+    // Repaired tissue presentation remains owned by the anatomy renderer. This
+    // runtime projection is a mechanical binding only, so no stale display map
+    // is published from the source compiler's un-repaired vertices.
+    result.presentationTriangles.clear();
+    result.header.presentationTriangleCount = 0u;
+    const double globalRms = std::sqrt(allSquaredResiduals / projectedPointCount);
+    std::cout << "resting_fascia_regional_admission=accepted"
+              << " active_regions=" << result.regions.size()
+              << " pectoral_surface_regions=" << kPectoralisFasciaRegionCount
+              << " route_regions=" << result.regions.size() - kPectoralisFasciaRegionCount
+              << " projected_source_points=" << projectedPointCount
+              << " projection_rms_m=" << globalRms
+              << " projection_max_m=" << globalMaximumResidual
+              << " projection_max_limit_m=" << kMaximumProjectionResidualMeters
+              << " source_coordinate_units=m"
+              << " projection=current_registered_surface_triangle"
+              << " preserved_local_residual_fraction=1.0"
+              << " fem_presentation_binding=none"
+              << " full_source_topology=retained\n";
     return result;
 }
 
@@ -10407,20 +10583,92 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         require(a.femNodes.size()==z.femNodes.size()&&!a.femNodes.empty(),
             "resting FEM terminal node extent changed");
         const auto det=[](const auto& nodes,const auto& t){
-            const auto& a=nodes.at(t[0]).positionAndMass;
-            const auto& b=nodes.at(t[1]).positionAndMass;
-            const auto& c=nodes.at(t[2]).positionAndMass;
-            const auto& d=nodes.at(t[3]).positionAndMass;
-            const double bx=double(b.x)-a.x,by=double(b.y)-a.y,bz=double(b.z)-a.z;
-            const double cx=double(c.x)-a.x,cy=double(c.y)-a.y,cz=double(c.z)-a.z;
-            const double dx=double(d.x)-a.x,dy=double(d.y)-a.y,dz=double(d.z)-a.z;
-            return bx*(cy*dz-cz*dy)-by*(cx*dz-cz*dx)+bz*(cx*dy-cy*dx);
+            const auto& n0=nodes.at(t[0]);
+            const auto& n1=nodes.at(t[1]);
+            const auto& n2=nodes.at(t[2]);
+            const auto& n3=nodes.at(t[3]);
+            const auto& u0=n0.referenceDisplacementAndMode;
+            const auto& u1=n1.referenceDisplacementAndMode;
+            const auto& u2=n2.referenceDisplacementAndMode;
+            const auto& u3=n3.referenceDisplacementAndMode;
+            const bool referenceDisplacementMode = u0.w==1.0f && u1.w==1.0f &&
+                u2.w==1.0f && u3.w==1.0f;
+            const auto edge=[&](const auto& node,const auto& u){
+                const auto& r0=n0.restAndFixed;
+                const auto& ri=node.restAndFixed;
+                const auto& p0=n0.positionAndMass;
+                const auto& pi=node.positionAndMass;
+                return std::array<double,3>{
+                    referenceDisplacementMode
+                        ? (double(ri.x)-double(r0.x))+(double(u.x)-double(u0.x))
+                        : double(pi.x)-double(p0.x),
+                    referenceDisplacementMode
+                        ? (double(ri.y)-double(r0.y))+(double(u.y)-double(u0.y))
+                        : double(pi.y)-double(p0.y),
+                    referenceDisplacementMode
+                        ? (double(ri.z)-double(r0.z))+(double(u.z)-double(u0.z))
+                        : double(pi.z)-double(p0.z),
+                };
+            };
+            const auto b=edge(n1,u1),c=edge(n2,u2),d=edge(n3,u3);
+            return b[0]*(c[1]*d[2]-c[2]*d[1])-
+                b[1]*(c[0]*d[2]-c[2]*d[0])+
+                b[2]*(c[0]*d[1]-c[1]*d[0]);
         };
         double minJ=std::numeric_limits<double>::infinity(),maxJ=0,maxDisplacement=0,maxReaction=0;
+        std::uint32_t auditTetIndex=0u;
         for(const auto& t:continuumTransaction->restingAuditTetrahedra) {
-            const double J=det(a.femNodes,t)/det(z.femNodes,t);
-            require(std::isfinite(J)&&J>0.35,"resting FEM terminal determinant invalid");
+            const double restDet=det(z.femNodes,t);
+            const double currentDet=det(a.femNodes,t);
+            const double J=currentDet/restDet;
+            if(!std::isfinite(J)||!(J>0.35)) {
+                std::string objectName="unmapped";
+                std::uint32_t localTetIndex=auditTetIndex;
+                std::uint32_t objectFirstNode=0u;
+                for(const auto& range:continuumTransaction->restingFEMAuditRanges) {
+                    if(auditTetIndex>=range.firstTetrahedron &&
+                       auditTetIndex-range.firstTetrahedron<range.tetrahedronCount) {
+                        objectName=range.objectName;
+                        localTetIndex=auditTetIndex-range.firstTetrahedron;
+                        objectFirstNode=range.firstNode;
+                        break;
+                    }
+                }
+                std::cerr<<"resting_fem_terminal_reject object="<<objectName
+                    <<" global_tet="<<auditTetIndex
+                    <<" local_tet="<<localTetIndex
+                    <<" J="<<J<<" rest_det_m3="<<restDet
+                    <<" current_det_m3="<<currentDet
+                    <<" nodes="<<t[0]<<","<<t[1]<<","<<t[2]<<","<<t[3]
+                    <<std::endl;
+                for(unsigned corner=0u;corner<4u;++corner) {
+                    const std::uint32_t node=t[corner];
+                    const auto& restNode=z.femNodes.at(node);
+                    const auto& currentNode=a.femNodes.at(node);
+                    const auto& rp=restNode.positionAndMass;
+                    const auto& cp=currentNode.positionAndMass;
+                    const double dx=double(cp.x)-rp.x;
+                    const double dy=double(cp.y)-rp.y;
+                    const double dz=double(cp.z)-rp.z;
+                    const std::uint32_t anchorBody=
+                        node<continuumTransaction->restingFEMAuditAnchorBodies.size()
+                            ?continuumTransaction->restingFEMAuditAnchorBodies[node]
+                            :NM_INVALID_INDEX;
+                    std::cerr<<"resting_fem_terminal_node global="<<node
+                        <<" object_local="<<(node>=objectFirstNode?node-objectFirstNode:NM_INVALID_INDEX)
+                        <<" anchor_body="<<anchorBody
+                        <<" rest_xyz_m=["<<rp.x<<","<<rp.y<<","<<rp.z<<"]"
+                        <<" current_xyz_m=["<<cp.x<<","<<cp.y<<","<<cp.z<<"]"
+                        <<" displacement_xyz_m=["<<dx<<","<<dy<<","<<dz<<"]"
+                        <<" mass_kg="<<rp.w<<std::endl;
+                }
+                require(false,"resting FEM terminal determinant invalid: object="+
+                    objectName+" global_tet="+std::to_string(auditTetIndex)+
+                    " local_tet="+std::to_string(localTetIndex)+
+                    " J="+std::to_string(J));
+            }
             minJ=std::min(minJ,J);maxJ=std::max(maxJ,J);
+            ++auditTetIndex;
         }
         for(unsigned i=0;i<a.femNodes.size();++i) {
             const auto& p=a.femNodes[i].positionAndMass;const auto& q=z.femNodes[i].positionAndMass;
@@ -10449,35 +10697,32 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             <<" min_J="<<minJ<<" max_J="<<maxJ<<" max_displacement_m="<<maxDisplacement
             <<" max_anchor_reaction_N="<<maxReaction<<" capture=terminal_only"<<std::endl;
         if (continuumTransaction->adapter != nullptr) {
-            const auto passive = continuumTransaction->adapter->diagnostics();
-            const bool passiveFinite =
-                std::isfinite(passive.passiveLigamentEndpointForceL1Newtons) &&
-                std::isfinite(passive.passiveLigamentMaximumTensionNewtons) &&
-                std::isfinite(passive.passiveLigamentMinimumEffectiveStretch) &&
-                std::isfinite(passive.passiveLigamentMaximumEffectiveStretch) &&
-                std::isfinite(passive.passiveLigamentForceResidualNewtons) &&
-                std::isfinite(passive.passiveLigamentMomentResidualNewtonMeters);
-            require(passive.initialized && passive.passiveLigamentCount == 8u &&
-                        passive.passiveLigamentLatestTransactionAccepted &&
-                        passiveFinite &&
-                        passive.passiveLigamentMinimumEffectiveStretch > 0.0 &&
-                        passive.passiveLigamentMaximumEffectiveStretch >=
-                            passive.passiveLigamentMinimumEffectiveStretch,
-                    "resting passive fascia terminal ligament audit is invalid");
-            std::cout << "resting_passive_fascia_ligament_terminal_audit=passed"
-                << " count=" << passive.passiveLigamentCount
-                << " accepted=" << passive.passiveLigamentLatestTransactionAccepted
-                << " endpoint_force_l1_N="
-                << passive.passiveLigamentEndpointForceL1Newtons
-                << " max_tension_N=" << passive.passiveLigamentMaximumTensionNewtons
-                << " min_effective_stretch="
-                << passive.passiveLigamentMinimumEffectiveStretch
-                << " max_effective_stretch="
-                << passive.passiveLigamentMaximumEffectiveStretch
-                << " force_residual_N="
-                << passive.passiveLigamentForceResidualNewtons
-                << " moment_residual_Nm="
-                << passive.passiveLigamentMomentResidualNewtonMeters
+            const auto adapterDiagnostics =
+                continuumTransaction->adapter->diagnostics();
+            std::uint32_t fasciaObjectCount=0u;
+            std::uint64_t fasciaNodeCount=0u, fasciaTetCount=0u;
+            for(const auto& range:
+                continuumTransaction->restingFEMAuditRanges) {
+                if(range.objectName.rfind(
+                    "numi_human_regional_myofascia_",0u)!=0u) continue;
+                ++fasciaObjectCount;
+                fasciaNodeCount+=range.nodeCount;
+                fasciaTetCount+=range.tetrahedronCount;
+            }
+            require(adapterDiagnostics.initialized &&
+                        adapterDiagnostics.passiveLigamentCount == 0u,
+                    "resting fascia FEM retained legacy passive ligament force rows");
+            require(fasciaObjectCount==12u && fasciaNodeCount==1202u &&
+                        fasciaTetCount==2127u,
+                    "resting 26-region fascia terminal FEM identity or topology is invalid");
+            std::cout << "resting_fascia_fem_terminal_audit=passed"
+                << " anatomical_regions=26"
+                << " objects=" << fasciaObjectCount
+                << " nodes=" << fasciaNodeCount
+                << " tetrahedra=" << fasciaTetCount
+                << " legacy_passive_force_rows="
+                << adapterDiagnostics.passiveLigamentCount
+                << " accepted_steps=" << stepCount
                 << " capture=terminal_only" << std::endl;
         }
         const auto& reactionHistory =
@@ -17949,6 +18194,9 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::vector<std::array<std::uint32_t,4u>> fasciaStripAnchorIdentity;
     std::vector<std::array<std::uint32_t,4>> auditTetrahedra;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
+        regionalFasciaBodyContactSamples;
+    std::uint32_t regionalFasciaBodyContactRegionCoverage = 0u;
     std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
     std::vector<double> aorticWallNodalMassKg;
     double aorticWallCookedMassKg=0.0;
@@ -17988,102 +18236,294 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     const std::filesystem::path& matterMetallib,
     bool preparationOnly = false
 ) {
-    require(fascia.regions.size()==1u &&
-            model.articulations.size()==1u && dt>0.0 && std::isfinite(dt),
+    require(fascia.regions.size() == kThoracoabdominalFasciaRegionCount &&
+                model.articulations.size() == 1u && dt > 0.0 && std::isfinite(dt),
             "resting passive fascia source/model is invalid");
-    const bool includeOpticNerves=humanRestingOpticNerveFEMEnabledForApp();
-    require(!enableWholeBodySkinFat||skin!=nullptr,
+    const bool includeOpticNerves = humanRestingOpticNerveFEMEnabledForApp();
+    require(!enableWholeBodySkinFat || skin != nullptr,
             "whole-body skin-fat FEM requires the retained registered skin payload");
-    constexpr std::uint32_t ri=0u;
-    const auto& region=fascia.regions[ri];
-    require((region.softTissueStableId&kFasciaRouteBodyBit)==0u &&
-            region.muscleIndex<muscles.gpuMuscles.size() &&
-            region.nodeCount>=12u && region.nodeCount%2u==0u &&
-            region.firstNode<=fascia.nodes.size() &&
-            region.nodeCount<=fascia.nodes.size()-region.firstNode &&
-            region.firstTetrahedron<=fascia.tetrahedra.size() &&
-            region.tetrahedronCount>0u &&
-            region.tetrahedronCount<=fascia.tetrahedra.size()-region.firstTetrahedron,
-            "resting passive fascia region is incomplete");
-    const auto tissue=std::find_if(tissues.records.begin(),tissues.records.end(),
-        [&region](const SoftTissueRecord& t){return t.stableId==region.softTissueStableId;});
-    require(tissue!=tissues.records.end(),"resting fascia source surface missing");
 
-    metalrobo::MetalArticulatedOperatorInput pi;
-    pi.articulationIndex=0u; pi.environmentCount=1u; pi.q=q;
-    metalrobo::MetalArticulatedOperatorConfig pc; pc.pointJacobiansOnly=true;
-    metalrobo::MetalArticulatedOperatorResult pr;
-    const auto ps=metalrobo::runMetalArticulatedOperator(model,pi,pr,pc);
-    require(ps.succeeded()&&ps.dispatched&&ps.published&&
-            pr.bodyPoses.size()==model.bodies.size(),
-            "resting fascia source-pose FK failed: "+ps.message);
-    const auto bodies=visualBodyStates(model,pr.bodyPoses);
-    const std::uint32_t half=region.nodeCount/2u;
-    std::vector<mr_float4> points(region.nodeCount);
-    std::vector<std::array<double,3u>> rest;
-    rest.reserve(region.nodeCount);
-    for(std::uint32_t i=0;i<region.nodeCount;++i){
-        const auto& n=fascia.nodes[region.firstNode+i];
-        require(n.regionIndex==ri&&n.sourceVertexIndex<tissue->vertexCount,
-                "resting fascia node escaped its source region");
-        const auto& sv=tissues.vertices[tissue->firstVertex+n.sourceVertexIndex];
-        auto p=softTissueVertexBlendedWorld(*tissue,sv,bodies);
-        if(i>=half){
-            const auto normal=softTissueVertexBlendedNormalWorld(*tissue,sv,bodies);
-            p.x-=fascia.header.thicknessMeters*normal.x;
-            p.y-=fascia.header.thicknessMeters*normal.y;
-            p.z-=fascia.header.thicknessMeters*normal.z;
-        }
-        require(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),
-                "resting fascia source node is non-finite");
-        p.w=1.0f; points[i]=p; rest.push_back({p.x,p.y,p.z});
-    }
-    std::array<std::uint32_t,2u> terminals{MR_INVALID_INDEX,MR_INVALID_INDEX};
-    std::uint32_t nt=0;
-    for(std::uint32_t i=0;i<muscles.tendonPayload.bindings.size();++i)
-        if(muscles.tendonPayload.bindings[i].muscleIndex==region.muscleIndex){
-            require(nt<2u,"resting fascia route has >2 tendon terminals");
-            terminals[nt++]=i;
-        }
-    require(nt==2u,"resting fascia route requires two tendon terminals");
-    mr_float4 fixed{0,0,0,0},second{0,0,0,0};
-    std::uint32_t nf=0,ns=0;
-    for(std::uint32_t i=0;i<region.nodeCount;++i){
-        const auto flags=fascia.nodes[region.firstNode+i].flags;
-        require((flags&3u)!=3u,"resting fascia node has ambiguous endpoint flags");
-        if(flags&1u){fixed=femAdd(fixed,points[i]);++nf;}
-        if(flags&2u){second=femAdd(second,points[i]);++ns;}
-    }
-    require(nf&&ns,"resting fascia source lacks two attachment bands");
-    fixed=femScale(fixed,1.0f/float(nf)); second=femScale(second,1.0f/float(ns));
-    const auto endpoint=[&](std::uint32_t i){
-        const auto& b=muscles.tendonPayload.bindings[i];
-        require(b.bodyIndex<bodies.size(),"resting fascia terminal body invalid");
-        const auto& body=bodies[b.bodyIndex];
-        return femAdd(body.position,rotatePoint(body.orientation,
-            {float(b.resolvedLocalPoint[0]),float(b.resolvedLocalPoint[1]),
-             float(b.resolvedLocalPoint[2]),0.0f}));
+    constexpr std::uint32_t kRestingFasciaObjectCount = 12u;
+    constexpr std::array<std::uint32_t, kRestingFasciaObjectCount>
+        kFasciaObjectRegionBegin{0u, 1u, 2u, 3u, 4u, 5u,
+                                 6u, 9u, 12u, 16u, 20u, 23u};
+    constexpr std::array<std::uint32_t, kRestingFasciaObjectCount>
+        kFasciaObjectRegionEnd{1u, 2u, 3u, 4u, 5u, 6u,
+                               9u, 12u, 16u, 20u, 23u, 26u};
+    const auto fasciaObjectForRegion = [](const std::uint32_t regionIndex) {
+        if (regionIndex < 6u) return regionIndex;
+        if (regionIndex < 9u) return 6u;
+        if (regionIndex < 12u) return 7u;
+        if (regionIndex < 16u) return 8u;
+        if (regionIndex < 20u) return 9u;
+        if (regionIndex < 23u) return 10u;
+        return 11u;
     };
-    const auto e0=endpoint(terminals[0]),e1=endpoint(terminals[1]);
-    const float a0=femLength(femSubtract(e0,second))+femLength(femSubtract(e1,fixed));
-    const float a1=femLength(femSubtract(e1,second))+femLength(femSubtract(e0,fixed));
-    require(std::isfinite(a0)&&std::isfinite(a1)&&std::abs(a0-a1)>1.0e-5f,
-            "resting fascia endpoint-band assignment is ambiguous");
-    const std::uint32_t bSecond=a0<=a1?terminals[0]:terminals[1];
-    const std::uint32_t bFixed=bSecond==terminals[0]?terminals[1]:terminals[0];
-    const auto tv=femSubtract(endpoint(bSecond),endpoint(bFixed));
-    const float tl=femLength(tv);
-    require(std::isfinite(tl)&&tl>0.01f,"resting fascia source terminals coincide");
+    std::uint32_t fasciaObjectFirstIndex = NM_INVALID_INDEX;
+    std::array<std::uint32_t, kRestingFasciaObjectCount>
+        fasciaObjectGlobalNodeBase{};
+    using FasciaAnchorRow =
+        std::pair<std::uint32_t, NMNumiHumanTendonFEMNodeAnchorGPU>;
+    std::array<std::vector<FasciaAnchorRow>, kRestingFasciaObjectCount>
+        fasciaAnchorRows;
+    std::vector<mr_float4> points(fascia.nodes.size());
+    std::vector<std::uint32_t> fasciaNodeDonorBody(
+        fascia.nodes.size(), MR_INVALID_INDEX);
+    std::vector<mr_float4> regionFibreDirections(fascia.regions.size());
+    std::vector<std::uint32_t> regionAnchorBodyIndices(
+        fascia.regions.size(), MR_INVALID_INDEX);
+
+    metalrobo::MetalArticulatedOperatorInput poseInput;
+    poseInput.articulationIndex = 0u;
+    poseInput.environmentCount = 1u;
+    poseInput.q = q;
+    metalrobo::MetalArticulatedOperatorConfig poseConfig;
+    poseConfig.pointJacobiansOnly = true;
+    metalrobo::MetalArticulatedOperatorResult poseResult;
+    const auto poseStatus = metalrobo::runMetalArticulatedOperator(
+        model, poseInput, poseResult, poseConfig);
+    require(poseStatus.succeeded() && poseStatus.dispatched &&
+                poseStatus.published &&
+                poseResult.bodyPoses.size() == model.bodies.size(),
+            "resting fascia source-pose FK failed: " + poseStatus.message);
+    const auto bodies = visualBodyStates(model, poseResult.bodyPoses);
+    require(bodies.size() == model.bodies.size(),
+            "resting fascia body-pose count drifted");
+
+    const auto endpointWorld = [&](const std::uint32_t bindingIndex) {
+        require(bindingIndex < muscles.tendonPayload.bindings.size(),
+                "resting fascia tendon binding index is invalid");
+        const auto& binding = muscles.tendonPayload.bindings[bindingIndex];
+        require(binding.bodyIndex < bodies.size(),
+                "resting fascia terminal body is outside the Human model");
+        const auto& body = bodies[binding.bodyIndex];
+        return femAdd(body.position, rotatePoint(body.orientation, {
+            float(binding.resolvedLocalPoint[0]),
+            float(binding.resolvedLocalPoint[1]),
+            float(binding.resolvedLocalPoint[2]), 0.0f}));
+    };
+
+    for (std::uint32_t regionIndex = 0u;
+         regionIndex < fascia.regions.size(); ++regionIndex) {
+        const auto& region = fascia.regions[regionIndex];
+        const bool routeRegion =
+            (region.softTissueStableId & kFasciaRouteBodyBit) != 0u;
+        require(routeRegion == (regionIndex >= kPectoralisFasciaRegionCount) &&
+                    region.muscleIndex < muscles.gpuMuscles.size() &&
+                    region.firstNode <= fascia.nodes.size() &&
+                    region.nodeCount <= fascia.nodes.size() - region.firstNode &&
+                    region.firstTetrahedron <= fascia.tetrahedra.size() &&
+                    region.tetrahedronCount > 0u &&
+                    region.tetrahedronCount <=
+                        fascia.tetrahedra.size() - region.firstTetrahedron,
+                "resting fascia region is incomplete or misclassified");
+        const std::uint32_t sourceBodyIndex =
+            region.softTissueStableId & ~kFasciaRouteBodyBit;
+        const auto tissue = std::find_if(
+            tissues.records.begin(), tissues.records.end(),
+            [&region](const SoftTissueRecord& value) {
+                return value.stableId == region.softTissueStableId;
+            });
+        require(routeRegion || tissue != tissues.records.end(),
+                "resting fascia source surface is missing");
+        const std::uint32_t layerWidth = region.nodeCount / 2u;
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            const auto& node = fascia.nodes[global];
+            require(node.regionIndex == regionIndex && (node.flags & ~3u) == 0u &&
+                        (node.flags & 3u) != 3u,
+                    "resting fascia node identity or boundary flags are invalid");
+            mr_float4 point{};
+            std::uint32_t donorBody = MR_INVALID_INDEX;
+            if (routeRegion) {
+                require(sourceBodyIndex < bodies.size(),
+                        "thoracoabdominal fascia source body is unavailable");
+                const auto& body = bodies[sourceBodyIndex];
+                point = femAdd(body.position, rotatePoint(body.orientation, {
+                    node.sourcePosition[0], node.sourcePosition[1],
+                    node.sourcePosition[2], 0.0f}));
+                donorBody = sourceBodyIndex;
+            } else {
+                const auto& projection = fascia.currentSurfaceProjection.at(global);
+                require(projection.sourceVertex[0] != MR_INVALID_INDEX &&
+                            projection.sourceVertex[1] != MR_INVALID_INDEX &&
+                            projection.sourceVertex[2] != MR_INVALID_INDEX &&
+                            std::isfinite(projection.residualMeters) &&
+                            projection.residualMeters <= 0.030f,
+                        "resting fascia repaired-surface binding is unavailable");
+                mr_float4 normal{0.0f, 0.0f, 0.0f, 0.0f};
+                mr_float4 remapResidualWorld{0.0f,0.0f,0.0f,0.0f};
+                const mr_float4 remapResidualLocal{
+                    projection.remapResidualMeters[0],
+                    projection.remapResidualMeters[1],
+                    projection.remapResidualMeters[2],0.0f};
+                constexpr float kPreservedSurfaceRemapResidualFraction=1.0f;
+                std::vector<double> donorScores(bodies.size(), 0.0);
+                for (unsigned corner = 0u; corner < 3u; ++corner) {
+                    const std::uint32_t vertexIndex =
+                        projection.sourceVertex[corner];
+                    require(vertexIndex >= tissue->firstVertex &&
+                                vertexIndex < tissue->firstVertex + tissue->vertexCount,
+                            "resting fascia projected vertex escaped its registered surface");
+                    const auto& vertex = tissues.vertices[vertexIndex];
+                    const float weight = projection.barycentric[corner];
+                    const mr_float4 world = softTissueVertexBlendedWorld(
+                        *tissue, vertex, bodies);
+                    point.x += weight * world.x;
+                    point.y += weight * world.y;
+                    point.z += weight * world.z;
+                    const mr_float4 vertexNormal =
+                        softTissueVertexBlendedNormalWorld(*tissue, vertex, bodies);
+                    normal.x += weight * vertexNormal.x;
+                    normal.y += weight * vertexNormal.y;
+                    normal.z += weight * vertexNormal.z;
+                    for (std::uint32_t influence = 0u;
+                         influence < kRouteSoftTissueMaximumInfluences;
+                         ++influence) {
+                        const float influenceWeight = vertex.weight[influence];
+                        if (influenceWeight <= 2.0e-6f) continue;
+                        const std::uint32_t binding = vertex.bindingIndex[influence];
+                        require(binding < tissue->bindingCount &&
+                                    tissue->bodyIndex[binding] < bodies.size(),
+                                "resting fascia projected skinning donor is invalid");
+                        const std::uint32_t bodyIndex=tissue->bodyIndex[binding];
+                        donorScores[bodyIndex] +=
+                            double(weight) * influenceWeight;
+                        const mr_float4 rotatedResidual=rotatePoint(
+                            bodies[bodyIndex].orientation,remapResidualLocal);
+                        remapResidualWorld.x+=weight*influenceWeight*
+                            rotatedResidual.x;
+                        remapResidualWorld.y+=weight*influenceWeight*
+                            rotatedResidual.y;
+                        remapResidualWorld.z+=weight*influenceWeight*
+                            rotatedResidual.z;
+                    }
+                }
+                point.x+=kPreservedSurfaceRemapResidualFraction*
+                    remapResidualWorld.x;
+                point.y+=kPreservedSurfaceRemapResidualFraction*
+                    remapResidualWorld.y;
+                point.z+=kPreservedSurfaceRemapResidualFraction*
+                    remapResidualWorld.z;
+                point.w = 1.0f;
+                if (local >= layerWidth) {
+                    normal = femNormalized(normal,
+                        "resting fascia projected source normal");
+                    point.x -= fascia.header.thicknessMeters * normal.x;
+                    point.y -= fascia.header.thicknessMeters * normal.y;
+                    point.z -= fascia.header.thicknessMeters * normal.z;
+                }
+                donorBody = static_cast<std::uint32_t>(std::distance(
+                    donorScores.begin(), std::max_element(
+                        donorScores.begin(), donorScores.end())));
+                require(donorBody < bodies.size() && donorScores[donorBody] > 0.0,
+                        "resting fascia projected source has no mass donor");
+            }
+            require(std::isfinite(point.x) && std::isfinite(point.y) &&
+                        std::isfinite(point.z) && donorBody < bodies.size(),
+                    "resting fascia source point or donor is invalid");
+            point.w = 1.0f;
+            points[global] = point;
+            fasciaNodeDonorBody[global] = donorBody;
+        }
+
+        std::array<std::uint32_t, 2u> terminals{
+            MR_INVALID_INDEX, MR_INVALID_INDEX};
+        std::uint32_t terminalCount = 0u;
+        for (std::uint32_t bindingIndex = 0u;
+             bindingIndex < muscles.tendonPayload.bindings.size();
+             ++bindingIndex) {
+            if (muscles.tendonPayload.bindings[bindingIndex].muscleIndex !=
+                region.muscleIndex) continue;
+            require(terminalCount < terminals.size(),
+                    "resting fascia muscle has more than two tendon terminals");
+            terminals[terminalCount++] = bindingIndex;
+        }
+        require(terminalCount == 2u,
+                "resting fascia muscle requires exactly two tendon terminals");
+        mr_float4 fixedCentroid{0.0f, 0.0f, 0.0f, 0.0f};
+        mr_float4 loadCentroid{0.0f, 0.0f, 0.0f, 0.0f};
+        std::uint32_t fixedCount = 0u;
+        std::uint32_t loadCount = 0u;
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            const std::uint32_t flags = fascia.nodes[global].flags & 3u;
+            if (flags == 1u) {
+                fixedCentroid = femAdd(fixedCentroid, points[global]);
+                ++fixedCount;
+            } else if (flags == 2u) {
+                loadCentroid = femAdd(loadCentroid, points[global]);
+                ++loadCount;
+            }
+        }
+        require(fixedCount > 0u && loadCount > 0u,
+                "resting fascia region lacks its two anatomical bands");
+        fixedCentroid = femScale(fixedCentroid, 1.0f / float(fixedCount));
+        loadCentroid = femScale(loadCentroid, 1.0f / float(loadCount));
+        std::uint32_t anchorBindingIndex = MR_INVALID_INDEX;
+        std::uint32_t loadBindingIndex = MR_INVALID_INDEX;
+        if (routeRegion) {
+            for (const std::uint32_t bindingIndex : terminals) {
+                if (muscles.tendonPayload.bindings[bindingIndex].bodyIndex ==
+                    sourceBodyIndex) {
+                    require(anchorBindingIndex == MR_INVALID_INDEX,
+                            "routed fascia has duplicate source-body terminals");
+                    anchorBindingIndex = bindingIndex;
+                } else {
+                    require(loadBindingIndex == MR_INVALID_INDEX,
+                            "routed fascia has duplicate load-body terminals");
+                    loadBindingIndex = bindingIndex;
+                }
+            }
+            require(anchorBindingIndex != MR_INVALID_INDEX &&
+                        loadBindingIndex != MR_INVALID_INDEX,
+                    "routed fascia source/load body terminals are incomplete");
+        } else {
+            const mr_float4 endpoint0 = endpointWorld(terminals[0]);
+            const mr_float4 endpoint1 = endpointWorld(terminals[1]);
+            const float assignment0 =
+                femLength(femSubtract(endpoint0, loadCentroid)) +
+                femLength(femSubtract(endpoint1, fixedCentroid));
+            const float assignment1 =
+                femLength(femSubtract(endpoint1, loadCentroid)) +
+                femLength(femSubtract(endpoint0, fixedCentroid));
+            require(std::isfinite(assignment0) && std::isfinite(assignment1) &&
+                        std::abs(assignment0 - assignment1) > 1.0e-5f,
+                    "resting fascia endpoint-band assignment is ambiguous");
+            loadBindingIndex = assignment0 <= assignment1
+                ? terminals[0] : terminals[1];
+            anchorBindingIndex = loadBindingIndex == terminals[0]
+                ? terminals[1] : terminals[0];
+        }
+        const mr_float4 fibreVector = femSubtract(
+            endpointWorld(loadBindingIndex), endpointWorld(anchorBindingIndex));
+        const float fibreLength = femLength(fibreVector);
+        require(std::isfinite(fibreLength) && fibreLength > 0.01f,
+                "resting fascia source terminals coincide");
+        const mr_float4 fibreDirection = femScale(fibreVector, 1.0f / fibreLength);
+        const mr_float4 sheetVector = femSubtract(loadCentroid, fixedCentroid);
+        const float sheetLength = femLength(sheetVector);
+        require(std::isfinite(sheetLength) && sheetLength > 0.005f,
+                "resting fascia sheet direction is unavailable");
+        const mr_float4 sheetDirection = femScale(sheetVector, 1.0f / sheetLength);
+        const float sheetAlignment = std::abs(femDot(fibreDirection, sheetDirection));
+        require(std::isfinite(sheetAlignment) && sheetAlignment > 0.20f,
+                "resting fascia fibre axis disagrees with its attachment bands");
+        regionFibreDirections[regionIndex] = fibreDirection;
+        regionAnchorBodyIndices[regionIndex] =
+            muscles.tendonPayload.bindings[anchorBindingIndex].bodyIndex;
+    }
 
     require(includeInferredACL,
-            "reduced passive fascia requires registered bilateral ACL FEM");
+            "integrated resting tissue owner requires registered bilateral ACL FEM");
     numi::matter::WorldSource source;
     source.environmentCount=1u; source.frameTimestep=dt;
     source.gravity={model.world.gravityAndTimestep.x,model.world.gravityAndTimestep.y,model.world.gravityAndTimestep.z};
-    source.mixedSolver.newtonIterations=12u;
+    source.mixedSolver.newtonIterations=16u;
     source.mixedSolver.fgmresRestart=16u;
-    source.mixedSolver.fgmresIterations=64u;
+    source.mixedSolver.fgmresIterations=32u;
     source.mixedSolver.lineSearchSteps=12u;
+    source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback=true;
     if(enableAorticWall) {
         require(restingNetwork&&restingNetwork[0],
                 "registered aortic wall requires the admitted CVSim network source");
@@ -18094,153 +18534,504 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 "registered aortic CVSim source read failed: "+vascularError);
         source.vascular=std::move(vascular);
     }
-    auto parsed=numi::matter::parseMatterFile(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL);
-    require(parsed.succeeded(),"resting fascia material parse failed");
-    auto material=parsed.material;
-    material.name="resting_passive_pectoralis_region_0"; material.fingerprint=0u;
-    const auto fiber=femScale(tv,1.0f/tl);
-    setMatterMaterialParameter(material,"density",1000.0);
-    setMatterMaterialParameter(material,"matrix_shear",1840.0);
-    setMatterMaterialParameter(material,"bulk",500000.0);
-    setMatterMaterialParameter(material,"fiber_k1",10000.0);
-    setMatterMaterialParameter(material,"fiber_k2",2.36);
-    setMatterMaterialParameter(material,"fiber_x",fiber.x);
-    setMatterMaterialParameter(material,"fiber_y",fiber.y);
-    setMatterMaterialParameter(material,"fiber_z",fiber.z);
-    setMatterMaterialParameter(material,"tension_smoothing",1.0e-4);
-    setMatterMaterialParameter(material,"minimum_valid_J",0.35);
-    setMatterMaterialParameter(material,"numerical_viscosity",0.0);
-    const auto parameterValue=[&](std::string_view name) {
-        const auto found=std::find_if(material.parameters.begin(),material.parameters.end(),
-            [name](const auto& parameter){return parameter.name==name;});
-        require(found!=material.parameters.end()&&std::isfinite(found->defaultValue),
-                "resting fascia source parameter missing: "+std::string(name));
-        return found->defaultValue;
-    };
-    const double density=parameterValue("density");
-    const double matrixShear=parameterValue("matrix_shear");
-    const double fiberK1=parameterValue("fiber_k1");
-    const double fiberK2=parameterValue("fiber_k2");
-    const double smoothing=parameterValue("tension_smoothing");
-    namespace fascia_reduction = numi::human::reduced_passive_fascia;
-    const double fitMin=fascia_reduction::kFitMinimumStretch;
-    const double fitMax=fascia_reduction::kFitMaximumStretch;
-    std::vector<fascia_reduction::Node> reductionNodes;
-    reductionNodes.reserve(region.nodeCount);
-    for(std::uint32_t i=0u;i<region.nodeCount;++i) {
-        const auto& sourceNode=fascia.nodes[region.firstNode+i];
-        reductionNodes.push_back({
-            {rest[i][0],rest[i][1],rest[i][2]},
-            sourceNode.sourceVertexIndex,sourceNode.flags});
-    }
-    std::vector<fascia_reduction::Tetrahedron> reductionTetrahedra;
-    reductionTetrahedra.reserve(region.tetrahedronCount);
-    for(std::uint32_t t=0u;t<region.tetrahedronCount;++t) {
-        const auto& sourceTet=fascia.tetrahedra[region.firstTetrahedron+t];
-        require(sourceTet.regionIndex==ri,
-                "resting fascia tetrahedron region mismatch");
-        fascia_reduction::Tetrahedron tet{};
-        for(unsigned c=0u;c<4u;++c) {
-            require(sourceTet.node[c]>=region.firstNode&&
-                        sourceTet.node[c]<region.firstNode+region.nodeCount,
-                    "resting fascia tetrahedron crosses source region");
-            tet.node[c]=sourceTet.node[c]-region.firstNode;
+    auto parsed = numi::matter::parseMatterFile(
+        NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL);
+    require(parsed.succeeded(), "resting fascia material parse failed");
+    std::vector<numi::matter::ObjectSource> fasciaObjects(
+        kRestingFasciaObjectCount);
+    std::array<std::vector<std::uint8_t>, kRestingFasciaObjectCount>
+        fasciaNodeUsed;
+    using FasciaTetFaceKey = std::array<std::uint32_t, 3u>;
+    constexpr std::array<std::array<std::uint32_t, 3u>, 4u>
+        kFasciaTetFaceCorners{{
+            {{1u, 2u, 3u}}, {{0u, 3u, 2u}},
+            {{0u, 1u, 3u}}, {{0u, 2u, 1u}},
+        }};
+    std::array<std::map<FasciaTetFaceKey, std::uint32_t>,
+                kRestingFasciaObjectCount> fasciaFaceUse;
+    std::array<std::map<FasciaTetFaceKey, std::vector<std::uint32_t>>,
+                kRestingFasciaObjectCount> fasciaFaceSourceRows;
+    std::array<std::vector<std::uint32_t>, kRestingFasciaObjectCount>
+        fasciaObjectTetRegions;
+    std::array<std::vector<std::uint32_t>, kRestingFasciaObjectCount>
+        fasciaContactNodes;
+    std::array<std::vector<std::uint32_t>, kRestingFasciaObjectCount>
+        fasciaDisabledContactFaces;
+    std::array<std::size_t, kRestingFasciaObjectCount>
+        fasciaContactSurfaceFaceCounts{};
+    std::array<std::size_t, kRestingFasciaObjectCount>
+        fasciaOwnedSeamFaceCounts{};
+    std::array<std::size_t, kRestingFasciaObjectCount>
+        fasciaRetainedCoincidentFaceCounts{};
+    std::vector<std::map<std::array<std::uint32_t,3u>,std::uint32_t>>
+        fasciaRegionFaceUse(fascia.regions.size());
+    std::vector<double> fasciaGlidingTributaryArea(fascia.nodes.size(),0.0);
+    std::vector<std::array<double, 3u>> fasciaRestPoints(fascia.nodes.size());
+    double totalSourceVolume = 0.0;
+    for (std::uint32_t node = 0u; node < points.size(); ++node)
+        fasciaRestPoints[node] = {points[node].x, points[node].y, points[node].z};
+
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kRestingFasciaObjectCount; ++objectIndex) {
+        const std::uint32_t firstRegion =
+            kFasciaObjectRegionBegin[objectIndex];
+        const std::uint32_t lastRegion =
+            kFasciaObjectRegionEnd[objectIndex] - 1u;
+        auto& object = fasciaObjects[objectIndex];
+        object.name = "numi_human_regional_myofascia_" +
+            std::to_string(objectIndex);
+        object.representation = numi::matter::Representation::fem;
+        object.mixedFEM = false;
+        // Pectoral fascia is registered directly over its articulated muscle
+        // donors and receives distributed body-glide contact below. Enabling a
+        // second free-surface FEM law on that near-coincident interface causes
+        // the first coupled step to collapse the pectoral tetrahedra. The other
+        // 20 thoracoabdominal route regions keep inter-object FEM contact.
+        // Self-contact stays disabled; exact source seams are excluded below.
+        object.deformableContact =
+            objectIndex >= kPectoralisFasciaRegionCount;
+        object.deformableSelfContact = false;
+        object.characteristicLength = firstRegion < kPectoralisFasciaRegionCount
+            ? 0.005 : firstRegion < kLatissimusFasciaRegionEnd
+                ? 0.00175 : firstRegion < kExternalObliqueRegionEnd
+                    ? 0.0045 : 0.0060;
+        fasciaObjectGlobalNodeBase[objectIndex] =
+            fascia.regions[firstRegion].firstNode;
+        const std::uint32_t nodeEnd = fascia.regions[lastRegion].firstNode +
+            fascia.regions[lastRegion].nodeCount;
+        const std::uint32_t expectedNodeCount =
+            nodeEnd - fasciaObjectGlobalNodeBase[objectIndex];
+        object.femNodes.reserve(expectedNodeCount);
+        object.femReferenceNodes.reserve(expectedNodeCount);
+        object.femCapacity.nodes = expectedNodeCount;
+        object.femCapacity.tetrahedra = 0u;
+
+        mr_float4 referenceDirection = regionFibreDirections[firstRegion];
+        mr_float4 directionSum{0.0f, 0.0f, 0.0f, 0.0f};
+        for (std::uint32_t ri = firstRegion;
+             ri < kFasciaObjectRegionEnd[objectIndex]; ++ri) {
+            mr_float4 direction = regionFibreDirections[ri];
+            const float sign = femDot(referenceDirection, direction) < 0.0f
+                ? -1.0f : 1.0f;
+            directionSum = femAdd(directionSum, femScale(direction, sign));
         }
-        reductionTetrahedra.push_back(tet);
+        const float directionLength = femLength(directionSum);
+        require(std::isfinite(directionLength) && directionLength > 0.5f,
+                "regional fascia material group has no coherent fibre direction");
+        const mr_float4 groupDirection = femScale(directionSum, 1.0f / directionLength);
+        for (std::uint32_t ri = firstRegion;
+             ri < kFasciaObjectRegionEnd[objectIndex]; ++ri) {
+            const float alignment = std::abs(
+                femDot(groupDirection, regionFibreDirections[ri]));
+            require(std::isfinite(alignment) && alignment > 0.65f,
+                    "regional fascia material group loses an anatomical route axis");
+        }
+
+        auto material = parsed.material;
+        material.name = object.name + "_transverse_isotropic";
+        material.fingerprint = 0u;
+        double matrixShearPascals = 0.0;
+        double bulkPascals = 0.0;
+        double fibreK1Pascals = 0.0;
+        double fibreK2 = 2.0;
+        double minimumValidJ = 0.35;
+        double numericalViscosity = 0.0;
+        if (firstRegion < kPectoralisFasciaRegionCount) {
+            matrixShearPascals = 1'840.0;
+            bulkPascals = 500'000.0;
+            fibreK1Pascals = 10'000.0;
+            fibreK2 = 2.36;
+        } else if (firstRegion < kLatissimusFasciaRegionEnd) {
+            constexpr double effectiveAxialPascals = 15.09e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = 50.3e6;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            minimumValidJ = 0.50;
+            numericalViscosity = 25.0;
+        } else if (firstRegion < kExternalObliqueRegionEnd) {
+            constexpr double effectiveAxialPascals = 0.10 * 0.41e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = effectiveAxialPascals / 0.30;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            numericalViscosity = 5.0;
+        } else {
+            constexpr double effectiveAxialPascals = 0.10 * 0.53e6;
+            matrixShearPascals = 0.25 * effectiveAxialPascals / 2.9;
+            bulkPascals = effectiveAxialPascals / 0.30;
+            fibreK1Pascals = 0.75 * effectiveAxialPascals;
+            numericalViscosity = 5.0;
+        }
+        setMatterMaterialParameter(material, "density", 1000.0);
+        setMatterMaterialParameter(material, "matrix_shear", matrixShearPascals);
+        setMatterMaterialParameter(material, "bulk", bulkPascals);
+        setMatterMaterialParameter(material, "fiber_k1", fibreK1Pascals);
+        setMatterMaterialParameter(material, "fiber_k2", fibreK2);
+        setMatterMaterialParameter(material, "fiber_x", groupDirection.x);
+        setMatterMaterialParameter(material, "fiber_y", groupDirection.y);
+        setMatterMaterialParameter(material, "fiber_z", groupDirection.z);
+        setMatterMaterialParameter(material, "tension_smoothing", 1.0e-4);
+        setMatterMaterialParameter(material, "minimum_valid_J", minimumValidJ);
+        setMatterMaterialParameter(material, "numerical_viscosity", numericalViscosity);
+        for (auto& parameter : material.parameters)
+            parameter.identifiable = false;
+        object.materialIndex = static_cast<std::uint32_t>(source.materials.size());
+        source.materials.push_back(std::move(material));
+
+        for (std::uint32_t ri = firstRegion;
+             ri < kFasciaObjectRegionEnd[objectIndex]; ++ri) {
+            const auto& region = fascia.regions[ri];
+            for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+                const std::uint32_t global = region.firstNode + local;
+                const std::uint32_t objectLocal =
+                    global - fasciaObjectGlobalNodeBase[objectIndex];
+                require(objectLocal == object.femNodes.size(),
+                        "regional fascia nodes are not contiguous within their owner object");
+                const mr_float4& point = points[global];
+                const std::array<double, 3u> xyz{point.x, point.y, point.z};
+                object.femNodes.push_back(xyz);
+                object.femReferenceNodes.push_back(xyz);
+                if ((fascia.nodes[global].flags & 1u) != 0u) {
+                    const std::uint32_t bodyIndex = regionAnchorBodyIndices[ri];
+                    require(bodyIndex < bodies.size(),
+                            "regional fascia anchor body is invalid");
+                    const auto& body = bodies[bodyIndex];
+                    const mr_float4 inverse{
+                        -body.orientation.x, -body.orientation.y,
+                        -body.orientation.z, body.orientation.w};
+                    const mr_float4 localPoint = rotatePoint(
+                        inverse, femSubtract(point, body.position));
+                    NMNumiHumanTendonFEMNodeAnchorGPU anchor{};
+                    anchor.bodyIndex = bodyIndex;
+                    anchor.flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+                    anchor.localPoint = {
+                        localPoint.x, localPoint.y, localPoint.z, 0.0f};
+                    object.femFixedNodes.push_back(objectLocal);
+                    fasciaAnchorRows[objectIndex].push_back({objectLocal, anchor});
+                }
+            }
+        }
+        require(object.femNodes.size() == expectedNodeCount &&
+                    !object.femFixedNodes.empty(),
+                "regional fascia owner has incomplete nodes or attachment bands");
+        fasciaNodeUsed[objectIndex].resize(object.femNodes.size(), 0u);
     }
-    const fascia_reduction::Material reductionMaterial{
-        density,matrixShear,fiberK1,fiberK2,smoothing};
-    const auto evaluateOwnerStress=[](
-        const fascia_reduction::FiberLaw& law,double length,double area,
-        double stretch,double& stress)->bool {
-        NMNumiHumanPassiveLigamentGPU ligament{};
-        ligament.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
-        ligament.material={float(law.c3Pascals),float(law.c4),
-                           float(law.c5Pascals),float(law.maximumStretch)};
-        ligament.reference={float(length),float(area),1.0f,0.0f};
-        numi::matter::NumiHumanPassiveLigamentFiberEvaluation evaluated;
-        if(!numi::matter::evaluateNumiHumanPassiveLigamentFiber(
-                ligament,length*stretch,evaluated))return false;
-        stress=evaluated.fiberStressPascals;
-        return std::isfinite(stress);
+
+    for (const auto& sourceTet : fascia.tetrahedra) {
+        require(sourceTet.regionIndex < fascia.regions.size(),
+                "regional fascia tetrahedron has no source region");
+        const std::uint32_t objectIndex =
+            fasciaObjectForRegion(sourceTet.regionIndex);
+        auto& object = fasciaObjects[objectIndex];
+        const std::uint32_t nodeBase = fasciaObjectGlobalNodeBase[objectIndex];
+        std::array<std::uint32_t, 4u> nodes{};
+        for (unsigned corner = 0u; corner < 4u; ++corner) {
+            const std::uint32_t global = sourceTet.node[corner];
+            require(global >= nodeBase && global < nodeBase + object.femNodes.size(),
+                    "regional fascia tetrahedron escapes its material owner");
+            nodes[corner] = global - nodeBase;
+            fasciaNodeUsed[objectIndex][nodes[corner]] = 1u;
+        }
+        const double signedVolume = metalrobo::human::coarse_tissue::tetVolume(
+            object.femNodes[nodes[0]], object.femNodes[nodes[1]],
+            object.femNodes[nodes[2]], object.femNodes[nodes[3]]);
+        if(!std::isfinite(signedVolume)||std::abs(signedVolume)<=1.0e-15) {
+            const double rawVolume=metalrobo::human::coarse_tissue::tetVolume(
+                {fascia.nodes[sourceTet.node[0]].sourcePosition[0],
+                 fascia.nodes[sourceTet.node[0]].sourcePosition[1],
+                 fascia.nodes[sourceTet.node[0]].sourcePosition[2]},
+                {fascia.nodes[sourceTet.node[1]].sourcePosition[0],
+                 fascia.nodes[sourceTet.node[1]].sourcePosition[1],
+                 fascia.nodes[sourceTet.node[1]].sourcePosition[2]},
+                {fascia.nodes[sourceTet.node[2]].sourcePosition[0],
+                 fascia.nodes[sourceTet.node[2]].sourcePosition[1],
+                 fascia.nodes[sourceTet.node[2]].sourcePosition[2]},
+                {fascia.nodes[sourceTet.node[3]].sourcePosition[0],
+                 fascia.nodes[sourceTet.node[3]].sourcePosition[1],
+                 fascia.nodes[sourceTet.node[3]].sourcePosition[2]});
+            std::ostringstream witness;
+            witness<<"registered fascia tetrahedron is degenerate after surface repair mapping"
+                <<" region="<<sourceTet.regionIndex<<" nodes="
+                <<sourceTet.node[0]<<","<<sourceTet.node[1]<<","
+                <<sourceTet.node[2]<<","<<sourceTet.node[3]
+                <<" mapped_volume_m3="<<signedVolume
+                <<" raw_source_volume_m3="<<rawVolume;
+            for(unsigned corner=0u;corner<4u;++corner) {
+                const std::uint32_t global=sourceTet.node[corner];
+                witness<<" node"<<corner<<"_mapped=("<<points[global].x<<","
+                    <<points[global].y<<","<<points[global].z<<")"
+                    <<" node"<<corner<<"_source=("
+                    <<fascia.nodes[global].sourcePosition[0]<<","
+                    <<fascia.nodes[global].sourcePosition[1]<<","
+                    <<fascia.nodes[global].sourcePosition[2]<<")";
+            }
+            require(false,witness.str());
+        }
+        totalSourceVolume += std::abs(signedVolume);
+        if (signedVolume < 0.0) std::swap(nodes[0], nodes[1]);
+        const std::uint32_t localTet =
+            static_cast<std::uint32_t>(object.tetrahedra.size());
+        object.tetrahedra.push_back({nodes});
+        fasciaObjectTetRegions[objectIndex].push_back(sourceTet.regionIndex);
+        for (unsigned opposite = 0u; opposite < 4u; ++opposite) {
+            std::array<std::uint32_t, 3u> face{};
+            unsigned out = 0u;
+            for (unsigned corner = 0u; corner < 4u; ++corner)
+                if (corner != opposite) face[out++] = nodes[corner];
+            std::sort(face.begin(), face.end());
+            std::array<std::uint32_t,3u> regionFace{
+                nodeBase+face[0],nodeBase+face[1],nodeBase+face[2]};
+            std::sort(regionFace.begin(),regionFace.end());
+            require(++fasciaFaceUse[objectIndex][face] <= 2u &&
+                        ++fasciaRegionFaceUse[sourceTet.regionIndex][regionFace] <= 2u,
+                    "regional fascia tetrahedra have a nonmanifold face");
+            fasciaFaceSourceRows[objectIndex][face].push_back(
+                4u * localTet + opposite);
+        }
+    }
+    for(std::uint32_t regionIndex=0u;
+        regionIndex<fascia.regions.size();++regionIndex) {
+        const auto& region=fascia.regions[regionIndex];
+        const std::uint32_t layerWidth=region.nodeCount/2u;
+        std::size_t surfaceFaces=0u;
+        double surfaceArea=0.0;
+        for(const auto& [face,use]:fasciaRegionFaceUse[regionIndex]) {
+            if(use!=1u) continue;
+            const bool outer=std::all_of(face.begin(),face.end(),
+                [&](std::uint32_t global) {
+                    return global>=region.firstNode &&
+                        global<region.firstNode+layerWidth;
+                });
+            if(!outer) continue;
+            const mr_float4 edge0=femSubtract(points[face[1]],points[face[0]]);
+            const mr_float4 edge1=femSubtract(points[face[2]],points[face[0]]);
+            const double area=0.5*femLength(femCross(edge0,edge1));
+            require(std::isfinite(area)&&area>1.0e-12,
+                    "regional fascia gliding boundary has a degenerate face");
+            ++surfaceFaces;
+            surfaceArea+=area;
+            for(const auto global:face)
+                fasciaGlidingTributaryArea[global]+=area/3.0;
+        }
+        require(surfaceFaces>0u&&std::isfinite(surfaceArea)&&surfaceArea>0.0,
+                "regional fascia has no outer gliding-contact surface");
+    }
+
+    // Build exact boundary-face ancestry before enabling contact. A seam is
+    // excluded only when two source-region boundary faces have identical
+    // compiled Float32 coordinates and opposite outward winding. All other
+    // coincident or edge-only geometry remains contact-eligible; no distance
+    // tolerance or region-wide node mask is used.
+    using FasciaExactPoint = std::array<double, 3u>;
+    using FasciaExactFaceKey = std::array<FasciaExactPoint, 3u>;
+    struct FasciaBoundaryFaceRef {
+        std::uint32_t objectIndex = MR_INVALID_INDEX;
+        std::uint32_t regionIndex = MR_INVALID_INDEX;
+        std::uint32_t sourceFace = MR_INVALID_INDEX;
+        std::array<std::uint32_t, 3u> localNodes{};
+        std::array<FasciaExactPoint, 3u> points{};
     };
-    fascia_reduction::Result cookedReduction;
-    std::string reductionError;
-    require(fascia_reduction::cook(
-                reductionNodes,reductionTetrahedra,reductionMaterial,
-                {fiber.x,fiber.y,fiber.z},evaluateOwnerStress,
-                cookedReduction,reductionError),
-            "resting fascia reduction failed: "+reductionError);
-    require(cookedReduction.distributedStripMassKg==0.0,
-            "massless passive fascia rows unexpectedly own mass");
-    const double totalSourceVolume=cookedReduction.sourceVolumeCubicMeters;
-    std::vector<fascia_reduction::Strip> strips=
-        std::move(cookedReduction.strips);
-    std::vector<std::array<std::uint32_t,4u>> stripIdentities;
-    stripIdentities.reserve(strips.size());
-    double maximumFitError=0.0,maximumFitRMS=0.0;
-    for(const auto& strip:strips) {
-        stripIdentities.push_back({strip.firstNode,strip.firstSourceVertex,
-                                   strip.secondNode,strip.secondSourceVertex});
-        maximumFitError=std::max(maximumFitError,
-                                 strip.peakNormalizedMaximumError);
-        maximumFitRMS=std::max(maximumFitRMS,strip.peakNormalizedRmsError);
+    std::map<FasciaExactFaceKey, std::vector<FasciaBoundaryFaceRef>>
+        exactBoundaryFaces;
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kRestingFasciaObjectCount; ++objectIndex) {
+        const auto& object = fasciaObjects[objectIndex];
+        require(fasciaObjectTetRegions[objectIndex].size() ==
+                    object.tetrahedra.size(),
+                "regional fascia tet-to-source-region ancestry is incomplete");
+        for (const auto& [face, use] : fasciaFaceUse[objectIndex]) {
+            if (use != 1u) continue;
+            const auto found = fasciaFaceSourceRows[objectIndex].find(face);
+            require(found != fasciaFaceSourceRows[objectIndex].end() &&
+                        found->second.size() == 1u,
+                    "regional fascia boundary face lacks unique local source-face ancestry");
+            const std::uint32_t sourceFace = found->second.front();
+            const std::uint32_t localTet = sourceFace / 4u;
+            const std::uint32_t opposite = sourceFace % 4u;
+            require(localTet < object.tetrahedra.size() && opposite < 4u,
+                    "regional fascia boundary source-face ID is out of range");
+            const auto& tet = object.tetrahedra[localTet].nodes;
+            FasciaBoundaryFaceRef ref;
+            ref.objectIndex = objectIndex;
+            ref.regionIndex = fasciaObjectTetRegions[objectIndex][localTet];
+            ref.sourceFace = sourceFace;
+            require(ref.regionIndex < fascia.regions.size() &&
+                        fasciaObjectForRegion(ref.regionIndex) == objectIndex,
+                    "regional fascia boundary face lost its material-region owner");
+            FasciaExactFaceKey key{};
+            for (unsigned corner = 0u; corner < 3u; ++corner) {
+                const std::uint32_t localNode =
+                    tet[kFasciaTetFaceCorners[opposite][corner]];
+                require(localNode < object.femNodes.size(),
+                        "regional fascia boundary face node is out of range");
+                ref.localNodes[corner] = localNode;
+                ref.points[corner] = object.femNodes[localNode];
+                require(std::all_of(ref.points[corner].begin(),
+                                    ref.points[corner].end(),
+                                    [](double x) { return std::isfinite(x); }),
+                        "regional fascia boundary face has nonfinite coordinates");
+                key[corner] = ref.points[corner];
+            }
+            std::ranges::sort(key);
+            require(key[0] != key[1] && key[1] != key[2],
+                    "regional fascia boundary face has duplicate exact corners");
+            exactBoundaryFaces[key].push_back(ref);
+        }
     }
-    std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
-    passiveLigaments.reserve(strips.size());
-    const auto toLocal=[&](std::uint32_t node,std::uint32_t bindingIndex) {
-        const auto& binding=muscles.tendonPayload.bindings[bindingIndex];
-        require(binding.bodyIndex<bodies.size(),
-                "fascia strip donor body is invalid");
-        const auto& body=bodies[binding.bodyIndex];
-        const mr_float4 inverse{-body.orientation.x,-body.orientation.y,
-            -body.orientation.z,body.orientation.w};
-        return rotatePoint(inverse,femSubtract(points[node],body.position));
+    const auto oppositeFaceWinding = [](const auto& left, const auto& right) {
+        for (unsigned shift = 0u; shift < 3u; ++shift) {
+            if (right[shift] == left[0] &&
+                right[(shift + 2u) % 3u] == left[1] &&
+                right[(shift + 1u) % 3u] == left[2]) return true;
+        }
+        return false;
     };
-    for(const auto& strip:strips) {
-        NMNumiHumanPassiveLigamentGPU passive{};
-        passive.firstBodyIndex=muscles.tendonPayload.bindings[bFixed].bodyIndex;
-        passive.secondBodyIndex=muscles.tendonPayload.bindings[bSecond].bodyIndex;
-        passive.flags=NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE;
-        const auto firstLocal=toLocal(strip.firstNode,bFixed);
-        const auto secondLocal=toLocal(strip.secondNode,bSecond);
-        passive.firstLocalPoint={firstLocal.x,firstLocal.y,firstLocal.z,0.0f};
-        passive.secondLocalPoint={secondLocal.x,secondLocal.y,secondLocal.z,0.0f};
-        passive.material={float(strip.law.c3Pascals),float(strip.law.c4),
-                          float(strip.law.c5Pascals),float(strip.law.maximumStretch)};
-        passive.reference={float(strip.restLengthMeters),
-                           float(strip.areaSquareMeters),1.0f,0.0f};
-        passiveLigaments.push_back(passive);
-        std::cout<<"resting_fascia_strip=admitted layer="<<strip.layer
-            <<" first_node="<<stripIdentities[passiveLigaments.size()-1u][0]
-            <<" first_source_vertex="<<strip.firstSourceVertex
-            <<" second_node="<<stripIdentities[passiveLigaments.size()-1u][2]
-            <<" second_source_vertex="<<strip.secondSourceVertex
-            <<" first_body="<<passive.firstBodyIndex
-            <<" second_body="<<passive.secondBodyIndex
-            <<" rest_length_m="<<strip.restLengthMeters
-            <<" area_m2="<<strip.areaSquareMeters
-            <<" volume_m3="<<strip.sourceVolumeCubicMeters
-            <<" fiber_alignment="<<strip.fiberAlignment
-            <<" c3_pa="<<strip.law.c3Pascals
-            <<" c4="<<strip.law.c4
-            <<" c5_pa="<<strip.law.c5Pascals
-            <<" fit_rms_fraction="<<strip.peakNormalizedRmsError
-            <<" fit_max_fraction="<<strip.peakNormalizedMaximumError
-            <<" fit_error_normalization=peak_target_stress\n";
+    for (const auto& [key, refs] : exactBoundaryFaces) {
+        (void)key;
+        const bool sourceOwnedSeam = refs.size() == 2u &&
+            refs[0].regionIndex != refs[1].regionIndex &&
+            oppositeFaceWinding(refs[0].points, refs[1].points);
+        if (sourceOwnedSeam) {
+            for (const auto& ref : refs) {
+                fasciaDisabledContactFaces[ref.objectIndex].push_back(
+                    ref.sourceFace);
+                ++fasciaOwnedSeamFaceCounts[ref.objectIndex];
+            }
+            continue;
+        }
+        for (const auto& ref : refs) {
+            ++fasciaContactSurfaceFaceCounts[ref.objectIndex];
+            if (refs.size() > 1u)
+                ++fasciaRetainedCoincidentFaceCounts[ref.objectIndex];
+            auto& nodes = fasciaContactNodes[ref.objectIndex];
+            nodes.insert(nodes.end(), ref.localNodes.begin(),
+                         ref.localNodes.end());
+        }
     }
-    std::cout<<"resting_fascia_reduced_owner=accepted representation=two_point_axial_strips"
-        <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
-        <<" strips="<<passiveLigaments.size()<<" endpoint_anchors="<<stripIdentities.size()*2u
-        <<" source_volume_m3="<<totalSourceVolume<<" source_mass_kg="<<totalSourceVolume*density
-        <<" thickness_m="<<fascia.header.thicknessMeters
-        <<" max_fit_fraction="<<maximumFitError<<" max_fit_rms_fraction="<<maximumFitRMS
-        <<" fit_stretch_range="<<fitMin<<","<<fitMax<<" linear_extension_beyond="<<fitMax
-        <<" fit_error_normalization=peak_target_stress"
-        <<" mass_owner=original_rigid_donors mass_partitioned=0"
-        <<" myosim_force_owner=existing_NHTENDON"
-        <<" passive_fascia_force_owner=existing_Matter_passive_ligament"
-        <<" compression_shear=not_represented visual_deformation=not_represented\n";
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kRestingFasciaObjectCount; ++objectIndex) {
+        auto& object = fasciaObjects[objectIndex];
+        auto& disabledFaces = fasciaDisabledContactFaces[objectIndex];
+        std::ranges::sort(disabledFaces);
+        const auto uniqueEnd = std::unique(disabledFaces.begin(), disabledFaces.end());
+        require(uniqueEnd == disabledFaces.end(),
+                "regional fascia shared-seam source-face ancestry is duplicated");
+        object.femDisabledContactSurfaceFaces = disabledFaces;
+        auto& contactNodes = fasciaContactNodes[objectIndex];
+        std::ranges::sort(contactNodes);
+        contactNodes.erase(std::unique(contactNodes.begin(), contactNodes.end()),
+                           contactNodes.end());
+        require(!contactNodes.empty() &&
+                    fasciaContactSurfaceFaceCounts[objectIndex] > 0u,
+                "regional fascia owner has no proven exterior continuum-contact faces");
+        object.femContactNodes = contactNodes;
+    }
+
+    for (std::uint32_t objectIndex = 0u;
+         objectIndex < kRestingFasciaObjectCount; ++objectIndex) {
+        auto& object = fasciaObjects[objectIndex];
+        require(std::all_of(fasciaNodeUsed[objectIndex].begin(),
+                            fasciaNodeUsed[objectIndex].end(),
+                            [](std::uint8_t used) { return used == 1u; }),
+                "regional fascia source has an unreferenced FEM node");
+        std::map<std::array<std::uint32_t, 2u>, std::uint32_t> boundaryEdges;
+        std::size_t boundaryFaceCount = 0u;
+        for (const auto& [face, use] : fasciaFaceUse[objectIndex]) {
+            if (use != 1u) continue;
+            ++boundaryFaceCount;
+            for (unsigned edge = 0u; edge < 3u; ++edge) {
+                std::array<std::uint32_t, 2u> key{
+                    face[edge], face[(edge + 1u) % 3u]};
+                std::sort(key.begin(), key.end());
+                ++boundaryEdges[key];
+            }
+        }
+        std::size_t boundaryEdgesTwoUse=0u;
+        std::size_t retainedSourceInterfaceEdges=0u;
+        for(const auto& [edge,use]:boundaryEdges) {
+            (void)edge;
+            if(use==2u) ++boundaryEdgesTwoUse;
+            else if(use==4u) ++retainedSourceInterfaceEdges;
+            else require(false,
+                "regional fascia source boundary has unsupported edge incidence");
+        }
+        require(boundaryFaceCount>=4u && !boundaryEdges.empty(),
+                "regional fascia source has no boundary surface");
+        require(fasciaContactSurfaceFaceCounts[objectIndex] +
+                    fasciaOwnedSeamFaceCounts[objectIndex] == boundaryFaceCount &&
+                    object.femContactNodes == fasciaContactNodes[objectIndex] &&
+                    object.femDisabledContactSurfaceFaces ==
+                        fasciaDisabledContactFaces[objectIndex],
+                "regional fascia contact map does not partition exterior faces by exact source provenance");
+        for (const auto& pair : fasciaAnchorRows[objectIndex])
+            require(pair.first < object.femNodes.size(),
+                    "regional fascia anchor node escaped its material owner");
+        std::vector<std::byte> identityBytes;
+        const auto appendIdentity = [&](const auto& value) {
+            const auto bytes = std::as_bytes(std::span(&value, 1u));
+            identityBytes.insert(identityBytes.end(), bytes.begin(), bytes.end());
+        };
+        appendIdentity(fascia.header.bodypartsArchiveSha256);
+        appendIdentity(fascia.header.myosimManifestSha256);
+        for (std::uint32_t ri = kFasciaObjectRegionBegin[objectIndex];
+             ri < kFasciaObjectRegionEnd[objectIndex]; ++ri)
+            appendIdentity(fascia.regions[ri]);
+        const auto nodeBytes = std::as_bytes(std::span(object.femReferenceNodes));
+        const auto tetBytes = std::as_bytes(std::span(object.tetrahedra));
+        identityBytes.insert(identityBytes.end(), nodeBytes.begin(), nodeBytes.end());
+        identityBytes.insert(identityBytes.end(), tetBytes.begin(), tetBytes.end());
+        const auto digest = loadedKneeSHA256(identityBytes.data(), identityBytes.size());
+        for (unsigned word = 0u; word < 4u; ++word) {
+            for (unsigned byte = 0u; byte < 8u; ++byte)
+                object.femReferenceSourceIdentity[word] =
+                    (object.femReferenceSourceIdentity[word] << 8u) |
+                    digest[8u * word + byte];
+            if (object.femReferenceSourceIdentity[word] == 0u)
+                object.femReferenceSourceIdentity[word] = word + 1u;
+        }
+        object.femCapacity.tetrahedra =
+            static_cast<std::uint32_t>(object.tetrahedra.size());
+        std::cout << "resting_fascia_object=source_prepared"
+                  << " object=" << objectIndex
+                  << " region_begin=" << kFasciaObjectRegionBegin[objectIndex]
+                  << " region_end=" << kFasciaObjectRegionEnd[objectIndex]
+                  << " nodes=" << object.femNodes.size()
+                  << " tetrahedra=" << object.tetrahedra.size()
+                  << " boundary_faces=" << boundaryFaceCount
+                  << " boundary_edges_two_use=" << boundaryEdgesTwoUse
+                  << " retained_source_interface_edges="
+                  << retainedSourceInterfaceEdges
+                  << " fem_surface_contact="
+                  << (object.deformableContact ? "enabled" : "disabled")
+                  << " self_contact=disabled"
+                  << " contact_surface_faces="
+                  << fasciaContactSurfaceFaceCounts[objectIndex]
+                  << " exact_shared_region_seam_faces="
+                  << fasciaOwnedSeamFaceCounts[objectIndex]
+                  << " retained_unproven_coincident_faces="
+                  << fasciaRetainedCoincidentFaceCounts[objectIndex]
+                  << " contact_nodes=" << object.femContactNodes.size()
+                  << " attachment_nodes=" << object.femFixedNodes.size()
+                  << " material=" << object.name << "\n";
+    }
+    require(std::isfinite(totalSourceVolume) && totalSourceVolume > 0.0,
+            "resting whole myofascia source volume is invalid");
+    constexpr double density = 1000.0;
+    std::cout << "resting_fascia_fem=admitted"
+              << " active_source_regions=" << fascia.regions.size()
+              << " unused_source_regions=0"
+              << " material_objects=" << kRestingFasciaObjectCount
+              << " nodes=" << fascia.nodes.size()
+              << " tetrahedra=" << fascia.tetrahedra.size()
+              << " source_volume_m3=" << totalSourceVolume
+              << " source_mass_kg=" << totalSourceVolume * density
+              << " density_kg_m3=" << density
+              << " mechanics=registered_reference_FEM"
+              << " projection=bounded_current_registered_surface"
+              << " material_fit=reference_proxy_not_clinically_calibrated"
+              << " source_archive_sha256="
+              << loadedKneeSHA256Hex(fascia.header.bodypartsArchiveSha256)
+              << " myosim_manifest_sha256="
+              << loadedKneeSHA256Hex(fascia.header.myosimManifestSha256) << "\n";
     std::vector<metalrobo::inferred_acl::BuiltObject> aclObjects;
     if(includeInferredACL) {
         require(bones&&bones->sourceOwnerBindingsVerified&&
@@ -18308,15 +19099,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 femurSurface.view(),tibiaSurface.view()};
             auto built=metalrobo::inferred_acl::buildRegisteredSkeletonACL(
                 frame,surfaces,aclMaterial.material);
-            if(preparationOnly) {
-                // This retained ACL model has moving enthesis anchors but no
-                // authored generic surface-contact nodes. Declare that empty
-                // capability explicitly for the shared contact-free Runtime;
-                // never discard an authored contact boundary.
-                require(built.object.femContactNodes.empty(),
-                        "shared ACL source contains unowned generic contact nodes");
-                built.object.deformableContact=false;
-            }
+            require(built.object.femContactNodes.empty(),
+                    "shared ACL source contains unowned generic contact nodes");
+            // Exact enthesis anchors transmit ligament reactions to bone;
+            // the inferred ACL mesh has no separate collision boundary.
+            built.object.deformableContact=false;
+            built.object.deformableSelfContact=false;
             built.object.materialIndex=
                 static_cast<std::uint32_t>(source.materials.size());
             source.materials.push_back(std::move(built.material));
@@ -18324,6 +19112,14 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             aclObjects.push_back(std::move(built));
         }
     }
+    // Keep bilateral ACL objects as the compiled source prefix because their
+    // existing anchor/load maps are packed from node zero. All regional
+    // fascia owners follow in the same Matter world for cross-tissue contact.
+    fasciaObjectFirstIndex=static_cast<std::uint32_t>(source.objects.size());
+    require(fasciaObjects.size()==kRestingFasciaObjectCount,
+            "regional fascia object stack is incomplete");
+    for(auto& fasciaObject:fasciaObjects)
+        source.objects.push_back(std::move(fasciaObject));
     std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> aorticWallAnchorRows;
     std::vector<metalrobo::NumiHumanTissueMassNode> aorticWallMassNodes;
@@ -19504,7 +20300,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(enableAorticWallOuterContact)
         require(enableAorticWall&&aorticWall.has_value(),
                 "outer aortic wall contact requires the registered wall FEM opt-in");
-    if(enableAorticWallOuterContact||enableWholeBodySkinFat) {
+    if(enableAorticWallOuterContact||enableWholeBodySkinFat||
+       kRestingFasciaObjectCount>0u) {
         const bool hasExplicitFEM=std::any_of(source.objects.begin(),source.objects.end(),
             [](const auto& object){return object.representation==numi::matter::Representation::fem;});
         require(hasExplicitFEM&&!source.objects.empty()&&
@@ -19532,6 +20329,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::string detail;
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
+    std::cout<<"resting_fem_tangent_cache_mode="
+        <<compiled.world.mixedSolver.executionBudgets.w
+        <<" requested_direct_fallback="
+        <<source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback
+        <<std::endl;
     if(enableWholeBodySkinFat) {
         require(wholeBodySkinObjectIndex<source.objects.size()&&wholeBodySkinNodesPerLayer>0u,
                 "whole-body skin/fat compiled object identity was not captured during source assembly");
@@ -19568,7 +20370,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "resting fascia/ACL/aortic cooked node count differs from source");
     require(compiled.world.objects.size()==source.objects.size(),
             "resting FEM audit object descriptors differ from authored stack");
-    const auto validateExternalStaticAnchors=[&](const auto& rows,const char* ownerName,
+    const auto validateExternalStaticAnchors=[&](const auto& rows,const std::string& ownerName,
                                                   const std::uint32_t nodeOffset,
                                                   const std::uint32_t ownerNodeCount) {
         for(const auto& [localNode,anchor]:rows) {
@@ -19602,6 +20404,92 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(aorticWallAnchorRows.empty(),
                 "disabled aortic wall retained external anchor rows");
     }
+    require(fasciaObjectFirstIndex<=compiled.world.objects.size() &&
+                kRestingFasciaObjectCount<=
+                    compiled.world.objects.size()-fasciaObjectFirstIndex,
+            "registered fascia FEM object stack is unavailable for external anchor validation");
+    for(std::uint32_t objectIndex=0u;
+        objectIndex<kRestingFasciaObjectCount;++objectIndex) {
+        const auto& descriptor=
+            compiled.world.objects[fasciaObjectFirstIndex+objectIndex];
+        validateExternalStaticAnchors(fasciaAnchorRows[objectIndex],
+            "fascia_"+std::to_string(objectIndex),
+            descriptor.stateOffset,descriptor.stateCount);
+    }
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
+        fasciaBodyContactSamples;
+    std::vector<std::uint32_t> fasciaBodyContactSamplesPerRegion(
+        fascia.regions.size(), 0u);
+    const char* fasciaBodyGlideSetting=std::getenv(
+        "NUMI_HUMAN_RESTING_FASCIA_BODY_GLIDE_CONTACT");
+    require(fasciaBodyGlideSetting==nullptr||
+                std::strcmp(fasciaBodyGlideSetting,"0")==0||
+                std::strcmp(fasciaBodyGlideSetting,"1")==0,
+            "NUMI_HUMAN_RESTING_FASCIA_BODY_GLIDE_CONTACT must be 0 or 1");
+    const bool fasciaBodyGlideContactEnabled=
+        fasciaBodyGlideSetting==nullptr||
+        std::strcmp(fasciaBodyGlideSetting,"1")==0;
+    constexpr double kGlidingFoundationModulusPascals=20'000.0;
+    if(fasciaBodyGlideContactEnabled) {
+    for(std::uint32_t regionIndex=0u;
+        regionIndex<fascia.regions.size();++regionIndex) {
+        const auto& region=fascia.regions[regionIndex];
+        const std::uint32_t layerWidth=region.nodeCount/2u;
+        const double layerThickness=regionIndex<kPectoralisFasciaRegionCount
+            ? fascia.header.thicknessMeters
+            : regionIndex<kLatissimusFasciaRegionEnd ? 0.00175
+            : regionIndex<kExternalObliqueRegionEnd ? 0.0045 : 0.0060;
+        for(std::uint32_t local=0u;local<layerWidth;++local) {
+            const std::uint32_t sourceNode=region.firstNode+local;
+            const std::uint32_t bodyIndex=fasciaNodeDonorBody[sourceNode];
+            require(bodyIndex<bodies.size(),
+                    "regional fascia node has no articulated gliding-contact donor");
+            const auto& body=bodies[bodyIndex];
+            const mr_float4 inverseOrientation{-body.orientation.x,
+                -body.orientation.y,-body.orientation.z,body.orientation.w};
+            if((fascia.nodes[sourceNode].flags&1u)!=0u||
+               fasciaGlidingTributaryArea[sourceNode]<=0.0) continue;
+            const mr_float4 thicknessVector=femSubtract(
+                points[sourceNode],points[sourceNode+layerWidth]);
+            const float measuredThickness=femLength(thicknessVector);
+            require(std::isfinite(measuredThickness)&&
+                        measuredThickness>0.0001f&&measuredThickness<0.01f,
+                    "regional fascia gliding interface has no valid layer normal");
+            const mr_float4 worldNormal=femScale(
+                thicknessVector,1.0f/measuredThickness);
+            const mr_float4 localNormal=rotatePoint(inverseOrientation,worldNormal);
+            const mr_float4 localPoint=rotatePoint(inverseOrientation,
+                femSubtract(points[sourceNode],body.position));
+            const std::uint32_t objectIndex=fasciaObjectForRegion(regionIndex);
+            const auto& descriptor=
+                compiled.world.objects[fasciaObjectFirstIndex+objectIndex];
+            const std::uint32_t objectLocal=
+                sourceNode-fasciaObjectGlobalNodeBase[objectIndex];
+            NMNumiHumanFEMBodyContactSampleGPU sample{};
+            sample.slaveNode=descriptor.stateOffset+objectLocal;
+            sample.bodyIndex=bodyIndex;
+            sample.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+            sample.bodyLocalPointAndArea={localPoint.x,localPoint.y,localPoint.z,
+                static_cast<float>(fasciaGlidingTributaryArea[sourceNode])};
+            sample.bodyLocalNormalAndReferenceSeparation={
+                localNormal.x,localNormal.y,localNormal.z,0.0f};
+            sample.stiffnessAndNormalStrainPerPressure={
+                static_cast<float>(kGlidingFoundationModulusPascals/layerThickness),
+                static_cast<float>(1.0/kGlidingFoundationModulusPascals),0.0f,0.0f};
+            fasciaBodyContactSamples.push_back(sample);
+            ++fasciaBodyContactSamplesPerRegion[regionIndex];
+        }
+    }
+    }
+    const std::size_t fasciaBodyGlideRegionCoverage=static_cast<std::size_t>(
+        std::count_if(fasciaBodyContactSamplesPerRegion.begin(),
+            fasciaBodyContactSamplesPerRegion.end(),
+            [](const std::uint32_t count){return count>0u;}));
+    require(!fasciaBodyGlideContactEnabled||
+                (fasciaBodyContactSamples.size()>=300u&&
+                 fasciaBodyContactSamples.size()<=fascia.nodes.size()/2u&&
+                 fasciaBodyGlideRegionCoverage==fascia.regions.size()),
+            "whole regional fascia gliding-contact coverage is incomplete");
     validateExternalStaticAnchors(skinReferenceAnchors,"skin",0u,
         static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
     validateExternalStaticAnchors(prostateReferenceAnchors,"prostate",0u,
@@ -19684,6 +20572,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     require(aclFirstNode==aclNodeCount,
             "resting ACL stack node offsets do not cover its compiled prefix");
+    for(std::uint32_t objectIndex=0u;
+        objectIndex<kRestingFasciaObjectCount;++objectIndex) {
+        const auto& descriptor=
+            compiled.world.objects[fasciaObjectFirstIndex+objectIndex];
+        for(const auto& [localNode,anchor]:fasciaAnchorRows[objectIndex]) {
+            require(localNode<descriptor.stateCount,
+                    "registered fascia anchor node is outside its compiled object");
+            const auto globalNode=descriptor.stateOffset+localNode;
+            require(globalNode<anchors.size()&&
+                        anchors[globalNode].bodyIndex==NM_INVALID_INDEX,
+                    "registered fascia anchor collides with another FEM owner");
+            anchors[globalNode]=anchor;
+        }
+    }
     for(const auto& [node,anchor]:skinReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"skin reference anchor collides with another owner");anchors[node]=anchor;}
     for(const auto& [node,anchor]:prostateReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"prostate reference anchor collides with another owner");anchors[node]=anchor;}
     for(const auto& [node,anchor]:organBatchReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"organ batch support anchor collides with another owner");anchors[node]=anchor;}
@@ -19702,6 +20604,46 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         massNodes.insert(massNodes.end(),aclMassNodes.begin(),aclMassNodes.end());
         aclFirstNode+=static_cast<std::uint32_t>(acl.object.femNodes.size());
     }
+    double fasciaCookedMassKg=0.0;
+    for(std::uint32_t regionIndex=0u;
+        regionIndex<fascia.regions.size();++regionIndex) {
+        const auto& region=fascia.regions[regionIndex];
+        const std::uint32_t objectIndex=fasciaObjectForRegion(regionIndex);
+        const auto& descriptor=
+            compiled.world.objects[fasciaObjectFirstIndex+objectIndex];
+        const std::uint32_t objectLocalBase=
+            region.firstNode-fasciaObjectGlobalNodeBase[objectIndex];
+        require(std::uint64_t(objectLocalBase)+region.nodeCount<=
+                    descriptor.stateCount &&
+                    std::uint64_t(descriptor.stateOffset)+descriptor.stateCount<=
+                        compiled.world.fem.nodes.size(),
+                "registered fascia compiled mass range differs from its source FEM");
+        for(std::uint32_t localNode=0u;localNode<region.nodeCount;++localNode) {
+            const std::uint32_t sourceGlobal=region.firstNode+localNode;
+            const std::uint32_t objectLocal=objectLocalBase+localNode;
+            const std::uint32_t globalNode=descriptor.stateOffset+objectLocal;
+            const std::uint32_t donorBody=fasciaNodeDonorBody[sourceGlobal];
+            require(donorBody<bodies.size(),
+                    "registered fascia mass node has no registered donor body");
+            const float cookedMass=compiled.world.fem.nodes[globalNode]
+                .positionAndMass.w;
+            require(std::isfinite(cookedMass)&&cookedMass>0.0f,
+                    "registered fascia cooked FEM nodal mass is invalid");
+            const auto& body=bodies[donorBody];
+            const mr_float4 inverse{-body.orientation.x,-body.orientation.y,
+                -body.orientation.z,body.orientation.w};
+            const mr_float4 donorLocal=rotatePoint(inverse,
+                femSubtract(points[sourceGlobal],body.position));
+            fasciaCookedMassKg+=double(cookedMass);
+            massNodes.push_back({globalNode,donorBody,double(cookedMass),
+                {donorLocal.x,donorLocal.y,donorLocal.z}});
+        }
+    }
+    const double fasciaExpectedMassKg=totalSourceVolume*density;
+    require(std::isfinite(fasciaCookedMassKg)&&fasciaExpectedMassKg>0.0&&
+                std::abs(fasciaCookedMassKg-fasciaExpectedMassKg)<=
+                    1.0e-5*fasciaExpectedMassKg,
+            "registered fascia cooked nodal mass differs from its admitted source volume and density");
     if(aorticWall) {
         const auto& wall=*aorticWall;
         require(wall.objectIndex<compiled.world.objects.size(),
@@ -19867,10 +20809,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     for(auto& a:anchors)if(a.flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)
         shift(a.localPoint,a.bodyIndex);
-    for(auto& ligament:passiveLigaments) {
-        shift(ligament.firstLocalPoint,ligament.firstBodyIndex);
-        shift(ligament.secondLocalPoint,ligament.secondBodyIndex);
-    }
+    for(auto& sample:fasciaBodyContactSamples)
+        shift(sample.bodyLocalPointAndArea,sample.bodyIndex);
     rebaseNumiHumanSurfaceFrames(bones,skin,&tissues,anatomy,effectiveMassPartitions);
     double executedPhysicalMass=0.0;for(const auto& b:rebased.bodies)executedPhysicalMass+=b.massAndInverseMass.x;
     double continuumMass=0.0;for(const auto& n:massNodes)continuumMass+=n.massKg;
@@ -19911,8 +20851,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->aorticWallNodalMassKg=std::move(aorticWallNodalMassKg);
     owner->aorticWallCookedMassKg=aorticWallCookedMassKg;
     owner->aorticWallOuterContactAudit=std::move(aorticWallOuterContactAudit);
-    owner->passiveLigaments=std::move(passiveLigaments);
-    owner->fasciaStripAnchorIdentity=std::move(stripIdentities);
+    // The shared Human/Matter runtime is the production owner for integrated
+    // resting tissue. Retain these post-rebase body-glide samples even when
+    // this builder is preparation-only; otherwise the shared adapter would
+    // receive an empty span while the standalone path worked.
+    owner->regionalFasciaBodyContactSamples=std::move(fasciaBodyContactSamples);
+    owner->regionalFasciaBodyContactRegionCoverage=
+        static_cast<std::uint32_t>(fasciaBodyGlideRegionCoverage);
     owner->authoredWorldSource=std::move(source);
     owner->nodeLoads=std::move(loads);
     owner->nodeAnchors=std::move(anchors);
@@ -19935,6 +20880,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 "resting fascia/ACL initial runtime state unavailable");
         require(owner->adapter.initialize(owner->runtime,{
             .nodeLoads=owner->nodeLoads,.nodeAnchors=owner->nodeAnchors,.endpointReplacements={},
+            .femBodyContactSamples=owner->regionalFasciaBodyContactSamples,
             .passiveLigaments=owner->passiveLigaments,
             .endpointCount=static_cast<std::uint32_t>(muscles.tendonPayload.bindings.size()),
             .environmentCount=1u,.productionForceOwnerFraction=0.0},
@@ -19953,13 +20899,39 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         owner->transaction.program=owner->adapter.program();
         owner->transaction.runtime=&owner->runtime; owner->transaction.adapter=&owner->adapter;
         owner->transaction.initial=initial; owner->transaction.initialAdapter=initialAdapter;
-        std::cout<<"resting_passive_fascia=admitted region="<<ri
-             <<" source_surface_id="<<region.softTissueStableId
-             <<" source_nodes="<<region.nodeCount<<" source_tetrahedra="<<region.tetrahedronCount
-             <<" body_anchors="<<owner->fasciaStripAnchorIdentity.size()*2u
-             <<" active_node_loads=0 endpoint_replacements=0 reduced_strips="<<owner->passiveLigaments.size()<<"\n"
-             <<" myosim_force_owner=existing_NHTENDON passive_fascia_force_owner=existing_Matter_passive_ligament passive_material_calibration=not_claimed"
-             <<" mass_rebase=cooked_node_partition gravity=source_body_gravity"
+        std::uint64_t fasciaSourceNodes=0u;
+        std::uint64_t fasciaSourceTetrahedra=0u;
+        std::size_t fasciaAnchorCount=0u;
+        for(const auto& region:fascia.regions) {
+            fasciaSourceNodes+=region.nodeCount;
+            fasciaSourceTetrahedra+=region.tetrahedronCount;
+        }
+        for(const auto& groupAnchors:fasciaAnchorRows)
+            fasciaAnchorCount+=groupAnchors.size();
+        const std::size_t fasciaFEMSurfaceContactObjects=static_cast<std::size_t>(
+            std::count_if(source.objects.begin()+fasciaObjectFirstIndex,
+                source.objects.begin()+fasciaObjectFirstIndex+
+                    kRestingFasciaObjectCount,
+                [](const auto& object){return object.deformableContact;}));
+        std::cout<<"resting_passive_fascia=integrated_regional_continua"
+             <<" anatomical_regions="<<fascia.regions.size()
+             <<" fem_objects="<<kRestingFasciaObjectCount
+             <<" source_nodes="<<fasciaSourceNodes
+             <<" source_tetrahedra="<<fasciaSourceTetrahedra
+             <<" two_body_attachment_nodes="<<fasciaAnchorCount
+             <<" body_plane_gliding_contact_samples="
+             <<fasciaBodyContactSamples.size()
+             <<" body_plane_gliding_contact_regions="
+             <<fasciaBodyGlideRegionCoverage
+             <<" fem_surface_contact_objects="
+             <<fasciaFEMSurfaceContactObjects
+             <<" contact_mode=route_FEM_surface_plus_registered_body_glide"
+             <<" self_contact=disabled body_plane_gliding_contact="
+             <<(fasciaBodyGlideContactEnabled?"enabled":"disabled")
+             <<" passive_force_rows=0 active_node_loads=0 endpoint_replacements=0"
+             <<" myosim_force_owner=existing_NHTENDON"
+             <<" fascia_force_owner=registered_Matter_FEM"
+             <<" material_calibration=not_claimed mass_rebase=cooked_node_partition gravity=source_body_gravity"
              <<" inferred_acl_selection="<<(includeInferredACL?"enabled":"disabled")
              <<" same_world_acl_objects="<<aclObjects.size()
              <<" total_nodes="<<totalNodeCount<<"\n";
@@ -28594,9 +29566,15 @@ int main(int argc, char** argv) {
                     auto& owner=*restingPassiveFasciaOwner;
                     require(owner.preparationOnly && !owner.runtime.valid(),
                             "shared resting tissue unexpectedly owns a second Runtime");
+                    require(owner.regionalFasciaBodyContactRegionCoverage ==
+                                kThoracoabdominalFasciaRegionCount &&
+                                owner.regionalFasciaBodyContactSamples.size() >= 300u,
+                            "shared resting tissue binding lost fascia body-glide contact coverage");
                     const numi::matter::NumiHumanTendonFEMLoadSource source{
                         .nodeLoads=owner.nodeLoads,.nodeAnchors=owner.nodeAnchors,
-                        .endpointReplacements={},.passiveLigaments=owner.passiveLigaments,
+                        .endpointReplacements={},
+                        .femBodyContactSamples=owner.regionalFasciaBodyContactSamples,
+                        .passiveLigaments=owner.passiveLigaments,
                         .endpointCount=static_cast<std::uint32_t>(musclePayload.tendonPayload.bindings.size()),
                         .environmentCount=1u,.productionForceOwnerFraction=0.0};
                     const bool bound=coupled.bindTendonFEMSource(source,
@@ -28645,6 +29623,10 @@ int main(int argc, char** argv) {
                     require(std::abs(cookedMass-partitionMass)<=std::max(1.e-12,partitionMass*1.e-6),
                             "shared resting tissue cooking changed the debited physical mass");
                     std::cout<<"resting_tissue_shared_runtime=bound FEM_nodes="<<owner.nodeLoads.size()
+                             <<" fascia_body_contact_samples="
+                             <<owner.regionalFasciaBodyContactSamples.size()
+                             <<" fascia_body_contact_regions="
+                             <<owner.regionalFasciaBodyContactRegionCoverage
                              <<" passive_ligaments="<<owner.passiveLigaments.size()
                              <<" FEM_mass_kg="<<cookedMass
                              <<" duplicate_runtime=0 duplicate_load_schedule=0\n";

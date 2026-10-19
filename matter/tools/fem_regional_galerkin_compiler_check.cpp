@@ -268,6 +268,23 @@ int main() {
         layoutError.clear();
         require(validateCompiledWorldLayout(contactWorld, &layoutError),
             "selector-4 compiled layout rejected: " + layoutError);
+        WorldSource coupledFallbackCacheSource = contactSource;
+        coupledFallbackCacheSource.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback = true;
+        const CompileResult coupledFallbackCacheCompiled =
+            compileWorld(coupledFallbackCacheSource);
+        require(coupledFallbackCacheCompiled.succeeded(),
+            "direct-fallback tangent cache rejected the contact/cohesive world: " +
+                diagnostics(coupledFallbackCacheCompiled));
+        require(coupledFallbackCacheCompiled.world.mixedSolver.executionBudgets.w == 2u &&
+                coupledFallbackCacheCompiled.world.fingerprint != contactWorld.fingerprint &&
+                coupledFallbackCacheCompiled.world.physicsFingerprint != contactWorld.physicsFingerprint,
+            "direct-fallback tangent cache mode was not bound into world identity");
+        layoutError.clear();
+        require(validateCompiledWorldLayout(coupledFallbackCacheCompiled.world, &layoutError),
+            "direct-fallback contact/cohesive layout rejected: " + layoutError);
+        WorldSource conflictingCacheModes = coupledFallbackCacheSource;
+        conflictingCacheModes.mixedSolver.cacheFEMAlgorithmicTangent = true;
+        denied(conflictingCacheModes, "conflicting-tangent-cache-modes");
         require(contactWorld.fingerprint != blockWorld.fingerprint &&
                 contactWorld.physicsFingerprint != blockWorld.physicsFingerprint,
             "selector 4 was not bound into compiled world identity");

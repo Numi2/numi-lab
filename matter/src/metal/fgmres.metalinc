@@ -1538,6 +1538,31 @@ kernel void nm_fgmres_precondition(
     (void)objects;
 }
 
+// Replace the scalar FEM displacement correction with the coupled-safe
+// nodal 3x3 tangent block where the block builder admitted an ordinary FEM
+// node. Fields and every non-FEM unknown remain on their established path.
+kernel void nm_fgmres_apply_coupled_tangent_block(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* basis [[buffer(1)]],
+    device float4* preconditioned [[buffer(2)]],
+    device const float4* inverseBlockRows [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint blockBase = global * 3u;
+    const float4 row0 = inverseBlockRows[blockBase];
+    if (row0.w <= 0.5f) return;
+    const float3 residual = basis[global].xyz;
+    preconditioned[global].xyz = float3(
+        dot(row0.xyz, residual),
+        dot(inverseBlockRows[blockBase + 1u].xyz, residual),
+        dot(inverseBlockRows[blockBase + 2u].xyz, residual));
+}
+
 // Connectivity-enhanced additive Schwarz level. Each node gathers the small
 // tetrahedral patches in its cooked star, solves their componentwise lumped
 // blocks, and averages the overlapping corrections. This adds an intermediate
@@ -4160,7 +4185,8 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
     const uint environment = global / dispatch.femNodeCount;
-    inverseDiagonal[global] = float4(0.0f);
+    const bool coupledBlockOnly = solver.executionBudgets.z == 6u;
+    if (!coupledBlockOnly) inverseDiagonal[global] = float4(0.0f);
     const uint packedBase = global * 3u;
     inverseBlockRows[packedBase] = float4(0.0f);
     inverseBlockRows[packedBase + 1u] = float4(0.0f);
@@ -4173,7 +4199,9 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
         range.objectIndex >= dispatch.objectCount) return;
     const NMContinuumObjectGPU object = objects[range.objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM ||
-        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS)) != 0u)
+        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                         NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY |
+                         NM_OBJECT_IDENTIFIABLE)) != 0u)
         return;
 
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -4291,7 +4319,8 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
         ? float3(0.0f)
         : 1.0f / max(float3(mass) + stiffnessDiagonal + contactDiagonal,
                      float3(solver.regularization.x));
-    inverseDiagonal[global] = float4(velocityInverse, 0.0f);
+    if (!coupledBlockOnly)
+        inverseDiagonal[global] = float4(velocityInverse, 0.0f);
     if (fixedVelocity) return;
 
     blockRows[0] += mass + contactDiagonal.x;
@@ -5729,6 +5758,29 @@ kernel void nm_fgmres_add_cohesive_operator(
     work[global].xyz -= dt * dt * derivativeForce;
 }
 
+inline float fgmresThreadgroupSum(
+    const float laneValue,
+    threadgroup float* scratch,
+    const uint lane,
+    const uint simdLane,
+    const uint simdGroup
+) {
+    const float simdValue = simd_sum(laneValue);
+    if (simdLane == 0u) scratch[simdGroup] = simdValue;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        float sum = 0.0f;
+        float correction = 0.0f;
+        for (uint group = 0u; group < 8u; ++group)
+            fgmresCompensatedAdd(sum, correction, scratch[group]);
+        scratch[8] = sum;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const float result = scratch[8];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return result;
+}
+
 kernel void nm_fgmres_orthogonalize_and_finish_column(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -5743,9 +5795,12 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
     device NMFGMRESStateGPU* states [[buffer(9)]],
     constant float& forcing [[buffer(10)]],
     uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
-    if (lane >= 32u || group >= dispatch.environmentCount) return;
+    if (lane >= 256u || group >= dispatch.environmentCount) return;
+    threadgroup float reductionScratch[9];
     const uint environment = group;
     if (states[environment].diagnostics.z > 0.5f) return;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
@@ -5758,97 +5813,99 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
     const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
     float originalNorm2 = 0.0f;
     float originalCorrection = 0.0f;
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[nodeBase + local], work[nodeBase + local]));
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[fieldBase + nodeBase + local],
                 work[fieldBase + nodeBase + local]));
     for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
     for (uint local = lane; local < layout.supportContactCount;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[supportBase + local], work[supportBase + local]));
     for (uint local = lane; local < layout.vascularUnknownCount;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[vascularBase + local], work[vascularBase + local]));
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
-         local += 32u) {
+         local += 256u) {
         const float value = work[rigidBase + local].x;
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection, value * value);
     }
-    originalNorm2 = simd_sum(originalNorm2);
+    originalNorm2 = fgmresThreadgroupSum(
+        originalNorm2, reductionScratch, lane, simdLane, simdGroup);
 
     for (uint row = 0u; row <= column; ++row) {
         device const float4* rowBasis = basis + row * totalUnknowns;
         float projection = 0.0f;
         float projectionCorrection = 0.0f;
-        for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[nodeBase + local], work[nodeBase + local]));
-        for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[fieldBase + nodeBase + local],
                     work[fieldBase + nodeBase + local]));
         for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[mpmBase + local], work[mpmBase + local]));
         for (uint local = lane; local < layout.supportContactCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[supportBase + local], work[supportBase + local]));
         for (uint local = lane; local < layout.vascularUnknownCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[vascularBase + local], work[vascularBase + local]));
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 rowBasis[rigidBase + local].x *
                     work[rigidBase + local].x);
-        projection = simd_sum(projection);
+        projection = fgmresThreadgroupSum(
+        projection, reductionScratch, lane, simdLane, simdGroup);
         if (lane == 0u)
             hessenberg[fgmresMatrixIndex(environment, row, column)] =
                 projection;
-        simdgroup_barrier(mem_flags::mem_device);
-        for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
             work[nodeBase + local] -=
                 projection * rowBasis[nodeBase + local];
-        for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
             work[fieldBase + nodeBase + local] -= projection *
                 rowBasis[fieldBase + nodeBase + local];
         for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-             local += 32u)
+             local += 256u)
             work[mpmBase + local] -= projection * rowBasis[mpmBase + local];
         for (uint local = lane; local < layout.supportContactCount;
-             local += 32u)
+             local += 256u)
             work[supportBase + local] -= projection * rowBasis[supportBase + local];
         for (uint local = lane; local < layout.vascularUnknownCount;
-             local += 32u)
+             local += 256u)
             work[vascularBase + local] -= projection * rowBasis[vascularBase + local];
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
-             local += 32u)
+             local += 256u)
             work[rigidBase + local].x -=
                 projection * rowBasis[rigidBase + local].x;
-        simdgroup_barrier(mem_flags::mem_device);
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     }
 
     // Selective second MGS pass. A large norm loss after the first pass is
@@ -5857,37 +5914,38 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
     // avoiding a blanket second read of every unknown.
     float remainingNorm2 = 0.0f;
     float remainingCorrection = 0.0f;
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[nodeBase + local], work[nodeBase + local]));
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[fieldBase + nodeBase + local],
                 work[fieldBase + nodeBase + local]));
     for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
     for (uint local = lane; local < layout.supportContactCount;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[supportBase + local], work[supportBase + local]));
     for (uint local = lane; local < layout.vascularUnknownCount;
-         local += 32u)
+         local += 256u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[vascularBase + local], work[vascularBase + local]));
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
-         local += 32u) {
+         local += 256u) {
         const float value = work[rigidBase + local].x;
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection, value * value);
     }
-    remainingNorm2 = simd_sum(remainingNorm2);
+    remainingNorm2 = fgmresThreadgroupSum(
+        remainingNorm2, reductionScratch, lane, simdLane, simdGroup);
     const bool reorthogonalize = originalNorm2 > 1.0e-24f &&
         remainingNorm2 < 0.5f * originalNorm2;
     if (reorthogonalize) {
@@ -5896,70 +5954,71 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
             float projection = 0.0f;
             float projectionCorrection = 0.0f;
             for (uint local = lane; local < dispatch.femNodeCount;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[nodeBase + local],
                         work[nodeBase + local]));
             for (uint local = lane; local < dispatch.femNodeCount;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[fieldBase + nodeBase + local],
                         work[fieldBase + nodeBase + local]));
             for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[mpmBase + local], work[mpmBase + local]));
             for (uint local = lane; local < layout.supportContactCount;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[supportBase + local], work[supportBase + local]));
             for (uint local = lane; local < layout.vascularUnknownCount;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     dot(rowBasis[vascularBase + local], work[vascularBase + local]));
             for (uint local = lane;
                  local < dispatch.rigidGeneralizedCapacity;
-                 local += 32u)
+                 local += 256u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
                     rowBasis[rigidBase + local].x *
                         work[rigidBase + local].x);
-            projection = simd_sum(projection);
+            projection = fgmresThreadgroupSum(
+        projection, reductionScratch, lane, simdLane, simdGroup);
             if (lane == 0u)
                 hessenberg[fgmresMatrixIndex(environment, row, column)] +=
                     projection;
-            simdgroup_barrier(mem_flags::mem_device);
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             for (uint local = lane; local < dispatch.femNodeCount;
-                 local += 32u)
+                 local += 256u)
                 work[nodeBase + local] -=
                     projection * rowBasis[nodeBase + local];
             for (uint local = lane; local < dispatch.femNodeCount;
-                 local += 32u)
+                 local += 256u)
                 work[fieldBase + nodeBase + local] -= projection *
                     rowBasis[fieldBase + nodeBase + local];
             for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-                 local += 32u)
+                 local += 256u)
                 work[mpmBase + local] -=
                     projection * rowBasis[mpmBase + local];
             for (uint local = lane; local < layout.supportContactCount;
-                 local += 32u)
+                 local += 256u)
                 work[supportBase + local] -=
                     projection * rowBasis[supportBase + local];
             for (uint local = lane; local < layout.vascularUnknownCount;
-                 local += 32u)
+                 local += 256u)
                 work[vascularBase + local] -=
                     projection * rowBasis[vascularBase + local];
             for (uint local = lane;
                  local < dispatch.rigidGeneralizedCapacity;
-                 local += 32u)
+                 local += 256u)
                 work[rigidBase + local].x -=
                     projection * rowBasis[rigidBase + local].x;
-            simdgroup_barrier(mem_flags::mem_device);
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         }
     }
     // This wave already owns the complete environment vector. Continue
@@ -5971,42 +6030,43 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         norm2 = 0.0f;
         float normCorrection = 0.0f;
         for (uint local = lane; local < dispatch.femNodeCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[nodeBase + local], work[nodeBase + local]));
         for (uint local = lane; local < dispatch.femNodeCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[totalNodes + nodeBase + local],
                     work[totalNodes + nodeBase + local]));
         for (uint local = lane;
              local < dispatch.mpmActiveNodeCapacity;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[mpmBase + local], work[mpmBase + local]));
         for (uint local = lane;
              local < layout.supportContactCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[supportBase + local], work[supportBase + local]));
         for (uint local = lane;
              local < layout.vascularUnknownCount;
-             local += 32u)
+             local += 256u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(work[vascularBase + local], work[vascularBase + local]));
         for (uint local = lane;
              local < dispatch.rigidGeneralizedCapacity;
-             local += 32u) {
+             local += 256u) {
             const float value = work[rigidBase + local].x;
             fgmresCompensatedAdd(
                 norm2, normCorrection, value * value);
         }
-        norm2 = simd_sum(norm2);
+        norm2 = fgmresThreadgroupSum(
+        norm2, reductionScratch, lane, simdLane, simdGroup);
     }
     const float norm = sqrt(max(norm2, 0.0f));
     if (lane == 0u) {
@@ -6059,26 +6119,26 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
             ? 1.0f : 0.0f;
     }
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         nextBasis[nodeBase + local] =
             work[nodeBase + local] * inverseNorm;
-    for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.femNodeCount; local += 256u)
         nextBasis[totalNodes + nodeBase + local] =
             work[totalNodes + nodeBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
-         local += 32u)
+         local += 256u)
         nextBasis[mpmBase + local] =
             work[mpmBase + local] * inverseNorm;
     for (uint local = lane; local < layout.supportContactCount;
-         local += 32u)
+         local += 256u)
         nextBasis[supportBase + local] =
             work[supportBase + local] * inverseNorm;
     for (uint local = lane; local < layout.vascularUnknownCount;
-         local += 32u)
+         local += 256u)
         nextBasis[vascularBase + local] =
             work[vascularBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
-         local += 32u)
+         local += 256u)
         nextBasis[rigidBase + local] = float4(
             work[rigidBase + local].x * inverseNorm,
             0.0f, 0.0f, 0.0f);

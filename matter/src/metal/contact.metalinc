@@ -900,6 +900,115 @@ inline uint continuumSurfacePrimitiveCount(
     return femCount + dispatch.gridNodeCount;
 }
 
+kernel void nm_contact_clear_armijo_surface_cache(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device atomic_uint* cacheFlags [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    atomic_store_explicit(cacheFlags + environment, 0u,
+        memory_order_relaxed);
+}
+
+// A lower Armijo alpha lies inside the first trial's affine node envelope.
+// Keep the candidate set only while each later endpoint and its swept start
+// remain strictly inside that cached envelope. Clearing the flag makes the
+// following existing broadphase kernels rebuild the exact current tree.
+kernel void nm_contact_validate_armijo_surface_cache(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const NMFEMNodeStateGPU* trialNodes [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device atomic_uint* cacheFlags [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint total = dispatch.environmentCount * primitiveCount;
+    if (global >= total || primitiveCount == 0u) return;
+    const uint environment = global / primitiveCount;
+    if (atomic_load_explicit(cacheFlags + environment,
+            memory_order_relaxed) == 0u) return;
+    if (!environmentHealthy(statuses, environment)) {
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+        return;
+    }
+    if (dispatch.gridNodeCount != 0u || dispatch.mpmGridCount != 0u) {
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+        return;
+    }
+
+    const NMContinuumSurfacePrimitiveGPU primitive = primitives[global];
+    if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;
+    if (primitive.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        primitive.nodesAndObject.w >= dispatch.objectCount) {
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[primitive.nodesAndObject.w];
+    if (object.representation != NM_REPRESENTATION_FEM) {
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+        return;
+    }
+    const NMSchedulerStateGPU scheduler = schedulers[
+        environment * dispatch.objectCount + primitive.nodesAndObject.w];
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float thickness = dispatch.numericalLimits.x;
+    const float scale = max(1.0f, max(
+        maximumAbsoluteCoordinate(primitive.boundsMinimum.xyz),
+        maximumAbsoluteCoordinate(primitive.boundsMaximum.xyz)));
+    const float margin = thickness + 8.0f * 1.1920928955078125e-7f * scale;
+    const float3 minimum = primitive.boundsMinimum.xyz + margin;
+    const float3 maximum = primitive.boundsMaximum.xyz - margin;
+    if (!finite3(minimum) || !finite3(maximum) || any(minimum > maximum)) {
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+        return;
+    }
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        const uint nodeIndex = primitive.nodesAndObject[corner];
+        if (nodeIndex >= dispatch.femNodeCount) {
+            atomic_store_explicit(cacheFlags + environment, 0u,
+                memory_order_relaxed);
+            return;
+        }
+        const NMFEMNodeStateGPU node = trialNodes[
+            environment * dispatch.femNodeCount + nodeIndex];
+        const float3 finish = node.positionAndMass.xyz;
+        const float3 start = finish - dt * node.velocityAndInverseMass.xyz;
+        if (!finite3(start) || !finite3(finish) ||
+            any(start < minimum) || any(start > maximum) ||
+            any(finish < minimum) || any(finish > maximum)) {
+            atomic_store_explicit(cacheFlags + environment, 0u,
+                memory_order_relaxed);
+            return;
+        }
+    }
+}
+
+kernel void nm_contact_mark_armijo_surface_cache(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* candidateCounts [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device atomic_uint* cacheFlags [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const bool supported = dispatch.gridNodeCount == 0u &&
+        dispatch.mpmGridCount == 0u &&
+        dispatch.deformableContactCapacity != 0u &&
+        continuumSurfacePrimitiveCount(dispatch) != 0u &&
+        environmentHealthy(statuses, environment) &&
+        candidateCounts[environment] <= dispatch.deformableContactCapacity;
+    atomic_store_explicit(cacheFlags + environment, supported ? 1u : 0u,
+        memory_order_relaxed);
+}
+
 kernel void nm_contact_build_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -917,6 +1026,8 @@ kernel void nm_contact_build_surface_primitives(
     device const NMFEMSurfaceFaceGPU* staticSurfaceFaces [[buffer(13)]],
     device const NMFEMNodeStateGPU* privateBaseNodes [[buffer(14)]],
     constant uint& includePrivateBase [[buffer(15)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(16)]],
+    constant uint& useArmijoSurfaceCache [[buffer(17)]],
     uint global [[thread_position_in_grid]]
 ) {
     const bool compact = (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
@@ -925,8 +1036,10 @@ kernel void nm_contact_build_surface_primitives(
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint total = dispatch.environmentCount * primitiveCount;
     if (global >= total || primitiveCount == 0u) return;
-    primitives[global] = {};
     const uint environment = global / primitiveCount;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    primitives[global] = {};
     const uint localPrimitive = global - environment * primitiveCount;
     const float thickness = dispatch.numericalLimits.x;
 
@@ -1099,10 +1212,14 @@ kernel void nm_contact_sort_surface_primitives(
     device uint* indicesA [[buffer(4)]],
     device uint* indicesB [[buffer(5)]],
     device uint* activeCounts [[buffer(6)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(7)]],
+    constant uint& useArmijoSurfaceCache [[buffer(8)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (primitiveCount == 0u) {
         if (lane == 0u) activeCounts[environment] = 0u;
@@ -1185,7 +1302,7 @@ kernel void nm_contact_sort_surface_primitives(
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         if (lane == 0u) {
             uint offset = 0u;
-            for (uint bucket = 0u; bucket < 16u; ++bucket) {
+            for (uint bucket = 0u; bucket < 8u; ++bucket) {
                 bucketStarts[bucket] = offset;
                 bucketCursors[bucket] = offset;
                 offset += bucketCounts[bucket];
@@ -3348,10 +3465,14 @@ kernel void nm_contact_build_surface_bvh_leaves(
     device const uint* sortedIndices [[buffer(3)]],
     device const uint* activeCounts [[buffer(4)]],
     device float4* bounds [[buffer(5)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(6)]],
+    constant uint& useArmijoSurfaceCache [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (leafCount == 0u || global >= dispatch.environmentCount * leafCount) return;
     const uint environment = global / leafCount;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint order = global - environment * leafCount;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint node = environment * (2u * leafCount) + leafCount + order;
@@ -3373,10 +3494,14 @@ kernel void nm_contact_build_surface_bvh_level(
     constant uint& leafCount [[buffer(1)]],
     constant uint& width [[buffer(2)]],
     device float4* bounds [[buffer(3)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(4)]],
+    constant uint& useArmijoSurfaceCache [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (width == 0u || global >= dispatch.environmentCount * width) return;
     const uint environment = global / width;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint local = global - environment * width;
     const uint base = environment * 2u * leafCount;
     const uint node = width + local;
@@ -3475,11 +3600,15 @@ kernel void nm_contact_count_deformable_candidates(
     device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],
     device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],
     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(14)]],
+    constant uint& useArmijoSurfaceCache [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (primitiveCount == 0u || global >= dispatch.environmentCount * primitiveCount) return;
     const uint environment = global / primitiveCount;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint order = global - environment * primitiveCount;
     pairCounts[global] = environmentHealthy(statuses, environment) &&
         dispatch.deformableContactCapacity != 0u
@@ -3496,10 +3625,14 @@ kernel void nm_contact_scan_deformable_candidate_counts(
     device uint* pairOffsets [[buffer(3)]],
     device uint* candidateCounts [[buffer(4)]],
     device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(6)]],
+    constant uint& useArmijoSurfaceCache [[buffer(7)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint count = activeCounts[environment];
     const uint base = environment * continuumSurfacePrimitiveCount(dispatch);
     const uint capacity = dispatch.deformableContactCapacity;
@@ -3540,11 +3673,15 @@ kernel void nm_contact_scatter_deformable_candidates(
     device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(11)]],
     device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(12)]],
     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(13)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(14)]],
+    constant uint& useArmijoSurfaceCache [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (primitiveCount == 0u || global >= dispatch.environmentCount * primitiveCount) return;
     const uint environment = global / primitiveCount;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
     const uint order = global - environment * primitiveCount;
     if (!environmentHealthy(statuses, environment) ||
         dispatch.deformableContactCapacity == 0u) return;

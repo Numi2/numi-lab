@@ -225,8 +225,10 @@ inline OuterLateralContactSurfaceMapAudit auditOuterLateralContactSurfaceFaces(
         if((face.sides.w&~NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u)
             fail("compiled static surface map contains an unknown contact-face flag");
         if(face.adjacency.z!=wall.objectIndex){
-            if(face.sides.w!=0u)
-                fail("outer aortic contact found a preflagged nonwall surface face");
+            // Other FEM owners may carry their own authored contact exclusions
+            // (for example exact fascia seams). The mask and compiled-world
+            // fingerprint above verify that these are valid, immutable map bits;
+            // this audit owns only the aortic wall outer-lateral selection.
             continue;
         }
         ++wallExteriorFaceCount;

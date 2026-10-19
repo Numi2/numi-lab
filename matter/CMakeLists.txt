@@ -495,6 +495,19 @@ if(BUILD_TESTING)
         COMMAND numi-matter-cardboard-compensated-deformation-check)
 endif()
 
+add_executable(numi-matter-fem-coupled-tangent-block-compiler-check
+    tools/fem_coupled_tangent_block_compiler_check.cpp)
+target_link_libraries(numi-matter-fem-coupled-tangent-block-compiler-check
+    PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-fem-coupled-tangent-block-compiler-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.fem_coupled_tangent_block
+        COMMAND numi-matter-fem-coupled-tangent-block-compiler-check)
+    set_tests_properties(matter.compiler.fem_coupled_tangent_block
+        PROPERTIES TIMEOUT 60 LABELS "matter;fem;preconditioner;coupled;synthetic")
+endif()
+
 add_executable(numi-matter-fem-regional-galerkin-compiler-check
     tools/fem_regional_galerkin_compiler_check.cpp)
 add_executable(numi-matter-fem-static-surface-map-check

@@ -2893,10 +2893,11 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoSurfaceSortIndicesA = nil;
     id<MTLBuffer> femArmijoSurfaceSortIndicesB = nil;
     id<MTLBuffer> femArmijoSurfaceActiveCounts = nil;
+    id<MTLBuffer> femArmijoSurfaceCacheFlags = nil;
     // Opt-in alias of the ordinary surface-build scratch while private
-    // Armijo trials are serialized in this command buffer. Geometry and
-    // ordering are rebuilt for each trial; accepted contact histories stay
-    // in separate buffers.
+    // Armijo trials are serialized in this command buffer. The first trial
+    // builds an envelope; later trials reuse it only while all swept endpoints
+    // remain inside, with exact narrowphase and sweep validation per alpha.
     bool femArmijoAliasesProductionSurfaceScratch = false;
     // Opt-in combined-path alias. Trials read irreversible history only from
     // cohesiveFacesAccepted, mutate only candidate-derived face response, and
@@ -4977,6 +4978,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_build_tangent_fem_preconditioner",
             "nm_fgmres_build_tangent_fem_block_preconditioner",
             "nm_fgmres_precondition",
+            "nm_fgmres_apply_coupled_tangent_block",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_regional_load_mode",
@@ -5105,6 +5107,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_begin_compact_samples",
             "nm_contact_finish_compact_samples",
             "nm_contact_clear_trial_samples",
+            "nm_contact_clear_armijo_surface_cache",
+            "nm_contact_validate_armijo_surface_cache",
+            "nm_contact_mark_armijo_surface_cache",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
             "nm_contact_build_surface_bvh_leaves",
@@ -6920,7 +6925,7 @@ RuntimeDiagnostics Runtime::initialize(
             operatorFDNodes * 4u * sizeof(nm_float4);
         const bool operatorFDCachedTangentCaptureRequested =
             operatorFDRichCaptureRequested &&
-            world.mixedSolver.executionBudgets.w == 1u;
+            world.mixedSolver.executionBudgets.w != 0u;
         const std::size_t operatorFDCachedTangentCaptureSlots =
             operatorFDCachedTangentCaptureRequested
                 ? operatorFDEnvironments * operatorFDTetrahedra *
@@ -7497,6 +7502,9 @@ RuntimeDiagnostics Runtime::initialize(
                             privateScratch<std::uint32_t>(candidate->device,
                                 environments, valid, candidate->residentBytes);
                     }
+                    candidate->femArmijoSurfaceCacheFlags =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            environments, valid, candidate->residentBytes);
                     candidate->femArmijoDeformableCandidates =
                         privateScratch<NMDeformableContactCandidateGPU>(
                             candidate->device,
@@ -7658,7 +7666,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
-        if (world.mixedSolver.executionBudgets.w == 1u) {
+        if (world.mixedSolver.executionBudgets.w != 0u) {
             const std::uint64_t totalTetrahedra =
                 static_cast<std::uint64_t>(world.dispatch.environmentCount) *
                 world.dispatch.tetrahedronCount;
@@ -7693,6 +7701,26 @@ RuntimeDiagnostics Runtime::initialize(
                 privateScratch<std::uint32_t>(candidate->device,
                     static_cast<std::size_t>(totalTetrahedra),
                     valid, candidate->residentBytes);
+        }
+        if (world.mixedSolver.executionBudgets.z == 6u) {
+            const std::size_t perEnvironmentBlockCount =
+                std::size_t{3u} * world.dispatch.femNodeCount;
+            if (environments != 0u && perEnvironmentBlockCount >
+                    std::numeric_limits<std::size_t>::max() / environments) {
+                diagnostics.message =
+                    "coupled tangent block inverse E*N*3 allocation overflows size_t";
+                return diagnostics;
+            }
+            const std::size_t blockCount =
+                environments * perEnvironmentBlockCount;
+            if (blockCount > candidate->device.maxBufferLength /
+                    sizeof(nm_float4)) {
+                diagnostics.message =
+                    "coupled tangent block inverse exceeds the Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femRegionalNodeBlockInverse = privateScratch<nm_float4>(
+                candidate->device, blockCount, valid, candidate->residentBytes);
         }
         if (candidate->femRegionalModeCount != 0u) {
             const std::size_t baseModes = candidate->femRegionalModeCount;
@@ -10433,6 +10461,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 threadsPerThreadgroup:MTLSizeMake(observerWidth, 1u, 1u)];
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
+        std::unordered_map<std::string, std::uint64_t>
+            gpuTimingKernelDispatchCounts;
+        gpuTimingKernelDispatchCounts.reserve(128u);
+        std::uint32_t gpuTimingSampleEvery = 1u;
+        if (const char* everySetting =
+                std::getenv("NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY")) {
+            char* end = nullptr;
+            const unsigned long parsed = std::strtoul(everySetting, &end, 10);
+            if (end != everySetting && *end == '\0' && parsed > 0u &&
+                parsed <= std::numeric_limits<std::uint32_t>::max())
+                gpuTimingSampleEvery = static_cast<std::uint32_t>(parsed);
+        }
+        const auto selectedGpuTimingKernel = [&](const char* name) {
+            const char* enabled = std::getenv("NUMI_MATTER_GPU_TIMING");
+            const char* setting = std::getenv("NUMI_MATTER_GPU_TIMING_KERNELS");
+            if (enabled == nullptr || std::strcmp(enabled, "1") != 0 ||
+                setting == nullptr || *setting == '\0') return false;
+            bool selected = std::strcmp(setting, "all") == 0;
+            if (!selected) {
+                const std::size_t nameLength = std::strlen(name);
+                const char* cursor = setting;
+                while (*cursor != '\0') {
+                    while (*cursor == ',' || *cursor == ' ' || *cursor == '\t') ++cursor;
+                    const char* begin = cursor;
+                    while (*cursor != '\0' && *cursor != ',' && *cursor != ' ' && *cursor != '\t') ++cursor;
+                    if (static_cast<std::size_t>(cursor - begin) == nameLength &&
+                        std::memcmp(begin, name, nameLength) == 0) {
+                        selected = true;
+                        break;
+                    }
+                }
+            }
+            if (!selected) return false;
+            const auto count = ++gpuTimingKernelDispatchCounts[std::string(name)];
+            return count % gpuTimingSampleEvery == 0u;
+        };
         const auto dispatchThreads = [&](
             const char* name,
             const NSUInteger count,
@@ -10440,6 +10504,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ) {
             if (count == 0u) {
                 return;
+            }
+            const bool profileKernel = selectedGpuTimingKernel(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    name, request.controlStep);
+                primalResourcesEncoder = nil;
+                if (encoder == nil) {
+                    diagnostics.message = "failed to create selected kernel timing encoder";
+                    return;
+                }
             }
             ++diagnostics.threadDispatchCount;
             diagnostics.requestedThreadCount +=
@@ -10454,6 +10529,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
+                else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
         };
         const auto captureStatus5 = [&](const std::uint32_t stageID,
             const std::uint32_t domain, const std::uint32_t indexKind,
@@ -10503,14 +10585,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ++diagnostics.simdgroupDispatchCount;
             diagnostics.requestedThreadgroupCount +=
                 static_cast<std::uint64_t>(groupCount);
+            const bool profileKernel = selectedGpuTimingKernel(name);
             const char* denseTiming = std::getenv("NUMI_MATTER_GPU_TIMING_DENSE45");
-            const bool profileDense = request.controlStep == 100u &&
+            const bool profileDense = !profileKernel && request.controlStep == 100u &&
                 denseTiming && std::strcmp(denseTiming, "1") == 0 &&
                 std::strcmp(name, "nm_vascular_dense_solve") == 0;
-            if (profileDense) {
+            if (profileKernel || profileDense) {
                 [encoder endEncoding];
                 encoder = detail::timedEncoder(commandBuffer, state.device,
-                    "vascular_dense45", request.controlStep);
+                    profileKernel ? name : "vascular_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
             }
             [encoder setComputePipelineState:state.pipeline(name)];
@@ -10518,7 +10601,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
-            if (profileDense) {
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
+                else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            } else if (profileDense) {
                 [encoder endEncoding];
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     "matter_after_dense45", request.controlStep);
@@ -10535,6 +10624,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     " requires a 256-thread Metal threadgroup";
                 return;
             }
+            const bool profileKernel = selectedGpuTimingKernel(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    name, request.controlStep);
+                primalResourcesEncoder = nil;
+                if (encoder == nil) {
+                    diagnostics.message = "failed to create selected kernel timing encoder";
+                    return;
+                }
+            }
             ++diagnostics.simdgroupDispatchCount;
             diagnostics.requestedThreadgroupCount +=
                 static_cast<std::uint64_t>(groupCount);
@@ -10543,6 +10643,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
+                else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
         };
         const auto dispatchIndirect = [&](
             const char* name,
@@ -10556,6 +10663,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 width > pipeline.maxTotalThreadsPerThreadgroup) {
                 return false;
             }
+            const bool profileKernel = selectedGpuTimingKernel(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    name, request.controlStep);
+                primalResourcesEncoder = nil;
+                if (encoder == nil) {
+                    diagnostics.message = "failed to create selected kernel timing encoder";
+                    return false;
+                }
+            }
             ++diagnostics.indirectDispatchCount;
             [encoder setComputePipelineState:pipeline];
             bind();
@@ -10564,6 +10682,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 indirectBufferOffset:0u
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
+                else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
             return true;
         };
         const auto dispatchIndirectWithPaddedFallback = [&](
@@ -12589,7 +12714,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (state.femResidual == nil || state.statuses == nil ||
                     state.fgmresStates == nil)
                     return "solver_status_or_residual_buffer_unavailable";
-                if (state.mixedSolverValue.executionBudgets.w == 1u &&
+                if (state.mixedSolverValue.executionBudgets.w != 0u &&
                     (state.femAlgorithmicTangentCache == nil ||
                      state.femAlgorithmicTangentCacheValid == nil))
                     return "configured_tangent_cache_unavailable";
@@ -13082,6 +13207,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femArmijoSurfaceSortIndicesA == nil ||
                     state.femArmijoSurfaceSortIndicesB == nil ||
                     state.femArmijoSurfaceActiveCounts == nil ||
+                    state.femArmijoSurfaceCacheFlags == nil ||
                     state.femArmijoDeformableCandidates == nil ||
                     state.femArmijoDeformableCandidateCounts == nil ||
                     state.femArmijoDeformableContacts == nil ||
@@ -13193,6 +13319,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femArmijoSurfaceSortIndicesA == nil ||
                     state.femArmijoSurfaceSortIndicesB == nil ||
                     state.femArmijoSurfaceActiveCounts == nil ||
+                    state.femArmijoSurfaceCacheFlags == nil ||
                     state.femArmijoDeformableCandidates == nil ||
                     state.femArmijoDeformableCandidateCounts == nil ||
                     state.femArmijoDeformableCandidateStatuses == nil ||
@@ -15067,7 +15194,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         kFEMOperatorFDTetCaptureSlots +
                     parameterCaptureSlotsPerEnvironment);
                 const bool cachedTangentPolicyEnabled =
-                    state.mixedSolverValue.executionBudgets.w == 1u;
+                    state.mixedSolverValue.executionBudgets.w != 0u;
                 const bool cachedTangentCaptureAvailable =
                     state.femOperatorFDRichCaptureEnabled &&
                     cachedTangentPolicyEnabled &&
@@ -18340,6 +18467,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&includePrivateBase
                                   length:sizeof(includePrivateBase)
                                   atIndex:15u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:16u];
+                        const std::uint32_t useArmijoSurfaceCache = 0u;
+                        [encoder setBytes:&useArmijoSurfaceCache
+                                  length:sizeof(useArmijoSurfaceCache)
+                                  atIndex:17u];
                     }
                 );
                 dispatchGroups32(
@@ -18353,6 +18485,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:4u];
                         [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:5u];
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:7u];
+                        const std::uint32_t useArmijoSurfaceCache = 0u;
+                        [encoder setBytes:&useArmijoSurfaceCache
+                                  length:sizeof(useArmijoSurfaceCache) atIndex:8u];
                     }
                 );
                 const std::uint32_t surfaceBVHLeafCount = state.femSurfaceBVHLeafCount;
@@ -18364,6 +18500,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
                         [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
+                        const std::uint32_t useArmijoSurfaceCache = 0u;
+                        [encoder setBytes:&useArmijoSurfaceCache
+                                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
                     });
                 for (std::uint32_t width = surfaceBVHLeafCount / 2u; width != 0u; width /= 2u) {
                     dispatchThreads("nm_contact_build_surface_bvh_level",
@@ -18372,6 +18512,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&surfaceBVHLeafCount length:sizeof(surfaceBVHLeafCount) atIndex:1u];
                             [encoder setBytes:&width length:sizeof(width) atIndex:2u];
                             [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
+                            const std::uint32_t useArmijoSurfaceCache = 0u;
+                            [encoder setBytes:&useArmijoSurfaceCache
+                                      length:sizeof(useArmijoSurfaceCache) atIndex:5u];
                         });
                 }
                 // Radix-sort ping-pong scratch is dead until the next surface
@@ -18394,6 +18538,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:12u];
                     [encoder setBuffer:state.cohesiveFacesCandidate
                                  offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:14u];
+                    const std::uint32_t useArmijoSurfaceCache = 0u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:15u];
                 };
                 dispatchThreads("nm_contact_count_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortKeysB);
@@ -18405,6 +18553,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:3u];
                     [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
+                    const std::uint32_t useArmijoSurfaceCache = 0u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
                 });
                 dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
@@ -18920,6 +19072,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (!state.femArmijoDeformableContactScratchEnabled)
                     return false;
                 const std::uint32_t leafCount = state.femSurfaceBVHLeafCount;
+                if (trialIndex != 0u) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_contact_validate_armijo_surface_cache",
+                        surfacePrimitiveTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoSurfacePrimitives
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:trialNodes offset:0u atIndex:2u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:3u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
+                        [encoder setBuffer:trialStatuses offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                     offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 dispatchThreads("nm_contact_build_surface_primitives",
                     surfacePrimitiveTotal, [&] {
                     setDispatch();
@@ -18948,6 +19116,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&includePrivateBase
                               length:sizeof(includePrivateBase)
                               atIndex:15u];
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:16u];
+                    const std::uint32_t useArmijoSurfaceCache = 1u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:17u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32("nm_contact_sort_surface_primitives",
@@ -18965,6 +19138,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:5u];
                     [encoder setBuffer:state.femArmijoSurfaceActiveCounts
                                  offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:7u];
+                    const std::uint32_t useArmijoSurfaceCache = 1u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:8u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_build_surface_bvh_leaves",
@@ -18980,6 +19158,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.femArmijoSurfaceBVHBounds
                                  offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:6u];
+                    const std::uint32_t useArmijoSurfaceCache = 1u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
                 });
                 for (std::uint32_t width = leafCount / 2u; width != 0u;
                      width /= 2u) {
@@ -18992,6 +19175,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&width length:sizeof(width) atIndex:2u];
                         [encoder setBuffer:state.femArmijoSurfaceBVHBounds
                                      offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                     offset:0u atIndex:4u];
+                        const std::uint32_t useArmijoSurfaceCache = 1u;
+                        [encoder setBytes:&useArmijoSurfaceCache
+                                  length:sizeof(useArmijoSurfaceCache) atIndex:5u];
                     });
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -19021,6 +19209,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:12u];
                     [encoder setBuffer:cohesiveFaces
                                  offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:14u];
+                    const std::uint32_t useArmijoSurfaceCache = 1u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:15u];
                 };
                 dispatchThreads("nm_contact_count_deformable_candidates",
                     surfacePrimitiveTotal, [&] {
@@ -19039,6 +19232,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoDeformableCandidateCounts
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:trialStatuses offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:6u];
+                    const std::uint32_t useArmijoSurfaceCache = 1u;
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_scatter_deformable_candidates",
@@ -19047,6 +19245,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femArmijoSurfaceSortIndicesB);
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (trialIndex == 0u) {
+                    dispatchThreads("nm_contact_mark_armijo_surface_cache",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoDeformableCandidateCounts
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:trialStatuses offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                     offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 // Candidate counts and per-environment offsets define one
                 // compact indirect domain; compaction later rewrites this
                 // trial scratch before active-contact consumers run.
@@ -20343,7 +20553,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // the lambda's reference-captured state into owned storage.
                 const detail::CoupledCaptureManifestContext capturedManifestContext{
                     femCoupledCaptureRHSReady,
-                    state.mixedSolverValue.executionBudgets.w == 1u,
+                    state.mixedSolverValue.executionBudgets.w != 0u,
                     femCoupledCaptureCapBytes,
                     omittedOptional
                 };
@@ -22769,15 +22979,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // tangent-based nodal preconditioners. Candidate nodes and
             // accepted material history remain fixed through this linear
             // solve; the cache is rebuilt on the next Newton candidate.
-            if (state.mixedSolverValue.executionBudgets.w == 1u) {
+            if (state.mixedSolverValue.executionBudgets.w != 0u) {
                 const std::uint32_t forceCompletedCacheRebuild =
                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
                 const char* tangentCacheBuilder =
                     state.femCacheProjectionReuseEnabled
                         ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
                         : "nm_fem_build_algorithmic_tangent_cache";
-                dispatchThreads(tangentCacheBuilder,
-                    tetrahedronTotal, [&] {
+                const auto bindTangentCache = [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro
                                length:sizeof(operatorMicro) atIndex:1u];
@@ -22803,7 +23012,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&forceCompletedCacheRebuild
                                length:sizeof(forceCompletedCacheRebuild)
                               atIndex:16u];
-                });
+                };
+                dispatchThreads(tangentCacheBuilder, tetrahedronTotal,
+                    bindTangentCache);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (usesRegionalGalerkinPreconditioner(
@@ -22970,14 +23181,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                      offset:0u atIndex:17u];
                         const std::uint32_t useCache =
-                            state.mixedSolverValue.executionBudgets.w == 1u
-                                ? 1u : 0u;
+                            numi::matter::detail::femPrimaryOperatorCacheMode(
+                                state.mixedSolverValue.executionBudgets.w);
                         [encoder setBytes:&useCache length:sizeof(useCache)
                                   atIndex:18u];
                     });
             }
             if (state.mixedSolverValue.executionBudgets.z == 3u ||
-                state.mixedSolverValue.executionBudgets.z == 4u) {
+                state.mixedSolverValue.executionBudgets.z == 4u ||
+                state.mixedSolverValue.executionBudgets.z == 6u) {
                 dispatchThreads(
                     "nm_fgmres_build_tangent_fem_block_preconditioner",
                     femNodeTotal, [&] {
@@ -23017,8 +23229,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                      offset:0u atIndex:18u];
                         const std::uint32_t useCache =
-                            state.mixedSolverValue.executionBudgets.w == 1u
-                                ? 1u : 0u;
+                            numi::matter::detail::femPrimaryOperatorCacheMode(
+                                state.mixedSolverValue.executionBudgets.w);
                         [encoder setBytes:&useCache length:sizeof(useCache)
                                   atIndex:19u];
                         const std::uint32_t noSelectionFilter = 0u;
@@ -23104,7 +23316,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         // back to the unchanged direct evaluator per tet if a
                         // cache entry is unavailable.
                         const std::uint32_t useCache =
-                            state.mixedSolverValue.executionBudgets.w == 1u
+                            state.mixedSolverValue.executionBudgets.w != 0u
                                 ? 2u : 0u;
                         [encoder setBytes:&useCache
                                    length:sizeof(useCache) atIndex:25u];
@@ -23286,8 +23498,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                      offset:0u atIndex:13u];
                         const std::uint32_t useCache =
-                            state.mixedSolverValue.executionBudgets.w == 1u
-                                ? 1u : 0u;
+                            numi::matter::detail::femPrimaryOperatorCacheMode(
+                                state.mixedSolverValue.executionBudgets.w);
                         [encoder setBytes:&useCache length:sizeof(useCache)
                                   atIndex:14u];
                         [encoder setBuffer:state.femRegionalGraphPatches
@@ -23768,7 +23980,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 metadata.materialStateStride =
                                     state.dispatch.materialStateStride;
                                 metadata.tangentCacheUsed =
-                                    state.mixedSolverValue.executionBudgets.w == 1u
+                                    state.mixedSolverValue.executionBudgets.w != 0u
                                         ? 1u : 0u;
                                 metadata.worldFingerprint = state.worldFingerprint;
                                 metadata.executionFingerprint =
@@ -23916,6 +24128,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
                 });
+                if (state.mixedSolverValue.executionBudgets.z == 6u) {
+                    dispatchThreads(
+                        "nm_fgmres_apply_coupled_tangent_block",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.femRegionalNodeBlockInverse
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:4u];
+                    });
+                }
                 dispatchThreads("nm_fgmres_precondition_patches", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femTetrahedraCandidate
@@ -24866,7 +25093,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         metadata.augmentationEnabled =
                                             state.femRegionalRestartAugmentationEnabled;
                                         metadata.tangentCacheUsed =
-                                            state.mixedSolverValue.executionBudgets.w == 1u;
+                                            state.mixedSolverValue.executionBudgets.w != 0u;
                                         metadata.deviceName = nsString(state.device.name);
                                         const auto capturedArrays = arrays;
                                         const auto capturedMetadata = metadata;
@@ -25343,7 +25570,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
-                dispatchGroups32(
+                dispatchGroups256(
                     "nm_fgmres_orthogonalize_and_finish_column",
                     environments,
                     [&] {
@@ -26942,8 +27169,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 ? state.femAlgorithmicTangentCacheValid : state.dummy
                                          offset:0u atIndex:18u];
                             const std::uint32_t useCache =
-                                state.mixedSolverValue.executionBudgets.w == 1u
-                                    ? 1u : 0u;
+                                numi::matter::detail::femPrimaryOperatorCacheMode(
+                                    state.mixedSolverValue.executionBudgets.w);
                             [encoder setBytes:&useCache length:sizeof(useCache)
                                        atIndex:19u];
                             [encoder setBuffer:state.femBaseCGLSSelected
@@ -27626,7 +27853,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 } // Primary Newton and optional same-history Cauchy pass.
             } else {
-                dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
+                dispatchGroups256("nm_fem_select_backtracking", objectTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
@@ -28079,6 +28306,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
+                dispatchThreads("nm_contact_clear_armijo_surface_cache",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
+                                 offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
@@ -30541,6 +30775,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ownership->deferredAcceptedStepExtensionView = {};
         ownership->physicsSubsteps = request.physicsSubsteps;
         ownership->preparedStateRequested = request.enablePreparedState;
+        for (const auto& [kernel, count] : gpuTimingKernelDispatchCounts) {
+            std::fprintf(stderr,
+                "matter_gpu_kernel_dispatch_count=%s step=%u count=%llu sample_every=%u\n",
+                kernel.c_str(), request.controlStep,
+                static_cast<unsigned long long>(count), gpuTimingSampleEvery);
+        }
         diagnostics.encoded = true;
         diagnostics.residentBytes = state.residentBytes;
         diagnostics.device = nsString(state.device.name);

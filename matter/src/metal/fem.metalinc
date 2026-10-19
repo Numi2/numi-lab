@@ -3052,6 +3052,9 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
         tetrahedron, candidate, nodeBase
     );
     const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    // Learned ICNN tangents are assembled by the direct FGMRES path as a
+    // separate term; leave these entries invalid for mode-2 fallback.
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) return;
     float deformationLow[9];
     const float3x3 preciseLocalF = femMaterialDeformationWords(
         object, tetrahedron, material, candidate, nodeBase,
@@ -3074,6 +3077,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
         float directionComponents[9];
         for (uint component = 0u; component < 9u; ++component)
             directionComponents[component] = component == column ? 1.0f : 0.0f;
+        // Material-frame map: FGMRES and RAP apply femMaterialOutput once.
         const float3x3 localDirection = componentsMatrix(directionComponents);
         const float3x3 localRateDirection =
             localDirection / max(dt, 1.0e-12f);
@@ -3108,7 +3112,6 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     }
     validEntries[global] = 1u;
 }
-
 kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3204,6 +3207,9 @@ kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
         float directionComponents[9];
         for (uint component = 0u; component < 9u; ++component)
             directionComponents[component] = component == column ? 1.0f : 0.0f;
+        // The FGMRES and RAP consumers pass a material-frame direction to
+        // the cached map, then apply femMaterialOutput exactly once. Store the
+        // full material-frame Jacobian here to preserve direct-path parity.
         const float3x3 localDirection = componentsMatrix(directionComponents);
         const float3x3 localRateDirection =
             localDirection / max(dt, 1.0e-12f);
@@ -3347,10 +3353,8 @@ kernel void nm_fem_apply_operator_elements(
     float3x3 tangent;
     const bool cacheEntryValid = useTangentCache != 0u &&
         tangentCacheValid[global] == 1u;
-    // Mode 1 is the original strict FGMRES cache contract: every participating
-    // tet must have a valid entry. Mode 2 is only for conditioning-only RAP
-    // construction and falls back to the direct production evaluator when an
-    // entry cannot be formed.
+    // Mode 1 is the original strict cache contract. Mode 2 reuses valid
+    // entries and falls back to the unchanged direct evaluator per element.
     const bool requestTransposeCache = useTangentCache == 3u;
     const bool requestStrictCache = useTangentCache == 1u ||
         requestTransposeCache || useTangentCache == 4u;
@@ -3642,24 +3646,44 @@ kernel void nm_fem_select_backtracking(
     device NMMatterStatusGPU* statuses [[buffer(12)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
     device const NMFEMFieldStateGPU* fields [[buffer(14)]],
-    uint global [[thread_position_in_grid]]
+    uint group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
 ) {
+    constexpr uint threadsPerGroup = 256u;
+    constexpr uint simdgroupCount = 8u;
     const uint total = dispatch.environmentCount * dispatch.objectCount;
-    if (global >= total || dispatch.objectCount == 0u) return;
-    const uint environment = global / dispatch.objectCount;
-    const uint objectIndex = global - environment * dispatch.objectCount;
-    lineSearch[global] = float4(1.0f, INFINITY, 0.0f, 0.0f);
+    if (group >= total || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+
+    threadgroup float simdMinimumJ[simdgroupCount];
+    threadgroup float simdCurrentVolumeMerit2[simdgroupCount];
+    threadgroup float simdTrialVolumeMerit2[simdgroupCount];
+    threadgroup float simdVolumeElementCount[simdgroupCount];
+    threadgroup uint simdValidity[simdgroupCount];
+    threadgroup float chosenAlpha;
+    threadgroup float chosenMinimumJ;
+
+    if (lane == 0u) {
+        lineSearch[group] = float4(1.0f, INFINITY, 0.0f, 0.0f);
+        chosenAlpha = 0.0f;
+        chosenMinimumJ = -INFINITY;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     if (!environmentHealthy(statuses, environment)) return;
+
     const NMContinuumObjectGPU object = objects[objectIndex];
-    const NMSchedulerStateGPU scheduler = schedulers[global];
-    const NMAdaptiveStateGPU adaptiveState = adaptive[global];
+    const NMSchedulerStateGPU scheduler = schedulers[group];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[group];
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep)) return;
+
     const uint candidateCount = min(
         solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
     const float dt = objectTimestep(dispatch, scheduler);
-    float chosen = 0.0f;
-    float chosenMinimum = -INFINITY;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+
     for (uint trial = 0u; trial < candidateCount; ++trial) {
         const float alpha = exp2(-float(trial));
         float minimumJ = INFINITY;
@@ -3667,13 +3691,19 @@ kernel void nm_fem_select_backtracking(
         float trialVolumeMerit2 = 0.0f;
         uint volumeElementCount = 0u;
         bool valid = true;
-        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+
+        // Tetrahedra are stored in contiguous per-object ranges. Cooperatively
+        // evaluate that exact range instead of having one thread rescan every
+        // tetrahedron once for every object and every trial step.
+        for (uint local = lane; local < object.elementCount;
+             local += threadsPerGroup) {
             const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
-                dispatch, tetrahedra, environment, local
+                dispatch, tetrahedra, environment,
+                object.elementOffset + local
             );
             if (tetrahedron.identity.y != objectIndex ||
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
-            const uint nodeBase = environment * dispatch.femNodeCount;
+
             float3 x[4];
             float3 u[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
@@ -3681,11 +3711,15 @@ kernel void nm_fem_select_backtracking(
                 const float3 velocity =
                     candidate[index].velocityAndInverseMass.xyz +
                     alpha * correction[index].xyz;
-                if ((tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
-                    u[slot] = accepted[index].referenceDisplacementAndMode.xyz + dt * velocity;
+                if ((tetrahedron.identity.w &
+                        NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+                    u[slot] =
+                        accepted[index].referenceDisplacementAndMode.xyz +
+                        dt * velocity;
                     x[slot] = accepted[index].restAndFixed.xyz + u[slot];
                 } else {
-                    x[slot] = accepted[index].positionAndMass.xyz + dt * velocity;
+                    x[slot] =
+                        accepted[index].positionAndMass.xyz + dt * velocity;
                     u[slot] = float3(0.0f);
                 }
             }
@@ -3695,7 +3729,8 @@ kernel void nm_fem_select_backtracking(
                 tetrahedron.inverseRestRow2
             );
             float3x3 deformation;
-            if ((tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+            if ((tetrahedron.identity.w &
+                    NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
                 deformation = float3x3(1.0f) + float3x3(
                     u[1] - u[0], u[2] - u[0], u[3] - u[0]
                 ) * inverseRest;
@@ -3725,16 +3760,14 @@ kernel void nm_fem_select_backtracking(
                 float trialPressure = 0.0f;
                 float currentTemperature = 0.0f;
                 float trialTemperature = 0.0f;
-                const uint totalNodes = dispatch.environmentCount *
-                    dispatch.femNodeCount;
                 for (uint slot = 0u; slot < 4u; ++slot) {
                     const uint index = nodeBase + tetrahedron.nodes[slot];
                     currentPressure += fields[index].primary.x;
                     trialPressure += fields[index].primary.x +
                         alpha * bulk * correction[index].w;
                     currentTemperature += fields[index].primary.y;
-                    trialTemperature += fields[index].primary.y + alpha *
-                        correction[totalNodes + index].x;
+                    trialTemperature += fields[index].primary.y +
+                        alpha * correction[totalNodes + index].x;
                 }
                 currentPressure *= 0.25f;
                 trialPressure *= 0.25f;
@@ -3751,37 +3784,70 @@ kernel void nm_fem_select_backtracking(
                 ++volumeElementCount;
             }
         }
-        const float inverseVolumeCount = volumeElementCount > 0u
-            ? 1.0f / float(volumeElementCount) : 0.0f;
-        const float currentVolumeMerit = sqrt(max(
-            currentVolumeMerit2 * inverseVolumeCount, 0.0f));
-        const float trialVolumeMerit = sqrt(max(
-            trialVolumeMerit2 * inverseVolumeCount, 0.0f));
-        const bool volumeArmijo = currentVolumeMerit <=
-            solver.residualTolerances.y || trialVolumeMerit <= max(
-                solver.residualTolerances.y,
-                (1.0f - solver.globalization.x * alpha) *
-                    currentVolumeMerit);
-        const bool boundedTrustFallback = trial + 1u == candidateCount;
-        valid = valid && (volumeArmijo || boundedTrustFallback);
-        if (valid) {
-            chosen = alpha;
-            chosenMinimum = minimumJ;
-            break;
+
+        const uint simdgroup = lane / 32u;
+        if ((lane & 31u) == 0u) {
+            simdMinimumJ[simdgroup] = simd_min(minimumJ);
+            simdCurrentVolumeMerit2[simdgroup] =
+                simd_sum(currentVolumeMerit2);
+            simdTrialVolumeMerit2[simdgroup] =
+                simd_sum(trialVolumeMerit2);
+            simdVolumeElementCount[simdgroup] =
+                simd_sum(float(volumeElementCount));
+            simdValidity[simdgroup] = simd_all(valid) ? 1u : 0u;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        if (simdgroup == 0u) {
+            const float reducedMinimumJ = simd_min(
+                lane < simdgroupCount ? simdMinimumJ[lane] : INFINITY);
+            const float reducedCurrentVolumeMerit2 = simd_sum(
+                lane < simdgroupCount ? simdCurrentVolumeMerit2[lane] : 0.0f);
+            const float reducedTrialVolumeMerit2 = simd_sum(
+                lane < simdgroupCount ? simdTrialVolumeMerit2[lane] : 0.0f);
+            const float reducedVolumeElementCount = simd_sum(
+                lane < simdgroupCount ? simdVolumeElementCount[lane] : 0.0f);
+            const bool allValid = simd_all(
+                lane < simdgroupCount ? simdValidity[lane] != 0u : true);
+            if (lane == 0u) {
+                const float inverseVolumeCount =
+                    reducedVolumeElementCount > 0.0f
+                        ? 1.0f / reducedVolumeElementCount : 0.0f;
+                const float currentVolumeMerit = sqrt(max(
+                    reducedCurrentVolumeMerit2 * inverseVolumeCount, 0.0f));
+                const float trialVolumeMerit = sqrt(max(
+                    reducedTrialVolumeMerit2 * inverseVolumeCount, 0.0f));
+                const bool volumeArmijo = currentVolumeMerit <=
+                    solver.residualTolerances.y || trialVolumeMerit <= max(
+                        solver.residualTolerances.y,
+                        (1.0f - solver.globalization.x * alpha) *
+                            currentVolumeMerit);
+                const bool boundedTrustFallback =
+                    trial + 1u == candidateCount;
+                if (allValid && (volumeArmijo || boundedTrustFallback)) {
+                    chosenAlpha = alpha;
+                    chosenMinimumJ = reducedMinimumJ;
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (chosenAlpha > 0.0f) break;
+    }
+
+    if (lane == 0u) {
+        lineSearch[group] = float4(
+            chosenAlpha, chosenMinimumJ, float(candidateCount),
+            float(microstep.solverIteration)
+        );
+        if (!(chosenAlpha > 0.0f)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                objectIndex, microstep.solverIteration,
+                float4(chosenMinimumJ, float(candidateCount), 0.0f, 0.0f)
+            );
         }
     }
-    lineSearch[global] = float4(
-        chosen, chosenMinimum, float(candidateCount), float(microstep.solverIteration)
-    );
-    if (!(chosen > 0.0f)) {
-        recordFailure(
-            statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-            objectIndex, microstep.solverIteration,
-            float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
-        );
-    }
 }
-
 // Opt-in pure-explicit-FEM globalization. Every trial is evaluated from the
 // same Newton candidate and accepted material history; these kernels write
 // only private scratch arenas until the normal solution application runs.

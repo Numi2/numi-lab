@@ -242,7 +242,10 @@ std::vector<PrimitiveRecord> dispatchBuilder(
         options:MTLResourceStorageModeShared];
     const NMFEMSurfaceFaceGPU sentinel{};
     id<MTLBuffer> faceBuffer = sharedBuffer(device, faces, sentinel);
-    require(outputBuffer != nil, "surface output buffer allocation failed");
+    const std::vector<std::uint32_t> cacheFlagSentinel(kEnvironments, 0u);
+    id<MTLBuffer> cacheFlagBuffer = sharedBuffer(device, cacheFlagSentinel);
+    require(outputBuffer != nil && cacheFlagBuffer != nil,
+        "surface output/cache flag buffer allocation failed");
 
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "Metal command queue allocation failed");
@@ -267,6 +270,14 @@ std::vector<PrimitiveRecord> dispatchBuilder(
     // Always bind a valid buffer. The legacy kernel branch must not index it,
     // but Metal still validates declared resources when encoding.
     [encoder setBuffer:faceBuffer offset:0u atIndex:13u];
+    [encoder setBuffer:nodeBuffer offset:0u atIndex:14u];
+    const std::uint32_t includePrivateBase = 0u;
+    [encoder setBytes:&includePrivateBase length:sizeof(includePrivateBase)
+              atIndex:15u];
+    [encoder setBuffer:cacheFlagBuffer offset:0u atIndex:16u];
+    const std::uint32_t useArmijoSurfaceCache = 0u;
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:17u];
     const NSUInteger width = std::min<NSUInteger>(
         pipeline.maxTotalThreadsPerThreadgroup, 64u);
     const NSUInteger groups = (total + width - 1u) / width;

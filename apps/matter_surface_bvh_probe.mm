@@ -147,6 +147,8 @@ int main() {
                     auto keysA=scratch(environments*n), keysB=scratch(environments*n);
                     auto indicesA=scratch(environments*n), indicesB=scratch(environments*n);
                     auto active=scratch(environments), counts=scratch(environments);
+                    auto cacheFlags=scratch(environments);
+                    const std::uint32_t useArmijoSurfaceCache=0u;
                     auto bounds=scratch(environments*4ull*leaves*4ull);
                     auto candidates=scratch(std::size_t(environments)*fixture.capacity*4);
                     auto statuses=buffer(std::vector<NMMatterStatusGPU>(environments));
@@ -179,16 +181,22 @@ int main() {
                             [encoder setBuffer:keysA offset:0 atIndex:2];[encoder setBuffer:keysB offset:0 atIndex:3];
                             [encoder setBuffer:indicesA offset:0 atIndex:4];[encoder setBuffer:indicesB offset:0 atIndex:5];
                             [encoder setBuffer:active offset:0 atIndex:6];
+                            [encoder setBuffer:cacheFlags offset:0 atIndex:7];
+                            [encoder setBytes:&useArmijoSurfaceCache length:sizeof(useArmijoSurfaceCache) atIndex:8];
                         });
                         launch(1,environments*leaves,false,[&] {
                             [encoder setBytes:&leaves length:sizeof(leaves) atIndex:1];
                             [encoder setBuffer:primitiveBuffer offset:0 atIndex:2];[encoder setBuffer:indicesA offset:0 atIndex:3];
                             [encoder setBuffer:active offset:0 atIndex:4];[encoder setBuffer:bounds offset:0 atIndex:5];
+                            [encoder setBuffer:cacheFlags offset:0 atIndex:6];
+                            [encoder setBytes:&useArmijoSurfaceCache length:sizeof(useArmijoSurfaceCache) atIndex:7];
                         });
                         for (std::uint32_t width=leaves/2; width; width/=2) launch(2,environments*width,false,[&] {
                             [encoder setBytes:&leaves length:sizeof(leaves) atIndex:1];
                             [encoder setBytes:&width length:sizeof(width) atIndex:2];
                             [encoder setBuffer:bounds offset:0 atIndex:3];
+                            [encoder setBuffer:cacheFlags offset:0 atIndex:4];
+                            [encoder setBytes:&useArmijoSurfaceCache length:sizeof(useArmijoSurfaceCache) atIndex:5];
                         });
                         auto query=[&](id<MTLBuffer> values) {
                             [encoder setBytes:&leaves length:sizeof(leaves) atIndex:1];
@@ -197,12 +205,16 @@ int main() {
                             [encoder setBuffer:topologyBuffer offset:0 atIndex:6];[encoder setBuffer:objectBuffer offset:0 atIndex:7];
                             [encoder setBuffer:values offset:0 atIndex:8];[encoder setBuffer:candidates offset:0 atIndex:9];
                             [encoder setBuffer:statuses offset:0 atIndex:10];
+                            [encoder setBuffer:cacheFlags offset:0 atIndex:14];
+                            [encoder setBytes:&useArmijoSurfaceCache length:sizeof(useArmijoSurfaceCache) atIndex:15];
                         };
                         launch(3,environments*n,false,[&]{query(keysB);});
                         launch(4,environments,true,[&] {
                             [encoder setBuffer:active offset:0 atIndex:1];[encoder setBuffer:keysB offset:0 atIndex:2];
                             [encoder setBuffer:indicesB offset:0 atIndex:3];[encoder setBuffer:counts offset:0 atIndex:4];
                             [encoder setBuffer:statuses offset:0 atIndex:5];
+                            [encoder setBuffer:cacheFlags offset:0 atIndex:6];
+                            [encoder setBytes:&useArmijoSurfaceCache length:sizeof(useArmijoSurfaceCache) atIndex:7];
                         });
                         launch(5,environments*n,false,[&]{query(indicesB);});
                         [encoder endEncoding];[command commit];[command waitUntilCompleted];

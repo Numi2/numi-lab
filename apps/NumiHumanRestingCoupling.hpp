@@ -466,6 +466,13 @@ public:
         [captureEncoder dispatchThreads:MTLSizeMake(acceptedBodyPoses.size(),1,1)
             threadsPerThreadgroup:MTLSizeMake(64,1,1)];
         [captureEncoder endEncoding];
+        auto acceptedRespirationCopyEncoder=[command blitCommandEncoder];
+        need(acceptedRespirationCopyEncoder!=nil,
+             "terminal accepted respiration blit encoder is unavailable");
+        [acceptedRespirationCopyEncoder copyFromBuffer:respiration.accepted sourceOffset:0
+            toBuffer:presentationCandidateRespiration destinationOffset:0
+            size:sizeof(NMHumanRespirationState)];
+        [acceptedRespirationCopyEncoder endEncoding];
         auto commitEncoder=[command computeCommandEncoder];
         need(commitEncoder!=nil,"terminal frame commit encoder is unavailable");
         [commitEncoder setComputePipelineState:publishTerminalFrame];
@@ -481,16 +488,53 @@ public:
         [commitEncoder dispatchThreads:MTLSizeMake(acceptedBodyPoses.size(),1,1)
             threadsPerThreadgroup:MTLSizeMake(64,1,1)];
         [commitEncoder endEncoding];
+        auto terminalCopyEncoder=[command blitCommandEncoder];
+        need(terminalCopyEncoder!=nil,
+             "terminal accepted exact-state blit encoder is unavailable");
+        [terminalCopyEncoder copyFromBuffer:presentationCandidateBodies sourceOffset:0
+            toBuffer:presentationBodies destinationOffset:0 size:presentationCandidateBodies.length];
+        [terminalCopyEncoder copyFromBuffer:presentationCandidateRespiration sourceOffset:0
+            toBuffer:presentationRespiration destinationOffset:0
+            size:sizeof(NMHumanRespirationState)];
+        [terminalCopyEncoder endEncoding];
         [command commit];
         [command waitUntilCompleted];
         need(command.status==MTLCommandBufferStatusCompleted,
              std::string("terminal accepted presentation failed: ")+
                  (command.error?command.error.localizedDescription.UTF8String:
                   "command buffer did not complete"));
-        need(std::memcmp(presentationBodies.contents,presentationCandidateBodies.contents,
-                         presentationBodies.length)==0&&
-             std::memcmp(presentationRespiration.contents,presentationCandidateRespiration.contents,
-                         sizeof(NMHumanRespirationState))==0,
+        const bool terminalBodiesMatch=std::memcmp(
+            presentationBodies.contents,presentationCandidateBodies.contents,
+            presentationBodies.length)==0;
+        const bool terminalRespirationMatch=std::memcmp(
+            presentationRespiration.contents,presentationCandidateRespiration.contents,
+            sizeof(NMHumanRespirationState))==0;
+        if(!terminalBodiesMatch||!terminalRespirationMatch) {
+            const auto firstMismatch=[](const void* lhs,const void* rhs,std::size_t bytes) {
+                const auto* a=static_cast<const unsigned char*>(lhs);
+                const auto* b=static_cast<const unsigned char*>(rhs);
+                for(std::size_t i=0;i<bytes;++i) if(a[i]!=b[i]) return i;
+                return bytes;
+            };
+            const auto* candidateRespiration=static_cast<const NMHumanRespirationState*>(
+                presentationCandidateRespiration.contents);
+            const auto* publishedRespiration=static_cast<const NMHumanRespirationState*>(
+                presentationRespiration.contents);
+            std::cerr<<"terminal_present_copy_mismatch body_equal="<<terminalBodiesMatch
+                <<" body_first_byte="<<firstMismatch(presentationBodies.contents,
+                    presentationCandidateBodies.contents,presentationBodies.length)
+                <<" respiration_equal="<<terminalRespirationMatch
+                <<" respiration_first_byte="<<firstMismatch(presentationRespiration.contents,
+                    presentationCandidateRespiration.contents,sizeof(NMHumanRespirationState))
+                <<" expected_step="<<expectedTerminalStep
+                <<" accepted_body_steps="<<acceptedStandStatus.completedSteps
+                <<" accepted_body_code="<<acceptedStandStatus.code
+                <<" candidate_resp_step="<<candidateRespiration->status.x
+                <<" candidate_resp_failure="<<candidateRespiration->status.w
+                <<" published_resp_step="<<publishedRespiration->status.x
+                <<" published_resp_failure="<<publishedRespiration->status.w<<"\n";
+        }
+        need(terminalBodiesMatch&&terminalRespirationMatch,
              "terminal accepted presentation commit did not publish the GPU-captured frame");
         const auto& published=*static_cast<const NMHumanRespirationState*>(
             presentationRespiration.contents);
