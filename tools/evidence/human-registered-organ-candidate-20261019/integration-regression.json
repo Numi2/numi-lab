@@ -1,0 +1,74 @@
+{
+  "schema": "numi.optic_nerve_shared_tissue_rollback_summary.v1",
+  "plan_sha256": "040a8f58747ca2d1fa5ffccf0d18736af979e6819837e4baad850dcea1b64130",
+  "runner_sha256": "7a0358d804094e9f5247ed78ba7c0cc1f46be2931479dbd19941627080177106",
+  "binary_sha256": "cb3705b2f067c8110af1f85cea2b384adcc45a9150752f8432cf64dd4f5be500",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "attempts": [
+    {
+      "case": "nerve_joint_clean_control",
+      "exit": 0,
+      "wall_seconds": 18.442642875015736,
+      "log": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/native-001/nerve_joint_clean_control/native.log"
+    },
+    {
+      "case": "nerve_joint_late_reject_retry",
+      "exit": 0,
+      "wall_seconds": 16.98322958301287,
+      "log": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/native-001/nerve_joint_late_reject_retry/native.log"
+    }
+  ],
+  "scope": "two requested 0.25 ms steps with one late rejection at step 1 and same-context retry; merged general tissue source with bilateral optic nerve FEM plus skin/fat, aortic wall, and prostate opt-ins; unqualified organ batch and MPM off; no visual verification",
+  "visual_verification": false,
+  "rollback_log_checks": {
+    "shared_tissue_late_reject_retry=passed": true,
+    "q_v_root_muscle_unchanged=1": true,
+    "matter_vascular_unchanged=1": true,
+    "passive_adapter_history_unchanged=1": true,
+    "brain_respiration_presentation_unchanged=1": true,
+    "body_properties_restored=1": true,
+    "dof_properties_restored=1": true,
+    "same_context_retry=1": true
+  },
+  "accepted_nerve_fem_state": {
+    "clean": {
+      "line_count": 18527,
+      "counts": {
+        "registered_left_optic_nerve_reference_fem": {
+          "nodes": 1728,
+          "tetrahedra": 7675
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "nodes": 1701,
+          "tetrahedra": 7423
+        }
+      },
+      "sha256": "93d96ea282428576d7d40b3577bf07a12eea4f732b27df33535244381d7aa5dd"
+    },
+    "retry": {
+      "line_count": 18527,
+      "counts": {
+        "registered_left_optic_nerve_reference_fem": {
+          "nodes": 1728,
+          "tetrahedra": 7675
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "nodes": 1701,
+          "tetrahedra": 7423
+        }
+      },
+      "sha256": "93d96ea282428576d7d40b3577bf07a12eea4f732b27df33535244381d7aa5dd"
+    },
+    "byte_identical": true
+  },
+  "clean_vs_retry_csv": {
+    "clean_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+    "retry_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+    "byte_identical": true
+  },
+  "actual_runtime_loaded": true,
+  "parity_with_nerve_only_candidate256": {
+    "csv_sha256": "8fa788f33aafd0e52e9d58299055743a89271fa85ad63f2caef189ee9b50b385",
+    "fem_sha256": "93d96ea282428576d7d40b3577bf07a12eea4f732b27df33535244381d7aa5dd"
+  }
+}

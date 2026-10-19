@@ -1,0 +1,73 @@
+{
+  "schema": "registered-organ-local-pair-repair-preflight.v1",
+  "source_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "input_boundary_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-reviewed-v3/spleen-FJ2561-boundary.json",
+  "input_boundary_sha256": "be65c066e908a52ace036431657d9e4b8bf57ba7f82a195cd85cf9fccccf20ea",
+  "repaired_boundary_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-004/repair-input/spleen-FJ2561-localpair-7um.json",
+  "repaired_boundary_sha256": "b52774a2c6929ed4cfe05ee13e98cf4d95bff20b182e650baecf17d2d1e065db",
+  "stable_id": 13,
+  "concept": "FMA7196",
+  "source_record_local_pair": [
+    337,
+    338
+  ],
+  "source_payload_global_pair": [
+    116978,
+    116979
+  ],
+  "witness_faces_global": [
+    232796,
+    232797,
+    234166,
+    234172
+  ],
+  "old_gap_m": 3.453422469496875e-06,
+  "repaired_gap_m": 7.003553687253484e-06,
+  "displacements_m": [
+    1.7750685775590265e-06,
+    1.7750685775590265e-06
+  ],
+  "max_displacement_m": 1.7750685775590265e-06,
+  "faces_unchanged": true,
+  "face_ancestry_unchanged": true,
+  "closed_single_component": true,
+  "minimum_candidate_face_area_m2": 1.1376689443196508e-10,
+  "source_volume_m3": 0.0001147105239222715,
+  "repaired_boundary_volume_m3": 0.00011436618074584095,
+  "relative_volume_change": 0.0030018446839618225,
+  "exact_float32_self_crossings_before": 0,
+  "exact_float32_self_crossings_after": 0,
+  "exact_source_neighbor_crossing_sets": [
+    {
+      "neighbor_stable_id": 2,
+      "source_crossing_pairs": 0,
+      "input_candidate_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "crossing_sets_exactly_match_source": true
+    },
+    {
+      "neighbor_stable_id": 3,
+      "source_crossing_pairs": 0,
+      "input_candidate_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "crossing_sets_exactly_match_source": true
+    },
+    {
+      "neighbor_stable_id": 5,
+      "source_crossing_pairs": 0,
+      "input_candidate_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "crossing_sets_exactly_match_source": true
+    },
+    {
+      "neighbor_stable_id": 311,
+      "source_crossing_pairs": 106,
+      "input_candidate_crossing_pairs": 106,
+      "repaired_candidate_crossing_pairs": 106,
+      "crossing_sets_exactly_match_source": true
+    }
+  ],
+  "tetgen_rebuild_script": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-004/prepare_v4.py",
+  "tetgen_rebuild_script_sha256": "24e732b15c06f2251719dc2c51d5fc7aad9c6276d7f921bc971bf3febc42a08b",
+  "scope": "CPU preflight only; source-space local geometry repair is explicit inference; no anatomical fit or native acceptance."
+}

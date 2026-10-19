@@ -1,0 +1,11 @@
+# Experimental registered organ batch in the existing Human tissue owner
+
+This increment merges bilateral kidney and spleen reference FEM into the same source entrypoint as skin/fat, prostate, aortic wall and optic nerves. NUMI_HUMAN_RESTING_ORGAN_BATCH_FEM=1 is an experimental opt-in requiring the existing shared passive tissue owner. It is NOT an accepted organ simulation: the all-optins run rejects its first 0.25 ms step with Matter nonlinear-solver status 10. No accepted physical time is claimed for that run. The vascular trial Armijo diagnostic is retained; unrelated physics gates are not bypassed.
+
+With the experimental organ batch disabled, the exact combined source passed two 0.25 ms steps and late rejection/retry. All eight rollback markers, nerve FEM state and physiological CSV match the clean control and preceding nerve-only implementation. Actual loaded Metal runtime was checked. No visual verification was performed.
+
+Source-aware boundary reduction preserves the declared nearby interfaces and face ancestry. Two spleen boundary vertices were separated symmetrically by 1.7751 micrometres each; exact Float32 self-intersection and selected-neighbor crossing sets, closure and positive TetGen tetrahedra were checked. These checks do not establish complete anatomical clearance: inherited source intersections remain explicitly recorded. Geometry is a repaired reference, not an unchanged measurement.
+
+Kidneys/spleen use the existing nonventricular neo-Hookean material as an UNCALIBRATED proxy, inferred density 1000 kg/m3, and three sparse fixed body-20 reference supports per organ. No measured organ law or anatomical hilum attachment fit is claimed. Existing body mass/COM/inertia are partitioned once; no new blood compartment is introduced. This does not deliver whole-body deformable skin/fat, all organs or sustained blood contact.
+
+Derived geometry: BodyParts3D, (c) The Database Center for Life Science, licensed under CC Attribution-Share Alike 2.1 Japan. Exact member notices and changes are recorded in source-rights.json, source-aware-boundary-provenance.json and repair-preflight.json. License notice: http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html.

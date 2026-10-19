@@ -1,0 +1,43 @@
+{
+  "schema": "numi.optic_nerve_shared_tissue_rollback_retry_plan.v1",
+  "scope": "two requested 0.25 ms steps with one late rejection at step 1 and same-context retry; merged general tissue source with bilateral optic nerve FEM plus skin/fat, aortic wall, and prostate opt-ins; unqualified organ batch and MPM off; no visual verification",
+  "base_invocation_path": "/Users/n/numi-human-separation-20261018/C/optic-nerve-admission-256/native-001/invocation.json",
+  "base_invocation_sha256": "a27f315c459fda85b57e4acc4f13b54b12e4571fa87e64d8e80fee507e4753fc",
+  "candidate_source_root": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/build-cpu-001/source",
+  "app_sha256": "a0eb569dc24519405c8a1f888943bd3f09c0508cafbdba3eb6cd170604b05bca",
+  "coupling_header_sha256": "3e1059dd0cd9113b1474cde2bcb3653a2f415635ae91f75e4b167a18bf907ed6",
+  "nerve_integration_header_sha256": "5302339fec98a6d80ca19c5176870bd3b52e833dde540394029c4baeaa766111",
+  "nerve_tetgen_header_sha256": "99a238fa875621e911323412ab3dbc2d439d1d3c68a48820469234b7ef62fc09",
+  "compile_receipt_sha256": "8e238e9c87fdc472092b04a3cdcf4ffdb876a998b516959008d3ca168fee1c61",
+  "link_receipt_sha256": "ee2fc906ca26973ece4757a2bd6352d6962f8cf00e5ccb5ad5a69c357acb788e",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-257/build-cpu-001/numi-human-native",
+  "binary_sha256": "cb3705b2f067c8110af1f85cea2b384adcc45a9150752f8432cf64dd4f5be500",
+  "runtime_library_path": "/Users/n/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/libmetalrobo-233.dylib",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "step_count": 2,
+  "step_seconds": 0.00025,
+  "physical_horizon_seconds": 0.0005,
+  "cases": [
+    {
+      "name": "nerve_joint_clean_control",
+      "rollback_retry": false
+    },
+    {
+      "name": "nerve_joint_late_reject_retry",
+      "rollback_retry": true,
+      "reject_step": 1
+    }
+  ],
+  "rollback_log_markers": [
+    "shared_tissue_late_reject_retry=passed",
+    "q_v_root_muscle_unchanged=1",
+    "matter_vascular_unchanged=1",
+    "passive_adapter_history_unchanged=1",
+    "brain_respiration_presentation_unchanged=1",
+    "body_properties_restored=1",
+    "dof_properties_restored=1",
+    "same_context_retry=1"
+  ],
+  "free_bytes_before_run": 39788236800,
+  "visual_verification": false
+}
