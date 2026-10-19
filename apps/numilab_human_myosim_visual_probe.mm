@@ -19048,14 +19048,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(enableAorticWall&&aorticWall.has_value(),
                 "outer aortic wall contact requires the registered wall FEM opt-in");
         for(const auto& object:source.objects) {
-            require(object.representation==numi::matter::Representation::fem&&
+            require((object.representation==numi::matter::Representation::fem||
+                         object.representation==numi::matter::Representation::mpm)&&
                         !object.adaptive&&!object.mutationPolicy.enabled&&
                         object.mutationCommands.empty()&&
                         object.femCapacity.mutationCommands==0u&&
                         (object.femCapacity.nodes==0u||object.femCapacity.nodes==object.femNodes.size())&&
                         (object.femCapacity.tetrahedra==0u||object.femCapacity.tetrahedra==object.tetrahedra.size())&&
                         (object.femCapacity.mutationCommands==0u||object.femCapacity.mutationCommands==object.mutationCommands.size()),
-                    "outer aortic contact requires exact immutable FEM; opt out for MPM, adaptive, mutation, or grown-capacity worlds (nothing is silently disabled)");
+                    "outer aortic contact requires exact immutable FEM and explicit MPM; adaptive, mutation, and grown FEM capacity remain unsupported");
         }
         source.compactImmutableFEMSurfaces=true;
     }
@@ -19071,7 +19072,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::optional<numi::human::vessel_wall_coupling::OuterLateralContactSurfaceMapAudit> aorticWallOuterContactAudit;
     if(enableAorticWallOuterContact) {
         require(aorticWall.has_value(),"outer aortic contact lost its registered wall source before contact-face marking");
-        aorticWallOuterContactAudit=numi::human::vessel_wall_coupling::markOuterLateralContactSurfaceFaces(
+        aorticWallOuterContactAudit=numi::human::vessel_wall_coupling::auditOuterLateralContactSurfaceFaces(
             compiled.world,*aorticWall,aorticWall->object.femContactNodes);
         std::cout<<"resting_aortic_wall_outer_contact=accepted interface=outer_lateral_only"
             <<" outer_ring_rigid_query_nodes="<<aorticWallOuterContactAudit->queryNodeCount

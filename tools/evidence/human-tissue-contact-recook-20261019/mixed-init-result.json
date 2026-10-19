@@ -1,0 +1,22 @@
+{
+  "exit_code": 0,
+  "timeout": false,
+  "elapsed_s": 0.4385205829748884,
+  "binary": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/native-mixed-init-001/mixed_fem_mpm_runtime_init_check",
+  "binary_sha256": "a3a49ab0d33b440752225a873d85e21f12c49ad7832a5676fe5d3a4ba3f49568",
+  "fixture_source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/native-mixed-init-001/mixed_fem_mpm_runtime_init_check.mm",
+  "fixture_sha256": "bd1c371f2ec2ec932baf70798cc5d14f7c37b03ec412242976338140d720d3c1",
+  "library": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+  "library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "matter_source": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/MatterSource.metal",
+  "matter_source_sha256": "1f91b715ebbff704e1fef071386618410c359a60aab19c6980816bc75b396e4b",
+  "matter_source_expected_sha256": "1f91b715ebbff704e1fef071386618410c359a60aab19c6980816bc75b396e4b",
+  "dyld_path": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build",
+  "loaded_candidate_library": true,
+  "stdout": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/native-mixed-init-001/stdout.log",
+  "stderr": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/native-mixed-init-001/stderr.log",
+  "loaded_candidate_library_path": "/Users/numi/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+  "loaded_candidate_library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "candidate_load_confirmed_from_dyld_print_libraries": true,
+  "path_alias_note": "dyld reports /Users/numi while invocation uses /Users/n; both resolve to the same canonical file"
+}

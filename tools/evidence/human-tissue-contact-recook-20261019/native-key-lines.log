@@ -1,0 +1,2 @@
+resting_aortic_wall_runtime_contact_verified=1 selected_faces=384 disabled_faces=672 canonical_faces=1112 mpm_particles=0
+resting_integrated_body=completed simulated_s=0.00025000001187436283 wall_s=41.290649792000004 real_time_factor=6.05463980668088e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending

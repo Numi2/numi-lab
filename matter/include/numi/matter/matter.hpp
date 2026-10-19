@@ -653,6 +653,11 @@ struct ObjectSource {
     std::vector<FieldBoundarySource> fieldBoundaries;
     MutationPolicySource mutationPolicy;
     std::vector<MutationCommandSource> mutationCommands;
+    // Source-persistent exclusions from compact FEM/FEM-or-MPM static
+    // contact surfaces. Each ID is 4 * localTet + oppositeCorner and must
+    // name a unique exterior face on an explicit immutable FEM object.
+    // Empty preserves the legacy all-exterior-face contact eligibility.
+    std::vector<std::uint32_t> femDisabledContactSurfaceFaces;
 };
 
 // Vascular laws share the existing Matter transaction and conservative transport.
@@ -808,9 +813,10 @@ struct WorldSource {
     std::uint32_t articulatedDofCapacity = 40u;
     std::uint32_t articulatedQCapacity = 41u;
     bool deterministic = true;
-    // Allocation/search optimization only. Requires explicit immutable FEM,
-    // no MPM/adaptation/mutation, and exact node/tet topology capacities.
-    // Duplicated cohesive interface nodes retain both exposed surfaces.
+    // Allocation/search optimization for explicit immutable FEM surfaces in
+    // FEM-only or explicit nonadaptive MPM+FEM worlds. FEM topology capacities
+    // remain exact; adaptation and mutation remain unsupported. Duplicated
+    // cohesive interface nodes retain both exposed surfaces.
     bool compactImmutableFEMSurfaces = false;
     MixedSolverSource mixedSolver;
     VascularNetworkSource vascular;

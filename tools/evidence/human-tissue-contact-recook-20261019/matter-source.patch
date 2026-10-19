@@ -1,0 +1,347 @@
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -653,6 +653,11 @@
+     std::vector<FieldBoundarySource> fieldBoundaries;
+     MutationPolicySource mutationPolicy;
+     std::vector<MutationCommandSource> mutationCommands;
++    // Source-persistent exclusions from compact FEM/FEM-or-MPM static
++    // contact surfaces. Each ID is 4 * localTet + oppositeCorner and must
++    // name a unique exterior face on an explicit immutable FEM object.
++    // Empty preserves the legacy all-exterior-face contact eligibility.
++    std::vector<std::uint32_t> femDisabledContactSurfaceFaces;
+ };
+ 
+ // Vascular laws share the existing Matter transaction and conservative transport.
+@@ -808,9 +813,10 @@
+     std::uint32_t articulatedDofCapacity = 40u;
+     std::uint32_t articulatedQCapacity = 41u;
+     bool deterministic = true;
+-    // Allocation/search optimization only. Requires explicit immutable FEM,
+-    // no MPM/adaptation/mutation, and exact node/tet topology capacities.
+-    // Duplicated cohesive interface nodes retain both exposed surfaces.
++    // Allocation/search optimization for explicit immutable FEM surfaces in
++    // FEM-only or explicit nonadaptive MPM+FEM worlds. FEM topology capacities
++    // remain exact; adaptation and mutation remain unsupported. Duplicated
++    // cohesive interface nodes retain both exposed surfaces.
+     bool compactImmutableFEMSurfaces = false;
+     MixedSolverSource mixedSolver;
+     VascularNetworkSource vascular;
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -847,24 +847,59 @@
+         return result;
+     }
+ 
++    if (!source.compactImmutableFEMSurfaces &&
++        std::ranges::any_of(source.objects, [](const ObjectSource& object) {
++            return !object.femDisabledContactSurfaceFaces.empty();
++        })) {
++        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
++            "authored FEM contact-face exclusions require the compact immutable surface map"});
++        return result;
++    }
++    for (const ObjectSource& object : source.objects) {
++        const auto& disabledFaces = object.femDisabledContactSurfaceFaces;
++        if (disabledFaces.empty()) continue;
++        if (object.representation != Representation::fem ||
++            object.tetrahedra.size() >
++                std::numeric_limits<std::uint32_t>::max() / 4u ||
++            !std::ranges::is_sorted(disabledFaces) ||
++            std::adjacent_find(disabledFaces.begin(), disabledFaces.end()) !=
++                disabledFaces.end() ||
++            std::ranges::any_of(disabledFaces, [&](std::uint32_t face) {
++                return face >= 4u * object.tetrahedra.size();
++            })) {
++            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
++                "authored FEM contact-face exclusions must be sorted, unique, in-range local FEM face IDs"});
++            return result;
++        }
++    }
+     if (source.compactImmutableFEMSurfaces) {
+-        const bool admissible = !source.objects.empty() &&
++        const bool hasExplicitFEM = std::ranges::any_of(
++            source.objects, [](const ObjectSource& object) {
++                return object.representation == Representation::fem;
++            });
++        const bool admissible = hasExplicitFEM && !source.objects.empty() &&
+             std::ranges::all_of(source.objects, [](const ObjectSource& object) {
+-                return object.representation == Representation::fem &&
++                const bool explicitMechanicalRepresentation =
++                    object.representation == Representation::fem ||
++                    object.representation == Representation::mpm;
++                const bool exactFEMCapacity =
++                    object.representation != Representation::fem ||
++                    ((object.femCapacity.nodes == 0u ||
++                      object.femCapacity.nodes == object.femNodes.size()) &&
++                     (object.femCapacity.tetrahedra == 0u ||
++                      object.femCapacity.tetrahedra == object.tetrahedra.size()));
++                return explicitMechanicalRepresentation &&
+                     !object.automaticRepresentation && !object.adaptive &&
+                     !object.mutationPolicy.enabled &&
+                     !object.mutationPolicy.cohesiveFracture &&
+                     object.mutationCommands.empty() &&
+                     object.femCapacity.mutationCommands == 0u &&
+                     object.femCapacity.punctureChannels == 0u &&
+-                    (object.femCapacity.nodes == 0u ||
+-                     object.femCapacity.nodes == object.femNodes.size()) &&
+-                    (object.femCapacity.tetrahedra == 0u ||
+-                     object.femCapacity.tetrahedra == object.tetrahedra.size());
++                    exactFEMCapacity;
+             });
+         if (!admissible) {
+             result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+-                "compact immutable FEM surfaces require explicit FEM without adaptation, mutation, or spare topology capacity"});
++                "compact immutable FEM surfaces require at least one explicit FEM object and only explicit nonadaptive FEM/MPM objects without mutation or spare FEM topology capacity"});
+             return result;
+         }
+     }
+@@ -2386,6 +2421,32 @@
+                     });
+                 }
+             }
++            for (const std::uint32_t sourceFace :
++                 object.femDisabledContactSurfaceFaces) {
++                const std::uint32_t localTet = sourceFace / 4u;
++                const std::uint32_t opposite = sourceFace % 4u;
++                const auto& sourceTet = object.tetrahedra[localTet];
++                const auto& localFace = kFaces[opposite];
++                FaceKey key{
++                    sourceTet.nodes[localFace[0]],
++                    sourceTet.nodes[localFace[1]],
++                    sourceTet.nodes[localFace[2]],
++                };
++                std::ranges::sort(key);
++                const auto found = faceAdjacency.find(key);
++                if (found == faceAdjacency.end() ||
++                    found->second.size() != 1u ||
++                    found->second.front().tetrahedron !=
++                        descriptor.elementOffset + localTet ||
++                    found->second.front().oppositeCorner != opposite) {
++                    result.diagnostics.push_back({
++                        Diagnostic::Severity::error, 0u, 0u,
++                        "authored FEM contact-face exclusion does not name an exterior source face on object '" +
++                            object.name + "'",
++                    });
++                    return result;
++                }
++            }
+             std::size_t internalFaceCount = 0u;
+             for (const auto& [key, adjacent] : faceAdjacency) {
+                 (void)key;
+@@ -2414,12 +2475,19 @@
+                     objectIndex,
+                     NM_TOPOLOGY_ACTIVE,
+                 };
++                const std::uint32_t localSourceFace =
++                    4u * (adjacent[0].tetrahedron - descriptor.elementOffset) +
++                    adjacent[0].oppositeCorner;
++                const bool contactDisabled = adjacent.size() == 1u &&
++                    std::ranges::binary_search(
++                        object.femDisabledContactSurfaceFaces, localSourceFace);
+                 surface.sides = {
+                     adjacent[0].oppositeCorner,
+                     adjacent.size() == 2u
+                         ? adjacent[1].oppositeCorner : NM_INVALID_INDEX,
+                     stableSurfaceFace++,
+-                    0u,
++                    contactDisabled
++                        ? NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT : 0u,
+                 };
+                 world.fem.surfaceFaces.push_back(surface);
+             }
+@@ -3628,6 +3696,9 @@
+         canonicalSource.compactImmutableFEMSurfaces = false;
+         for (ObjectSource& object : canonicalSource.objects) {
+             object.femCapacity = {};
++            // The canonical full-face map reapplies exclusions after cooking.
++            // Keep this recursion free of the compact-only source contract.
++            object.femDisabledContactSurfaceFaces.clear();
+         }
+         CompileOptions canonicalOptions = options;
+         canonicalOptions.emitSpecializedMetal = false;
+@@ -3641,6 +3712,30 @@
+             });
+             return result;
+         }
++        for (std::size_t objectIndex = 0u;
++             objectIndex < source.objects.size(); ++objectIndex) {
++            const auto& disabledFaces =
++                source.objects[objectIndex].femDisabledContactSurfaceFaces;
++            if (disabledFaces.empty()) continue;
++            const NMContinuumObjectGPU& descriptor =
++                canonical.world.objects[objectIndex];
++            for (NMFEMSurfaceFaceGPU& face :
++                 canonical.world.fem.surfaceFaces) {
++                if (face.adjacency.z != objectIndex ||
++                    face.adjacency.x < descriptor.elementOffset ||
++                    face.adjacency.x >= descriptor.elementOffset +
++                        source.objects[objectIndex].tetrahedra.size())
++                    continue;
++                const std::uint32_t localSourceFace =
++                    4u * (face.adjacency.x - descriptor.elementOffset) +
++                    face.sides.x;
++                if (std::ranges::binary_search(disabledFaces, localSourceFace))
++                    face.sides.w |=
++                        NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
++            }
++        }
++        canonical.world.fingerprint =
++            compiledWorldFingerprint(canonical.world);
+         world.physicsFingerprint = canonical.world.fingerprint;
+     } else {
+         world.physicsFingerprint = world.fingerprint;
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -2325,15 +2325,21 @@
+     [[nodiscard]] bool validateCompactStaticSurfaceMap() {
+         if ((world_.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) == 0u)
+             return true;
+-        if (world_.objects.empty() || !world_.mpm.nodes.empty() ||
+-            !world_.mpm.particles.empty() || !world_.fem.mutationCommands.empty() ||
++        if (world_.objects.empty() || !world_.fem.mutationCommands.empty() ||
+             !world_.fem.punctureChannels.empty() ||
+             world_.fem.tetrahedra.size() > std::numeric_limits<std::uint32_t>::max() / 4u)
+             return fail("compact surface map has unsupported or overflowing topology");
++        const bool hasExplicitFEM = std::ranges::any_of(
++            world_.objects, [](const NMContinuumObjectGPU& object) {
++                return object.representation == NM_REPRESENTATION_FEM;
++            });
++        if (!hasExplicitFEM)
++            return fail("compact surface map requires at least one explicit FEM object");
+         for (const auto& object : world_.objects)
+-            if (object.representation != NM_REPRESENTATION_FEM ||
++            if ((object.representation != NM_REPRESENTATION_FEM &&
++                 object.representation != NM_REPRESENTATION_MPM) ||
+                 (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
+-                return fail("compact surface map requires immutable explicit FEM");
++                return fail("compact surface map requires explicit immutable FEM/MPM objects");
+         for (const auto& node : world_.fem.topologyNodes)
+             if ((node.identity.w & NM_TOPOLOGY_ACTIVE) == 0u)
+                 return fail("compact surface map cannot reserve dormant topology nodes");
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -3520,19 +3520,21 @@
+                 tetrahedronCapacity += capacity.topology.y;
+                 mutationCapacity += capacity.work.x;
+             }
+-            const bool mutableObject = std::any_of(
++            const bool hasExplicitFEM = std::any_of(
+                 world.objects.begin(), world.objects.end(),
+                 [](const NMContinuumObjectGPU& object) {
+-                    return object.representation != NM_REPRESENTATION_FEM ||
++                    return object.representation == NM_REPRESENTATION_FEM;
++                });
++            const bool unsupportedObject = std::any_of(
++                world.objects.begin(), world.objects.end(),
++                [](const NMContinuumObjectGPU& object) {
++                    return (object.representation != NM_REPRESENTATION_FEM &&
++                            object.representation != NM_REPRESENTATION_MPM) ||
+                         (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+                 });
+             if ((world.dispatch.flags & NM_MATTER_ADAPTIVE) != 0u ||
+-                world.dispatch.mpmGridCount != 0u ||
+-                world.dispatch.mpmBlockCount != 0u ||
+-                world.dispatch.particleCount != 0u ||
+-                world.dispatch.gridNodeCount != 0u ||
+                 world.dispatch.mutationCommandCount != 0u ||
+-                mutationCapacity != 0u || mutableObject ||
++                mutationCapacity != 0u || unsupportedObject || !hasExplicitFEM ||
+                 world.dispatch.tetrahedronCount == 0u ||
+                 world.dispatch.surfaceFaceCount == 0u ||
+                 nodeCapacity != world.dispatch.femNodeCount ||
+@@ -3540,7 +3542,7 @@
+                 world.dispatch.surfaceFaceCount !=
+                     world.fem.surfaceFaces.size()) {
+                 diagnostics.message =
+-                    "static FEM surface map requires exact immutable FEM topology without adaptive, MPM, or mutation capacity";
++                    "static FEM surface map requires exact immutable FEM topology and explicit nonadaptive MPM state without mutation capacity";
+                 return diagnostics;
+             }
+         }
+--- a/matter/tools/fem_static_surface_map_check.cpp
++++ b/matter/tools/fem_static_surface_map_check.cpp
+@@ -1,4 +1,5 @@
+ #include "numi/matter/matter.hpp"
++#include <algorithm>
+ #include <chrono>
+ #include <cstring>
+ #include <filesystem>
+@@ -87,6 +88,78 @@
+         invalid=source; invalid.objects[0].automaticRepresentation=true; reject(invalid);
+         invalid=source; invalid.objects[0].femCapacity.mutationCommands=1; reject(invalid);
+         invalid=source; invalid.objects[0].representation=Representation::mpm; reject(invalid);
++        auto selected=fixture();
++        selected.compactImmutableFEMSurfaces=true;
++        selected.objects[0].femDisabledContactSurfaceFaces={0u};
++        auto selectedCook=compileWorld(selected);
++        require(selectedCook.succeeded(),"authored exterior exclusion was rejected");
++        auto selectedFace=std::find_if(
++            selectedCook.world.fem.surfaceFaces.begin(),
++            selectedCook.world.fem.surfaceFaces.end(),
++            [](const NMFEMSurfaceFaceGPU& face) {
++                return face.adjacency.x==0u && face.sides.x==0u;
++            });
++        require(selectedFace!=selectedCook.world.fem.surfaceFaces.end() &&
++                (selectedFace->sides.w & NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u,
++                "source face exclusion was not cooked into the existing face flag");
++        auto canonical=compileWorld(fixture());
++        require(canonical.succeeded(),"canonical full-face fixture compilation failed");
++        for (auto& face:canonical.world.fem.surfaceFaces)
++            if (face.adjacency.x==0u && face.sides.x==0u)
++                face.sides.w|=NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
++        canonical.world.fingerprint=compiledWorldFingerprint(canonical.world);
++        require(selectedCook.world.physicsFingerprint==canonical.world.fingerprint,
++                "allocation-independent physics identity omitted authored contact eligibility");
++        auto selectedB=fixture();
++        selectedB.compactImmutableFEMSurfaces=true;
++        selectedB.objects[0].femDisabledContactSurfaceFaces={1u};
++        auto selectedBCook=compileWorld(selectedB);
++        require(selectedBCook.succeeded() &&
++                selectedBCook.world.physicsFingerprint!=selectedCook.world.physicsFingerprint,
++                "different authored face selectors aliased in the physics identity");
++        const std::size_t selectedIndex=static_cast<std::size_t>(
++            selectedFace-selectedCook.world.fem.surfaceFaces.begin());
++        auto selectedPackage=std::filesystem::temp_directory_path()/
++            ("numi-static-surfaces-selected-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+".nmpkg");
++        require(writePackage(selectedCook,selectedPackage,&error),"selected-face package write failed");
++        require(readPackage(selectedPackage,decoded,nullptr,&error),"selected-face package read failed");
++        std::filesystem::remove(selectedPackage);
++        require(decoded.fingerprint==selectedCook.world.fingerprint &&
++                decoded.fem.surfaceFaces.size()==6u &&
++                (decoded.fem.surfaceFaces[selectedIndex].sides.w &
++                    NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u,
++                "selected-face flag did not survive package roundtrip");
++        auto invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={3u}; reject(invalidFace);
++        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={8u}; reject(invalidFace);
++        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={0u,0u}; reject(invalidFace);
++        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={2u,0u}; reject(invalidFace);
++        invalidFace=selected; invalidFace.compactImmutableFEMSurfaces=false; reject(invalidFace);
++
++        auto mixed=fixture();
++        mixed.compactImmutableFEMSurfaces=true;
++        auto mpmMaterial=parseMatterFile(std::filesystem::path(__FILE__).parent_path().parent_path()/
++                                         "materials/silicone.nmatter");
++        require(mpmMaterial.succeeded(),"MPM material parse failed");
++        mixed.materials.push_back(mpmMaterial.material);
++        ObjectSource mpm;
++        mpm.name="explicit-mpm-probe"; mpm.materialIndex=1u;
++        mpm.representation=Representation::mpm; mpm.twoWayCoupling=false;
++        mpm.characteristicLength=0.02;
++        mpm.mpmGridMinimum={0.0,0.0,0.0};
++        mpm.mpmGridMaximum={0.06,0.06,0.06};
++        mpm.particles.push_back(ParticleSource{{0.03,0.03,0.03},{0.0,0.0,0.0},0.001,1.0e-6,true});
++        mixed.objects.push_back(mpm);
++        auto mixedCook=compileWorld(mixed);
++        if (!mixedCook.succeeded()) for (auto& d:mixedCook.diagnostics) std::cerr<<d.message<<'\n';
++        require(mixedCook.succeeded(),"explicit immutable FEM+MPM compact-map compile failed");
++        require(mixedCook.world.fem.surfaceFaces.size()==6u &&
++                mixedCook.world.dispatch.particleCount==1u &&
++                mixedCook.world.dispatch.mpmGridCount==1u &&
++                (mixedCook.world.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP)!=0u,
++                "mixed compact map lost FEM faces or appended MPM state");
++        require(validateCompiledWorldLayout(mixedCook.world,&error),
++                "mixed compact map failed cooked-layout validation");
++
+         std::cout<<"PASS immutable FEM surface map "<<checks<<" checks; physical_fem_steps=0\n";
+     } catch (const std::exception& e) { std::cerr<<"FAIL "<<e.what()<<'\n'; return 1; }
+ }

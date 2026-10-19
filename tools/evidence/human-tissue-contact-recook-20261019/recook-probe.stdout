@@ -1,0 +1,1 @@
+{"status":"PASS","query_nodes":216,"original_surface_faces":1060,"canonical_surface_faces_after_flags":1060,"retained_wall_outer_faces":384,"excluded_wall_nonouter_faces":672,"preserved_nonwall_face_rows":4,"wall_tets":1584,"wall_nodes":532,"wall_mass_kg":0.00705926,"physics_fingerprint":11631108115672399062,"package_fingerprint":18407809203760957000}

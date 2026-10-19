@@ -847,24 +847,59 @@ CompileResult compileWorld(
         return result;
     }
 
+    if (!source.compactImmutableFEMSurfaces &&
+        std::ranges::any_of(source.objects, [](const ObjectSource& object) {
+            return !object.femDisabledContactSurfaceFaces.empty();
+        })) {
+        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+            "authored FEM contact-face exclusions require the compact immutable surface map"});
+        return result;
+    }
+    for (const ObjectSource& object : source.objects) {
+        const auto& disabledFaces = object.femDisabledContactSurfaceFaces;
+        if (disabledFaces.empty()) continue;
+        if (object.representation != Representation::fem ||
+            object.tetrahedra.size() >
+                std::numeric_limits<std::uint32_t>::max() / 4u ||
+            !std::ranges::is_sorted(disabledFaces) ||
+            std::adjacent_find(disabledFaces.begin(), disabledFaces.end()) !=
+                disabledFaces.end() ||
+            std::ranges::any_of(disabledFaces, [&](std::uint32_t face) {
+                return face >= 4u * object.tetrahedra.size();
+            })) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "authored FEM contact-face exclusions must be sorted, unique, in-range local FEM face IDs"});
+            return result;
+        }
+    }
     if (source.compactImmutableFEMSurfaces) {
-        const bool admissible = !source.objects.empty() &&
+        const bool hasExplicitFEM = std::ranges::any_of(
+            source.objects, [](const ObjectSource& object) {
+                return object.representation == Representation::fem;
+            });
+        const bool admissible = hasExplicitFEM && !source.objects.empty() &&
             std::ranges::all_of(source.objects, [](const ObjectSource& object) {
-                return object.representation == Representation::fem &&
+                const bool explicitMechanicalRepresentation =
+                    object.representation == Representation::fem ||
+                    object.representation == Representation::mpm;
+                const bool exactFEMCapacity =
+                    object.representation != Representation::fem ||
+                    ((object.femCapacity.nodes == 0u ||
+                      object.femCapacity.nodes == object.femNodes.size()) &&
+                     (object.femCapacity.tetrahedra == 0u ||
+                      object.femCapacity.tetrahedra == object.tetrahedra.size()));
+                return explicitMechanicalRepresentation &&
                     !object.automaticRepresentation && !object.adaptive &&
                     !object.mutationPolicy.enabled &&
                     !object.mutationPolicy.cohesiveFracture &&
                     object.mutationCommands.empty() &&
                     object.femCapacity.mutationCommands == 0u &&
                     object.femCapacity.punctureChannels == 0u &&
-                    (object.femCapacity.nodes == 0u ||
-                     object.femCapacity.nodes == object.femNodes.size()) &&
-                    (object.femCapacity.tetrahedra == 0u ||
-                     object.femCapacity.tetrahedra == object.tetrahedra.size());
+                    exactFEMCapacity;
             });
         if (!admissible) {
             result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
-                "compact immutable FEM surfaces require explicit FEM without adaptation, mutation, or spare topology capacity"});
+                "compact immutable FEM surfaces require at least one explicit FEM object and only explicit nonadaptive FEM/MPM objects without mutation or spare FEM topology capacity"});
             return result;
         }
     }
@@ -2386,6 +2421,32 @@ CompileResult compileWorld(
                     });
                 }
             }
+            for (const std::uint32_t sourceFace :
+                 object.femDisabledContactSurfaceFaces) {
+                const std::uint32_t localTet = sourceFace / 4u;
+                const std::uint32_t opposite = sourceFace % 4u;
+                const auto& sourceTet = object.tetrahedra[localTet];
+                const auto& localFace = kFaces[opposite];
+                FaceKey key{
+                    sourceTet.nodes[localFace[0]],
+                    sourceTet.nodes[localFace[1]],
+                    sourceTet.nodes[localFace[2]],
+                };
+                std::ranges::sort(key);
+                const auto found = faceAdjacency.find(key);
+                if (found == faceAdjacency.end() ||
+                    found->second.size() != 1u ||
+                    found->second.front().tetrahedron !=
+                        descriptor.elementOffset + localTet ||
+                    found->second.front().oppositeCorner != opposite) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "authored FEM contact-face exclusion does not name an exterior source face on object '" +
+                            object.name + "'",
+                    });
+                    return result;
+                }
+            }
             std::size_t internalFaceCount = 0u;
             for (const auto& [key, adjacent] : faceAdjacency) {
                 (void)key;
@@ -2414,12 +2475,19 @@ CompileResult compileWorld(
                     objectIndex,
                     NM_TOPOLOGY_ACTIVE,
                 };
+                const std::uint32_t localSourceFace =
+                    4u * (adjacent[0].tetrahedron - descriptor.elementOffset) +
+                    adjacent[0].oppositeCorner;
+                const bool contactDisabled = adjacent.size() == 1u &&
+                    std::ranges::binary_search(
+                        object.femDisabledContactSurfaceFaces, localSourceFace);
                 surface.sides = {
                     adjacent[0].oppositeCorner,
                     adjacent.size() == 2u
                         ? adjacent[1].oppositeCorner : NM_INVALID_INDEX,
                     stableSurfaceFace++,
-                    0u,
+                    contactDisabled
+                        ? NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT : 0u,
                 };
                 world.fem.surfaceFaces.push_back(surface);
             }
@@ -3628,6 +3696,9 @@ CompileResult compileWorld(
         canonicalSource.compactImmutableFEMSurfaces = false;
         for (ObjectSource& object : canonicalSource.objects) {
             object.femCapacity = {};
+            // The canonical full-face map reapplies exclusions after cooking.
+            // Keep this recursion free of the compact-only source contract.
+            object.femDisabledContactSurfaceFaces.clear();
         }
         CompileOptions canonicalOptions = options;
         canonicalOptions.emitSpecializedMetal = false;
@@ -3641,6 +3712,30 @@ CompileResult compileWorld(
             });
             return result;
         }
+        for (std::size_t objectIndex = 0u;
+             objectIndex < source.objects.size(); ++objectIndex) {
+            const auto& disabledFaces =
+                source.objects[objectIndex].femDisabledContactSurfaceFaces;
+            if (disabledFaces.empty()) continue;
+            const NMContinuumObjectGPU& descriptor =
+                canonical.world.objects[objectIndex];
+            for (NMFEMSurfaceFaceGPU& face :
+                 canonical.world.fem.surfaceFaces) {
+                if (face.adjacency.z != objectIndex ||
+                    face.adjacency.x < descriptor.elementOffset ||
+                    face.adjacency.x >= descriptor.elementOffset +
+                        source.objects[objectIndex].tetrahedra.size())
+                    continue;
+                const std::uint32_t localSourceFace =
+                    4u * (face.adjacency.x - descriptor.elementOffset) +
+                    face.sides.x;
+                if (std::ranges::binary_search(disabledFaces, localSourceFace))
+                    face.sides.w |=
+                        NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
+            }
+        }
+        canonical.world.fingerprint =
+            compiledWorldFingerprint(canonical.world);
         world.physicsFingerprint = canonical.world.fingerprint;
     } else {
         world.physicsFingerprint = world.fingerprint;

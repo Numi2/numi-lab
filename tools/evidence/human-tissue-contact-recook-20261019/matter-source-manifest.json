@@ -1,0 +1,32 @@
+{
+  "base_commit": "b51a202241eb54e6393870dbefbc06a6c377ebd2",
+  "files": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_sha256": "19d221874c30f0a034c4116546d9f3a0c146830772cd038829e8ea548ced26fc",
+      "candidate_sha256": "4b72e9c023fbf400c72e0f274fe19924d9cca4ee615c038b39709e3f29b466fe"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "base_sha256": "4a4f2f0080577288ba5ff884a28ae1c4f9139ab868be40d5f4e2365de9d88bf7",
+      "candidate_sha256": "43586878df16dc774f26f5f0fb2606671c2858a1ee4d9ca0cce1dbfadea0180f"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "base_sha256": "a574a423aa99b3b431bc3acf12a08ae06badc73803b670072a3782eec756fc1d",
+      "candidate_sha256": "8bc6b469e3883e4ae4000dd7bd4a1083a53a642cff06f8e092dc6625a31b87b0"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "438911d8f1bdaa9f820c6d2bba1bbe87182d2bd14e485f5bbf5fcd2c1e01014c",
+      "candidate_sha256": "19e17c61880044aeed32b63cef0dc0b22e18ddeb531034f5f27462aaae0798f8"
+    },
+    {
+      "path": "matter/tools/fem_static_surface_map_check.cpp",
+      "base_sha256": "183a956a3ed5e420428f2129166fa36e69126ee2dbb472550d04504d71329f71",
+      "candidate_sha256": "41865d40740e521d877ce645dbcca72412838edb354c2907aaf67f3eaa1a98e8"
+    }
+  ],
+  "source_patch_sha256": "0ae78bee89ba7c4653e373858152aab7641e19c1a339b758bad7fc3a0f947d3b",
+  "source_patch_bytes": 19581
+}

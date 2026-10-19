@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <iostream>
 
 // The existing articulated owner remains responsible for gravity, MyoSim,
 // tendons, equalities and unilateral support. Its existing post-validation
@@ -74,9 +75,21 @@ public:
         physiology(network,parameters,dt,denseVascular,tissueSource),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
         using numi::human::need;
-        if(aorticWallBinding)
+        if(aorticWallBinding) {
             numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
                 physiology.world,*aorticWallBinding);
+            if(!aorticWallBinding->object.femDisabledContactSurfaceFaces.empty()) {
+                const auto audit=numi::human::vessel_wall_coupling::auditOuterLateralContactSurfaceFaces(
+                    physiology.world,*aorticWallBinding,
+                    aorticWallBinding->object.femContactNodes);
+                std::cout<<"resting_aortic_wall_runtime_contact_verified=1"
+                    <<" selected_faces="<<audit.retainedWallFaceCount
+                    <<" disabled_faces="<<audit.excludedWallFaceCount
+                    <<" canonical_faces="<<audit.canonicalSurfaceFaceCount
+                    <<" mpm_particles="<<physiology.world.dispatch.particleCount
+                    <<std::endl;
+            }
+        }
         need((seamDofReleaseStep==MR_INVALID_INDEX)==(seamDofIndex==MR_INVALID_INDEX),
              "seam DoF release requires both a cut step and mapped source DoF");
         auto device=physiology.device;NSError* e=nil;

@@ -1,0 +1,8 @@
+{
+  "basis": "existing stdout/stderr from one completed Runtime.initialize run; no rerun",
+  "fixture_exit_code": 0,
+  "initial_runner_issue": "load-path comparison used noncanonical /Users/n alias and did not match dyld's /Users/numi spelling",
+  "canonical_loaded_path": "/Users/numi/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+  "loaded_library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "matches_pinned_library": true
+}

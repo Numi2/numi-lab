@@ -3520,19 +3520,21 @@ RuntimeDiagnostics Runtime::initialize(
                 tetrahedronCapacity += capacity.topology.y;
                 mutationCapacity += capacity.work.x;
             }
-            const bool mutableObject = std::any_of(
+            const bool hasExplicitFEM = std::any_of(
                 world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return object.representation != NM_REPRESENTATION_FEM ||
+                    return object.representation == NM_REPRESENTATION_FEM;
+                });
+            const bool unsupportedObject = std::any_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.representation != NM_REPRESENTATION_FEM &&
+                            object.representation != NM_REPRESENTATION_MPM) ||
                         (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
                 });
             if ((world.dispatch.flags & NM_MATTER_ADAPTIVE) != 0u ||
-                world.dispatch.mpmGridCount != 0u ||
-                world.dispatch.mpmBlockCount != 0u ||
-                world.dispatch.particleCount != 0u ||
-                world.dispatch.gridNodeCount != 0u ||
                 world.dispatch.mutationCommandCount != 0u ||
-                mutationCapacity != 0u || mutableObject ||
+                mutationCapacity != 0u || unsupportedObject || !hasExplicitFEM ||
                 world.dispatch.tetrahedronCount == 0u ||
                 world.dispatch.surfaceFaceCount == 0u ||
                 nodeCapacity != world.dispatch.femNodeCount ||
@@ -3540,7 +3542,7 @@ RuntimeDiagnostics Runtime::initialize(
                 world.dispatch.surfaceFaceCount !=
                     world.fem.surfaceFaces.size()) {
                 diagnostics.message =
-                    "static FEM surface map requires exact immutable FEM topology without adaptive, MPM, or mutation capacity";
+                    "static FEM surface map requires exact immutable FEM topology and explicit nonadaptive MPM state without mutation capacity";
                 return diagnostics;
             }
         }

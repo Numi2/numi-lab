@@ -1,0 +1,17 @@
+{
+  "host": "numi.local",
+  "hardware": "Hardware:\n\n    Hardware Overview:\n\n      Model Name: Mac mini\n      Model Identifier: Mac18,5\n      Model Number: MHQK4LL/A\n      Chip: Apple M6\n      Total Number of Cores: 12 (2 Super, 4 Performance, and 6 Efficiency)\n      Memory: 16 GB\n      System Firmware Version: 20457.1.29\n      OS Loader Version: 20457.1.29\n      Serial Number (system): PPG7YK4HWK\n      Hardware UUID: 08050B7F-BF1C-5F5D-8DF8-F34BB2B2B7B4\n      Provisioning UDID: 00008152-0012689E3C000036\n      Activation Lock Status: Disabled\n\n",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425\n",
+  "native_logs": {
+    "stdout.log": {
+      "path": "/Users/n/numi-human-separation-20261018/C/tissue-contact-integration-261/native-recook-001/stdout.log",
+      "sha256": "994e4b5a55f71bc6662e3e4e5e6c9a169b0024477421f0fb4ece91f808f006f9",
+      "bytes": 622868
+    },
+    "stderr.log": {
+      "path": "/Users/n/numi-human-separation-20261018/C/tissue-contact-integration-261/native-recook-001/stderr.log",
+      "sha256": "1221c5f8a44ceb696f4bf92ada0d7d1fc4e4e7e137c2e52dac46628313cb222b",
+      "bytes": 306346
+    }
+  }
+}

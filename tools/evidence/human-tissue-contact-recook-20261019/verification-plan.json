@@ -1,0 +1,17 @@
+{
+  "base_commit": "b51a202241eb54e6393870dbefbc06a6c377ebd2",
+  "scope": "Existing GPU contact ownership; persistent anatomical wall exclusions and immutable FEM/MPM coexistence",
+  "predictions": [
+    "Selection survives independent source recook byte-identically",
+    "Malformed IDs rejected",
+    "Geometry and mass unchanged",
+    "Changed physical selector changes physics identity",
+    "Mixed FEM/MPM runtime initializes"
+  ],
+  "controls": [
+    "Default physics fingerprint allocation independent"
+  ],
+  "force_evidence": "Separate approaching-neighbor experiment required; map tests do not qualify forces",
+  "stopping_rule": "First failure stops broader checks; no budget or tolerance broadening",
+  "visual_verification": false
+}

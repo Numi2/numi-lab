@@ -2325,15 +2325,21 @@ private:
     [[nodiscard]] bool validateCompactStaticSurfaceMap() {
         if ((world_.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) == 0u)
             return true;
-        if (world_.objects.empty() || !world_.mpm.nodes.empty() ||
-            !world_.mpm.particles.empty() || !world_.fem.mutationCommands.empty() ||
+        if (world_.objects.empty() || !world_.fem.mutationCommands.empty() ||
             !world_.fem.punctureChannels.empty() ||
             world_.fem.tetrahedra.size() > std::numeric_limits<std::uint32_t>::max() / 4u)
             return fail("compact surface map has unsupported or overflowing topology");
+        const bool hasExplicitFEM = std::ranges::any_of(
+            world_.objects, [](const NMContinuumObjectGPU& object) {
+                return object.representation == NM_REPRESENTATION_FEM;
+            });
+        if (!hasExplicitFEM)
+            return fail("compact surface map requires at least one explicit FEM object");
         for (const auto& object : world_.objects)
-            if (object.representation != NM_REPRESENTATION_FEM ||
+            if ((object.representation != NM_REPRESENTATION_FEM &&
+                 object.representation != NM_REPRESENTATION_MPM) ||
                 (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)
-                return fail("compact surface map requires immutable explicit FEM");
+                return fail("compact surface map requires explicit immutable FEM/MPM objects");
         for (const auto& node : world_.fem.topologyNodes)
             if ((node.identity.w & NM_TOPOLOGY_ACTIVE) == 0u)
                 return fail("compact surface map cannot reserve dormant topology nodes");

@@ -137,13 +137,11 @@ struct OuterLateralContactSurfaceMapAudit {
     std::uint32_t excludedWallFaceCount=0u;
 };
 
-// Narrow the existing immutable compiled exterior-face map to the aortic
-// wall's source-authored outer lateral surface. Other objects' target faces
-// and all stable source face IDs are preserved exactly. This is valid only for
-// the existing static, exact-capacity FEM map owner; it does not add a new
-// runtime representation or alter cavity/material/mass data.
-inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
-    CompiledWorld& world,
+// Verify the source-authored contact eligibility in the final compiled world.
+// This is read-only: preparation and live-runtime recooks must carry exactly
+// the same wall face selection, including when an MPM receiver is appended.
+inline OuterLateralContactSurfaceMapAudit auditOuterLateralContactSurfaceFaces(
+    const CompiledWorld& world,
     const Built& wall,
     std::span<const std::uint32_t> queryNodes) {
     const auto fail=[](const char* why)->void { throw std::runtime_error(why); };
@@ -151,10 +149,8 @@ inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
        world.dispatch.surfaceFaceCount!=world.fem.surfaceFaces.size())
         fail("outer aortic contact requires the compiled immutable FEM exterior-face map");
     if((world.dispatch.flags&(NM_MATTER_ADAPTIVE|NM_MATTER_MUTATION))!=0u ||
-       world.dispatch.mpmGridCount!=0u || world.dispatch.mpmBlockCount!=0u ||
-       world.dispatch.mpmBlockLookupCount!=0u || world.dispatch.particleCount!=0u ||
-       world.dispatch.gridNodeCount!=0u || world.dispatch.mutationCommandCount!=0u)
-        fail("outer aortic contact static-map opt-in rejects adaptive, MPM, and mutation worlds; disable this opt-in for mixed worlds");
+       world.dispatch.mutationCommandCount!=0u)
+        fail("outer aortic contact requires immutable, nonadaptive FEM topology");
     if(wall.objectIndex>=world.objects.size())
         fail("outer aortic contact wall object index is outside the compiled world");
     const auto& descriptor=world.objects[wall.objectIndex];
@@ -209,7 +205,7 @@ inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
     }
     std::vector<std::uint8_t> retainedNodeSeen(descriptor.stateCount,0u);
     std::uint32_t wallExteriorFaceCount=0u;
-    for(auto& face:world.fem.surfaceFaces){
+    for(const auto& face:world.fem.surfaceFaces){
         const auto tetIndex=face.adjacency.x;
         const auto opposite=face.sides.x;
         if(face.adjacency.y!=NM_INVALID_INDEX || tetIndex>=world.fem.tetrahedra.size() || opposite>=4u)
@@ -247,13 +243,19 @@ inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
             triangle[out++]=local;
             outerLateral=outerLateral&&(queryMask[local]!=0u);
         }
-        if(face.sides.w!=0u)
-            fail("outer aortic contact requires an unfiltered canonical source map");
+        const auto expectedFlag=outerLateral?0u:NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
+        if(face.sides.w!=expectedFlag)
+            fail("compiled aortic contact-face flags differ from the authored outer surface");
+        const auto localFace=static_cast<std::uint32_t>(
+            4ull*(tetIndex-descriptor.elementOffset)+opposite);
+        if(std::binary_search(wall.object.femDisabledContactSurfaceFaces.begin(),
+                              wall.object.femDisabledContactSurfaceFaces.end(),localFace)
+                ==outerLateral)
+            fail("aortic source contact-face identity differs from compiled topology");
         if(outerLateral){
             for(const auto local:triangle)retainedNodeSeen[local]=1u;
             ++audit.retainedWallFaceCount;
         } else {
-            face.sides.w=NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
             ++audit.excludedWallFaceCount;
         }
     }
@@ -267,11 +269,8 @@ inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
        world.fem.surfaceFaces.size()>std::numeric_limits<std::uint32_t>::max())
         fail("outer aortic contact changed or overflowed the complete canonical exterior map");
     audit.canonicalSurfaceFaceCount=static_cast<std::uint32_t>(world.fem.surfaceFaces.size());
-    const auto previousFingerprint=world.fingerprint;
-    world.fingerprint=compiledWorldFingerprint(world);
-    world.physicsFingerprint=world.fingerprint;
-    if(world.fingerprint==previousFingerprint)
-        fail("outer aortic contact flags were not represented in the canonical world fingerprint");
+    if(world.fingerprint!=compiledWorldFingerprint(world))
+        fail("compiled aortic contact-face flags do not match the canonical world fingerprint");
     std::string layoutError;
     if(!validateCompiledWorldLayout(world,&layoutError))
         throw std::runtime_error("flagged complete aortic static contact map failed canonical layout validation: "+layoutError);

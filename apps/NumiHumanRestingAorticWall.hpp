@@ -498,6 +498,27 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
             auto& e=boundary[sorted(f)];++e.count;e.oriented=f;
         }
     }
+    if(cfg.outerLateralContact) {
+        const std::set<std::uint32_t> outerNodes(
+            object.femContactNodes.begin(),object.femContactNodes.end());
+        std::size_t enabledFaces=0u;
+        for(std::size_t ti=0;ti<object.tetrahedra.size();++ti) {
+            const auto& t=object.tetrahedra[ti].nodes;
+            for(unsigned opposite=0;opposite<4u;++opposite) {
+                Face face{};unsigned k=0;
+                for(unsigned c=0;c<4u;++c)if(c!=opposite)face[k++]=t[c];
+                if(boundary.at(sorted(face)).count!=1u)continue;
+                const bool outerFace=std::all_of(face.begin(),face.end(),
+                    [&](auto node){return outerNodes.contains(node);});
+                if(outerFace)++enabledFaces;
+                else object.femDisabledContactSurfaceFaces.push_back(
+                    static_cast<std::uint32_t>(4u*ti+opposite));
+            }
+        }
+        if(enabledFaces!=2u*n*axial ||
+           object.femDisabledContactSurfaceFaces.empty())
+            throw std::runtime_error("aortic source contact-face selection is incomplete");
+    }
     std::set<std::uint32_t> innerSet;for(const auto& ring:sideInner)innerSet.insert(ring.begin(),ring.end());
     std::set<Face> capKeys;
     for(std::size_t i=0;i<n;++i){const std::size_t j=(i+1)%n;

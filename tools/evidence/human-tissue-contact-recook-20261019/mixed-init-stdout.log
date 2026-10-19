@@ -1,0 +1,1 @@
+{"result":"PASS","scope":"Runtime.initialize plus initial snapshot only; no encode/evolution","fem_nodes":5,"fem_tets":2,"compact_faces":6,"mpm_particles":1,"mpm_active_count_records":1,"control_step":0,"physics_substep":0}

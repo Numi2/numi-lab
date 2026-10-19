@@ -1,4 +1,5 @@
 #include "numi/matter/matter.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <filesystem>
@@ -87,6 +88,78 @@ int main() {
         invalid=source; invalid.objects[0].automaticRepresentation=true; reject(invalid);
         invalid=source; invalid.objects[0].femCapacity.mutationCommands=1; reject(invalid);
         invalid=source; invalid.objects[0].representation=Representation::mpm; reject(invalid);
+        auto selected=fixture();
+        selected.compactImmutableFEMSurfaces=true;
+        selected.objects[0].femDisabledContactSurfaceFaces={0u};
+        auto selectedCook=compileWorld(selected);
+        require(selectedCook.succeeded(),"authored exterior exclusion was rejected");
+        auto selectedFace=std::find_if(
+            selectedCook.world.fem.surfaceFaces.begin(),
+            selectedCook.world.fem.surfaceFaces.end(),
+            [](const NMFEMSurfaceFaceGPU& face) {
+                return face.adjacency.x==0u && face.sides.x==0u;
+            });
+        require(selectedFace!=selectedCook.world.fem.surfaceFaces.end() &&
+                (selectedFace->sides.w & NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u,
+                "source face exclusion was not cooked into the existing face flag");
+        auto canonical=compileWorld(fixture());
+        require(canonical.succeeded(),"canonical full-face fixture compilation failed");
+        for (auto& face:canonical.world.fem.surfaceFaces)
+            if (face.adjacency.x==0u && face.sides.x==0u)
+                face.sides.w|=NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
+        canonical.world.fingerprint=compiledWorldFingerprint(canonical.world);
+        require(selectedCook.world.physicsFingerprint==canonical.world.fingerprint,
+                "allocation-independent physics identity omitted authored contact eligibility");
+        auto selectedB=fixture();
+        selectedB.compactImmutableFEMSurfaces=true;
+        selectedB.objects[0].femDisabledContactSurfaceFaces={1u};
+        auto selectedBCook=compileWorld(selectedB);
+        require(selectedBCook.succeeded() &&
+                selectedBCook.world.physicsFingerprint!=selectedCook.world.physicsFingerprint,
+                "different authored face selectors aliased in the physics identity");
+        const std::size_t selectedIndex=static_cast<std::size_t>(
+            selectedFace-selectedCook.world.fem.surfaceFaces.begin());
+        auto selectedPackage=std::filesystem::temp_directory_path()/
+            ("numi-static-surfaces-selected-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+".nmpkg");
+        require(writePackage(selectedCook,selectedPackage,&error),"selected-face package write failed");
+        require(readPackage(selectedPackage,decoded,nullptr,&error),"selected-face package read failed");
+        std::filesystem::remove(selectedPackage);
+        require(decoded.fingerprint==selectedCook.world.fingerprint &&
+                decoded.fem.surfaceFaces.size()==6u &&
+                (decoded.fem.surfaceFaces[selectedIndex].sides.w &
+                    NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u,
+                "selected-face flag did not survive package roundtrip");
+        auto invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={3u}; reject(invalidFace);
+        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={8u}; reject(invalidFace);
+        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={0u,0u}; reject(invalidFace);
+        invalidFace=selected; invalidFace.objects[0].femDisabledContactSurfaceFaces={2u,0u}; reject(invalidFace);
+        invalidFace=selected; invalidFace.compactImmutableFEMSurfaces=false; reject(invalidFace);
+
+        auto mixed=fixture();
+        mixed.compactImmutableFEMSurfaces=true;
+        auto mpmMaterial=parseMatterFile(std::filesystem::path(__FILE__).parent_path().parent_path()/
+                                         "materials/silicone.nmatter");
+        require(mpmMaterial.succeeded(),"MPM material parse failed");
+        mixed.materials.push_back(mpmMaterial.material);
+        ObjectSource mpm;
+        mpm.name="explicit-mpm-probe"; mpm.materialIndex=1u;
+        mpm.representation=Representation::mpm; mpm.twoWayCoupling=false;
+        mpm.characteristicLength=0.02;
+        mpm.mpmGridMinimum={0.0,0.0,0.0};
+        mpm.mpmGridMaximum={0.06,0.06,0.06};
+        mpm.particles.push_back(ParticleSource{{0.03,0.03,0.03},{0.0,0.0,0.0},0.001,1.0e-6,true});
+        mixed.objects.push_back(mpm);
+        auto mixedCook=compileWorld(mixed);
+        if (!mixedCook.succeeded()) for (auto& d:mixedCook.diagnostics) std::cerr<<d.message<<'\n';
+        require(mixedCook.succeeded(),"explicit immutable FEM+MPM compact-map compile failed");
+        require(mixedCook.world.fem.surfaceFaces.size()==6u &&
+                mixedCook.world.dispatch.particleCount==1u &&
+                mixedCook.world.dispatch.mpmGridCount==1u &&
+                (mixedCook.world.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP)!=0u,
+                "mixed compact map lost FEM faces or appended MPM state");
+        require(validateCompiledWorldLayout(mixedCook.world,&error),
+                "mixed compact map failed cooked-layout validation");
+
         std::cout<<"PASS immutable FEM surface map "<<checks<<" checks; physical_fem_steps=0\n";
     } catch (const std::exception& e) { std::cerr<<"FAIL "<<e.what()<<'\n'; return 1; }
 }

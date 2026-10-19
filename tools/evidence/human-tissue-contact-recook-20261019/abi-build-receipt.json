@@ -1,0 +1,394 @@
+{
+  "base_head": "b51a202241eb54e6393870dbefbc06a6c377ebd2",
+  "abi_header_sha256": "4b72e9c023fbf400c72e0f274fe19924d9cca4ee615c038b39709e3f29b466fe",
+  "compiled_abi_tus": [
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/core/MatterSnapshotArchive.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/00-MatterSnapshotArchive.o",
+      "object_sha256": "ae97d89be5972c84b726551ace30d5e5169d8860447bebe38792c82359914b31",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/00-MatterSnapshotArchive.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/core/NumiHumanSourceConstraints.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/01-NumiHumanSourceConstraints.o",
+      "object_sha256": "c59ab7864fd6592f56f7b6d2005860125e4422e9baea8a929e4a55d87e5d3c46",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/01-NumiHumanSourceConstraints.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/core/HumanBehaviorNativeAudit.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/02-HumanBehaviorNativeAudit.o",
+      "object_sha256": "a2e5a69085a590606d90ff8d1b7709797d97a38afeb0ccfef5cac2693f7a806b",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/02-HumanBehaviorNativeAudit.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/core/NumiHumanTissueBinding.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/03-NumiHumanTissueBinding.o",
+      "object_sha256": "5fe81692fff271f72c06433aafe73547562c791ed944e7ffb0070878f013189d",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/03-NumiHumanTissueBinding.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/core/NumiHumanLoadedKnee.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/04-NumiHumanLoadedKnee.o",
+      "object_sha256": "ff26c7a71e100eb9e40988e6a1d37ff51baa4d5a431bbb47fdfe7f1b4a688f5d",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/04-NumiHumanLoadedKnee.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/metal/NumiHumanLoadedKneeBinding.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/05-NumiHumanLoadedKneeBinding.o",
+      "object_sha256": "df019994ae3e359ab0b11eb49553699eb9858ab60607f65704a3bd53c17fc4c3",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/05-NumiHumanLoadedKneeBinding.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/metal/NumanXRuntimeV1.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/06-NumanXRuntimeV1.o",
+      "object_sha256": "603137933e308daf9310a33d5f2d873a33e9c04fd003522b17c463c9b51204d1",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/06-NumanXRuntimeV1.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/src/metal/MetalNumanXHumanMatter.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/07-MetalNumanXHumanMatter.o",
+      "object_sha256": "8f14d3519c6afad2c051a402c143a4dd3b703d3e7ccd78c0e5e3becea5c163c2",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/07-MetalNumanXHumanMatter.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/matter.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/08-matter.o",
+      "object_sha256": "3c9b26e886e89051b3586a603e56203976cdba02db8f6d51c591a2cc791570ae",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/08-matter.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/language_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/09-language_impl.o",
+      "object_sha256": "78a76011cdd55c9b681e6d06b4ed0ab504a2de79b725e9c05d367c7e285ae6ac",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/09-language_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/constitutive_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/10-constitutive_impl.o",
+      "object_sha256": "d0f01bd99ce37d6e91ac8df8912aa94fad0033adaab0ea4cb570320ba1fd4b1e",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/10-constitutive_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/compiler_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/11-compiler_impl.o",
+      "object_sha256": "9eec64b92cb9337acf5dfbc3610d278b49f841baf9a490a2b302b0b404502313",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/11-compiler_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/vascular_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/12-vascular_impl.o",
+      "object_sha256": "879023b8f41836e2db4a37fa13af2b481532a277b53ec5503d260b4ef1a41c95",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/12-vascular_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/fingerprint_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/13-fingerprint_impl.o",
+      "object_sha256": "38cfc271a3929bf5ac65a2a07cda9f4f92929b0aeca196f15b77fbd56eea0d63",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/13-fingerprint_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/validation_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/14-validation_impl.o",
+      "object_sha256": "329490d63d457676d3064e747a85255df325656b39287ffa889322a6077ce1aa",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/14-validation_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/package_impl.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/15-package_impl.o",
+      "object_sha256": "843b2e46a33c528928c74e3ae8582a321d33cbe5499c7a7e69c84285ab0fa168",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/15-package_impl.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/surgical_tissue.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/16-surgical_tissue.o",
+      "object_sha256": "7c773990f66700af6c705f8b44681a4645d521c288f025005633b3aa20f20288",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/16-surgical_tissue.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/runtime.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/17-runtime.o",
+      "object_sha256": "99a306a8c80f5c314e69f3296713affaa0778cf4fa635bbf488626c3c0eba53b",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/17-runtime.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/human_physiology.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/18-human_physiology.o",
+      "object_sha256": "cd7332fedfa00985d03f80a09daa59f70b7f1932fd4599a31017c1273f4583df",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/18-human_physiology.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/metal_world.cpp",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/19-metal_world.o",
+      "object_sha256": "b1fddb4c6128d7a1a682fe2767758b1793a656e59fb069f9515a033eafedd563",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/19-metal_world.d"
+    },
+    {
+      "source": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/src/numi_human.mm",
+      "object": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/20-numi_human.o",
+      "object_sha256": "248f5fbc2f6c690871302bbc512fc0af71183727795d7e8553fa95ed3f62ba0a",
+      "depfile": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/deps/20-numi_human.d"
+    }
+  ],
+  "replaced_link_objects": [
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/00-MatterSnapshotArchive.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/01-NumiHumanSourceConstraints.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/02-HumanBehaviorNativeAudit.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/03-NumiHumanTissueBinding.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/04-NumiHumanLoadedKnee.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/05-NumiHumanLoadedKneeBinding.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/06-NumanXRuntimeV1.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/07-MetalNumanXHumanMatter.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/08-matter.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/09-language_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/10-constitutive_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/11-compiler_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/12-vascular_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/13-fingerprint_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/build-runtime-001/validation_impl.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/14-validation_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/15-package_impl.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/16-surgical_tissue.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/runtime.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/17-runtime.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/18-human_physiology.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/19-metal_world.o"
+    },
+    {
+      "old": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/build-runtime-001/numi_human.mm.o",
+      "new": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/20-numi_human.o"
+    }
+  ],
+  "link_argv": [
+    "/usr/bin/c++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-dynamiclib",
+    "-Wl,-headerpad_max_install_names",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+    "-install_name",
+    "@rpath/libmetalrobo.dylib",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/00-MatterSnapshotArchive.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/01-NumiHumanSourceConstraints.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/02-HumanBehaviorNativeAudit.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/03-NumiHumanTissueBinding.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/04-NumiHumanLoadedKnee.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/05-NumiHumanLoadedKneeBinding.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/body-final-gate-order-215/build/operator.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/06-NumanXRuntimeV1.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/07-MetalNumanXHumanMatter.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o",
+    "/Users/n/numi-human-separation-20261018/C/current-operator-integration-207/full-build/CMakeFiles/metalrobo.dir/src/c_api.cpp.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/08-matter.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/09-language_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/10-constitutive_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/11-compiler_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/12-vascular_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/13-fingerprint_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/14-validation_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/15-package_impl.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/16-surgical_tissue.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/17-runtime.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/18-human_physiology.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/19-metal_world.o",
+    "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/objects/20-numi_human.o",
+    "-Wl,-rpath,@loader_path/../lib",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "QuartzCore",
+    "-framework",
+    "Accelerate",
+    "-framework",
+    "CoreGraphics",
+    "-framework",
+    "CoreImage",
+    "-framework",
+    "ImageIO",
+    "-framework",
+    "MetalKit",
+    "-framework",
+    "ModelIO",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/libsqlite3.tbd",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/libxml2.tbd"
+  ],
+  "library": "/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/libmetalrobo.dylib",
+  "library_sha256": "8fb535de0280cb989bb8edf5d6ed6372974edf55d992651fb51543edfa2f0b0b",
+  "link_exit_code": 0
+}
