@@ -1,0 +1,77 @@
+{
+  "schema": "numi.aortic_wall_newton_budget16_paired_evidence.v1",
+  "app_source_sha256": "4ed78cde7952e636df2cacb5a8219bbada318a58f339a92e717323a521448ef4",
+  "app_patch_sha256": "46f58312ee6c22a19f8f9a2ad898791326e9b5c492afe43330f3ab85ab49d208",
+  "base_app_sha256": "17aa9704ce9d08c27e2c8d2848c1b8e4a3a9ee87edf6df36bd37720c6e3e2968",
+  "newton_budget_optin": {
+    "environment": "NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS",
+    "default_cooked": 12,
+    "observed_requested": 16,
+    "observed_effective": 16,
+    "scope": "shared resting runtime",
+    "fgmres_environment": "NUMI_HUMAN_RESTING_FGMRES_BUDGET=0 (cooked default 64)",
+    "tolerance_changed": false
+  },
+  "current_pair": {
+    "plan_sha256": "1cbd64ec73027c9a96fd084de6c1dec6e117bb0775ec078ad02c3434da1bc7a6",
+    "step_seconds": 0.00025,
+    "requested_steps": 32,
+    "wall_on": {
+      "exit": 0,
+      "completed_steps": 32,
+      "simulated_seconds": 0.008,
+      "pressure_volume_audit": "native/newton16/wall-on-terminal-volume-audit.json"
+    },
+    "wall_off": {
+      "exit": 1,
+      "failure_segment_start": 14,
+      "matter_status": 10,
+      "diagnostics": [
+        0.0001098208740586415,
+        0.00018212854047305882,
+        0,
+        0
+      ],
+      "owner": "passive_tissue_runtime"
+    }
+  },
+  "prior_controls": {
+    "fgmres16_newton_default12": {
+      "wall_on": {
+        "exit": 1,
+        "failure_segment_start": 21,
+        "matter_status": 10,
+        "diagnostics": [
+          0.00011687543883454055,
+          0.0036225952208042145,
+          0,
+          0
+        ]
+      }
+    },
+    "fgmres64_newton_default12": {
+      "wall_on": {
+        "exit": 0,
+        "completed_steps": 32,
+        "simulated_seconds": 0.008
+      },
+      "wall_off": {
+        "exit": 1,
+        "failure_segment_start": 9,
+        "matter_status": 10,
+        "diagnostics": [
+          0.00010224519792245701,
+          0.00019273630459792912,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "limits": [
+    "The wall-off comparison fails before the requested horizon; no wall-on/off trajectory or causal effect is inferred.",
+    "The wall-on endpoint cavity volume contracts 3.47% over 8 ms while the recorded aortic pressure changes 85.47 to 85.06 mmHg; this is a geometric/pressure association and does not validate physiological sign or compliance.",
+    "The fixture uses the closed aortic reservoir slice and does not qualify a patent branching vascular network.",
+    "MPM is disabled; no visual verification was performed."
+  ]
+}

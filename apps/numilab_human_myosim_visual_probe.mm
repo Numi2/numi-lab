@@ -27877,6 +27877,37 @@ int main(int argc, char** argv) {
                           << " effective=" << coupled.physiology.runtime.fgmresIterationBudget()
                           << " restart_width=" << coupled.physiology.world.mixedSolver.nonlinearIterations.y
                           << std::endl;
+                const char* restingNewtonBudgetSetting =
+                    std::getenv("NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS");
+                std::uint32_t requestedNewtonBudget = 0u;
+                if (restingNewtonBudgetSetting != nullptr) {
+                    const char* end = restingNewtonBudgetSetting +
+                        std::strlen(restingNewtonBudgetSetting);
+                    require(end != restingNewtonBudgetSetting,
+                            "NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS must be a nonempty integer from 0 through 24");
+                    const auto parsed = std::from_chars(
+                        restingNewtonBudgetSetting, end, requestedNewtonBudget);
+                    require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                                requestedNewtonBudget <= 24u,
+                            "NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS must be an integer from 0 through 24");
+                }
+                const auto cookedNewtonBudget =
+                    coupled.physiology.runtime.newtonIterationBudget();
+                if (requestedNewtonBudget != 0u) {
+                    require(coupled.physiology.runtime.setNewtonIterationBudget(
+                                requestedNewtonBudget) &&
+                                coupled.physiology.runtime.newtonIterationBudget() ==
+                                    requestedNewtonBudget,
+                            "Matter rejected the opt-in shared resting-runtime Newton iteration budget");
+                }
+                std::cout << "resting_shared_runtime_newton_budget_selection requested="
+                          << (restingNewtonBudgetSetting == nullptr
+                                  ? "default"
+                                  : restingNewtonBudgetSetting)
+                          << " cooked=" << cookedNewtonBudget
+                          << " effective="
+                          << coupled.physiology.runtime.newtonIterationBudget()
+                          << std::endl;
                 if(restingPassiveFasciaOwner) {
                     auto& owner=*restingPassiveFasciaOwner;
                     require(owner.preparationOnly && !owner.runtime.valid(),

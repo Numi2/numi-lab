@@ -1,0 +1,11 @@
+{
+  "base_source": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/build-cpu-001/source/apps/numilab_human_myosim_visual_probe.mm",
+  "base_sha256": "17aa9704ce9d08c27e2c8d2848c1b8e4a3a9ee87edf6df36bd37720c6e3e2968",
+  "candidate_source": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/newton-budget16-app-candidate-001/source/apps/numilab_human_myosim_visual_probe.mm",
+  "candidate_sha256": "4ed78cde7952e636df2cacb5a8219bbada318a58f339a92e717323a521448ef4",
+  "patch": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/newton-budget16-app-candidate-001/newton16-app.patch",
+  "patch_sha256": "46f58312ee6c22a19f8f9a2ad898791326e9b5c492afe43330f3ab85ab49d208",
+  "runtime_api_source": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/input-runtime-reaction-rollback.mm",
+  "runtime_api_source_sha256": "438911d8f1bdaa9f820c6d2bba1bbe87182d2bd14e485f5bbf5fcd2c1e01014c",
+  "scope": "app-only opt-in setter on shared coupled.physiology.runtime; no change when unset or 0; accepted explicit values 1..24; strict whole-token parse; log/error label identifies shared resting runtime; no build or native run"
+}

@@ -1,0 +1,11 @@
+# Aortic wall Newton-budget paired evidence
+
+This evidence package accompanies an app-only, opt-in Newton iteration budget. The environment variable NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS leaves the cooked shared-runtime default (12) unchanged when unset or set to 0. The tested setting was 16; the run log confirms an effective budget of 16. This setter targets the shared resting runtime, so the scope is not passive-FEM-only. FGMRES stayed at its cooked default of 64. No convergence tolerance or physical model parameter changed.
+
+The current paired run requested 32 steps at 0.25 ms each. Wall-on completed 32 steps (8 ms). Wall-off failed with Matter status 10 at segment_start=14; its exact failure latch and diagnostics are retained. These are matched wall-on/off cases under the same solver-budget configuration, but the wall-off case did not reach the horizon, so the pair does not support comparing full trajectories or attributing the divergence to the wall.
+
+The endpoint audit reconstructs the signed cavity surface from the captured wall tetrahedra and associates it with the existing CV aortic-pressure series. The wall-on cavity stayed positively oriented and changed from 18.4183 mL to 17.7789 mL (-0.6394 mL; -3.47%) while aortic pressure changed from 85.4712 to 85.0629 mmHg. Total blood changed from 5150.0001 to 5149.9978 mL. Minimum tet Jacobian was 0.70997 and maximum wall displacement was 2.84 mm. Because the cavity contracts under this positive pressure trace, the result is an observed pressure/geometry association only; it does not establish physiological sign, pressure-volume calibration, or validated compliance.
+
+Earlier native outcomes are retained as separate configurations: with FGMRES 16 and Newton default 12, wall-on failed at segment start 21; with default FGMRES 64 and Newton default 12, wall-on completed 32 while wall-off failed at segment start 9. Those runs are not pooled with the current Newton16 pair.
+
+The fixture uses a closed aortic reservoir slice, not a patent branching vascular network. MPM was disabled, and no visual verification was performed. Full native logs, invocation asset hashes, CSVs, failure snapshots, and compile/link receipts are included. The large presentation pack is not included.

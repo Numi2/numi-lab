@@ -1,0 +1,66 @@
+{
+  "schema": "numi.aortic_wall_pv_wall_on_endpoint_audit.v1",
+  "interpretation": "One 32-step wall-on accepted state with offline signed cavity-volume reconstruction and CV aortic-pressure association. Wall-off paired case failed at segment_start=14, so this endpoint audit is descriptive and does not establish an ON/OFF causal effect or pressure-volume calibration.",
+  "run_plan_sha256": "1cbd64ec73027c9a96fd084de6c1dec6e117bb0775ec078ad02c3434da1bc7a6",
+  "invocation_sha256": "bdba756e6ee1b16c38560cb4a55675eefe66d888d170399dfb08cbd275fb1b4d",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/build-newton16-app-001/numi-human-native",
+  "binary_sha256": "ce151ac91d0ac8bec7935a6baa275106bc01121f30fabb3ebfb210444aaecddb",
+  "production_msl_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal",
+  "production_msl_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+  "production_library_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+  "production_library_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "observed_dyld_line": "dyld[76832]: <27D264D3-B98F-3DC7-80A7-D2168276691A> /Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+  "app_sha256": "4ed78cde7952e636df2cacb5a8219bbada318a58f339a92e717323a521448ef4",
+  "aortic_wall_header_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/build-newton16-app-001/source/apps/NumiHumanRestingAorticWall.hpp",
+  "aortic_wall_header_sha256": "b7c34689d49dbba02431037dd788ddb51a5b7bf5192741b499cfeafea5c5c2f4",
+  "vessel_wall_coupling_header_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/build-newton16-app-001/source/apps/NumiHumanVesselWallCoupling.hpp",
+  "vessel_wall_coupling_header_sha256": "e880a67a904148a05f9f29be4df872333d086b688879e5c0c54e7b4f1f8ccd15",
+  "controls": {
+    "wall": "on",
+    "MPM": "off",
+    "FGMRES": "cooked default 64 (environment 0)",
+    "steps": 32,
+    "step_seconds": 0.00025
+  },
+  "wall": {
+    "object": "Human/BodyParts3D/stable-9/reduced-cavity-wall-v1",
+    "nodes": 532,
+    "tetrahedra": 1584,
+    "pressure_boundary_faces": 432,
+    "terminal_max_displacement_m": 0.002840161775,
+    "terminal_min_J": 0.7099695314,
+    "terminal_max_J": 1.04422228
+  },
+  "cavity_geometry": {
+    "signed_initial_volume_ml": 18.418282527099766,
+    "signed_terminal_volume_ml": 17.778914585954645,
+    "initial_orientation_positive": true,
+    "terminal_orientation_positive": true,
+    "volume_change_ml": -0.6393679411451236,
+    "volume_change_fraction": -0.03471376553185068
+  },
+  "cv_series": {
+    "rows": 32,
+    "initial_time_s": 0.000250000011874,
+    "terminal_time_s": 0.00800000037998,
+    "initial_aortic_pressure_mmhg": 85.4712232507,
+    "terminal_aortic_pressure_mmhg": 85.0629011555,
+    "initial_total_blood_ml": 5150.00009909,
+    "terminal_total_blood_ml": 5149.99777079,
+    "csv_sha256": "f15ede5a4d8555b867237df629e80f124494eb34467c48e2eaf32a5310ded631"
+  },
+  "wall_off": {
+    "native_exit": 1,
+    "failure_line": "human_joint_failure completed_steps=14 matter_status=10 matter_failing_index=4294967295 matter_object_index=0 matter_diagnostics=[0.00010982087405864149,0.00018212854047305882,0,0] failure_owner=passive_tissue_runtime",
+    "production_library_observed": true
+  },
+  "source_binding_check": {
+    "CV_compartment_stable_id": 7,
+    "wall_cavity_stable_id": 9007,
+    "same_CV_volume_state_reused": true,
+    "initial_geometry_admission_tolerance_relative": 0.0002,
+    "application_check": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/build-newton16-app-001/source/apps/NumiHumanVesselWallCoupling.hpp:100-176"
+  },
+  "native_log_sha256": "2721b3a8f94c3791be7078904df5b5a1af5706c82c73efc187d09c706a1ae727",
+  "source_visual_verification": false
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "numi.aortic_wall_pressure_volume_summary.v1",
+  "run_plan_sha256": "b3c8911fcd585beddc9ec81676316aa504a01807d3c2e63aaaf541cb0a575018",
+  "attempts": [
+    {
+      "case": "wall_on",
+      "exit": 0,
+      "wall_seconds": 187.39286725001875,
+      "native_log": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/native-32step-paired-production-fgmres-default-004/wall_on/native.log"
+    },
+    {
+      "case": "wall_off",
+      "exit": 1,
+      "wall_seconds": 35.66507524996996,
+      "native_log": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/native-32step-paired-production-fgmres-default-004/wall_off/native.log"
+    }
+  ],
+  "visual_verification": false,
+  "status": "incomplete_or_failed_native_cases"
+}

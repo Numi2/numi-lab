@@ -1,0 +1,14 @@
+{
+  "schema": "numi.aortic_wall_pressure_volume_summary.v1",
+  "run_plan_sha256": "bdb3622a81de6527202bb51e4158a36fc43343584565f1a61cbf153b8bc945da",
+  "attempts": [
+    {
+      "case": "wall_on",
+      "exit": 1,
+      "wall_seconds": 45.880581375036854,
+      "native_log": "/Users/n/numi-human-separation-20261018/C/aortic-wall-pressure-volume-258/native-32step-paired-production-003/wall_on/native.log"
+    }
+  ],
+  "visual_verification": false,
+  "status": "incomplete_or_failed_native_cases"
+}
