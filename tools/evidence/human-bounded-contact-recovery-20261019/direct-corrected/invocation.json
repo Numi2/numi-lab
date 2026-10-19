@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/build-root-corrected-003/ccd_ee_compare",
+    "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal",
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/source-root-corrected-003/ee_wrapper_compare.metalinc"
+  ],
+  "pins": {
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/build-root-corrected-003/ccd_ee_compare": "db6e70df0c6148299f988de7c491a5014deb283c3872678d1b2ed400deb15194",
+    "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a",
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/source-root-corrected-003/ee_wrapper_compare.metalinc": "2419f9965afd8aeb2abca02e3bf92b99f46bce92493ec9d4e6943320817c36cb"
+  },
+  "source_path": "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/source-root-corrected-003/ccd_ee_compare.mm",
+  "source_sha256": "23e91b9aa91978f75d56290f285fa396909577fe8bfdceef094b6849468a657a",
+  "expected": {
+    "captured": "legacy uncertified; conservative fallback either resolves or remains uncertified",
+    "static-clear": "certified miss; exact legacy parity",
+    "endpoint-contact": "certified hit; exact legacy parity",
+    "transient-crossing-endpoint-clear": "certified hit; exact legacy parity",
+    "transient-near-miss": "certified miss; exact legacy parity"
+  },
+  "correction": "001 mismatched argument order;002 wrong bothcalls;003 both calls use p00,p01,p10,p11,q00,q01,q10,q11; near-miss20um outside segment"
+}

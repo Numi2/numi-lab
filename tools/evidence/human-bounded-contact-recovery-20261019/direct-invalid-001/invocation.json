@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/build/ccd_ee_compare",
+    "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal",
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/source/ee_wrapper_compare.metalinc"
+  ],
+  "cwd": "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/native-compare-279-001",
+  "timeout_s": 120,
+  "case": "legacy edge-edge CCD vs separating-plane wrapper; captured frame4 EE witness plus static clear, endpoint contact, transient crossing with clear endpoints, and transient near-miss",
+  "pins": {
+    "executable": "309e5dfcddbe098081959840efca7a05fd2ed24835e1d2cf6f8143202d63485e",
+    "probe_source": "b2e4d0fa966ec196197680640ca74d50641bd62626b1a04923c0b8723401418f",
+    "appended_kernel": "f231ef615da23ca1994b059ed7fa33628da7a628b5a3cc3e89c5e49edf78391a",
+    "msl": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a"
+  }
+}

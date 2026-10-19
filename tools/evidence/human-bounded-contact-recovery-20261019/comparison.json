@@ -1,0 +1,7 @@
+{
+  "native_physiology_byte_identical": true,
+  "sha256": "bf0e381e146d32ce03b7ee2d3ff933f4440cfb13dc2ca07341174068f40740cf",
+  "wall_stdout_byte_identical": true,
+  "longer_approach_failure": "frame6/Newton10, identical diagnostic [0.000956611359,0.000957180862,1.0168727e-7,8] to published baseline",
+  "native_accepted_simulated_s": 0.0002500000118743628
+}

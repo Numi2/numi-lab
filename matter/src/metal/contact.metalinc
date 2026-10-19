@@ -4054,9 +4054,15 @@ inline bool vertexTriangleCCDIntervalFallback(
     coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c1));
     const float distanceRoundoff = ccdDistanceRoundoff(thickness, coordinateScale);
     const float effectiveThickness = thickness + distanceRoundoff;
-    const float speedBound = (length(vertex1 - vertex0) + max(
-        length(a1 - a0), max(length(b1 - b0), length(c1 - c0)))) *
-        (1.0f + 16.0f * kEpsilon);
+    // Distance to the moving convex triangle is Lipschitz in the maximum
+    // vertex-to-corner relative displacement. Retain an absolute arithmetic
+    // margin when common translation makes the relative displacement small.
+    const float3 vertexDelta = vertex1 - vertex0;
+    const float relativeSpeed = max(length(vertexDelta - (a1 - a0)),
+        max(length(vertexDelta - (b1 - b0)),
+            length(vertexDelta - (c1 - c0))));
+    const float speedBound = relativeSpeed * (1.0f + 16.0f * kEpsilon) +
+        16.0f * kEpsilon * max(coordinateScale, 1.0e-12f);
     if (!isfinite(distanceRoundoff) || !isfinite(effectiveThickness) ||
         !isfinite(speedBound) || !(speedBound > 0.0f)) return false;
 
@@ -4471,6 +4477,150 @@ inline bool edgeEdgeCCD(
 // If the endpoint is clear, retry from t=0 with the same fixed cap but a
 // conservative separating-plane interval bound. Shared line-search CCD keeps
 // calling edgeEdgeCCD directly and remains fail-closed.
+// Narrowphase-only bounded interval fallback for moving segment pairs.
+// A clear sweep is certified only when every interval's midpoint distance,
+// minus a relative-motion Lipschitz radius and coordinate-scaled roundoff,
+// remains outside the same effective thickness used by the legacy CCD.
+// An actual sampled overlap supplies exact closest-segment contact geometry;
+// unresolved intervals remain fail-closed at the fixed evaluation cap.
+inline bool edgeEdgeCCDIntervalFallback(
+    const float3 p00, const float3 p01,
+    const float3 p10, const float3 p11,
+    const float3 q00, const float3 q01,
+    const float3 q10, const float3 q11,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float2& parameters,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified
+) {
+    certified = false;
+    toi = 0.0f;
+    separation = INFINITY;
+    normal = float3(0.0f);
+    parameters = float2(0.0f);
+    point = float3(0.0f);
+    if (!finite3(p00) || !finite3(p01) || !finite3(p10) || !finite3(p11) ||
+        !finite3(q00) || !finite3(q01) || !finite3(q10) || !finite3(q11) ||
+        !isfinite(thickness) || thickness < 0.0f) return false;
+
+    float coordinateScale = maximumAbsoluteCoordinate(p00);
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p11));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q00));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q11));
+    const float distanceRoundoff =
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float effectiveThickness = thickness + distanceRoundoff;
+
+    const float3 p0Velocity = p01 - p00;
+    const float3 p1Velocity = p11 - p10;
+    const float3 q0Velocity = q01 - q00;
+    const float3 q1Velocity = q11 - q10;
+    const float relativeSpeed = max(
+        length(p0Velocity - q0Velocity),
+        max(length(p0Velocity - q1Velocity),
+            max(length(p1Velocity - q0Velocity),
+                length(p1Velocity - q1Velocity))));
+    const float speedBound = relativeSpeed * (1.0f + 16.0f * kEpsilon) +
+        16.0f * kEpsilon * max(coordinateScale, 1.0e-12f);
+    if (!isfinite(distanceRoundoff) || !isfinite(effectiveThickness) ||
+        !isfinite(relativeSpeed) || !isfinite(speedBound) ||
+        !(speedBound > 0.0f)) return false;
+
+    float intervalLo[64];
+    float intervalHi[64];
+    uint stackSize = 1u;
+    intervalLo[0] = 0.0f;
+    intervalHi[0] = 1.0f;
+    uint evaluations = 0u;
+    while (stackSize > 0u && evaluations < 64u) {
+        --stackSize;
+        const float lo = intervalLo[stackSize];
+        const float hi = intervalHi[stackSize];
+        const float mid = lo + 0.5f * (hi - lo);
+        if (!(mid > lo) || !(mid < hi)) return false;
+        ++evaluations;
+
+        const float3 p0 = mix(p00, p01, mid);
+        const float3 p1 = mix(p10, p11, mid);
+        const float3 q0 = mix(q00, q01, mid);
+        const float3 q1 = mix(q10, q11, mid);
+        if (!finite3(p0) || !finite3(p1) ||
+            !finite3(q0) || !finite3(q1)) return false;
+        float s, t;
+        float3 pointP, pointQ;
+        closestPointsOnSegments(p0, p1, q0, q1, s, t, pointP, pointQ);
+        const float3 delta = pointP - pointQ;
+        const float distance = length(delta);
+        if (!isfinite(s) || !isfinite(t) || s < 0.0f || s > 1.0f ||
+            t < 0.0f || t > 1.0f || !finite3(pointP) || !finite3(pointQ) ||
+            !finite3(delta) || !isfinite(distance)) return false;
+        if (distance <= effectiveThickness) {
+            float3 fallback = cross(p1 - p0, q1 - q0);
+            if (!finite3(fallback)) return false;
+            float fallbackLength = length(fallback);
+            if (!isfinite(fallbackLength)) return false;
+            if (fallbackLength <= kGeometryFloor)
+                fallback = (p01 - p00) - (q01 - q00);
+            fallback += float3(kGeometryFloor);
+            fallbackLength = length(fallback);
+            if (!(fallbackLength > kGeometryFloor) ||
+                !isfinite(fallbackLength)) return false;
+            const float3 sampleNormal = distance > kGeometryFloor
+                ? delta / distance : fallback / fallbackLength;
+            const float3 samplePoint = 0.5f * (pointP + pointQ);
+            if (!finite3(sampleNormal) || !finite3(samplePoint)) return false;
+            toi = mid;
+            normal = sampleNormal;
+            parameters = float2(s, t);
+            point = samplePoint;
+            separation = distance;
+            certified = true;
+            return true;
+        }
+
+        const float lowerBound = distance -
+            speedBound * (0.5f * (hi - lo)) - distanceRoundoff;
+        if (!isfinite(lowerBound)) return false;
+        if (lowerBound > effectiveThickness) continue;
+        if (stackSize + 2u > 64u) return false;
+        // LIFO: push right before left so the earlier interval is processed first.
+        intervalLo[stackSize] = mid;
+        intervalHi[stackSize] = hi;
+        ++stackSize;
+        intervalLo[stackSize] = lo;
+        intervalHi[stackSize] = mid;
+        ++stackSize;
+    }
+    if (stackSize != 0u) return false;
+
+    float endS, endT;
+    float3 endPointP, endPointQ;
+    closestPointsOnSegments(
+        p01, p11, q01, q11, endS, endT, endPointP, endPointQ);
+    const float3 endDelta = endPointP - endPointQ;
+    const float endDistance = length(endDelta);
+    const float3 endPoint = 0.5f * (endPointP + endPointQ);
+    if (!isfinite(endS) || !isfinite(endT) || endS < 0.0f || endS > 1.0f ||
+        endT < 0.0f || endT > 1.0f || !finite3(endPointP) ||
+        !finite3(endPointQ) || !finite3(endDelta) || !isfinite(endDistance) ||
+        !finite3(endPoint)) return false;
+    toi = 1.0f;
+    separation = endDistance;
+    parameters = float2(endS, endT);
+    point = endPoint;
+    if (endDistance > kGeometryFloor)
+        normal = endDelta / endDistance;
+    certified = finite3(normal);
+    return certified && false;
+}
+
 inline bool edgeEdgeCCDWithSeparatingPlane(
     const float3 p00, const float3 p01,
     const float3 p10, const float3 p11,
@@ -4498,7 +4648,10 @@ inline bool edgeEdgeCCDWithSeparatingPlane(
     const bool fallbackHit = edgeEdgeCCD(
         p00, p01, p10, p11, q00, q01, q10, q11, thickness,
         toi, normal, parameters, point, separation, certified, true);
-    return certified ? fallbackHit : false;
+    if (certified) return fallbackHit;
+    return edgeEdgeCCDIntervalFallback(
+        p00, p01, p10, p11, q00, q01, q10, q11, thickness,
+        toi, normal, parameters, point, separation, certified);
 }
 
 // Direct production-CCD regression entry point. Nine float4 records per case:

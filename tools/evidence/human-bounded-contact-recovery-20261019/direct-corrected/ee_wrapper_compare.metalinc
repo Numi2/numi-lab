@@ -1,0 +1,44 @@
+
+namespace numi_matter_metal {
+kernel void nm_contact_ee_wrapper_compare_probe(
+    device const float4* cases [[buffer(0)]],
+    device float4* results [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= count) return;
+    const uint base = 13u * index;
+    const float thickness = cases[base].x;
+    const float dt = cases[base].y;
+    const bool reconstructStart = cases[base].z > 0.5f;
+    float3 start[4], finish[4];
+    for (uint i = 0u; i < 4u; ++i) {
+        finish[i] = cases[base + 5u + i].xyz;
+        start[i] = reconstructStart
+            ? finish[i] - dt * cases[base + 9u + i].xyz
+            : cases[base + 1u + i].xyz;
+    }
+    float legacyTOI = 0.0f, legacySeparation = INFINITY;
+    float3 legacyNormal = float3(0.0f), legacyPoint = float3(0.0f);
+    float2 legacyParameters = float2(0.0f);
+    bool legacyCertified = false;
+    const bool legacyHit = edgeEdgeCCD(
+        start[0], finish[0], start[1], finish[1],
+        start[2], finish[2], start[3], finish[3],
+        thickness, legacyTOI, legacyNormal, legacyParameters,
+        legacyPoint, legacySeparation, legacyCertified, false);
+    float fallbackTOI = 0.0f, fallbackSeparation = INFINITY;
+    float3 fallbackNormal = float3(0.0f), fallbackPoint = float3(0.0f);
+    float2 fallbackParameters = float2(0.0f);
+    bool fallbackCertified = false;
+    const bool fallbackHit = edgeEdgeCCDWithSeparatingPlane(
+        start[0], finish[0], start[1], finish[1],
+        start[2], finish[2], start[3], finish[3],
+        thickness, fallbackTOI, fallbackNormal, fallbackParameters,
+        fallbackPoint, fallbackSeparation, fallbackCertified);
+    results[2u * index] = float4(legacyHit ? 1.0f : 0.0f,
+        legacyCertified ? 1.0f : 0.0f, legacyTOI, legacySeparation);
+    results[2u * index + 1u] = float4(fallbackHit ? 1.0f : 0.0f,
+        fallbackCertified ? 1.0f : 0.0f, fallbackTOI, fallbackSeparation);
+}
+}

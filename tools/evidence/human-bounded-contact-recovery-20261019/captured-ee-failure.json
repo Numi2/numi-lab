@@ -1,0 +1,292 @@
+{
+  "schema": "numi.private_contact_failure_point_extraction.v2",
+  "capture_manifest_sha256": "d3e626b225647fb8a027a0f6c2035ca22fc027fc8a2cded1a3cbf72fd80c45fb",
+  "capture_payload_sha256": "90b7e21ae53dbccefcc1ec57f9a4c72ae0db6078da89af53d9c2881306b45f7f",
+  "capture_payload_bytes": 9076400,
+  "source_msl_sha256": "003feed86e9fe5668fd75c00f87953ef5f4b8fbe4dfcee82da120deef7401b9b",
+  "runtime_dylib_sha256": "23f37afaf8f24097877b92ebbfd066ad57527aaa95a32160e93fae9bca7cc138",
+  "root": 4,
+  "iteration": 4,
+  "trial": 7,
+  "control_step": 4,
+  "phase": "private_contact_rebuild_before_free_body_terms",
+  "failure": {
+    "status_code": 6,
+    "environment": 0,
+    "object_index": 1,
+    "candidate_slot": 10,
+    "diagnostics_f32": [
+      2533.0,
+      1203.0,
+      2.0,
+      0.0
+    ],
+    "diagnostics_bits": [
+      "0x451e5000",
+      "0x44966000",
+      "0x40000000",
+      "0x00000000"
+    ],
+    "meaning": "uncertified edge-edge CCD; diagnostics encode left primitive, right primitive, left edge index, right edge index"
+  },
+  "candidate_identity_u32": [
+    2533,
+    1203,
+    10,
+    1
+  ],
+  "feature": {
+    "kind": "edge_edge",
+    "left_primitive_index": 2533,
+    "right_primitive_index": 1203,
+    "left_primitive": {
+      "nodes_and_object": [
+        126,
+        132,
+        129,
+        1
+      ],
+      "identity": [
+        2533,
+        0,
+        1,
+        1
+      ],
+      "bounds_minimum": [
+        0.06544224172830582,
+        -0.2434539645910263,
+        0.034564025700092316,
+        6.237885099835694e-05
+      ],
+      "bounds_maximum": [
+        0.06895003467798233,
+        -0.21890828013420105,
+        0.04112660139799118,
+        0.00010045910312328488
+      ]
+    },
+    "right_primitive": {
+      "nodes_and_object": [
+        109,
+        107,
+        91,
+        0
+      ],
+      "identity": [
+        1203,
+        0,
+        1,
+        1
+      ],
+      "bounds_minimum": [
+        0.06234045326709747,
+        -0.22482328116893768,
+        0.0346280112862587,
+        2.2330052161123604e-05
+      ],
+      "bounds_maximum": [
+        0.06547720730304718,
+        -0.21947042644023895,
+        0.04289054870605469,
+        2.847618998202961e-05
+      ]
+    },
+    "edge_index_table": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        0
+      ]
+    ],
+    "left_edge_index": 2,
+    "left_edge_vertex_indices": [
+      2,
+      0
+    ],
+    "right_edge_index": 0,
+    "right_edge_vertex_indices": [
+      0,
+      1
+    ],
+    "left_edge_node_indices": [
+      129,
+      126
+    ],
+    "right_edge_node_indices": [
+      109,
+      107
+    ]
+  },
+  "dt_frame_seconds_f32": 0.0002500000118743628,
+  "dt_frame_bits": "0x3983126f",
+  "collision_thickness_seconds_f32": 9.999999747378752e-06,
+  "collision_thickness_bits": "0x3727c5ac",
+  "numerical_limits_f32": [
+    9.999999747378752e-06,
+    5.0,
+    9.999999747378752e-05,
+    1.0000000200408773e+20
+  ],
+  "nodes": [
+    {
+      "role": "left_edge_A",
+      "node_index": 129,
+      "object_index": 1,
+      "active_rate_exponent": 0,
+      "dt_seconds_f32": 0.0002500000118743628,
+      "dt_bits": "0x3983126f",
+      "finish_position_xyz_f32": [
+        0.06678637862205505,
+        -0.21891827881336212,
+        0.03457917645573616
+      ],
+      "finish_position_bits": [
+        "0x3d88c74c",
+        "0xbe602c1d",
+        "0x3d0da2e5"
+      ],
+      "accepted_velocity_xyz_f32": [
+        -0.40039587020874023,
+        0.02707039751112461,
+        0.020609183236956596
+      ],
+      "accepted_velocity_bits": [
+        "0xbecd00b0",
+        "0x3cddc2bd",
+        "0x3ca8d497"
+      ],
+      "source_expression_start_xyz_f32_reconstructed_separate_mul_sub": [
+        0.06688647717237473,
+        -0.21892504394054413,
+        0.03457402437925339
+      ],
+      "reconstructed_start_bits": [
+        "0x3d88fbc7",
+        "0xbe602de3",
+        "0x3d0d9d7e"
+      ]
+    },
+    {
+      "role": "left_edge_B",
+      "node_index": 126,
+      "object_index": 1,
+      "active_rate_exponent": 0,
+      "dt_seconds_f32": 0.0002500000118743628,
+      "dt_bits": "0x3983126f",
+      "finish_position_xyz_f32": [
+        0.06545224040746689,
+        -0.22487318515777588,
+        0.0408288948237896
+      ],
+      "finish_position_bits": [
+        "0x3d860bd3",
+        "0xbe664528",
+        "0x3d273c33"
+      ],
+      "accepted_velocity_xyz_f32": [
+        -0.07372250407934189,
+        -0.07470516860485077,
+        0.02822001650929451
+      ],
+      "accepted_velocity_bits": [
+        "0xbd96fbd3",
+        "0xbd98ff06",
+        "0x3ce72daa"
+      ],
+      "source_expression_start_xyz_f32_reconstructed_separate_mul_sub": [
+        0.06547067314386368,
+        -0.2248545140028,
+        0.04082183912396431
+      ],
+      "reconstructed_start_bits": [
+        "0x3d86157d",
+        "0xbe664043",
+        "0x3d2734cd"
+      ]
+    },
+    {
+      "role": "right_edge_A",
+      "node_index": 109,
+      "object_index": 0,
+      "active_rate_exponent": 0,
+      "dt_seconds_f32": 0.0002500000118743628,
+      "dt_bits": "0x3983126f",
+      "finish_position_xyz_f32": [
+        0.062350451946258545,
+        -0.22349338233470917,
+        0.03463800996541977
+      ],
+      "finish_position_bits": [
+        "0x3d7f6330",
+        "0xbe64db73",
+        "0x3d0de096"
+      ],
+      "accepted_velocity_xyz_f32": [
+        -0.046803370118141174,
+        0.009910604916512966,
+        -0.05288662016391754
+      ],
+      "accepted_velocity_bits": [
+        "0xbd3fb4e4",
+        "0x3c226017",
+        "0xbd589fa4"
+      ],
+      "source_expression_start_xyz_f32_reconstructed_separate_mul_sub": [
+        0.062362153083086014,
+        -0.22349585592746735,
+        0.03465123102068901
+      ],
+      "reconstructed_start_bits": [
+        "0x3d7f6f75",
+        "0xbe64dc19",
+        "0x3d0dee73"
+      ]
+    },
+    {
+      "role": "right_edge_B",
+      "node_index": 107,
+      "object_index": 0,
+      "active_rate_exponent": 0,
+      "dt_seconds_f32": 0.0002500000118743628,
+      "dt_bits": "0x3983126f",
+      "finish_position_xyz_f32": [
+        0.06545477360486984,
+        -0.22480730712413788,
+        0.04075952619314194
+      ],
+      "finish_position_bits": [
+        "0x3d860d27",
+        "0xbe6633e3",
+        "0x3d26f376"
+      ],
+      "accepted_velocity_xyz_f32": [
+        -0.04974638670682907,
+        0.023881198838353157,
+        -0.09964632242918015
+      ],
+      "accepted_velocity_bits": [
+        "0xbd4bc2de",
+        "0x3cc3a281",
+        "0xbdcc135f"
+      ],
+      "source_expression_start_xyz_f32_reconstructed_separate_mul_sub": [
+        0.06546720862388611,
+        -0.2248132824897766,
+        0.04078443720936775
+      ],
+      "reconstructed_start_bits": [
+        "0x3d8613ac",
+        "0xbe663574",
+        "0x3d270d95"
+      ]
+    }
+  ],
+  "start_position_note": "Captured finish positions and accepted velocities are exact FP32 values. Start is reconstructed using the source expression finish - dt*velocity with separate FP32 multiply and subtract; the capture did not include an inline VT/EE audit record, so compiler FMA contraction cannot be ruled out for reconstructed start bits."
+}

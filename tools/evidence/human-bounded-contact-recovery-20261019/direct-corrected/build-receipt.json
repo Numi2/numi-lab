@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-fobjc-arc",
+    "-O2",
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/source-root-corrected-003/ccd_ee_compare.mm",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/ccd-ee-fallback-probe-276/build-root-corrected-003/ccd_ee_compare"
+  ],
+  "source_sha256": "23e91b9aa91978f75d56290f285fa396909577fe8bfdceef094b6849468a657a",
+  "kernel_sha256": "2419f9965afd8aeb2abca02e3bf92b99f46bce92493ec9d4e6943320817c36cb"
+}

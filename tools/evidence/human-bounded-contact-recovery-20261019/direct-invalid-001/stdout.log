@@ -1,0 +1,5 @@
+captured-276-EE-edge2-edge0 legacy=[0,0,0.6244547963,1.239958601e-05] fallback=[0,1,0.9867907166,6.124089123e-05]
+static-clear legacy=[0,1,0,0.01999999955] fallback=[0,1,0,0.01999999955]
+endpoint-contact legacy=[1,1,0.9997032285,1.093394621e-05] fallback=[1,1,0,4.999339581e-06]
+transient-crossing-endpoint-clear legacy=[1,1,0.4997486174,1.00549305e-05] fallback=[1,1,0.4999646246,1.000776956e-05]
+transient-near-miss legacy=[1,1,0.4997486174,1.005493232e-05] fallback=[0,1,0.5545127988,0.01419962011]

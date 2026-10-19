@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/force-runtime-002/retry-diagnostic-001/build/aortic_wall_force_probe",
+    "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal"
+  ],
+  "environment": {
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/pure-multifem-full-residual-266/routing-fix-272/build",
+    "DYLD_PRINT_LIBRARIES": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a",
+    "NUMI_MATTER_SOURCE": "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/MatterSource.metal",
+    "NUMI_MATTER_SOURCE_SHA256": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a"
+  },
+  "pins": {
+    "exe": "bccac1c057cc88ecb73fb9068173b4d415a2e5032f3fa653d8eab8b5f47ac581",
+    "source": "2d73e5ef1bedead9ff1938154acf8c06590557d3c8a549dc672320f4c557ab1b",
+    "msl": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a",
+    "lib": "e3ba162bfa7bda96ba97e0592d1e04fabfe43ac770577e0ba9f62cdf5b7c0d80"
+  },
+  "cwd": "/Users/n/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/native-wall-regression-001",
+  "base": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/force-runtime-002/retry-diagnostic-001/native/contact-only-wall6-001"
+}

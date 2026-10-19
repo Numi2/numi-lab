@@ -1,0 +1,14 @@
+{
+  "base_commit": "467ba517d900e30a28e54b433352ed51f1217eaa",
+  "base_contact_sha256": "95639e34ca00f353be8b666d6a0ca3c1fd057ee61adee226fbc6cfc66ccd31f0",
+  "contact_sha256": "e9da36014708a9b45fb2d5ca1027fb83a8aa9f1be20c75a30f57ada820e8e93b",
+  "flat_sha256": "84f5c1d8737e31f9c7926e582cbe17b93409fb6a104a43c4a722961707a8994a",
+  "base_flat_sha256": "ff1bda09ac422d21d15dd395f16e344a68d67d7fcebd3f37eaa78e5d2d4136bf",
+  "exact_flat_reconstruction": true,
+  "source_edit_regions": 3,
+  "source_edits": [
+    "relative vertex-triangle interval speed bound",
+    "edge-edge bounded interval fallback; legacy-certified paths retained"
+  ],
+  "runtime_source_sha256": "853cf1fb1d3608c523258073eab093a01097ed043a04be636b323b003c34a7de"
+}
