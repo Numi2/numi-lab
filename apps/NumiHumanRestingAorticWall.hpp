@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <map>
 #include <limits>
+#include <optional>
 #include <set>
 #include <span>
 #include <stdexcept>
@@ -116,6 +117,22 @@ struct Config {
     double inferredAxialStretch=1.0;
     std::uint32_t equilibriumIntegrationSegments=2048u;
 };
+// The resting scene treats the abdominal wall's exact outer-lateral surface
+// as a contact interface by default when that wall is included. An explicit
+// false override preserves a contact-free diagnostic run. This decision is
+// deliberately independent of skin/fat contact ownership and does not alter
+// the builder's opt-in default for other callers.
+inline bool resolveRestingOuterLateralContact(
+    bool aorticWallEnabled,std::optional<std::string_view> setting) {
+    if(setting&&*setting!="0"&&*setting!="1")
+        throw std::runtime_error(
+            "NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT must be exactly 0 or 1");
+    const bool explicitlyEnabled=setting&&*setting=="1";
+    if(explicitlyEnabled&&!aorticWallEnabled)
+        throw std::runtime_error(
+            "outer aortic wall contact requires the registered aortic wall");
+    return aorticWallEnabled&&(!setting||explicitlyEnabled);
+}
 struct LoadedReferenceEquilibrium {
     double currentInnerRadiusM=0.0;
     double currentOuterRadiusM=0.0;

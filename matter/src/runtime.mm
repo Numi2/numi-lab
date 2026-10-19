@@ -2230,6 +2230,7 @@ struct Runtime::State {
     id<MTLBuffer> vascularCompartmentCavity = nil;
     id<MTLBuffer> vascularCavityNodeIncidence = nil;
     id<MTLBuffer> vascularCavityNodeRanges = nil;
+    id<MTLBuffer> vascularCavitySchurDiagonal = nil;
     id<MTLBuffer> vascularCavityMergedExternal = nil;
     id<MTLBuffer> vascularUnknowns = nil;
     id<MTLBuffer> vascularCompartments = nil;
@@ -5063,6 +5064,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_operator",
             "nm_vascular_cavity_forces",
             "nm_vascular_cavity_operator",
+            "nm_vascular_cavity_schur_preconditioner",
             "nm_vascular_precondition",
             "nm_vascular_begin_working_set",
             "nm_vascular_resolve_working_set",
@@ -5525,6 +5527,10 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->vascularCavityNodeRanges = uploads.one(
             std::span<const NMVascularRangeGPU>(world.vascular.cavityNodeRanges),
+            valid, candidate->residentBytes);
+        candidate->vascularCavitySchurDiagonal = privateScratch<float>(
+            candidate->device, environments *
+                std::max<std::size_t>(world.vascular.cavities.size(), 1u),
             valid, candidate->residentBytes);
         const bool hasVascularBloodMass = std::any_of(
             world.vascular.tissues.begin(), world.vascular.tissues.end(),
@@ -23879,6 +23885,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bindPrimalContactArguments(10u);
                     });
             }
+            if (state.vascularValue.layout.cavities.x != 0u) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_vascular_cavity_schur_preconditioner",
+                    environments * state.vascularValue.layout.cavities.x, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:4u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:8u];
+                    [encoder setBuffer:state.vascularCavitySchurDiagonal
+                                 offset:0u atIndex:9u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -24194,6 +24219,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:20u];
                     [encoder setBuffer:state.vascularCavities offset:0u atIndex:21u];
                     [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:22u];
+                    [encoder setBuffer:state.vascularCavitySchurDiagonal
+                                 offset:0u atIndex:23u];
             });
                 dispatchThreads("nm_fgmres_precondition_free_rigid",
                     rigidGeneralizedTotal, [&] {

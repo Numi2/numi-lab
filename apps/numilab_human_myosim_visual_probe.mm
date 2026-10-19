@@ -27567,14 +27567,12 @@ int main(int argc, char** argv) {
                     std::strcmp(aorticWallSetting,"1")==0;
                 const char* aorticWallOuterContactSetting=
                     std::getenv("NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT");
-                require(aorticWallOuterContactSetting==nullptr||
-                            std::strcmp(aorticWallOuterContactSetting,"0")==0||
-                            std::strcmp(aorticWallOuterContactSetting,"1")==0,
-                        "NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT must be exactly 0 or 1");
+                const std::optional<std::string_view> aorticWallOuterContactOverride=
+                    aorticWallOuterContactSetting==nullptr?std::nullopt:
+                    std::optional<std::string_view>(aorticWallOuterContactSetting);
                 const bool restingAorticWallOuterContactEnabled=
-                    aorticWallOuterContactSetting&&std::strcmp(aorticWallOuterContactSetting,"1")==0;
-                require(!restingAorticWallOuterContactEnabled||restingAorticWallEnabled,
-                        "outer aortic wall contact requires NUMI_HUMAN_RESTING_AORTIC_WALL=1");
+                    numi::human::aortic_wall::resolveRestingOuterLateralContact(
+                        restingAorticWallEnabled,aorticWallOuterContactOverride);
                 require(!restingAorticWallEnabled||restingPassiveFasciaEnabled,
                         "registered aortic wall requires the shared intact resting tissue world");
                 const char* prostateFEMSetting=std::getenv("NUMI_HUMAN_RESTING_PROSTATE_FEM");

@@ -1,0 +1,41 @@
+{
+  "abi": 45,
+  "checks": {
+    "blood_mass_owner": "pass; biological calibration unqualified",
+    "coupled_equations_and_Jv": "pass",
+    "environments": 2,
+    "fp64_work_identity_relative_error": 3.815506027327431e-12,
+    "geometry_oracle": "pass",
+    "isolated_rollback": "pass",
+    "max_displacement_m": 1.716954646511882e-05,
+    "max_flow_m3_per_s": 9.753090257179297e-08,
+    "moving_wall_steps": 32,
+    "normalized_flow_residual": 3.067714714566805e-07,
+    "normalized_geometry_residual": 1.5878524350306503e-07,
+    "normalized_volume_balance": 5.7978598414733976e-08,
+    "pressure_gradient_reaction": "pass",
+    "production_force_operator": "pass",
+    "relative_blood_conservation": 7.152557373046875e-08,
+    "relative_tracer_conservation": 6.08561094883389e-08,
+    "replay": "bitwise pass",
+    "reset": "bitwise pass"
+  },
+  "device": "Apple M6",
+  "exit_status": 0,
+  "flattened_source_sha256": "c37f561dda38ba723de8fd776d3b630093115464ce88534d5d3ca9f8d6f9123b",
+  "invocation": "invocation.json",
+  "limits": [
+    "Synthetic hollow-cavity fixture only; this is not the full-body native013/014 aortic row-45 reproduction.",
+    "No claim of physiological or clinical calibration."
+  ],
+  "native_log_sha256": "6afb3a980b136f5ac0d3b6f9f42f5bb38024424c3dbc09f9eab2269c600a661f",
+  "native_world_fingerprints": [
+    6350604716732737098,
+    15400890322322406355,
+    13125035935154975282,
+    17618584671699552862
+  ],
+  "schema": "numi.matter.native-test-receipt.v1",
+  "status": "pass",
+  "test_executable_sha256": "9bb5eea5e0f4f792bfb003b87b543562dffd709c6285b283e923ab6611b77f37"
+}

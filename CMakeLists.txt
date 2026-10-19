@@ -6271,6 +6271,19 @@ target_link_libraries(numi_human_tissue_binding_check PRIVATE metalrobo)
 target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter")
 set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_executable(numi_human_aortic_outer_contact_policy_check
+    apps/numi_human_aortic_outer_contact_policy_check.cpp)
+target_include_directories(numi_human_aortic_outer_contact_policy_check PRIVATE
+    apps include matter/include)
+target_compile_options(numi_human_aortic_outer_contact_policy_check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(numi_human_aortic_outer_contact_policy_check PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_test(NAME numi_human_aortic_outer_contact_policy
+    COMMAND numi_human_aortic_outer_contact_policy_check)
+set_tests_properties(numi_human_aortic_outer_contact_policy PROPERTIES
+    LABELS "numi-human;contact;cpu" TIMEOUT 30)
+
 
 add_executable(
     metalrobo_numi_human_loaded_knee_source_constraint_check

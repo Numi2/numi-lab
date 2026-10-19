@@ -1,0 +1,88 @@
+{
+  "argv": [
+    "./vascular-cavity-schur-native-check"
+  ],
+  "artifacts": {
+    "native_log": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/native.log",
+    "sha256": {
+      "NumiMatterSource.metal": "c37f561dda38ba723de8fd776d3b630093115464ce88534d5d3ca9f8d6f9123b",
+      "libnumi_matter_compiler.a": "ad2ad590b95cc859972b0998d5022acb763188fc857c38c58b65803dc1f6a2ed",
+      "libnumi_matter_runtime.a": "f406584497bddf44b24ab24d43eda404c6772afc223eb853669d9f0f2fae74d6",
+      "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "matter/src/metal/vascular.metalinc": "1394ebeee9dec03ffbd40be740e6a46b79932c66dcb6523fcdc3e02376a5ffcf",
+      "matter/src/runtime.mm": "9c53a2d0a4fdba50eaa37606e14436858cbad0f5940336c0e45fed1ffad898b0",
+      "matter/tools/test_vascular_cavity_schur_reference.py": "cedc4ab5c1649f3f9cbda76856c0bc3a7e749ae3856703a2dd2d14fa869f202e",
+      "matter/tools/vascular_cavity_check.mm": "325915cac1d9e946e7992ab4b6579258ff33eb5309d32c992b0ab560460df7f0",
+      "native.log": "6afb3a980b136f5ac0d3b6f9f42f5bb38024424c3dbc09f9eab2269c600a661f",
+      "vascular-cavity-schur-native-check": "9bb5eea5e0f4f792bfb003b87b543562dffd709c6285b283e923ab6611b77f37",
+      "vascular_cavity_check_test_source.mm": "9ce1092c8b4231886129b3b403e9188fdda07ac0fb1172fedf711b7826128207"
+    },
+    "test_executable": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/vascular-cavity-schur-native-check",
+    "test_harness": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/vascular_cavity_check_test_source.mm",
+    "test_source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/NumiMatterSource.metal"
+  },
+  "branch": "",
+  "checkout": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "compile_configuration": {
+    "build_directory": "/tmp/numi-aortic-schur-native-build",
+    "build_type": "Release",
+    "command": "cmake -S <checkout>/matter -B /tmp/numi-aortic-schur-native-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-DNM_MATTER_TEST_SOURCE_LOADER -DCMAKE_OBJCXX_FLAGS=-DNM_MATTER_TEST_SOURCE_LOADER -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=OFF",
+    "compiled_sources": [
+      "matter/src/runtime.mm",
+      "matter/src/human_physiology.mm",
+      "matter/src/metal_world.cpp",
+      "matter/src/numi_human.mm",
+      "matter/src/matter.cpp",
+      "matter/src/language_impl.cpp",
+      "matter/src/constitutive_impl.cpp",
+      "matter/src/compiler_impl.cpp",
+      "matter/src/vascular_impl.cpp",
+      "matter/src/fingerprint_impl.cpp",
+      "matter/src/validation_impl.cpp",
+      "matter/src/package_impl.cpp",
+      "matter/src/surgical_tissue.cpp"
+    ],
+    "generator": "Ninja",
+    "runtime_compile_define": "NM_MATTER_TEST_SOURCE_LOADER"
+  },
+  "device": "Apple M6 (confirmed by test output)",
+  "dynamic_msl_options": {
+    "languageVersion": "MTLLanguageVersion4_0",
+    "mathFloatingPointFunctions": "MTLMathFloatingPointFunctionsPrecise",
+    "mathMode": "MTLMathModeSafe",
+    "optimizationLevel": "MTLLibraryOptimizationLevelDefault"
+  },
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/tmp/numi-aortic-schur-native-build/NumiMatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "c37f561dda38ba723de8fd776d3b630093115464ce88534d5d3ca9f8d6f9123b"
+  },
+  "executed_executable_path": "/tmp/numi-aortic-schur-native-build/vascular-cavity-schur-native-check",
+  "flattened_source_sha256": "c37f561dda38ba723de8fd776d3b630093115464ce88534d5d3ca9f8d6f9123b",
+  "native_executable": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/vascular-cavity-schur-native-check",
+  "os": "27.0",
+  "purpose": "Bounded two-environment hollow-cavity regression exercising cavity force/operator, runtime preconditioner pipeline, 32 accepted moving-wall steps, conservation, replay, reset, and rejection rollback.",
+  "retained_source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/NumiMatterSource.metal",
+  "runtime_test_loader_compile_define": "NM_MATTER_TEST_SOURCE_LOADER",
+  "schema": "numi.matter.native-test-invocation.v1",
+  "source_revision": "4c0dbe2aadb3a1af2705bb37e59c3690bb84cee6",
+  "test": "vascular_cavity_check dynamic-MSL source-loader run",
+  "test_translation_unit_derivation": {
+    "change": "Temporary test-only copy replaces the three direct metallib URL loads with the same runtime-compiled, SHA-pinned MSL test source; no repository test source was modified.",
+    "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/vascular_cavity_check.mm",
+    "source_sha256": "325915cac1d9e946e7992ab4b6579258ff33eb5309d32c992b0ab560460df7f0"
+  },
+  "test_translation_unit_sha256": "9ce1092c8b4231886129b3b403e9188fdda07ac0fb1172fedf711b7826128207",
+  "timing": "No elapsed-time instrument was recorded for this short fixture run.",
+  "working_directory": "/tmp/numi-aortic-schur-native-build",
+  "worktree_status_at_recording": [
+    "M CMakeLists.txt",
+    " M apps/NumiHumanRestingAorticWall.hpp",
+    " M apps/numilab_human_myosim_visual_probe.mm",
+    " M matter/src/metal/vascular.metalinc",
+    " M matter/src/metal_encoder_timing.hpp",
+    " M matter/src/runtime.mm",
+    "?? apps/numi_human_aortic_outer_contact_policy_check.cpp",
+    "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/",
+    "?? matter/tools/test_vascular_cavity_schur_reference.py"
+  ]
+}

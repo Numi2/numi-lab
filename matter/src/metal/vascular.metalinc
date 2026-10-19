@@ -1240,6 +1240,95 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
 #undef NM_VASCULAR_EVALUATE
 #undef NM_VASCULAR_EQUATION_ARGUMENTS
 
+// Build a face-lumped approximation of the cavity pressure Schur diagonal.
+// The volume equation uses its exact candidate gradient, while the pressure
+// force uses the Simpson discrete gradient that preserves cubic volume work.
+// Their cross product with the existing mechanical inverse diagonal is a
+// solver-only estimate; no constitutive or conservation equation is changed.
+kernel void nm_vascular_cavity_schur_preconditioner(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCavityGPU* cavities [[buffer(4)]],
+    device const NMVascularCavityFaceGPU* faces [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* inverseMechanicalDiagonal [[buffer(8)]],
+    device float* schurDiagonal [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint cavityCount = graph.cavities.x;
+    if (cavityCount == 0u || lane >= 32u) return;
+    const uint environment = group / cavityCount;
+    const uint cavityIndex = group - environment * cavityCount;
+    if (environment >= dispatch.environmentCount) return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const NMVascularCavityGPU cavity = cavities[cavityIndex];
+    const uint pressureRow = cavity.identity.w;
+    const float3 origin = accepted[nodeBase +
+        faces[cavity.faces.x].nodes.x].positionAndMass.xyz;
+    float localSchur = 0.0f;
+    bool localFinite = all(isfinite(origin));
+    for (uint slot = lane; slot < cavity.faces.y; slot += 32u) {
+        const uint3 n = faces[cavity.faces.x + slot].nodes.xyz;
+        const float3 a0 = accepted[nodeBase + n.x].positionAndMass.xyz - origin;
+        const float3 b0 = accepted[nodeBase + n.y].positionAndMass.xyz - origin;
+        const float3 c0 = accepted[nodeBase + n.z].positionAndMass.xyz - origin;
+        const float3 a1 = candidate[nodeBase + n.x].positionAndMass.xyz - origin;
+        const float3 b1 = candidate[nodeBase + n.y].positionAndMass.xyz - origin;
+        const float3 c1 = candidate[nodeBase + n.z].positionAndMass.xyz - origin;
+        const float3 am = 0.5f * (a0 + a1);
+        const float3 bm = 0.5f * (b0 + b1);
+        const float3 cm = 0.5f * (c0 + c1);
+
+        const float3 volumeGradient[3] = {
+            vascularCavityGradient(b1, c1),
+            vascularCavityGradient(c1, a1),
+            vascularCavityGradient(a1, b1)
+        };
+        const float3 forceGradient[3] = {
+            (vascularCavityGradient(b0, c0) +
+                4.0f * vascularCavityGradient(bm, cm) +
+                vascularCavityGradient(b1, c1)) / 6.0f,
+            (vascularCavityGradient(c0, a0) +
+                4.0f * vascularCavityGradient(cm, am) +
+                vascularCavityGradient(c1, a1)) / 6.0f,
+            (vascularCavityGradient(a0, b0) +
+                4.0f * vascularCavityGradient(am, bm) +
+                vascularCavityGradient(a1, b1)) / 6.0f
+        };
+        const uint node[3] = { n.x, n.y, n.z };
+        for (uint cornerIndex = 0u; cornerIndex < 3u; ++cornerIndex) {
+            const float3 inverseDiagonal =
+                inverseMechanicalDiagonal[nodeBase + node[cornerIndex]].xyz;
+            const float contribution = dot(volumeGradient[cornerIndex],
+                inverseDiagonal * forceGradient[cornerIndex]);
+            localFinite = localFinite && all(isfinite(inverseDiagonal)) &&
+                isfinite(contribution);
+            // Drop negative face-local terms in this positive scaling
+            // approximation; this never edits force or state.
+            localSchur += max(contribution, 0.0f);
+        }
+    }
+    const bool finite = simd_all(localFinite);
+    const float summedSchur = simd_sum(localSchur);
+    if (lane == 0u) {
+        const float equationScale = unknowns[pressureRow].initialAndScaling.z;
+        const float pressureScale = unknowns[pressureRow].initialAndScaling.y;
+        const float dt = microstep.time.x;
+        const float scaledSchur = (dt * dt) *
+            (pressureScale / equationScale) * summedSchur;
+        // This is only right-preconditioner scaling. Retain the established
+        // unit fallback for a degenerate/invalid estimate; never regularize
+        // the actual row or relax its authored certificate tolerance.
+        schurDiagonal[environment * cavityCount + cavityIndex] =
+            finite && isfinite(scaledSchur) && scaledSchur > 1.0e-12f
+                ? scaledSchur : 1.0f;
+    }
+}
+
 // Positive diagonal scaling for the pressure/volume/species mixed units.
 // The nonsymmetric transport/compliance cross-block remains in the operator.
 kernel void nm_vascular_precondition(
@@ -1266,6 +1355,7 @@ kernel void nm_vascular_precondition(
     device const uint* workingSet [[buffer(20)]],
     device const NMVascularCavityGPU* cavities [[buffer(21)]],
     device const uint* compartmentCavity [[buffer(22)]],
+    device const float* cavitySchurDiagonal [[buffer(23)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
@@ -1338,8 +1428,14 @@ kernel void nm_vascular_precondition(
         diagonal *= 1.0f + microstep.time.x * rate;
     }
     // Geometry/pressure is a saddle-point row with a zero true diagonal.
-    // Unit normalized scaling is only a preconditioner, not an invented law.
-    if (local >= graph.cavities.z) diagonal = 1.0f;
+    // Use its positive, face-lumped mechanical Schur estimate for scaling;
+    // this affects only Krylov conditioning, not the exact coupled operator.
+    if (local >= graph.cavities.z) {
+        const uint cavityIndex = local - graph.cavities.z;
+        const float schur = cavitySchurDiagonal[
+            environment * graph.cavities.x + cavityIndex];
+        diagonal = isfinite(schur) && schur > 0.0f ? schur : 1.0f;
+    }
     if (!isfinite(diagonal) || !(diagonal > 0.0f)) {
         preconditioned[row] = float4(0.0f);
         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
