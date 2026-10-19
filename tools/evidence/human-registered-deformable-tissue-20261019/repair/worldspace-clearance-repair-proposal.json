@@ -1,0 +1,254 @@
+{
+  "schema": "registered-organ-worldspace-clearance-repair-proposal.v1",
+  "status": "provisional_local_geometry_patch_pending_full_validation_and_tetgen",
+  "base_boundary_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-005/repair-input/spleen-FJ2561-collective-clearance-7um.json",
+  "base_boundary_sha256": "bb11c2948cdfb1acfdf0a17ac0fc873a579b0ae2404fd36b0312a78ca9746b66",
+  "base_candidate_vertex_count": 716,
+  "base_candidate_face_count": 1428,
+  "source_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "source_mesh_sha256": "d03fb6cde25dfca5b6688a87d9af4e553b1f32310ef46d7b3c52ebd75a67d839",
+  "stable_identifier": 13,
+  "concept": "FMA7196",
+  "source_body_index": 20,
+  "native_log_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/native-run-organbatch-candidate005-default64-001/organ-batch/native.log",
+  "native_log_sha256": "afdc4a75d1c12b5b12487371adc670f5f53dd4d2416815b2e02cabe7c5970d0d",
+  "body_pose_post_COM_rebase": {
+    "body_index": 20,
+    "position_m": [
+      -0.025413084775209427,
+      0.20012357831001282,
+      1.7106750011444092
+    ],
+    "quaternion_xyzw": [
+      0.5000000596046448,
+      -0.4999999701976776,
+      -0.5,
+      0.5
+    ]
+  },
+  "remaining_COM_offset_local_m": [
+    -0.000723578417,
+    0.00347516383,
+    0.000413088322
+  ],
+  "source_geometry_body_position_pre_COM_rebase_m": [
+    -0.02499999628494854,
+    0.19940000024064966,
+    1.7071998372620272
+  ],
+  "transform_order": "normalized double quaternion -> double rotate -> double translation -> Float32 emission",
+  "compiled_contact_source_primitives": [
+    30135,
+    30298
+  ],
+  "compiled_contact_fem_nodes": [
+    2117,
+    2114,
+    2119,
+    1869
+  ],
+  "registered_boundary_face_pair": {
+    "tetgen_face_a": 414,
+    "source_face_global_a": 232808,
+    "tetgen_face_b": 1317,
+    "source_face_global_b": 234173,
+    "node_indices_a": [
+      281,
+      286,
+      36
+    ],
+    "node_indices_b": [
+      289,
+      299,
+      284
+    ]
+  },
+  "closest_feature": {
+    "kind": "tetgen boundary node 284 to face 414 edge 281-286",
+    "gap_before_m": 3.901316698508944e-06,
+    "node_to_triangle_barycentric": [
+      0.46193583374963976,
+      0.5380641662503602,
+      0.0
+    ],
+    "separation_normal_world": [
+      0.21023030604787504,
+      -0.9088111463348115,
+      -0.3603685873055848
+    ],
+    "collision_thickness_m": 2.99628618e-06,
+    "pair_world_coordinate_scale_m": 1.5713961124420166,
+    "float32_epsilon": 1.1920928955078125e-07,
+    "runtime_initial_touch_floor_m": 4.494886293336579e-06,
+    "target_after_m": 7.5e-06,
+    "gap_after_exact_app_order_float32_m": 7.555885149774573e-06,
+    "target_margin_m": 3.060998856437994e-06
+  },
+  "patch_vertices": [
+    {
+      "tetgen_node_index": 36,
+      "candidate_vertex_index": 36,
+      "source_payload_global_vertex_index": 116741,
+      "local_before_m": [
+        0.013748636469244957,
+        -0.13765138387680054,
+        -0.06636830419301987
+      ],
+      "world_displacement_m": [
+        -3.782761459209211e-07,
+        1.6352617482620156e-06,
+        6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        -1.6352618400563447e-06,
+        6.484260738289745e-07,
+        3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.0137470012074049,
+        -0.1376507354507267,
+        -0.06636792591703948
+      ],
+      "patch_side": "A"
+    },
+    {
+      "tetgen_node_index": 281,
+      "candidate_vertex_index": 281,
+      "source_payload_global_vertex_index": 116794,
+      "local_before_m": [
+        0.021149080246686935,
+        -0.13712939620018005,
+        -0.0628170445561409
+      ],
+      "world_displacement_m": [
+        -3.782761459209211e-07,
+        1.6352617482620156e-06,
+        6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        -1.6352618400563447e-06,
+        6.484260738289745e-07,
+        3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.02114744498484688,
+        -0.13712874777410622,
+        -0.06281666628016051
+      ],
+      "patch_side": "A"
+    },
+    {
+      "tetgen_node_index": 284,
+      "candidate_vertex_index": 284,
+      "source_payload_global_vertex_index": 116797,
+      "local_before_m": [
+        0.021517671644687653,
+        -0.13667543232440948,
+        -0.06202053651213646
+      ],
+      "world_displacement_m": [
+        3.782761459209211e-07,
+        -1.6352617482620156e-06,
+        -6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        1.6352618400563447e-06,
+        -6.484260738289745e-07,
+        -3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.02151930690652771,
+        -0.13667608075048332,
+        -0.06202091478811685
+      ],
+      "patch_side": "B"
+    },
+    {
+      "tetgen_node_index": 286,
+      "candidate_vertex_index": 286,
+      "source_payload_global_vertex_index": 116801,
+      "local_before_m": [
+        0.02182753197848797,
+        -0.13628293573856354,
+        -0.06133519858121872
+      ],
+      "world_displacement_m": [
+        -3.782761459209211e-07,
+        1.6352617482620156e-06,
+        6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        -1.6352618400563447e-06,
+        6.484260738289745e-07,
+        3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.021825896716647912,
+        -0.1362822873124897,
+        -0.061334820305238326
+      ],
+      "patch_side": "A"
+    },
+    {
+      "tetgen_node_index": 289,
+      "candidate_vertex_index": 289,
+      "source_payload_global_vertex_index": 116804,
+      "local_before_m": [
+        0.02200605906546116,
+        -0.1371670812368393,
+        -0.0655268132686615
+      ],
+      "world_displacement_m": [
+        3.782761459209211e-07,
+        -1.6352617482620156e-06,
+        -6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        1.6352618400563447e-06,
+        -6.484260738289745e-07,
+        -3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.022007694327301215,
+        -0.13716772966291313,
+        -0.06552719154464189
+      ],
+      "patch_side": "B"
+    },
+    {
+      "tetgen_node_index": 299,
+      "candidate_vertex_index": 299,
+      "source_payload_global_vertex_index": 116816,
+      "local_before_m": [
+        0.02258952148258686,
+        -0.1358037292957306,
+        -0.06157539039850235
+      ],
+      "world_displacement_m": [
+        3.782761459209211e-07,
+        -1.6352617482620156e-06,
+        -6.48426208759265e-07
+      ],
+      "local_displacement_m": [
+        1.6352618400563447e-06,
+        -6.484260738289745e-07,
+        -3.78275980392521e-07
+      ],
+      "local_after_m": [
+        0.022591156744426917,
+        -0.13580437772180443,
+        -0.06157576867448274
+      ],
+      "patch_side": "B"
+    }
+  ],
+  "max_per_vertex_world_displacement_m": 1.7993416507455285e-06,
+  "faces_and_source_face_ancestry": "unchanged; this overlay changes only six existing candidate vertex coordinates",
+  "no_claims": [
+    "self-crossing audit pending",
+    "all-neighbor crossing-set audit pending",
+    "TetGen closure/positive-cell/mass receipt pending",
+    "no loaded-trajectory clearance guarantee",
+    "local inferred reference geometry repair, not measured anatomy"
+  ]
+}

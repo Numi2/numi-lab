@@ -1,0 +1,23 @@
+{
+  "attribution": "BodyParts3D, (c) The Database Center for Life Science",
+  "license": "CC Attribution-Share Alike 2.1 Japan",
+  "license_notice": "http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+  "archive_sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e",
+  "members": {
+    "FJ3147": {
+      "member_path": "isa_BP3D_4.0_obj_99/FJ3147.obj",
+      "obj_sha256": "0b75658b1af56974cc70f7f805784b40630debdfa76e196c51ee91422af99e8f",
+      "source_notice": "#\n# The license for this database is specified in the Creative Commons Attribution-Share Alike 2.1 Japan. If you use data from this database, please be sure attribute this database as follows: \"BodyParts3D, (c)  The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan\".\n# http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html\n#\n#\n# Compatibility version : 4.0\n# File ID : FJ3147\n# Representation ID : BP8907\n# Build-up logic : FMA 3.0 is_a\n# Concept ID : FMA7204\n# English name : Right kidney\n# Bounds(mm): (-87.575400,-111.855000,966.812000)-(-30.427600,-64.700100,1071.240000)\n# Volume(cm3): 106.123700\n#"
+    },
+    "FJ3145": {
+      "member_path": "isa_BP3D_4.0_obj_99/FJ3145.obj",
+      "obj_sha256": "7d60d27da6d4d5d3e9fd78dde04a8401cb55d998a31f05cc9c8968955d83add9",
+      "source_notice": "#\n# The license for this database is specified in the Creative Commons Attribution-Share Alike 2.1 Japan. If you use data from this database, please be sure attribute this database as follows: \"BodyParts3D, (c)  The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan\".\n# http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html\n#\n#\n# Compatibility version : 4.0\n# File ID : FJ3145\n# Representation ID : BP9289\n# Build-up logic : FMA 3.0 is_a\n# Concept ID : FMA7205\n# English name : Left kidney\n# Bounds(mm): (32.839900,-100.185000,984.494000)-(90.383000,-59.591400,1090.439900)\n# Volume(cm3): 103.210200\n#"
+    },
+    "FJ2561": {
+      "member_path": "isa_BP3D_4.0_obj_99/FJ2561.obj",
+      "obj_sha256": "8dadb164d15392b61e0b08286625c9ea9f959a0f13d8f166b32d84abad4689bf",
+      "source_notice": "#\n# The license for this database is specified in the Creative Commons Attribution-Share Alike 2.1 Japan. If you use data from this database, please be sure attribute this database as follows: \"BodyParts3D, (c)  The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan\".\n# http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html\n#\n#\n# Compatibility version : 4.0\n# File ID : FJ2561\n# Representation ID : BP8804\n# Build-up logic : FMA 3.0 is_a\n# Concept ID : FMA7196\n# English name : Spleen\n# Bounds(mm): (55.634100,-141.262000,1051.610000)-(113.868000,-46.196100,1121.840000)\n# Volume(cm3): 111.977600\n#"
+    }
+  }
+}

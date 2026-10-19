@@ -1,0 +1,562 @@
+{
+  "cases": {
+    "clean": {
+      "accepted_node_tet_row_counts": {
+        "node_rows": 6254,
+        "tetrahedron_rows": 25108,
+        "total_rows": 31362
+      },
+      "accepted_node_tet_rows_sha256": "383208ecbf439a4f47a89bec1d7d3398db34e6311e3ebac07b96867d879eec41",
+      "case": "production_all_optins_clean",
+      "csv_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/native-paired-001-production-matter/production_all_optins_clean/output/resting-coupled.csv",
+      "csv_sha256": "ad7573ac22156e8efcfa97f19154ae92b79ab331a9fae348e281a71ce968ea35",
+      "dyld_exact_production_library_observed": true,
+      "native_exit": 0,
+      "object_summary_sha256": "2ee8a87f5b47238e13f885edf76050120a4bb5fdca5519396c74ca53599c81bd",
+      "objects": [
+        {
+          "first_node": 0,
+          "first_tet": 0,
+          "max_J": 1.000007736,
+          "max_anchored_displacement_m": 3.356071004e-07,
+          "max_displacement_m": 3.356071004e-07,
+          "max_speed_m_s": 0.001284009799,
+          "min_J": 0.999975457,
+          "nodes": 16,
+          "object": "inferred_registered_left_ACL_reference_v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=inferred_registered_left_ACL_reference_v1 first_node=0 node_count=16 first_tet=0 tet_count=18 max_displacement_m=3.356071004e-07 max_displacement_local_node=0 max_free_displacement_m=1.499400422e-07 max_free_local_node=8 max_anchored_displacement_m=3.356071004e-07 max_anchored_local_node=0 max_speed_m_s=0.001284009799 max_speed_local_node=2 min_J=0.999975457 min_J_local_tet=9 max_J=1.000007736 max_J_local_tet=12",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "145": 4,
+              "150": 4
+            },
+            "captured_node_count": 16,
+            "constraint_tag_node_count": 8,
+            "mass_kg_from_emitted_float_nodes": 0.0005732901490779999
+          },
+          "tetrahedra": 18
+        },
+        {
+          "first_node": 16,
+          "first_tet": 18,
+          "max_J": 1.000017757,
+          "max_anchored_displacement_m": 2.939912626e-07,
+          "max_displacement_m": 2.939912626e-07,
+          "max_speed_m_s": 0.001142249578,
+          "min_J": 0.9999822535,
+          "nodes": 16,
+          "object": "inferred_registered_right_ACL_reference_v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=inferred_registered_right_ACL_reference_v1 first_node=16 node_count=16 first_tet=18 tet_count=18 max_displacement_m=2.939912626e-07 max_displacement_local_node=14 max_free_displacement_m=1.908279728e-07 max_free_local_node=7 max_anchored_displacement_m=2.939912626e-07 max_anchored_local_node=14 max_speed_m_s=0.001142249578 max_speed_local_node=1 min_J=0.9999822535 min_J_local_tet=15 max_J=1.000017757 max_J_local_tet=16",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "131": 4,
+              "136": 4
+            },
+            "captured_node_count": 16,
+            "constraint_tag_node_count": 8,
+            "mass_kg_from_emitted_float_nodes": 0.000443575662772
+          },
+          "tetrahedra": 18
+        },
+        {
+          "first_node": 32,
+          "first_tet": 36,
+          "max_J": 1.038992384,
+          "max_anchored_displacement_m": 2.942330875e-07,
+          "max_displacement_m": 0.001175999652,
+          "max_speed_m_s": 2.258635661,
+          "min_J": 0.7114739335,
+          "nodes": 532,
+          "object": "Human/BodyParts3D/stable-9/reduced-cavity-wall-v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=Human/BodyParts3D/stable-9/reduced-cavity-wall-v1 first_node=32 node_count=532 first_tet=36 tet_count=1584 max_displacement_m=0.001175999652 max_displacement_local_node=432 max_free_displacement_m=0.001175999652 max_free_local_node=432 max_anchored_displacement_m=2.942330875e-07 max_anchored_local_node=15 max_speed_m_s=2.258635661 max_speed_local_node=435 min_J=0.7114739335 min_J_local_tet=1529 max_J=1.038992384 max_J_local_tet=126",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "7": 24
+            },
+            "captured_node_count": 532,
+            "constraint_tag_node_count": 24,
+            "mass_kg_from_emitted_float_nodes": 0.007059265134245394
+          },
+          "tetrahedra": 1584
+        },
+        {
+          "first_node": 564,
+          "first_tet": 1620,
+          "max_J": 1.000086827,
+          "max_anchored_displacement_m": 1.931411236e-07,
+          "max_displacement_m": 1.836231828e-06,
+          "max_speed_m_s": 0.004918756252,
+          "min_J": 0.9999434606,
+          "nodes": 150,
+          "object": "BodyParts3D coarse regional skin-fat bonded shell",
+          "raw_summary": "resting_FEM_object_capture=summary object=BodyParts3D coarse regional skin-fat bonded shell first_node=564 node_count=150 first_tet=1620 tet_count=384 max_displacement_m=1.836231828e-06 max_displacement_local_node=99 max_free_displacement_m=1.836231828e-06 max_free_local_node=99 max_anchored_displacement_m=1.931411236e-07 max_anchored_local_node=49 max_speed_m_s=0.004918756252 max_speed_local_node=91 min_J=0.9999434606 min_J_local_tet=178 max_J=1.000086827 max_J_local_tet=171",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 150,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.015372352192674304
+          },
+          "tetrahedra": 384
+        },
+        {
+          "first_node": 714,
+          "first_tet": 2004,
+          "max_J": 1.00014327,
+          "max_anchored_displacement_m": 4.184323606e-07,
+          "max_displacement_m": 2.029363644e-06,
+          "max_speed_m_s": 0.005450335036,
+          "min_J": 0.9997935395,
+          "nodes": 224,
+          "object": "registered_prostate_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_prostate_reference_fem first_node=714 node_count=224 first_tet=2004 tet_count=442 max_displacement_m=2.029363644e-06 max_displacement_local_node=217 max_free_displacement_m=2.029363644e-06 max_free_local_node=217 max_anchored_displacement_m=4.184323606e-07 max_anchored_local_node=0 max_speed_m_s=0.005450335036 max_speed_local_node=216 min_J=0.9997935395 min_J_local_tet=297 max_J=1.00014327 max_J_local_tet=46",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 224,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.011853549809230004
+          },
+          "tetrahedra": 442
+        },
+        {
+          "first_node": 938,
+          "first_tet": 2446,
+          "max_J": 1.000326791,
+          "max_anchored_displacement_m": 3.151340184e-07,
+          "max_displacement_m": 1.910896001e-06,
+          "max_speed_m_s": 0.005213862559,
+          "min_J": 0.9998649777,
+          "nodes": 196,
+          "object": "right-kidney-FJ3147",
+          "raw_summary": "resting_FEM_object_capture=summary object=right-kidney-FJ3147 first_node=938 node_count=196 first_tet=2446 tet_count=707 max_displacement_m=1.910896001e-06 max_displacement_local_node=21 max_free_displacement_m=1.910896001e-06 max_free_local_node=21 max_anchored_displacement_m=3.151340184e-07 max_anchored_local_node=6 max_speed_m_s=0.005213862559 max_speed_local_node=21 min_J=0.9998649777 min_J_local_tet=426 max_J=1.000326791 max_J_local_tet=105",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 196,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.10601915364591698
+          },
+          "tetrahedra": 707
+        },
+        {
+          "first_node": 1134,
+          "first_tet": 3153,
+          "max_J": 1.001029665,
+          "max_anchored_displacement_m": 2.995096332e-07,
+          "max_displacement_m": 2.031567861e-06,
+          "max_speed_m_s": 0.005421901657,
+          "min_J": 0.9995402863,
+          "nodes": 699,
+          "object": "left-kidney-FJ3145",
+          "raw_summary": "resting_FEM_object_capture=summary object=left-kidney-FJ3145 first_node=1134 node_count=699 first_tet=3153 tet_count=2942 max_displacement_m=2.031567861e-06 max_displacement_local_node=99 max_free_displacement_m=2.031567861e-06 max_free_local_node=99 max_anchored_displacement_m=2.995096332e-07 max_anchored_local_node=8 max_speed_m_s=0.005421901657 max_speed_local_node=99 min_J=0.9995402863 min_J_local_tet=2011 max_J=1.001029665 max_J_local_tet=765",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 699,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.10480192453233438
+          },
+          "tetrahedra": 2942
+        },
+        {
+          "first_node": 1833,
+          "first_tet": 6095,
+          "max_J": 1.008434222,
+          "max_anchored_displacement_m": 2.741570695e-07,
+          "max_displacement_m": 2.047663006e-06,
+          "max_speed_m_s": 0.005551615815,
+          "min_J": 0.9975312213,
+          "nodes": 992,
+          "object": "spleen-FJ2561",
+          "raw_summary": "resting_FEM_object_capture=summary object=spleen-FJ2561 first_node=1833 node_count=992 first_tet=6095 tet_count=3915 max_displacement_m=2.047663006e-06 max_displacement_local_node=729 max_free_displacement_m=2.047663006e-06 max_free_local_node=729 max_anchored_displacement_m=2.741570695e-07 max_anchored_local_node=219 max_speed_m_s=0.005551615815 max_speed_local_node=262 min_J=0.9975312213 min_J_local_tet=2044 max_J=1.008434222 max_J_local_tet=819",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 992,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.11436617729130157
+          },
+          "tetrahedra": 3915
+        },
+        {
+          "first_node": 2825,
+          "first_tet": 10010,
+          "max_J": 1.012978272,
+          "max_anchored_displacement_m": 2.428752858e-07,
+          "max_displacement_m": 1.196660721e-06,
+          "max_speed_m_s": 0.00327955248,
+          "min_J": 0.9872786732,
+          "nodes": 1728,
+          "object": "registered_left_optic_nerve_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_left_optic_nerve_reference_fem first_node=2825 node_count=1728 first_tet=10010 tet_count=7675 max_displacement_m=1.196660721e-06 max_displacement_local_node=264 max_free_displacement_m=1.196660721e-06 max_free_local_node=264 max_anchored_displacement_m=2.428752858e-07 max_anchored_local_node=659 max_speed_m_s=0.00327955248 max_speed_local_node=344 min_J=0.9872786732 min_J_local_tet=5647 max_J=1.012978272 max_J_local_tet=144",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "23": 3
+            },
+            "captured_node_count": 1728,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.0007492861010040844
+          },
+          "tetrahedra": 7675
+        },
+        {
+          "first_node": 4553,
+          "first_tet": 17685,
+          "max_J": 1.013448904,
+          "max_anchored_displacement_m": 2.427163143e-07,
+          "max_displacement_m": 1.207936509e-06,
+          "max_speed_m_s": 0.003253067887,
+          "min_J": 0.9870351209,
+          "nodes": 1701,
+          "object": "registered_right_optic_nerve_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_right_optic_nerve_reference_fem first_node=4553 node_count=1701 first_tet=17685 tet_count=7423 max_displacement_m=1.207936509e-06 max_displacement_local_node=1047 max_free_displacement_m=1.207936509e-06 max_free_local_node=1047 max_anchored_displacement_m=2.427163143e-07 max_anchored_local_node=605 max_speed_m_s=0.003253067887 max_speed_local_node=1252 min_J=0.9870351209 min_J_local_tet=1483 max_J=1.013448904 max_J_local_tet=46",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "23": 3
+            },
+            "captured_node_count": 1701,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.0007488789791996512
+          },
+          "tetrahedra": 7423
+        }
+      ],
+      "preparation_mass_support_records": [
+        "resting_fascia_reduced_owner=accepted representation=two_point_axial_strips source_nodes=38 source_tetrahedra=54 strips=8 endpoint_anchors=16 source_volume_m3=1.4000239e-06 source_mass_kg=0.0014000239 thickness_m=0.000600000028 max_fit_fraction=0.00638504474 max_fit_rms_fraction=0.00304806901 fit_stretch_range=1.005,1.12 linear_extension_beyond=1.12 fit_error_normalization=peak_target_stress mass_owner=original_rigid_donors mass_partitioned=0 myosim_force_owner=existing_NHTENDON passive_fascia_force_owner=existing_Matter_passive_ligament compression_shear=not_represented visual_deformation=not_represented",
+        "resting_skin_fat_regional_preparation=accepted source=BodyParts3D source_member=/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/bilateral-hand-skin-repair-20261018-001/source-hand-wrist-preserved-025/bodyparts3d-myosim-skinned-shell.nhskin source_payload_sha256=2d6b0870d1ba0dd6b0944b6a0175ca0304f0392d9ec4458521938a3a5766ad68 patch_faces=64 patch_vertices=50 shared_fem_nodes=150 shared_fem_tets=384 skin_tets=192 fat_tets=192 skin_volume_m3=3.64743912e-06 fat_volume_m3=1.30276783e-05 skin_mass_debit_kg=0.00364743912 fat_mass_debit_kg=0.0117249105 interface_nodes_shared=1 contact_surface=skin_outer_only anchor_count=3 anchor_policy=three_highest-registered-weight_reference-frame-points_or_fewer assumed_reference=registered_scene_pose_not_measured_unloaded_skin thickness_reference=VHFUS adult abdominal full-thickness skin 2.513 +/- 0.538 mm; 2.5 mm regional-reference inference, not a subject measurement; explicit local subcutaneous-fat reference inference; 2-20 mm sensitivity, not a source thickness measurement",
+        "resting_prostate_regional_preparation=accepted source_provider=BodyParts3D source_member=FJ3139 source_stable_id=463 source_body=20 runtime_donor_body=20 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 vertices=223 source_faces=442 fem_nodes=224 fem_tets=442 volume_m3=1.18535515e-05 mass_debit_kg=0.0118535515 density_kg_m3=1000 mass_residual_kg=7.16928687e-18 anchor_count=3 anchor_policy=three_inferred_sparse_pelvic_reference_nodes constitutive_scope=passive_proxy_no_prostate_fit",
+        "resting_passive_organ_batch=prepared source_member=FJ3147 stable_id=4 concept=FMA7204 source_body=20 runtime_donor_body=20 nodes=196 tets=707 boundary_faces=304 source_volume_m3=0.000108049616 reduced_reference_volume_m3=0.000106019155 mass_debit_kg=0.106019155 mass_residual_kg=-8.32667268e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_passive_organ_batch=prepared source_member=FJ3145 stable_id=5 concept=FMA7205 source_body=20 runtime_donor_body=20 nodes=699 tets=2942 boundary_faces=896 source_volume_m3=0.000106128012 reduced_reference_volume_m3=0.000104801933 mass_debit_kg=0.104801933 mass_residual_kg=9.71445147e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_passive_organ_batch=prepared source_member=FJ2561 stable_id=13 concept=FMA7196 source_body=20 runtime_donor_body=20 nodes=992 tets=3915 boundary_faces=1428 source_volume_m3=0.000114710524 reduced_reference_volume_m3=0.000114366189 mass_debit_kg=0.114366189 mass_residual_kg=-6.9388939e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_optic_nerve_fem=admitted member=FJ1772 concept=FMA50878 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1728 tets=7675 source_boundary_nodes=1190 source_boundary_faces=2376 volume_m3=7.49286959e-07 inferred_mass_debit_kg=0.000749286959 inferred_density_kg_m3=1000 mass_residual_kg=-2.60208521e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented",
+        "resting_optic_nerve_fem=admitted member=FJ1819 concept=FMA50875 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1701 tets=7423 source_boundary_nodes=1191 source_boundary_faces=2378 volume_m3=7.48878701e-07 inferred_mass_debit_kg=0.000748878701 inferred_density_kg_m3=1000 mass_residual_kg=1.62630326e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented",
+        "resting_tissue_mass_partition=conserved initial_kg=97.1319507 executed_rigid_plus_FEM_kg=97.1319512 FEM_kg=0.361987475",
+        "resting_passive_fascia_preparation=ready runtime_initialized=0 adapter_initialized=0 authored_objects=10 fem_descriptors=10 load_rows=6254 anchor_rows=6254 physics_fingerprint=10049133111986449540 package_fingerprint=10049133111986449540 registered_aortic_wall=enabled aortic_wall_cooked_mass_kg=0.00705926513 mass_rebase=cooked_node_partition source_identity=retained"
+      ],
+      "rollback_markers": {
+        "body_properties_restored=1": false,
+        "brain_respiration_presentation_unchanged=1": false,
+        "dof_properties_restored=1": false,
+        "matter_vascular_unchanged=1": false,
+        "passive_adapter_history_unchanged=1": false,
+        "q_v_root_muscle_unchanged=1": false,
+        "same_context_retry=1": false,
+        "shared_tissue_late_reject_retry=passed": false
+      },
+      "terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=2 expected_adapter_passes=2 min_J=0.71147393352 max_J=1.03899238387 max_displacement_m=0.00117599965247 max_anchor_reaction_N=0.492226734334 capture=terminal_only",
+      "wall_seconds": 30.928473874984775
+    },
+    "late_reject_retry": {
+      "accepted_node_tet_row_counts": {
+        "node_rows": 6254,
+        "tetrahedron_rows": 25108,
+        "total_rows": 31362
+      },
+      "accepted_node_tet_rows_sha256": "383208ecbf439a4f47a89bec1d7d3398db34e6311e3ebac07b96867d879eec41",
+      "case": "production_all_optins_late_reject_retry",
+      "csv_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/native-paired-001-production-matter/production_all_optins_late_reject_retry/output/resting-coupled.csv",
+      "csv_sha256": "ad7573ac22156e8efcfa97f19154ae92b79ab331a9fae348e281a71ce968ea35",
+      "dyld_exact_production_library_observed": true,
+      "native_exit": 0,
+      "object_summary_sha256": "2ee8a87f5b47238e13f885edf76050120a4bb5fdca5519396c74ca53599c81bd",
+      "objects": [
+        {
+          "first_node": 0,
+          "first_tet": 0,
+          "max_J": 1.000007736,
+          "max_anchored_displacement_m": 3.356071004e-07,
+          "max_displacement_m": 3.356071004e-07,
+          "max_speed_m_s": 0.001284009799,
+          "min_J": 0.999975457,
+          "nodes": 16,
+          "object": "inferred_registered_left_ACL_reference_v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=inferred_registered_left_ACL_reference_v1 first_node=0 node_count=16 first_tet=0 tet_count=18 max_displacement_m=3.356071004e-07 max_displacement_local_node=0 max_free_displacement_m=1.499400422e-07 max_free_local_node=8 max_anchored_displacement_m=3.356071004e-07 max_anchored_local_node=0 max_speed_m_s=0.001284009799 max_speed_local_node=2 min_J=0.999975457 min_J_local_tet=9 max_J=1.000007736 max_J_local_tet=12",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "145": 4,
+              "150": 4
+            },
+            "captured_node_count": 16,
+            "constraint_tag_node_count": 8,
+            "mass_kg_from_emitted_float_nodes": 0.0005732901490779999
+          },
+          "tetrahedra": 18
+        },
+        {
+          "first_node": 16,
+          "first_tet": 18,
+          "max_J": 1.000017757,
+          "max_anchored_displacement_m": 2.939912626e-07,
+          "max_displacement_m": 2.939912626e-07,
+          "max_speed_m_s": 0.001142249578,
+          "min_J": 0.9999822535,
+          "nodes": 16,
+          "object": "inferred_registered_right_ACL_reference_v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=inferred_registered_right_ACL_reference_v1 first_node=16 node_count=16 first_tet=18 tet_count=18 max_displacement_m=2.939912626e-07 max_displacement_local_node=14 max_free_displacement_m=1.908279728e-07 max_free_local_node=7 max_anchored_displacement_m=2.939912626e-07 max_anchored_local_node=14 max_speed_m_s=0.001142249578 max_speed_local_node=1 min_J=0.9999822535 min_J_local_tet=15 max_J=1.000017757 max_J_local_tet=16",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "131": 4,
+              "136": 4
+            },
+            "captured_node_count": 16,
+            "constraint_tag_node_count": 8,
+            "mass_kg_from_emitted_float_nodes": 0.000443575662772
+          },
+          "tetrahedra": 18
+        },
+        {
+          "first_node": 32,
+          "first_tet": 36,
+          "max_J": 1.038992384,
+          "max_anchored_displacement_m": 2.942330875e-07,
+          "max_displacement_m": 0.001175999652,
+          "max_speed_m_s": 2.258635661,
+          "min_J": 0.7114739335,
+          "nodes": 532,
+          "object": "Human/BodyParts3D/stable-9/reduced-cavity-wall-v1",
+          "raw_summary": "resting_FEM_object_capture=summary object=Human/BodyParts3D/stable-9/reduced-cavity-wall-v1 first_node=32 node_count=532 first_tet=36 tet_count=1584 max_displacement_m=0.001175999652 max_displacement_local_node=432 max_free_displacement_m=0.001175999652 max_free_local_node=432 max_anchored_displacement_m=2.942330875e-07 max_anchored_local_node=15 max_speed_m_s=2.258635661 max_speed_local_node=435 min_J=0.7114739335 min_J_local_tet=1529 max_J=1.038992384 max_J_local_tet=126",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "7": 24
+            },
+            "captured_node_count": 532,
+            "constraint_tag_node_count": 24,
+            "mass_kg_from_emitted_float_nodes": 0.007059265134245394
+          },
+          "tetrahedra": 1584
+        },
+        {
+          "first_node": 564,
+          "first_tet": 1620,
+          "max_J": 1.000086827,
+          "max_anchored_displacement_m": 1.931411236e-07,
+          "max_displacement_m": 1.836231828e-06,
+          "max_speed_m_s": 0.004918756252,
+          "min_J": 0.9999434606,
+          "nodes": 150,
+          "object": "BodyParts3D coarse regional skin-fat bonded shell",
+          "raw_summary": "resting_FEM_object_capture=summary object=BodyParts3D coarse regional skin-fat bonded shell first_node=564 node_count=150 first_tet=1620 tet_count=384 max_displacement_m=1.836231828e-06 max_displacement_local_node=99 max_free_displacement_m=1.836231828e-06 max_free_local_node=99 max_anchored_displacement_m=1.931411236e-07 max_anchored_local_node=49 max_speed_m_s=0.004918756252 max_speed_local_node=91 min_J=0.9999434606 min_J_local_tet=178 max_J=1.000086827 max_J_local_tet=171",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 150,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.015372352192674304
+          },
+          "tetrahedra": 384
+        },
+        {
+          "first_node": 714,
+          "first_tet": 2004,
+          "max_J": 1.00014327,
+          "max_anchored_displacement_m": 4.184323606e-07,
+          "max_displacement_m": 2.029363644e-06,
+          "max_speed_m_s": 0.005450335036,
+          "min_J": 0.9997935395,
+          "nodes": 224,
+          "object": "registered_prostate_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_prostate_reference_fem first_node=714 node_count=224 first_tet=2004 tet_count=442 max_displacement_m=2.029363644e-06 max_displacement_local_node=217 max_free_displacement_m=2.029363644e-06 max_free_local_node=217 max_anchored_displacement_m=4.184323606e-07 max_anchored_local_node=0 max_speed_m_s=0.005450335036 max_speed_local_node=216 min_J=0.9997935395 min_J_local_tet=297 max_J=1.00014327 max_J_local_tet=46",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 224,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.011853549809230004
+          },
+          "tetrahedra": 442
+        },
+        {
+          "first_node": 938,
+          "first_tet": 2446,
+          "max_J": 1.000326791,
+          "max_anchored_displacement_m": 3.151340184e-07,
+          "max_displacement_m": 1.910896001e-06,
+          "max_speed_m_s": 0.005213862559,
+          "min_J": 0.9998649777,
+          "nodes": 196,
+          "object": "right-kidney-FJ3147",
+          "raw_summary": "resting_FEM_object_capture=summary object=right-kidney-FJ3147 first_node=938 node_count=196 first_tet=2446 tet_count=707 max_displacement_m=1.910896001e-06 max_displacement_local_node=21 max_free_displacement_m=1.910896001e-06 max_free_local_node=21 max_anchored_displacement_m=3.151340184e-07 max_anchored_local_node=6 max_speed_m_s=0.005213862559 max_speed_local_node=21 min_J=0.9998649777 min_J_local_tet=426 max_J=1.000326791 max_J_local_tet=105",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 196,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.10601915364591698
+          },
+          "tetrahedra": 707
+        },
+        {
+          "first_node": 1134,
+          "first_tet": 3153,
+          "max_J": 1.001029665,
+          "max_anchored_displacement_m": 2.995096332e-07,
+          "max_displacement_m": 2.031567861e-06,
+          "max_speed_m_s": 0.005421901657,
+          "min_J": 0.9995402863,
+          "nodes": 699,
+          "object": "left-kidney-FJ3145",
+          "raw_summary": "resting_FEM_object_capture=summary object=left-kidney-FJ3145 first_node=1134 node_count=699 first_tet=3153 tet_count=2942 max_displacement_m=2.031567861e-06 max_displacement_local_node=99 max_free_displacement_m=2.031567861e-06 max_free_local_node=99 max_anchored_displacement_m=2.995096332e-07 max_anchored_local_node=8 max_speed_m_s=0.005421901657 max_speed_local_node=99 min_J=0.9995402863 min_J_local_tet=2011 max_J=1.001029665 max_J_local_tet=765",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 699,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.10480192453233438
+          },
+          "tetrahedra": 2942
+        },
+        {
+          "first_node": 1833,
+          "first_tet": 6095,
+          "max_J": 1.008434222,
+          "max_anchored_displacement_m": 2.741570695e-07,
+          "max_displacement_m": 2.047663006e-06,
+          "max_speed_m_s": 0.005551615815,
+          "min_J": 0.9975312213,
+          "nodes": 992,
+          "object": "spleen-FJ2561",
+          "raw_summary": "resting_FEM_object_capture=summary object=spleen-FJ2561 first_node=1833 node_count=992 first_tet=6095 tet_count=3915 max_displacement_m=2.047663006e-06 max_displacement_local_node=729 max_free_displacement_m=2.047663006e-06 max_free_local_node=729 max_anchored_displacement_m=2.741570695e-07 max_anchored_local_node=219 max_speed_m_s=0.005551615815 max_speed_local_node=262 min_J=0.9975312213 min_J_local_tet=2044 max_J=1.008434222 max_J_local_tet=819",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "20": 3
+            },
+            "captured_node_count": 992,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.11436617729130157
+          },
+          "tetrahedra": 3915
+        },
+        {
+          "first_node": 2825,
+          "first_tet": 10010,
+          "max_J": 1.012978272,
+          "max_anchored_displacement_m": 2.428752858e-07,
+          "max_displacement_m": 1.196660721e-06,
+          "max_speed_m_s": 0.00327955248,
+          "min_J": 0.9872786732,
+          "nodes": 1728,
+          "object": "registered_left_optic_nerve_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_left_optic_nerve_reference_fem first_node=2825 node_count=1728 first_tet=10010 tet_count=7675 max_displacement_m=1.196660721e-06 max_displacement_local_node=264 max_free_displacement_m=1.196660721e-06 max_free_local_node=264 max_anchored_displacement_m=2.428752858e-07 max_anchored_local_node=659 max_speed_m_s=0.00327955248 max_speed_local_node=344 min_J=0.9872786732 min_J_local_tet=5647 max_J=1.012978272 max_J_local_tet=144",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "23": 3
+            },
+            "captured_node_count": 1728,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.0007492861010040844
+          },
+          "tetrahedra": 7675
+        },
+        {
+          "first_node": 4553,
+          "first_tet": 17685,
+          "max_J": 1.013448904,
+          "max_anchored_displacement_m": 2.427163143e-07,
+          "max_displacement_m": 1.207936509e-06,
+          "max_speed_m_s": 0.003253067887,
+          "min_J": 0.9870351209,
+          "nodes": 1701,
+          "object": "registered_right_optic_nerve_reference_fem",
+          "raw_summary": "resting_FEM_object_capture=summary object=registered_right_optic_nerve_reference_fem first_node=4553 node_count=1701 first_tet=17685 tet_count=7423 max_displacement_m=1.207936509e-06 max_displacement_local_node=1047 max_free_displacement_m=1.207936509e-06 max_free_local_node=1047 max_anchored_displacement_m=2.427163143e-07 max_anchored_local_node=605 max_speed_m_s=0.003253067887 max_speed_local_node=1252 min_J=0.9870351209 min_J_local_tet=1483 max_J=1.013448904 max_J_local_tet=46",
+          "support_and_node_mass": {
+            "anchor_body_node_counts": {
+              "23": 3
+            },
+            "captured_node_count": 1701,
+            "constraint_tag_node_count": 3,
+            "mass_kg_from_emitted_float_nodes": 0.0007488789791996512
+          },
+          "tetrahedra": 7423
+        }
+      ],
+      "preparation_mass_support_records": [
+        "resting_fascia_reduced_owner=accepted representation=two_point_axial_strips source_nodes=38 source_tetrahedra=54 strips=8 endpoint_anchors=16 source_volume_m3=1.4000239e-06 source_mass_kg=0.0014000239 thickness_m=0.000600000028 max_fit_fraction=0.00638504474 max_fit_rms_fraction=0.00304806901 fit_stretch_range=1.005,1.12 linear_extension_beyond=1.12 fit_error_normalization=peak_target_stress mass_owner=original_rigid_donors mass_partitioned=0 myosim_force_owner=existing_NHTENDON passive_fascia_force_owner=existing_Matter_passive_ligament compression_shear=not_represented visual_deformation=not_represented",
+        "resting_skin_fat_regional_preparation=accepted source=BodyParts3D source_member=/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/bilateral-hand-skin-repair-20261018-001/source-hand-wrist-preserved-025/bodyparts3d-myosim-skinned-shell.nhskin source_payload_sha256=2d6b0870d1ba0dd6b0944b6a0175ca0304f0392d9ec4458521938a3a5766ad68 patch_faces=64 patch_vertices=50 shared_fem_nodes=150 shared_fem_tets=384 skin_tets=192 fat_tets=192 skin_volume_m3=3.64743912e-06 fat_volume_m3=1.30276783e-05 skin_mass_debit_kg=0.00364743912 fat_mass_debit_kg=0.0117249105 interface_nodes_shared=1 contact_surface=skin_outer_only anchor_count=3 anchor_policy=three_highest-registered-weight_reference-frame-points_or_fewer assumed_reference=registered_scene_pose_not_measured_unloaded_skin thickness_reference=VHFUS adult abdominal full-thickness skin 2.513 +/- 0.538 mm; 2.5 mm regional-reference inference, not a subject measurement; explicit local subcutaneous-fat reference inference; 2-20 mm sensitivity, not a source thickness measurement",
+        "resting_prostate_regional_preparation=accepted source_provider=BodyParts3D source_member=FJ3139 source_stable_id=463 source_body=20 runtime_donor_body=20 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 vertices=223 source_faces=442 fem_nodes=224 fem_tets=442 volume_m3=1.18535515e-05 mass_debit_kg=0.0118535515 density_kg_m3=1000 mass_residual_kg=7.16928687e-18 anchor_count=3 anchor_policy=three_inferred_sparse_pelvic_reference_nodes constitutive_scope=passive_proxy_no_prostate_fit",
+        "resting_passive_organ_batch=prepared source_member=FJ3147 stable_id=4 concept=FMA7204 source_body=20 runtime_donor_body=20 nodes=196 tets=707 boundary_faces=304 source_volume_m3=0.000108049616 reduced_reference_volume_m3=0.000106019155 mass_debit_kg=0.106019155 mass_residual_kg=-8.32667268e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_passive_organ_batch=prepared source_member=FJ3145 stable_id=5 concept=FMA7205 source_body=20 runtime_donor_body=20 nodes=699 tets=2942 boundary_faces=896 source_volume_m3=0.000106128012 reduced_reference_volume_m3=0.000104801933 mass_debit_kg=0.104801933 mass_residual_kg=9.71445147e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_passive_organ_batch=prepared source_member=FJ2561 stable_id=13 concept=FMA7196 source_body=20 runtime_donor_body=20 nodes=992 tets=3915 boundary_faces=1428 source_volume_m3=0.000114710524 reduced_reference_volume_m3=0.000114366189 mass_debit_kg=0.114366189 mass_residual_kg=-6.9388939e-17 density_kg_m3=1000 contact_surface=closed_boundary self_contact=enabled support_anchors=3_inferred_fixed_body20_reference_support_proxies anatomical_attachment_fit=not_claimed constitutive_fit=not_claimed",
+        "resting_optic_nerve_fem=admitted member=FJ1772 concept=FMA50878 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1728 tets=7675 source_boundary_nodes=1190 source_boundary_faces=2376 volume_m3=7.49286959e-07 inferred_mass_debit_kg=0.000749286959 inferred_density_kg_m3=1000 mass_residual_kg=-2.60208521e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented",
+        "resting_optic_nerve_fem=admitted member=FJ1819 concept=FMA50875 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1701 tets=7423 source_boundary_nodes=1191 source_boundary_faces=2378 volume_m3=7.48878701e-07 inferred_mass_debit_kg=0.000748878701 inferred_density_kg_m3=1000 mass_residual_kg=1.62630326e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented",
+        "resting_tissue_mass_partition=conserved initial_kg=97.1319507 executed_rigid_plus_FEM_kg=97.1319512 FEM_kg=0.361987475",
+        "resting_passive_fascia_preparation=ready runtime_initialized=0 adapter_initialized=0 authored_objects=10 fem_descriptors=10 load_rows=6254 anchor_rows=6254 physics_fingerprint=10049133111986449540 package_fingerprint=10049133111986449540 registered_aortic_wall=enabled aortic_wall_cooked_mass_kg=0.00705926513 mass_rebase=cooked_node_partition source_identity=retained"
+      ],
+      "rollback_markers": {
+        "body_properties_restored=1": true,
+        "brain_respiration_presentation_unchanged=1": true,
+        "dof_properties_restored=1": true,
+        "matter_vascular_unchanged=1": true,
+        "passive_adapter_history_unchanged=1": true,
+        "q_v_root_muscle_unchanged=1": true,
+        "same_context_retry=1": true,
+        "shared_tissue_late_reject_retry=passed": true
+      },
+      "terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=3 expected_adapter_passes=3 min_J=0.71147393352 max_J=1.03899238387 max_displacement_m=0.00117599965247 max_anchor_reaction_N=0.492226734334 capture=terminal_only",
+      "wall_seconds": 36.523654916964006
+    }
+  },
+  "comparison": {
+    "adapter_pass_difference_expected_from_rejected_trial": true,
+    "all_10_per_object_fem_summaries_byte_identical": true,
+    "all_emitted_node_and_tet_rows_byte_identical": true,
+    "clean_adapter_passes": 2,
+    "clean_retry_csv_byte_identical": true,
+    "retry_adapter_passes": 3,
+    "rollback_markers_all_passed": true,
+    "terminal_audits_both_passed": true
+  },
+  "mass_support": {
+    "aortic_wall_owner_record": "enabled; cooked mass 0.00705926513 kg; retained source identity; FEM object Human/BodyParts3D/stable-9/reduced-cavity-wall-v1 (532 nodes, 1584 tets), exact emitted nodal mass sum 0.007059265134 kg",
+    "authored_anchor_load_rows": 6254,
+    "executed_rigid_plus_fem_mass_kg": 97.1319512,
+    "initial_minus_executed_kg": -4.999999987376214e-07,
+    "initial_reference_mass_kg": 97.1319507,
+    "limitations": [
+      "Inferred reference material and support parameters remain proxies; three-point support anchors are declared rather than anatomy-fitted.",
+      "The aortic wall is represented by the FEM object Human/BodyParts3D/stable-9/reduced-cavity-wall-v1; its 532-node emitted mass sum matches the reported cooked wall mass, while the legacy object name does not mention aorta.",
+      "The scene uses a localized 64-face skin/fat FEM patch, not whole-body skin/fat simulation.",
+      "Organ-body attachment realism and constitutive fits are unclaimed; 106 inherited spleen/diaphragm crossings remain unresolved as anatomical interfaces."
+    ],
+    "optic_nerve_inferred_mass_debits_kg": {
+      "left_FJ1772": 0.000749286959,
+      "right_FJ1819": 0.000748878701
+    },
+    "organ_mass_debits_kg": {
+      "left_kidney_FJ3145": 0.104801933,
+      "right_kidney_FJ3147": 0.106019155,
+      "spleen_FJ2561": 0.114366189
+    },
+    "prostate_mass_debit_kg": 0.0118535515,
+    "reported_fem_mass_kg": 0.361987475,
+    "skin_fat_reference_masses_kg": {
+      "fat": 0.0117249105,
+      "skin": 0.00364743912
+    },
+    "terminal_emitted_node_mass_minus_reported_fem_mass_kg": -2.1502243652271602e-08,
+    "terminal_emitted_node_mass_sum_kg": 0.36198745349775635
+  },
+  "native_runner_exit": 1,
+  "native_runner_exit_note": "Both native cases exited 0. The first runner\u2019s postprocessing incorrectly compared terminal audit strings and treated expected adapter_passes=2 versus 3 as a mismatch; this independent validation compares terminal acceptance, per-object FEM summaries, rollback markers, and CSV separately.",
+  "production_build_receipt_sha256": "5c8d17c2fef66e2b34095f5b8cde0156616ada51e66e72cfb03d459ebb43b195",
+  "run_plan_sha256": "af525cf6d696d001c679c07bbf586885d9b5a03e2a2e7b20d9208c3613a38376",
+  "runner_sha256": "7aa0cf097fccc8a92996832775ddb79395aa8124925a8568077966209300eb12",
+  "schema": "numi.integrated_tissue_production_msl_paired_validation.v1",
+  "scope": "Two-step 0.5 ms experimental mechanics/rollback check. Regional skin-fat shell, passive prostate proxy, source-derived kidneys/spleen, passive bilateral optic-nerve proxies, existing ACL, cavity-wall, and other existing FEM objects were enabled. This is not full-body tissue coverage, anatomical qualification, neural conduction, clinical evidence, or sustained mechanics qualification.",
+  "source_pins": {
+    "binary": "e48d1afacefac4e630ab80ab2dcd0c6de5dabb80f81e9be2fb9c56f0d791c208",
+    "library": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "msl": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+  },
+  "trace_expansion": false,
+  "visual_verification": false
+}

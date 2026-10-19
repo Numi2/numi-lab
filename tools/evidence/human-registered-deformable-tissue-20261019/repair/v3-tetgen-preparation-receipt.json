@@ -1,0 +1,232 @@
+{
+  "schema": "numi.registered_organ_v3_tetgen_candidate_receipt.v1",
+  "scope": "CPU-only source-aware v3 boundary TetGen preparation with one inferred world-Float32 local spleen clearance repair, existing prepare_batch parser/poly convention, and TetGen 1.6.0. Static clearance and selected-neighbor checks only. Not compiled/linked or run in Matter; no contact, loaded-trajectory, or anatomical qualification.",
+  "payload": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+    "sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4"
+  },
+  "prepare_batch": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/prepare_batch.py",
+    "sha256": "b04bc7ea1612f132345bcd72e12e23a86988e1351d3d66155ee81ffa6584ce38"
+  },
+  "tetgen": {
+    "path": "/Users/n/numi-human-separation-20261018/C/nerve-volume-238/tetgen-1.6.0",
+    "sha256": "6de4b560676dc348115208c1e75568638a92d2d498213b17cc61516ba4267dc6",
+    "version": "1.6.0"
+  },
+  "inputs": [
+    {
+      "stable_id": 4,
+      "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-proxy-candidates/right-kidney-FJ3147-boundary.json",
+      "sha256": "0d94fd8ed48aa6fbc0f6c36580bfbb8e4561886f341f45354e9c791b17e77c99"
+    },
+    {
+      "stable_id": 5,
+      "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-reviewed-v3/left-kidney-FJ3145-boundary.json",
+      "sha256": "3fef1a4b714d7bcabd285fed83689f9d9b83cc001d2559a195df173338514f46"
+    },
+    {
+      "stable_id": 13,
+      "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-006-world-space-audit/repaired-input/spleen-FJ2561-collective-clearance-worldspace-7p5um.json",
+      "sha256": "86747768bde1b61de6e0dd6f10111927f9fa9f431ed9cb39e163bab4ff952fc0"
+    }
+  ],
+  "worldspace_repair_audit": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-006-world-space-audit/repaired-worldspace-clearance-and-neighbor-audit.json",
+    "sha256": "bf51487f50475ce643543ac699ca184eb4dae557ae45f581cafe4e11d23a9f54"
+  },
+  "assets": [
+    {
+      "name": "right-kidney-FJ3147",
+      "stable_id": 4,
+      "boundary_vertices": 154,
+      "boundary_faces": 304,
+      "nodes": 196,
+      "tets": 707,
+      "mass_debit_kg": 0.10601915541860975,
+      "closure": 1.0226474340458596e-15
+    },
+    {
+      "name": "left-kidney-FJ3145",
+      "stable_id": 5,
+      "boundary_vertices": 450,
+      "boundary_faces": 896,
+      "nodes": 699,
+      "tets": 2942,
+      "mass_debit_kg": 0.10480193322547851,
+      "closure": 9.05209352277656e-16
+    },
+    {
+      "name": "spleen-FJ2561",
+      "stable_id": 13,
+      "boundary_vertices": 716,
+      "boundary_faces": 1428,
+      "nodes": 992,
+      "tets": 3915,
+      "mass_debit_kg": 0.11436618906963451,
+      "closure": 9.48009356004127e-16
+    }
+  ],
+  "header": {
+    "path": "source/apps/NumiHumanRegisteredOrganBatchAssets.hpp",
+    "sha256": "3e66d192aec356849a46e878976cc838cfb333c70ee161e03797f9369e108c49"
+  },
+  "products": [
+    {
+      "path": "assets/left-kidney-FJ3145/left-kidney-FJ3145.1.edge",
+      "sha256": "8d0376b133fb57a7bfc49afff20a2ea20210d5fa83e713e8f0de933f7a43a4d7",
+      "bytes": 31058
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/left-kidney-FJ3145.1.ele",
+      "sha256": "9d25b0189def2a0dd8763842eb19fe58da6133d1cd9d04a87f5967ad8da837da",
+      "bytes": 94293
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/left-kidney-FJ3145.1.face",
+      "sha256": "eabfe21a87add7c52bb59d2df6e3dbfaa89b9a41b061e8018117111e9944b1d3",
+      "bytes": 28709
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/left-kidney-FJ3145.1.node",
+      "sha256": "c97b448b1db5557083c7ccd7d20e05a68c82132ce5bf6d13b7d0cae6b437800d",
+      "bytes": 55920
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/left-kidney-FJ3145.poly",
+      "sha256": "722e3bc56408b5d9e7c08d584e285c6c7f17fa639041938b5a24e19672d82358",
+      "bytes": 50994
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/surface-lineage.json",
+      "sha256": "18d427c93f2b65424c6be4081344cc1ec5f9c5c5d599f23c8ff77ab610ae1b46",
+      "bytes": 52016
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/tetgen-intersection-audit.log",
+      "sha256": "fd69491b8f5ec6cadc1267847429087b1845c1fbf79df67db3d1c2ab2e29688b",
+      "bytes": 241
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/tetgen-mesh.log",
+      "sha256": "8ec49dfd45579b6c9427c46a60cadd8b44788b7762bb5cc3f1090215baea0491",
+      "bytes": 1206
+    },
+    {
+      "path": "assets/left-kidney-FJ3145/volume-preparation.json",
+      "sha256": "a0418337fad28b5d1e691b05e8d9723ce1656746e20b3fc00b029d74204abb26",
+      "bytes": 112477
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/right-kidney-FJ3147.1.edge",
+      "sha256": "49e3e4ac7e193839d3a8147a17ce7e43b77bf051ba908da400eb0ff6802dac45",
+      "bytes": 10634
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/right-kidney-FJ3147.1.ele",
+      "sha256": "acad3db38a70cfaf0c5b34a0cd7adc5d8e2ee381e8f71bf37e190592ebd8061a",
+      "bytes": 22773
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/right-kidney-FJ3147.1.face",
+      "sha256": "c0fea1ebdc3818da7ff912b49213ed7ba83b5074615d00ebda3d0fe527bde273",
+      "bytes": 9766
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/right-kidney-FJ3147.1.node",
+      "sha256": "d2acd16312db7811234651930d28fd1bd5f6f6195bf26adfe9bff005f17a1e13",
+      "bytes": 15567
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/right-kidney-FJ3147.poly",
+      "sha256": "2ab21d308e630b695c80c92380fef5fa5d936da0632362b8c8950ea405601790",
+      "bytes": 16626
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/surface-lineage.json",
+      "sha256": "006e90588a348d5136f1cf7723626d12e368cd0f4dbd4d5cac5bd0756c51b3a5",
+      "bytes": 16738
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/tetgen-intersection-audit.log",
+      "sha256": "1656faf73727443555c7519a73ae19b71209acb0a92e677596fdf048ba2b28b9",
+      "bytes": 241
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/tetgen-mesh.log",
+      "sha256": "0de3817557ea3c04d76a0eacc29c5c87c830dbb976abeca88ed44476e86f3f62",
+      "bytes": 1250
+    },
+    {
+      "path": "assets/right-kidney-FJ3147/volume-preparation.json",
+      "sha256": "82577337e22a43b7667a260b100d6af38fa93d5d0badd474930cc8601af86671",
+      "bytes": 38308
+    },
+    {
+      "path": "assets/spleen-FJ2561/spleen-FJ2561.1.edge",
+      "sha256": "50fef68fa70b4d1dbc45e5a2f0bea63cb25ff90de544801f3e55529309b5b0cc",
+      "bytes": 49406
+    },
+    {
+      "path": "assets/spleen-FJ2561/spleen-FJ2561.1.ele",
+      "sha256": "2260e4c44d6d62a156267273203e761b0967f0fa2e612e88118bc85169babb6c",
+      "bytes": 125423
+    },
+    {
+      "path": "assets/spleen-FJ2561/spleen-FJ2561.1.face",
+      "sha256": "3f8aab8bf918bfee7f798274456fd56f42ce9079dc6e5b69ce678976286f9842",
+      "bytes": 46157
+    },
+    {
+      "path": "assets/spleen-FJ2561/spleen-FJ2561.1.node",
+      "sha256": "5b25d23c0591569a163462cd764902d23887fd50779d9495f1be2a2b8a67961d",
+      "bytes": 79307
+    },
+    {
+      "path": "assets/spleen-FJ2561/spleen-FJ2561.poly",
+      "sha256": "3634e4d6b063b74858ba583c0cd8df247687f33a893a0f23964e20aab4fcfd3e",
+      "bytes": 82051
+    },
+    {
+      "path": "assets/spleen-FJ2561/surface-lineage.json",
+      "sha256": "37639c984a323adc6c1bf02753bdc0ad4a74946798358907218b9635aed9b77c",
+      "bytes": 78398
+    },
+    {
+      "path": "assets/spleen-FJ2561/tetgen-intersection-audit.log",
+      "sha256": "855685b8c75693d33daf9d9207864125fe343ff1688f730e81d625e3eb0625d3",
+      "bytes": 236
+    },
+    {
+      "path": "assets/spleen-FJ2561/tetgen-mesh.log",
+      "sha256": "5a21fa0fd2b3034ec03e033793fba8c173d018fba5da608300d4e1a9074140e0",
+      "bytes": 1243
+    },
+    {
+      "path": "assets/spleen-FJ2561/volume-preparation.json",
+      "sha256": "d9289a25653a4a4f508082b02c0485f8ddcbdd367e68734971b76d5801d33a89",
+      "bytes": 174362
+    },
+    {
+      "path": "inputs/left-kidney-FJ3145-boundary.json",
+      "sha256": "3fef1a4b714d7bcabd285fed83689f9d9b83cc001d2559a195df173338514f46",
+      "bytes": 218734
+    },
+    {
+      "path": "inputs/right-kidney-FJ3147-boundary.json",
+      "sha256": "0d94fd8ed48aa6fbc0f6c36580bfbb8e4561886f341f45354e9c791b17e77c99",
+      "bytes": 39944
+    },
+    {
+      "path": "inputs/spleen-FJ2561-collective-clearance-worldspace-7p5um.json",
+      "sha256": "86747768bde1b61de6e0dd6f10111927f9fa9f431ed9cb39e163bab4ff952fc0",
+      "bytes": 368856
+    },
+    {
+      "path": "source/apps/NumiHumanRegisteredOrganBatchAssets.hpp",
+      "sha256": "3e66d192aec356849a46e878976cc838cfb333c70ee161e03797f9369e108c49",
+      "bytes": 476635
+    }
+  ],
+  "elapsed_seconds": 0.13338912499602884
+}

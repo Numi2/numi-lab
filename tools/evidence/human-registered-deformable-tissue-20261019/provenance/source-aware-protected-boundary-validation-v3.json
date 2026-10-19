@@ -1,0 +1,1019 @@
+{
+  "schema": "registered-organ-protected-boundary-validation.v1",
+  "scope": "Provenance-only correction of v2 candidate ancestry, followed by exact Float32 geometry revalidation. Existing candidate coordinates/connectivity are unchanged. Triangle crossing sets are compared by mapped original source-face ID and neighbor source-face ID; no containment, contact, dynamic clearance, or anatomical/mechanical qualification.",
+  "payload": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+    "sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "abi": 5
+  },
+  "predicate": {
+    "path": "/Users/n/numi-human-vein-transfer-binding-20261014/src/numilab_human/cardiac_cavity_intersections.py",
+    "sha256": "4e6fb1f4ee75ea0ba9cdd06a072702a238f066fc8e63a61aa9eae32f2356a384",
+    "algorithm": "exact_binary64_integer_triangle_predicates_and_rational_ray_parity_v1"
+  },
+  "source_baseline": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/original-organ-source-pair-audit.json",
+    "sha256": "dc859ec4e4b96efe0ebb320e77da0d5b96fc7d0a4baa62da600319adbfc31490"
+  },
+  "v2_search_receipt": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundary-search-v2.json",
+    "sha256": "e9075c8d419276cb747c32f767f173003b1551b41d1e40fb96601f59088bd057"
+  },
+  "v2_generator": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundary-v2.py",
+    "sha256": "277b3c00080a6d0bbb970342aa1a116617612f2ad9bdeed5afd12d4b9849d5af"
+  },
+  "ancestry_mapping_contract": {
+    "v2_complement_face_parent_values": "source-local welded record face indices; remapped to NHANAT payload-global face IDs using weld_record.parents[local_face]",
+    "v2_protected_face_parent_values": "already payload-global IDs; verified equal to the record source offset plus protected source-local face indices",
+    "v2_vertex_representative_values": "exact-welded source-record-local vertex IDs; remapped to payload vertex IDs using weld_record.sourceverts[local_vertex]",
+    "validation_order": "all source record offsets, candidate array references, and every vertex/face ancestry value were range-validated before any exact triangle predicate ran"
+  },
+  "candidates": [
+    {
+      "stable_id": 5,
+      "name": "left-kidney-FJ3145",
+      "input_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-v2/left-kidney-FJ3145-boundary.json",
+      "input_sha256": "f1a738c0d036478a499e845d20602ab10ebd3d347b829c8143ccf8945cbfc859",
+      "source_record_vertex_span": [
+        109082,
+        110579
+      ],
+      "source_record_face_span_global": [
+        218152,
+        221134
+      ],
+      "reviewed_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-reviewed-v3/left-kidney-FJ3145-boundary.json",
+      "vertices": 450,
+      "faces": 896,
+      "complement_faces": 376,
+      "protected_source_faces": 520,
+      "source_payload_vertex_representatives": 450,
+      "source_payload_face_parents": 896,
+      "parent_id_ranges_validated_before_geometry": true,
+      "all_face_parents_within_source_record": true,
+      "all_vertex_representatives_within_source_record": true,
+      "source_closed_oriented_components": 1,
+      "source_float32_self_crossing_pairs": 0,
+      "candidate_closed_oriented_components": 1,
+      "candidate_float32_self_crossing_pairs": 0,
+      "neighbor_checks": {
+        "13": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 1764
+        },
+        "455": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 359
+        },
+        "457": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 331
+        }
+      },
+      "signed_volume_m3": 0.0001048019332254786,
+      "relative_volume_change": 0.012495084902571783,
+      "geometry_sha256": "708d65e8de351fb4e24b6e8bab2b9e0705e12385ce151788c60ae55b63e1cc54",
+      "geometry_unchanged_from_v2": true,
+      "elapsed_seconds": 2.9274198329658248,
+      "reviewed_sha256": "3fef1a4b714d7bcabd285fed83689f9d9b83cc001d2559a195df173338514f46"
+    },
+    {
+      "stable_id": 13,
+      "name": "spleen-FJ2561",
+      "input_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-v2/spleen-FJ2561-boundary.json",
+      "input_sha256": "9f9be0f57c8eb7f9903fa29051a3dbc06eb6d6d39b1eb81c5818a59451b44706",
+      "source_record_vertex_span": [
+        116641,
+        117478
+      ],
+      "source_record_face_span_global": [
+        232614,
+        234284
+      ],
+      "reviewed_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-protected-boundaries-reviewed-v3/spleen-FJ2561-boundary.json",
+      "vertices": 716,
+      "faces": 1428,
+      "complement_faces": 240,
+      "protected_source_faces": 1188,
+      "source_payload_vertex_representatives": 716,
+      "source_payload_face_parents": 1428,
+      "parent_id_ranges_validated_before_geometry": true,
+      "all_face_parents_within_source_record": true,
+      "all_vertex_representatives_within_source_record": true,
+      "source_closed_oriented_components": 1,
+      "source_float32_self_crossing_pairs": 0,
+      "candidate_closed_oriented_components": 1,
+      "candidate_float32_self_crossing_pairs": 0,
+      "neighbor_checks": {
+        "2": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 2935
+        },
+        "3": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 703
+        },
+        "5": {
+          "source_exact_crossing_pairs": 0,
+          "candidate_exact_crossing_pairs": 0,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [],
+          "candidate_mapped_source_face_neighbor_face_pairs": [],
+          "candidate_exact_aabb_triangle_pair_count": 1764
+        },
+        "311": {
+          "source_exact_crossing_pairs": 106,
+          "candidate_exact_crossing_pairs": 106,
+          "candidate_crossing_pairs_from_simplified_complement": 0,
+          "mapped_source_pair_set_equal": true,
+          "source_face_neighbor_face_pairs": [
+            [
+              997,
+              146063
+            ],
+            [
+              997,
+              146065
+            ],
+            [
+              997,
+              146074
+            ],
+            [
+              998,
+              146153
+            ],
+            [
+              1000,
+              146074
+            ],
+            [
+              1000,
+              146153
+            ],
+            [
+              1003,
+              146075
+            ],
+            [
+              1003,
+              146153
+            ],
+            [
+              1003,
+              146193
+            ],
+            [
+              1003,
+              146194
+            ],
+            [
+              1003,
+              146195
+            ],
+            [
+              1003,
+              146196
+            ],
+            [
+              1003,
+              146200
+            ],
+            [
+              1004,
+              146200
+            ],
+            [
+              1104,
+              63481
+            ],
+            [
+              1104,
+              63567
+            ],
+            [
+              1104,
+              63568
+            ],
+            [
+              1104,
+              63591
+            ],
+            [
+              1104,
+              63592
+            ],
+            [
+              1104,
+              63593
+            ],
+            [
+              1104,
+              63595
+            ],
+            [
+              1106,
+              63595
+            ],
+            [
+              1106,
+              63596
+            ],
+            [
+              1106,
+              145541
+            ],
+            [
+              1106,
+              146036
+            ],
+            [
+              1107,
+              146036
+            ],
+            [
+              1107,
+              146037
+            ],
+            [
+              1107,
+              146063
+            ],
+            [
+              1108,
+              146200
+            ],
+            [
+              1204,
+              63463
+            ],
+            [
+              1205,
+              63463
+            ],
+            [
+              1205,
+              63465
+            ],
+            [
+              1205,
+              63466
+            ],
+            [
+              1206,
+              63465
+            ],
+            [
+              1206,
+              63480
+            ],
+            [
+              1206,
+              63481
+            ],
+            [
+              1209,
+              63481
+            ],
+            [
+              1214,
+              63463
+            ],
+            [
+              1214,
+              63464
+            ],
+            [
+              1214,
+              63855
+            ],
+            [
+              1215,
+              63213
+            ],
+            [
+              1215,
+              63831
+            ],
+            [
+              1215,
+              63853
+            ],
+            [
+              1215,
+              63855
+            ],
+            [
+              1226,
+              63831
+            ],
+            [
+              1226,
+              63832
+            ],
+            [
+              1226,
+              63846
+            ],
+            [
+              1226,
+              63854
+            ],
+            [
+              1226,
+              63862
+            ],
+            [
+              1227,
+              146251
+            ],
+            [
+              1227,
+              146296
+            ],
+            [
+              1227,
+              146297
+            ],
+            [
+              1227,
+              146298
+            ],
+            [
+              1227,
+              146299
+            ],
+            [
+              1227,
+              146317
+            ],
+            [
+              1227,
+              146318
+            ],
+            [
+              1227,
+              146414
+            ],
+            [
+              1227,
+              146424
+            ],
+            [
+              1228,
+              146414
+            ],
+            [
+              1229,
+              146199
+            ],
+            [
+              1229,
+              146200
+            ],
+            [
+              1229,
+              146413
+            ],
+            [
+              1229,
+              146414
+            ],
+            [
+              1230,
+              146414
+            ],
+            [
+              1306,
+              63846
+            ],
+            [
+              1306,
+              63903
+            ],
+            [
+              1307,
+              63941
+            ],
+            [
+              1307,
+              63946
+            ],
+            [
+              1307,
+              63947
+            ],
+            [
+              1307,
+              63948
+            ],
+            [
+              1307,
+              63949
+            ],
+            [
+              1307,
+              64458
+            ],
+            [
+              1307,
+              64489
+            ],
+            [
+              1307,
+              64490
+            ],
+            [
+              1307,
+              64491
+            ],
+            [
+              1307,
+              64492
+            ],
+            [
+              1307,
+              64493
+            ],
+            [
+              1307,
+              64528
+            ],
+            [
+              1307,
+              64529
+            ],
+            [
+              1307,
+              64530
+            ],
+            [
+              1307,
+              64531
+            ],
+            [
+              1307,
+              64788
+            ],
+            [
+              1307,
+              64789
+            ],
+            [
+              1307,
+              64790
+            ],
+            [
+              1307,
+              64791
+            ],
+            [
+              1307,
+              64960
+            ],
+            [
+              1307,
+              64961
+            ],
+            [
+              1307,
+              64966
+            ],
+            [
+              1307,
+              64967
+            ],
+            [
+              1307,
+              64968
+            ],
+            [
+              1307,
+              64969
+            ],
+            [
+              1307,
+              64986
+            ],
+            [
+              1311,
+              63903
+            ],
+            [
+              1312,
+              63903
+            ],
+            [
+              1312,
+              63940
+            ],
+            [
+              1312,
+              63941
+            ],
+            [
+              1318,
+              64986
+            ],
+            [
+              1318,
+              64990
+            ],
+            [
+              1318,
+              64991
+            ],
+            [
+              1324,
+              65010
+            ],
+            [
+              1324,
+              65011
+            ],
+            [
+              1324,
+              146250
+            ],
+            [
+              1324,
+              146251
+            ],
+            [
+              1381,
+              64991
+            ],
+            [
+              1381,
+              65009
+            ],
+            [
+              1381,
+              65010
+            ]
+          ],
+          "candidate_mapped_source_face_neighbor_face_pairs": [
+            [
+              997,
+              146063
+            ],
+            [
+              997,
+              146065
+            ],
+            [
+              997,
+              146074
+            ],
+            [
+              998,
+              146153
+            ],
+            [
+              1000,
+              146074
+            ],
+            [
+              1000,
+              146153
+            ],
+            [
+              1003,
+              146075
+            ],
+            [
+              1003,
+              146153
+            ],
+            [
+              1003,
+              146193
+            ],
+            [
+              1003,
+              146194
+            ],
+            [
+              1003,
+              146195
+            ],
+            [
+              1003,
+              146196
+            ],
+            [
+              1003,
+              146200
+            ],
+            [
+              1004,
+              146200
+            ],
+            [
+              1104,
+              63481
+            ],
+            [
+              1104,
+              63567
+            ],
+            [
+              1104,
+              63568
+            ],
+            [
+              1104,
+              63591
+            ],
+            [
+              1104,
+              63592
+            ],
+            [
+              1104,
+              63593
+            ],
+            [
+              1104,
+              63595
+            ],
+            [
+              1106,
+              63595
+            ],
+            [
+              1106,
+              63596
+            ],
+            [
+              1106,
+              145541
+            ],
+            [
+              1106,
+              146036
+            ],
+            [
+              1107,
+              146036
+            ],
+            [
+              1107,
+              146037
+            ],
+            [
+              1107,
+              146063
+            ],
+            [
+              1108,
+              146200
+            ],
+            [
+              1204,
+              63463
+            ],
+            [
+              1205,
+              63463
+            ],
+            [
+              1205,
+              63465
+            ],
+            [
+              1205,
+              63466
+            ],
+            [
+              1206,
+              63465
+            ],
+            [
+              1206,
+              63480
+            ],
+            [
+              1206,
+              63481
+            ],
+            [
+              1209,
+              63481
+            ],
+            [
+              1214,
+              63463
+            ],
+            [
+              1214,
+              63464
+            ],
+            [
+              1214,
+              63855
+            ],
+            [
+              1215,
+              63213
+            ],
+            [
+              1215,
+              63831
+            ],
+            [
+              1215,
+              63853
+            ],
+            [
+              1215,
+              63855
+            ],
+            [
+              1226,
+              63831
+            ],
+            [
+              1226,
+              63832
+            ],
+            [
+              1226,
+              63846
+            ],
+            [
+              1226,
+              63854
+            ],
+            [
+              1226,
+              63862
+            ],
+            [
+              1227,
+              146251
+            ],
+            [
+              1227,
+              146296
+            ],
+            [
+              1227,
+              146297
+            ],
+            [
+              1227,
+              146298
+            ],
+            [
+              1227,
+              146299
+            ],
+            [
+              1227,
+              146317
+            ],
+            [
+              1227,
+              146318
+            ],
+            [
+              1227,
+              146414
+            ],
+            [
+              1227,
+              146424
+            ],
+            [
+              1228,
+              146414
+            ],
+            [
+              1229,
+              146199
+            ],
+            [
+              1229,
+              146200
+            ],
+            [
+              1229,
+              146413
+            ],
+            [
+              1229,
+              146414
+            ],
+            [
+              1230,
+              146414
+            ],
+            [
+              1306,
+              63846
+            ],
+            [
+              1306,
+              63903
+            ],
+            [
+              1307,
+              63941
+            ],
+            [
+              1307,
+              63946
+            ],
+            [
+              1307,
+              63947
+            ],
+            [
+              1307,
+              63948
+            ],
+            [
+              1307,
+              63949
+            ],
+            [
+              1307,
+              64458
+            ],
+            [
+              1307,
+              64489
+            ],
+            [
+              1307,
+              64490
+            ],
+            [
+              1307,
+              64491
+            ],
+            [
+              1307,
+              64492
+            ],
+            [
+              1307,
+              64493
+            ],
+            [
+              1307,
+              64528
+            ],
+            [
+              1307,
+              64529
+            ],
+            [
+              1307,
+              64530
+            ],
+            [
+              1307,
+              64531
+            ],
+            [
+              1307,
+              64788
+            ],
+            [
+              1307,
+              64789
+            ],
+            [
+              1307,
+              64790
+            ],
+            [
+              1307,
+              64791
+            ],
+            [
+              1307,
+              64960
+            ],
+            [
+              1307,
+              64961
+            ],
+            [
+              1307,
+              64966
+            ],
+            [
+              1307,
+              64967
+            ],
+            [
+              1307,
+              64968
+            ],
+            [
+              1307,
+              64969
+            ],
+            [
+              1307,
+              64986
+            ],
+            [
+              1311,
+              63903
+            ],
+            [
+              1312,
+              63903
+            ],
+            [
+              1312,
+              63940
+            ],
+            [
+              1312,
+              63941
+            ],
+            [
+              1318,
+              64986
+            ],
+            [
+              1318,
+              64990
+            ],
+            [
+              1318,
+              64991
+            ],
+            [
+              1324,
+              65010
+            ],
+            [
+              1324,
+              65011
+            ],
+            [
+              1324,
+              146250
+            ],
+            [
+              1324,
+              146251
+            ],
+            [
+              1381,
+              64991
+            ],
+            [
+              1381,
+              65009
+            ],
+            [
+              1381,
+              65010
+            ]
+          ],
+          "candidate_exact_aabb_triangle_pair_count": 11579
+        }
+      },
+      "signed_volume_m3": 0.00011436618084113475,
+      "relative_volume_change": 0.0030018438532290193,
+      "geometry_sha256": "fd7de5c37ff1bd55bfe3b73196679a9947f82fea2a092e28ae7b0b67948ac5a5",
+      "geometry_unchanged_from_v2": true,
+      "elapsed_seconds": 21.167790207953658,
+      "reviewed_sha256": "be65c066e908a52ace036431657d9e4b8bf57ba7f82a195cd85cf9fccccf20ea"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "registered-organ-right-kidney-proxy-validation.v1",
+  "scope": "Read-only validation of the already emitted 154-vertex source-aware right-kidney candidate. It checks record-offset lineage and the exact Float32 source-clear-neighbor/self-crossing constraints used by its pinned search. It does not test its non-clear source-overlap neighbors, containment, contact, dynamics, or mechanical/anatomical qualification.",
+  "candidate": {
+    "path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/evidence/source-aware-proxy-candidates/right-kidney-FJ3147-boundary.json",
+    "sha256": "0d94fd8ed48aa6fbc0f6c36580bfbb8e4561886f341f45354e9c791b17e77c99",
+    "vertices": 154,
+    "faces": 304,
+    "stable_id": 4,
+    "body_index": 20,
+    "source_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "source_mesh_sha256": "065f032bcbfc9be2ce9a3bda6048af39df8f2b8faf53fa5ab3f043331f32a5a7"
+  },
+  "source_record": {
+    "vertex_payload_span": [
+      107919,
+      109082
+    ],
+    "face_payload_global_span": [
+      215842,
+      218152
+    ],
+    "vertex_representatives_local_valid": 154,
+    "vertex_representatives_payload_global_valid": 154,
+    "face_parents_payload_global_valid": 304,
+    "all_face_parents_within_source_record": true
+  },
+  "geometry": {
+    "closed_single_component": true,
+    "float32_source_self_crossings": 0,
+    "float32_candidate_self_crossings": 0,
+    "relative_volume_change": 0.018791926181107296,
+    "reported_relative_volume_change": 0.018791926181107296,
+    "maximum_representative_vertex_displacement_m": 0.01339117086368521
+  },
+  "source_clear_neighbors": {
+    "398": {
+      "source_crossings": 0,
+      "candidate_crossings": 0,
+      "source_aabb_pairs": 347,
+      "candidate_aabb_pairs": 251
+    },
+    "454": {
+      "source_crossings": 0,
+      "candidate_crossings": 0,
+      "source_aabb_pairs": 469,
+      "candidate_aabb_pairs": 365
+    },
+    "457": {
+      "source_crossings": 0,
+      "candidate_crossings": 0,
+      "source_aabb_pairs": 973,
+      "candidate_aabb_pairs": 1708
+    }
+  },
+  "pinned_inputs": {
+    "payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "predicate_sha256": "4e6fb1f4ee75ea0ba9cdd06a072702a238f066fc8e63a61aa9eae32f2356a384",
+    "search_receipt_sha256": "76e0c1ea4be8d8ff9e232ce6f30db1437aad865f1dd3df067236f6ed366f0f92",
+    "baseline_source_pair_receipt_sha256": "dc859ec4e4b96efe0ebb320e77da0d5b96fc7d0a4baa62da600319adbfc31490"
+  }
+}

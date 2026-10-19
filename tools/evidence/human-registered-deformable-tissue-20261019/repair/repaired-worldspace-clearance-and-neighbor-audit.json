@@ -1,0 +1,313 @@
+{
+  "schema": "registered-organ-worldspace-repair-audit.v1",
+  "candidate_input_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-006-world-space-audit/repaired-input/spleen-FJ2561-collective-clearance-worldspace-7p5um.json",
+  "candidate_input_sha256": "86747768bde1b61de6e0dd6f10111927f9fa9f431ed9cb39e163bab4ff952fc0",
+  "base_candidate_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-005/repair-input/spleen-FJ2561-collective-clearance-7um.json",
+  "base_candidate_sha256": "bb11c2948cdfb1acfdf0a17ac0fc873a579b0ae2404fd36b0312a78ca9746b66",
+  "repair_proposal_path": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/v3-tetgen-asset-candidate-006-world-space-audit/worldspace-clearance-repair-proposal.json",
+  "repair_proposal_sha256": "3b536395c4f796367c787927811ae52a232e44854050f2a1a25c0a5a96b85d79",
+  "native_pose_source": "/Users/n/numi-human-separation-20261018/C/registered-organ-batch-243/native-run-organbatch-candidate005-default64-001/organ-batch/native.log",
+  "native_log_sha256": "afdc4a75d1c12b5b12487371adc670f5f53dd4d2416815b2e02cabe7c5970d0d",
+  "source_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+  "source_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "predicate_path": "/Users/n/numi-human-vein-transfer-binding-20261014/src/numilab_human/cardiac_cavity_intersections.py",
+  "predicate_sha256": "4e6fb1f4ee75ea0ba9cdd06a072702a238f066fc8e63a61aa9eae32f2356a384",
+  "body_index": 20,
+  "source_body_position_pre_COM_rebase_m": [
+    -0.02499999628494854,
+    0.19940000024064966,
+    1.7071998372620272
+  ],
+  "quaternion_xyzw": [
+    0.5000000596046448,
+    -0.4999999701976776,
+    -0.5,
+    0.5
+  ],
+  "transform_order": "normalized double quaternion rotate -> add pre-COM position in double -> IEEE Float32 cast per coordinate",
+  "collision_thickness_m": 2.99628618e-06,
+  "float32_epsilon": 1.1920928955078125e-07,
+  "runtime_initial_touch_formula": "thickness + 8*eps*max(thickness,pair_scale); pair_scale from registered Float32 world coordinates",
+  "static_reference_max_abs_world_coordinate_m": 1.60451078414917,
+  "self_clearance": {
+    "nonincident_aabb_pairs_within_pair_floor": 1530,
+    "pairs_at_or_below_floor": [],
+    "minimum_margin_within_floor_plus_5um_m": 2.320818302430771e-06,
+    "nearest_pairs_within_floor_plus_5um": [
+      {
+        "candidate_face_a": 402,
+        "source_face_global_a": 232796,
+        "candidate_face_b": 1316,
+        "source_face_global_b": 234172,
+        "distance_m": 6.812187352381918e-06,
+        "pair_scale_m": 1.5677080154418945,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4913690499511474e-06,
+        "margin_m": 2.320818302430771e-06
+      },
+      {
+        "candidate_face_a": 243,
+        "source_face_global_a": 232617,
+        "candidate_face_b": 1262,
+        "source_face_global_b": 234118,
+        "distance_m": 6.9985024334898195e-06,
+        "pair_scale_m": 1.569840669631958,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.493402907477987e-06,
+        "margin_m": 2.5050995260118323e-06
+      },
+      {
+        "candidate_face_a": 243,
+        "source_face_global_a": 232617,
+        "candidate_face_b": 1263,
+        "source_face_global_b": 234119,
+        "distance_m": 6.9985024334898195e-06,
+        "pair_scale_m": 1.569840669631958,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.493402907477987e-06,
+        "margin_m": 2.5050995260118323e-06
+      },
+      {
+        "candidate_face_a": 403,
+        "source_face_global_a": 232797,
+        "candidate_face_b": 1310,
+        "source_face_global_b": 234166,
+        "distance_m": 7.0021704391183005e-06,
+        "pair_scale_m": 1.5677080154418945,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4913690499511474e-06,
+        "margin_m": 2.510801389167153e-06
+      },
+      {
+        "candidate_face_a": 414,
+        "source_face_global_a": 232808,
+        "candidate_face_b": 1317,
+        "source_face_global_b": 234173,
+        "distance_m": 7.555885149774573e-06,
+        "pair_scale_m": 1.5713955163955688,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.49488572490239e-06,
+        "margin_m": 3.0609994248721827e-06
+      },
+      {
+        "candidate_face_a": 621,
+        "source_face_global_a": 233129,
+        "candidate_face_b": 1382,
+        "source_face_global_b": 234238,
+        "distance_m": 8.001841546953534e-06,
+        "pair_scale_m": 1.5672712326049805,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4909525013777354e-06,
+        "margin_m": 3.5108890455757983e-06
+      },
+      {
+        "candidate_face_a": 621,
+        "source_face_global_a": 233129,
+        "candidate_face_b": 1404,
+        "source_face_global_b": 234260,
+        "distance_m": 8.001841546953534e-06,
+        "pair_scale_m": 1.5672712326049805,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4909525013777354e-06,
+        "margin_m": 3.5108890455757983e-06
+      },
+      {
+        "candidate_face_a": 608,
+        "source_face_global_a": 233116,
+        "candidate_face_b": 1331,
+        "source_face_global_b": 234187,
+        "distance_m": 1.001498611134878e-05,
+        "pair_scale_m": 1.5663254261016846,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.490050510007252e-06,
+        "margin_m": 5.524935601341527e-06
+      },
+      {
+        "candidate_face_a": 1234,
+        "source_face_global_a": 234090,
+        "candidate_face_b": 1328,
+        "source_face_global_b": 234184,
+        "distance_m": 1.20876967092399e-05,
+        "pair_scale_m": 1.5650132894515991,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.48879915898445e-06,
+        "margin_m": 7.598897550255449e-06
+      },
+      {
+        "candidate_face_a": 1328,
+        "source_face_global_a": 234184,
+        "candidate_face_b": 1332,
+        "source_face_global_b": 234188,
+        "distance_m": 1.2176172744686379e-05,
+        "pair_scale_m": 1.5663254261016846,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.490050510007252e-06,
+        "margin_m": 7.686122234679126e-06
+      },
+      {
+        "candidate_face_a": 324,
+        "source_face_global_a": 232698,
+        "candidate_face_b": 1272,
+        "source_face_global_b": 234128,
+        "distance_m": 1.2788625396464137e-05,
+        "pair_scale_m": 1.5747175216674805,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4980538360091785e-06,
+        "margin_m": 8.290571560454958e-06
+      },
+      {
+        "candidate_face_a": 623,
+        "source_face_global_a": 233131,
+        "candidate_face_b": 1389,
+        "source_face_global_b": 234245,
+        "distance_m": 1.8333014754287644e-05,
+        "pair_scale_m": 1.564076542854309,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.487905807813634e-06,
+        "margin_m": 1.3845108946474011e-05
+      },
+      {
+        "candidate_face_a": 608,
+        "source_face_global_a": 233116,
+        "candidate_face_b": 1325,
+        "source_face_global_b": 234181,
+        "distance_m": 1.857506752730879e-05,
+        "pair_scale_m": 1.5662866830825806,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.490013561784993e-06,
+        "margin_m": 1.40850539655238e-05
+      },
+      {
+        "candidate_face_a": 435,
+        "source_face_global_a": 232851,
+        "candidate_face_b": 1235,
+        "source_face_global_b": 234091,
+        "distance_m": 1.94095273478969e-05,
+        "pair_scale_m": 1.5553226470947266,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.479557442259222e-06,
+        "margin_m": 1.492996990563768e-05
+      },
+      {
+        "candidate_face_a": 1234,
+        "source_face_global_a": 234090,
+        "candidate_face_b": 1356,
+        "source_face_global_b": 234212,
+        "distance_m": 2.1967141182569072e-05,
+        "pair_scale_m": 1.5678199529647827,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.491475801891768e-06,
+        "margin_m": 1.7475665380677305e-05
+      },
+      {
+        "candidate_face_a": 439,
+        "source_face_global_a": 232855,
+        "candidate_face_b": 1235,
+        "source_face_global_b": 234091,
+        "distance_m": 2.6106134447946815e-05,
+        "pair_scale_m": 1.5553226470947266,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.479557442259222e-06,
+        "margin_m": 2.1626577005687593e-05
+      },
+      {
+        "candidate_face_a": 364,
+        "source_face_global_a": 232755,
+        "candidate_face_b": 1198,
+        "source_face_global_b": 234054,
+        "distance_m": 3.1017047069938006e-05,
+        "pair_scale_m": 1.5573664903640747,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4815066030919595e-06,
+        "margin_m": 2.6535540466846047e-05
+      },
+      {
+        "candidate_face_a": 364,
+        "source_face_global_a": 232755,
+        "candidate_face_b": 1284,
+        "source_face_global_b": 234140,
+        "distance_m": 3.1017047069938006e-05,
+        "pair_scale_m": 1.5541538000106812,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.478442742815362e-06,
+        "margin_m": 2.6538604327122645e-05
+      },
+      {
+        "candidate_face_a": 364,
+        "source_face_global_a": 232755,
+        "candidate_face_b": 1393,
+        "source_face_global_b": 234249,
+        "distance_m": 3.1017047069938006e-05,
+        "pair_scale_m": 1.5562570095062256,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.4804485196932844e-06,
+        "margin_m": 2.6536598550244722e-05
+      },
+      {
+        "candidate_face_a": 435,
+        "source_face_global_a": 232851,
+        "candidate_face_b": 1238,
+        "source_face_global_b": 234094,
+        "distance_m": 3.124390964738373e-05,
+        "pair_scale_m": 1.5553226470947266,
+        "collision_thickness_m": 2.99628618e-06,
+        "initial_touch_floor_m": 4.479557442259222e-06,
+        "margin_m": 2.6764352205124508e-05
+      }
+    ],
+    "exact_float32_self_crossing_pairs": 0,
+    "exact_predicate_aabb_pairs": 11008
+  },
+  "selected_neighbor_crossings_world_float32": [
+    {
+      "neighbor_id": 2,
+      "baseline_source_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "new_source_face_pairs": 0,
+      "removed_source_face_pairs": 0,
+      "crossing_pair_sets_equal": true,
+      "candidate_aabb_pairs": 2935,
+      "new_pair_examples": [],
+      "removed_pair_examples": []
+    },
+    {
+      "neighbor_id": 3,
+      "baseline_source_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "new_source_face_pairs": 0,
+      "removed_source_face_pairs": 0,
+      "crossing_pair_sets_equal": true,
+      "candidate_aabb_pairs": 703,
+      "new_pair_examples": [],
+      "removed_pair_examples": []
+    },
+    {
+      "neighbor_id": 5,
+      "baseline_source_crossing_pairs": 0,
+      "repaired_candidate_crossing_pairs": 0,
+      "new_source_face_pairs": 0,
+      "removed_source_face_pairs": 0,
+      "crossing_pair_sets_equal": true,
+      "candidate_aabb_pairs": 1764,
+      "new_pair_examples": [],
+      "removed_pair_examples": []
+    },
+    {
+      "neighbor_id": 311,
+      "baseline_source_crossing_pairs": 106,
+      "repaired_candidate_crossing_pairs": 106,
+      "new_source_face_pairs": 0,
+      "removed_source_face_pairs": 0,
+      "crossing_pair_sets_equal": true,
+      "candidate_aabb_pairs": 11579,
+      "new_pair_examples": [],
+      "removed_pair_examples": []
+    }
+  ],
+  "limitations": [
+    "Static registered reference pose only; loaded trial endpoint displacement is not included in the coordinate scale.",
+    "No claim of anatomical validity from preserving baseline source crossing sets; diaphragm source crossings remain unresolved typed interfaces.",
+    "Not a native contact or loaded-trajectory clearance qualification."
+  ],
+  "elapsed_seconds": 27.588155457982793
+}

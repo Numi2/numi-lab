@@ -1,0 +1,12 @@
+{
+  "scope": "CPU build only; reuses exact tested host runtime object; rebuilt matching Metal-source-guard adapter",
+  "base_library_sha256": "5a58b578134a5d7ce31dd6cc7a31713914ded0d64dca2fc571eec9363c8a4f8b",
+  "input_sha256": {
+    "/Users/n/numi-human-separation-20261018/C/deferred-audit-microticks-226/matter/src/numi_human.mm": "4f2059560c8361e211653f503480d6ef589c4826c07ed510585c3812ea5f885b",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/runtime.mm.o": "4de4c3ad05c7b470cfec6c8415cfb56beebd308dd0184547c93b54b71ac0ef7c",
+    "/Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+  },
+  "adapter_object_sha256": "73cf2540d47ad8d3879a01f7870a3013d856bb8712cabbcce133639b5a51a7ec",
+  "library_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "metal_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+}

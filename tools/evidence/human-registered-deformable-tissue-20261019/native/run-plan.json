@@ -1,0 +1,46 @@
+{
+  "base_invocation": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/native-paired-006-inner-forcing/all_optins_clean_control/invocation.json",
+  "base_invocation_sha256": "765f3e20d7c3601e2776d60f80b3ad199479b48feb28de65a1617c9047b37519",
+  "binary_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/build-cpu-001/numi-human-native",
+  "binary_sha256": "e48d1afacefac4e630ab80ab2dcd0c6de5dabb80f81e9be2fb9c56f0d791c208",
+  "cases": [
+    {
+      "name": "production_all_optins_clean",
+      "rollback_retry": false
+    },
+    {
+      "name": "production_all_optins_late_reject_retry",
+      "reject_step": 1,
+      "rollback_retry": true
+    }
+  ],
+  "fgmres_environment": "0; production cooked default 64",
+  "physical_horizon_seconds": 0.0005,
+  "production_build_receipt_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/build-receipt.json",
+  "production_build_receipt_sha256": "5c8d17c2fef66e2b34095f5b8cde0156616ada51e66e72cfb03d459ebb43b195",
+  "production_library_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+  "production_library_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "production_msl_path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal",
+  "production_msl_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+  "rollback_markers": [
+    "shared_tissue_late_reject_retry=passed",
+    "q_v_root_muscle_unchanged=1",
+    "matter_vascular_unchanged=1",
+    "passive_adapter_history_unchanged=1",
+    "brain_respiration_presentation_unchanged=1",
+    "body_properties_restored=1",
+    "dof_properties_restored=1",
+    "same_context_retry=1"
+  ],
+  "runtime_source_sha256": "4f2059560c8361e211653f503480d6ef589c4826c07ed510585c3812ea5f885b",
+  "schema": "numi.integrated_tissue_production_msl_paired_retry_plan.v1",
+  "scope": "Experimental combined258 all-optins two-step mechanics and rollback check using production-merged MSL plus source-matched guarded dylib; MPM disabled; no anatomy, clinical, or sustained qualification; no added FEM traces or visual verification.",
+  "step_count": 2,
+  "step_seconds": 0.00025,
+  "trace_environment_keys_removed": [
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT",
+    "NM_FEM_NEWTON_TRACE_ROOT"
+  ],
+  "visual_verification": false
+}

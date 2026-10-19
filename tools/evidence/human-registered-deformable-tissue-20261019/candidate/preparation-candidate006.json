@@ -1,0 +1,7 @@
+{
+  "scope": "prepared combined candidate only; not native qualified",
+  "app_sha256": "17aa9704ce9d08c27e2c8d2848c1b8e4a3a9ee87edf6df36bd37720c6e3e2968",
+  "organ_asset_sha256": "3e66d192aec356849a46e878976cc838cfb333c70ee161e03797f9369e108c49",
+  "organ_preparation_sha256": "b2d887a38f1c64bc406a938386111f28cbcc2b3ba1e56de876d6c7bd55eaff28",
+  "world_float32_audit_sha256": "bf51487f50475ce643543ac699ca184eb4dae557ae45f581cafe4e11d23a9f54"
+}
