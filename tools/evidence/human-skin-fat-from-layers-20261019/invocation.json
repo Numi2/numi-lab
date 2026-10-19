@@ -1,0 +1,50 @@
+{
+  "kind": "CPU-only FromLayers compile and regression fixture; no native simulation",
+  "cwd": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-006",
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-I/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps",
+    "-I/Users/numi/numi-lab-native-replay-publish-20261017/apps",
+    "-I/Users/numi/numi-lab-native-replay-publish-20261017/include",
+    "-I/Users/numi/numi-lab-native-replay-publish-20261017/matter/include",
+    "-I/Users/numi/numi-lab-native-replay-publish-20261017/src",
+    "-I/Users/numi/numi-human-separation-20261018/C/C298-material-column-self-contact/source/apps",
+    "-L/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001",
+    "-Wl,-rpath,/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-001/from_layers_test.cpp",
+    "-lmetalrobo",
+    "-framework",
+    "Foundation",
+    "-o",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-006/from_layers_test"
+  ],
+  "source_and_header_sha256": {
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanCoarseTissuePreparation.hpp": "8573405c5ab308224dc7ee3c65e3083107c7dd0d5aa033862cf67f805889753c",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-001/from_layers_test.cpp": "74a1db253cbf5b79f527655a93113a27309f48d4f548c0dedd9336b68e0ef4f8",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "4443836c698af635687795e7f46a1073a9f67a40730229369fb102c94314e2e1",
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/source/apps/NumiHumanMaterialColumnSelfContact.hpp": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86"
+  },
+  "fixture_sha256": "d3094476cefa1a28ca8b5f35b28e2586d5a44ce63f268e57e96812de32de4a5f",
+  "library_path": "/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001/libmetalrobo.dylib",
+  "library_sha256": "8aaeb62878698c340885ea4b5fb598fef99eebc2c3847b55585134b45081383f",
+  "binary_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-006/from_layers_test",
+  "compile_exit_code": 0,
+  "compile_elapsed_seconds": 1.5395351669867523,
+  "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "binary_sha256": "4e6201180e3d707422b77b836fb9532dcfe21c50871b427bdbbc83364312865a",
+  "run_argv": [
+    "/Users/numi/numi-human-separation-20261018/C/wholebody-integration-295/from-layers-test-006/from_layers_test"
+  ],
+  "run_environment": {
+    "DYLD_LIBRARY_PATH": "/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 0.20297754200873896,
+  "stdout_sha256": "698485b662b80b72fcd297a004c8e2f2b5dcbdba0c41b8d593338846484ba8d2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "loaded_library_path": "/Users/numi/numi-human-separation-20261018/C/contact-legacy-plane-bounded-recovery-279/build-guarded-root-001/libmetalrobo.dylib",
+  "loaded_library_sha256": "8aaeb62878698c340885ea4b5fb598fef99eebc2c3847b55585134b45081383f"
+}
