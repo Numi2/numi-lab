@@ -1,0 +1,8396 @@
+{
+  "canonical_vertex_marker": "1-based minimum original OBJ vertex index",
+  "member": "FJ1819",
+  "schema": "numi.human.registered-source-vertex-aliases.v1",
+  "source_obj_sha256": "3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4",
+  "welded_nodes": [
+    {
+      "all_source_vertex_indices": [
+        0
+      ],
+      "canonical_source_vertex_index": 0,
+      "input_point_id": 1
+    },
+    {
+      "all_source_vertex_indices": [
+        1
+      ],
+      "canonical_source_vertex_index": 1,
+      "input_point_id": 2
+    },
+    {
+      "all_source_vertex_indices": [
+        2
+      ],
+      "canonical_source_vertex_index": 2,
+      "input_point_id": 3
+    },
+    {
+      "all_source_vertex_indices": [
+        3
+      ],
+      "canonical_source_vertex_index": 3,
+      "input_point_id": 4
+    },
+    {
+      "all_source_vertex_indices": [
+        4
+      ],
+      "canonical_source_vertex_index": 4,
+      "input_point_id": 5
+    },
+    {
+      "all_source_vertex_indices": [
+        5
+      ],
+      "canonical_source_vertex_index": 5,
+      "input_point_id": 6
+    },
+    {
+      "all_source_vertex_indices": [
+        6
+      ],
+      "canonical_source_vertex_index": 6,
+      "input_point_id": 7
+    },
+    {
+      "all_source_vertex_indices": [
+        7
+      ],
+      "canonical_source_vertex_index": 7,
+      "input_point_id": 8
+    },
+    {
+      "all_source_vertex_indices": [
+        8
+      ],
+      "canonical_source_vertex_index": 8,
+      "input_point_id": 9
+    },
+    {
+      "all_source_vertex_indices": [
+        9
+      ],
+      "canonical_source_vertex_index": 9,
+      "input_point_id": 10
+    },
+    {
+      "all_source_vertex_indices": [
+        10
+      ],
+      "canonical_source_vertex_index": 10,
+      "input_point_id": 11
+    },
+    {
+      "all_source_vertex_indices": [
+        11
+      ],
+      "canonical_source_vertex_index": 11,
+      "input_point_id": 12
+    },
+    {
+      "all_source_vertex_indices": [
+        12
+      ],
+      "canonical_source_vertex_index": 12,
+      "input_point_id": 13
+    },
+    {
+      "all_source_vertex_indices": [
+        13
+      ],
+      "canonical_source_vertex_index": 13,
+      "input_point_id": 14
+    },
+    {
+      "all_source_vertex_indices": [
+        14
+      ],
+      "canonical_source_vertex_index": 14,
+      "input_point_id": 15
+    },
+    {
+      "all_source_vertex_indices": [
+        15
+      ],
+      "canonical_source_vertex_index": 15,
+      "input_point_id": 16
+    },
+    {
+      "all_source_vertex_indices": [
+        16
+      ],
+      "canonical_source_vertex_index": 16,
+      "input_point_id": 17
+    },
+    {
+      "all_source_vertex_indices": [
+        17
+      ],
+      "canonical_source_vertex_index": 17,
+      "input_point_id": 18
+    },
+    {
+      "all_source_vertex_indices": [
+        18
+      ],
+      "canonical_source_vertex_index": 18,
+      "input_point_id": 19
+    },
+    {
+      "all_source_vertex_indices": [
+        19
+      ],
+      "canonical_source_vertex_index": 19,
+      "input_point_id": 20
+    },
+    {
+      "all_source_vertex_indices": [
+        20
+      ],
+      "canonical_source_vertex_index": 20,
+      "input_point_id": 21
+    },
+    {
+      "all_source_vertex_indices": [
+        21
+      ],
+      "canonical_source_vertex_index": 21,
+      "input_point_id": 22
+    },
+    {
+      "all_source_vertex_indices": [
+        22
+      ],
+      "canonical_source_vertex_index": 22,
+      "input_point_id": 23
+    },
+    {
+      "all_source_vertex_indices": [
+        23
+      ],
+      "canonical_source_vertex_index": 23,
+      "input_point_id": 24
+    },
+    {
+      "all_source_vertex_indices": [
+        24
+      ],
+      "canonical_source_vertex_index": 24,
+      "input_point_id": 25
+    },
+    {
+      "all_source_vertex_indices": [
+        25
+      ],
+      "canonical_source_vertex_index": 25,
+      "input_point_id": 26
+    },
+    {
+      "all_source_vertex_indices": [
+        26
+      ],
+      "canonical_source_vertex_index": 26,
+      "input_point_id": 27
+    },
+    {
+      "all_source_vertex_indices": [
+        27
+      ],
+      "canonical_source_vertex_index": 27,
+      "input_point_id": 28
+    },
+    {
+      "all_source_vertex_indices": [
+        28
+      ],
+      "canonical_source_vertex_index": 28,
+      "input_point_id": 29
+    },
+    {
+      "all_source_vertex_indices": [
+        29
+      ],
+      "canonical_source_vertex_index": 29,
+      "input_point_id": 30
+    },
+    {
+      "all_source_vertex_indices": [
+        30
+      ],
+      "canonical_source_vertex_index": 30,
+      "input_point_id": 31
+    },
+    {
+      "all_source_vertex_indices": [
+        31
+      ],
+      "canonical_source_vertex_index": 31,
+      "input_point_id": 32
+    },
+    {
+      "all_source_vertex_indices": [
+        32
+      ],
+      "canonical_source_vertex_index": 32,
+      "input_point_id": 33
+    },
+    {
+      "all_source_vertex_indices": [
+        33
+      ],
+      "canonical_source_vertex_index": 33,
+      "input_point_id": 34
+    },
+    {
+      "all_source_vertex_indices": [
+        34
+      ],
+      "canonical_source_vertex_index": 34,
+      "input_point_id": 35
+    },
+    {
+      "all_source_vertex_indices": [
+        35
+      ],
+      "canonical_source_vertex_index": 35,
+      "input_point_id": 36
+    },
+    {
+      "all_source_vertex_indices": [
+        36
+      ],
+      "canonical_source_vertex_index": 36,
+      "input_point_id": 37
+    },
+    {
+      "all_source_vertex_indices": [
+        37
+      ],
+      "canonical_source_vertex_index": 37,
+      "input_point_id": 38
+    },
+    {
+      "all_source_vertex_indices": [
+        38
+      ],
+      "canonical_source_vertex_index": 38,
+      "input_point_id": 39
+    },
+    {
+      "all_source_vertex_indices": [
+        39
+      ],
+      "canonical_source_vertex_index": 39,
+      "input_point_id": 40
+    },
+    {
+      "all_source_vertex_indices": [
+        40
+      ],
+      "canonical_source_vertex_index": 40,
+      "input_point_id": 41
+    },
+    {
+      "all_source_vertex_indices": [
+        41
+      ],
+      "canonical_source_vertex_index": 41,
+      "input_point_id": 42
+    },
+    {
+      "all_source_vertex_indices": [
+        42
+      ],
+      "canonical_source_vertex_index": 42,
+      "input_point_id": 43
+    },
+    {
+      "all_source_vertex_indices": [
+        43
+      ],
+      "canonical_source_vertex_index": 43,
+      "input_point_id": 44
+    },
+    {
+      "all_source_vertex_indices": [
+        44
+      ],
+      "canonical_source_vertex_index": 44,
+      "input_point_id": 45
+    },
+    {
+      "all_source_vertex_indices": [
+        45
+      ],
+      "canonical_source_vertex_index": 45,
+      "input_point_id": 46
+    },
+    {
+      "all_source_vertex_indices": [
+        46
+      ],
+      "canonical_source_vertex_index": 46,
+      "input_point_id": 47
+    },
+    {
+      "all_source_vertex_indices": [
+        47
+      ],
+      "canonical_source_vertex_index": 47,
+      "input_point_id": 48
+    },
+    {
+      "all_source_vertex_indices": [
+        48
+      ],
+      "canonical_source_vertex_index": 48,
+      "input_point_id": 49
+    },
+    {
+      "all_source_vertex_indices": [
+        49
+      ],
+      "canonical_source_vertex_index": 49,
+      "input_point_id": 50
+    },
+    {
+      "all_source_vertex_indices": [
+        50
+      ],
+      "canonical_source_vertex_index": 50,
+      "input_point_id": 51
+    },
+    {
+      "all_source_vertex_indices": [
+        51
+      ],
+      "canonical_source_vertex_index": 51,
+      "input_point_id": 52
+    },
+    {
+      "all_source_vertex_indices": [
+        52
+      ],
+      "canonical_source_vertex_index": 52,
+      "input_point_id": 53
+    },
+    {
+      "all_source_vertex_indices": [
+        53
+      ],
+      "canonical_source_vertex_index": 53,
+      "input_point_id": 54
+    },
+    {
+      "all_source_vertex_indices": [
+        54
+      ],
+      "canonical_source_vertex_index": 54,
+      "input_point_id": 55
+    },
+    {
+      "all_source_vertex_indices": [
+        55
+      ],
+      "canonical_source_vertex_index": 55,
+      "input_point_id": 56
+    },
+    {
+      "all_source_vertex_indices": [
+        56
+      ],
+      "canonical_source_vertex_index": 56,
+      "input_point_id": 57
+    },
+    {
+      "all_source_vertex_indices": [
+        57
+      ],
+      "canonical_source_vertex_index": 57,
+      "input_point_id": 58
+    },
+    {
+      "all_source_vertex_indices": [
+        58
+      ],
+      "canonical_source_vertex_index": 58,
+      "input_point_id": 59
+    },
+    {
+      "all_source_vertex_indices": [
+        59
+      ],
+      "canonical_source_vertex_index": 59,
+      "input_point_id": 60
+    },
+    {
+      "all_source_vertex_indices": [
+        60
+      ],
+      "canonical_source_vertex_index": 60,
+      "input_point_id": 61
+    },
+    {
+      "all_source_vertex_indices": [
+        61
+      ],
+      "canonical_source_vertex_index": 61,
+      "input_point_id": 62
+    },
+    {
+      "all_source_vertex_indices": [
+        62
+      ],
+      "canonical_source_vertex_index": 62,
+      "input_point_id": 63
+    },
+    {
+      "all_source_vertex_indices": [
+        63
+      ],
+      "canonical_source_vertex_index": 63,
+      "input_point_id": 64
+    },
+    {
+      "all_source_vertex_indices": [
+        64
+      ],
+      "canonical_source_vertex_index": 64,
+      "input_point_id": 65
+    },
+    {
+      "all_source_vertex_indices": [
+        65
+      ],
+      "canonical_source_vertex_index": 65,
+      "input_point_id": 66
+    },
+    {
+      "all_source_vertex_indices": [
+        66
+      ],
+      "canonical_source_vertex_index": 66,
+      "input_point_id": 67
+    },
+    {
+      "all_source_vertex_indices": [
+        67
+      ],
+      "canonical_source_vertex_index": 67,
+      "input_point_id": 68
+    },
+    {
+      "all_source_vertex_indices": [
+        68
+      ],
+      "canonical_source_vertex_index": 68,
+      "input_point_id": 69
+    },
+    {
+      "all_source_vertex_indices": [
+        69
+      ],
+      "canonical_source_vertex_index": 69,
+      "input_point_id": 70
+    },
+    {
+      "all_source_vertex_indices": [
+        70
+      ],
+      "canonical_source_vertex_index": 70,
+      "input_point_id": 71
+    },
+    {
+      "all_source_vertex_indices": [
+        71
+      ],
+      "canonical_source_vertex_index": 71,
+      "input_point_id": 72
+    },
+    {
+      "all_source_vertex_indices": [
+        72
+      ],
+      "canonical_source_vertex_index": 72,
+      "input_point_id": 73
+    },
+    {
+      "all_source_vertex_indices": [
+        73
+      ],
+      "canonical_source_vertex_index": 73,
+      "input_point_id": 74
+    },
+    {
+      "all_source_vertex_indices": [
+        74
+      ],
+      "canonical_source_vertex_index": 74,
+      "input_point_id": 75
+    },
+    {
+      "all_source_vertex_indices": [
+        75
+      ],
+      "canonical_source_vertex_index": 75,
+      "input_point_id": 76
+    },
+    {
+      "all_source_vertex_indices": [
+        76
+      ],
+      "canonical_source_vertex_index": 76,
+      "input_point_id": 77
+    },
+    {
+      "all_source_vertex_indices": [
+        77
+      ],
+      "canonical_source_vertex_index": 77,
+      "input_point_id": 78
+    },
+    {
+      "all_source_vertex_indices": [
+        78
+      ],
+      "canonical_source_vertex_index": 78,
+      "input_point_id": 79
+    },
+    {
+      "all_source_vertex_indices": [
+        79
+      ],
+      "canonical_source_vertex_index": 79,
+      "input_point_id": 80
+    },
+    {
+      "all_source_vertex_indices": [
+        80
+      ],
+      "canonical_source_vertex_index": 80,
+      "input_point_id": 81
+    },
+    {
+      "all_source_vertex_indices": [
+        81
+      ],
+      "canonical_source_vertex_index": 81,
+      "input_point_id": 82
+    },
+    {
+      "all_source_vertex_indices": [
+        82
+      ],
+      "canonical_source_vertex_index": 82,
+      "input_point_id": 83
+    },
+    {
+      "all_source_vertex_indices": [
+        83
+      ],
+      "canonical_source_vertex_index": 83,
+      "input_point_id": 84
+    },
+    {
+      "all_source_vertex_indices": [
+        84
+      ],
+      "canonical_source_vertex_index": 84,
+      "input_point_id": 85
+    },
+    {
+      "all_source_vertex_indices": [
+        85
+      ],
+      "canonical_source_vertex_index": 85,
+      "input_point_id": 86
+    },
+    {
+      "all_source_vertex_indices": [
+        86
+      ],
+      "canonical_source_vertex_index": 86,
+      "input_point_id": 87
+    },
+    {
+      "all_source_vertex_indices": [
+        87
+      ],
+      "canonical_source_vertex_index": 87,
+      "input_point_id": 88
+    },
+    {
+      "all_source_vertex_indices": [
+        88
+      ],
+      "canonical_source_vertex_index": 88,
+      "input_point_id": 89
+    },
+    {
+      "all_source_vertex_indices": [
+        89
+      ],
+      "canonical_source_vertex_index": 89,
+      "input_point_id": 90
+    },
+    {
+      "all_source_vertex_indices": [
+        90
+      ],
+      "canonical_source_vertex_index": 90,
+      "input_point_id": 91
+    },
+    {
+      "all_source_vertex_indices": [
+        91
+      ],
+      "canonical_source_vertex_index": 91,
+      "input_point_id": 92
+    },
+    {
+      "all_source_vertex_indices": [
+        92
+      ],
+      "canonical_source_vertex_index": 92,
+      "input_point_id": 93
+    },
+    {
+      "all_source_vertex_indices": [
+        93
+      ],
+      "canonical_source_vertex_index": 93,
+      "input_point_id": 94
+    },
+    {
+      "all_source_vertex_indices": [
+        94
+      ],
+      "canonical_source_vertex_index": 94,
+      "input_point_id": 95
+    },
+    {
+      "all_source_vertex_indices": [
+        95
+      ],
+      "canonical_source_vertex_index": 95,
+      "input_point_id": 96
+    },
+    {
+      "all_source_vertex_indices": [
+        96
+      ],
+      "canonical_source_vertex_index": 96,
+      "input_point_id": 97
+    },
+    {
+      "all_source_vertex_indices": [
+        97
+      ],
+      "canonical_source_vertex_index": 97,
+      "input_point_id": 98
+    },
+    {
+      "all_source_vertex_indices": [
+        98
+      ],
+      "canonical_source_vertex_index": 98,
+      "input_point_id": 99
+    },
+    {
+      "all_source_vertex_indices": [
+        99
+      ],
+      "canonical_source_vertex_index": 99,
+      "input_point_id": 100
+    },
+    {
+      "all_source_vertex_indices": [
+        100
+      ],
+      "canonical_source_vertex_index": 100,
+      "input_point_id": 101
+    },
+    {
+      "all_source_vertex_indices": [
+        101
+      ],
+      "canonical_source_vertex_index": 101,
+      "input_point_id": 102
+    },
+    {
+      "all_source_vertex_indices": [
+        102
+      ],
+      "canonical_source_vertex_index": 102,
+      "input_point_id": 103
+    },
+    {
+      "all_source_vertex_indices": [
+        103
+      ],
+      "canonical_source_vertex_index": 103,
+      "input_point_id": 104
+    },
+    {
+      "all_source_vertex_indices": [
+        104
+      ],
+      "canonical_source_vertex_index": 104,
+      "input_point_id": 105
+    },
+    {
+      "all_source_vertex_indices": [
+        105
+      ],
+      "canonical_source_vertex_index": 105,
+      "input_point_id": 106
+    },
+    {
+      "all_source_vertex_indices": [
+        106
+      ],
+      "canonical_source_vertex_index": 106,
+      "input_point_id": 107
+    },
+    {
+      "all_source_vertex_indices": [
+        107
+      ],
+      "canonical_source_vertex_index": 107,
+      "input_point_id": 108
+    },
+    {
+      "all_source_vertex_indices": [
+        108
+      ],
+      "canonical_source_vertex_index": 108,
+      "input_point_id": 109
+    },
+    {
+      "all_source_vertex_indices": [
+        109
+      ],
+      "canonical_source_vertex_index": 109,
+      "input_point_id": 110
+    },
+    {
+      "all_source_vertex_indices": [
+        110
+      ],
+      "canonical_source_vertex_index": 110,
+      "input_point_id": 111
+    },
+    {
+      "all_source_vertex_indices": [
+        111
+      ],
+      "canonical_source_vertex_index": 111,
+      "input_point_id": 112
+    },
+    {
+      "all_source_vertex_indices": [
+        112
+      ],
+      "canonical_source_vertex_index": 112,
+      "input_point_id": 113
+    },
+    {
+      "all_source_vertex_indices": [
+        113
+      ],
+      "canonical_source_vertex_index": 113,
+      "input_point_id": 114
+    },
+    {
+      "all_source_vertex_indices": [
+        114
+      ],
+      "canonical_source_vertex_index": 114,
+      "input_point_id": 115
+    },
+    {
+      "all_source_vertex_indices": [
+        115
+      ],
+      "canonical_source_vertex_index": 115,
+      "input_point_id": 116
+    },
+    {
+      "all_source_vertex_indices": [
+        116
+      ],
+      "canonical_source_vertex_index": 116,
+      "input_point_id": 117
+    },
+    {
+      "all_source_vertex_indices": [
+        117
+      ],
+      "canonical_source_vertex_index": 117,
+      "input_point_id": 118
+    },
+    {
+      "all_source_vertex_indices": [
+        118
+      ],
+      "canonical_source_vertex_index": 118,
+      "input_point_id": 119
+    },
+    {
+      "all_source_vertex_indices": [
+        119
+      ],
+      "canonical_source_vertex_index": 119,
+      "input_point_id": 120
+    },
+    {
+      "all_source_vertex_indices": [
+        120
+      ],
+      "canonical_source_vertex_index": 120,
+      "input_point_id": 121
+    },
+    {
+      "all_source_vertex_indices": [
+        121
+      ],
+      "canonical_source_vertex_index": 121,
+      "input_point_id": 122
+    },
+    {
+      "all_source_vertex_indices": [
+        122
+      ],
+      "canonical_source_vertex_index": 122,
+      "input_point_id": 123
+    },
+    {
+      "all_source_vertex_indices": [
+        123
+      ],
+      "canonical_source_vertex_index": 123,
+      "input_point_id": 124
+    },
+    {
+      "all_source_vertex_indices": [
+        124
+      ],
+      "canonical_source_vertex_index": 124,
+      "input_point_id": 125
+    },
+    {
+      "all_source_vertex_indices": [
+        125
+      ],
+      "canonical_source_vertex_index": 125,
+      "input_point_id": 126
+    },
+    {
+      "all_source_vertex_indices": [
+        126
+      ],
+      "canonical_source_vertex_index": 126,
+      "input_point_id": 127
+    },
+    {
+      "all_source_vertex_indices": [
+        127
+      ],
+      "canonical_source_vertex_index": 127,
+      "input_point_id": 128
+    },
+    {
+      "all_source_vertex_indices": [
+        128
+      ],
+      "canonical_source_vertex_index": 128,
+      "input_point_id": 129
+    },
+    {
+      "all_source_vertex_indices": [
+        129
+      ],
+      "canonical_source_vertex_index": 129,
+      "input_point_id": 130
+    },
+    {
+      "all_source_vertex_indices": [
+        130
+      ],
+      "canonical_source_vertex_index": 130,
+      "input_point_id": 131
+    },
+    {
+      "all_source_vertex_indices": [
+        131
+      ],
+      "canonical_source_vertex_index": 131,
+      "input_point_id": 132
+    },
+    {
+      "all_source_vertex_indices": [
+        132
+      ],
+      "canonical_source_vertex_index": 132,
+      "input_point_id": 133
+    },
+    {
+      "all_source_vertex_indices": [
+        133
+      ],
+      "canonical_source_vertex_index": 133,
+      "input_point_id": 134
+    },
+    {
+      "all_source_vertex_indices": [
+        134
+      ],
+      "canonical_source_vertex_index": 134,
+      "input_point_id": 135
+    },
+    {
+      "all_source_vertex_indices": [
+        135
+      ],
+      "canonical_source_vertex_index": 135,
+      "input_point_id": 136
+    },
+    {
+      "all_source_vertex_indices": [
+        136
+      ],
+      "canonical_source_vertex_index": 136,
+      "input_point_id": 137
+    },
+    {
+      "all_source_vertex_indices": [
+        137
+      ],
+      "canonical_source_vertex_index": 137,
+      "input_point_id": 138
+    },
+    {
+      "all_source_vertex_indices": [
+        138
+      ],
+      "canonical_source_vertex_index": 138,
+      "input_point_id": 139
+    },
+    {
+      "all_source_vertex_indices": [
+        139
+      ],
+      "canonical_source_vertex_index": 139,
+      "input_point_id": 140
+    },
+    {
+      "all_source_vertex_indices": [
+        140
+      ],
+      "canonical_source_vertex_index": 140,
+      "input_point_id": 141
+    },
+    {
+      "all_source_vertex_indices": [
+        141
+      ],
+      "canonical_source_vertex_index": 141,
+      "input_point_id": 142
+    },
+    {
+      "all_source_vertex_indices": [
+        142
+      ],
+      "canonical_source_vertex_index": 142,
+      "input_point_id": 143
+    },
+    {
+      "all_source_vertex_indices": [
+        143
+      ],
+      "canonical_source_vertex_index": 143,
+      "input_point_id": 144
+    },
+    {
+      "all_source_vertex_indices": [
+        144
+      ],
+      "canonical_source_vertex_index": 144,
+      "input_point_id": 145
+    },
+    {
+      "all_source_vertex_indices": [
+        145
+      ],
+      "canonical_source_vertex_index": 145,
+      "input_point_id": 146
+    },
+    {
+      "all_source_vertex_indices": [
+        146
+      ],
+      "canonical_source_vertex_index": 146,
+      "input_point_id": 147
+    },
+    {
+      "all_source_vertex_indices": [
+        147
+      ],
+      "canonical_source_vertex_index": 147,
+      "input_point_id": 148
+    },
+    {
+      "all_source_vertex_indices": [
+        148
+      ],
+      "canonical_source_vertex_index": 148,
+      "input_point_id": 149
+    },
+    {
+      "all_source_vertex_indices": [
+        149
+      ],
+      "canonical_source_vertex_index": 149,
+      "input_point_id": 150
+    },
+    {
+      "all_source_vertex_indices": [
+        150
+      ],
+      "canonical_source_vertex_index": 150,
+      "input_point_id": 151
+    },
+    {
+      "all_source_vertex_indices": [
+        151
+      ],
+      "canonical_source_vertex_index": 151,
+      "input_point_id": 152
+    },
+    {
+      "all_source_vertex_indices": [
+        152
+      ],
+      "canonical_source_vertex_index": 152,
+      "input_point_id": 153
+    },
+    {
+      "all_source_vertex_indices": [
+        153
+      ],
+      "canonical_source_vertex_index": 153,
+      "input_point_id": 154
+    },
+    {
+      "all_source_vertex_indices": [
+        154
+      ],
+      "canonical_source_vertex_index": 154,
+      "input_point_id": 155
+    },
+    {
+      "all_source_vertex_indices": [
+        155
+      ],
+      "canonical_source_vertex_index": 155,
+      "input_point_id": 156
+    },
+    {
+      "all_source_vertex_indices": [
+        156
+      ],
+      "canonical_source_vertex_index": 156,
+      "input_point_id": 157
+    },
+    {
+      "all_source_vertex_indices": [
+        157
+      ],
+      "canonical_source_vertex_index": 157,
+      "input_point_id": 158
+    },
+    {
+      "all_source_vertex_indices": [
+        158
+      ],
+      "canonical_source_vertex_index": 158,
+      "input_point_id": 159
+    },
+    {
+      "all_source_vertex_indices": [
+        159
+      ],
+      "canonical_source_vertex_index": 159,
+      "input_point_id": 160
+    },
+    {
+      "all_source_vertex_indices": [
+        160
+      ],
+      "canonical_source_vertex_index": 160,
+      "input_point_id": 161
+    },
+    {
+      "all_source_vertex_indices": [
+        161
+      ],
+      "canonical_source_vertex_index": 161,
+      "input_point_id": 162
+    },
+    {
+      "all_source_vertex_indices": [
+        162
+      ],
+      "canonical_source_vertex_index": 162,
+      "input_point_id": 163
+    },
+    {
+      "all_source_vertex_indices": [
+        163
+      ],
+      "canonical_source_vertex_index": 163,
+      "input_point_id": 164
+    },
+    {
+      "all_source_vertex_indices": [
+        164
+      ],
+      "canonical_source_vertex_index": 164,
+      "input_point_id": 165
+    },
+    {
+      "all_source_vertex_indices": [
+        165
+      ],
+      "canonical_source_vertex_index": 165,
+      "input_point_id": 166
+    },
+    {
+      "all_source_vertex_indices": [
+        166
+      ],
+      "canonical_source_vertex_index": 166,
+      "input_point_id": 167
+    },
+    {
+      "all_source_vertex_indices": [
+        167
+      ],
+      "canonical_source_vertex_index": 167,
+      "input_point_id": 168
+    },
+    {
+      "all_source_vertex_indices": [
+        168
+      ],
+      "canonical_source_vertex_index": 168,
+      "input_point_id": 169
+    },
+    {
+      "all_source_vertex_indices": [
+        169
+      ],
+      "canonical_source_vertex_index": 169,
+      "input_point_id": 170
+    },
+    {
+      "all_source_vertex_indices": [
+        170
+      ],
+      "canonical_source_vertex_index": 170,
+      "input_point_id": 171
+    },
+    {
+      "all_source_vertex_indices": [
+        171
+      ],
+      "canonical_source_vertex_index": 171,
+      "input_point_id": 172
+    },
+    {
+      "all_source_vertex_indices": [
+        172
+      ],
+      "canonical_source_vertex_index": 172,
+      "input_point_id": 173
+    },
+    {
+      "all_source_vertex_indices": [
+        173
+      ],
+      "canonical_source_vertex_index": 173,
+      "input_point_id": 174
+    },
+    {
+      "all_source_vertex_indices": [
+        174
+      ],
+      "canonical_source_vertex_index": 174,
+      "input_point_id": 175
+    },
+    {
+      "all_source_vertex_indices": [
+        175
+      ],
+      "canonical_source_vertex_index": 175,
+      "input_point_id": 176
+    },
+    {
+      "all_source_vertex_indices": [
+        176
+      ],
+      "canonical_source_vertex_index": 176,
+      "input_point_id": 177
+    },
+    {
+      "all_source_vertex_indices": [
+        177
+      ],
+      "canonical_source_vertex_index": 177,
+      "input_point_id": 178
+    },
+    {
+      "all_source_vertex_indices": [
+        178
+      ],
+      "canonical_source_vertex_index": 178,
+      "input_point_id": 179
+    },
+    {
+      "all_source_vertex_indices": [
+        179
+      ],
+      "canonical_source_vertex_index": 179,
+      "input_point_id": 180
+    },
+    {
+      "all_source_vertex_indices": [
+        180
+      ],
+      "canonical_source_vertex_index": 180,
+      "input_point_id": 181
+    },
+    {
+      "all_source_vertex_indices": [
+        181
+      ],
+      "canonical_source_vertex_index": 181,
+      "input_point_id": 182
+    },
+    {
+      "all_source_vertex_indices": [
+        182
+      ],
+      "canonical_source_vertex_index": 182,
+      "input_point_id": 183
+    },
+    {
+      "all_source_vertex_indices": [
+        183
+      ],
+      "canonical_source_vertex_index": 183,
+      "input_point_id": 184
+    },
+    {
+      "all_source_vertex_indices": [
+        184
+      ],
+      "canonical_source_vertex_index": 184,
+      "input_point_id": 185
+    },
+    {
+      "all_source_vertex_indices": [
+        185
+      ],
+      "canonical_source_vertex_index": 185,
+      "input_point_id": 186
+    },
+    {
+      "all_source_vertex_indices": [
+        186
+      ],
+      "canonical_source_vertex_index": 186,
+      "input_point_id": 187
+    },
+    {
+      "all_source_vertex_indices": [
+        187
+      ],
+      "canonical_source_vertex_index": 187,
+      "input_point_id": 188
+    },
+    {
+      "all_source_vertex_indices": [
+        188
+      ],
+      "canonical_source_vertex_index": 188,
+      "input_point_id": 189
+    },
+    {
+      "all_source_vertex_indices": [
+        189
+      ],
+      "canonical_source_vertex_index": 189,
+      "input_point_id": 190
+    },
+    {
+      "all_source_vertex_indices": [
+        190
+      ],
+      "canonical_source_vertex_index": 190,
+      "input_point_id": 191
+    },
+    {
+      "all_source_vertex_indices": [
+        191
+      ],
+      "canonical_source_vertex_index": 191,
+      "input_point_id": 192
+    },
+    {
+      "all_source_vertex_indices": [
+        192
+      ],
+      "canonical_source_vertex_index": 192,
+      "input_point_id": 193
+    },
+    {
+      "all_source_vertex_indices": [
+        193
+      ],
+      "canonical_source_vertex_index": 193,
+      "input_point_id": 194
+    },
+    {
+      "all_source_vertex_indices": [
+        194
+      ],
+      "canonical_source_vertex_index": 194,
+      "input_point_id": 195
+    },
+    {
+      "all_source_vertex_indices": [
+        195
+      ],
+      "canonical_source_vertex_index": 195,
+      "input_point_id": 196
+    },
+    {
+      "all_source_vertex_indices": [
+        196
+      ],
+      "canonical_source_vertex_index": 196,
+      "input_point_id": 197
+    },
+    {
+      "all_source_vertex_indices": [
+        197
+      ],
+      "canonical_source_vertex_index": 197,
+      "input_point_id": 198
+    },
+    {
+      "all_source_vertex_indices": [
+        198
+      ],
+      "canonical_source_vertex_index": 198,
+      "input_point_id": 199
+    },
+    {
+      "all_source_vertex_indices": [
+        199
+      ],
+      "canonical_source_vertex_index": 199,
+      "input_point_id": 200
+    },
+    {
+      "all_source_vertex_indices": [
+        200
+      ],
+      "canonical_source_vertex_index": 200,
+      "input_point_id": 201
+    },
+    {
+      "all_source_vertex_indices": [
+        201
+      ],
+      "canonical_source_vertex_index": 201,
+      "input_point_id": 202
+    },
+    {
+      "all_source_vertex_indices": [
+        202
+      ],
+      "canonical_source_vertex_index": 202,
+      "input_point_id": 203
+    },
+    {
+      "all_source_vertex_indices": [
+        203
+      ],
+      "canonical_source_vertex_index": 203,
+      "input_point_id": 204
+    },
+    {
+      "all_source_vertex_indices": [
+        204
+      ],
+      "canonical_source_vertex_index": 204,
+      "input_point_id": 205
+    },
+    {
+      "all_source_vertex_indices": [
+        205
+      ],
+      "canonical_source_vertex_index": 205,
+      "input_point_id": 206
+    },
+    {
+      "all_source_vertex_indices": [
+        206
+      ],
+      "canonical_source_vertex_index": 206,
+      "input_point_id": 207
+    },
+    {
+      "all_source_vertex_indices": [
+        207
+      ],
+      "canonical_source_vertex_index": 207,
+      "input_point_id": 208
+    },
+    {
+      "all_source_vertex_indices": [
+        208
+      ],
+      "canonical_source_vertex_index": 208,
+      "input_point_id": 209
+    },
+    {
+      "all_source_vertex_indices": [
+        209
+      ],
+      "canonical_source_vertex_index": 209,
+      "input_point_id": 210
+    },
+    {
+      "all_source_vertex_indices": [
+        210
+      ],
+      "canonical_source_vertex_index": 210,
+      "input_point_id": 211
+    },
+    {
+      "all_source_vertex_indices": [
+        211
+      ],
+      "canonical_source_vertex_index": 211,
+      "input_point_id": 212
+    },
+    {
+      "all_source_vertex_indices": [
+        212
+      ],
+      "canonical_source_vertex_index": 212,
+      "input_point_id": 213
+    },
+    {
+      "all_source_vertex_indices": [
+        213
+      ],
+      "canonical_source_vertex_index": 213,
+      "input_point_id": 214
+    },
+    {
+      "all_source_vertex_indices": [
+        214
+      ],
+      "canonical_source_vertex_index": 214,
+      "input_point_id": 215
+    },
+    {
+      "all_source_vertex_indices": [
+        215
+      ],
+      "canonical_source_vertex_index": 215,
+      "input_point_id": 216
+    },
+    {
+      "all_source_vertex_indices": [
+        216
+      ],
+      "canonical_source_vertex_index": 216,
+      "input_point_id": 217
+    },
+    {
+      "all_source_vertex_indices": [
+        217
+      ],
+      "canonical_source_vertex_index": 217,
+      "input_point_id": 218
+    },
+    {
+      "all_source_vertex_indices": [
+        218
+      ],
+      "canonical_source_vertex_index": 218,
+      "input_point_id": 219
+    },
+    {
+      "all_source_vertex_indices": [
+        219
+      ],
+      "canonical_source_vertex_index": 219,
+      "input_point_id": 220
+    },
+    {
+      "all_source_vertex_indices": [
+        220
+      ],
+      "canonical_source_vertex_index": 220,
+      "input_point_id": 221
+    },
+    {
+      "all_source_vertex_indices": [
+        221
+      ],
+      "canonical_source_vertex_index": 221,
+      "input_point_id": 222
+    },
+    {
+      "all_source_vertex_indices": [
+        222
+      ],
+      "canonical_source_vertex_index": 222,
+      "input_point_id": 223
+    },
+    {
+      "all_source_vertex_indices": [
+        223
+      ],
+      "canonical_source_vertex_index": 223,
+      "input_point_id": 224
+    },
+    {
+      "all_source_vertex_indices": [
+        224
+      ],
+      "canonical_source_vertex_index": 224,
+      "input_point_id": 225
+    },
+    {
+      "all_source_vertex_indices": [
+        225
+      ],
+      "canonical_source_vertex_index": 225,
+      "input_point_id": 226
+    },
+    {
+      "all_source_vertex_indices": [
+        226
+      ],
+      "canonical_source_vertex_index": 226,
+      "input_point_id": 227
+    },
+    {
+      "all_source_vertex_indices": [
+        227
+      ],
+      "canonical_source_vertex_index": 227,
+      "input_point_id": 228
+    },
+    {
+      "all_source_vertex_indices": [
+        228
+      ],
+      "canonical_source_vertex_index": 228,
+      "input_point_id": 229
+    },
+    {
+      "all_source_vertex_indices": [
+        229
+      ],
+      "canonical_source_vertex_index": 229,
+      "input_point_id": 230
+    },
+    {
+      "all_source_vertex_indices": [
+        230
+      ],
+      "canonical_source_vertex_index": 230,
+      "input_point_id": 231
+    },
+    {
+      "all_source_vertex_indices": [
+        231
+      ],
+      "canonical_source_vertex_index": 231,
+      "input_point_id": 232
+    },
+    {
+      "all_source_vertex_indices": [
+        232
+      ],
+      "canonical_source_vertex_index": 232,
+      "input_point_id": 233
+    },
+    {
+      "all_source_vertex_indices": [
+        233
+      ],
+      "canonical_source_vertex_index": 233,
+      "input_point_id": 234
+    },
+    {
+      "all_source_vertex_indices": [
+        234
+      ],
+      "canonical_source_vertex_index": 234,
+      "input_point_id": 235
+    },
+    {
+      "all_source_vertex_indices": [
+        235
+      ],
+      "canonical_source_vertex_index": 235,
+      "input_point_id": 236
+    },
+    {
+      "all_source_vertex_indices": [
+        236
+      ],
+      "canonical_source_vertex_index": 236,
+      "input_point_id": 237
+    },
+    {
+      "all_source_vertex_indices": [
+        237
+      ],
+      "canonical_source_vertex_index": 237,
+      "input_point_id": 238
+    },
+    {
+      "all_source_vertex_indices": [
+        238
+      ],
+      "canonical_source_vertex_index": 238,
+      "input_point_id": 239
+    },
+    {
+      "all_source_vertex_indices": [
+        239
+      ],
+      "canonical_source_vertex_index": 239,
+      "input_point_id": 240
+    },
+    {
+      "all_source_vertex_indices": [
+        240
+      ],
+      "canonical_source_vertex_index": 240,
+      "input_point_id": 241
+    },
+    {
+      "all_source_vertex_indices": [
+        241
+      ],
+      "canonical_source_vertex_index": 241,
+      "input_point_id": 242
+    },
+    {
+      "all_source_vertex_indices": [
+        242
+      ],
+      "canonical_source_vertex_index": 242,
+      "input_point_id": 243
+    },
+    {
+      "all_source_vertex_indices": [
+        243
+      ],
+      "canonical_source_vertex_index": 243,
+      "input_point_id": 244
+    },
+    {
+      "all_source_vertex_indices": [
+        244
+      ],
+      "canonical_source_vertex_index": 244,
+      "input_point_id": 245
+    },
+    {
+      "all_source_vertex_indices": [
+        245
+      ],
+      "canonical_source_vertex_index": 245,
+      "input_point_id": 246
+    },
+    {
+      "all_source_vertex_indices": [
+        246
+      ],
+      "canonical_source_vertex_index": 246,
+      "input_point_id": 247
+    },
+    {
+      "all_source_vertex_indices": [
+        247
+      ],
+      "canonical_source_vertex_index": 247,
+      "input_point_id": 248
+    },
+    {
+      "all_source_vertex_indices": [
+        248
+      ],
+      "canonical_source_vertex_index": 248,
+      "input_point_id": 249
+    },
+    {
+      "all_source_vertex_indices": [
+        249
+      ],
+      "canonical_source_vertex_index": 249,
+      "input_point_id": 250
+    },
+    {
+      "all_source_vertex_indices": [
+        250
+      ],
+      "canonical_source_vertex_index": 250,
+      "input_point_id": 251
+    },
+    {
+      "all_source_vertex_indices": [
+        251
+      ],
+      "canonical_source_vertex_index": 251,
+      "input_point_id": 252
+    },
+    {
+      "all_source_vertex_indices": [
+        252
+      ],
+      "canonical_source_vertex_index": 252,
+      "input_point_id": 253
+    },
+    {
+      "all_source_vertex_indices": [
+        253
+      ],
+      "canonical_source_vertex_index": 253,
+      "input_point_id": 254
+    },
+    {
+      "all_source_vertex_indices": [
+        254
+      ],
+      "canonical_source_vertex_index": 254,
+      "input_point_id": 255
+    },
+    {
+      "all_source_vertex_indices": [
+        255
+      ],
+      "canonical_source_vertex_index": 255,
+      "input_point_id": 256
+    },
+    {
+      "all_source_vertex_indices": [
+        256
+      ],
+      "canonical_source_vertex_index": 256,
+      "input_point_id": 257
+    },
+    {
+      "all_source_vertex_indices": [
+        257
+      ],
+      "canonical_source_vertex_index": 257,
+      "input_point_id": 258
+    },
+    {
+      "all_source_vertex_indices": [
+        258
+      ],
+      "canonical_source_vertex_index": 258,
+      "input_point_id": 259
+    },
+    {
+      "all_source_vertex_indices": [
+        259
+      ],
+      "canonical_source_vertex_index": 259,
+      "input_point_id": 260
+    },
+    {
+      "all_source_vertex_indices": [
+        260
+      ],
+      "canonical_source_vertex_index": 260,
+      "input_point_id": 261
+    },
+    {
+      "all_source_vertex_indices": [
+        261
+      ],
+      "canonical_source_vertex_index": 261,
+      "input_point_id": 262
+    },
+    {
+      "all_source_vertex_indices": [
+        262
+      ],
+      "canonical_source_vertex_index": 262,
+      "input_point_id": 263
+    },
+    {
+      "all_source_vertex_indices": [
+        263
+      ],
+      "canonical_source_vertex_index": 263,
+      "input_point_id": 264
+    },
+    {
+      "all_source_vertex_indices": [
+        264
+      ],
+      "canonical_source_vertex_index": 264,
+      "input_point_id": 265
+    },
+    {
+      "all_source_vertex_indices": [
+        265
+      ],
+      "canonical_source_vertex_index": 265,
+      "input_point_id": 266
+    },
+    {
+      "all_source_vertex_indices": [
+        266
+      ],
+      "canonical_source_vertex_index": 266,
+      "input_point_id": 267
+    },
+    {
+      "all_source_vertex_indices": [
+        267
+      ],
+      "canonical_source_vertex_index": 267,
+      "input_point_id": 268
+    },
+    {
+      "all_source_vertex_indices": [
+        268
+      ],
+      "canonical_source_vertex_index": 268,
+      "input_point_id": 269
+    },
+    {
+      "all_source_vertex_indices": [
+        269
+      ],
+      "canonical_source_vertex_index": 269,
+      "input_point_id": 270
+    },
+    {
+      "all_source_vertex_indices": [
+        270
+      ],
+      "canonical_source_vertex_index": 270,
+      "input_point_id": 271
+    },
+    {
+      "all_source_vertex_indices": [
+        271
+      ],
+      "canonical_source_vertex_index": 271,
+      "input_point_id": 272
+    },
+    {
+      "all_source_vertex_indices": [
+        272
+      ],
+      "canonical_source_vertex_index": 272,
+      "input_point_id": 273
+    },
+    {
+      "all_source_vertex_indices": [
+        273
+      ],
+      "canonical_source_vertex_index": 273,
+      "input_point_id": 274
+    },
+    {
+      "all_source_vertex_indices": [
+        274
+      ],
+      "canonical_source_vertex_index": 274,
+      "input_point_id": 275
+    },
+    {
+      "all_source_vertex_indices": [
+        275
+      ],
+      "canonical_source_vertex_index": 275,
+      "input_point_id": 276
+    },
+    {
+      "all_source_vertex_indices": [
+        276
+      ],
+      "canonical_source_vertex_index": 276,
+      "input_point_id": 277
+    },
+    {
+      "all_source_vertex_indices": [
+        277
+      ],
+      "canonical_source_vertex_index": 277,
+      "input_point_id": 278
+    },
+    {
+      "all_source_vertex_indices": [
+        278
+      ],
+      "canonical_source_vertex_index": 278,
+      "input_point_id": 279
+    },
+    {
+      "all_source_vertex_indices": [
+        279
+      ],
+      "canonical_source_vertex_index": 279,
+      "input_point_id": 280
+    },
+    {
+      "all_source_vertex_indices": [
+        280
+      ],
+      "canonical_source_vertex_index": 280,
+      "input_point_id": 281
+    },
+    {
+      "all_source_vertex_indices": [
+        281
+      ],
+      "canonical_source_vertex_index": 281,
+      "input_point_id": 282
+    },
+    {
+      "all_source_vertex_indices": [
+        282
+      ],
+      "canonical_source_vertex_index": 282,
+      "input_point_id": 283
+    },
+    {
+      "all_source_vertex_indices": [
+        283
+      ],
+      "canonical_source_vertex_index": 283,
+      "input_point_id": 284
+    },
+    {
+      "all_source_vertex_indices": [
+        284
+      ],
+      "canonical_source_vertex_index": 284,
+      "input_point_id": 285
+    },
+    {
+      "all_source_vertex_indices": [
+        285
+      ],
+      "canonical_source_vertex_index": 285,
+      "input_point_id": 286
+    },
+    {
+      "all_source_vertex_indices": [
+        286
+      ],
+      "canonical_source_vertex_index": 286,
+      "input_point_id": 287
+    },
+    {
+      "all_source_vertex_indices": [
+        287
+      ],
+      "canonical_source_vertex_index": 287,
+      "input_point_id": 288
+    },
+    {
+      "all_source_vertex_indices": [
+        288
+      ],
+      "canonical_source_vertex_index": 288,
+      "input_point_id": 289
+    },
+    {
+      "all_source_vertex_indices": [
+        289
+      ],
+      "canonical_source_vertex_index": 289,
+      "input_point_id": 290
+    },
+    {
+      "all_source_vertex_indices": [
+        290
+      ],
+      "canonical_source_vertex_index": 290,
+      "input_point_id": 291
+    },
+    {
+      "all_source_vertex_indices": [
+        291
+      ],
+      "canonical_source_vertex_index": 291,
+      "input_point_id": 292
+    },
+    {
+      "all_source_vertex_indices": [
+        292
+      ],
+      "canonical_source_vertex_index": 292,
+      "input_point_id": 293
+    },
+    {
+      "all_source_vertex_indices": [
+        293
+      ],
+      "canonical_source_vertex_index": 293,
+      "input_point_id": 294
+    },
+    {
+      "all_source_vertex_indices": [
+        294
+      ],
+      "canonical_source_vertex_index": 294,
+      "input_point_id": 295
+    },
+    {
+      "all_source_vertex_indices": [
+        295
+      ],
+      "canonical_source_vertex_index": 295,
+      "input_point_id": 296
+    },
+    {
+      "all_source_vertex_indices": [
+        296
+      ],
+      "canonical_source_vertex_index": 296,
+      "input_point_id": 297
+    },
+    {
+      "all_source_vertex_indices": [
+        297
+      ],
+      "canonical_source_vertex_index": 297,
+      "input_point_id": 298
+    },
+    {
+      "all_source_vertex_indices": [
+        298
+      ],
+      "canonical_source_vertex_index": 298,
+      "input_point_id": 299
+    },
+    {
+      "all_source_vertex_indices": [
+        299
+      ],
+      "canonical_source_vertex_index": 299,
+      "input_point_id": 300
+    },
+    {
+      "all_source_vertex_indices": [
+        300
+      ],
+      "canonical_source_vertex_index": 300,
+      "input_point_id": 301
+    },
+    {
+      "all_source_vertex_indices": [
+        301
+      ],
+      "canonical_source_vertex_index": 301,
+      "input_point_id": 302
+    },
+    {
+      "all_source_vertex_indices": [
+        302
+      ],
+      "canonical_source_vertex_index": 302,
+      "input_point_id": 303
+    },
+    {
+      "all_source_vertex_indices": [
+        303
+      ],
+      "canonical_source_vertex_index": 303,
+      "input_point_id": 304
+    },
+    {
+      "all_source_vertex_indices": [
+        304
+      ],
+      "canonical_source_vertex_index": 304,
+      "input_point_id": 305
+    },
+    {
+      "all_source_vertex_indices": [
+        305
+      ],
+      "canonical_source_vertex_index": 305,
+      "input_point_id": 306
+    },
+    {
+      "all_source_vertex_indices": [
+        306
+      ],
+      "canonical_source_vertex_index": 306,
+      "input_point_id": 307
+    },
+    {
+      "all_source_vertex_indices": [
+        307
+      ],
+      "canonical_source_vertex_index": 307,
+      "input_point_id": 308
+    },
+    {
+      "all_source_vertex_indices": [
+        308
+      ],
+      "canonical_source_vertex_index": 308,
+      "input_point_id": 309
+    },
+    {
+      "all_source_vertex_indices": [
+        309
+      ],
+      "canonical_source_vertex_index": 309,
+      "input_point_id": 310
+    },
+    {
+      "all_source_vertex_indices": [
+        310
+      ],
+      "canonical_source_vertex_index": 310,
+      "input_point_id": 311
+    },
+    {
+      "all_source_vertex_indices": [
+        311
+      ],
+      "canonical_source_vertex_index": 311,
+      "input_point_id": 312
+    },
+    {
+      "all_source_vertex_indices": [
+        312
+      ],
+      "canonical_source_vertex_index": 312,
+      "input_point_id": 313
+    },
+    {
+      "all_source_vertex_indices": [
+        313
+      ],
+      "canonical_source_vertex_index": 313,
+      "input_point_id": 314
+    },
+    {
+      "all_source_vertex_indices": [
+        314
+      ],
+      "canonical_source_vertex_index": 314,
+      "input_point_id": 315
+    },
+    {
+      "all_source_vertex_indices": [
+        315
+      ],
+      "canonical_source_vertex_index": 315,
+      "input_point_id": 316
+    },
+    {
+      "all_source_vertex_indices": [
+        316
+      ],
+      "canonical_source_vertex_index": 316,
+      "input_point_id": 317
+    },
+    {
+      "all_source_vertex_indices": [
+        317
+      ],
+      "canonical_source_vertex_index": 317,
+      "input_point_id": 318
+    },
+    {
+      "all_source_vertex_indices": [
+        318
+      ],
+      "canonical_source_vertex_index": 318,
+      "input_point_id": 319
+    },
+    {
+      "all_source_vertex_indices": [
+        319
+      ],
+      "canonical_source_vertex_index": 319,
+      "input_point_id": 320
+    },
+    {
+      "all_source_vertex_indices": [
+        320
+      ],
+      "canonical_source_vertex_index": 320,
+      "input_point_id": 321
+    },
+    {
+      "all_source_vertex_indices": [
+        321
+      ],
+      "canonical_source_vertex_index": 321,
+      "input_point_id": 322
+    },
+    {
+      "all_source_vertex_indices": [
+        322
+      ],
+      "canonical_source_vertex_index": 322,
+      "input_point_id": 323
+    },
+    {
+      "all_source_vertex_indices": [
+        323
+      ],
+      "canonical_source_vertex_index": 323,
+      "input_point_id": 324
+    },
+    {
+      "all_source_vertex_indices": [
+        324
+      ],
+      "canonical_source_vertex_index": 324,
+      "input_point_id": 325
+    },
+    {
+      "all_source_vertex_indices": [
+        325
+      ],
+      "canonical_source_vertex_index": 325,
+      "input_point_id": 326
+    },
+    {
+      "all_source_vertex_indices": [
+        326
+      ],
+      "canonical_source_vertex_index": 326,
+      "input_point_id": 327
+    },
+    {
+      "all_source_vertex_indices": [
+        327
+      ],
+      "canonical_source_vertex_index": 327,
+      "input_point_id": 328
+    },
+    {
+      "all_source_vertex_indices": [
+        328
+      ],
+      "canonical_source_vertex_index": 328,
+      "input_point_id": 329
+    },
+    {
+      "all_source_vertex_indices": [
+        329
+      ],
+      "canonical_source_vertex_index": 329,
+      "input_point_id": 330
+    },
+    {
+      "all_source_vertex_indices": [
+        330
+      ],
+      "canonical_source_vertex_index": 330,
+      "input_point_id": 331
+    },
+    {
+      "all_source_vertex_indices": [
+        331
+      ],
+      "canonical_source_vertex_index": 331,
+      "input_point_id": 332
+    },
+    {
+      "all_source_vertex_indices": [
+        332
+      ],
+      "canonical_source_vertex_index": 332,
+      "input_point_id": 333
+    },
+    {
+      "all_source_vertex_indices": [
+        333
+      ],
+      "canonical_source_vertex_index": 333,
+      "input_point_id": 334
+    },
+    {
+      "all_source_vertex_indices": [
+        334
+      ],
+      "canonical_source_vertex_index": 334,
+      "input_point_id": 335
+    },
+    {
+      "all_source_vertex_indices": [
+        335
+      ],
+      "canonical_source_vertex_index": 335,
+      "input_point_id": 336
+    },
+    {
+      "all_source_vertex_indices": [
+        336
+      ],
+      "canonical_source_vertex_index": 336,
+      "input_point_id": 337
+    },
+    {
+      "all_source_vertex_indices": [
+        337
+      ],
+      "canonical_source_vertex_index": 337,
+      "input_point_id": 338
+    },
+    {
+      "all_source_vertex_indices": [
+        338
+      ],
+      "canonical_source_vertex_index": 338,
+      "input_point_id": 339
+    },
+    {
+      "all_source_vertex_indices": [
+        339
+      ],
+      "canonical_source_vertex_index": 339,
+      "input_point_id": 340
+    },
+    {
+      "all_source_vertex_indices": [
+        340
+      ],
+      "canonical_source_vertex_index": 340,
+      "input_point_id": 341
+    },
+    {
+      "all_source_vertex_indices": [
+        341
+      ],
+      "canonical_source_vertex_index": 341,
+      "input_point_id": 342
+    },
+    {
+      "all_source_vertex_indices": [
+        342
+      ],
+      "canonical_source_vertex_index": 342,
+      "input_point_id": 343
+    },
+    {
+      "all_source_vertex_indices": [
+        343
+      ],
+      "canonical_source_vertex_index": 343,
+      "input_point_id": 344
+    },
+    {
+      "all_source_vertex_indices": [
+        344
+      ],
+      "canonical_source_vertex_index": 344,
+      "input_point_id": 345
+    },
+    {
+      "all_source_vertex_indices": [
+        345
+      ],
+      "canonical_source_vertex_index": 345,
+      "input_point_id": 346
+    },
+    {
+      "all_source_vertex_indices": [
+        346
+      ],
+      "canonical_source_vertex_index": 346,
+      "input_point_id": 347
+    },
+    {
+      "all_source_vertex_indices": [
+        347
+      ],
+      "canonical_source_vertex_index": 347,
+      "input_point_id": 348
+    },
+    {
+      "all_source_vertex_indices": [
+        348
+      ],
+      "canonical_source_vertex_index": 348,
+      "input_point_id": 349
+    },
+    {
+      "all_source_vertex_indices": [
+        349
+      ],
+      "canonical_source_vertex_index": 349,
+      "input_point_id": 350
+    },
+    {
+      "all_source_vertex_indices": [
+        350
+      ],
+      "canonical_source_vertex_index": 350,
+      "input_point_id": 351
+    },
+    {
+      "all_source_vertex_indices": [
+        351
+      ],
+      "canonical_source_vertex_index": 351,
+      "input_point_id": 352
+    },
+    {
+      "all_source_vertex_indices": [
+        352
+      ],
+      "canonical_source_vertex_index": 352,
+      "input_point_id": 353
+    },
+    {
+      "all_source_vertex_indices": [
+        353
+      ],
+      "canonical_source_vertex_index": 353,
+      "input_point_id": 354
+    },
+    {
+      "all_source_vertex_indices": [
+        354
+      ],
+      "canonical_source_vertex_index": 354,
+      "input_point_id": 355
+    },
+    {
+      "all_source_vertex_indices": [
+        355
+      ],
+      "canonical_source_vertex_index": 355,
+      "input_point_id": 356
+    },
+    {
+      "all_source_vertex_indices": [
+        356
+      ],
+      "canonical_source_vertex_index": 356,
+      "input_point_id": 357
+    },
+    {
+      "all_source_vertex_indices": [
+        357
+      ],
+      "canonical_source_vertex_index": 357,
+      "input_point_id": 358
+    },
+    {
+      "all_source_vertex_indices": [
+        358
+      ],
+      "canonical_source_vertex_index": 358,
+      "input_point_id": 359
+    },
+    {
+      "all_source_vertex_indices": [
+        359
+      ],
+      "canonical_source_vertex_index": 359,
+      "input_point_id": 360
+    },
+    {
+      "all_source_vertex_indices": [
+        360
+      ],
+      "canonical_source_vertex_index": 360,
+      "input_point_id": 361
+    },
+    {
+      "all_source_vertex_indices": [
+        361
+      ],
+      "canonical_source_vertex_index": 361,
+      "input_point_id": 362
+    },
+    {
+      "all_source_vertex_indices": [
+        362
+      ],
+      "canonical_source_vertex_index": 362,
+      "input_point_id": 363
+    },
+    {
+      "all_source_vertex_indices": [
+        363
+      ],
+      "canonical_source_vertex_index": 363,
+      "input_point_id": 364
+    },
+    {
+      "all_source_vertex_indices": [
+        364
+      ],
+      "canonical_source_vertex_index": 364,
+      "input_point_id": 365
+    },
+    {
+      "all_source_vertex_indices": [
+        365
+      ],
+      "canonical_source_vertex_index": 365,
+      "input_point_id": 366
+    },
+    {
+      "all_source_vertex_indices": [
+        366
+      ],
+      "canonical_source_vertex_index": 366,
+      "input_point_id": 367
+    },
+    {
+      "all_source_vertex_indices": [
+        367
+      ],
+      "canonical_source_vertex_index": 367,
+      "input_point_id": 368
+    },
+    {
+      "all_source_vertex_indices": [
+        368
+      ],
+      "canonical_source_vertex_index": 368,
+      "input_point_id": 369
+    },
+    {
+      "all_source_vertex_indices": [
+        369
+      ],
+      "canonical_source_vertex_index": 369,
+      "input_point_id": 370
+    },
+    {
+      "all_source_vertex_indices": [
+        370
+      ],
+      "canonical_source_vertex_index": 370,
+      "input_point_id": 371
+    },
+    {
+      "all_source_vertex_indices": [
+        371
+      ],
+      "canonical_source_vertex_index": 371,
+      "input_point_id": 372
+    },
+    {
+      "all_source_vertex_indices": [
+        372
+      ],
+      "canonical_source_vertex_index": 372,
+      "input_point_id": 373
+    },
+    {
+      "all_source_vertex_indices": [
+        373
+      ],
+      "canonical_source_vertex_index": 373,
+      "input_point_id": 374
+    },
+    {
+      "all_source_vertex_indices": [
+        374
+      ],
+      "canonical_source_vertex_index": 374,
+      "input_point_id": 375
+    },
+    {
+      "all_source_vertex_indices": [
+        375
+      ],
+      "canonical_source_vertex_index": 375,
+      "input_point_id": 376
+    },
+    {
+      "all_source_vertex_indices": [
+        376
+      ],
+      "canonical_source_vertex_index": 376,
+      "input_point_id": 377
+    },
+    {
+      "all_source_vertex_indices": [
+        377
+      ],
+      "canonical_source_vertex_index": 377,
+      "input_point_id": 378
+    },
+    {
+      "all_source_vertex_indices": [
+        378
+      ],
+      "canonical_source_vertex_index": 378,
+      "input_point_id": 379
+    },
+    {
+      "all_source_vertex_indices": [
+        379
+      ],
+      "canonical_source_vertex_index": 379,
+      "input_point_id": 380
+    },
+    {
+      "all_source_vertex_indices": [
+        380
+      ],
+      "canonical_source_vertex_index": 380,
+      "input_point_id": 381
+    },
+    {
+      "all_source_vertex_indices": [
+        381
+      ],
+      "canonical_source_vertex_index": 381,
+      "input_point_id": 382
+    },
+    {
+      "all_source_vertex_indices": [
+        382
+      ],
+      "canonical_source_vertex_index": 382,
+      "input_point_id": 383
+    },
+    {
+      "all_source_vertex_indices": [
+        383
+      ],
+      "canonical_source_vertex_index": 383,
+      "input_point_id": 384
+    },
+    {
+      "all_source_vertex_indices": [
+        384
+      ],
+      "canonical_source_vertex_index": 384,
+      "input_point_id": 385
+    },
+    {
+      "all_source_vertex_indices": [
+        385
+      ],
+      "canonical_source_vertex_index": 385,
+      "input_point_id": 386
+    },
+    {
+      "all_source_vertex_indices": [
+        386
+      ],
+      "canonical_source_vertex_index": 386,
+      "input_point_id": 387
+    },
+    {
+      "all_source_vertex_indices": [
+        387
+      ],
+      "canonical_source_vertex_index": 387,
+      "input_point_id": 388
+    },
+    {
+      "all_source_vertex_indices": [
+        388
+      ],
+      "canonical_source_vertex_index": 388,
+      "input_point_id": 389
+    },
+    {
+      "all_source_vertex_indices": [
+        389
+      ],
+      "canonical_source_vertex_index": 389,
+      "input_point_id": 390
+    },
+    {
+      "all_source_vertex_indices": [
+        390
+      ],
+      "canonical_source_vertex_index": 390,
+      "input_point_id": 391
+    },
+    {
+      "all_source_vertex_indices": [
+        391
+      ],
+      "canonical_source_vertex_index": 391,
+      "input_point_id": 392
+    },
+    {
+      "all_source_vertex_indices": [
+        392
+      ],
+      "canonical_source_vertex_index": 392,
+      "input_point_id": 393
+    },
+    {
+      "all_source_vertex_indices": [
+        393
+      ],
+      "canonical_source_vertex_index": 393,
+      "input_point_id": 394
+    },
+    {
+      "all_source_vertex_indices": [
+        394
+      ],
+      "canonical_source_vertex_index": 394,
+      "input_point_id": 395
+    },
+    {
+      "all_source_vertex_indices": [
+        395
+      ],
+      "canonical_source_vertex_index": 395,
+      "input_point_id": 396
+    },
+    {
+      "all_source_vertex_indices": [
+        396
+      ],
+      "canonical_source_vertex_index": 396,
+      "input_point_id": 397
+    },
+    {
+      "all_source_vertex_indices": [
+        397
+      ],
+      "canonical_source_vertex_index": 397,
+      "input_point_id": 398
+    },
+    {
+      "all_source_vertex_indices": [
+        398
+      ],
+      "canonical_source_vertex_index": 398,
+      "input_point_id": 399
+    },
+    {
+      "all_source_vertex_indices": [
+        399
+      ],
+      "canonical_source_vertex_index": 399,
+      "input_point_id": 400
+    },
+    {
+      "all_source_vertex_indices": [
+        400
+      ],
+      "canonical_source_vertex_index": 400,
+      "input_point_id": 401
+    },
+    {
+      "all_source_vertex_indices": [
+        401
+      ],
+      "canonical_source_vertex_index": 401,
+      "input_point_id": 402
+    },
+    {
+      "all_source_vertex_indices": [
+        402
+      ],
+      "canonical_source_vertex_index": 402,
+      "input_point_id": 403
+    },
+    {
+      "all_source_vertex_indices": [
+        403
+      ],
+      "canonical_source_vertex_index": 403,
+      "input_point_id": 404
+    },
+    {
+      "all_source_vertex_indices": [
+        404
+      ],
+      "canonical_source_vertex_index": 404,
+      "input_point_id": 405
+    },
+    {
+      "all_source_vertex_indices": [
+        405
+      ],
+      "canonical_source_vertex_index": 405,
+      "input_point_id": 406
+    },
+    {
+      "all_source_vertex_indices": [
+        406
+      ],
+      "canonical_source_vertex_index": 406,
+      "input_point_id": 407
+    },
+    {
+      "all_source_vertex_indices": [
+        407
+      ],
+      "canonical_source_vertex_index": 407,
+      "input_point_id": 408
+    },
+    {
+      "all_source_vertex_indices": [
+        408
+      ],
+      "canonical_source_vertex_index": 408,
+      "input_point_id": 409
+    },
+    {
+      "all_source_vertex_indices": [
+        409
+      ],
+      "canonical_source_vertex_index": 409,
+      "input_point_id": 410
+    },
+    {
+      "all_source_vertex_indices": [
+        410
+      ],
+      "canonical_source_vertex_index": 410,
+      "input_point_id": 411
+    },
+    {
+      "all_source_vertex_indices": [
+        411
+      ],
+      "canonical_source_vertex_index": 411,
+      "input_point_id": 412
+    },
+    {
+      "all_source_vertex_indices": [
+        412
+      ],
+      "canonical_source_vertex_index": 412,
+      "input_point_id": 413
+    },
+    {
+      "all_source_vertex_indices": [
+        413
+      ],
+      "canonical_source_vertex_index": 413,
+      "input_point_id": 414
+    },
+    {
+      "all_source_vertex_indices": [
+        414
+      ],
+      "canonical_source_vertex_index": 414,
+      "input_point_id": 415
+    },
+    {
+      "all_source_vertex_indices": [
+        415
+      ],
+      "canonical_source_vertex_index": 415,
+      "input_point_id": 416
+    },
+    {
+      "all_source_vertex_indices": [
+        416
+      ],
+      "canonical_source_vertex_index": 416,
+      "input_point_id": 417
+    },
+    {
+      "all_source_vertex_indices": [
+        417
+      ],
+      "canonical_source_vertex_index": 417,
+      "input_point_id": 418
+    },
+    {
+      "all_source_vertex_indices": [
+        418
+      ],
+      "canonical_source_vertex_index": 418,
+      "input_point_id": 419
+    },
+    {
+      "all_source_vertex_indices": [
+        419
+      ],
+      "canonical_source_vertex_index": 419,
+      "input_point_id": 420
+    },
+    {
+      "all_source_vertex_indices": [
+        420
+      ],
+      "canonical_source_vertex_index": 420,
+      "input_point_id": 421
+    },
+    {
+      "all_source_vertex_indices": [
+        421
+      ],
+      "canonical_source_vertex_index": 421,
+      "input_point_id": 422
+    },
+    {
+      "all_source_vertex_indices": [
+        422
+      ],
+      "canonical_source_vertex_index": 422,
+      "input_point_id": 423
+    },
+    {
+      "all_source_vertex_indices": [
+        423
+      ],
+      "canonical_source_vertex_index": 423,
+      "input_point_id": 424
+    },
+    {
+      "all_source_vertex_indices": [
+        424
+      ],
+      "canonical_source_vertex_index": 424,
+      "input_point_id": 425
+    },
+    {
+      "all_source_vertex_indices": [
+        425
+      ],
+      "canonical_source_vertex_index": 425,
+      "input_point_id": 426
+    },
+    {
+      "all_source_vertex_indices": [
+        426
+      ],
+      "canonical_source_vertex_index": 426,
+      "input_point_id": 427
+    },
+    {
+      "all_source_vertex_indices": [
+        427
+      ],
+      "canonical_source_vertex_index": 427,
+      "input_point_id": 428
+    },
+    {
+      "all_source_vertex_indices": [
+        428
+      ],
+      "canonical_source_vertex_index": 428,
+      "input_point_id": 429
+    },
+    {
+      "all_source_vertex_indices": [
+        429
+      ],
+      "canonical_source_vertex_index": 429,
+      "input_point_id": 430
+    },
+    {
+      "all_source_vertex_indices": [
+        430
+      ],
+      "canonical_source_vertex_index": 430,
+      "input_point_id": 431
+    },
+    {
+      "all_source_vertex_indices": [
+        431
+      ],
+      "canonical_source_vertex_index": 431,
+      "input_point_id": 432
+    },
+    {
+      "all_source_vertex_indices": [
+        432
+      ],
+      "canonical_source_vertex_index": 432,
+      "input_point_id": 433
+    },
+    {
+      "all_source_vertex_indices": [
+        433
+      ],
+      "canonical_source_vertex_index": 433,
+      "input_point_id": 434
+    },
+    {
+      "all_source_vertex_indices": [
+        434
+      ],
+      "canonical_source_vertex_index": 434,
+      "input_point_id": 435
+    },
+    {
+      "all_source_vertex_indices": [
+        435
+      ],
+      "canonical_source_vertex_index": 435,
+      "input_point_id": 436
+    },
+    {
+      "all_source_vertex_indices": [
+        436
+      ],
+      "canonical_source_vertex_index": 436,
+      "input_point_id": 437
+    },
+    {
+      "all_source_vertex_indices": [
+        437
+      ],
+      "canonical_source_vertex_index": 437,
+      "input_point_id": 438
+    },
+    {
+      "all_source_vertex_indices": [
+        438
+      ],
+      "canonical_source_vertex_index": 438,
+      "input_point_id": 439
+    },
+    {
+      "all_source_vertex_indices": [
+        439
+      ],
+      "canonical_source_vertex_index": 439,
+      "input_point_id": 440
+    },
+    {
+      "all_source_vertex_indices": [
+        440
+      ],
+      "canonical_source_vertex_index": 440,
+      "input_point_id": 441
+    },
+    {
+      "all_source_vertex_indices": [
+        441
+      ],
+      "canonical_source_vertex_index": 441,
+      "input_point_id": 442
+    },
+    {
+      "all_source_vertex_indices": [
+        442
+      ],
+      "canonical_source_vertex_index": 442,
+      "input_point_id": 443
+    },
+    {
+      "all_source_vertex_indices": [
+        443
+      ],
+      "canonical_source_vertex_index": 443,
+      "input_point_id": 444
+    },
+    {
+      "all_source_vertex_indices": [
+        444
+      ],
+      "canonical_source_vertex_index": 444,
+      "input_point_id": 445
+    },
+    {
+      "all_source_vertex_indices": [
+        445
+      ],
+      "canonical_source_vertex_index": 445,
+      "input_point_id": 446
+    },
+    {
+      "all_source_vertex_indices": [
+        446
+      ],
+      "canonical_source_vertex_index": 446,
+      "input_point_id": 447
+    },
+    {
+      "all_source_vertex_indices": [
+        447
+      ],
+      "canonical_source_vertex_index": 447,
+      "input_point_id": 448
+    },
+    {
+      "all_source_vertex_indices": [
+        448
+      ],
+      "canonical_source_vertex_index": 448,
+      "input_point_id": 449
+    },
+    {
+      "all_source_vertex_indices": [
+        449
+      ],
+      "canonical_source_vertex_index": 449,
+      "input_point_id": 450
+    },
+    {
+      "all_source_vertex_indices": [
+        450
+      ],
+      "canonical_source_vertex_index": 450,
+      "input_point_id": 451
+    },
+    {
+      "all_source_vertex_indices": [
+        451
+      ],
+      "canonical_source_vertex_index": 451,
+      "input_point_id": 452
+    },
+    {
+      "all_source_vertex_indices": [
+        452
+      ],
+      "canonical_source_vertex_index": 452,
+      "input_point_id": 453
+    },
+    {
+      "all_source_vertex_indices": [
+        453
+      ],
+      "canonical_source_vertex_index": 453,
+      "input_point_id": 454
+    },
+    {
+      "all_source_vertex_indices": [
+        454
+      ],
+      "canonical_source_vertex_index": 454,
+      "input_point_id": 455
+    },
+    {
+      "all_source_vertex_indices": [
+        455
+      ],
+      "canonical_source_vertex_index": 455,
+      "input_point_id": 456
+    },
+    {
+      "all_source_vertex_indices": [
+        456
+      ],
+      "canonical_source_vertex_index": 456,
+      "input_point_id": 457
+    },
+    {
+      "all_source_vertex_indices": [
+        457
+      ],
+      "canonical_source_vertex_index": 457,
+      "input_point_id": 458
+    },
+    {
+      "all_source_vertex_indices": [
+        458
+      ],
+      "canonical_source_vertex_index": 458,
+      "input_point_id": 459
+    },
+    {
+      "all_source_vertex_indices": [
+        459
+      ],
+      "canonical_source_vertex_index": 459,
+      "input_point_id": 460
+    },
+    {
+      "all_source_vertex_indices": [
+        460
+      ],
+      "canonical_source_vertex_index": 460,
+      "input_point_id": 461
+    },
+    {
+      "all_source_vertex_indices": [
+        461
+      ],
+      "canonical_source_vertex_index": 461,
+      "input_point_id": 462
+    },
+    {
+      "all_source_vertex_indices": [
+        462
+      ],
+      "canonical_source_vertex_index": 462,
+      "input_point_id": 463
+    },
+    {
+      "all_source_vertex_indices": [
+        463
+      ],
+      "canonical_source_vertex_index": 463,
+      "input_point_id": 464
+    },
+    {
+      "all_source_vertex_indices": [
+        464
+      ],
+      "canonical_source_vertex_index": 464,
+      "input_point_id": 465
+    },
+    {
+      "all_source_vertex_indices": [
+        465
+      ],
+      "canonical_source_vertex_index": 465,
+      "input_point_id": 466
+    },
+    {
+      "all_source_vertex_indices": [
+        466
+      ],
+      "canonical_source_vertex_index": 466,
+      "input_point_id": 467
+    },
+    {
+      "all_source_vertex_indices": [
+        467
+      ],
+      "canonical_source_vertex_index": 467,
+      "input_point_id": 468
+    },
+    {
+      "all_source_vertex_indices": [
+        468
+      ],
+      "canonical_source_vertex_index": 468,
+      "input_point_id": 469
+    },
+    {
+      "all_source_vertex_indices": [
+        469
+      ],
+      "canonical_source_vertex_index": 469,
+      "input_point_id": 470
+    },
+    {
+      "all_source_vertex_indices": [
+        470
+      ],
+      "canonical_source_vertex_index": 470,
+      "input_point_id": 471
+    },
+    {
+      "all_source_vertex_indices": [
+        471
+      ],
+      "canonical_source_vertex_index": 471,
+      "input_point_id": 472
+    },
+    {
+      "all_source_vertex_indices": [
+        472
+      ],
+      "canonical_source_vertex_index": 472,
+      "input_point_id": 473
+    },
+    {
+      "all_source_vertex_indices": [
+        473
+      ],
+      "canonical_source_vertex_index": 473,
+      "input_point_id": 474
+    },
+    {
+      "all_source_vertex_indices": [
+        474
+      ],
+      "canonical_source_vertex_index": 474,
+      "input_point_id": 475
+    },
+    {
+      "all_source_vertex_indices": [
+        475
+      ],
+      "canonical_source_vertex_index": 475,
+      "input_point_id": 476
+    },
+    {
+      "all_source_vertex_indices": [
+        476
+      ],
+      "canonical_source_vertex_index": 476,
+      "input_point_id": 477
+    },
+    {
+      "all_source_vertex_indices": [
+        477
+      ],
+      "canonical_source_vertex_index": 477,
+      "input_point_id": 478
+    },
+    {
+      "all_source_vertex_indices": [
+        478
+      ],
+      "canonical_source_vertex_index": 478,
+      "input_point_id": 479
+    },
+    {
+      "all_source_vertex_indices": [
+        479
+      ],
+      "canonical_source_vertex_index": 479,
+      "input_point_id": 480
+    },
+    {
+      "all_source_vertex_indices": [
+        480
+      ],
+      "canonical_source_vertex_index": 480,
+      "input_point_id": 481
+    },
+    {
+      "all_source_vertex_indices": [
+        481
+      ],
+      "canonical_source_vertex_index": 481,
+      "input_point_id": 482
+    },
+    {
+      "all_source_vertex_indices": [
+        482
+      ],
+      "canonical_source_vertex_index": 482,
+      "input_point_id": 483
+    },
+    {
+      "all_source_vertex_indices": [
+        483
+      ],
+      "canonical_source_vertex_index": 483,
+      "input_point_id": 484
+    },
+    {
+      "all_source_vertex_indices": [
+        484
+      ],
+      "canonical_source_vertex_index": 484,
+      "input_point_id": 485
+    },
+    {
+      "all_source_vertex_indices": [
+        485
+      ],
+      "canonical_source_vertex_index": 485,
+      "input_point_id": 486
+    },
+    {
+      "all_source_vertex_indices": [
+        486
+      ],
+      "canonical_source_vertex_index": 486,
+      "input_point_id": 487
+    },
+    {
+      "all_source_vertex_indices": [
+        487
+      ],
+      "canonical_source_vertex_index": 487,
+      "input_point_id": 488
+    },
+    {
+      "all_source_vertex_indices": [
+        488
+      ],
+      "canonical_source_vertex_index": 488,
+      "input_point_id": 489
+    },
+    {
+      "all_source_vertex_indices": [
+        489
+      ],
+      "canonical_source_vertex_index": 489,
+      "input_point_id": 490
+    },
+    {
+      "all_source_vertex_indices": [
+        490
+      ],
+      "canonical_source_vertex_index": 490,
+      "input_point_id": 491
+    },
+    {
+      "all_source_vertex_indices": [
+        491
+      ],
+      "canonical_source_vertex_index": 491,
+      "input_point_id": 492
+    },
+    {
+      "all_source_vertex_indices": [
+        492
+      ],
+      "canonical_source_vertex_index": 492,
+      "input_point_id": 493
+    },
+    {
+      "all_source_vertex_indices": [
+        493
+      ],
+      "canonical_source_vertex_index": 493,
+      "input_point_id": 494
+    },
+    {
+      "all_source_vertex_indices": [
+        494
+      ],
+      "canonical_source_vertex_index": 494,
+      "input_point_id": 495
+    },
+    {
+      "all_source_vertex_indices": [
+        495
+      ],
+      "canonical_source_vertex_index": 495,
+      "input_point_id": 496
+    },
+    {
+      "all_source_vertex_indices": [
+        496
+      ],
+      "canonical_source_vertex_index": 496,
+      "input_point_id": 497
+    },
+    {
+      "all_source_vertex_indices": [
+        497
+      ],
+      "canonical_source_vertex_index": 497,
+      "input_point_id": 498
+    },
+    {
+      "all_source_vertex_indices": [
+        498
+      ],
+      "canonical_source_vertex_index": 498,
+      "input_point_id": 499
+    },
+    {
+      "all_source_vertex_indices": [
+        499
+      ],
+      "canonical_source_vertex_index": 499,
+      "input_point_id": 500
+    },
+    {
+      "all_source_vertex_indices": [
+        500
+      ],
+      "canonical_source_vertex_index": 500,
+      "input_point_id": 501
+    },
+    {
+      "all_source_vertex_indices": [
+        501
+      ],
+      "canonical_source_vertex_index": 501,
+      "input_point_id": 502
+    },
+    {
+      "all_source_vertex_indices": [
+        502
+      ],
+      "canonical_source_vertex_index": 502,
+      "input_point_id": 503
+    },
+    {
+      "all_source_vertex_indices": [
+        503
+      ],
+      "canonical_source_vertex_index": 503,
+      "input_point_id": 504
+    },
+    {
+      "all_source_vertex_indices": [
+        504
+      ],
+      "canonical_source_vertex_index": 504,
+      "input_point_id": 505
+    },
+    {
+      "all_source_vertex_indices": [
+        505
+      ],
+      "canonical_source_vertex_index": 505,
+      "input_point_id": 506
+    },
+    {
+      "all_source_vertex_indices": [
+        506
+      ],
+      "canonical_source_vertex_index": 506,
+      "input_point_id": 507
+    },
+    {
+      "all_source_vertex_indices": [
+        507
+      ],
+      "canonical_source_vertex_index": 507,
+      "input_point_id": 508
+    },
+    {
+      "all_source_vertex_indices": [
+        508
+      ],
+      "canonical_source_vertex_index": 508,
+      "input_point_id": 509
+    },
+    {
+      "all_source_vertex_indices": [
+        509
+      ],
+      "canonical_source_vertex_index": 509,
+      "input_point_id": 510
+    },
+    {
+      "all_source_vertex_indices": [
+        510
+      ],
+      "canonical_source_vertex_index": 510,
+      "input_point_id": 511
+    },
+    {
+      "all_source_vertex_indices": [
+        511
+      ],
+      "canonical_source_vertex_index": 511,
+      "input_point_id": 512
+    },
+    {
+      "all_source_vertex_indices": [
+        512
+      ],
+      "canonical_source_vertex_index": 512,
+      "input_point_id": 513
+    },
+    {
+      "all_source_vertex_indices": [
+        513
+      ],
+      "canonical_source_vertex_index": 513,
+      "input_point_id": 514
+    },
+    {
+      "all_source_vertex_indices": [
+        514
+      ],
+      "canonical_source_vertex_index": 514,
+      "input_point_id": 515
+    },
+    {
+      "all_source_vertex_indices": [
+        515
+      ],
+      "canonical_source_vertex_index": 515,
+      "input_point_id": 516
+    },
+    {
+      "all_source_vertex_indices": [
+        516
+      ],
+      "canonical_source_vertex_index": 516,
+      "input_point_id": 517
+    },
+    {
+      "all_source_vertex_indices": [
+        517
+      ],
+      "canonical_source_vertex_index": 517,
+      "input_point_id": 518
+    },
+    {
+      "all_source_vertex_indices": [
+        518
+      ],
+      "canonical_source_vertex_index": 518,
+      "input_point_id": 519
+    },
+    {
+      "all_source_vertex_indices": [
+        519
+      ],
+      "canonical_source_vertex_index": 519,
+      "input_point_id": 520
+    },
+    {
+      "all_source_vertex_indices": [
+        520
+      ],
+      "canonical_source_vertex_index": 520,
+      "input_point_id": 521
+    },
+    {
+      "all_source_vertex_indices": [
+        521
+      ],
+      "canonical_source_vertex_index": 521,
+      "input_point_id": 522
+    },
+    {
+      "all_source_vertex_indices": [
+        522
+      ],
+      "canonical_source_vertex_index": 522,
+      "input_point_id": 523
+    },
+    {
+      "all_source_vertex_indices": [
+        523
+      ],
+      "canonical_source_vertex_index": 523,
+      "input_point_id": 524
+    },
+    {
+      "all_source_vertex_indices": [
+        524
+      ],
+      "canonical_source_vertex_index": 524,
+      "input_point_id": 525
+    },
+    {
+      "all_source_vertex_indices": [
+        525
+      ],
+      "canonical_source_vertex_index": 525,
+      "input_point_id": 526
+    },
+    {
+      "all_source_vertex_indices": [
+        526
+      ],
+      "canonical_source_vertex_index": 526,
+      "input_point_id": 527
+    },
+    {
+      "all_source_vertex_indices": [
+        527
+      ],
+      "canonical_source_vertex_index": 527,
+      "input_point_id": 528
+    },
+    {
+      "all_source_vertex_indices": [
+        528
+      ],
+      "canonical_source_vertex_index": 528,
+      "input_point_id": 529
+    },
+    {
+      "all_source_vertex_indices": [
+        529
+      ],
+      "canonical_source_vertex_index": 529,
+      "input_point_id": 530
+    },
+    {
+      "all_source_vertex_indices": [
+        530
+      ],
+      "canonical_source_vertex_index": 530,
+      "input_point_id": 531
+    },
+    {
+      "all_source_vertex_indices": [
+        531
+      ],
+      "canonical_source_vertex_index": 531,
+      "input_point_id": 532
+    },
+    {
+      "all_source_vertex_indices": [
+        532
+      ],
+      "canonical_source_vertex_index": 532,
+      "input_point_id": 533
+    },
+    {
+      "all_source_vertex_indices": [
+        533
+      ],
+      "canonical_source_vertex_index": 533,
+      "input_point_id": 534
+    },
+    {
+      "all_source_vertex_indices": [
+        534
+      ],
+      "canonical_source_vertex_index": 534,
+      "input_point_id": 535
+    },
+    {
+      "all_source_vertex_indices": [
+        535
+      ],
+      "canonical_source_vertex_index": 535,
+      "input_point_id": 536
+    },
+    {
+      "all_source_vertex_indices": [
+        536
+      ],
+      "canonical_source_vertex_index": 536,
+      "input_point_id": 537
+    },
+    {
+      "all_source_vertex_indices": [
+        537
+      ],
+      "canonical_source_vertex_index": 537,
+      "input_point_id": 538
+    },
+    {
+      "all_source_vertex_indices": [
+        538
+      ],
+      "canonical_source_vertex_index": 538,
+      "input_point_id": 539
+    },
+    {
+      "all_source_vertex_indices": [
+        539
+      ],
+      "canonical_source_vertex_index": 539,
+      "input_point_id": 540
+    },
+    {
+      "all_source_vertex_indices": [
+        540
+      ],
+      "canonical_source_vertex_index": 540,
+      "input_point_id": 541
+    },
+    {
+      "all_source_vertex_indices": [
+        541
+      ],
+      "canonical_source_vertex_index": 541,
+      "input_point_id": 542
+    },
+    {
+      "all_source_vertex_indices": [
+        542
+      ],
+      "canonical_source_vertex_index": 542,
+      "input_point_id": 543
+    },
+    {
+      "all_source_vertex_indices": [
+        543
+      ],
+      "canonical_source_vertex_index": 543,
+      "input_point_id": 544
+    },
+    {
+      "all_source_vertex_indices": [
+        544
+      ],
+      "canonical_source_vertex_index": 544,
+      "input_point_id": 545
+    },
+    {
+      "all_source_vertex_indices": [
+        545
+      ],
+      "canonical_source_vertex_index": 545,
+      "input_point_id": 546
+    },
+    {
+      "all_source_vertex_indices": [
+        546
+      ],
+      "canonical_source_vertex_index": 546,
+      "input_point_id": 547
+    },
+    {
+      "all_source_vertex_indices": [
+        547
+      ],
+      "canonical_source_vertex_index": 547,
+      "input_point_id": 548
+    },
+    {
+      "all_source_vertex_indices": [
+        548
+      ],
+      "canonical_source_vertex_index": 548,
+      "input_point_id": 549
+    },
+    {
+      "all_source_vertex_indices": [
+        549
+      ],
+      "canonical_source_vertex_index": 549,
+      "input_point_id": 550
+    },
+    {
+      "all_source_vertex_indices": [
+        550
+      ],
+      "canonical_source_vertex_index": 550,
+      "input_point_id": 551
+    },
+    {
+      "all_source_vertex_indices": [
+        551
+      ],
+      "canonical_source_vertex_index": 551,
+      "input_point_id": 552
+    },
+    {
+      "all_source_vertex_indices": [
+        552
+      ],
+      "canonical_source_vertex_index": 552,
+      "input_point_id": 553
+    },
+    {
+      "all_source_vertex_indices": [
+        553
+      ],
+      "canonical_source_vertex_index": 553,
+      "input_point_id": 554
+    },
+    {
+      "all_source_vertex_indices": [
+        554
+      ],
+      "canonical_source_vertex_index": 554,
+      "input_point_id": 555
+    },
+    {
+      "all_source_vertex_indices": [
+        555
+      ],
+      "canonical_source_vertex_index": 555,
+      "input_point_id": 556
+    },
+    {
+      "all_source_vertex_indices": [
+        556
+      ],
+      "canonical_source_vertex_index": 556,
+      "input_point_id": 557
+    },
+    {
+      "all_source_vertex_indices": [
+        557
+      ],
+      "canonical_source_vertex_index": 557,
+      "input_point_id": 558
+    },
+    {
+      "all_source_vertex_indices": [
+        558
+      ],
+      "canonical_source_vertex_index": 558,
+      "input_point_id": 559
+    },
+    {
+      "all_source_vertex_indices": [
+        559
+      ],
+      "canonical_source_vertex_index": 559,
+      "input_point_id": 560
+    },
+    {
+      "all_source_vertex_indices": [
+        560
+      ],
+      "canonical_source_vertex_index": 560,
+      "input_point_id": 561
+    },
+    {
+      "all_source_vertex_indices": [
+        561
+      ],
+      "canonical_source_vertex_index": 561,
+      "input_point_id": 562
+    },
+    {
+      "all_source_vertex_indices": [
+        562
+      ],
+      "canonical_source_vertex_index": 562,
+      "input_point_id": 563
+    },
+    {
+      "all_source_vertex_indices": [
+        563
+      ],
+      "canonical_source_vertex_index": 563,
+      "input_point_id": 564
+    },
+    {
+      "all_source_vertex_indices": [
+        564
+      ],
+      "canonical_source_vertex_index": 564,
+      "input_point_id": 565
+    },
+    {
+      "all_source_vertex_indices": [
+        565
+      ],
+      "canonical_source_vertex_index": 565,
+      "input_point_id": 566
+    },
+    {
+      "all_source_vertex_indices": [
+        566
+      ],
+      "canonical_source_vertex_index": 566,
+      "input_point_id": 567
+    },
+    {
+      "all_source_vertex_indices": [
+        567
+      ],
+      "canonical_source_vertex_index": 567,
+      "input_point_id": 568
+    },
+    {
+      "all_source_vertex_indices": [
+        568
+      ],
+      "canonical_source_vertex_index": 568,
+      "input_point_id": 569
+    },
+    {
+      "all_source_vertex_indices": [
+        569
+      ],
+      "canonical_source_vertex_index": 569,
+      "input_point_id": 570
+    },
+    {
+      "all_source_vertex_indices": [
+        570
+      ],
+      "canonical_source_vertex_index": 570,
+      "input_point_id": 571
+    },
+    {
+      "all_source_vertex_indices": [
+        571
+      ],
+      "canonical_source_vertex_index": 571,
+      "input_point_id": 572
+    },
+    {
+      "all_source_vertex_indices": [
+        572
+      ],
+      "canonical_source_vertex_index": 572,
+      "input_point_id": 573
+    },
+    {
+      "all_source_vertex_indices": [
+        573
+      ],
+      "canonical_source_vertex_index": 573,
+      "input_point_id": 574
+    },
+    {
+      "all_source_vertex_indices": [
+        574
+      ],
+      "canonical_source_vertex_index": 574,
+      "input_point_id": 575
+    },
+    {
+      "all_source_vertex_indices": [
+        575
+      ],
+      "canonical_source_vertex_index": 575,
+      "input_point_id": 576
+    },
+    {
+      "all_source_vertex_indices": [
+        576
+      ],
+      "canonical_source_vertex_index": 576,
+      "input_point_id": 577
+    },
+    {
+      "all_source_vertex_indices": [
+        577
+      ],
+      "canonical_source_vertex_index": 577,
+      "input_point_id": 578
+    },
+    {
+      "all_source_vertex_indices": [
+        578
+      ],
+      "canonical_source_vertex_index": 578,
+      "input_point_id": 579
+    },
+    {
+      "all_source_vertex_indices": [
+        579
+      ],
+      "canonical_source_vertex_index": 579,
+      "input_point_id": 580
+    },
+    {
+      "all_source_vertex_indices": [
+        580
+      ],
+      "canonical_source_vertex_index": 580,
+      "input_point_id": 581
+    },
+    {
+      "all_source_vertex_indices": [
+        581
+      ],
+      "canonical_source_vertex_index": 581,
+      "input_point_id": 582
+    },
+    {
+      "all_source_vertex_indices": [
+        582
+      ],
+      "canonical_source_vertex_index": 582,
+      "input_point_id": 583
+    },
+    {
+      "all_source_vertex_indices": [
+        583
+      ],
+      "canonical_source_vertex_index": 583,
+      "input_point_id": 584
+    },
+    {
+      "all_source_vertex_indices": [
+        584
+      ],
+      "canonical_source_vertex_index": 584,
+      "input_point_id": 585
+    },
+    {
+      "all_source_vertex_indices": [
+        585
+      ],
+      "canonical_source_vertex_index": 585,
+      "input_point_id": 586
+    },
+    {
+      "all_source_vertex_indices": [
+        586
+      ],
+      "canonical_source_vertex_index": 586,
+      "input_point_id": 587
+    },
+    {
+      "all_source_vertex_indices": [
+        587
+      ],
+      "canonical_source_vertex_index": 587,
+      "input_point_id": 588
+    },
+    {
+      "all_source_vertex_indices": [
+        588
+      ],
+      "canonical_source_vertex_index": 588,
+      "input_point_id": 589
+    },
+    {
+      "all_source_vertex_indices": [
+        589
+      ],
+      "canonical_source_vertex_index": 589,
+      "input_point_id": 590
+    },
+    {
+      "all_source_vertex_indices": [
+        590
+      ],
+      "canonical_source_vertex_index": 590,
+      "input_point_id": 591
+    },
+    {
+      "all_source_vertex_indices": [
+        591
+      ],
+      "canonical_source_vertex_index": 591,
+      "input_point_id": 592
+    },
+    {
+      "all_source_vertex_indices": [
+        592
+      ],
+      "canonical_source_vertex_index": 592,
+      "input_point_id": 593
+    },
+    {
+      "all_source_vertex_indices": [
+        593
+      ],
+      "canonical_source_vertex_index": 593,
+      "input_point_id": 594
+    },
+    {
+      "all_source_vertex_indices": [
+        594
+      ],
+      "canonical_source_vertex_index": 594,
+      "input_point_id": 595
+    },
+    {
+      "all_source_vertex_indices": [
+        595
+      ],
+      "canonical_source_vertex_index": 595,
+      "input_point_id": 596
+    },
+    {
+      "all_source_vertex_indices": [
+        596
+      ],
+      "canonical_source_vertex_index": 596,
+      "input_point_id": 597
+    },
+    {
+      "all_source_vertex_indices": [
+        597
+      ],
+      "canonical_source_vertex_index": 597,
+      "input_point_id": 598
+    },
+    {
+      "all_source_vertex_indices": [
+        598
+      ],
+      "canonical_source_vertex_index": 598,
+      "input_point_id": 599
+    },
+    {
+      "all_source_vertex_indices": [
+        599
+      ],
+      "canonical_source_vertex_index": 599,
+      "input_point_id": 600
+    },
+    {
+      "all_source_vertex_indices": [
+        600
+      ],
+      "canonical_source_vertex_index": 600,
+      "input_point_id": 601
+    },
+    {
+      "all_source_vertex_indices": [
+        601
+      ],
+      "canonical_source_vertex_index": 601,
+      "input_point_id": 602
+    },
+    {
+      "all_source_vertex_indices": [
+        602
+      ],
+      "canonical_source_vertex_index": 602,
+      "input_point_id": 603
+    },
+    {
+      "all_source_vertex_indices": [
+        603
+      ],
+      "canonical_source_vertex_index": 603,
+      "input_point_id": 604
+    },
+    {
+      "all_source_vertex_indices": [
+        604
+      ],
+      "canonical_source_vertex_index": 604,
+      "input_point_id": 605
+    },
+    {
+      "all_source_vertex_indices": [
+        605
+      ],
+      "canonical_source_vertex_index": 605,
+      "input_point_id": 606
+    },
+    {
+      "all_source_vertex_indices": [
+        606
+      ],
+      "canonical_source_vertex_index": 606,
+      "input_point_id": 607
+    },
+    {
+      "all_source_vertex_indices": [
+        607
+      ],
+      "canonical_source_vertex_index": 607,
+      "input_point_id": 608
+    },
+    {
+      "all_source_vertex_indices": [
+        608
+      ],
+      "canonical_source_vertex_index": 608,
+      "input_point_id": 609
+    },
+    {
+      "all_source_vertex_indices": [
+        609
+      ],
+      "canonical_source_vertex_index": 609,
+      "input_point_id": 610
+    },
+    {
+      "all_source_vertex_indices": [
+        610
+      ],
+      "canonical_source_vertex_index": 610,
+      "input_point_id": 611
+    },
+    {
+      "all_source_vertex_indices": [
+        611
+      ],
+      "canonical_source_vertex_index": 611,
+      "input_point_id": 612
+    },
+    {
+      "all_source_vertex_indices": [
+        612
+      ],
+      "canonical_source_vertex_index": 612,
+      "input_point_id": 613
+    },
+    {
+      "all_source_vertex_indices": [
+        613
+      ],
+      "canonical_source_vertex_index": 613,
+      "input_point_id": 614
+    },
+    {
+      "all_source_vertex_indices": [
+        614
+      ],
+      "canonical_source_vertex_index": 614,
+      "input_point_id": 615
+    },
+    {
+      "all_source_vertex_indices": [
+        615
+      ],
+      "canonical_source_vertex_index": 615,
+      "input_point_id": 616
+    },
+    {
+      "all_source_vertex_indices": [
+        616
+      ],
+      "canonical_source_vertex_index": 616,
+      "input_point_id": 617
+    },
+    {
+      "all_source_vertex_indices": [
+        617
+      ],
+      "canonical_source_vertex_index": 617,
+      "input_point_id": 618
+    },
+    {
+      "all_source_vertex_indices": [
+        618
+      ],
+      "canonical_source_vertex_index": 618,
+      "input_point_id": 619
+    },
+    {
+      "all_source_vertex_indices": [
+        619
+      ],
+      "canonical_source_vertex_index": 619,
+      "input_point_id": 620
+    },
+    {
+      "all_source_vertex_indices": [
+        620
+      ],
+      "canonical_source_vertex_index": 620,
+      "input_point_id": 621
+    },
+    {
+      "all_source_vertex_indices": [
+        621
+      ],
+      "canonical_source_vertex_index": 621,
+      "input_point_id": 622
+    },
+    {
+      "all_source_vertex_indices": [
+        622
+      ],
+      "canonical_source_vertex_index": 622,
+      "input_point_id": 623
+    },
+    {
+      "all_source_vertex_indices": [
+        623
+      ],
+      "canonical_source_vertex_index": 623,
+      "input_point_id": 624
+    },
+    {
+      "all_source_vertex_indices": [
+        624
+      ],
+      "canonical_source_vertex_index": 624,
+      "input_point_id": 625
+    },
+    {
+      "all_source_vertex_indices": [
+        625
+      ],
+      "canonical_source_vertex_index": 625,
+      "input_point_id": 626
+    },
+    {
+      "all_source_vertex_indices": [
+        626
+      ],
+      "canonical_source_vertex_index": 626,
+      "input_point_id": 627
+    },
+    {
+      "all_source_vertex_indices": [
+        627
+      ],
+      "canonical_source_vertex_index": 627,
+      "input_point_id": 628
+    },
+    {
+      "all_source_vertex_indices": [
+        628
+      ],
+      "canonical_source_vertex_index": 628,
+      "input_point_id": 629
+    },
+    {
+      "all_source_vertex_indices": [
+        629
+      ],
+      "canonical_source_vertex_index": 629,
+      "input_point_id": 630
+    },
+    {
+      "all_source_vertex_indices": [
+        630
+      ],
+      "canonical_source_vertex_index": 630,
+      "input_point_id": 631
+    },
+    {
+      "all_source_vertex_indices": [
+        631
+      ],
+      "canonical_source_vertex_index": 631,
+      "input_point_id": 632
+    },
+    {
+      "all_source_vertex_indices": [
+        632
+      ],
+      "canonical_source_vertex_index": 632,
+      "input_point_id": 633
+    },
+    {
+      "all_source_vertex_indices": [
+        633
+      ],
+      "canonical_source_vertex_index": 633,
+      "input_point_id": 634
+    },
+    {
+      "all_source_vertex_indices": [
+        634
+      ],
+      "canonical_source_vertex_index": 634,
+      "input_point_id": 635
+    },
+    {
+      "all_source_vertex_indices": [
+        635
+      ],
+      "canonical_source_vertex_index": 635,
+      "input_point_id": 636
+    },
+    {
+      "all_source_vertex_indices": [
+        636
+      ],
+      "canonical_source_vertex_index": 636,
+      "input_point_id": 637
+    },
+    {
+      "all_source_vertex_indices": [
+        637
+      ],
+      "canonical_source_vertex_index": 637,
+      "input_point_id": 638
+    },
+    {
+      "all_source_vertex_indices": [
+        638
+      ],
+      "canonical_source_vertex_index": 638,
+      "input_point_id": 639
+    },
+    {
+      "all_source_vertex_indices": [
+        639
+      ],
+      "canonical_source_vertex_index": 639,
+      "input_point_id": 640
+    },
+    {
+      "all_source_vertex_indices": [
+        640
+      ],
+      "canonical_source_vertex_index": 640,
+      "input_point_id": 641
+    },
+    {
+      "all_source_vertex_indices": [
+        641
+      ],
+      "canonical_source_vertex_index": 641,
+      "input_point_id": 642
+    },
+    {
+      "all_source_vertex_indices": [
+        642
+      ],
+      "canonical_source_vertex_index": 642,
+      "input_point_id": 643
+    },
+    {
+      "all_source_vertex_indices": [
+        643
+      ],
+      "canonical_source_vertex_index": 643,
+      "input_point_id": 644
+    },
+    {
+      "all_source_vertex_indices": [
+        644
+      ],
+      "canonical_source_vertex_index": 644,
+      "input_point_id": 645
+    },
+    {
+      "all_source_vertex_indices": [
+        645
+      ],
+      "canonical_source_vertex_index": 645,
+      "input_point_id": 646
+    },
+    {
+      "all_source_vertex_indices": [
+        646
+      ],
+      "canonical_source_vertex_index": 646,
+      "input_point_id": 647
+    },
+    {
+      "all_source_vertex_indices": [
+        647
+      ],
+      "canonical_source_vertex_index": 647,
+      "input_point_id": 648
+    },
+    {
+      "all_source_vertex_indices": [
+        648
+      ],
+      "canonical_source_vertex_index": 648,
+      "input_point_id": 649
+    },
+    {
+      "all_source_vertex_indices": [
+        649
+      ],
+      "canonical_source_vertex_index": 649,
+      "input_point_id": 650
+    },
+    {
+      "all_source_vertex_indices": [
+        650
+      ],
+      "canonical_source_vertex_index": 650,
+      "input_point_id": 651
+    },
+    {
+      "all_source_vertex_indices": [
+        651
+      ],
+      "canonical_source_vertex_index": 651,
+      "input_point_id": 652
+    },
+    {
+      "all_source_vertex_indices": [
+        652
+      ],
+      "canonical_source_vertex_index": 652,
+      "input_point_id": 653
+    },
+    {
+      "all_source_vertex_indices": [
+        653
+      ],
+      "canonical_source_vertex_index": 653,
+      "input_point_id": 654
+    },
+    {
+      "all_source_vertex_indices": [
+        654
+      ],
+      "canonical_source_vertex_index": 654,
+      "input_point_id": 655
+    },
+    {
+      "all_source_vertex_indices": [
+        655
+      ],
+      "canonical_source_vertex_index": 655,
+      "input_point_id": 656
+    },
+    {
+      "all_source_vertex_indices": [
+        656
+      ],
+      "canonical_source_vertex_index": 656,
+      "input_point_id": 657
+    },
+    {
+      "all_source_vertex_indices": [
+        657
+      ],
+      "canonical_source_vertex_index": 657,
+      "input_point_id": 658
+    },
+    {
+      "all_source_vertex_indices": [
+        658
+      ],
+      "canonical_source_vertex_index": 658,
+      "input_point_id": 659
+    },
+    {
+      "all_source_vertex_indices": [
+        659
+      ],
+      "canonical_source_vertex_index": 659,
+      "input_point_id": 660
+    },
+    {
+      "all_source_vertex_indices": [
+        660
+      ],
+      "canonical_source_vertex_index": 660,
+      "input_point_id": 661
+    },
+    {
+      "all_source_vertex_indices": [
+        661
+      ],
+      "canonical_source_vertex_index": 661,
+      "input_point_id": 662
+    },
+    {
+      "all_source_vertex_indices": [
+        662
+      ],
+      "canonical_source_vertex_index": 662,
+      "input_point_id": 663
+    },
+    {
+      "all_source_vertex_indices": [
+        663
+      ],
+      "canonical_source_vertex_index": 663,
+      "input_point_id": 664
+    },
+    {
+      "all_source_vertex_indices": [
+        664
+      ],
+      "canonical_source_vertex_index": 664,
+      "input_point_id": 665
+    },
+    {
+      "all_source_vertex_indices": [
+        665
+      ],
+      "canonical_source_vertex_index": 665,
+      "input_point_id": 666
+    },
+    {
+      "all_source_vertex_indices": [
+        666
+      ],
+      "canonical_source_vertex_index": 666,
+      "input_point_id": 667
+    },
+    {
+      "all_source_vertex_indices": [
+        667
+      ],
+      "canonical_source_vertex_index": 667,
+      "input_point_id": 668
+    },
+    {
+      "all_source_vertex_indices": [
+        668
+      ],
+      "canonical_source_vertex_index": 668,
+      "input_point_id": 669
+    },
+    {
+      "all_source_vertex_indices": [
+        669
+      ],
+      "canonical_source_vertex_index": 669,
+      "input_point_id": 670
+    },
+    {
+      "all_source_vertex_indices": [
+        670
+      ],
+      "canonical_source_vertex_index": 670,
+      "input_point_id": 671
+    },
+    {
+      "all_source_vertex_indices": [
+        671
+      ],
+      "canonical_source_vertex_index": 671,
+      "input_point_id": 672
+    },
+    {
+      "all_source_vertex_indices": [
+        672
+      ],
+      "canonical_source_vertex_index": 672,
+      "input_point_id": 673
+    },
+    {
+      "all_source_vertex_indices": [
+        673
+      ],
+      "canonical_source_vertex_index": 673,
+      "input_point_id": 674
+    },
+    {
+      "all_source_vertex_indices": [
+        674
+      ],
+      "canonical_source_vertex_index": 674,
+      "input_point_id": 675
+    },
+    {
+      "all_source_vertex_indices": [
+        675
+      ],
+      "canonical_source_vertex_index": 675,
+      "input_point_id": 676
+    },
+    {
+      "all_source_vertex_indices": [
+        676
+      ],
+      "canonical_source_vertex_index": 676,
+      "input_point_id": 677
+    },
+    {
+      "all_source_vertex_indices": [
+        677
+      ],
+      "canonical_source_vertex_index": 677,
+      "input_point_id": 678
+    },
+    {
+      "all_source_vertex_indices": [
+        678
+      ],
+      "canonical_source_vertex_index": 678,
+      "input_point_id": 679
+    },
+    {
+      "all_source_vertex_indices": [
+        679
+      ],
+      "canonical_source_vertex_index": 679,
+      "input_point_id": 680
+    },
+    {
+      "all_source_vertex_indices": [
+        680
+      ],
+      "canonical_source_vertex_index": 680,
+      "input_point_id": 681
+    },
+    {
+      "all_source_vertex_indices": [
+        681
+      ],
+      "canonical_source_vertex_index": 681,
+      "input_point_id": 682
+    },
+    {
+      "all_source_vertex_indices": [
+        682
+      ],
+      "canonical_source_vertex_index": 682,
+      "input_point_id": 683
+    },
+    {
+      "all_source_vertex_indices": [
+        683
+      ],
+      "canonical_source_vertex_index": 683,
+      "input_point_id": 684
+    },
+    {
+      "all_source_vertex_indices": [
+        684
+      ],
+      "canonical_source_vertex_index": 684,
+      "input_point_id": 685
+    },
+    {
+      "all_source_vertex_indices": [
+        685
+      ],
+      "canonical_source_vertex_index": 685,
+      "input_point_id": 686
+    },
+    {
+      "all_source_vertex_indices": [
+        686
+      ],
+      "canonical_source_vertex_index": 686,
+      "input_point_id": 687
+    },
+    {
+      "all_source_vertex_indices": [
+        687
+      ],
+      "canonical_source_vertex_index": 687,
+      "input_point_id": 688
+    },
+    {
+      "all_source_vertex_indices": [
+        688
+      ],
+      "canonical_source_vertex_index": 688,
+      "input_point_id": 689
+    },
+    {
+      "all_source_vertex_indices": [
+        689
+      ],
+      "canonical_source_vertex_index": 689,
+      "input_point_id": 690
+    },
+    {
+      "all_source_vertex_indices": [
+        690
+      ],
+      "canonical_source_vertex_index": 690,
+      "input_point_id": 691
+    },
+    {
+      "all_source_vertex_indices": [
+        691
+      ],
+      "canonical_source_vertex_index": 691,
+      "input_point_id": 692
+    },
+    {
+      "all_source_vertex_indices": [
+        692
+      ],
+      "canonical_source_vertex_index": 692,
+      "input_point_id": 693
+    },
+    {
+      "all_source_vertex_indices": [
+        693
+      ],
+      "canonical_source_vertex_index": 693,
+      "input_point_id": 694
+    },
+    {
+      "all_source_vertex_indices": [
+        694
+      ],
+      "canonical_source_vertex_index": 694,
+      "input_point_id": 695
+    },
+    {
+      "all_source_vertex_indices": [
+        695
+      ],
+      "canonical_source_vertex_index": 695,
+      "input_point_id": 696
+    },
+    {
+      "all_source_vertex_indices": [
+        696
+      ],
+      "canonical_source_vertex_index": 696,
+      "input_point_id": 697
+    },
+    {
+      "all_source_vertex_indices": [
+        697
+      ],
+      "canonical_source_vertex_index": 697,
+      "input_point_id": 698
+    },
+    {
+      "all_source_vertex_indices": [
+        698
+      ],
+      "canonical_source_vertex_index": 698,
+      "input_point_id": 699
+    },
+    {
+      "all_source_vertex_indices": [
+        699
+      ],
+      "canonical_source_vertex_index": 699,
+      "input_point_id": 700
+    },
+    {
+      "all_source_vertex_indices": [
+        700
+      ],
+      "canonical_source_vertex_index": 700,
+      "input_point_id": 701
+    },
+    {
+      "all_source_vertex_indices": [
+        701
+      ],
+      "canonical_source_vertex_index": 701,
+      "input_point_id": 702
+    },
+    {
+      "all_source_vertex_indices": [
+        702
+      ],
+      "canonical_source_vertex_index": 702,
+      "input_point_id": 703
+    },
+    {
+      "all_source_vertex_indices": [
+        703
+      ],
+      "canonical_source_vertex_index": 703,
+      "input_point_id": 704
+    },
+    {
+      "all_source_vertex_indices": [
+        704
+      ],
+      "canonical_source_vertex_index": 704,
+      "input_point_id": 705
+    },
+    {
+      "all_source_vertex_indices": [
+        705
+      ],
+      "canonical_source_vertex_index": 705,
+      "input_point_id": 706
+    },
+    {
+      "all_source_vertex_indices": [
+        706
+      ],
+      "canonical_source_vertex_index": 706,
+      "input_point_id": 707
+    },
+    {
+      "all_source_vertex_indices": [
+        707
+      ],
+      "canonical_source_vertex_index": 707,
+      "input_point_id": 708
+    },
+    {
+      "all_source_vertex_indices": [
+        708
+      ],
+      "canonical_source_vertex_index": 708,
+      "input_point_id": 709
+    },
+    {
+      "all_source_vertex_indices": [
+        709
+      ],
+      "canonical_source_vertex_index": 709,
+      "input_point_id": 710
+    },
+    {
+      "all_source_vertex_indices": [
+        710
+      ],
+      "canonical_source_vertex_index": 710,
+      "input_point_id": 711
+    },
+    {
+      "all_source_vertex_indices": [
+        711
+      ],
+      "canonical_source_vertex_index": 711,
+      "input_point_id": 712
+    },
+    {
+      "all_source_vertex_indices": [
+        712
+      ],
+      "canonical_source_vertex_index": 712,
+      "input_point_id": 713
+    },
+    {
+      "all_source_vertex_indices": [
+        713
+      ],
+      "canonical_source_vertex_index": 713,
+      "input_point_id": 714
+    },
+    {
+      "all_source_vertex_indices": [
+        714
+      ],
+      "canonical_source_vertex_index": 714,
+      "input_point_id": 715
+    },
+    {
+      "all_source_vertex_indices": [
+        715
+      ],
+      "canonical_source_vertex_index": 715,
+      "input_point_id": 716
+    },
+    {
+      "all_source_vertex_indices": [
+        716
+      ],
+      "canonical_source_vertex_index": 716,
+      "input_point_id": 717
+    },
+    {
+      "all_source_vertex_indices": [
+        717
+      ],
+      "canonical_source_vertex_index": 717,
+      "input_point_id": 718
+    },
+    {
+      "all_source_vertex_indices": [
+        718
+      ],
+      "canonical_source_vertex_index": 718,
+      "input_point_id": 719
+    },
+    {
+      "all_source_vertex_indices": [
+        719
+      ],
+      "canonical_source_vertex_index": 719,
+      "input_point_id": 720
+    },
+    {
+      "all_source_vertex_indices": [
+        720
+      ],
+      "canonical_source_vertex_index": 720,
+      "input_point_id": 721
+    },
+    {
+      "all_source_vertex_indices": [
+        721
+      ],
+      "canonical_source_vertex_index": 721,
+      "input_point_id": 722
+    },
+    {
+      "all_source_vertex_indices": [
+        722
+      ],
+      "canonical_source_vertex_index": 722,
+      "input_point_id": 723
+    },
+    {
+      "all_source_vertex_indices": [
+        723
+      ],
+      "canonical_source_vertex_index": 723,
+      "input_point_id": 724
+    },
+    {
+      "all_source_vertex_indices": [
+        724
+      ],
+      "canonical_source_vertex_index": 724,
+      "input_point_id": 725
+    },
+    {
+      "all_source_vertex_indices": [
+        725
+      ],
+      "canonical_source_vertex_index": 725,
+      "input_point_id": 726
+    },
+    {
+      "all_source_vertex_indices": [
+        726
+      ],
+      "canonical_source_vertex_index": 726,
+      "input_point_id": 727
+    },
+    {
+      "all_source_vertex_indices": [
+        727
+      ],
+      "canonical_source_vertex_index": 727,
+      "input_point_id": 728
+    },
+    {
+      "all_source_vertex_indices": [
+        728
+      ],
+      "canonical_source_vertex_index": 728,
+      "input_point_id": 729
+    },
+    {
+      "all_source_vertex_indices": [
+        729
+      ],
+      "canonical_source_vertex_index": 729,
+      "input_point_id": 730
+    },
+    {
+      "all_source_vertex_indices": [
+        730
+      ],
+      "canonical_source_vertex_index": 730,
+      "input_point_id": 731
+    },
+    {
+      "all_source_vertex_indices": [
+        731
+      ],
+      "canonical_source_vertex_index": 731,
+      "input_point_id": 732
+    },
+    {
+      "all_source_vertex_indices": [
+        732
+      ],
+      "canonical_source_vertex_index": 732,
+      "input_point_id": 733
+    },
+    {
+      "all_source_vertex_indices": [
+        733
+      ],
+      "canonical_source_vertex_index": 733,
+      "input_point_id": 734
+    },
+    {
+      "all_source_vertex_indices": [
+        734
+      ],
+      "canonical_source_vertex_index": 734,
+      "input_point_id": 735
+    },
+    {
+      "all_source_vertex_indices": [
+        735
+      ],
+      "canonical_source_vertex_index": 735,
+      "input_point_id": 736
+    },
+    {
+      "all_source_vertex_indices": [
+        736
+      ],
+      "canonical_source_vertex_index": 736,
+      "input_point_id": 737
+    },
+    {
+      "all_source_vertex_indices": [
+        737
+      ],
+      "canonical_source_vertex_index": 737,
+      "input_point_id": 738
+    },
+    {
+      "all_source_vertex_indices": [
+        738
+      ],
+      "canonical_source_vertex_index": 738,
+      "input_point_id": 739
+    },
+    {
+      "all_source_vertex_indices": [
+        739
+      ],
+      "canonical_source_vertex_index": 739,
+      "input_point_id": 740
+    },
+    {
+      "all_source_vertex_indices": [
+        740
+      ],
+      "canonical_source_vertex_index": 740,
+      "input_point_id": 741
+    },
+    {
+      "all_source_vertex_indices": [
+        741
+      ],
+      "canonical_source_vertex_index": 741,
+      "input_point_id": 742
+    },
+    {
+      "all_source_vertex_indices": [
+        742
+      ],
+      "canonical_source_vertex_index": 742,
+      "input_point_id": 743
+    },
+    {
+      "all_source_vertex_indices": [
+        743
+      ],
+      "canonical_source_vertex_index": 743,
+      "input_point_id": 744
+    },
+    {
+      "all_source_vertex_indices": [
+        744
+      ],
+      "canonical_source_vertex_index": 744,
+      "input_point_id": 745
+    },
+    {
+      "all_source_vertex_indices": [
+        745
+      ],
+      "canonical_source_vertex_index": 745,
+      "input_point_id": 746
+    },
+    {
+      "all_source_vertex_indices": [
+        746
+      ],
+      "canonical_source_vertex_index": 746,
+      "input_point_id": 747
+    },
+    {
+      "all_source_vertex_indices": [
+        747
+      ],
+      "canonical_source_vertex_index": 747,
+      "input_point_id": 748
+    },
+    {
+      "all_source_vertex_indices": [
+        748
+      ],
+      "canonical_source_vertex_index": 748,
+      "input_point_id": 749
+    },
+    {
+      "all_source_vertex_indices": [
+        749
+      ],
+      "canonical_source_vertex_index": 749,
+      "input_point_id": 750
+    },
+    {
+      "all_source_vertex_indices": [
+        750
+      ],
+      "canonical_source_vertex_index": 750,
+      "input_point_id": 751
+    },
+    {
+      "all_source_vertex_indices": [
+        751
+      ],
+      "canonical_source_vertex_index": 751,
+      "input_point_id": 752
+    },
+    {
+      "all_source_vertex_indices": [
+        752
+      ],
+      "canonical_source_vertex_index": 752,
+      "input_point_id": 753
+    },
+    {
+      "all_source_vertex_indices": [
+        753
+      ],
+      "canonical_source_vertex_index": 753,
+      "input_point_id": 754
+    },
+    {
+      "all_source_vertex_indices": [
+        754
+      ],
+      "canonical_source_vertex_index": 754,
+      "input_point_id": 755
+    },
+    {
+      "all_source_vertex_indices": [
+        755
+      ],
+      "canonical_source_vertex_index": 755,
+      "input_point_id": 756
+    },
+    {
+      "all_source_vertex_indices": [
+        756
+      ],
+      "canonical_source_vertex_index": 756,
+      "input_point_id": 757
+    },
+    {
+      "all_source_vertex_indices": [
+        757
+      ],
+      "canonical_source_vertex_index": 757,
+      "input_point_id": 758
+    },
+    {
+      "all_source_vertex_indices": [
+        758
+      ],
+      "canonical_source_vertex_index": 758,
+      "input_point_id": 759
+    },
+    {
+      "all_source_vertex_indices": [
+        759
+      ],
+      "canonical_source_vertex_index": 759,
+      "input_point_id": 760
+    },
+    {
+      "all_source_vertex_indices": [
+        760
+      ],
+      "canonical_source_vertex_index": 760,
+      "input_point_id": 761
+    },
+    {
+      "all_source_vertex_indices": [
+        761
+      ],
+      "canonical_source_vertex_index": 761,
+      "input_point_id": 762
+    },
+    {
+      "all_source_vertex_indices": [
+        762
+      ],
+      "canonical_source_vertex_index": 762,
+      "input_point_id": 763
+    },
+    {
+      "all_source_vertex_indices": [
+        763
+      ],
+      "canonical_source_vertex_index": 763,
+      "input_point_id": 764
+    },
+    {
+      "all_source_vertex_indices": [
+        764
+      ],
+      "canonical_source_vertex_index": 764,
+      "input_point_id": 765
+    },
+    {
+      "all_source_vertex_indices": [
+        765
+      ],
+      "canonical_source_vertex_index": 765,
+      "input_point_id": 766
+    },
+    {
+      "all_source_vertex_indices": [
+        766
+      ],
+      "canonical_source_vertex_index": 766,
+      "input_point_id": 767
+    },
+    {
+      "all_source_vertex_indices": [
+        767
+      ],
+      "canonical_source_vertex_index": 767,
+      "input_point_id": 768
+    },
+    {
+      "all_source_vertex_indices": [
+        768
+      ],
+      "canonical_source_vertex_index": 768,
+      "input_point_id": 769
+    },
+    {
+      "all_source_vertex_indices": [
+        769
+      ],
+      "canonical_source_vertex_index": 769,
+      "input_point_id": 770
+    },
+    {
+      "all_source_vertex_indices": [
+        770
+      ],
+      "canonical_source_vertex_index": 770,
+      "input_point_id": 771
+    },
+    {
+      "all_source_vertex_indices": [
+        771
+      ],
+      "canonical_source_vertex_index": 771,
+      "input_point_id": 772
+    },
+    {
+      "all_source_vertex_indices": [
+        772
+      ],
+      "canonical_source_vertex_index": 772,
+      "input_point_id": 773
+    },
+    {
+      "all_source_vertex_indices": [
+        773
+      ],
+      "canonical_source_vertex_index": 773,
+      "input_point_id": 774
+    },
+    {
+      "all_source_vertex_indices": [
+        774
+      ],
+      "canonical_source_vertex_index": 774,
+      "input_point_id": 775
+    },
+    {
+      "all_source_vertex_indices": [
+        775
+      ],
+      "canonical_source_vertex_index": 775,
+      "input_point_id": 776
+    },
+    {
+      "all_source_vertex_indices": [
+        776
+      ],
+      "canonical_source_vertex_index": 776,
+      "input_point_id": 777
+    },
+    {
+      "all_source_vertex_indices": [
+        777
+      ],
+      "canonical_source_vertex_index": 777,
+      "input_point_id": 778
+    },
+    {
+      "all_source_vertex_indices": [
+        778
+      ],
+      "canonical_source_vertex_index": 778,
+      "input_point_id": 779
+    },
+    {
+      "all_source_vertex_indices": [
+        779
+      ],
+      "canonical_source_vertex_index": 779,
+      "input_point_id": 780
+    },
+    {
+      "all_source_vertex_indices": [
+        780
+      ],
+      "canonical_source_vertex_index": 780,
+      "input_point_id": 781
+    },
+    {
+      "all_source_vertex_indices": [
+        781
+      ],
+      "canonical_source_vertex_index": 781,
+      "input_point_id": 782
+    },
+    {
+      "all_source_vertex_indices": [
+        782
+      ],
+      "canonical_source_vertex_index": 782,
+      "input_point_id": 783
+    },
+    {
+      "all_source_vertex_indices": [
+        783
+      ],
+      "canonical_source_vertex_index": 783,
+      "input_point_id": 784
+    },
+    {
+      "all_source_vertex_indices": [
+        784
+      ],
+      "canonical_source_vertex_index": 784,
+      "input_point_id": 785
+    },
+    {
+      "all_source_vertex_indices": [
+        785
+      ],
+      "canonical_source_vertex_index": 785,
+      "input_point_id": 786
+    },
+    {
+      "all_source_vertex_indices": [
+        786
+      ],
+      "canonical_source_vertex_index": 786,
+      "input_point_id": 787
+    },
+    {
+      "all_source_vertex_indices": [
+        787
+      ],
+      "canonical_source_vertex_index": 787,
+      "input_point_id": 788
+    },
+    {
+      "all_source_vertex_indices": [
+        788
+      ],
+      "canonical_source_vertex_index": 788,
+      "input_point_id": 789
+    },
+    {
+      "all_source_vertex_indices": [
+        789
+      ],
+      "canonical_source_vertex_index": 789,
+      "input_point_id": 790
+    },
+    {
+      "all_source_vertex_indices": [
+        790
+      ],
+      "canonical_source_vertex_index": 790,
+      "input_point_id": 791
+    },
+    {
+      "all_source_vertex_indices": [
+        791
+      ],
+      "canonical_source_vertex_index": 791,
+      "input_point_id": 792
+    },
+    {
+      "all_source_vertex_indices": [
+        792
+      ],
+      "canonical_source_vertex_index": 792,
+      "input_point_id": 793
+    },
+    {
+      "all_source_vertex_indices": [
+        793
+      ],
+      "canonical_source_vertex_index": 793,
+      "input_point_id": 794
+    },
+    {
+      "all_source_vertex_indices": [
+        794
+      ],
+      "canonical_source_vertex_index": 794,
+      "input_point_id": 795
+    },
+    {
+      "all_source_vertex_indices": [
+        795
+      ],
+      "canonical_source_vertex_index": 795,
+      "input_point_id": 796
+    },
+    {
+      "all_source_vertex_indices": [
+        796
+      ],
+      "canonical_source_vertex_index": 796,
+      "input_point_id": 797
+    },
+    {
+      "all_source_vertex_indices": [
+        797
+      ],
+      "canonical_source_vertex_index": 797,
+      "input_point_id": 798
+    },
+    {
+      "all_source_vertex_indices": [
+        798
+      ],
+      "canonical_source_vertex_index": 798,
+      "input_point_id": 799
+    },
+    {
+      "all_source_vertex_indices": [
+        799
+      ],
+      "canonical_source_vertex_index": 799,
+      "input_point_id": 800
+    },
+    {
+      "all_source_vertex_indices": [
+        800
+      ],
+      "canonical_source_vertex_index": 800,
+      "input_point_id": 801
+    },
+    {
+      "all_source_vertex_indices": [
+        801
+      ],
+      "canonical_source_vertex_index": 801,
+      "input_point_id": 802
+    },
+    {
+      "all_source_vertex_indices": [
+        802
+      ],
+      "canonical_source_vertex_index": 802,
+      "input_point_id": 803
+    },
+    {
+      "all_source_vertex_indices": [
+        803
+      ],
+      "canonical_source_vertex_index": 803,
+      "input_point_id": 804
+    },
+    {
+      "all_source_vertex_indices": [
+        804
+      ],
+      "canonical_source_vertex_index": 804,
+      "input_point_id": 805
+    },
+    {
+      "all_source_vertex_indices": [
+        805
+      ],
+      "canonical_source_vertex_index": 805,
+      "input_point_id": 806
+    },
+    {
+      "all_source_vertex_indices": [
+        806
+      ],
+      "canonical_source_vertex_index": 806,
+      "input_point_id": 807
+    },
+    {
+      "all_source_vertex_indices": [
+        807
+      ],
+      "canonical_source_vertex_index": 807,
+      "input_point_id": 808
+    },
+    {
+      "all_source_vertex_indices": [
+        808
+      ],
+      "canonical_source_vertex_index": 808,
+      "input_point_id": 809
+    },
+    {
+      "all_source_vertex_indices": [
+        809
+      ],
+      "canonical_source_vertex_index": 809,
+      "input_point_id": 810
+    },
+    {
+      "all_source_vertex_indices": [
+        810
+      ],
+      "canonical_source_vertex_index": 810,
+      "input_point_id": 811
+    },
+    {
+      "all_source_vertex_indices": [
+        811
+      ],
+      "canonical_source_vertex_index": 811,
+      "input_point_id": 812
+    },
+    {
+      "all_source_vertex_indices": [
+        812
+      ],
+      "canonical_source_vertex_index": 812,
+      "input_point_id": 813
+    },
+    {
+      "all_source_vertex_indices": [
+        813
+      ],
+      "canonical_source_vertex_index": 813,
+      "input_point_id": 814
+    },
+    {
+      "all_source_vertex_indices": [
+        814
+      ],
+      "canonical_source_vertex_index": 814,
+      "input_point_id": 815
+    },
+    {
+      "all_source_vertex_indices": [
+        815
+      ],
+      "canonical_source_vertex_index": 815,
+      "input_point_id": 816
+    },
+    {
+      "all_source_vertex_indices": [
+        816
+      ],
+      "canonical_source_vertex_index": 816,
+      "input_point_id": 817
+    },
+    {
+      "all_source_vertex_indices": [
+        817
+      ],
+      "canonical_source_vertex_index": 817,
+      "input_point_id": 818
+    },
+    {
+      "all_source_vertex_indices": [
+        818
+      ],
+      "canonical_source_vertex_index": 818,
+      "input_point_id": 819
+    },
+    {
+      "all_source_vertex_indices": [
+        819
+      ],
+      "canonical_source_vertex_index": 819,
+      "input_point_id": 820
+    },
+    {
+      "all_source_vertex_indices": [
+        820
+      ],
+      "canonical_source_vertex_index": 820,
+      "input_point_id": 821
+    },
+    {
+      "all_source_vertex_indices": [
+        821
+      ],
+      "canonical_source_vertex_index": 821,
+      "input_point_id": 822
+    },
+    {
+      "all_source_vertex_indices": [
+        822
+      ],
+      "canonical_source_vertex_index": 822,
+      "input_point_id": 823
+    },
+    {
+      "all_source_vertex_indices": [
+        823
+      ],
+      "canonical_source_vertex_index": 823,
+      "input_point_id": 824
+    },
+    {
+      "all_source_vertex_indices": [
+        824
+      ],
+      "canonical_source_vertex_index": 824,
+      "input_point_id": 825
+    },
+    {
+      "all_source_vertex_indices": [
+        825
+      ],
+      "canonical_source_vertex_index": 825,
+      "input_point_id": 826
+    },
+    {
+      "all_source_vertex_indices": [
+        826
+      ],
+      "canonical_source_vertex_index": 826,
+      "input_point_id": 827
+    },
+    {
+      "all_source_vertex_indices": [
+        827
+      ],
+      "canonical_source_vertex_index": 827,
+      "input_point_id": 828
+    },
+    {
+      "all_source_vertex_indices": [
+        828
+      ],
+      "canonical_source_vertex_index": 828,
+      "input_point_id": 829
+    },
+    {
+      "all_source_vertex_indices": [
+        829
+      ],
+      "canonical_source_vertex_index": 829,
+      "input_point_id": 830
+    },
+    {
+      "all_source_vertex_indices": [
+        830
+      ],
+      "canonical_source_vertex_index": 830,
+      "input_point_id": 831
+    },
+    {
+      "all_source_vertex_indices": [
+        831
+      ],
+      "canonical_source_vertex_index": 831,
+      "input_point_id": 832
+    },
+    {
+      "all_source_vertex_indices": [
+        832
+      ],
+      "canonical_source_vertex_index": 832,
+      "input_point_id": 833
+    },
+    {
+      "all_source_vertex_indices": [
+        833
+      ],
+      "canonical_source_vertex_index": 833,
+      "input_point_id": 834
+    },
+    {
+      "all_source_vertex_indices": [
+        834
+      ],
+      "canonical_source_vertex_index": 834,
+      "input_point_id": 835
+    },
+    {
+      "all_source_vertex_indices": [
+        835
+      ],
+      "canonical_source_vertex_index": 835,
+      "input_point_id": 836
+    },
+    {
+      "all_source_vertex_indices": [
+        836
+      ],
+      "canonical_source_vertex_index": 836,
+      "input_point_id": 837
+    },
+    {
+      "all_source_vertex_indices": [
+        837
+      ],
+      "canonical_source_vertex_index": 837,
+      "input_point_id": 838
+    },
+    {
+      "all_source_vertex_indices": [
+        838
+      ],
+      "canonical_source_vertex_index": 838,
+      "input_point_id": 839
+    },
+    {
+      "all_source_vertex_indices": [
+        839
+      ],
+      "canonical_source_vertex_index": 839,
+      "input_point_id": 840
+    },
+    {
+      "all_source_vertex_indices": [
+        840
+      ],
+      "canonical_source_vertex_index": 840,
+      "input_point_id": 841
+    },
+    {
+      "all_source_vertex_indices": [
+        841
+      ],
+      "canonical_source_vertex_index": 841,
+      "input_point_id": 842
+    },
+    {
+      "all_source_vertex_indices": [
+        842
+      ],
+      "canonical_source_vertex_index": 842,
+      "input_point_id": 843
+    },
+    {
+      "all_source_vertex_indices": [
+        843
+      ],
+      "canonical_source_vertex_index": 843,
+      "input_point_id": 844
+    },
+    {
+      "all_source_vertex_indices": [
+        844
+      ],
+      "canonical_source_vertex_index": 844,
+      "input_point_id": 845
+    },
+    {
+      "all_source_vertex_indices": [
+        845
+      ],
+      "canonical_source_vertex_index": 845,
+      "input_point_id": 846
+    },
+    {
+      "all_source_vertex_indices": [
+        846
+      ],
+      "canonical_source_vertex_index": 846,
+      "input_point_id": 847
+    },
+    {
+      "all_source_vertex_indices": [
+        847
+      ],
+      "canonical_source_vertex_index": 847,
+      "input_point_id": 848
+    },
+    {
+      "all_source_vertex_indices": [
+        848
+      ],
+      "canonical_source_vertex_index": 848,
+      "input_point_id": 849
+    },
+    {
+      "all_source_vertex_indices": [
+        849
+      ],
+      "canonical_source_vertex_index": 849,
+      "input_point_id": 850
+    },
+    {
+      "all_source_vertex_indices": [
+        850
+      ],
+      "canonical_source_vertex_index": 850,
+      "input_point_id": 851
+    },
+    {
+      "all_source_vertex_indices": [
+        851
+      ],
+      "canonical_source_vertex_index": 851,
+      "input_point_id": 852
+    },
+    {
+      "all_source_vertex_indices": [
+        852
+      ],
+      "canonical_source_vertex_index": 852,
+      "input_point_id": 853
+    },
+    {
+      "all_source_vertex_indices": [
+        853
+      ],
+      "canonical_source_vertex_index": 853,
+      "input_point_id": 854
+    },
+    {
+      "all_source_vertex_indices": [
+        854
+      ],
+      "canonical_source_vertex_index": 854,
+      "input_point_id": 855
+    },
+    {
+      "all_source_vertex_indices": [
+        855
+      ],
+      "canonical_source_vertex_index": 855,
+      "input_point_id": 856
+    },
+    {
+      "all_source_vertex_indices": [
+        856
+      ],
+      "canonical_source_vertex_index": 856,
+      "input_point_id": 857
+    },
+    {
+      "all_source_vertex_indices": [
+        857
+      ],
+      "canonical_source_vertex_index": 857,
+      "input_point_id": 858
+    },
+    {
+      "all_source_vertex_indices": [
+        858
+      ],
+      "canonical_source_vertex_index": 858,
+      "input_point_id": 859
+    },
+    {
+      "all_source_vertex_indices": [
+        859
+      ],
+      "canonical_source_vertex_index": 859,
+      "input_point_id": 860
+    },
+    {
+      "all_source_vertex_indices": [
+        860
+      ],
+      "canonical_source_vertex_index": 860,
+      "input_point_id": 861
+    },
+    {
+      "all_source_vertex_indices": [
+        861
+      ],
+      "canonical_source_vertex_index": 861,
+      "input_point_id": 862
+    },
+    {
+      "all_source_vertex_indices": [
+        862
+      ],
+      "canonical_source_vertex_index": 862,
+      "input_point_id": 863
+    },
+    {
+      "all_source_vertex_indices": [
+        863
+      ],
+      "canonical_source_vertex_index": 863,
+      "input_point_id": 864
+    },
+    {
+      "all_source_vertex_indices": [
+        864
+      ],
+      "canonical_source_vertex_index": 864,
+      "input_point_id": 865
+    },
+    {
+      "all_source_vertex_indices": [
+        865
+      ],
+      "canonical_source_vertex_index": 865,
+      "input_point_id": 866
+    },
+    {
+      "all_source_vertex_indices": [
+        866
+      ],
+      "canonical_source_vertex_index": 866,
+      "input_point_id": 867
+    },
+    {
+      "all_source_vertex_indices": [
+        867
+      ],
+      "canonical_source_vertex_index": 867,
+      "input_point_id": 868
+    },
+    {
+      "all_source_vertex_indices": [
+        868
+      ],
+      "canonical_source_vertex_index": 868,
+      "input_point_id": 869
+    },
+    {
+      "all_source_vertex_indices": [
+        869
+      ],
+      "canonical_source_vertex_index": 869,
+      "input_point_id": 870
+    },
+    {
+      "all_source_vertex_indices": [
+        870
+      ],
+      "canonical_source_vertex_index": 870,
+      "input_point_id": 871
+    },
+    {
+      "all_source_vertex_indices": [
+        871
+      ],
+      "canonical_source_vertex_index": 871,
+      "input_point_id": 872
+    },
+    {
+      "all_source_vertex_indices": [
+        872
+      ],
+      "canonical_source_vertex_index": 872,
+      "input_point_id": 873
+    },
+    {
+      "all_source_vertex_indices": [
+        873
+      ],
+      "canonical_source_vertex_index": 873,
+      "input_point_id": 874
+    },
+    {
+      "all_source_vertex_indices": [
+        874
+      ],
+      "canonical_source_vertex_index": 874,
+      "input_point_id": 875
+    },
+    {
+      "all_source_vertex_indices": [
+        875
+      ],
+      "canonical_source_vertex_index": 875,
+      "input_point_id": 876
+    },
+    {
+      "all_source_vertex_indices": [
+        876
+      ],
+      "canonical_source_vertex_index": 876,
+      "input_point_id": 877
+    },
+    {
+      "all_source_vertex_indices": [
+        877
+      ],
+      "canonical_source_vertex_index": 877,
+      "input_point_id": 878
+    },
+    {
+      "all_source_vertex_indices": [
+        878
+      ],
+      "canonical_source_vertex_index": 878,
+      "input_point_id": 879
+    },
+    {
+      "all_source_vertex_indices": [
+        879
+      ],
+      "canonical_source_vertex_index": 879,
+      "input_point_id": 880
+    },
+    {
+      "all_source_vertex_indices": [
+        880
+      ],
+      "canonical_source_vertex_index": 880,
+      "input_point_id": 881
+    },
+    {
+      "all_source_vertex_indices": [
+        881
+      ],
+      "canonical_source_vertex_index": 881,
+      "input_point_id": 882
+    },
+    {
+      "all_source_vertex_indices": [
+        882
+      ],
+      "canonical_source_vertex_index": 882,
+      "input_point_id": 883
+    },
+    {
+      "all_source_vertex_indices": [
+        883
+      ],
+      "canonical_source_vertex_index": 883,
+      "input_point_id": 884
+    },
+    {
+      "all_source_vertex_indices": [
+        884
+      ],
+      "canonical_source_vertex_index": 884,
+      "input_point_id": 885
+    },
+    {
+      "all_source_vertex_indices": [
+        885
+      ],
+      "canonical_source_vertex_index": 885,
+      "input_point_id": 886
+    },
+    {
+      "all_source_vertex_indices": [
+        886
+      ],
+      "canonical_source_vertex_index": 886,
+      "input_point_id": 887
+    },
+    {
+      "all_source_vertex_indices": [
+        887
+      ],
+      "canonical_source_vertex_index": 887,
+      "input_point_id": 888
+    },
+    {
+      "all_source_vertex_indices": [
+        888
+      ],
+      "canonical_source_vertex_index": 888,
+      "input_point_id": 889
+    },
+    {
+      "all_source_vertex_indices": [
+        889
+      ],
+      "canonical_source_vertex_index": 889,
+      "input_point_id": 890
+    },
+    {
+      "all_source_vertex_indices": [
+        890
+      ],
+      "canonical_source_vertex_index": 890,
+      "input_point_id": 891
+    },
+    {
+      "all_source_vertex_indices": [
+        891
+      ],
+      "canonical_source_vertex_index": 891,
+      "input_point_id": 892
+    },
+    {
+      "all_source_vertex_indices": [
+        892
+      ],
+      "canonical_source_vertex_index": 892,
+      "input_point_id": 893
+    },
+    {
+      "all_source_vertex_indices": [
+        893
+      ],
+      "canonical_source_vertex_index": 893,
+      "input_point_id": 894
+    },
+    {
+      "all_source_vertex_indices": [
+        894
+      ],
+      "canonical_source_vertex_index": 894,
+      "input_point_id": 895
+    },
+    {
+      "all_source_vertex_indices": [
+        895
+      ],
+      "canonical_source_vertex_index": 895,
+      "input_point_id": 896
+    },
+    {
+      "all_source_vertex_indices": [
+        896
+      ],
+      "canonical_source_vertex_index": 896,
+      "input_point_id": 897
+    },
+    {
+      "all_source_vertex_indices": [
+        897
+      ],
+      "canonical_source_vertex_index": 897,
+      "input_point_id": 898
+    },
+    {
+      "all_source_vertex_indices": [
+        898
+      ],
+      "canonical_source_vertex_index": 898,
+      "input_point_id": 899
+    },
+    {
+      "all_source_vertex_indices": [
+        899
+      ],
+      "canonical_source_vertex_index": 899,
+      "input_point_id": 900
+    },
+    {
+      "all_source_vertex_indices": [
+        900
+      ],
+      "canonical_source_vertex_index": 900,
+      "input_point_id": 901
+    },
+    {
+      "all_source_vertex_indices": [
+        901
+      ],
+      "canonical_source_vertex_index": 901,
+      "input_point_id": 902
+    },
+    {
+      "all_source_vertex_indices": [
+        902
+      ],
+      "canonical_source_vertex_index": 902,
+      "input_point_id": 903
+    },
+    {
+      "all_source_vertex_indices": [
+        903
+      ],
+      "canonical_source_vertex_index": 903,
+      "input_point_id": 904
+    },
+    {
+      "all_source_vertex_indices": [
+        904
+      ],
+      "canonical_source_vertex_index": 904,
+      "input_point_id": 905
+    },
+    {
+      "all_source_vertex_indices": [
+        905
+      ],
+      "canonical_source_vertex_index": 905,
+      "input_point_id": 906
+    },
+    {
+      "all_source_vertex_indices": [
+        906
+      ],
+      "canonical_source_vertex_index": 906,
+      "input_point_id": 907
+    },
+    {
+      "all_source_vertex_indices": [
+        907
+      ],
+      "canonical_source_vertex_index": 907,
+      "input_point_id": 908
+    },
+    {
+      "all_source_vertex_indices": [
+        908
+      ],
+      "canonical_source_vertex_index": 908,
+      "input_point_id": 909
+    },
+    {
+      "all_source_vertex_indices": [
+        909
+      ],
+      "canonical_source_vertex_index": 909,
+      "input_point_id": 910
+    },
+    {
+      "all_source_vertex_indices": [
+        910
+      ],
+      "canonical_source_vertex_index": 910,
+      "input_point_id": 911
+    },
+    {
+      "all_source_vertex_indices": [
+        911
+      ],
+      "canonical_source_vertex_index": 911,
+      "input_point_id": 912
+    },
+    {
+      "all_source_vertex_indices": [
+        912
+      ],
+      "canonical_source_vertex_index": 912,
+      "input_point_id": 913
+    },
+    {
+      "all_source_vertex_indices": [
+        913
+      ],
+      "canonical_source_vertex_index": 913,
+      "input_point_id": 914
+    },
+    {
+      "all_source_vertex_indices": [
+        914
+      ],
+      "canonical_source_vertex_index": 914,
+      "input_point_id": 915
+    },
+    {
+      "all_source_vertex_indices": [
+        915
+      ],
+      "canonical_source_vertex_index": 915,
+      "input_point_id": 916
+    },
+    {
+      "all_source_vertex_indices": [
+        916
+      ],
+      "canonical_source_vertex_index": 916,
+      "input_point_id": 917
+    },
+    {
+      "all_source_vertex_indices": [
+        917
+      ],
+      "canonical_source_vertex_index": 917,
+      "input_point_id": 918
+    },
+    {
+      "all_source_vertex_indices": [
+        918
+      ],
+      "canonical_source_vertex_index": 918,
+      "input_point_id": 919
+    },
+    {
+      "all_source_vertex_indices": [
+        919
+      ],
+      "canonical_source_vertex_index": 919,
+      "input_point_id": 920
+    },
+    {
+      "all_source_vertex_indices": [
+        920
+      ],
+      "canonical_source_vertex_index": 920,
+      "input_point_id": 921
+    },
+    {
+      "all_source_vertex_indices": [
+        921
+      ],
+      "canonical_source_vertex_index": 921,
+      "input_point_id": 922
+    },
+    {
+      "all_source_vertex_indices": [
+        922
+      ],
+      "canonical_source_vertex_index": 922,
+      "input_point_id": 923
+    },
+    {
+      "all_source_vertex_indices": [
+        923
+      ],
+      "canonical_source_vertex_index": 923,
+      "input_point_id": 924
+    },
+    {
+      "all_source_vertex_indices": [
+        924
+      ],
+      "canonical_source_vertex_index": 924,
+      "input_point_id": 925
+    },
+    {
+      "all_source_vertex_indices": [
+        925
+      ],
+      "canonical_source_vertex_index": 925,
+      "input_point_id": 926
+    },
+    {
+      "all_source_vertex_indices": [
+        926
+      ],
+      "canonical_source_vertex_index": 926,
+      "input_point_id": 927
+    },
+    {
+      "all_source_vertex_indices": [
+        927
+      ],
+      "canonical_source_vertex_index": 927,
+      "input_point_id": 928
+    },
+    {
+      "all_source_vertex_indices": [
+        928
+      ],
+      "canonical_source_vertex_index": 928,
+      "input_point_id": 929
+    },
+    {
+      "all_source_vertex_indices": [
+        929
+      ],
+      "canonical_source_vertex_index": 929,
+      "input_point_id": 930
+    },
+    {
+      "all_source_vertex_indices": [
+        930
+      ],
+      "canonical_source_vertex_index": 930,
+      "input_point_id": 931
+    },
+    {
+      "all_source_vertex_indices": [
+        931
+      ],
+      "canonical_source_vertex_index": 931,
+      "input_point_id": 932
+    },
+    {
+      "all_source_vertex_indices": [
+        932
+      ],
+      "canonical_source_vertex_index": 932,
+      "input_point_id": 933
+    },
+    {
+      "all_source_vertex_indices": [
+        933
+      ],
+      "canonical_source_vertex_index": 933,
+      "input_point_id": 934
+    },
+    {
+      "all_source_vertex_indices": [
+        934
+      ],
+      "canonical_source_vertex_index": 934,
+      "input_point_id": 935
+    },
+    {
+      "all_source_vertex_indices": [
+        935
+      ],
+      "canonical_source_vertex_index": 935,
+      "input_point_id": 936
+    },
+    {
+      "all_source_vertex_indices": [
+        936
+      ],
+      "canonical_source_vertex_index": 936,
+      "input_point_id": 937
+    },
+    {
+      "all_source_vertex_indices": [
+        937
+      ],
+      "canonical_source_vertex_index": 937,
+      "input_point_id": 938
+    },
+    {
+      "all_source_vertex_indices": [
+        938
+      ],
+      "canonical_source_vertex_index": 938,
+      "input_point_id": 939
+    },
+    {
+      "all_source_vertex_indices": [
+        939
+      ],
+      "canonical_source_vertex_index": 939,
+      "input_point_id": 940
+    },
+    {
+      "all_source_vertex_indices": [
+        940
+      ],
+      "canonical_source_vertex_index": 940,
+      "input_point_id": 941
+    },
+    {
+      "all_source_vertex_indices": [
+        941
+      ],
+      "canonical_source_vertex_index": 941,
+      "input_point_id": 942
+    },
+    {
+      "all_source_vertex_indices": [
+        942
+      ],
+      "canonical_source_vertex_index": 942,
+      "input_point_id": 943
+    },
+    {
+      "all_source_vertex_indices": [
+        943
+      ],
+      "canonical_source_vertex_index": 943,
+      "input_point_id": 944
+    },
+    {
+      "all_source_vertex_indices": [
+        944
+      ],
+      "canonical_source_vertex_index": 944,
+      "input_point_id": 945
+    },
+    {
+      "all_source_vertex_indices": [
+        945
+      ],
+      "canonical_source_vertex_index": 945,
+      "input_point_id": 946
+    },
+    {
+      "all_source_vertex_indices": [
+        946
+      ],
+      "canonical_source_vertex_index": 946,
+      "input_point_id": 947
+    },
+    {
+      "all_source_vertex_indices": [
+        947
+      ],
+      "canonical_source_vertex_index": 947,
+      "input_point_id": 948
+    },
+    {
+      "all_source_vertex_indices": [
+        948
+      ],
+      "canonical_source_vertex_index": 948,
+      "input_point_id": 949
+    },
+    {
+      "all_source_vertex_indices": [
+        949
+      ],
+      "canonical_source_vertex_index": 949,
+      "input_point_id": 950
+    },
+    {
+      "all_source_vertex_indices": [
+        950
+      ],
+      "canonical_source_vertex_index": 950,
+      "input_point_id": 951
+    },
+    {
+      "all_source_vertex_indices": [
+        951
+      ],
+      "canonical_source_vertex_index": 951,
+      "input_point_id": 952
+    },
+    {
+      "all_source_vertex_indices": [
+        952
+      ],
+      "canonical_source_vertex_index": 952,
+      "input_point_id": 953
+    },
+    {
+      "all_source_vertex_indices": [
+        953
+      ],
+      "canonical_source_vertex_index": 953,
+      "input_point_id": 954
+    },
+    {
+      "all_source_vertex_indices": [
+        954
+      ],
+      "canonical_source_vertex_index": 954,
+      "input_point_id": 955
+    },
+    {
+      "all_source_vertex_indices": [
+        955
+      ],
+      "canonical_source_vertex_index": 955,
+      "input_point_id": 956
+    },
+    {
+      "all_source_vertex_indices": [
+        956
+      ],
+      "canonical_source_vertex_index": 956,
+      "input_point_id": 957
+    },
+    {
+      "all_source_vertex_indices": [
+        957
+      ],
+      "canonical_source_vertex_index": 957,
+      "input_point_id": 958
+    },
+    {
+      "all_source_vertex_indices": [
+        958
+      ],
+      "canonical_source_vertex_index": 958,
+      "input_point_id": 959
+    },
+    {
+      "all_source_vertex_indices": [
+        959
+      ],
+      "canonical_source_vertex_index": 959,
+      "input_point_id": 960
+    },
+    {
+      "all_source_vertex_indices": [
+        960
+      ],
+      "canonical_source_vertex_index": 960,
+      "input_point_id": 961
+    },
+    {
+      "all_source_vertex_indices": [
+        961
+      ],
+      "canonical_source_vertex_index": 961,
+      "input_point_id": 962
+    },
+    {
+      "all_source_vertex_indices": [
+        962
+      ],
+      "canonical_source_vertex_index": 962,
+      "input_point_id": 963
+    },
+    {
+      "all_source_vertex_indices": [
+        963
+      ],
+      "canonical_source_vertex_index": 963,
+      "input_point_id": 964
+    },
+    {
+      "all_source_vertex_indices": [
+        964
+      ],
+      "canonical_source_vertex_index": 964,
+      "input_point_id": 965
+    },
+    {
+      "all_source_vertex_indices": [
+        965
+      ],
+      "canonical_source_vertex_index": 965,
+      "input_point_id": 966
+    },
+    {
+      "all_source_vertex_indices": [
+        966
+      ],
+      "canonical_source_vertex_index": 966,
+      "input_point_id": 967
+    },
+    {
+      "all_source_vertex_indices": [
+        967
+      ],
+      "canonical_source_vertex_index": 967,
+      "input_point_id": 968
+    },
+    {
+      "all_source_vertex_indices": [
+        968
+      ],
+      "canonical_source_vertex_index": 968,
+      "input_point_id": 969
+    },
+    {
+      "all_source_vertex_indices": [
+        969
+      ],
+      "canonical_source_vertex_index": 969,
+      "input_point_id": 970
+    },
+    {
+      "all_source_vertex_indices": [
+        970
+      ],
+      "canonical_source_vertex_index": 970,
+      "input_point_id": 971
+    },
+    {
+      "all_source_vertex_indices": [
+        971
+      ],
+      "canonical_source_vertex_index": 971,
+      "input_point_id": 972
+    },
+    {
+      "all_source_vertex_indices": [
+        972
+      ],
+      "canonical_source_vertex_index": 972,
+      "input_point_id": 973
+    },
+    {
+      "all_source_vertex_indices": [
+        973
+      ],
+      "canonical_source_vertex_index": 973,
+      "input_point_id": 974
+    },
+    {
+      "all_source_vertex_indices": [
+        974
+      ],
+      "canonical_source_vertex_index": 974,
+      "input_point_id": 975
+    },
+    {
+      "all_source_vertex_indices": [
+        975
+      ],
+      "canonical_source_vertex_index": 975,
+      "input_point_id": 976
+    },
+    {
+      "all_source_vertex_indices": [
+        976
+      ],
+      "canonical_source_vertex_index": 976,
+      "input_point_id": 977
+    },
+    {
+      "all_source_vertex_indices": [
+        977
+      ],
+      "canonical_source_vertex_index": 977,
+      "input_point_id": 978
+    },
+    {
+      "all_source_vertex_indices": [
+        978
+      ],
+      "canonical_source_vertex_index": 978,
+      "input_point_id": 979
+    },
+    {
+      "all_source_vertex_indices": [
+        979
+      ],
+      "canonical_source_vertex_index": 979,
+      "input_point_id": 980
+    },
+    {
+      "all_source_vertex_indices": [
+        980
+      ],
+      "canonical_source_vertex_index": 980,
+      "input_point_id": 981
+    },
+    {
+      "all_source_vertex_indices": [
+        981
+      ],
+      "canonical_source_vertex_index": 981,
+      "input_point_id": 982
+    },
+    {
+      "all_source_vertex_indices": [
+        982
+      ],
+      "canonical_source_vertex_index": 982,
+      "input_point_id": 983
+    },
+    {
+      "all_source_vertex_indices": [
+        983
+      ],
+      "canonical_source_vertex_index": 983,
+      "input_point_id": 984
+    },
+    {
+      "all_source_vertex_indices": [
+        984
+      ],
+      "canonical_source_vertex_index": 984,
+      "input_point_id": 985
+    },
+    {
+      "all_source_vertex_indices": [
+        985
+      ],
+      "canonical_source_vertex_index": 985,
+      "input_point_id": 986
+    },
+    {
+      "all_source_vertex_indices": [
+        986
+      ],
+      "canonical_source_vertex_index": 986,
+      "input_point_id": 987
+    },
+    {
+      "all_source_vertex_indices": [
+        987
+      ],
+      "canonical_source_vertex_index": 987,
+      "input_point_id": 988
+    },
+    {
+      "all_source_vertex_indices": [
+        988
+      ],
+      "canonical_source_vertex_index": 988,
+      "input_point_id": 989
+    },
+    {
+      "all_source_vertex_indices": [
+        989
+      ],
+      "canonical_source_vertex_index": 989,
+      "input_point_id": 990
+    },
+    {
+      "all_source_vertex_indices": [
+        990
+      ],
+      "canonical_source_vertex_index": 990,
+      "input_point_id": 991
+    },
+    {
+      "all_source_vertex_indices": [
+        991
+      ],
+      "canonical_source_vertex_index": 991,
+      "input_point_id": 992
+    },
+    {
+      "all_source_vertex_indices": [
+        992
+      ],
+      "canonical_source_vertex_index": 992,
+      "input_point_id": 993
+    },
+    {
+      "all_source_vertex_indices": [
+        993
+      ],
+      "canonical_source_vertex_index": 993,
+      "input_point_id": 994
+    },
+    {
+      "all_source_vertex_indices": [
+        994
+      ],
+      "canonical_source_vertex_index": 994,
+      "input_point_id": 995
+    },
+    {
+      "all_source_vertex_indices": [
+        995
+      ],
+      "canonical_source_vertex_index": 995,
+      "input_point_id": 996
+    },
+    {
+      "all_source_vertex_indices": [
+        996
+      ],
+      "canonical_source_vertex_index": 996,
+      "input_point_id": 997
+    },
+    {
+      "all_source_vertex_indices": [
+        997
+      ],
+      "canonical_source_vertex_index": 997,
+      "input_point_id": 998
+    },
+    {
+      "all_source_vertex_indices": [
+        998
+      ],
+      "canonical_source_vertex_index": 998,
+      "input_point_id": 999
+    },
+    {
+      "all_source_vertex_indices": [
+        999
+      ],
+      "canonical_source_vertex_index": 999,
+      "input_point_id": 1000
+    },
+    {
+      "all_source_vertex_indices": [
+        1000
+      ],
+      "canonical_source_vertex_index": 1000,
+      "input_point_id": 1001
+    },
+    {
+      "all_source_vertex_indices": [
+        1001
+      ],
+      "canonical_source_vertex_index": 1001,
+      "input_point_id": 1002
+    },
+    {
+      "all_source_vertex_indices": [
+        1002
+      ],
+      "canonical_source_vertex_index": 1002,
+      "input_point_id": 1003
+    },
+    {
+      "all_source_vertex_indices": [
+        1003
+      ],
+      "canonical_source_vertex_index": 1003,
+      "input_point_id": 1004
+    },
+    {
+      "all_source_vertex_indices": [
+        1004
+      ],
+      "canonical_source_vertex_index": 1004,
+      "input_point_id": 1005
+    },
+    {
+      "all_source_vertex_indices": [
+        1005
+      ],
+      "canonical_source_vertex_index": 1005,
+      "input_point_id": 1006
+    },
+    {
+      "all_source_vertex_indices": [
+        1006
+      ],
+      "canonical_source_vertex_index": 1006,
+      "input_point_id": 1007
+    },
+    {
+      "all_source_vertex_indices": [
+        1007
+      ],
+      "canonical_source_vertex_index": 1007,
+      "input_point_id": 1008
+    },
+    {
+      "all_source_vertex_indices": [
+        1008
+      ],
+      "canonical_source_vertex_index": 1008,
+      "input_point_id": 1009
+    },
+    {
+      "all_source_vertex_indices": [
+        1009
+      ],
+      "canonical_source_vertex_index": 1009,
+      "input_point_id": 1010
+    },
+    {
+      "all_source_vertex_indices": [
+        1010
+      ],
+      "canonical_source_vertex_index": 1010,
+      "input_point_id": 1011
+    },
+    {
+      "all_source_vertex_indices": [
+        1011
+      ],
+      "canonical_source_vertex_index": 1011,
+      "input_point_id": 1012
+    },
+    {
+      "all_source_vertex_indices": [
+        1012
+      ],
+      "canonical_source_vertex_index": 1012,
+      "input_point_id": 1013
+    },
+    {
+      "all_source_vertex_indices": [
+        1013
+      ],
+      "canonical_source_vertex_index": 1013,
+      "input_point_id": 1014
+    },
+    {
+      "all_source_vertex_indices": [
+        1014
+      ],
+      "canonical_source_vertex_index": 1014,
+      "input_point_id": 1015
+    },
+    {
+      "all_source_vertex_indices": [
+        1015
+      ],
+      "canonical_source_vertex_index": 1015,
+      "input_point_id": 1016
+    },
+    {
+      "all_source_vertex_indices": [
+        1016
+      ],
+      "canonical_source_vertex_index": 1016,
+      "input_point_id": 1017
+    },
+    {
+      "all_source_vertex_indices": [
+        1017
+      ],
+      "canonical_source_vertex_index": 1017,
+      "input_point_id": 1018
+    },
+    {
+      "all_source_vertex_indices": [
+        1018
+      ],
+      "canonical_source_vertex_index": 1018,
+      "input_point_id": 1019
+    },
+    {
+      "all_source_vertex_indices": [
+        1019
+      ],
+      "canonical_source_vertex_index": 1019,
+      "input_point_id": 1020
+    },
+    {
+      "all_source_vertex_indices": [
+        1020
+      ],
+      "canonical_source_vertex_index": 1020,
+      "input_point_id": 1021
+    },
+    {
+      "all_source_vertex_indices": [
+        1021
+      ],
+      "canonical_source_vertex_index": 1021,
+      "input_point_id": 1022
+    },
+    {
+      "all_source_vertex_indices": [
+        1022
+      ],
+      "canonical_source_vertex_index": 1022,
+      "input_point_id": 1023
+    },
+    {
+      "all_source_vertex_indices": [
+        1023
+      ],
+      "canonical_source_vertex_index": 1023,
+      "input_point_id": 1024
+    },
+    {
+      "all_source_vertex_indices": [
+        1024
+      ],
+      "canonical_source_vertex_index": 1024,
+      "input_point_id": 1025
+    },
+    {
+      "all_source_vertex_indices": [
+        1025
+      ],
+      "canonical_source_vertex_index": 1025,
+      "input_point_id": 1026
+    },
+    {
+      "all_source_vertex_indices": [
+        1026
+      ],
+      "canonical_source_vertex_index": 1026,
+      "input_point_id": 1027
+    },
+    {
+      "all_source_vertex_indices": [
+        1027
+      ],
+      "canonical_source_vertex_index": 1027,
+      "input_point_id": 1028
+    },
+    {
+      "all_source_vertex_indices": [
+        1028
+      ],
+      "canonical_source_vertex_index": 1028,
+      "input_point_id": 1029
+    },
+    {
+      "all_source_vertex_indices": [
+        1029
+      ],
+      "canonical_source_vertex_index": 1029,
+      "input_point_id": 1030
+    },
+    {
+      "all_source_vertex_indices": [
+        1030
+      ],
+      "canonical_source_vertex_index": 1030,
+      "input_point_id": 1031
+    },
+    {
+      "all_source_vertex_indices": [
+        1031
+      ],
+      "canonical_source_vertex_index": 1031,
+      "input_point_id": 1032
+    },
+    {
+      "all_source_vertex_indices": [
+        1032
+      ],
+      "canonical_source_vertex_index": 1032,
+      "input_point_id": 1033
+    },
+    {
+      "all_source_vertex_indices": [
+        1033
+      ],
+      "canonical_source_vertex_index": 1033,
+      "input_point_id": 1034
+    },
+    {
+      "all_source_vertex_indices": [
+        1034
+      ],
+      "canonical_source_vertex_index": 1034,
+      "input_point_id": 1035
+    },
+    {
+      "all_source_vertex_indices": [
+        1035
+      ],
+      "canonical_source_vertex_index": 1035,
+      "input_point_id": 1036
+    },
+    {
+      "all_source_vertex_indices": [
+        1036
+      ],
+      "canonical_source_vertex_index": 1036,
+      "input_point_id": 1037
+    },
+    {
+      "all_source_vertex_indices": [
+        1037
+      ],
+      "canonical_source_vertex_index": 1037,
+      "input_point_id": 1038
+    },
+    {
+      "all_source_vertex_indices": [
+        1038
+      ],
+      "canonical_source_vertex_index": 1038,
+      "input_point_id": 1039
+    },
+    {
+      "all_source_vertex_indices": [
+        1039
+      ],
+      "canonical_source_vertex_index": 1039,
+      "input_point_id": 1040
+    },
+    {
+      "all_source_vertex_indices": [
+        1040
+      ],
+      "canonical_source_vertex_index": 1040,
+      "input_point_id": 1041
+    },
+    {
+      "all_source_vertex_indices": [
+        1041
+      ],
+      "canonical_source_vertex_index": 1041,
+      "input_point_id": 1042
+    },
+    {
+      "all_source_vertex_indices": [
+        1042
+      ],
+      "canonical_source_vertex_index": 1042,
+      "input_point_id": 1043
+    },
+    {
+      "all_source_vertex_indices": [
+        1043
+      ],
+      "canonical_source_vertex_index": 1043,
+      "input_point_id": 1044
+    },
+    {
+      "all_source_vertex_indices": [
+        1044
+      ],
+      "canonical_source_vertex_index": 1044,
+      "input_point_id": 1045
+    },
+    {
+      "all_source_vertex_indices": [
+        1045
+      ],
+      "canonical_source_vertex_index": 1045,
+      "input_point_id": 1046
+    },
+    {
+      "all_source_vertex_indices": [
+        1046
+      ],
+      "canonical_source_vertex_index": 1046,
+      "input_point_id": 1047
+    },
+    {
+      "all_source_vertex_indices": [
+        1047
+      ],
+      "canonical_source_vertex_index": 1047,
+      "input_point_id": 1048
+    },
+    {
+      "all_source_vertex_indices": [
+        1048
+      ],
+      "canonical_source_vertex_index": 1048,
+      "input_point_id": 1049
+    },
+    {
+      "all_source_vertex_indices": [
+        1049
+      ],
+      "canonical_source_vertex_index": 1049,
+      "input_point_id": 1050
+    },
+    {
+      "all_source_vertex_indices": [
+        1050
+      ],
+      "canonical_source_vertex_index": 1050,
+      "input_point_id": 1051
+    },
+    {
+      "all_source_vertex_indices": [
+        1051
+      ],
+      "canonical_source_vertex_index": 1051,
+      "input_point_id": 1052
+    },
+    {
+      "all_source_vertex_indices": [
+        1052
+      ],
+      "canonical_source_vertex_index": 1052,
+      "input_point_id": 1053
+    },
+    {
+      "all_source_vertex_indices": [
+        1053
+      ],
+      "canonical_source_vertex_index": 1053,
+      "input_point_id": 1054
+    },
+    {
+      "all_source_vertex_indices": [
+        1054
+      ],
+      "canonical_source_vertex_index": 1054,
+      "input_point_id": 1055
+    },
+    {
+      "all_source_vertex_indices": [
+        1055
+      ],
+      "canonical_source_vertex_index": 1055,
+      "input_point_id": 1056
+    },
+    {
+      "all_source_vertex_indices": [
+        1056
+      ],
+      "canonical_source_vertex_index": 1056,
+      "input_point_id": 1057
+    },
+    {
+      "all_source_vertex_indices": [
+        1057
+      ],
+      "canonical_source_vertex_index": 1057,
+      "input_point_id": 1058
+    },
+    {
+      "all_source_vertex_indices": [
+        1058
+      ],
+      "canonical_source_vertex_index": 1058,
+      "input_point_id": 1059
+    },
+    {
+      "all_source_vertex_indices": [
+        1059
+      ],
+      "canonical_source_vertex_index": 1059,
+      "input_point_id": 1060
+    },
+    {
+      "all_source_vertex_indices": [
+        1060
+      ],
+      "canonical_source_vertex_index": 1060,
+      "input_point_id": 1061
+    },
+    {
+      "all_source_vertex_indices": [
+        1061
+      ],
+      "canonical_source_vertex_index": 1061,
+      "input_point_id": 1062
+    },
+    {
+      "all_source_vertex_indices": [
+        1062
+      ],
+      "canonical_source_vertex_index": 1062,
+      "input_point_id": 1063
+    },
+    {
+      "all_source_vertex_indices": [
+        1063
+      ],
+      "canonical_source_vertex_index": 1063,
+      "input_point_id": 1064
+    },
+    {
+      "all_source_vertex_indices": [
+        1064
+      ],
+      "canonical_source_vertex_index": 1064,
+      "input_point_id": 1065
+    },
+    {
+      "all_source_vertex_indices": [
+        1065
+      ],
+      "canonical_source_vertex_index": 1065,
+      "input_point_id": 1066
+    },
+    {
+      "all_source_vertex_indices": [
+        1066
+      ],
+      "canonical_source_vertex_index": 1066,
+      "input_point_id": 1067
+    },
+    {
+      "all_source_vertex_indices": [
+        1067
+      ],
+      "canonical_source_vertex_index": 1067,
+      "input_point_id": 1068
+    },
+    {
+      "all_source_vertex_indices": [
+        1068
+      ],
+      "canonical_source_vertex_index": 1068,
+      "input_point_id": 1069
+    },
+    {
+      "all_source_vertex_indices": [
+        1069
+      ],
+      "canonical_source_vertex_index": 1069,
+      "input_point_id": 1070
+    },
+    {
+      "all_source_vertex_indices": [
+        1070
+      ],
+      "canonical_source_vertex_index": 1070,
+      "input_point_id": 1071
+    },
+    {
+      "all_source_vertex_indices": [
+        1071
+      ],
+      "canonical_source_vertex_index": 1071,
+      "input_point_id": 1072
+    },
+    {
+      "all_source_vertex_indices": [
+        1072
+      ],
+      "canonical_source_vertex_index": 1072,
+      "input_point_id": 1073
+    },
+    {
+      "all_source_vertex_indices": [
+        1073
+      ],
+      "canonical_source_vertex_index": 1073,
+      "input_point_id": 1074
+    },
+    {
+      "all_source_vertex_indices": [
+        1074
+      ],
+      "canonical_source_vertex_index": 1074,
+      "input_point_id": 1075
+    },
+    {
+      "all_source_vertex_indices": [
+        1075
+      ],
+      "canonical_source_vertex_index": 1075,
+      "input_point_id": 1076
+    },
+    {
+      "all_source_vertex_indices": [
+        1076
+      ],
+      "canonical_source_vertex_index": 1076,
+      "input_point_id": 1077
+    },
+    {
+      "all_source_vertex_indices": [
+        1077
+      ],
+      "canonical_source_vertex_index": 1077,
+      "input_point_id": 1078
+    },
+    {
+      "all_source_vertex_indices": [
+        1078
+      ],
+      "canonical_source_vertex_index": 1078,
+      "input_point_id": 1079
+    },
+    {
+      "all_source_vertex_indices": [
+        1079
+      ],
+      "canonical_source_vertex_index": 1079,
+      "input_point_id": 1080
+    },
+    {
+      "all_source_vertex_indices": [
+        1080
+      ],
+      "canonical_source_vertex_index": 1080,
+      "input_point_id": 1081
+    },
+    {
+      "all_source_vertex_indices": [
+        1081
+      ],
+      "canonical_source_vertex_index": 1081,
+      "input_point_id": 1082
+    },
+    {
+      "all_source_vertex_indices": [
+        1082,
+        1191
+      ],
+      "canonical_source_vertex_index": 1082,
+      "input_point_id": 1083
+    },
+    {
+      "all_source_vertex_indices": [
+        1083
+      ],
+      "canonical_source_vertex_index": 1083,
+      "input_point_id": 1084
+    },
+    {
+      "all_source_vertex_indices": [
+        1084
+      ],
+      "canonical_source_vertex_index": 1084,
+      "input_point_id": 1085
+    },
+    {
+      "all_source_vertex_indices": [
+        1085
+      ],
+      "canonical_source_vertex_index": 1085,
+      "input_point_id": 1086
+    },
+    {
+      "all_source_vertex_indices": [
+        1086
+      ],
+      "canonical_source_vertex_index": 1086,
+      "input_point_id": 1087
+    },
+    {
+      "all_source_vertex_indices": [
+        1087
+      ],
+      "canonical_source_vertex_index": 1087,
+      "input_point_id": 1088
+    },
+    {
+      "all_source_vertex_indices": [
+        1088
+      ],
+      "canonical_source_vertex_index": 1088,
+      "input_point_id": 1089
+    },
+    {
+      "all_source_vertex_indices": [
+        1089
+      ],
+      "canonical_source_vertex_index": 1089,
+      "input_point_id": 1090
+    },
+    {
+      "all_source_vertex_indices": [
+        1090
+      ],
+      "canonical_source_vertex_index": 1090,
+      "input_point_id": 1091
+    },
+    {
+      "all_source_vertex_indices": [
+        1091
+      ],
+      "canonical_source_vertex_index": 1091,
+      "input_point_id": 1092
+    },
+    {
+      "all_source_vertex_indices": [
+        1092
+      ],
+      "canonical_source_vertex_index": 1092,
+      "input_point_id": 1093
+    },
+    {
+      "all_source_vertex_indices": [
+        1093
+      ],
+      "canonical_source_vertex_index": 1093,
+      "input_point_id": 1094
+    },
+    {
+      "all_source_vertex_indices": [
+        1094
+      ],
+      "canonical_source_vertex_index": 1094,
+      "input_point_id": 1095
+    },
+    {
+      "all_source_vertex_indices": [
+        1095
+      ],
+      "canonical_source_vertex_index": 1095,
+      "input_point_id": 1096
+    },
+    {
+      "all_source_vertex_indices": [
+        1096
+      ],
+      "canonical_source_vertex_index": 1096,
+      "input_point_id": 1097
+    },
+    {
+      "all_source_vertex_indices": [
+        1097
+      ],
+      "canonical_source_vertex_index": 1097,
+      "input_point_id": 1098
+    },
+    {
+      "all_source_vertex_indices": [
+        1098,
+        1192
+      ],
+      "canonical_source_vertex_index": 1098,
+      "input_point_id": 1099
+    },
+    {
+      "all_source_vertex_indices": [
+        1099
+      ],
+      "canonical_source_vertex_index": 1099,
+      "input_point_id": 1100
+    },
+    {
+      "all_source_vertex_indices": [
+        1100
+      ],
+      "canonical_source_vertex_index": 1100,
+      "input_point_id": 1101
+    },
+    {
+      "all_source_vertex_indices": [
+        1101
+      ],
+      "canonical_source_vertex_index": 1101,
+      "input_point_id": 1102
+    },
+    {
+      "all_source_vertex_indices": [
+        1102
+      ],
+      "canonical_source_vertex_index": 1102,
+      "input_point_id": 1103
+    },
+    {
+      "all_source_vertex_indices": [
+        1103
+      ],
+      "canonical_source_vertex_index": 1103,
+      "input_point_id": 1104
+    },
+    {
+      "all_source_vertex_indices": [
+        1104
+      ],
+      "canonical_source_vertex_index": 1104,
+      "input_point_id": 1105
+    },
+    {
+      "all_source_vertex_indices": [
+        1105
+      ],
+      "canonical_source_vertex_index": 1105,
+      "input_point_id": 1106
+    },
+    {
+      "all_source_vertex_indices": [
+        1106,
+        1193
+      ],
+      "canonical_source_vertex_index": 1106,
+      "input_point_id": 1107
+    },
+    {
+      "all_source_vertex_indices": [
+        1107
+      ],
+      "canonical_source_vertex_index": 1107,
+      "input_point_id": 1108
+    },
+    {
+      "all_source_vertex_indices": [
+        1108
+      ],
+      "canonical_source_vertex_index": 1108,
+      "input_point_id": 1109
+    },
+    {
+      "all_source_vertex_indices": [
+        1109,
+        1194
+      ],
+      "canonical_source_vertex_index": 1109,
+      "input_point_id": 1110
+    },
+    {
+      "all_source_vertex_indices": [
+        1110,
+        1195
+      ],
+      "canonical_source_vertex_index": 1110,
+      "input_point_id": 1111
+    },
+    {
+      "all_source_vertex_indices": [
+        1111,
+        1196
+      ],
+      "canonical_source_vertex_index": 1111,
+      "input_point_id": 1112
+    },
+    {
+      "all_source_vertex_indices": [
+        1112
+      ],
+      "canonical_source_vertex_index": 1112,
+      "input_point_id": 1113
+    },
+    {
+      "all_source_vertex_indices": [
+        1113,
+        1197
+      ],
+      "canonical_source_vertex_index": 1113,
+      "input_point_id": 1114
+    },
+    {
+      "all_source_vertex_indices": [
+        1114,
+        1198
+      ],
+      "canonical_source_vertex_index": 1114,
+      "input_point_id": 1115
+    },
+    {
+      "all_source_vertex_indices": [
+        1115
+      ],
+      "canonical_source_vertex_index": 1115,
+      "input_point_id": 1116
+    },
+    {
+      "all_source_vertex_indices": [
+        1116
+      ],
+      "canonical_source_vertex_index": 1116,
+      "input_point_id": 1117
+    },
+    {
+      "all_source_vertex_indices": [
+        1117
+      ],
+      "canonical_source_vertex_index": 1117,
+      "input_point_id": 1118
+    },
+    {
+      "all_source_vertex_indices": [
+        1118,
+        1199
+      ],
+      "canonical_source_vertex_index": 1118,
+      "input_point_id": 1119
+    },
+    {
+      "all_source_vertex_indices": [
+        1119
+      ],
+      "canonical_source_vertex_index": 1119,
+      "input_point_id": 1120
+    },
+    {
+      "all_source_vertex_indices": [
+        1120,
+        1200
+      ],
+      "canonical_source_vertex_index": 1120,
+      "input_point_id": 1121
+    },
+    {
+      "all_source_vertex_indices": [
+        1121
+      ],
+      "canonical_source_vertex_index": 1121,
+      "input_point_id": 1122
+    },
+    {
+      "all_source_vertex_indices": [
+        1122
+      ],
+      "canonical_source_vertex_index": 1122,
+      "input_point_id": 1123
+    },
+    {
+      "all_source_vertex_indices": [
+        1123
+      ],
+      "canonical_source_vertex_index": 1123,
+      "input_point_id": 1124
+    },
+    {
+      "all_source_vertex_indices": [
+        1124
+      ],
+      "canonical_source_vertex_index": 1124,
+      "input_point_id": 1125
+    },
+    {
+      "all_source_vertex_indices": [
+        1125
+      ],
+      "canonical_source_vertex_index": 1125,
+      "input_point_id": 1126
+    },
+    {
+      "all_source_vertex_indices": [
+        1126
+      ],
+      "canonical_source_vertex_index": 1126,
+      "input_point_id": 1127
+    },
+    {
+      "all_source_vertex_indices": [
+        1127,
+        1201
+      ],
+      "canonical_source_vertex_index": 1127,
+      "input_point_id": 1128
+    },
+    {
+      "all_source_vertex_indices": [
+        1128
+      ],
+      "canonical_source_vertex_index": 1128,
+      "input_point_id": 1129
+    },
+    {
+      "all_source_vertex_indices": [
+        1129
+      ],
+      "canonical_source_vertex_index": 1129,
+      "input_point_id": 1130
+    },
+    {
+      "all_source_vertex_indices": [
+        1130
+      ],
+      "canonical_source_vertex_index": 1130,
+      "input_point_id": 1131
+    },
+    {
+      "all_source_vertex_indices": [
+        1131
+      ],
+      "canonical_source_vertex_index": 1131,
+      "input_point_id": 1132
+    },
+    {
+      "all_source_vertex_indices": [
+        1132,
+        1202
+      ],
+      "canonical_source_vertex_index": 1132,
+      "input_point_id": 1133
+    },
+    {
+      "all_source_vertex_indices": [
+        1133
+      ],
+      "canonical_source_vertex_index": 1133,
+      "input_point_id": 1134
+    },
+    {
+      "all_source_vertex_indices": [
+        1134,
+        1203
+      ],
+      "canonical_source_vertex_index": 1134,
+      "input_point_id": 1135
+    },
+    {
+      "all_source_vertex_indices": [
+        1135
+      ],
+      "canonical_source_vertex_index": 1135,
+      "input_point_id": 1136
+    },
+    {
+      "all_source_vertex_indices": [
+        1136,
+        1204
+      ],
+      "canonical_source_vertex_index": 1136,
+      "input_point_id": 1137
+    },
+    {
+      "all_source_vertex_indices": [
+        1137
+      ],
+      "canonical_source_vertex_index": 1137,
+      "input_point_id": 1138
+    },
+    {
+      "all_source_vertex_indices": [
+        1138,
+        1205
+      ],
+      "canonical_source_vertex_index": 1138,
+      "input_point_id": 1139
+    },
+    {
+      "all_source_vertex_indices": [
+        1139
+      ],
+      "canonical_source_vertex_index": 1139,
+      "input_point_id": 1140
+    },
+    {
+      "all_source_vertex_indices": [
+        1140,
+        1206
+      ],
+      "canonical_source_vertex_index": 1140,
+      "input_point_id": 1141
+    },
+    {
+      "all_source_vertex_indices": [
+        1141,
+        1207
+      ],
+      "canonical_source_vertex_index": 1141,
+      "input_point_id": 1142
+    },
+    {
+      "all_source_vertex_indices": [
+        1142
+      ],
+      "canonical_source_vertex_index": 1142,
+      "input_point_id": 1143
+    },
+    {
+      "all_source_vertex_indices": [
+        1143
+      ],
+      "canonical_source_vertex_index": 1143,
+      "input_point_id": 1144
+    },
+    {
+      "all_source_vertex_indices": [
+        1144,
+        1208
+      ],
+      "canonical_source_vertex_index": 1144,
+      "input_point_id": 1145
+    },
+    {
+      "all_source_vertex_indices": [
+        1145
+      ],
+      "canonical_source_vertex_index": 1145,
+      "input_point_id": 1146
+    },
+    {
+      "all_source_vertex_indices": [
+        1146,
+        1209
+      ],
+      "canonical_source_vertex_index": 1146,
+      "input_point_id": 1147
+    },
+    {
+      "all_source_vertex_indices": [
+        1147,
+        1210,
+        1211
+      ],
+      "canonical_source_vertex_index": 1147,
+      "input_point_id": 1148
+    },
+    {
+      "all_source_vertex_indices": [
+        1148,
+        1212,
+        1213,
+        1214
+      ],
+      "canonical_source_vertex_index": 1148,
+      "input_point_id": 1149
+    },
+    {
+      "all_source_vertex_indices": [
+        1149,
+        1215
+      ],
+      "canonical_source_vertex_index": 1149,
+      "input_point_id": 1150
+    },
+    {
+      "all_source_vertex_indices": [
+        1150,
+        1216,
+        1217
+      ],
+      "canonical_source_vertex_index": 1150,
+      "input_point_id": 1151
+    },
+    {
+      "all_source_vertex_indices": [
+        1151,
+        1218,
+        1219
+      ],
+      "canonical_source_vertex_index": 1151,
+      "input_point_id": 1152
+    },
+    {
+      "all_source_vertex_indices": [
+        1152,
+        1220
+      ],
+      "canonical_source_vertex_index": 1152,
+      "input_point_id": 1153
+    },
+    {
+      "all_source_vertex_indices": [
+        1153,
+        1221,
+        1222,
+        1223,
+        1224
+      ],
+      "canonical_source_vertex_index": 1153,
+      "input_point_id": 1154
+    },
+    {
+      "all_source_vertex_indices": [
+        1154
+      ],
+      "canonical_source_vertex_index": 1154,
+      "input_point_id": 1155
+    },
+    {
+      "all_source_vertex_indices": [
+        1155
+      ],
+      "canonical_source_vertex_index": 1155,
+      "input_point_id": 1156
+    },
+    {
+      "all_source_vertex_indices": [
+        1156
+      ],
+      "canonical_source_vertex_index": 1156,
+      "input_point_id": 1157
+    },
+    {
+      "all_source_vertex_indices": [
+        1157
+      ],
+      "canonical_source_vertex_index": 1157,
+      "input_point_id": 1158
+    },
+    {
+      "all_source_vertex_indices": [
+        1158
+      ],
+      "canonical_source_vertex_index": 1158,
+      "input_point_id": 1159
+    },
+    {
+      "all_source_vertex_indices": [
+        1159
+      ],
+      "canonical_source_vertex_index": 1159,
+      "input_point_id": 1160
+    },
+    {
+      "all_source_vertex_indices": [
+        1160
+      ],
+      "canonical_source_vertex_index": 1160,
+      "input_point_id": 1161
+    },
+    {
+      "all_source_vertex_indices": [
+        1161,
+        1225
+      ],
+      "canonical_source_vertex_index": 1161,
+      "input_point_id": 1162
+    },
+    {
+      "all_source_vertex_indices": [
+        1162
+      ],
+      "canonical_source_vertex_index": 1162,
+      "input_point_id": 1163
+    },
+    {
+      "all_source_vertex_indices": [
+        1163
+      ],
+      "canonical_source_vertex_index": 1163,
+      "input_point_id": 1164
+    },
+    {
+      "all_source_vertex_indices": [
+        1164,
+        1226
+      ],
+      "canonical_source_vertex_index": 1164,
+      "input_point_id": 1165
+    },
+    {
+      "all_source_vertex_indices": [
+        1165,
+        1227
+      ],
+      "canonical_source_vertex_index": 1165,
+      "input_point_id": 1166
+    },
+    {
+      "all_source_vertex_indices": [
+        1166
+      ],
+      "canonical_source_vertex_index": 1166,
+      "input_point_id": 1167
+    },
+    {
+      "all_source_vertex_indices": [
+        1167,
+        1228
+      ],
+      "canonical_source_vertex_index": 1167,
+      "input_point_id": 1168
+    },
+    {
+      "all_source_vertex_indices": [
+        1168
+      ],
+      "canonical_source_vertex_index": 1168,
+      "input_point_id": 1169
+    },
+    {
+      "all_source_vertex_indices": [
+        1169
+      ],
+      "canonical_source_vertex_index": 1169,
+      "input_point_id": 1170
+    },
+    {
+      "all_source_vertex_indices": [
+        1170,
+        1229
+      ],
+      "canonical_source_vertex_index": 1170,
+      "input_point_id": 1171
+    },
+    {
+      "all_source_vertex_indices": [
+        1171
+      ],
+      "canonical_source_vertex_index": 1171,
+      "input_point_id": 1172
+    },
+    {
+      "all_source_vertex_indices": [
+        1172
+      ],
+      "canonical_source_vertex_index": 1172,
+      "input_point_id": 1173
+    },
+    {
+      "all_source_vertex_indices": [
+        1173,
+        1230
+      ],
+      "canonical_source_vertex_index": 1173,
+      "input_point_id": 1174
+    },
+    {
+      "all_source_vertex_indices": [
+        1174
+      ],
+      "canonical_source_vertex_index": 1174,
+      "input_point_id": 1175
+    },
+    {
+      "all_source_vertex_indices": [
+        1175
+      ],
+      "canonical_source_vertex_index": 1175,
+      "input_point_id": 1176
+    },
+    {
+      "all_source_vertex_indices": [
+        1176
+      ],
+      "canonical_source_vertex_index": 1176,
+      "input_point_id": 1177
+    },
+    {
+      "all_source_vertex_indices": [
+        1177,
+        1231
+      ],
+      "canonical_source_vertex_index": 1177,
+      "input_point_id": 1178
+    },
+    {
+      "all_source_vertex_indices": [
+        1178,
+        1232
+      ],
+      "canonical_source_vertex_index": 1178,
+      "input_point_id": 1179
+    },
+    {
+      "all_source_vertex_indices": [
+        1179
+      ],
+      "canonical_source_vertex_index": 1179,
+      "input_point_id": 1180
+    },
+    {
+      "all_source_vertex_indices": [
+        1180,
+        1233
+      ],
+      "canonical_source_vertex_index": 1180,
+      "input_point_id": 1181
+    },
+    {
+      "all_source_vertex_indices": [
+        1181
+      ],
+      "canonical_source_vertex_index": 1181,
+      "input_point_id": 1182
+    },
+    {
+      "all_source_vertex_indices": [
+        1182,
+        1234
+      ],
+      "canonical_source_vertex_index": 1182,
+      "input_point_id": 1183
+    },
+    {
+      "all_source_vertex_indices": [
+        1183
+      ],
+      "canonical_source_vertex_index": 1183,
+      "input_point_id": 1184
+    },
+    {
+      "all_source_vertex_indices": [
+        1184,
+        1235
+      ],
+      "canonical_source_vertex_index": 1184,
+      "input_point_id": 1185
+    },
+    {
+      "all_source_vertex_indices": [
+        1185
+      ],
+      "canonical_source_vertex_index": 1185,
+      "input_point_id": 1186
+    },
+    {
+      "all_source_vertex_indices": [
+        1186,
+        1236
+      ],
+      "canonical_source_vertex_index": 1186,
+      "input_point_id": 1187
+    },
+    {
+      "all_source_vertex_indices": [
+        1187,
+        1237
+      ],
+      "canonical_source_vertex_index": 1187,
+      "input_point_id": 1188
+    },
+    {
+      "all_source_vertex_indices": [
+        1188,
+        1238
+      ],
+      "canonical_source_vertex_index": 1188,
+      "input_point_id": 1189
+    },
+    {
+      "all_source_vertex_indices": [
+        1189,
+        1239
+      ],
+      "canonical_source_vertex_index": 1189,
+      "input_point_id": 1190
+    },
+    {
+      "all_source_vertex_indices": [
+        1190,
+        1240,
+        1241
+      ],
+      "canonical_source_vertex_index": 1190,
+      "input_point_id": 1191
+    }
+  ]
+}

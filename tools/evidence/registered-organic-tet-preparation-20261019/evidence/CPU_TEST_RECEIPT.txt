@@ -1,0 +1,41 @@
+PRE-PUBLICATION RECEIPT: this run compiled the isolated organic helper from the bundled 242 header and the byte-identical canonical coarse helper. The final runner now requires both helper headers to be materialized in W/apps and will compile only those canonical paths; re-run it after materialization for the publication-path check.
+
+Run UTC: 2026-10-19T02:27:58Z
+Base: 3059af430d0feaa7ce4af3c59fbc1ba9b04a214c
+Compiler: Apple clang version 21.0.0 (clang-2100.3.34.2)
+Command: ./tests/run_tetgen_organic_fem_cpu.sh
+
+assets/FJ1772/FJ1772-vertex-aliases.json: OK
+assets/FJ1772/FJ1772.1.ele: OK
+assets/FJ1772/FJ1772.1.face: OK
+assets/FJ1772/FJ1772.1.node: OK
+assets/FJ1772/FJ1772.poly: OK
+assets/FJ1819/FJ1819-vertex-aliases.json: OK
+assets/FJ1819/FJ1819.1.ele: OK
+assets/FJ1819/FJ1819.1.face: OK
+assets/FJ1819/FJ1819.1.node: OK
+assets/FJ1819/FJ1819.poly: OK
+source/apps/NumiHumanCoarseTissuePreparation.hpp: OK
+source/apps/NumiHumanTetGenOrganicFEM.hpp: OK
+source/matter/materials/human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter: OK
+tests/test_tetgen_organic_fem.cpp: OK
+tests/run_tetgen_organic_fem_cpu.sh: OK
+FJ1772 PASS nodes=1728 tets=7675 boundary=2376 volume_m3=7.49287e-07 mass_kg=0.000749287 residual_kg=-2.1684e-19
+FJ1772 inverted tet fail-closed PASS: tet element must have finite positive signed volume in double and runtime Float32 current and reference coordinates
+FJ1772 duplicate tet fail-closed PASS: registered tet complex contains duplicate tetrahedra
+FJ1772 current Float32 collapse fail-closed PASS: tet element must have finite positive signed volume in double and runtime Float32 current and reference coordinates
+FJ1772 same-side shared face fail-closed PASS: shared tetrahedron face orientation is inconsistent
+FJ1819 PASS nodes=1701 tets=7423 boundary=2378 volume_m3=7.48879e-07 mass_kg=0.000748879 residual_kg=1.0842e-19
+FJ1819 inverted tet fail-closed PASS: tet element must have finite positive signed volume in double and runtime Float32 current and reference coordinates
+FJ1819 duplicate tet fail-closed PASS: registered tet complex contains duplicate tetrahedra
+FJ1819 current Float32 collapse fail-closed PASS: tet element must have finite positive signed volume in double and runtime Float32 current and reference coordinates
+FJ1819 same-side shared face fail-closed PASS: shared tetrahedron face orientation is inconsistent
+
+CANONICAL POST-MATERIALIZATION RECEIPT
+Run UTC: 2026-10-19T02:36:59Z
+Base: 3059af430d0feaa7ce4af3c59fbc1ba9b04a214c (required base 3059af430d0feaa7ce4af3c59fbc1ba9b04a214c)
+Runner: tests/run_tetgen_organic_fem_cpu.sh
+Source mode: runner compared bundled header copies byte-for-byte with canonical W/apps headers and compiled only canonical include paths.
+Canonical helper comparison: PASS (coarse SHA 16c90acd50ec4899a5fabd64341a93b0f7b232efce9d14d76b73bd33b1587dc6; organic SHA 1b5d04dd1cf5b5f3d1e83b7e8ff9696ce824c862f245c4b54875efa54fb1ea5e).
+Bilateral geometry cases: FJ1772 1728 nodes/7675 tets, volume 7.49287e-7 m3, mass 0.000749287 kg, closure residual -2.1684e-19 kg; FJ1819 1701 nodes/7423 tets, volume 7.48879e-7 m3, mass 0.000748879 kg, closure residual 1.0842e-19 kg.
+Both passed positive finite Double and runtime Float32 tetra checks, closed oriented boundary, exact ancestry validation, and rejection cases for inverted, duplicate, Float32-collapsed and inconsistent same-side shared-face tetrahedra. CPU only; offline preparation fixtures, not live NHA anatomy integration.

@@ -1,0 +1,31 @@
+// Passive material proxy for the BodyParts3D optic-nerve source volumes.
+// Park et al. tested fresh postmortem human ON specimens in longitudinal
+// uniaxial tension. Preconditioned ON tangent modulus at 3% strain was
+// 3.4 +/- 2.2 MPa (mean +/- SD); it was 6.3 +/- 3.3 MPa at 7% strain.
+// Park et al., Biomech Model Mechanobiol. 2021;20:1353-1363.
+// DOI 10.1007/s10237-021-01448-2; PMCID PMC8298341 (CC BY 4.0).
+// https://pmc.ncbi.nlm.nih.gov/articles/PMC8298341/
+// This uses E3%=3.4 MPa as an effective low-strain input, not a fit to this
+// anatomical mesh. E +/- 1 SD gives 1.2-5.6 MPa; it is a sensitivity range,
+// not a confidence interval. The tissue is heterogeneous and nonlinear; the
+// reported tests were uniaxial and do not identify transverse behavior.
+// An isotropic compressible neo-Hookean law is an explicit continuum proxy.
+// nu=0.49 is an unmeasured near-incompressibility assumption, so shear=E/
+// [2(1+nu)] and bulk=E/[3(1-2nu)]. The model has no fibre anisotropy,
+// viscoelasticity, axon-scale mechanics, subject-specific calibration, or
+// neural/clinical function. Density 1000 kg/m^3 and its [900,1100] interval
+// are reference mass assumptions; runtime admission must debit an existing
+// donor and close mass. Interface values match the existing passive tissue
+// contact owner convention; they are not optic-nerve interface measurements.
+material human_optic_nerve_longitudinal_low_strain_isotropic_effective {
+    parameter density : kg/m^3 = 1000 in [900, 1100] log;
+    parameter shear : MPa = 1.140939597 in [0.402684564, 1.879194631] log;
+    parameter bulk : MPa = 56.6666667 in [20.0, 93.3333333] log;
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    valid = J() - 0.35;
+    supports fem;
+    interface { static_friction = 0.05; dynamic_friction = 0.03; restitution = 0.0; adhesion = 0.0; }
+    limits { minimum_J = 0.35; maximum_J = 2.5; maximum_stress = 5e7; maximum_energy_density = 5e7; }
+}

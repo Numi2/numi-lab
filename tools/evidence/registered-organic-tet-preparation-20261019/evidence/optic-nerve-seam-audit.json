@@ -1,0 +1,403 @@
+{
+  "authoritative_is_a_rows": [
+    [
+      "FMA5913",
+      "nerve trunk",
+      "FJ1772"
+    ],
+    [
+      "FMA5913",
+      "nerve trunk",
+      "FJ1819"
+    ],
+    [
+      "FMA11195",
+      "segment of neural tree organ",
+      "FJ1772"
+    ],
+    [
+      "FMA11195",
+      "segment of neural tree organ",
+      "FJ1819"
+    ],
+    [
+      "FMA50863",
+      "optic nerve",
+      "FJ1772"
+    ],
+    [
+      "FMA50863",
+      "optic nerve",
+      "FJ1819"
+    ],
+    [
+      "FMA50875",
+      "right optic nerve",
+      "FJ1819"
+    ],
+    [
+      "FMA50878",
+      "left optic nerve",
+      "FJ1772"
+    ],
+    [
+      "FMA61775",
+      "physical anatomical entity",
+      "FJ1772"
+    ],
+    [
+      "FMA61775",
+      "physical anatomical entity",
+      "FJ1819"
+    ],
+    [
+      "FMA62955",
+      "anatomical entity",
+      "FJ1772"
+    ],
+    [
+      "FMA62955",
+      "anatomical entity",
+      "FJ1819"
+    ],
+    [
+      "FMA67135",
+      "anatomical structure",
+      "FJ1772"
+    ],
+    [
+      "FMA67135",
+      "anatomical structure",
+      "FJ1819"
+    ],
+    [
+      "FMA67165",
+      "material anatomical entity",
+      "FJ1772"
+    ],
+    [
+      "FMA67165",
+      "material anatomical entity",
+      "FJ1819"
+    ],
+    [
+      "FMA67619",
+      "organ region",
+      "FJ1772"
+    ],
+    [
+      "FMA67619",
+      "organ region",
+      "FJ1819"
+    ],
+    [
+      "FMA82472",
+      "cardinal organ part",
+      "FJ1772"
+    ],
+    [
+      "FMA82472",
+      "cardinal organ part",
+      "FJ1819"
+    ],
+    [
+      "FMA86140",
+      "organ segment",
+      "FJ1772"
+    ],
+    [
+      "FMA86140",
+      "organ segment",
+      "FJ1819"
+    ]
+  ],
+  "inputs": {
+    "active_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "active_receipt_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+    "is_a_archive_sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e",
+    "is_a_table_sha256": "a3de74423f943b0d724ae8f59b3a817f87c423a544f8db98113b1980817cbeaf",
+    "part_of_archive_sha256": "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97",
+    "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+    "rigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+  },
+  "nerves": [
+    {
+      "exact_coordinate_weld": {
+        "collapsed_face_ids": [],
+        "duplicates_welded": 61,
+        "groups_over_one": [
+          2,
+          3,
+          2,
+          3,
+          2,
+          2,
+          2,
+          2,
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          2,
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          4,
+          2,
+          2,
+          2,
+          4,
+          2,
+          3,
+          2
+        ],
+        "welded_vertices": 1190
+      },
+      "identity": {
+        "concept_id": "FMA50878",
+        "hierarchy": "is_a",
+        "member_id": "FJ1772",
+        "obj_sha256": "314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057"
+      },
+      "source": {
+        "bounds_source_mm": [
+          [
+            -0.00264154,
+            31.9976
+          ],
+          [
+            -151.743,
+            -102.141
+          ],
+          [
+            1520.2,
+            1542.31
+          ]
+        ],
+        "triangles": 2376,
+        "vertices": 1251
+      },
+      "topology": {
+        "body23_local_bounds_mm": [
+          [
+            -32.51429626602091,
+            -0.2038683366324689
+          ],
+          [
+            -70.64014674876829,
+            -45.35273535946649
+          ],
+          [
+            36.74364762424693,
+            84.9393158012343
+          ]
+        ],
+        "boundary_edges": 0,
+        "branch_vertices": {},
+        "components": [
+          {
+            "area_mm2": 788.3444107557232,
+            "faces": 2376,
+            "vertices": 1190
+          }
+        ],
+        "face_component_sizes": [
+          2376
+        ],
+        "loops": [],
+        "nonmanifold_edges": 0,
+        "retained_faces": 2376,
+        "winding_conflicts": 0
+      }
+    },
+    {
+      "exact_coordinate_weld": {
+        "collapsed_face_ids": [],
+        "duplicates_welded": 51,
+        "groups_over_one": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          4,
+          2,
+          3,
+          3,
+          2,
+          5,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3
+        ],
+        "welded_vertices": 1191
+      },
+      "identity": {
+        "concept_id": "FMA50875",
+        "hierarchy": "is_a",
+        "member_id": "FJ1819",
+        "obj_sha256": "3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4"
+      },
+      "source": {
+        "bounds_source_mm": [
+          [
+            -33.3074,
+            -1.28971
+          ],
+          [
+            -151.746,
+            -102.175
+          ],
+          [
+            1520.22,
+            1542.31
+          ]
+        ],
+        "triangles": 2378,
+        "vertices": 1242
+      },
+      "topology": {
+        "body23_local_bounds_mm": [
+          [
+            1.0939751776695552,
+            33.28761980983708
+          ],
+          [
+            -70.59286057928948,
+            -45.35067453755066
+          ],
+          [
+            36.724087302778315,
+            85.06026908900802
+          ]
+        ],
+        "boundary_edges": 0,
+        "branch_vertices": {},
+        "components": [
+          {
+            "area_mm2": 788.1813071784097,
+            "faces": 2378,
+            "vertices": 1191
+          }
+        ],
+        "face_component_sizes": [
+          2378
+        ],
+        "loops": [],
+        "nonmanifold_edges": 0,
+        "retained_faces": 2378,
+        "winding_conflicts": 0
+      }
+    }
+  ],
+  "recipe": {
+    "body_index": 23,
+    "global_matrix": [
+      [
+        0.0010076111869732585,
+        0.0,
+        0.0,
+        -0.024862083488424228
+      ],
+      [
+        0.0,
+        0.0010076111869732585,
+        0.0,
+        0.24627952500546427
+      ],
+      [
+        0.0,
+        0.0,
+        0.0010076111869732585,
+        0.12388234159326461
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "global_world_to_body23_local": "inverse NHRIGID2 core_body_index=23 rest pose",
+    "obj_mm_to_global_world": "registration.coordinate_system.global_source_mm_to_myosim_world_m",
+    "position_world_m": [
+      -0.025013979524374008,
+      0.20237690210342407,
+      1.6704720258712769
+    ],
+    "quaternion_xyzw": [
+      4.760508818435483e-05,
+      0.9289640784263611,
+      -0.3701682984828949,
+      -0.0010834828717634082
+    ],
+    "shared_member_calibration": {
+      "ordered_triangle_identity": true,
+      "pass": true,
+      "source_member": "FJ1730",
+      "source_sha256": "7acd4a30d13b409221aea7267ae302ef7c100162a6185d891c91843ec876dd79",
+      "stable_id": 322,
+      "vertex_count": 1994,
+      "vertex_max_error_m": 6.113659808271476e-08,
+      "vertex_rms_error_m": 5.863310653678068e-08
+    },
+    "source_ordinal": 11
+  },
+  "schema": "numi.human.optic-nerve-source-frame-and-seam-audit.v1",
+  "scope": "offline source geometry audit; no NHA/runtime/W modification and no GPU work",
+  "status": "exact_source_frame_calibrated_seam_audit"
+}

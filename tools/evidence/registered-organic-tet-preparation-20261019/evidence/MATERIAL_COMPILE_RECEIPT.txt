@@ -1,0 +1,10 @@
+Optic nerve .nmatter CPU parse and compile receipt
+Run UTC: 2026-10-19T02:36:59Z
+Source base: 3059af430d0feaa7ce4af3c59fbc1ba9b04a214c
+Material: source/matter/materials/human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter
+Material SHA256: f9fc009dc6ee8b110d475a87ea3ea3320c02095f07c8944e85b3c7f1d6967d33
+Compiler library: /Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib
+S233 library SHA256: 71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a
+Command: ./tests/run_nmatter_cpu_compile.sh
+Result: parse=PASS compileWorld=PASS model=generic materials=1 fem_tets=1 generated_metal_bytes=286 gpu=NOT_USED
+The test parses the actual .nmatter file, compiles a minimal 4-node/1-tetrahedron FEM WorldSource and checks the compiled object/constitutive/tetrahedron counts. No Metal device or GPU execution is requested.
