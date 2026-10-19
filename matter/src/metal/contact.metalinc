@@ -8595,10 +8595,18 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
     device const uint* nodeIncidence [[buffer(2)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
     device float4* residual [[buffer(4)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    // Prescribed static rows receive support reactions through the separate
+    // publication kernel, never an unsatisfiable Newton equation. Human tag 2
+    // remains dynamic and must retain its J^T attachment residual.
+    const auto nodeState = candidate[global];
+    if (femStaticConstraint(nodeState.restAndFixed.w) ||
+        (!femHumanAttachmentConstraint(nodeState.restAndFixed.w) &&
+         !(nodeState.positionAndMass.w > 0.0f))) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
@@ -9673,10 +9681,18 @@ kernel void nm_contact_accumulate_fem_residual(
     device const uint* sampleSlotsByPair [[buffer(7)]],
     device const uint* sampleCounts [[buffer(8)]],
     device const uint* sampleCapacity [[buffer(9)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
+    // Prescribed static rows receive support reactions through the separate
+    // publication kernel, never an unsatisfiable Newton equation. Human tag 2
+    // remains dynamic and must retain its J^T attachment residual.
+    const auto nodeState = candidate[global];
+    if (femStaticConstraint(nodeState.restAndFixed.w) ||
+        (!femHumanAttachmentConstraint(nodeState.restAndFixed.w) &&
+         !(nodeState.positionAndMass.w > 0.0f))) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint femNode = global - environment * dispatch.femNodeCount;
     const uint unifiedNode = dispatch.gridNodeCount + femNode;
@@ -9776,10 +9792,18 @@ kernel void nm_contact_accumulate_fem_residual_sparse(
     constant uint& candidateCapacity [[buffer(5)]],
     device float4* residual [[buffer(6)]],
     device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
+    // Prescribed static rows receive support reactions through the separate
+    // publication kernel, never an unsatisfiable Newton equation. Human tag 2
+    // remains dynamic and must retain its J^T attachment residual.
+    const auto nodeState = candidate[global];
+    if (femStaticConstraint(nodeState.restAndFixed.w) ||
+        (!femHumanAttachmentConstraint(nodeState.restAndFixed.w) &&
+         !(nodeState.positionAndMass.w > 0.0f))) return;
     const uint environment = global / dispatch.femNodeCount;
     if (!environmentHealthy(statuses, environment)) return;
     const uint femNode = global - environment * dispatch.femNodeCount;

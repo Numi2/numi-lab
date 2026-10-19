@@ -1,3 +1,5 @@
+Historical initial evidence. The later prescribed-row repair and accepted two-tissue regressions are retained in ../prescribed-fem-contact-20261019/. Failures below describe the earlier source.
+
 # Continuum-contact late finalization
 
 Extends the existing Matter deferred accepted-step finalizer to immutable, nonadaptive FEM/MPM contact with world-fixed proxies and to deformable contact. Reuses the existing checkpoints and solvers. On late rejection both accepted and candidate rigid friction histories are restored; deformable histories use the existing rollback owner. Moving rigid proxies, internal Human attachments, adaptive/mixed/field/topology/identification transactions remain excluded.

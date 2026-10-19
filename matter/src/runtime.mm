@@ -18271,6 +18271,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.contactSamplePageComplete,
                         state.contactSampleSlotsByPair,
                         state.contactActiveCounts, 5u);
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
                 });
                 dispatchThreads(
                     "nm_contact_accumulate_deformable_fem_residual",
@@ -18285,7 +18286,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:3u];
                         [encoder setBuffer:state.femResidual
                                    offset:0u atIndex:4u];
-                    });
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                });
                 if (certify) {
                     // Publish contact as a separate support-reaction term.
                     // This is a read-only reduction of the exact primal
@@ -18587,6 +18589,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.femArmijoResidual
                                  offset:0u atIndex:4u];
+                [encoder setBuffer:trialNodes offset:0u atIndex:5u];
                 });
                 return true;
             };
@@ -27939,7 +27942,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:6u];
                             [encoder setBuffer:state.femArmijoStatuses
                                          offset:0u atIndex:7u];
-                        });
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:8u];
+                });
                     } else {
                         dispatchThreads(
                             "nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
@@ -27961,7 +27965,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     ? state.femArmijoSparseContactCandidateCounts
                                     : state.dummy,
                                 5u);
-                        });
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:10u];
+                });
                     }
                     if (!captureTrialResidualStage(
                             "residual_after_rigid_contact",
