@@ -1,0 +1,15 @@
+# Three-layer material-column self-contact eligibility (C298)
+
+This increment adds a narrow post-compile binding for an explicit immutable three-layer skin/fat FEM shell. It tags nodes with a source material-column ID and excludes same-owner primitive pairs when any node pair shares the same nonzero column tag. Existing shared-node rejection remains first. Distinct columns remain eligible for nonlocal same-object self-contact; cross-object eligibility and source-node identity behavior are unchanged. Tags occupy the upper 22 bits of NMFEMTopologyNodeGPU.identity.w; existing low topology flags are preserved.
+
+The binding is fail-closed. It accepts only an authored three-layer explicit FEM shell with self-contact initially disabled, FEM contact enabled, unchanged generation-1 node IDs, no adaptive/mutation/puncture/cohesive/attachment ownership, and a compiled static immutable surface map. It tags exactly the target node range, clears only that object self-contact-disabled flag, updates physics/world fingerprints, and validates compiled layout. The cooked-world CPU test verified 18 nodes, 48 tetrahedra, 16 compact faces, unchanged cooked node/mass/tet/face buffers and total mass, and transactional rejection of an invalid source.
+
+The Metal parity test extracts the exact production functions surfacePrimitivesShareNode, exactMixedMortarParentPair, and surfacePairEligible from the candidate owning contact.metalinc, compiles them as a small Metal kernel, and dispatches eight eligibility cases on Apple M6. All eight expected outputs matched: same-column culling across layers, different-column eligibility, cross-object behavior, shared-node culling, disabled self-contact, zero-tag compatibility, and environment-major topology indexing.
+
+## Limits
+
+These checks qualify tag binding and primitive-pair eligibility only. They do not qualify an integrated full-body run, sustained self-contact, skin/fat boundary mechanics, contact-force conservation, stability, or anatomical/biomechanical behavior. The shell is a synthetic octahedral compile fixture; the included silicone material is a parser fixture, not a tissue parameter claim. The guarded C298 library receipt records matching host/MSL build inputs but is not a whole-body simulation result. Whole-body integration requires its own matched library, accepted-contact, rollback, and sustained-run evidence.
+
+## Reproduction
+
+The two CPU sources are C++23 checks. compile_bind_world.cpp uses tests/fixtures/material_column_silicone.nmatter and needs repository apps/matter headers plus a built libmetalrobo that exports compileWorld; its exact successful argv and link library are in cpu-compile-bind-result.json. The Metal source is generated with the recorded generator argv in gpu-pair-result.json. Build the Objective-C++ test with Apple Foundation and Metal frameworks, then pass the generated MSL path as its sole argument. The actual bounded GPU invocation, source and binary hashes, device, results, and exit code are preserved in gpu-pair-result.json and gpu-pair.stdout.log.

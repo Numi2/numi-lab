@@ -1,0 +1,29 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1249,8 +1249,24 @@
+             if (leftNode >= dispatch.femNodeCount ||
+                 rightNode >= dispatch.femNodeCount) continue;
+             const uint base = environment * dispatch.femNodeCount;
+-            if (topologyNodes[base + leftNode].identity.x ==
+-                topologyNodes[base + rightNode].identity.x)
++            const NMFEMTopologyNodeGPU leftTopology =
++                topologyNodes[base + leftNode];
++            const NMFEMTopologyNodeGPU rightTopology =
++                topologyNodes[base + rightNode];
++            if (leftTopology.identity.x == rightTopology.identity.x)
++                return true;
++            // The Human three-layer shell stores a source material-column ID
++            // in the otherwise-unused upper 22 bits of topology flags. Only
++            // same-owner nodes with the same nonzero tag are material-adjacent;
++            // distinct columns remain eligible for nonlocal self-contact.
++            constexpr uint materialColumnShift = 10u;
++            const uint leftMaterialColumn =
++                leftTopology.identity.w >> materialColumnShift;
++            const uint rightMaterialColumn =
++                rightTopology.identity.w >> materialColumnShift;
++            if (left.nodesAndObject.w == right.nodesAndObject.w &&
++                leftMaterialColumn != 0u &&
++                leftMaterialColumn == rightMaterialColumn)
+                 return true;
+         }
+     return false;

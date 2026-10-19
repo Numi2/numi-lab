@@ -1,0 +1,21 @@
+{
+  "test": "material-column-source-contract",
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/n/numi-human-separation-20261018/C/outer-contact-mpm-261/build/source/matter/include",
+    "-I/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/source/apps",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/tests/material_column_contract.cpp",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/build/material_column_contract"
+  ],
+  "exit_code": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "binary_sha256": "f18fc3c7868f9e04af0f19f95f3695903bfe8bcb031617e71c7675ba2c46b636"
+}

@@ -1,0 +1,11 @@
+resting_job_lock waiting pid=26973
+resting_job_lock acquired pid=26973
+pair[0]=0 expected=0
+pair[1]=1 expected=1
+pair[2]=1 expected=1
+pair[3]=0 expected=0
+pair[4]=0 expected=0
+pair[5]=0 expected=0
+pair[6]=1 expected=1
+pair[7]=0 expected=0
+MATERIAL_COLUMN_PAIR_GPU_PASS device=Apple M6

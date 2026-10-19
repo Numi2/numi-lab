@@ -1,0 +1,44 @@
+{
+  "test": "production-contact-function-pair-eligibility",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/build/material_column_pair_gpu_v2",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/build/material_column_pair_test_v2.metal"
+  ],
+  "working_directory": "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact",
+  "source_sha256": "bc8c83deed62e5a6f37074c7563cf077056b379c3cfb0343486aac6aa10bb8f8",
+  "flattened_msl_sha256": "b24a3bc0693d587af6d148e9f40ce52319ea4c774aad957d4d6ffe9dd7f3acd1",
+  "generator_argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/tests/generate_pair_test_msl_v2.py",
+    "/Users/n/numi-human-separation-20261018/C/C298-material-column-self-contact/evidence/metal-parity-v2/material_column_pair_test_v2.metal"
+  ],
+  "generated_msl_sha256": "0ef1f32db0044a8e2fad8fef08cf69ffd995d57e6ca701d448ecfff73626d882",
+  "test_source_sha256": "a31504cc04f7e0d86da97a9b44e7ec7805c289805b0a2975fb2340fbd7d5f249",
+  "binary_sha256": "353a51dbfa83a83ec90510b82fdde4d83310d18e2b52340f949e7d92eaa73e95",
+  "device": "Apple M6",
+  "exit_code": 0,
+  "stdout_sha256": "ba6eddeb27b0b02a2ec02697056c733758418ff3e22aa41cbe3673686ea232f6",
+  "expected_pairs": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "actual_pairs": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0
+  ]
+}
