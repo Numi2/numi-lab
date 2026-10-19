@@ -1,0 +1,58 @@
+{
+  "base_commit": "1d8aabb599a014c7517082b178847db922918926",
+  "candidate_matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+  "claims_excluded": [
+    "MPM fixed-plane KKT acceptance (MPM disabled in compatibility scene)",
+    "sustained free-surface or blood-flow validation",
+    "aortic pressure-volume causality or wall-off comparison",
+    "anatomical/clinical qualification"
+  ],
+  "mapped_owner_paths": [
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fgmres.metalinc"
+  ],
+  "native_cases": [
+    {
+      "aortic_wall_enabled": true,
+      "case": "production_all_optins_clean",
+      "coupled_csv_sha256": "ad7573ac22156e8efcfa97f19154ae92b79ab331a9fae348e281a71ce968ea35",
+      "invocation_sha256": "a49f786e7d6fb74a1133e2d2ae1d70d74e437d5abb6822e2c8bec54454240c0d",
+      "loaded_library_line": "dyld[72525]: <27D264D3-B98F-3DC7-80A7-D2168276691A> /Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+      "loaded_library_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+      "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+      "mpm_enabled": false,
+      "native_log_gzip_sha256": "e9aafbdaa398d714b81ef5e7a72714c763cbfd6753e62b0ae0c7cf6099822680",
+      "native_log_sha256": "fddff4f0c9bad9890f031c91bebb7c426e83b344e3bdbe9483a76fa5276c2551",
+      "rollback_markers": {},
+      "surface_audit_csv_sha256": "113f0b14325528eb951fd3b5bc3b1a0148542eb8d20333963988aa4d6990fc12",
+      "terminal_fem_audit": "passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=2 expected_adapter_passes=2 min_J=0.71147393352 max_J=1.03899238387 max_displacement_m=0.00117599965247 max_anchor_reaction_N=0.492226734334 capture=terminal_only"
+    },
+    {
+      "aortic_wall_enabled": true,
+      "case": "production_all_optins_late_reject_retry",
+      "coupled_csv_sha256": "ad7573ac22156e8efcfa97f19154ae92b79ab331a9fae348e281a71ce968ea35",
+      "invocation_sha256": "80fb723017891b0314e5b8d47d5639aeb6f25c69ef75d4d09b8b6e9548e5a511",
+      "loaded_library_line": "dyld[72607]: <27D264D3-B98F-3DC7-80A7-D2168276691A> /Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+      "loaded_library_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+      "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+      "mpm_enabled": false,
+      "native_log_gzip_sha256": "bd26c965867ee912c8bd73563b088bf4afe877741469a9386415ae76432b35ea",
+      "native_log_sha256": "32f32f8a136ab89bf575896d4627a01c8aa996cf7dac01f7d38e590526b268a0",
+      "rollback_markers": {
+        "body_properties_restored=1": true,
+        "brain_respiration_presentation_unchanged=1": true,
+        "dof_properties_restored=1": true,
+        "matter_vascular_unchanged=1": true,
+        "passive_adapter_history_unchanged=1": true,
+        "q_v_root_muscle_unchanged=1": true,
+        "same_context_retry=1": true,
+        "shared_tissue_late_reject_retry=passed": true
+      },
+      "surface_audit_csv_sha256": "113f0b14325528eb951fd3b5bc3b1a0148542eb8d20333963988aa4d6990fc12",
+      "terminal_fem_audit": "passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=3 expected_adapter_passes=3 min_J=0.71147393352 max_J=1.03899238387 max_displacement_m=0.00117599965247 max_anchor_reaction_N=0.492226734334 capture=terminal_only"
+    }
+  ],
+  "paired_csv_equal": true,
+  "schema": "numi.fixed_plane_active_set_followup_prepublication.v1",
+  "scope": "source mapping, CPU build, and two-step integrated compatibility/rollback only; not fixed-plane MPM native qualification"
+}

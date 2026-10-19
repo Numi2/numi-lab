@@ -1,0 +1,13 @@
+# Fixed-plane contact active-set follow-up (prepublication evidence)
+
+This candidate maps a tested flattened Matter Metal source back to two existing owners: matter/src/metal/contact.metalinc and matter/src/metal/fgmres.metalinc. The exact flattened source is retained under source/; mapping/mapping-receipt.json proves exact reconstruction from the two owner files. No host/runtime source or ABI header changed.
+
+The contact line-search change stops applying a fraction-to-boundary clamp to immutable fixed-plane MPM KKT normal-velocity rows. Final grid KKT feasibility and the independent particle endpoint/swept-path certificates remain the acceptance gates. The barrier's analytic product-rule gradient is unchanged; its directional contraction now uses the actual Float32 displacement vector.
+
+The FGMRES final-cycle shortcut now also requires the existing outer nonlinear-converged latch (state.nonlinear.w > 0.5f), in addition to the residual test. An absolute Arnoldi residual alone therefore cannot certify the full nonlinear KKT target. The forcing schedule and final tolerances are unchanged. One nearby explanatory FGMRES comment remains broader than this predicate suggests; the tested source bytes are preserved exactly, and this executable guard is recorded here rather than changing comments after qualification.
+
+## Available verification
+
+The production CPU build compiled the exact source hash recorded in build/build-receipt.json and linked library ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e. The two retained integrated-scene native cases each accepted two 0.25 ms steps with the aortic wall enabled. The rollback case rejected step 1 and retried in the same context; its eight rollback markers passed. Clean and retry resting-coupled.csv and resting-surface-audit.csv are byte-identical. The loaded dylib and exact invocation pins are retained alongside the logs.
+
+These integrated-scene cases had MPM disabled. They verify host/runtime compatibility and accepted-state rollback for the surrounding FEM/CV/body owners, not the fixed-plane MPM KKT path itself. The corrected production-merged validated summary is retained under integration/; it identifies the reduced cavity-wall object as the 532-node, 1,584-tet aortic wall and reports 0.007059265134 kg emitted mass matching 0.00705926513 kg cooked mass. This supports object identity and mass accounting only. The current native-paired-001-production-matter bundle does not qualify that solver change, sustained blood behavior, aortic wall pressure-volume causality, or anatomical/clinical behavior. The source-specific MPM test result must be added separately before making any MPM qualification claim. No visual verification was performed.

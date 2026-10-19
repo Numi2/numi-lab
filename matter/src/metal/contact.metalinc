@@ -9830,7 +9830,7 @@ kernel void nm_contact_limit_deformable_line_search(
                     contact.mollifier.y *
                         deformableMollifierGradient(contact, local);
                 impulseDotDisplacement += dot(
-                    barrierImpulse, analyticDisplacement[local]);
+                    barrierImpulse, displacement[local]);
             }
             const float directionalDerivative =
                 -impulseDotDisplacement / max(dt, 1.0e-20f);
@@ -10133,32 +10133,12 @@ kernel void nm_contact_limit_rigid_line_search(
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
             pair.objectIndex >= dispatch.objectCount) continue;
         if ((sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) != 0u) {
-            if (pair.continuumNode >= dispatch.gridNodeCount ||
-                pair.objectIndex >= dispatch.objectCount) {
-                bound = 0.0f;
-                continue;
-            }
-            const uint nodeGlobal =
-                environment * dispatch.gridNodeCount + pair.continuumNode;
-            const uint slot = contact.mpmNodeToActive[nodeGlobal];
-            if (slot >= contact.mpmActiveNodeCounts[environment] ||
-                !(gridNodes[nodeGlobal].positionAndMass.w > 0.0f)) {
-                bound = 0.0f;
-                continue;
-            }
-            const float3 normal = sample.normalAndVelocity.xyz;
-            const float normalVelocity = dot(
-                gridNodes[nodeGlobal].candidateVelocity.xyz, normal);
-            const float directionalVelocity = dot(
-                correction[fgmresMPMIndex(dispatch, environment, slot)].xyz,
-                normal);
-            if (!isfinite(normalVelocity) ||
-                !isfinite(directionalVelocity)) {
-                bound = 0.0f;
-            } else if (directionalVelocity < 0.0f) {
-                bound = min(bound, max(normalVelocity, 0.0f) /
-                    -directionalVelocity);
-            }
+            // The semismooth normal-velocity complementarity row has a free
+            // active-set transition. Do not impose a fraction-to-boundary on
+            // unpublished grid Newton iterates: it can pin a free branch at
+            // v_n=0 and force the global alpha to zero. Final grid KKT
+            // feasibility plus the independent particle endpoint/sweep
+            // certificates remain authoritative before commit.
             continue;
         }
         const NMContinuumObjectGPU object = objects[pair.objectIndex];

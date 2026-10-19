@@ -1,0 +1,8 @@
+{
+  "base": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-active-set-trial-001/input-MatterSource-kkt-active-set-trial.metal",
+  "changes": [
+    "applied Float32 displacement contact work",
+    "outer latch required for nonlinear-target inner completion"
+  ],
+  "sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+}

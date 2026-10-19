@@ -1,0 +1,45 @@
+{
+  "exact_flat_reconstruction": true,
+  "files": [
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fgmres.metalinc"
+  ],
+  "edits": [
+    {
+      "file": "matter/src/metal/fgmres.metalinc",
+      "old_flat_range": [
+        1107429,
+        1107482
+      ],
+      "old_source_range": [
+        295237,
+        295290
+      ],
+      "new_bytes": 81
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2275034,
+        2275100
+      ],
+      "old_source_range": [
+        462662,
+        462728
+      ],
+      "new_bytes": 58
+    },
+    {
+      "file": "matter/src/metal/contact.metalinc",
+      "old_flat_range": [
+        2354999,
+        2356209
+      ],
+      "old_source_range": [
+        479785,
+        480995
+      ],
+      "new_bytes": 440
+    }
+  ]
+}

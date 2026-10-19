@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-DNUMI_HUMAN_TENDON_FEM_TEST_SOURCE_PATH=\"/Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal\"",
+    "-DNUMI_HUMAN_TENDON_FEM_TEST_SOURCE_SHA256=\"85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34\"",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/src",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/src/metal",
+    "-MMD",
+    "-MF",
+    "/Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/numi_human.mm.o.d",
+    "-DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/n/numi-lab-complete-body-capture-build-1276-001/matter/shaders/NumiMatter.metallib\"",
+    "-I/Users/n/numi-human-separation-20261018/C/deferred-audit-microticks-226/matter/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/include",
+    "-x",
+    "objective-c++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIC",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-o",
+    "/Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/numi_human.mm.o",
+    "-c",
+    "/Users/n/numi-human-separation-20261018/C/deferred-audit-microticks-226/matter/src/numi_human.mm"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 1.0747292499872856,
+  "input_sha256": {
+    "/Users/n/numi-human-separation-20261018/C/deferred-audit-microticks-226/matter/src/numi_human.mm": "4f2059560c8361e211653f503480d6ef589c4826c07ed510585c3812ea5f885b",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/build-reaction-rollback-001/runtime.mm.o": "4de4c3ad05c7b470cfec6c8415cfb56beebd308dd0184547c93b54b71ac0ef7c",
+    "/Users/numi/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+  }
+}

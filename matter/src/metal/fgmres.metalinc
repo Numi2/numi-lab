@@ -6163,7 +6163,7 @@ kernel void nm_fgmres_finalize_cycle(
     const float nonlinearThreshold = max(
         solver.regularization.x,
         solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
-    const bool reachedNonlinearTarget = used > 0u &&
+    const bool reachedNonlinearTarget = used > 0u && state.nonlinear.w > 0.5f &&
         state.diagnostics.x <= nonlinearThreshold;
     const bool cycleAccepted = converged || reachedNonlinearTarget ||
         (used > 0u && relativeResidual <= clamp(
