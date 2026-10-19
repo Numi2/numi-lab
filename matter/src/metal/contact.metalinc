@@ -1157,10 +1157,10 @@ kernel void nm_contact_sort_surface_primitives(
     if (lane == 0u) activeCounts[environment] = activeCount;
     if (activeCount == 0u) return;
 
-    threadgroup uint bucketCounts[16];
-    threadgroup uint bucketStarts[16];
-    threadgroup uint bucketCursors[16];
-    for (uint pass = 0u; pass < 8u; ++pass) {
+    threadgroup uint bucketCounts[8];
+    threadgroup uint bucketStarts[8];
+    threadgroup uint bucketCursors[8];
+    for (uint pass = 0u; pass < 10u; ++pass) {
         device uint* sourceKeys = (pass & 1u) == 0u
             ? keysA + primitiveBase : keysB + primitiveBase;
         device uint* sourceIndices = (pass & 1u) == 0u
@@ -1169,14 +1169,14 @@ kernel void nm_contact_sort_surface_primitives(
             ? keysB + primitiveBase : keysA + primitiveBase;
         device uint* destinationIndices = (pass & 1u) == 0u
             ? indicesB + primitiveBase : indicesA + primitiveBase;
-        if (lane < 16u) bucketCounts[lane] = 0u;
+        if (lane < 8u) bucketCounts[lane] = 0u;
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         for (uint first = 0u; first < activeCount; first += 32u) {
             const uint local = first + lane;
             const bool valid = local < activeCount;
             const uint bucket = valid
-                ? (sourceKeys[local] >> (4u * pass)) & 15u : 0u;
-            for (uint candidate = 0u; candidate < 16u; ++candidate) {
+                ? (sourceKeys[local] >> (3u * pass)) & 7u : 0u;
+            for (uint candidate = 0u; candidate < 8u; ++candidate) {
                 const uint count = simd_sum(
                     valid && bucket == candidate ? 1u : 0u);
                 if (lane == candidate) bucketCounts[candidate] += count;
@@ -1196,8 +1196,8 @@ kernel void nm_contact_sort_surface_primitives(
             const uint local = first + lane;
             const bool valid = local < activeCount;
             const uint key = valid ? sourceKeys[local] : 0u;
-            const uint bucket = (key >> (4u * pass)) & 15u;
-            for (uint candidate = 0u; candidate < 16u; ++candidate) {
+            const uint bucket = (key >> (3u * pass)) & 7u;
+            for (uint candidate = 0u; candidate < 8u; ++candidate) {
                 const bool selected = valid && bucket == candidate;
                 const uint prefix = simd_prefix_exclusive_sum(
                     selected ? 1u : 0u);
