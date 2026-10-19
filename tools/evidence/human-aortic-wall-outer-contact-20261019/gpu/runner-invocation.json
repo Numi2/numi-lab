@@ -1,0 +1,28 @@
+{
+  "command": "./predicate_probe MatterSource.metal",
+  "working_directory": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-predicate-probe-001",
+  "host_compile_argv": [
+    "/usr/bin/clang++",
+    "-O2",
+    "-std=c++23",
+    "-fobjc-arc",
+    "-arch",
+    "arm64",
+    "-I/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/source/matter/include",
+    "-I/Users/n/numi-lab-native-replay-publish-20261017/matter/include",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "predicate_probe.mm",
+    "-o",
+    "predicate_probe"
+  ],
+  "Metal_library_build": "newLibraryWithSource from the test MSL in the Objective-C++ runner; pipeline execution uses MTLCreateSystemDefaultDevice and a command buffer",
+  "test_msl_input": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-predicate-probe-001/MatterSource.metal",
+  "test_msl_sha256": "b1cad1ac5d5ac6a1c430ca274b04c3a900aa91f8b9e6a78f44039c97338ab5c5",
+  "production_msl_sha256": "1f91b715ebbff704e1fef071386618410c359a60aab19c6980816bc75b396e4b",
+  "test_wrapper_sha256": "d35b4fd8b81a6234faeef7dab72ecfb5e95af5a79b9371c98405b7a0e90e1fb1",
+  "host_binary_sha256": "00835667d3099c6596a0bb722352cd34230ce11d3dfd61c55e2090ceef93a058",
+  "scope": "synthetic two-object/two-tetrahedron selector test; no anatomical geometry, force, impulse, or solver step"
+}

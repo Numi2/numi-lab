@@ -107,6 +107,9 @@ struct Config {
     // Finite compressibility is retained in the loaded-reference radial solve.
     std::uint32_t circumferentialSegments=24; // coarse area-preserving section proxy
     std::uint32_t axialSegments=8;
+    // Opt-in exterior-only contact on the outer lateral annulus. Cap and lumen
+    // surfaces remain excluded; the default preserves the contact-free wall.
+    bool outerLateralContact=false;
     std::uint32_t attachmentStableBase=910000u;
     // Explicit inferred axial stretch used by the cylindrical loaded-reference
     // solve. Unity is a reference assumption, not a measured axial stretch.
@@ -396,7 +399,7 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
     // non-mixed FEM; the current mesh remains the initialized position.
     object.mixedFEM=false;
     object.twoWayCoupling=true;object.adaptive=false;object.identifiable=false;
-    object.deformableContact=false;object.deformableSelfContact=false;object.characteristicLength=std::max(cfg.wallThicknessM,length/double(cfg.axialSegments));
+    object.deformableContact=cfg.outerLateralContact;object.deformableSelfContact=false;object.characteristicLength=std::max(cfg.wallThicknessM,length/double(cfg.axialSegments));
     // Stable derivation-contract identity; the compiled world fingerprint also
     // hashes the actual reference coordinate array and constitutive parameters.
     object.femReferenceSourceIdentity={
@@ -439,6 +442,15 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
             sideInner[z][i]=addNode(inner[i],s,0.0);
             sideOuter[z][i]=addNode(outer[i],s,1.0);
         }
+    }
+    if(cfg.outerLateralContact){
+        object.femContactNodes.reserve(std::size_t(axial+1u)*n);
+        for(const auto& ring:sideOuter)
+            object.femContactNodes.insert(object.femContactNodes.end(),ring.begin(),ring.end());
+        std::sort(object.femContactNodes.begin(),object.femContactNodes.end());
+        if(object.femContactNodes.size()!=std::size_t(axial+1u)*n||
+           std::adjacent_find(object.femContactNodes.begin(),object.femContactNodes.end())!=object.femContactNodes.end())
+            throw std::runtime_error("aortic outer-lateral contact node mask is not exact and unique");
     }
     const std::uint32_t lowCenter=addNode(centroid,0.0,0.0);
     const std::uint32_t highCenter=addNode(centroid,length,0.0);

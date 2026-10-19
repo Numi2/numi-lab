@@ -7,7 +7,9 @@
 #include <cmath>
 #include <cstdint>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -125,6 +127,155 @@ inline Built appendRegisteredAbdominalAortaWall(
             "aortic wall binding changed CV volume/species or failed one-to-one object registration");
     }
     return wall;
+}
+
+struct OuterLateralContactSurfaceMapAudit {
+    std::uint32_t queryNodeCount=0u;
+    std::uint32_t originalSurfaceFaceCount=0u;
+    std::uint32_t canonicalSurfaceFaceCount=0u;
+    std::uint32_t retainedWallFaceCount=0u;
+    std::uint32_t excludedWallFaceCount=0u;
+};
+
+// Narrow the existing immutable compiled exterior-face map to the aortic
+// wall's source-authored outer lateral surface. Other objects' target faces
+// and all stable source face IDs are preserved exactly. This is valid only for
+// the existing static, exact-capacity FEM map owner; it does not add a new
+// runtime representation or alter cavity/material/mass data.
+inline OuterLateralContactSurfaceMapAudit markOuterLateralContactSurfaceFaces(
+    CompiledWorld& world,
+    const Built& wall,
+    std::span<const std::uint32_t> queryNodes) {
+    const auto fail=[](const char* why)->void { throw std::runtime_error(why); };
+    if((world.dispatch.flags&NM_MATTER_STATIC_FEM_SURFACE_MAP)==0u ||
+       world.dispatch.surfaceFaceCount!=world.fem.surfaceFaces.size())
+        fail("outer aortic contact requires the compiled immutable FEM exterior-face map");
+    if((world.dispatch.flags&(NM_MATTER_ADAPTIVE|NM_MATTER_MUTATION))!=0u ||
+       world.dispatch.mpmGridCount!=0u || world.dispatch.mpmBlockCount!=0u ||
+       world.dispatch.mpmBlockLookupCount!=0u || world.dispatch.particleCount!=0u ||
+       world.dispatch.gridNodeCount!=0u || world.dispatch.mutationCommandCount!=0u)
+        fail("outer aortic contact static-map opt-in rejects adaptive, MPM, and mutation worlds; disable this opt-in for mixed worlds");
+    if(wall.objectIndex>=world.objects.size())
+        fail("outer aortic contact wall object index is outside the compiled world");
+    const auto& descriptor=world.objects[wall.objectIndex];
+    if(descriptor.representation!=NM_REPRESENTATION_FEM ||
+       (descriptor.flags&NM_OBJECT_ADAPTIVE)!=0u ||
+       (descriptor.flags&NM_OBJECT_MUTABLE_TOPOLOGY)!=0u ||
+       (descriptor.flags&NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)!=0u ||
+       (descriptor.flags&NM_OBJECT_DISABLE_SELF_CONTACT)==0u ||
+       descriptor.stateCount!=wall.object.femNodes.size() ||
+       descriptor.elementCount!=wall.object.tetrahedra.size() ||
+       descriptor.stateOffset>world.fem.nodes.size() ||
+       descriptor.stateCount>world.fem.nodes.size()-descriptor.stateOffset ||
+       descriptor.elementOffset>world.fem.tetrahedra.size() ||
+       descriptor.elementCount>world.fem.tetrahedra.size()-descriptor.elementOffset)
+        fail("compiled aortic wall does not match the exterior-contact owner contract");
+    std::uint64_t nodeCapacity=0u,tetCapacity=0u,mutationCapacity=0u;
+    for(const auto& capacity:world.fem.capacities){
+        nodeCapacity+=capacity.topology.x;tetCapacity+=capacity.topology.y;
+        mutationCapacity+=capacity.work.x;
+    }
+    if(nodeCapacity!=world.dispatch.femNodeCount ||
+       tetCapacity!=world.dispatch.tetrahedronCount || mutationCapacity!=0u ||
+       world.dispatch.tetrahedronCount!=world.fem.tetrahedra.size())
+        fail("outer aortic contact requires exact immutable FEM node/tet capacities");
+
+    const std::uint64_t expectedNodes=(std::uint64_t(wall.axialSegments)+1u)*wall.circumferentialSegments;
+    const std::uint64_t expectedWallFaces=2ull*wall.axialSegments*wall.circumferentialSegments;
+    if(expectedNodes==0u || expectedNodes>std::numeric_limits<std::uint32_t>::max() ||
+       expectedWallFaces>std::numeric_limits<std::uint32_t>::max() ||
+       queryNodes.size()!=expectedNodes)
+        fail("outer aortic contact node/face mask count differs from authored wall rings");
+    std::vector<std::uint8_t> queryMask(descriptor.stateCount,0u);
+    for(const auto local:queryNodes){
+        if(local>=descriptor.stateCount || queryMask[local]!=0u)
+            fail("outer aortic contact query-node mask is duplicate or out of range");
+        queryMask[local]=1u;
+    }
+
+    OuterLateralContactSurfaceMapAudit audit;
+    audit.queryNodeCount=static_cast<std::uint32_t>(queryNodes.size());
+    audit.originalSurfaceFaceCount=static_cast<std::uint32_t>(world.fem.surfaceFaces.size());
+    const std::uint64_t sourceFaceDomain=std::uint64_t(world.dispatch.tetrahedronCount)*4u;
+    if(sourceFaceDomain>std::numeric_limits<std::size_t>::max())
+        fail("outer aortic contact source-face domain overflows host indexing");
+    std::vector<std::uint8_t> sourceFaceSeen(static_cast<std::size_t>(sourceFaceDomain),0u);
+    std::vector<std::vector<std::uint8_t>> stableMapIdSeen(world.objects.size());
+    for(std::size_t object=0u;object<world.objects.size();++object){
+        const std::uint64_t domain=4ull*world.objects[object].elementCount;
+        if(domain>std::numeric_limits<std::size_t>::max())
+            fail("outer aortic contact per-object face-map domain overflows host indexing");
+        stableMapIdSeen[object].assign(static_cast<std::size_t>(domain),0u);
+    }
+    std::vector<std::uint8_t> retainedNodeSeen(descriptor.stateCount,0u);
+    std::uint32_t wallExteriorFaceCount=0u;
+    for(auto& face:world.fem.surfaceFaces){
+        const auto tetIndex=face.adjacency.x;
+        const auto opposite=face.sides.x;
+        if(face.adjacency.y!=NM_INVALID_INDEX || tetIndex>=world.fem.tetrahedra.size() || opposite>=4u)
+            fail("compiled static FEM map contains a non-exterior or invalid target face");
+        const auto& tet=world.fem.tetrahedra[tetIndex];
+        const std::array<std::uint32_t,4u> corners{tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+        if(face.adjacency.z>=world.objects.size() || tet.identity.y!=face.adjacency.z)
+            fail("compiled surface target face object lineage is inconsistent");
+        const std::uint64_t stableFace=4ull*tetIndex+opposite;
+        if(stableFace>=sourceFaceSeen.size() ||
+           sourceFaceSeen[static_cast<std::size_t>(stableFace)]!=0u ||
+           face.sides.z>=stableMapIdSeen[face.adjacency.z].size() ||
+           stableMapIdSeen[face.adjacency.z][face.sides.z]!=0u)
+            fail("compiled static surface source-face or per-object stable-map identity is invalid or duplicated");
+        sourceFaceSeen[static_cast<std::size_t>(stableFace)]=1u;
+        stableMapIdSeen[face.adjacency.z][face.sides.z]=1u;
+        if((face.sides.w&~NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0u)
+            fail("compiled static surface map contains an unknown contact-face flag");
+        if(face.adjacency.z!=wall.objectIndex){
+            if(face.sides.w!=0u)
+                fail("outer aortic contact found a preflagged nonwall surface face");
+            continue;
+        }
+        ++wallExteriorFaceCount;
+        if(tetIndex<descriptor.elementOffset ||
+           tetIndex>=std::uint64_t(descriptor.elementOffset)+descriptor.elementCount)
+            fail("aortic target face tet lies outside its registered source object");
+        bool outerLateral=true;
+        std::array<std::uint32_t,3u> triangle{};std::size_t out=0u;
+        for(unsigned corner=0u;corner<4u;++corner)if(corner!=opposite){
+            if(corners[corner]<descriptor.stateOffset ||
+               corners[corner]>=std::uint64_t(descriptor.stateOffset)+descriptor.stateCount)
+                fail("aortic target face node escapes its registered wall range");
+            const auto local=corners[corner]-descriptor.stateOffset;
+            triangle[out++]=local;
+            outerLateral=outerLateral&&(queryMask[local]!=0u);
+        }
+        if(face.sides.w!=0u)
+            fail("outer aortic contact requires an unfiltered canonical source map");
+        if(outerLateral){
+            for(const auto local:triangle)retainedNodeSeen[local]=1u;
+            ++audit.retainedWallFaceCount;
+        } else {
+            face.sides.w=NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT;
+            ++audit.excludedWallFaceCount;
+        }
+    }
+    if(audit.retainedWallFaceCount!=expectedWallFaces ||
+       audit.retainedWallFaceCount+audit.excludedWallFaceCount!=wallExteriorFaceCount ||
+       audit.excludedWallFaceCount==0u ||
+       std::any_of(queryNodes.begin(),queryNodes.end(),[&](const auto local){return retainedNodeSeen[local]==0u;}))
+        fail("outer aortic contact did not flag every nonouter wall boundary face while retaining the annular lateral surface");
+    if(world.fem.surfaceFaces.size()!=audit.originalSurfaceFaceCount ||
+       world.fem.surfaceFaces.empty() ||
+       world.fem.surfaceFaces.size()>std::numeric_limits<std::uint32_t>::max())
+        fail("outer aortic contact changed or overflowed the complete canonical exterior map");
+    audit.canonicalSurfaceFaceCount=static_cast<std::uint32_t>(world.fem.surfaceFaces.size());
+    const auto previousFingerprint=world.fingerprint;
+    world.fingerprint=compiledWorldFingerprint(world);
+    world.physicsFingerprint=world.fingerprint;
+    if(world.fingerprint==previousFingerprint)
+        fail("outer aortic contact flags were not represented in the canonical world fingerprint");
+    std::string layoutError;
+    if(!validateCompiledWorldLayout(world,&layoutError))
+        throw std::runtime_error("flagged complete aortic static contact map failed canonical layout validation: "+layoutError);
+    return audit;
 }
 
 inline void requireCompiledAbdominalAortaBinding(

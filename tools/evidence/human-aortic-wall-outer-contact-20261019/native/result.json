@@ -1,0 +1,17 @@
+{
+  "invocation_sha256": "7cd973400f43d3c58efab9c858c42d273c1234dcca44a8737228252f50b358a2",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 56.30413603782654,
+  "app_sha256": "25831cebec5c5d5090d9e85ade74d2f1c4d61ee45e171cd18fd637ad384ee7ce",
+  "expected_library_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/build-runtime-001/libmetalrobo.dylib",
+  "expected_library_sha256": "97e6f9bf08ce01102a1bcd2dbb45dfae6ee895a59dfe8339383c7663a7024e59",
+  "msl_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/MatterSource.metal",
+  "msl_sha256": "1f91b715ebbff704e1fef071386618410c359a60aab19c6980816bc75b396e4b",
+  "blood_material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+  "stdout_sha256": "a6bd8ca76da12c0984d22c2b0d1acc5d9e0f8494d03b545dee3c2b28beaee94d",
+  "stderr_sha256": "0e9f56d17a182662d07abdb1ecc7332d8d4a94fa121fca90e031bbc9237f9644",
+  "stdout_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-contact-003/stdout.log",
+  "stderr_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-contact-003/stderr.log",
+  "scope": "bounded one-step native selector probe; no visual verification"
+}

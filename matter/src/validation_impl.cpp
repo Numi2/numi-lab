@@ -2113,7 +2113,8 @@ private:
                 world_.fem.surfaceFaces[faceIndex];
             if (face.adjacency.x >= world_.fem.tetrahedra.size() ||
                 face.adjacency.z >= world_.objects.size() ||
-                face.sides.x >= 4u || face.sides.w != 0u ||
+                face.sides.x >= 4u ||
+                (face.sides.w & ~NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT) != 0u ||
                 (face.adjacency.w & NM_TOPOLOGY_ACTIVE) == 0u ||
                 (face.adjacency.y != NM_INVALID_INDEX &&
                  (face.adjacency.y >= world_.fem.tetrahedra.size() ||

@@ -17936,6 +17936,7 @@ struct PassiveFasciaRuntimeOwner {
     std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
     std::vector<double> aorticWallNodalMassKg;
     double aorticWallCookedMassKg=0.0;
+    std::optional<numi::human::vessel_wall_coupling::OuterLateralContactSurfaceMapAudit> aorticWallOuterContactAudit;
 };
 
 std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
@@ -17946,7 +17947,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     LoadedTorsoAnatomy* anatomy,
     const std::filesystem::path* anatomyPayloadPath,
     std::span<const std::uint32_t> sourceBodyMap,
-    bool includeInferredACL, bool includeProstate, bool includeOrganBatch, bool enableAorticWall, const char* restingNetwork,
+    bool includeInferredACL, bool includeProstate, bool includeOrganBatch, bool enableAorticWall, bool enableAorticWallOuterContact, const char* restingNetwork,
     std::span<const float> q, double dt,
     const std::filesystem::path& matterMetallib,
     bool preparationOnly = false
@@ -18303,9 +18304,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         const std::uint32_t attachmentBody=runtimeBody(7u);
         const std::uint32_t donorBody=runtimeBody(20u);
         const auto& attachmentCOM=model.bodies[attachmentBody].centerOfMass;
+        Config wallConfig;
+        wallConfig.outerLateralContact=enableAorticWallOuterContact;
         auto built=appendRegisteredAbdominalAortaWall(source,bodies[attachmentBody],
             {attachmentCOM.x,attachmentCOM.y,attachmentCOM.z},attachmentBody,
-            bodies[donorBody],donorBody);
+            bodies[donorBody],donorBody,wallConfig);
         require(built.objectIndex<source.objects.size()&&
                     source.objects[built.objectIndex].name==built.object.name,
                 "registered aortic wall append returned a mismatched combined-world object index");
@@ -19041,6 +19044,21 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     preparedRightOpticNerve);
     }
 
+    if(enableAorticWallOuterContact) {
+        require(enableAorticWall&&aorticWall.has_value(),
+                "outer aortic wall contact requires the registered wall FEM opt-in");
+        for(const auto& object:source.objects) {
+            require(object.representation==numi::matter::Representation::fem&&
+                        !object.adaptive&&!object.mutationPolicy.enabled&&
+                        object.mutationCommands.empty()&&
+                        object.femCapacity.mutationCommands==0u&&
+                        (object.femCapacity.nodes==0u||object.femCapacity.nodes==object.femNodes.size())&&
+                        (object.femCapacity.tetrahedra==0u||object.femCapacity.tetrahedra==object.tetrahedra.size())&&
+                        (object.femCapacity.mutationCommands==0u||object.femCapacity.mutationCommands==object.mutationCommands.size()),
+                    "outer aortic contact requires exact immutable FEM; opt out for MPM, adaptive, mutation, or grown-capacity worlds (nothing is silently disabled)");
+        }
+        source.compactImmutableFEMSurfaces=true;
+    }
     std::size_t totalNodeCount=0u;
     for(const auto& object:source.objects) totalNodeCount+=object.femNodes.size();
     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
@@ -19050,6 +19068,19 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::string detail;
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
+    std::optional<numi::human::vessel_wall_coupling::OuterLateralContactSurfaceMapAudit> aorticWallOuterContactAudit;
+    if(enableAorticWallOuterContact) {
+        require(aorticWall.has_value(),"outer aortic contact lost its registered wall source before contact-face marking");
+        aorticWallOuterContactAudit=numi::human::vessel_wall_coupling::markOuterLateralContactSurfaceFaces(
+            compiled.world,*aorticWall,aorticWall->object.femContactNodes);
+        std::cout<<"resting_aortic_wall_outer_contact=accepted interface=outer_lateral_only"
+            <<" outer_ring_rigid_query_nodes="<<aorticWallOuterContactAudit->queryNodeCount
+            <<" canonical_surface_faces="<<aorticWallOuterContactAudit->originalSurfaceFaceCount
+            <<" canonical_surface_faces_after_flags="<<aorticWallOuterContactAudit->canonicalSurfaceFaceCount
+            <<" retained_wall_faces="<<aorticWallOuterContactAudit->retainedWallFaceCount
+            <<" excluded_wall_nonouter_faces="<<aorticWallOuterContactAudit->excludedWallFaceCount
+            <<" self_contact=disabled pressure_cavity=unchanged mass=unchanged map=immutable_static_fem\n";
+    }
     require(compiled.world.fem.nodes.size()==totalNodeCount,
             "resting fascia/ACL/aortic cooked node count differs from source");
     require(compiled.world.objects.size()==source.objects.size(),
@@ -19290,6 +19321,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->aorticWall=std::move(aorticWall);
     owner->aorticWallNodalMassKg=std::move(aorticWallNodalMassKg);
     owner->aorticWallCookedMassKg=aorticWallCookedMassKg;
+    owner->aorticWallOuterContactAudit=std::move(aorticWallOuterContactAudit);
     owner->passiveLigaments=std::move(passiveLigaments);
     owner->fasciaStripAnchorIdentity=std::move(stripIdentities);
     owner->authoredWorldSource=std::move(source);
@@ -26916,6 +26948,16 @@ int main(int argc, char** argv) {
                         "NUMI_HUMAN_RESTING_AORTIC_WALL must be exactly 0 or 1");
                 const bool restingAorticWallEnabled=aorticWallSetting&&
                     std::strcmp(aorticWallSetting,"1")==0;
+                const char* aorticWallOuterContactSetting=
+                    std::getenv("NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT");
+                require(aorticWallOuterContactSetting==nullptr||
+                            std::strcmp(aorticWallOuterContactSetting,"0")==0||
+                            std::strcmp(aorticWallOuterContactSetting,"1")==0,
+                        "NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT must be exactly 0 or 1");
+                const bool restingAorticWallOuterContactEnabled=
+                    aorticWallOuterContactSetting&&std::strcmp(aorticWallOuterContactSetting,"1")==0;
+                require(!restingAorticWallOuterContactEnabled||restingAorticWallEnabled,
+                        "outer aortic wall contact requires NUMI_HUMAN_RESTING_AORTIC_WALL=1");
                 require(!restingAorticWallEnabled||restingPassiveFasciaEnabled,
                         "registered aortic wall requires the shared intact resting tissue world");
                 const char* prostateFEMSetting=std::getenv("NUMI_HUMAN_RESTING_PROSTATE_FEM");
@@ -27692,7 +27734,8 @@ int main(int argc, char** argv) {
                             !openKneePayload.has_value()&&
                             bonePayload->sourceOwnerBindingsVerified,
                         restingProstateFEMEnabled,restingOrganBatchFEMEnabled,
-                        restingAorticWallEnabled,restingScene->first.c_str(),
+                        restingAorticWallEnabled,restingAorticWallOuterContactEnabled,
+                        restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
                         passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),true);
                     if(restingPassiveFasciaOwner->aorticWall) {
@@ -27716,6 +27759,21 @@ int main(int argc, char** argv) {
                         appendSource("resting_registered_aortic_wall_nodal_mass_kg_v1",
                             std::as_bytes(std::span(
                                 restingPassiveFasciaOwner->aorticWallNodalMassKg)));
+                        if(restingPassiveFasciaOwner->aorticWallOuterContactAudit) {
+                            constexpr std::string_view contactIdentity=
+                                "source_aggregate:CVSim21:abdominal_aorta|outer_lateral_face_pairs|outer_ring_nodes_for_rigid_queries|NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT_bit31|static_immutable_fem_v1";
+                            appendSource("resting_registered_aortic_wall_outer_contact_identity_v1",
+                                std::as_bytes(std::span(contactIdentity.data(),contactIdentity.size())));
+                            appendSource("resting_registered_aortic_wall_outer_contact_query_nodes_v1",
+                                std::as_bytes(std::span(wall.object.femContactNodes)));
+                            const auto& audit=*restingPassiveFasciaOwner->aorticWallOuterContactAudit;
+                            const std::array<std::uint32_t,5u> contactCounts{
+                                audit.queryNodeCount,audit.originalSurfaceFaceCount,
+                                audit.canonicalSurfaceFaceCount,audit.retainedWallFaceCount,
+                                audit.excludedWallFaceCount};
+                            appendSource("resting_registered_aortic_wall_outer_contact_map_audit_v1",
+                                std::as_bytes(std::span(contactCounts)));
+                        }
                     }
                     if(restingOpticNerveFEMEnabled) {
                         appendSource("resting_registered_optic_nerve_compiled_world_physics_fingerprint_v1",

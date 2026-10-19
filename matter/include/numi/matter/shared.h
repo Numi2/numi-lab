@@ -278,6 +278,13 @@ enum NMTopologyFlags : nm_u32 {
     NM_TOPOLOGY_COHESIVE_MORTAR = 1u << 8u,
 };
 
+// Per-exterior-face deformable-contact participation. The static surface map
+// remains complete; this bit suppresses only the selected face as a contact
+// primitive, without changing its FEM/topology identity.
+enum NMFEMSurfaceFaceFlags : nm_u32 {
+    NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT = 1u << 31u,
+};
+
 enum NMCohesiveLawKind : nm_u32 {
     NM_COHESIVE_LAW_TRYDING_MODE_I = 0u,
     NM_COHESIVE_LAW_MIXED_MODE_BILINEAR = 1u,

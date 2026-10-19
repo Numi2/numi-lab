@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "command": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/probe/exact-head-build/outer_contact_map_probe",
+  "source_sha256": "4a493cb45db97724ef5730de5db0f4adbcfb08a055ab9492d11195c1896b45ed",
+  "binary_sha256": "6526b90a9e9f1f97cc771536ae5a6cd105442984c490e88ca0ae559b857471d6",
+  "output": {
+    "query_nodes": 216,
+    "original_surface_faces": 1060,
+    "canonical_surface_faces_after_flags": 1060,
+    "retained_wall_outer_faces": 384,
+    "excluded_wall_nonouter_faces": 672,
+    "preserved_nonwall_face_rows": 4,
+    "wall_tets": 1584,
+    "wall_nodes": 532,
+    "wall_mass_kg": 0.00705926,
+    "physics_fingerprint": 18407809203760957000,
+    "package_fingerprint": 18407809203760957000
+  }
+}

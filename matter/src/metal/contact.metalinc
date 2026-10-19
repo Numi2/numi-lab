@@ -930,6 +930,17 @@ kernel void nm_contact_build_surface_primitives(
     const uint localPrimitive = global - environment * primitiveCount;
     const float thickness = dispatch.numericalLimits.x;
 
+    if (compact && localPrimitive < femPrimitiveCount &&
+        (staticSurfaceFaces[localPrimitive].sides.w &
+         NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT) != 0u) {
+        const NMFEMSurfaceFaceGPU face = staticSurfaceFaces[localPrimitive];
+        primitives[global].identity = uint4(
+            4u * face.adjacency.x + face.sides.x,
+            NM_CONTINUUM_SURFACE_TRIANGLE, 0u,
+            NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT);
+        return;
+    }
+
     if (localPrimitive >= femPrimitiveCount) {
         const uint nodeIndex = localPrimitive - femPrimitiveCount;
         const uint nodeGlobal =
@@ -1299,6 +1310,8 @@ inline bool surfacePairEligible(
     device const nm_uint4* cohesiveSurfaceFaceRefs,
     device const NMCohesiveFaceGPU* cohesiveFaces
 ) {
+    if (((left.identity.w | right.identity.w) &
+         NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT) != 0u) return false;
     if ((left.nodesAndObject.w < dispatch.objectCount &&
          (objects[left.nodesAndObject.w].flags &
             NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) != 0u) ||

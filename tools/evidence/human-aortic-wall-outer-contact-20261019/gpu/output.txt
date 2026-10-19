@@ -1,0 +1,3 @@
+case=default_unmasked outer_primitive_flags=1 cap_primitive_flags=1 target_flags=1 outer_pair_fwd_rev=1,1 cap_pair_fwd_rev=1,1
+case=cap_masked outer_primitive_flags=1 cap_primitive_flags=2147483648 target_flags=1 outer_pair_fwd_rev=1,1 cap_pair_fwd_rev=0,0
+result=PASS

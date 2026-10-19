@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "claim_scope": "Direct Metal dispatch of the production compact-FEM primitive builder and production surfacePairEligible predicate on a synthetic two-object, two-tet fixture; selector semantics only.",
+  "limitations": [
+    "Synthetic fixture; not the registered aortic-wall geometry.",
+    "No contact force or impulse was measured.",
+    "The earlier full-body one-step run initialized the wall selector but reported no wall contact impulse.",
+    "Does not establish anatomical clearance or general tissue qualification."
+  ],
+  "checks": {
+    "default_unmasked": {
+      "outer_pair_forward_reverse": [
+        1,
+        1
+      ],
+      "cap_pair_forward_reverse": [
+        1,
+        1
+      ],
+      "emitted_outer_flags": 1,
+      "emitted_cap_flags": 1,
+      "emitted_target_flags": 1
+    },
+    "cap_masked": {
+      "outer_pair_forward_reverse": [
+        1,
+        1
+      ],
+      "cap_pair_forward_reverse": [
+        0,
+        0
+      ],
+      "emitted_outer_flags": 1,
+      "emitted_cap_flags": 2147483648,
+      "emitted_target_flags": 1
+    }
+  },
+  "fixture": {
+    "continuum_objects": 2,
+    "tetrahedra": 2,
+    "static_surface_faces": 3,
+    "wall_outer_representative_face_id": 110,
+    "wall_cap_representative_face_id": 111,
+    "target_face_id": 210,
+    "pair_orders_tested": "both left-right and right-left"
+  },
+  "sources": {
+    "base_commit": "cbd4fac19c7a038af1e15a5deec3dec381f892a7",
+    "production_msl_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/MatterSource.metal",
+    "production_msl_sha256": "1f91b715ebbff704e1fef071386618410c359a60aab19c6980816bc75b396e4b",
+    "test_msl_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-predicate-probe-001/MatterSource.metal",
+    "test_msl_sha256": "b1cad1ac5d5ac6a1c430ca274b04c3a900aa91f8b9e6a78f44039c97338ab5c5",
+    "test_wrapper_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/evidence/outer-contact-predicate-001/predicate_wrapper.metal",
+    "test_wrapper_sha256": "d35b4fd8b81a6234faeef7dab72ecfb5e95af5a79b9371c98405b7a0e90e1fb1",
+    "host_probe_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/evidence/outer-contact-predicate-001/predicate_probe.mm",
+    "host_probe_sha256": "6b7bfc16aaf4431c9f558aee1fb8ec1538dbbbcdf5349d3e49ceee05e725a4e3",
+    "host_binary_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/production-outer-contact-001/native-predicate-probe-001/predicate_probe",
+    "host_binary_sha256": "00835667d3099c6596a0bb722352cd34230ce11d3dfd61c55e2090ceef93a058",
+    "direct_dispatch_output_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/evidence/outer-contact-predicate-001/gpu-output.txt",
+    "direct_dispatch_output_sha256": "ec7455f56e98d2e6daf808034a1d1dbcf57e2d7dcd0cd73724457e2ffdc3f1a9",
+    "candidate_runtime_library_sha256": "97e6f9bf08ce01102a1bcd2dbb45dfae6ee895a59dfe8339383c7663a7024e59",
+    "previous_cpu_actual_wall_map_probe_path": "/Users/n/numi-human-separation-20261018/C/aortic-wall-outer-contact-260/probe/source/outer_contact_map_probe.mm",
+    "previous_cpu_actual_wall_map_probe_sha256": "4a493cb45db97724ef5730de5db0f4adbcfb08a055ab9492d11195c1896b45ed"
+  }
+}
