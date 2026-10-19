@@ -170,6 +170,9 @@ typedef struct NM_ALIGN16 NMHumanRespirationDispatch {
     nm_uint4 bloodMpmGridNodeDimensions;
     nm_u32 particleCount;
     nm_u32 materialStateStride;
+    // Source-verified SI bulk coefficient for the high-shear blood proxy.
+    // This occupies the prior 16-byte ABI tail padding.
+    float bloodMpmBulkModulus;
 } NMHumanRespirationDispatch;
 
 typedef struct NM_ALIGN16 NMHumanRespirationBrainDispatch {

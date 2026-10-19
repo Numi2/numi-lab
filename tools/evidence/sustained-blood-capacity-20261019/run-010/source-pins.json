@@ -1,0 +1,23 @@
+{
+  "base_repository": "/Users/n/numi-lab-native-replay-publish-20261017",
+  "base_revision": "f5f661890d37b944958b2e996619b8a439de61f3",
+  "files": {
+    "README.md": "72d3436e3949d48de92a3724666fcaf3ce1084bf0c50e165eadd9c60741eacf8",
+    "native-sustained-capacity-001/HumanRespirationSustained.metal": "ef36e16eb5baa30104a8e2b2de2613c5320ed6143bf54c5204e00f47228b1c1f",
+    "native-sustained-capacity-001/run-008/result.json": "ef1a712b2fbc1d3c8b5b3591a0ddff33271b4bef10d87f3b2fd30beafb994e5c",
+    "native-sustained-capacity-001/run-009/result.json": "f794cf6f080aaa089ad61b95edf61ac4a2a59b803dc18c4d4844a2475cfb264c",
+    "native-sustained-capacity-001/shader-flatten-receipt.json": "6c0ce35f3bbfe6e7c75b861f5ed6e67cf2169774139ad3be0c797cd2ddc34154",
+    "native-sustained-capacity-001/sustained_capacity_probe.mm": "dee4f9aca47cccf24e304bd81f45779b09cf8da79d2e39093aa43dffd9bf006f",
+    "source/matter/include/numi/matter/human_respiration.h": "4ef52d7a0e74cbbd884d5e6365b6edbf9b8036bc3aea7632fe92d3f1da0e7807",
+    "source/matter/include/numi/matter/shared.h": "e05373980b6262cdb03ec95477ac4563fb70ce81babceb6843fc67d0b1e96bf6",
+    "source/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+    "source/matter/src/human_respiration.metal": "e62cf0896ea2b5e09f090cd69781bd9bf3e807e5c9d998d6ef11c238f09d3408",
+    "source/matter/src/metal/mpm.metalinc": "8be957e76cd9f861b3567407a175d9fa7aad6b0eddfe1f44ce72f3272f411a0c",
+    "source/matter/tools/human_resting_runtime.hpp": "d259ca946cb9300620a0100bc500f951c902b381c1f335b9ab1556146d67ec67",
+    "tools/build_native_sustained.py": "6e3cf3ed04e5538675d00bf275040454100a0715ee8c573af01900c8e66186e7",
+    "tools/flatten_sustained_shader.py": "255eb80784cef3f8604929ac17a55bafb6aed2d45a14e1b06a3656a8ca8e5e47",
+    "tools/patch_sustained.py": "095c3891deb994a0c80a23feb7660e3f18f6015e88397d652d9388e79a5ebddd",
+    "tools/run_native_sustained.py": "abf58cbad277a4ad5c0b5eefb7d0c2add95112da26f411c84c408f91e1dc9955",
+    "tools/run_native_sustained_floor.py": "db53d6f901703723facf3083bfa1b1e1e9af6dff3cdcc6efbc398bc6c40d0c3e"
+  }
+}

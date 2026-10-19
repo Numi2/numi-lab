@@ -1062,6 +1062,221 @@ inline void advanceHumanRespiratoryMechanics(
         !(volume>p.lung.y) || volume>0.008f || determinant<=0 || reject) n.status.w=3;
 }
 
+inline float3x3 nmHumanBloodMatrixFromRows(
+    const float4 row0, const float4 row1, const float4 row2
+) {
+    return transpose(float3x3(row0.xyz, row1.xyz, row2.xyz));
+}
+
+inline void nmHumanBloodMatrixToRows(
+    const float3x3 value,
+    thread float4& row0,
+    thread float4& row1,
+    thread float4& row2
+) {
+    const float3x3 transposed = transpose(value);
+    row0 = float4(transposed[0], 0.0f);
+    row1 = float4(transposed[1], 0.0f);
+    row2 = float4(transposed[2], 0.0f);
+}
+
+inline float nmHumanBloodDeterminantSafe(const float3x3 value) {
+    return determinant(value);
+}
+
+inline float nmHumanBloodRowDifference(float4 a, float4 b) {
+    const float4 difference = abs(a - b);
+    return max(max(difference.x, difference.y), max(difference.z, difference.w));
+}
+
+inline float3 nmHumanBloodAngularVelocity(float4 row0, float4 row1, float4 row2) {
+    // APIC rows encode the spatial velocity gradient. Its antisymmetric part is
+    // the unresolved particle spin, using the same quadratic B-spline moment as
+    // the handoff's omega = 2 L / (m h^2) conversion.
+    return 0.5f * float3(row2.y - row1.z, row0.z - row2.x, row1.x - row0.y);
+}
+
+inline bool nmHumanBloodMergeDeformation(
+    NMParticleStateGPU a,
+    NMParticleStateGPU b,
+    float h,
+    float bulkModulus,
+    thread float3x3& mergedDeformation,
+    thread float& bulkEnergyLoss
+) {
+    const float volumeA=a.velocityAndReferenceVolume.w;
+    const float volumeB=b.velocityAndReferenceVolume.w;
+    const float mergedVolume=volumeA+volumeB;
+    if(!isfinite(volumeA)||!(volumeA>0.0f)||
+       !isfinite(volumeB)||!(volumeB>0.0f)||
+       !isfinite(mergedVolume)||!(mergedVolume>0.0f)||
+       !isfinite(h)||!(h>0.0f)||
+       !isfinite(bulkModulus)||!(bulkModulus>0.0f)) return false;
+    const float3x3 deformationA=nmHumanBloodMatrixFromRows(
+        a.deformationRow0,a.deformationRow1,a.deformationRow2);
+    const float3x3 deformationB=nmHumanBloodMatrixFromRows(
+        b.deformationRow0,b.deformationRow1,b.deformationRow2);
+    const float jacobianA=nmHumanBloodDeterminantSafe(deformationA);
+    const float jacobianB=nmHumanBloodDeterminantSafe(deformationB);
+    if(!all(isfinite(deformationA[0]))||!all(isfinite(deformationA[1]))||
+       !all(isfinite(deformationA[2]))||!all(isfinite(deformationB[0]))||
+       !all(isfinite(deformationB[1]))||!all(isfinite(deformationB[2]))||
+       !isfinite(jacobianA)||!(jacobianA>0.0f)||
+       !isfinite(jacobianB)||!(jacobianB>0.0f)) return false;
+    const float targetJacobian=(volumeA*jacobianA+volumeB*jacobianB)/mergedVolume;
+    const float3x3 averageDeformation=
+        (volumeA/mergedVolume)*deformationA+(volumeB/mergedVolume)*deformationB;
+    const float averageJacobian=nmHumanBloodDeterminantSafe(averageDeformation);
+    if(!isfinite(targetJacobian)||!(targetJacobian>0.0f)||
+       !isfinite(averageJacobian)||!(averageJacobian>0.0f)) return false;
+    const float rescale=pow(targetJacobian/averageJacobian,1.0f/3.0f);
+    mergedDeformation=rescale*averageDeformation;
+    const float mergedJacobian=nmHumanBloodDeterminantSafe(mergedDeformation);
+    if(!isfinite(rescale)||!(rescale>0.0f)||
+       !all(isfinite(mergedDeformation[0]))||
+       !all(isfinite(mergedDeformation[1]))||
+       !all(isfinite(mergedDeformation[2]))||
+       !isfinite(mergedJacobian)||!(mergedJacobian>0.0f)) return false;
+    const float originalDeformedVolume=
+        volumeA*jacobianA+volumeB*jacobianB;
+    const float mergedDeformedVolume=mergedVolume*mergedJacobian;
+    const float floatEpsilon=1.1920928955078125e-7f;
+    const float volumeTolerance=
+        8.0f*floatEpsilon*max(abs(originalDeformedVolume),abs(mergedDeformedVolume));
+    const float jacobianTolerance=
+        8.0f*floatEpsilon*max(1.0f,abs(targetJacobian));
+    if(!isfinite(originalDeformedVolume)||!(originalDeformedVolume>0.0f)||
+       !isfinite(mergedDeformedVolume)||
+       abs(mergedDeformedVolume-originalDeformedVolume)>volumeTolerance||
+       abs(mergedJacobian-targetJacobian)>jacobianTolerance||
+       mergedDeformedVolume>0.5f*h*h*h) return false;
+    const float bulkEnergyBefore=0.5f*bulkModulus*(
+        volumeA*(jacobianA-1.0f)*(jacobianA-1.0f)+
+        volumeB*(jacobianB-1.0f)*(jacobianB-1.0f));
+    const float bulkEnergyAfter=0.5f*bulkModulus*mergedVolume*
+        (mergedJacobian-1.0f)*(mergedJacobian-1.0f);
+    const float energyTolerance=max(1.0e-30f,
+        16.0f*floatEpsilon*max(bulkEnergyBefore,bulkEnergyAfter));
+    const float signedBulkLoss=bulkEnergyBefore-bulkEnergyAfter;
+    if(!isfinite(bulkEnergyBefore)||!isfinite(bulkEnergyAfter)||
+       !isfinite(signedBulkLoss)||signedBulkLoss < -energyTolerance) return false;
+    bulkEnergyLoss=max(0.0f,signedBulkLoss);
+    return isfinite(bulkEnergyLoss);
+}
+
+inline float nmHumanBloodAffineNormSquared(float4 row0, float4 row1, float4 row2) {
+    return dot(row0.xyz, row0.xyz) +
+        dot(row1.xyz, row1.xyz) +
+        dot(row2.xyz, row2.xyz);
+}
+
+inline bool nmHumanBloodMergeKineticAdmissible(
+    NMParticleStateGPU a,
+    NMParticleStateGPU b,
+    float h
+) {
+    const float massA = a.positionAndMass.w;
+    const float massB = b.positionAndMass.w;
+    const float mergedMass = massA + massB;
+    const float hSquared = h * h;
+    if (!isfinite(massA) || !(massA > 0.0f) ||
+        !isfinite(massB) || !(massB > 0.0f) ||
+        !isfinite(mergedMass) || !(mergedMass > 0.0f) ||
+        !isfinite(hSquared) || !(hSquared > 0.0f)) return false;
+
+    const float3 momentumA = massA * a.velocityAndReferenceVolume.xyz;
+    const float3 momentumB = massB * b.velocityAndReferenceVolume.xyz;
+    const float3 totalMomentum = momentumA + momentumB;
+    const float3 center = (massA * a.positionAndMass.xyz +
+        massB * b.positionAndMass.xyz) / mergedMass;
+    const float3 velocity = totalMomentum / mergedMass;
+    const float3 omegaA = nmHumanBloodAngularVelocity(
+        a.affineRow0, a.affineRow1, a.affineRow2);
+    const float3 omegaB = nmHumanBloodAngularVelocity(
+        b.affineRow0, b.affineRow1, b.affineRow2);
+    const float3 angularMomentumAboutCenter =
+        cross(a.positionAndMass.xyz - center, momentumA - massA * velocity) +
+        cross(b.positionAndMass.xyz - center, momentumB - massB * velocity) +
+        (0.5f * hSquared) * (massA * omegaA + massB * omegaB);
+    const float3 omegaMerged =
+        (2.0f / (mergedMass * hSquared)) * angularMomentumAboutCenter;
+    float4 affineRow0 = (massA * a.affineRow0 + massB * b.affineRow0) / mergedMass;
+    float4 affineRow1 = (massA * a.affineRow1 + massB * b.affineRow1) / mergedMass;
+    float4 affineRow2 = (massA * a.affineRow2 + massB * b.affineRow2) / mergedMass;
+    const float3 omegaAverage = nmHumanBloodAngularVelocity(
+        affineRow0, affineRow1, affineRow2);
+    const float3 omegaCorrection = omegaMerged - omegaAverage;
+    affineRow0.y -= omegaCorrection.z;
+    affineRow0.z += omegaCorrection.y;
+    affineRow1.x += omegaCorrection.z;
+    affineRow1.z -= omegaCorrection.x;
+    affineRow2.x -= omegaCorrection.y;
+    affineRow2.y += omegaCorrection.x;
+
+    const float kineticBefore =
+        0.5f * massA * dot(a.velocityAndReferenceVolume.xyz,
+            a.velocityAndReferenceVolume.xyz) +
+        0.5f * massB * dot(b.velocityAndReferenceVolume.xyz,
+            b.velocityAndReferenceVolume.xyz) +
+        (hSquared / 8.0f) * (
+            massA * nmHumanBloodAffineNormSquared(
+                a.affineRow0, a.affineRow1, a.affineRow2) +
+            massB * nmHumanBloodAffineNormSquared(
+                b.affineRow0, b.affineRow1, b.affineRow2));
+    const float kineticAfter =
+        0.5f * mergedMass * dot(velocity, velocity) +
+        (mergedMass * hSquared / 8.0f) *
+            nmHumanBloodAffineNormSquared(affineRow0, affineRow1, affineRow2);
+    const float signedKineticLoss=kineticBefore-kineticAfter;
+    const float kineticTolerance=max(1.0e-30f,
+        16.0f*1.1920928955078125e-7f*max(kineticBefore,kineticAfter));
+    return all(isfinite(totalMomentum)) && all(isfinite(center)) &&
+        all(isfinite(velocity)) && all(isfinite(angularMomentumAboutCenter)) &&
+        all(isfinite(omegaMerged)) && all(isfinite(affineRow0)) &&
+        all(isfinite(affineRow1)) && all(isfinite(affineRow2)) &&
+        isfinite(kineticBefore) && isfinite(kineticAfter) &&
+        isfinite(signedKineticLoss) && signedKineticLoss >= -kineticTolerance;
+}
+
+inline bool nmHumanBloodMergeStatesCompatible(
+    NMParticleStateGPU a,
+    NMParticleStateGPU b,
+    device const float* materialState,
+    uint stateBaseA,
+    uint stateBaseB,
+    uint stateStride,
+    uint stateCount,
+    float h,
+    float bulkModulus
+) {
+    // The caller admits only the SHA-pinned stateless high-shear Newtonian
+    // proxy. Preserve its complete material history and temperature exactly;
+    // the source energy depends on J alone, so F may be projected only by the
+    // bounded volume-preserving helper, which ledgers its measured bulk loss.
+    if(!all(isfinite(a.deformationRow0))||
+       !all(isfinite(a.deformationRow1))||
+       !all(isfinite(a.deformationRow2))||
+       !all(isfinite(b.deformationRow0))||
+       !all(isfinite(b.deformationRow1))||
+       !all(isfinite(b.deformationRow2))||
+       !all(isfinite(a.affineRow0))||!all(isfinite(a.affineRow1))||
+       !all(isfinite(a.affineRow2))||!all(isfinite(b.affineRow0))||
+       !all(isfinite(b.affineRow1))||!all(isfinite(b.affineRow2))||
+       !isfinite(a.referenceAndTemperature.w)||
+       !isfinite(b.referenceAndTemperature.w)||
+       a.referenceAndTemperature.w!=b.referenceAndTemperature.w) return false;
+    float3x3 mergedDeformation;
+    float bulkEnergyLoss=0.0f;
+    if(!nmHumanBloodMergeDeformation(
+        a,b,h,bulkModulus,mergedDeformation,bulkEnergyLoss)) return false;
+    for(uint state=0u;state<stateCount;++state) {
+        const float valueA=materialState[stateBaseA+state];
+        const float valueB=materialState[stateBaseB+state];
+        if(!isfinite(valueA)||!isfinite(valueB)||valueA!=valueB) return false;
+    }
+    return true;
+}
+
 // Transfer one already-accepted outlet batch into preauthored dormant MPM
 // capacity. Matter has copied particle and material checkpoints immediately
 // before frameBegin; those checkpoints remain immutable so normal rejection
@@ -1093,6 +1308,7 @@ kernel void nm_human_blood_mpm_handoff(
         d.bloodMpmMaterialIndex != NM_INVALID_INDEX &&
         d.bloodMpmMaterialStateCount <= d.materialStateStride &&
         isfinite(d.bloodMpmDensity) && d.bloodMpmDensity > 0.0f &&
+        isfinite(d.bloodMpmBulkModulus) && d.bloodMpmBulkModulus > 0.0f &&
         isfinite(d.bloodMpmGridCellWidth) && d.bloodMpmGridCellWidth > 0.0f &&
         all(d.bloodMpmGridNodeDimensions.xyz > uint3(2u)) &&
         all(isfinite(batch)) && batch.x > 0.0f && batch.y > 0.0f &&
@@ -1128,43 +1344,229 @@ kernel void nm_human_blood_mpm_handoff(
         any(base < minimum) || any(base + int3(2) > maximum))
         valid = false;
 
+    const uint particleBase = env * d.particleCount;
+    const uint stateBase = env * d.particleCount * d.materialStateStride;
     float capacityVolume = 0.0f;
     if (valid) {
-        const uint particleBase = env * d.particleCount;
         for (uint local = 0u; local < d.bloodMpmParticleCount; ++local) {
             const uint index = d.bloodMpmFirstParticle + local;
             const uint global = particleBase + index;
             const NMParticleStateGPU slot = particleCheckpoint[global];
             const NMParticleStateGPU accepted = particleAccepted[global];
+            const uint stableFlags = ~NM_OBJECT_ACTIVE;
             if (slot.identity.x != d.bloodMpmObjectIndex ||
                 slot.identity.y != d.bloodMpmMaterialIndex ||
                 slot.identity.z != d.bloodMpmTopologyGeneration ||
                 accepted.identity.x != slot.identity.x ||
                 accepted.identity.y != slot.identity.y ||
                 accepted.identity.z != slot.identity.z ||
-                accepted.identity.w != slot.identity.w ||
-                (slot.identity.w & NM_OBJECT_ACTIVE) != 0u ||
-                !all(isfinite(slot.positionAndMass)) ||
-                !all(isfinite(slot.velocityAndReferenceVolume)) ||
-                !(slot.positionAndMass.w > 0.0f) ||
-                !(slot.velocityAndReferenceVolume.w > 0.0f) ||
-                abs(slot.positionAndMass.w -
-                    d.bloodMpmDensity * slot.velocityAndReferenceVolume.w) >
-                    max(1.0e-12f, 4.0e-6f * slot.positionAndMass.w)) {
-                // Already-active slots are permitted; their current records
-                // are part of the same receiver, but contribute no capacity.
-                if ((slot.identity.w & NM_OBJECT_ACTIVE) != 0u &&
-                    slot.identity.x == d.bloodMpmObjectIndex &&
-                    slot.identity.y == d.bloodMpmMaterialIndex &&
-                    slot.identity.z == d.bloodMpmTopologyGeneration &&
-                    accepted.identity.w == slot.identity.w) continue;
+                (accepted.identity.w & stableFlags) != (slot.identity.w & stableFlags) ||
+                !all(isfinite(accepted.positionAndMass)) ||
+                !all(isfinite(accepted.velocityAndReferenceVolume)) ||
+                !(accepted.positionAndMass.w > 0.0f) ||
+                !(accepted.velocityAndReferenceVolume.w > 0.0f) ||
+                abs(accepted.positionAndMass.w -
+                    d.bloodMpmDensity * accepted.velocityAndReferenceVolume.w) >
+                    max(1.0e-12f, 4.0e-6f * accepted.positionAndMass.w)) {
                 valid = false;
                 break;
             }
-            capacityVolume += slot.velocityAndReferenceVolume.w;
+            if ((accepted.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                capacityVolume += accepted.velocityAndReferenceVolume.w;
         }
     }
     const float capacityTolerance = max(1.0e-12f, batch.x * 2.0e-6f);
+
+    // Only compact when the pending batch cannot fit. This is bounded MPM
+    // coarsening inside a half-cell radius, never a long-distance pool: choose
+    // the closest compatible pair, preserve mass/reference volume, center-of-
+    // mass momentum, APIC angular momentum, and total deformed volume. Exact
+    // material history, F, and temperature preserve constitutive state; merged
+    // deformed volume is capped at half a grid-cell volume. If no local pair is
+    // admissible, fail closed and let frame rollback
+    // restore the immutable accepted-step checkpoint.
+    const float mergeRadius = 0.5f * h;
+    const float mergeRadiusSquared = mergeRadius * mergeRadius;
+    const float hSquared = h * h;
+    if (valid && batch.x > capacityVolume + capacityTolerance) {
+        for (uint mergePass = 0u;
+             mergePass < d.bloodMpmParticleCount &&
+             batch.x > capacityVolume + capacityTolerance;
+             ++mergePass) {
+            uint bestA = NM_INVALID_INDEX;
+            uint bestB = NM_INVALID_INDEX;
+            float bestDistanceSquared = mergeRadiusSquared;
+            for (uint localA = 0u; localA < d.bloodMpmParticleCount; ++localA) {
+                const uint indexA = d.bloodMpmFirstParticle + localA;
+                const uint globalA = particleBase + indexA;
+                const NMParticleStateGPU a = particleAccepted[globalA];
+                if ((a.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                for (uint localB = localA + 1u; localB < d.bloodMpmParticleCount; ++localB) {
+                    const uint indexB = d.bloodMpmFirstParticle + localB;
+                    const uint globalB = particleBase + indexB;
+                    const NMParticleStateGPU b = particleAccepted[globalB];
+                    if ((b.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                    const float3 separation = b.positionAndMass.xyz - a.positionAndMass.xyz;
+                    const float distanceSquared = dot(separation, separation);
+                    if (!(distanceSquared < bestDistanceSquared) ||
+                        !nmHumanBloodMergeStatesCompatible(
+                            a, b, materialStateAccepted,
+                            stateBase + indexA * d.materialStateStride,
+                            stateBase + indexB * d.materialStateStride,
+                            d.materialStateStride,
+                            d.bloodMpmMaterialStateCount,
+                            h, d.bloodMpmBulkModulus) ||
+                        !nmHumanBloodMergeKineticAdmissible(a, b, h))
+                        continue;
+                    bestA = indexA;
+                    bestB = indexB;
+                    bestDistanceSquared = distanceSquared;
+                }
+            }
+            if (bestA == NM_INVALID_INDEX || bestB == NM_INVALID_INDEX) break;
+
+            const uint globalA = particleBase + bestA;
+            const uint globalB = particleBase + bestB;
+            NMParticleStateGPU a = particleAccepted[globalA];
+            const NMParticleStateGPU b = particleAccepted[globalB];
+            const float massA = a.positionAndMass.w;
+            const float massB = b.positionAndMass.w;
+            const float volumeA = a.velocityAndReferenceVolume.w;
+            const float volumeB = b.velocityAndReferenceVolume.w;
+            const float mergedMass = massA + massB;
+            const float mergedVolume = volumeA + volumeB;
+            if (!isfinite(mergedMass) || !(mergedMass > 0.0f) ||
+                !isfinite(mergedVolume) || !(mergedVolume > 0.0f)) {
+                valid = false;
+                break;
+            }
+
+            const float3 momentumA = massA * a.velocityAndReferenceVolume.xyz;
+            const float3 momentumB = massB * b.velocityAndReferenceVolume.xyz;
+            const float3 totalMomentum = momentumA + momentumB;
+            const float3 center = (massA * a.positionAndMass.xyz +
+                massB * b.positionAndMass.xyz) / mergedMass;
+            const float3 velocity = totalMomentum / mergedMass;
+
+            const float3 omegaA = nmHumanBloodAngularVelocity(
+                a.affineRow0, a.affineRow1, a.affineRow2);
+            const float3 omegaB = nmHumanBloodAngularVelocity(
+                b.affineRow0, b.affineRow1, b.affineRow2);
+            const float3 angularMomentumAboutCenter =
+                cross(a.positionAndMass.xyz - center, momentumA - massA * velocity) +
+                cross(b.positionAndMass.xyz - center, momentumB - massB * velocity) +
+                (0.5f * hSquared) * (massA * omegaA + massB * omegaB);
+            const float3 omegaMerged =
+                (2.0f / (mergedMass * hSquared)) * angularMomentumAboutCenter;
+            float4 affineRow0 = (massA * a.affineRow0 + massB * b.affineRow0) / mergedMass;
+            float4 affineRow1 = (massA * a.affineRow1 + massB * b.affineRow1) / mergedMass;
+            float4 affineRow2 = (massA * a.affineRow2 + massB * b.affineRow2) / mergedMass;
+            const float3 omegaAveraged = nmHumanBloodAngularVelocity(
+                affineRow0, affineRow1, affineRow2);
+            const float3 omegaCorrection = omegaMerged - omegaAveraged;
+            affineRow0.y -= omegaCorrection.z;
+            affineRow0.z += omegaCorrection.y;
+            affineRow1.x += omegaCorrection.z;
+            affineRow1.z -= omegaCorrection.x;
+            affineRow2.x -= omegaCorrection.y;
+            affineRow2.y += omegaCorrection.x;
+            const float3x3 mergedAffine =
+                nmHumanBloodMatrixFromRows(affineRow0, affineRow1, affineRow2);
+
+            float3x3 mergedDeformation;
+            float bulkEnergyLoss=0.0f;
+            if(!nmHumanBloodMergeDeformation(
+                    a,b,h,d.bloodMpmBulkModulus,
+                    mergedDeformation,bulkEnergyLoss)) {
+                valid=false;
+                break;
+            }
+            float4 deformationRow0;
+            float4 deformationRow1;
+            float4 deformationRow2;
+            nmHumanBloodMatrixToRows(mergedDeformation,
+                deformationRow0, deformationRow1, deformationRow2);
+            nmHumanBloodMatrixToRows(mergedAffine, affineRow0, affineRow1, affineRow2);
+
+            const float kineticBefore =
+                0.5f * massA * dot(a.velocityAndReferenceVolume.xyz,
+                    a.velocityAndReferenceVolume.xyz) +
+                0.5f * massB * dot(b.velocityAndReferenceVolume.xyz,
+                    b.velocityAndReferenceVolume.xyz) +
+                (hSquared / 8.0f) * (
+                    massA * nmHumanBloodAffineNormSquared(
+                        a.affineRow0, a.affineRow1, a.affineRow2) +
+                    massB * nmHumanBloodAffineNormSquared(
+                        b.affineRow0, b.affineRow1, b.affineRow2));
+            const float kineticAfter =
+                0.5f * mergedMass * dot(velocity, velocity) +
+                (mergedMass * hSquared / 8.0f) *
+                    nmHumanBloodAffineNormSquared(
+                        affineRow0, affineRow1, affineRow2);
+            const float signedKineticLoss=kineticBefore-kineticAfter;
+            const float kineticTolerance=max(1.0e-30f,
+                16.0f*1.1920928955078125e-7f*max(kineticBefore,kineticAfter));
+            if (!isfinite(kineticBefore) || !isfinite(kineticAfter) ||
+                !isfinite(signedKineticLoss)||signedKineticLoss < -kineticTolerance) {
+                // The candidate scan applies the same test; this second check
+                // protects the write path against changed/corrupt state.
+                valid = false;
+                break;
+            }
+
+            const float mergeLoss=max(0.0f,signedKineticLoss);
+            const float totalMergeLoss=mergeLoss+bulkEnergyLoss;
+            const float energyAdjusted = totalMergeLoss - n.externalBlood.energyLedger.z;
+            const float energyNext = n.externalBlood.energyLedger.y + energyAdjusted;
+            if(!isfinite(totalMergeLoss)||totalMergeLoss<0.0f||
+               !isfinite(energyAdjusted)||!isfinite(energyNext)) {
+                valid=false;
+                break;
+            }
+
+            a.positionAndMass = float4(center, mergedMass);
+            a.velocityAndReferenceVolume = float4(velocity, mergedVolume);
+            a.deformationRow0 = deformationRow0;
+            a.deformationRow1 = deformationRow1;
+            a.deformationRow2 = deformationRow2;
+            a.affineRow0 = affineRow0;
+            a.affineRow1 = affineRow1;
+            a.affineRow2 = affineRow2;
+            a.referenceAndTemperature =
+                (volumeA / mergedVolume) * a.referenceAndTemperature +
+                (volumeB / mergedVolume) * b.referenceAndTemperature;
+            particleAccepted[globalA] = a;
+            particleCandidate[globalA] = a;
+
+            NMParticleStateGPU dormant = b;
+            dormant.positionAndMass =
+                float4(center, d.bloodMpmDensity * volumeB);
+            dormant.velocityAndReferenceVolume = float4(0.0f, 0.0f, 0.0f, volumeB);
+            dormant.deformationRow0 = float4(1.0f, 0.0f, 0.0f, 0.0f);
+            dormant.deformationRow1 = float4(0.0f, 1.0f, 0.0f, 0.0f);
+            dormant.deformationRow2 = float4(0.0f, 0.0f, 1.0f, 0.0f);
+            dormant.affineRow0 = float4(0.0f);
+            dormant.affineRow1 = float4(0.0f);
+            dormant.affineRow2 = float4(0.0f);
+            dormant.referenceAndTemperature =
+                float4(center, a.referenceAndTemperature.w);
+            dormant.identity.w &= ~NM_OBJECT_ACTIVE;
+            particleAccepted[globalB] = dormant;
+            particleCandidate[globalB] = dormant;
+            const uint materialBaseB =
+                stateBase + bestB * d.materialStateStride;
+            for (uint stateIndex = 0u; stateIndex < d.materialStateStride; ++stateIndex) {
+                const float initial = materialStateDefaults[materialBaseB + stateIndex];
+                materialStateAccepted[materialBaseB + stateIndex] = initial;
+                materialStateCandidate[materialBaseB + stateIndex] = initial;
+            }
+
+            n.externalBlood.energyLedger.z =
+                (energyNext - n.externalBlood.energyLedger.y) - energyAdjusted;
+            n.externalBlood.energyLedger.y = energyNext;
+            capacityVolume += volumeB;
+        }
+    }
     if (!isfinite(capacityVolume) || batch.x > capacityVolume + capacityTolerance)
         valid = false;
 
@@ -1184,15 +1586,13 @@ kernel void nm_human_blood_mpm_handoff(
     const float mass = batch.y;
     const float3 velocity = momentum / mass;
     const float3 omega = 2.0f * intrinsicAngular / (mass * h * h);
-    const uint particleBase = env * d.particleCount;
-    const uint stateBase = env * d.particleCount * d.materialStateStride;
     float remainingVolume = batch.x;
     float remainingMass = batch.y;
     for (uint local = 0u; local < d.bloodMpmParticleCount; ++local) {
         if (!(remainingVolume > 0.0f)) break;
         const uint index = d.bloodMpmFirstParticle + local;
         const uint global = particleBase + index;
-        NMParticleStateGPU particle = particleCheckpoint[global];
+        NMParticleStateGPU particle = particleAccepted[global];
         if ((particle.identity.w & NM_OBJECT_ACTIVE) != 0u) continue;
         const float slotVolume = particle.velocityAndReferenceVolume.w;
         const float assignedVolume = min(slotVolume, remainingVolume);

@@ -1,22 +1,45 @@
 #pragma once
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "numi/matter/human_physiology.hpp"
 #include "human_respiration_parameters.hpp"
 #include "../src/metal_encoder_timing.hpp"
 #include "metalrobo/engine_types.h"
 #include <NumiBrainRespiratoryChemoreflexV1.h>
 #include <chrono>
+#include <cstddef>
 #include <cstring>
 #include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
+#include <sstream>
 #include <limits>
 
 namespace numi::human {
 using namespace numi::matter;
+static_assert(sizeof(NMHumanRespirationDispatch)==144u,
+              "blood bulk coefficient must fit the existing dispatch ABI tail padding");
+static_assert(offsetof(NMHumanRespirationDispatch,bloodMpmBulkModulus)==136u,
+              "blood bulk coefficient must remain at the dispatch ABI tail offset");
 inline void need(bool value,const std::string& message){if(!value)throw std::runtime_error(message);}
+inline std::string nmHumanBloodSourceSHA256(const std::string& path) {
+    std::ifstream input(path,std::ios::binary);
+    need(input.good(),"cannot read source-bound blood constitutive material");
+    const std::string bytes{std::istreambuf_iterator<char>(input),
+                            std::istreambuf_iterator<char>()};
+    need(!input.bad()&&bytes.size()<=UINT32_MAX,
+         "blood constitutive material source is unreadable or oversized");
+    unsigned char digest[CC_SHA256_DIGEST_LENGTH]{};
+    need(CC_SHA256(bytes.data(),static_cast<CC_LONG>(bytes.size()),digest)!=nullptr,
+         "cannot hash source-bound blood constitutive material");
+    std::ostringstream result;
+    result<<std::hex<<std::setfill('0');
+    for(const unsigned char byte:digest) result<<std::setw(2)<<unsigned(byte);
+    return result.str();
+}
 inline id<MTLBuffer> buffer(void* value){return (__bridge id<MTLBuffer>)value;}
 struct Respiration {
     id<MTLDevice> device;
@@ -96,6 +119,16 @@ struct Respiration {
         need(!bloodMpmSetting||std::strcmp(bloodMpmSetting,"0")==0||
              std::strcmp(bloodMpmSetting,"1")==0,
              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+        const char* bloodContactSetting=
+            std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
+        need(!bloodContactSetting||std::strcmp(bloodContactSetting,"0")==0||
+             std::strcmp(bloodContactSetting,"1")==0,
+             "NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED must be exactly 0 or 1");
+        const bool bloodContactEnabled=bloodContactSetting&&
+            std::strcmp(bloodContactSetting,"1")==0;
+        need(!bloodContactEnabled||(bloodMpmSetting&&
+             std::strcmp(bloodMpmSetting,"1")==0),
+             "blood MPM contact requires NUMI_HUMAN_BLOOD_MPM_ENABLED=1");
         if(bloodMpmSetting&&std::strcmp(bloodMpmSetting,"1")==0) {
             constexpr const char* bloodMaterialName="blood_high_shear_newtonian_proxy";
             std::uint32_t receiver=NM_INVALID_INDEX;
@@ -112,11 +145,30 @@ struct Respiration {
             need(receiverCount==1u,
                  "blood MPM mode requires exactly one compiled receiver object with the source-named high-shear blood material");
             const auto& object=world.objects[receiver];
-            constexpr std::uint32_t requiredReceiverFlags =
-                NM_OBJECT_DISABLE_DEFORMABLE_CONTACT | NM_OBJECT_DISABLE_SELF_CONTACT;
+            const bool deformableContactDisabled =
+                (object.flags & NM_OBJECT_DISABLE_DEFORMABLE_CONTACT) != 0u;
             need((object.flags & NM_OBJECT_ADAPTIVE) == 0u &&
-                 (object.flags & requiredReceiverFlags) == requiredReceiverFlags,
-                 "blood MPM receiver must be nonadaptive with deformable and self-contact disabled until the coupled path is qualified");
+                 (object.flags & NM_OBJECT_DISABLE_SELF_CONTACT) != 0u &&
+                 deformableContactDisabled == !bloodContactEnabled,
+                 "blood MPM receiver must be nonadaptive, self-contact disabled, and match the explicit fixed-plane contact opt-in");
+            if(bloodContactEnabled) {
+                bool hasFixedUpwardPlanePair=false;
+                for(const auto& pair:world.contact.pairs) {
+                    if(pair.objectIndex!=receiver||
+                       pair.rigidProxy>=world.contact.rigidProxies.size()) continue;
+                    const auto& proxy=world.contact.rigidProxies[pair.rigidProxy];
+                    if(proxy.shapeKind==NM_RIGID_PLANE&&
+                       proxy.bodyIndex==NM_INVALID_INDEX&&
+                       std::abs(double(proxy.localCenterAndRadius.x))<=1.0e-6&&
+                       std::abs(double(proxy.localCenterAndRadius.y))<=1.0e-6&&
+                       proxy.localCenterAndRadius.z>=0.999f) {
+                        hasFixedUpwardPlanePair=true;
+                        break;
+                    }
+                }
+                need(hasFixedUpwardPlanePair,
+                     "blood MPM contact opt-in requires a compiled receiver pair against a world-fixed upward plane");
+            }
             need(object.stateCount>0u&&object.stateCount<=4096u&&
                  object.elementCount==1u&&object.elementOffset<world.mpm.grids.size()&&
                  std::uint64_t(object.stateOffset)+object.stateCount<=world.mpm.particles.size()&&
@@ -733,28 +785,60 @@ struct RestingRun {
         need(!bloodMode||std::strcmp(bloodMode,"0")==0||std::strcmp(bloodMode,"1")==0,
              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
         const bool bloodEnabled=bloodMode&&std::strcmp(bloodMode,"1")==0;
+        const char* contactMode=std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
+        need(!contactMode||std::strcmp(contactMode,"0")==0||
+             std::strcmp(contactMode,"1")==0,
+             "NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED must be exactly 0 or 1");
+        const bool bloodContactEnabled=contactMode&&std::strcmp(contactMode,"1")==0;
+        need(!bloodContactEnabled||bloodEnabled,
+             "blood MPM contact requires NUMI_HUMAN_BLOOD_MPM_ENABLED=1");
         source=composeRestingWorldSource(n,dt,tissueSource);
+        float sourcePinnedBloodBulkModulus=0.0f;
+        std::string bloodMaterialSHA256;
         if(bloodEnabled) {
             const char* path=std::getenv("NUMI_HUMAN_BLOOD_MPM_MATERIAL");
             need(path&&*path,"blood MPM mode requires an explicit source material path");
             auto material=parseMatterFile(path);
             need(material.succeeded()&&material.material.name=="blood_high_shear_newtonian_proxy",
                  "blood MPM source material is absent, invalid, or has the wrong identity");
+            constexpr const char* expectedMaterialSHA256=
+                "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2";
+            bloodMaterialSHA256=nmHumanBloodSourceSHA256(path);
+            need(bloodMaterialSHA256==expectedMaterialSHA256,
+                 "blood MPM coalescence requires the exact source-pinned Newtonian proxy material");
             double density=0.0;
-            for(const auto& parameter:material.material.parameters)
-                if(parameter.name=="density") density=parameter.defaultValue;
-            need(std::isfinite(density)&&density>0.0,"blood MPM source density is invalid");
+            double numericalBulkProxy=std::numeric_limits<double>::quiet_NaN();
+            bool foundDensity=false,foundBulk=false;
+            for(const auto& parameter:material.material.parameters) {
+                if(parameter.name=="density") {
+                    density=parameter.defaultValue;foundDensity=true;
+                }
+                if(parameter.name=="numerical_bulk_proxy") {
+                    numericalBulkProxy=parameter.defaultValue;foundBulk=true;
+                    need(parameter.dimension==kPressure,
+                         "blood numerical bulk proxy must remain an SI pressure parameter");
+                }
+            }
+            need(foundDensity&&std::isfinite(density)&&density>0.0,
+                 "blood MPM source density is invalid");
+            need(foundBulk&&std::isfinite(numericalBulkProxy)&&numericalBulkProxy>0.0&&
+                 material.material.internalState.empty(),
+                 "source-pinned blood proxy must retain its positive stateless numerical bulk energy");
             ObjectSource receiver;
             receiver.name="external_blood_dormant_receiver";
             // Assigned against the appended material table after preserving
             // every material already owned by the tissue seed.
             receiver.representation=Representation::mpm;
             receiver.automaticRepresentation=false;receiver.twoWayCoupling=false;
-            receiver.adaptive=false;receiver.deformableContact=false;
+            receiver.adaptive=false;receiver.deformableContact=bloodContactEnabled;
             receiver.deformableSelfContact=false;
             // Bounded reference capacity, not pre-existing physical blood.
-            // Partial outlet batches consume slots; exhaustion rejects rather
-            // than allocating, dropping mass, or reusing live fluid particles.
+            // When full, the GPU handoff can reclaim capacity only by merging
+            // nearby APIC particles with exactly matching material history and
+            // temperature. The pinned stateless Newtonian bulk law permits a
+            // volume-preserving F projection; measured bulk-energy loss joins
+            // the merge ledger. Merged deformed volume remains below half a
+            // grid cell. If no pair qualifies, the step rejects.
             receiver.characteristicLength=0.05;
             receiver.mpmGridMinimum={-1.5,-1.5,-1.0};
             receiver.mpmGridMaximum={1.5,1.5,3.0};
@@ -790,31 +874,72 @@ struct RestingRun {
                 // positions because the compiler validates their quadratic
                 // support stencil before activation.
                 ParticleSource particle;particle.position=dormantGridCenter;
-                particle.velocity={0,0,0};particle.referenceVolume=1.0e-6;
+                particle.velocity={0,0,0};particle.referenceVolume=1.0e-9;
                 particle.mass=density*particle.referenceVolume;particle.active=false;
                 receiver.particles.push_back(particle);
             }
             if(!tissueSource) source.gravity={0,0,-9.81};
+            double floorZ=std::numeric_limits<double>::quiet_NaN();
+            if(bloodContactEnabled) {
+                floorZ=receiver.mpmGridMinimum[2]+
+                    2.0*receiver.characteristicLength;
+                need(floorZ<receiver.mpmGridMaximum[2]-
+                         2.0*receiver.characteristicLength,
+                     "fixed blood MPM floor must lie inside the padded receiver grid");
+                RigidProxySource floor;
+                floor.shape=NM_RIGID_PLANE;
+                floor.bodyIndex=NM_INVALID_INDEX;
+                floor.materialIndex=static_cast<std::uint32_t>(source.materials.size());
+                floor.localCenter={0.0,0.0,1.0};
+                floor.radiusOrOffset=floorZ;
+                source.rigidProxies.push_back(floor);
+            }
+            sourcePinnedBloodBulkModulus=static_cast<float>(numericalBulkProxy);
+            need(std::isfinite(sourcePinnedBloodBulkModulus)&&
+                 sourcePinnedBloodBulkModulus>0.0f,
+                 "blood numerical bulk proxy is outside the GPU scalar range");
             appendRestingBloodMaterial(source,std::move(material.material),std::move(receiver));
             const auto& appendedReceiver=source.objects.back();
-            std::cerr<<"blood_mpm_source=reference slots=128 capacity_ml=128 cell_width_m=0.05"
+            std::cerr<<"blood_mpm_source=reference slots=128 capacity_uL=128 cell_width_m=0.05"
+                     <<" material_sha256="<<bloodMaterialSHA256
+                     <<" numerical_bulk_proxy_pa="<<sourcePinnedBloodBulkModulus
                      <<" grid_min_m="<<appendedReceiver.mpmGridMinimum[0]<<","<<appendedReceiver.mpmGridMinimum[1]<<","<<appendedReceiver.mpmGridMinimum[2]
                      <<" grid_max_m="<<appendedReceiver.mpmGridMaximum[0]<<","<<appendedReceiver.mpmGridMaximum[1]<<","<<appendedReceiver.mpmGridMaximum[2]
                      <<" gravity_m_s2="<<source.gravity[0]<<","<<source.gravity[1]<<","<<source.gravity[2]
                      <<" material="<<path
-                     <<" contact=disabled maximum_rate_exponent="<<NM_MAX_RATE_EXPONENT<<"\n";
+                     <<" contact="<<(bloodContactEnabled?"fixed_plane":"disabled")
+                     <<" floor_z_m="<<floorZ
+                     <<" maximum_rate_exponent_ceiling="<<NM_MAX_RATE_EXPONENT<<"\n";
         }
         const bool fullRateWorld=bloodEnabled||containsFEMObject(source);
-        auto compiled=compileWorld(source,{.maximumRateExponent=fullRateWorld?NM_MAX_RATE_EXPONENT:0u});
+        std::uint32_t maximumRateExponent=fullRateWorld?NM_MAX_RATE_EXPONENT:0u;
+        if(bloodEnabled) {
+            if(const char* bounded=std::getenv(
+                    "NUMI_HUMAN_BLOOD_MPM_MAX_RATE_EXPONENT")) {
+                char* end=nullptr;
+                const unsigned long parsed=std::strtoul(bounded,&end,10);
+                need(end!=bounded&&*end=='\0'&&parsed<=5u&&
+                     parsed<=NM_MAX_RATE_EXPONENT,
+                     "blood MPM fixture rate exponent must be an integer from 0 through 5");
+                maximumRateExponent=static_cast<std::uint32_t>(parsed);
+            }
+        }
+        auto compiled=compileWorld(source,{.maximumRateExponent=maximumRateExponent});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
         RuntimeConfiguration config;config.metallib=NUMI_MATTER_METALLIB;
-        config.environmentCount=1;config.captureEvents=false;config.captureDiagnostics=false;config.adaptiveTransfer=false;config.enableVascularDense45=vascularDense45;
+        config.environmentCount=1;config.captureEvents=false;
+        config.captureDiagnostics=bloodContactEnabled;config.adaptiveTransfer=false;config.enableVascularDense45=vascularDense45;
+        std::cerr<<"matter_runtime_initialize_begin\n";
         auto init=runtime.initialize(world,config);need(init.encoded,init.message);
+        std::cerr<<"matter_runtime_initialize_complete\n";
+        std::cerr<<"respiration_runtime_initialize_begin\n";
         respiration=std::make_unique<Respiration>(device,world,configuration,runtime.timestepSeconds());
+        respiration->dispatch.bloodMpmBulkModulus=sourcePinnedBloodBulkModulus;
+        std::cerr<<"respiration_runtime_initialize_complete\n";
         std::cout<<"runtime="<<init.message<<" device="<<[device name].UTF8String<<" world_fingerprint="<<world.fingerprint<<" timestep_s="<<runtime.timestepSeconds()<<'\n';
     }
     double batch(unsigned first,unsigned count,bool expectRejected=false,
@@ -847,7 +972,9 @@ struct RestingRun {
             throw std::runtime_error("rejected physical/respiratory step at accepted="+std::to_string(state->status.x)+
                 " respiratory_code="+std::to_string(staged->status.w)+" candidate_step="+std::to_string(staged->status.x)+
                 " matter_code="+std::to_string(status.code)+" failing_index="+std::to_string(status.failingIndex)+
-                " residual="+std::to_string(status.diagnostics.z));
+                " object="+std::to_string(status.objectIndex)+" diagnostics="+
+                std::to_string(status.diagnostics.x)+","+std::to_string(status.diagnostics.y)+","+
+                std::to_string(status.diagnostics.z)+","+std::to_string(status.diagnostics.w));
         }
         return cb.GPUEndTime-cb.GPUStartTime;
     }

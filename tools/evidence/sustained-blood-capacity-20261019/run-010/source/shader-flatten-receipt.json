@@ -1,0 +1,23 @@
+{
+  "baseline_flat_source": "/Users/n/numi-human-separation-20261018/C/blood-transfer-208/shader-preflight/HumanRespiration208.metal",
+  "baseline_flat_source_sha256": "7d0b95ffc4ae8d0acf3fa395c362b9c552db55451d80ea22b5d5700018879989",
+  "flattened_sha256": "ef36e16eb5baa30104a8e2b2de2613c5320ed6143bf54c5204e00f47228b1c1f",
+  "flattened_source": "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/native-sustained-capacity-001/HumanRespirationSustained.metal",
+  "hand_off_msl_source": "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/source/matter/src/human_respiration.metal",
+  "hand_off_msl_source_sha256": "e62cf0896ea2b5e09f090cd69781bd9bf3e807e5c9d998d6ef11c238f09d3408",
+  "inserted_helpers": [
+    "nmHumanBloodMatrixFromRows",
+    "nmHumanBloodMatrixToRows",
+    "nmHumanBloodDeterminantSafe",
+    "nmHumanBloodRowDifference",
+    "nmHumanBloodAngularVelocity",
+    "nmHumanBloodAffineNormSquared",
+    "nmHumanBloodMergeKineticAdmissible",
+    "nmHumanBloodMergeDeformation",
+    "nmHumanBloodMergeStatesCompatible"
+  ],
+  "method": "The 208 runtime preflight is already expanded to one source unit. This deterministic update substitutes the isolated respiration source's namespaced coalescence helper and handoff-kernel block, mirrors the source-bound bulk coefficient into the existing dispatch tail padding, avoids duplicate ABI expansion, and retains an include-free runtime input.",
+  "replaced_function": "nm_human_blood_mpm_handoff",
+  "schema": "numi.sustained_blood_flattened_shader.v6",
+  "source_header_sha256": "4ef52d7a0e74cbbd884d5e6365b6edbf9b8036bc3aea7632fe92d3f1da0e7807"
+}

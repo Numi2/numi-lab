@@ -1,0 +1,56 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/usr/bin/time",
+    "-l",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/native-sustained-capacity-001/sustained_capacity_probe",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "fa7e6cad2cfd7624c97e58395ac9aa8622af9b009bb27ca608346a1c52b6c845"
+  },
+  "fixture_settings": {
+    "NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED": "0",
+    "NUMI_HUMAN_BLOOD_MPM_ENABLED": "1",
+    "NUMI_HUMAN_BLOOD_MPM_MAX_RATE_EXPONENT": "0",
+    "NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY": "1",
+    "NUMI_SUSTAINED_CAPACITY_ONLY": "1",
+    "NUMI_SUSTAINED_FLOOR_ONLY": "0",
+    "capacity_contact_enabled": false,
+    "capacity_frames": 132,
+    "capacity_only": true,
+    "floor_contact_enabled": false,
+    "frame_dt_s": 0.00025,
+    "microticks_per_command_buffer_max": 1
+  },
+  "inputs_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-separation-20261018/C/bleeding-liquid-205/main-owner-206/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "e7b2d495c4f46bdc7f5aa58f9e1c889c31b3d01c31b55d2a7c36035d86f100e2",
+    "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/build/libmetalrobo.dylib": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+    "/Users/n/numi-human-separation-20261018/C/deformable-contact-finalizer-233/source/matter/src/MatterSource.metal": "fa7e6cad2cfd7624c97e58395ac9aa8622af9b009bb27ca608346a1c52b6c845",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/native-sustained-capacity-001/HumanRespirationSustained.metal": "ef36e16eb5baa30104a8e2b2de2613c5320ed6143bf54c5204e00f47228b1c1f",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/native-sustained-capacity-001/shader-flatten-receipt.json": "6c0ce35f3bbfe6e7c75b861f5ed6e67cf2169774139ad3be0c797cd2ddc34154",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/native-sustained-capacity-001/sustained_capacity_probe": "2e48b0cce6dd22ca8f9c8e8ab64f73e2861f867e043e23ccf14a2432ac9e2a4f",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/source-pins.json": "7206650c02553b0890bcf56d8496ecb4a6378bdabc8a06c17650701e6d990b87",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/source/matter/include/numi/matter/human_respiration.h": "4ef52d7a0e74cbbd884d5e6365b6edbf9b8036bc3aea7632fe92d3f1da0e7807",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/source/matter/src/human_respiration.metal": "e62cf0896ea2b5e09f090cd69781bd9bf3e807e5c9d998d6ef11c238f09d3408",
+    "/Users/numi/numi-human-separation-20261018/C/sustained-blood-230/source/matter/tools/human_resting_runtime.hpp": "d259ca946cb9300620a0100bc500f951c902b381c1f335b9ab1556146d67ec67"
+  },
+  "planned_runs": [
+    {
+      "contact_enabled": false,
+      "duration_s": 0.033,
+      "frame_dt_s": 0.00025,
+      "frames": 132,
+      "offset_x_m": 0.0
+    }
+  ],
+  "schema": "numi.sustained_blood_capacity_invocation.v1",
+  "scope": "synthetic accepted external packets integrated by existing MPM; not physiological bleeding rate"
+}

@@ -1,0 +1,1 @@
+Current candidate source after tightening APIC kinetic-energy admission; it matches the exact source pinned by strict capacity run-014. It is qualified only for the 132-packet / 33 ms synthetic capacity scope. Floor contact, seconds-scale operation, and physiological bleeding remain unqualified.
