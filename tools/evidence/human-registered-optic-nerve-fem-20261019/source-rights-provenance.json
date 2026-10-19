@@ -1,0 +1,80 @@
+{
+  "schema": "numi.registered_optic_nerve_source_rights_and_provenance.v1",
+  "attribution": "BodyParts3D, (c) The Database Center for Life Science",
+  "license": "CC Attribution-Share Alike 2.1 Japan",
+  "license_notice_url": "http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+  "license_basis": "Exact source OBJ member headers in the pinned BodyParts3D v4.0 archive; this member-scoped notice is retained conservatively for embedded derived geometry.",
+  "source_archive": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/vein-owner-blend-source-append-dryrun-012-inputs/Sources/isa_BP3D_4.0_obj_99.zip",
+    "sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e"
+  },
+  "source_members": {
+    "FJ1772": {
+      "archive_member": "isa_BP3D_4.0_obj_99/FJ1772.obj",
+      "obj_sha256": "314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057",
+      "header_notice": "#\n# The license for this database is specified in the Creative Commons Attribution-Share Alike 2.1 Japan. If you use data from this database, please be sure attribute this database as follows: \"BodyParts3D, (c)  The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan\".\n# http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html\n#\n#\n# Compatibility version : 4.0\n# File ID : FJ1772\n# Representation ID : BP5709\n# Build-up logic : FMA 3.0 is_a\n# Concept ID : FMA50878\n# English name : Left optic nerve\n# Bounds(mm): (-0.020100,-151.752500,1520.191800)-(32.001900,-102.131300,1542.314200)\n# Volume(cm3): 0.732500\n#\n"
+    },
+    "FJ1819": {
+      "archive_member": "isa_BP3D_4.0_obj_99/FJ1819.obj",
+      "obj_sha256": "3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4",
+      "header_notice": "#\n# The license for this database is specified in the Creative Commons Attribution-Share Alike 2.1 Japan. If you use data from this database, please be sure attribute this database as follows: \"BodyParts3D, (c)  The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan\".\n# http://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html\n#\n#\n# Compatibility version : 4.0\n# File ID : FJ1819\n# Representation ID : BP5708\n# Build-up logic : FMA 3.0 is_a\n# Concept ID : FMA50875\n# English name : Right optic nerve\n# Bounds(mm): (-33.312400,-151.752500,1520.195100)-(-1.287100,-102.127900,1542.314200)\n# Volume(cm3): 0.732100\n#\n"
+    }
+  },
+  "registration_inputs": {
+    "active_payload_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "active_receipt_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+    "is_a_archive_sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e",
+    "is_a_table_sha256": "a3de74423f943b0d724ae8f59b3a817f87c423a544f8db98113b1980817cbeaf",
+    "part_of_archive_sha256": "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97",
+    "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+    "rigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+  },
+  "preparation_evidence": {
+    "tetgen_manifest_path": "/Users/n/numi-human-separation-20261018/C/nerve-volume-240/output/optic-nerve-tetgen-preparation.json",
+    "tetgen_manifest_sha256": "0370d1d98a2f789e4e3b1db297acca6d9d01d299e723c74e6f23fdc6b26225dc",
+    "seam_audit_path": "/Users/n/numi-human-separation-20261018/C/nerve-volume-240/output/optic-nerve-seam-audit.json",
+    "seam_audit_sha256": "e3d16acdbedfd4d470006e6bfb8546dcef653824661ee3387fd7c87b105a6950",
+    "status": "offline_positive_tet_mesh_prepared",
+    "tetgen_version": "1.6 (August 2020)",
+    "tetgen_binary_sha256": "6de4b560676dc348115208c1e75568638a92d2d498213b17cc61516ba4267dc6",
+    "method": "exact-coordinate seam weld only; no cap or synthetic point; TetGen -pYq1.5a1e-9; all source face markers retained"
+  },
+  "generated_runtime_assets": {
+    "source_header_path": "/Users/n/numi-human-separation-20261018/C/optic-nerve-admission-256/source/apps/NumiHumanOpticNerveTetGenAssets.hpp",
+    "source_header_sha256": "99a238fa875621e911323412ab3dbc2d439d1d3c68a48820469234b7ef62fc09",
+    "left": {
+      "mesh_sha256": "314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057",
+      "member": "FJ1772",
+      "concept": "FMA50878",
+      "nodes": 1728,
+      "tetrahedra": 7675,
+      "boundary_nodes": 1190,
+      "boundary_faces": 2376,
+      "source_volume_m3": 7.492869593292939e-07
+    },
+    "right": {
+      "mesh_sha256": "3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4",
+      "member": "FJ1819",
+      "concept": "FMA50875",
+      "nodes": 1701,
+      "tetrahedra": 7423,
+      "boundary_nodes": 1191,
+      "boundary_faces": 2378,
+      "source_volume_m3": 7.488787006550051e-07
+    }
+  },
+  "mechanics_scope": {
+    "material": "Rodero et al. (2021) nonventricular passive neo-Hookean law reused as an uncalibrated reference proxy; source does not specify an optic-nerve law",
+    "material_source_path": "/Users/n/numi-lab-anatomy-parent-publication-1384/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter",
+    "material_source_sha256": "8cc7f3e1936e4303a011b40ff287431a99be861a51a11e82913d630371825b00",
+    "density_kg_m3": 1000,
+    "density_basis": "explicit reference inference, not a measured optic-nerve value",
+    "owner": "body 23 with three sparse reference anchors per side and inferred mass debited from the existing donor",
+    "limitations": [
+      "passive FEM reference proxy only",
+      "no neural conduction or independent eye/brain attachments",
+      "one-frame native run and prior two-step rollback are not biological validation",
+      "no visual verification"
+    ]
+  }
+}

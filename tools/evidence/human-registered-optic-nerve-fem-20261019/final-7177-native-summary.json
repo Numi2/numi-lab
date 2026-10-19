@@ -1,0 +1,36 @@
+{
+  "schema": "numi.optic_nerve_final_fingerprint_native_result.v1",
+  "exit_code": 0,
+  "wall_seconds": 14.9553949169931,
+  "binary_sha256": "92f4b8f21795c1b812642f2119dafc9caab844a7fa6425da9651628a84ec8d20",
+  "app_sha256": "71775778330b4b4c6450ae994bd86618918003cc3f375f7c178ee3092cc40fe5",
+  "runtime_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "native_log_sha256": "0bd1bb361a97e184a253c4b4fc13a2bdddbbd886497f77a3e6fbc985ae70931f",
+  "scope": "one accepted 0.25 ms frame on exact final source-fingerprint app; nerve + skin/fat + wall + prostate opt-ins; organ batch and MPM off",
+  "visual_verification": false,
+  "accepted_nerve_fem_rows": {
+    "registered_left_optic_nerve_reference_fem": {
+      "nodes": 1728,
+      "tetrahedra": 7675
+    },
+    "registered_right_optic_nerve_reference_fem": {
+      "nodes": 1701,
+      "tetrahedra": 7423
+    }
+  },
+  "accepted_nerve_fem_state_sha256": "8c159a073aeea21d2243bd479f6cbee65646bf703c7cb2c6b60ca28929c6ac6d",
+  "source_fingerprint_line": "resting_body_source_fingerprint=4034978852107507223 coupled_program_fingerprint=4839806967823887815",
+  "admission_lines": [
+    "resting_optic_nerve_fem=admitted member=FJ1772 concept=FMA50878 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=314b4a735672c1ce6690d29199856569fa3db4864f2d94690e091432e085e057 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1728 tets=7675 source_boundary_nodes=1190 source_boundary_faces=2376 volume_m3=7.49286959e-07 inferred_mass_debit_kg=0.000749286959 inferred_density_kg_m3=1000 mass_residual_kg=-2.60208521e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented",
+    "resting_optic_nerve_fem=admitted member=FJ1819 concept=FMA50875 provider=BodyParts3D source_body=23 runtime_donor_body=23 source_mesh_sha256=3fde0d489978522bb0c916db61287c42aedfb4c6660b6f8016a148ffccef89f4 source_payload_sha256=3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4 nodes=1701 tets=7423 source_boundary_nodes=1191 source_boundary_faces=2378 volume_m3=7.48878701e-07 inferred_mass_debit_kg=0.000748878701 inferred_density_kg_m3=1000 mass_residual_kg=1.62630326e-18 sparse_body23_reference_anchors=3 mechanical_scope=passive_reference_proxy independent_eye_brain_attachments=unavailable neural_conduction=not_represented"
+  ],
+  "csv_rows_including_header": 2,
+  "csv_sha256": "dad3a360d39f1f8837100caf22dd9da645973259dc2159abe3f5d64d446f8e36",
+  "output_files": {
+    "resting-airway-anchor-map.json": "70b481fc2d0a4fecde1825611e045a7ff6901cef917c5dd6f1e9ffac15a6b9b2",
+    "resting-coupled.csv": "dad3a360d39f1f8837100caf22dd9da645973259dc2159abe3f5d64d446f8e36",
+    "resting-human.mrvpack": "87d3ba4d940b6c5265b8f89b2af2b18c72d86cf77c13e8fec8d5b89a5aa5f66e",
+    "resting-ocular-sclera-window.json": "91e921a2e09b87b38d5a7a3516c13cf0e2ebfd601baa41decf0e4af5686b5f24",
+    "resting-surface-audit.csv": "838f7736d6aef579caef71fa07b372e8c996651bd3b9ff8b4b45a691e6592cc2"
+  }
+}

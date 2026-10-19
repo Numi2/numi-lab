@@ -90,6 +90,7 @@
 #ifdef NUMI_HUMAN_RESTING_SCENE
 #include "NumiHumanRestingCoupling.hpp"
 #include "NumiHumanVesselWallCoupling.hpp"
+#include "NumiHumanOpticNerveFEMIntegration.hpp"
 #include "NumiHumanRestingTransactionProbe.hpp"
 #include "NumiHumanRestingWindow.hpp"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
@@ -104,6 +105,13 @@ bool humanRestingTimestepSensitivityEnabledForApp() {
 #else
     return false;
 #endif
+}
+
+bool humanRestingOpticNerveFEMEnabledForApp() {
+    const char* value=std::getenv("NUMI_HUMAN_RESTING_OPTIC_NERVE_FEM");
+    if(value==nullptr||std::strcmp(value,"0")==0)return false;
+    if(std::strcmp(value,"1")==0)return true;
+    throw std::runtime_error("NUMI_HUMAN_RESTING_OPTIC_NERVE_FEM must be unset, 0, or 1");
 }
 
 // Wall-clock diagnostics only; never alter simulation time or state.
@@ -17944,6 +17952,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     require(fascia.regions.size()==1u &&
             model.articulations.size()==1u && dt>0.0 && std::isfinite(dt),
             "resting passive fascia source/model is invalid");
+    const bool includeOpticNerves=humanRestingOpticNerveFEMEnabledForApp();
     constexpr std::uint32_t ri=0u;
     const auto& region=fascia.regions[ri];
     require((region.softTissueStableId&kFasciaRouteBodyBit)==0u &&
@@ -18328,8 +18337,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     using namespace metalrobo::human::coarse_tissue;
     PreparedOrganicFEM preparedSkin,preparedFat,preparedProstate;
+    PreparedOrganicFEM preparedLeftOpticNerve,preparedRightOpticNerve;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> skinReferenceAnchors;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> prostateReferenceAnchors;
+    std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> opticNerveReferenceAnchors;
     std::size_t aclNodeCount=0u;
     for(const auto& acl:aclObjects)aclNodeCount+=acl.object.femNodes.size();
     if(skin!=nullptr) {
@@ -18671,6 +18682,143 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             <<" anchor_policy=three_inferred_sparse_pelvic_reference_nodes"
             <<" constitutive_scope=passive_proxy_no_prostate_fit\n";
     }
+    if(includeOpticNerves) {
+        using namespace numi::human::optic_nerve;
+        require(anatomy&&anatomyPayloadPath,
+                "optic nerve FEM opt-in requires the retained registered NHANATOMY source payload");
+        constexpr std::uint32_t sourceHeadBody=23u;
+        constexpr std::uint32_t frameCalibrationStableId=322u;
+        const std::string payloadSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(*anatomyPayloadPath));
+        require(payloadSHA==tetgen_assets::kActiveNHAPayloadSHA256,
+                "optic nerve source registration payload differs from the calibrated retained NHA payload");
+        require(sourceBodyMap.empty()||sourceHeadBody<sourceBodyMap.size(),
+                "optic nerve source head body lies outside the active Human source-body map");
+        const std::uint32_t donorBody=sourceBodyMap.empty()?sourceHeadBody:sourceBodyMap[sourceHeadBody];
+        require(donorBody<model.bodies.size()&&donorBody<bodies.size()&&
+                    model.bodies[donorBody].massAndInverseMass.x>0.0f,
+                "optic nerve registered head-body donor is unavailable or massless");
+        const TorsoAnatomyRecord* frameCalibration=nullptr;
+        for(const auto& record:anatomy->records) {
+            const auto identity=anatomy->sourceStableIdByRuntimeDisplayId.find(record.stableId);
+            const auto sourceStableId=identity==anatomy->sourceStableIdByRuntimeDisplayId.end()
+                ?record.stableId:identity->second;
+            if(sourceStableId==frameCalibrationStableId) {
+                require(frameCalibration==nullptr,
+                        "optic nerve NHA frame-calibration surface identity is ambiguous");
+                frameCalibration=&record;
+            }
+        }
+        require(frameCalibration&&frameCalibration->bodyIndex==donorBody&&
+                    frameCalibration->vertexCount==1994u,
+                "optic nerve body-23 registration lacks its exact FJ1730/NHA stable-ID 322 frame calibration");
+
+        const auto materialRoot=std::filesystem::path(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL).parent_path();
+        const auto materialPath=materialRoot/"rodero2021_nonventricular_neo_hookean_passive.nmatter";
+        auto parsedMaterial=numi::matter::parseMatterFile(materialPath);
+        require(parsedMaterial.succeeded(),
+                "existing nonventricular passive reference material did not parse for optic nerve proxy");
+        auto nerveMaterial=std::move(parsedMaterial.material);
+        nerveMaterial.name="human_optic_nerve_passive_reference_proxy";
+        nerveMaterial.fingerprint=0u;
+        constexpr double inferredDensityKgM3=1000.0;
+        setMatterMaterialParameter(nerveMaterial,"density",inferredDensityKgM3);
+        const std::uint32_t materialIndex=static_cast<std::uint32_t>(source.materials.size());
+        const std::string materialName=nerveMaterial.name;
+        source.materials.push_back(std::move(nerveMaterial));
+        const std::string materialProvenance=
+            "Rodero et al. 2021 PLOS Computational Biology 17:e1008851, DOI 10.1371/journal.pcbi.1008851, existing nonventricular passive neo-Hookean law reused only as an uncalibrated reference proxy; optic-nerve law is not supplied by that paper. Density 1000 kg/m^3 is an explicit reference inference because the source material leaves density unresolved; not a measured optic-nerve density.";
+        const std::string materialSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(materialPath));
+        const std::string materialIdentityText=
+            "numi.human.optic-nerve.passive-reference-material.v1|"+materialSHA+"|"+
+            materialName+"|"+materialProvenance+"|density=1000kg/m3-inferred";
+        const auto identityWords=[](std::string_view text) {
+            const auto digest=loadedKneeSHA256(text.data(),text.size());
+            std::array<std::uint64_t,4u> result{};
+            for(unsigned word=0;word<4;word++) {
+                for(unsigned byte=0;byte<8;byte++)
+                    result[word]=(result[word]<<8u)|digest[8u*word+byte];
+                if(result[word]==0u)result[word]=word+1u;
+            }
+            return result;
+        };
+        const auto materialIdentity=identityWords(materialIdentityText);
+        const auto& donorState=bodies[donorBody];
+        const std::array<double,3u> donorPosition{
+            donorState.position.x,donorState.position.y,donorState.position.z};
+        const std::array<double,4u> donorOrientation{
+            donorState.orientation.x,donorState.orientation.y,
+            donorState.orientation.z,donorState.orientation.w};
+        const std::array<float,7u> poseIdentity{
+            donorState.position.x,donorState.position.y,donorState.position.z,
+            donorState.orientation.x,donorState.orientation.y,
+            donorState.orientation.z,donorState.orientation.w};
+        const auto appendNerve=[&](const tetgen_assets::AssetView& asset,
+                                   const std::string& objectName,
+                                   PreparedOrganicFEM& prepared) {
+            std::string referenceIdentityText=
+                "numi.human.optic-nerve.current-pose-reference.v1|"+
+                materialIdentityText+"|"+std::string(asset.member)+"|"+
+                std::string(asset.meshSHA256)+"|"+std::to_string(donorBody);
+            referenceIdentityText.append(reinterpret_cast<const char*>(poseIdentity.data()),
+                                         sizeof(poseIdentity));
+            const auto referenceIdentity=identityWords(referenceIdentityText);
+            Built built;std::string nerveError;
+            require(appendRegisteredOpticNerve(source,asset,donorPosition,donorOrientation,
+                        donorBody,kTorsoAnatomyLayerOrgan,materialIndex,materialName,
+                        materialProvenance,inferredDensityKgM3,
+                        model.bodies[donorBody].massAndInverseMass.x,
+                        materialIdentity,referenceIdentity,objectName,built,nerveError),
+                    "registered optic nerve FEM preparation rejected: "+nerveError);
+            require(built.objectIndex<source.objects.size()&&
+                        source.objects[built.objectIndex].name==objectName,
+                    "registered optic nerve append returned a mismatched Matter object");
+            auto& object=source.objects[built.objectIndex];
+            for(const auto localNode:built.sparseReferenceAnchorNodes) {
+                require(localNode<object.femNodes.size(),
+                        "optic nerve sparse source anchor lies outside its FEM object");
+                const auto globalNode=built.fem.firstGlobalFEMNode+localNode;
+                const auto row=std::find_if(built.fem.donorMassNodes.begin(),
+                    built.fem.donorMassNodes.end(),
+                    [&](const auto& mass){return mass.nodeIndex==globalNode;});
+                require(row!=built.fem.donorMassNodes.end()&&row->donorBody==donorBody,
+                        "optic nerve source anchor has no matching mapped head-body mass row");
+                require(std::find(object.femFixedNodes.begin(),object.femFixedNodes.end(),localNode)==object.femFixedNodes.end(),
+                        "optic nerve sparse external reference anchor is duplicated");
+                object.femFixedNodes.push_back(localNode);
+                NMNumiHumanTendonFEMNodeAnchorGPU anchor{};
+                anchor.bodyIndex=donorBody;
+                anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+                anchor.localPoint={float(row->localPosition[0]),float(row->localPosition[1]),
+                                   float(row->localPosition[2]),0.0f};
+                opticNerveReferenceAnchors.push_back({globalNode,anchor});
+            }
+            std::sort(object.femFixedNodes.begin(),object.femFixedNodes.end());
+            require(std::adjacent_find(object.femFixedNodes.begin(),object.femFixedNodes.end())==object.femFixedNodes.end(),
+                    "optic nerve authored reference anchor nodes are not unique");
+            prepared=std::move(built.fem);
+            std::cout<<"resting_optic_nerve_fem=admitted member="<<asset.member
+                <<" concept="<<asset.anatomicalConcept
+                <<" provider=BodyParts3D source_body=23 runtime_donor_body="<<donorBody
+                <<" source_mesh_sha256="<<asset.meshSHA256
+                <<" source_payload_sha256="<<asset.payloadSHA256
+                <<" nodes="<<object.femNodes.size()
+                <<" tets="<<object.tetrahedra.size()
+                <<" source_boundary_nodes="<<object.femContactNodes.size()
+                <<" source_boundary_faces="<<asset.boundaryFaces.size()
+                <<" volume_m3="<<prepared.volumeM3
+                <<" inferred_mass_debit_kg="<<prepared.massDebitKg
+                <<" inferred_density_kg_m3="<<prepared.densityKgM3
+                <<" mass_residual_kg="<<prepared.massResidualKg
+                <<" sparse_body23_reference_anchors=3"
+                <<" mechanical_scope=passive_reference_proxy"
+                <<" independent_eye_brain_attachments=unavailable"
+                <<" neural_conduction=not_represented\n";
+        };
+        appendNerve(tetgen_assets::kLeftAsset,"registered_left_optic_nerve_reference_fem",
+                    preparedLeftOpticNerve);
+        appendNerve(tetgen_assets::kRightAsset,"registered_right_optic_nerve_reference_fem",
+                    preparedRightOpticNerve);
+    }
     std::size_t totalNodeCount=0u;
     for(const auto& object:source.objects) totalNodeCount+=object.femNodes.size();
     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
@@ -18721,6 +18869,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     validateExternalStaticAnchors(skinReferenceAnchors,"skin",0u,
         static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
     validateExternalStaticAnchors(prostateReferenceAnchors,"prostate",0u,
+        static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
+    validateExternalStaticAnchors(opticNerveReferenceAnchors,"optic nerve",0u,
         static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
     if(aorticWall)
         numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
@@ -18798,6 +18948,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "resting ACL stack node offsets do not cover its compiled prefix");
     for(const auto& [node,anchor]:skinReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"skin reference anchor collides with another owner");anchors[node]=anchor;}
     for(const auto& [node,anchor]:prostateReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"prostate reference anchor collides with another owner");anchors[node]=anchor;}
+    for(const auto& [node,anchor]:opticNerveReferenceAnchors){require(node<anchors.size()&&anchors[node].bodyIndex==NM_INVALID_INDEX,"optic nerve reference anchor collides with another owner");anchors[node]=anchor;}
     std::vector<metalrobo::NumiHumanTissueMassNode> massNodes;
     massNodes.reserve(totalNodeCount);
     aclFirstNode=0u;
@@ -18846,8 +18997,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     if(skin!=nullptr)massNodes.insert(massNodes.end(),preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end());
     if(includeProstate)massNodes.insert(massNodes.end(),preparedProstate.donorMassNodes.begin(),preparedProstate.donorMassNodes.end());
+    if(includeOpticNerves) {
+        massNodes.insert(massNodes.end(),preparedLeftOpticNerve.donorMassNodes.begin(),preparedLeftOpticNerve.donorMassNodes.end());
+        massNodes.insert(massNodes.end(),preparedRightOpticNerve.donorMassNodes.begin(),preparedRightOpticNerve.donorMassNodes.end());
+    }
     require(massNodes.size()==totalNodeCount,
-            "resting fascia/ACL/skin-fat/aortic mass map does not cover every compiled FEM node");
+            "resting fascia/ACL/skin-fat/aortic/optic-nerve mass map does not cover every compiled FEM node");
     double initialPhysicalMass=0.0; for(const auto& b:model.bodies)initialPhysicalMass+=b.massAndInverseMass.x;
     const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes);
     require(mass.succeeded(),"resting fascia donor mass partition failed: "+mass.error);
@@ -26493,6 +26648,9 @@ int main(int argc, char** argv) {
                     sourceIdentity=metalrobo::numiHumanRuntimeAppendPayloadOwner(sourceIdentity,domain,
                         metalrobo::numiHumanRuntimePayloadFingerprint(bytes));
                 };
+                const auto appendTextSource=[&](std::string_view domain,std::string_view value) {
+                    appendSource(domain,std::as_bytes(std::span(value.data(),value.size())));
+                };
                 appendSource("NHEQ",payloadBytes(*jointEqualityPayloadPath));
                 if(restingRigidHands)appendSource("resting_rigid_hand_reference_reduction_v1",
                     std::as_bytes(std::span(jointEqualityPayload->payload.records)));
@@ -26541,6 +26699,9 @@ int main(int argc, char** argv) {
                     std::strcmp(prostateFEMSetting,"1")==0;
                 require(!restingProstateFEMEnabled||restingPassiveFasciaEnabled,
                         "registered prostate FEM requires the shared intact resting tissue world");
+                const bool restingOpticNerveFEMEnabled=humanRestingOpticNerveFEMEnabledForApp();
+                require(!restingOpticNerveFEMEnabled||restingPassiveFasciaEnabled,
+                        "registered optic nerve FEM requires the shared intact resting tissue world");
                 if(restingProstateFEMEnabled) {
                     require(torsoAnatomyPayload&&torsoAnatomyPayloadPath,
                             "registered prostate FEM requires the retained NHANATOMY source payload");
@@ -26576,6 +26737,56 @@ int main(int argc, char** argv) {
                             "registered aortic wall requires the admitted resting CVSim scene");
                     appendSource("resting_registered_aortic_wall_CVSim21_network_v1",
                         payloadBytes(restingScene->first));
+                }
+                if(restingOpticNerveFEMEnabled) {
+                    require(torsoAnatomyPayloadPath.has_value(),
+                            "registered optic nerve source fingerprint requires the retained NHANATOMY payload");
+                    using namespace numi::human::optic_nerve::tetgen_assets;
+                    const std::array<std::uint32_t,5u> selection{23u,1772u,50878u,1819u,50875u};
+                    appendSource("resting_registered_optic_nerve_selection_v1",
+                        std::as_bytes(std::span(selection)));
+                    appendSource("resting_registered_optic_nerve_NHANATOMY_source_payload_v1",
+                        payloadBytes(*torsoAnatomyPayloadPath));
+                    appendTextSource("resting_registered_optic_nerve_registration_sha256_v1",
+                        kRegistrationSHA256);
+                    appendTextSource("resting_registered_optic_nerve_rigid_source_sha256_v1",
+                        kRigidSHA256);
+                    appendTextSource("resting_registered_optic_nerve_tetgen_build_sha256_v1",
+                        kTetGenSHA256);
+                    const auto appendAsset=[&](std::string_view side,const AssetView& asset) {
+                        const std::string prefix="resting_registered_optic_nerve_"+std::string(side)+"_";
+                        appendTextSource(prefix+"source_member_v1",asset.member);
+                        appendTextSource(prefix+"anatomical_concept_v1",asset.anatomicalConcept);
+                        appendTextSource(prefix+"source_mesh_sha256_v1",asset.meshSHA256);
+                        appendTextSource(prefix+"source_payload_sha256_v1",asset.payloadSHA256);
+                        const std::array<std::uint32_t,2u> counts{
+                            asset.sourceVertexCount,asset.sourceFaceCount};
+                        appendSource(prefix+"source_counts_v1",std::as_bytes(std::span(counts)));
+                        appendSource(prefix+"source_volume_m3_v1",
+                            std::as_bytes(std::span(&asset.sourceVolumeM3,1u)));
+                        appendSource(prefix+"tetgen_current_points_v1",
+                            std::as_bytes(asset.donorLocalPoints));
+                        appendSource(prefix+"tetgen_source_vertex_ancestry_v1",
+                            std::as_bytes(asset.sourceVertex));
+                        appendSource(prefix+"tetgen_tetrahedra_v1",
+                            std::as_bytes(asset.tetrahedra));
+                        appendSource(prefix+"tetgen_boundary_faces_v1",
+                            std::as_bytes(asset.boundaryFaces));
+                        appendSource(prefix+"tetgen_boundary_source_face_ancestry_v1",
+                            std::as_bytes(asset.boundarySourceFace));
+                    };
+                    appendAsset("left",kLeftAsset);
+                    appendAsset("right",kRightAsset);
+                    const auto materialPath=
+                        std::filesystem::path(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL).parent_path()/
+                        "rodero2021_nonventricular_neo_hookean_passive.nmatter";
+                    appendSource("resting_registered_optic_nerve_reference_material_v1",
+                        payloadBytes(materialPath));
+                    constexpr double inferredOpticNerveDensityKgM3=1000.0;
+                    appendSource("resting_registered_optic_nerve_inferred_density_kg_m3_v1",
+                        std::as_bytes(std::span(&inferredOpticNerveDensityKgM3,1u)));
+                    appendTextSource("resting_registered_optic_nerve_material_scope_v1",
+                        "Rodero et al. 2021 nonventricular passive neo-Hookean law reused as an uncalibrated reference proxy; optic nerve law is not specified by that source; 1000 kg/m^3 is an explicit reference density inference.");
                 }
                 require(!restingPassiveFasciaEnabled||
                     (restingScene.has_value()&&persistentMetalStand&&muscleStepSeconds.has_value()&&
@@ -27247,6 +27458,65 @@ int main(int argc, char** argv) {
                         appendSource("resting_registered_aortic_wall_nodal_mass_kg_v1",
                             std::as_bytes(std::span(
                                 restingPassiveFasciaOwner->aorticWallNodalMassKg)));
+                    }
+                    if(restingOpticNerveFEMEnabled) {
+                        appendSource("resting_registered_optic_nerve_compiled_world_physics_fingerprint_v1",
+                            std::as_bytes(std::span(&restingPassiveFasciaOwner->authoredPhysicsFingerprint,1u)));
+                        appendSource("resting_registered_optic_nerve_compiled_world_package_fingerprint_v1",
+                            std::as_bytes(std::span(&restingPassiveFasciaOwner->compiledPackageFingerprint,1u)));
+                        const std::array<std::string_view,2u> nerveObjectNames{
+                            "registered_left_optic_nerve_reference_fem",
+                            "registered_right_optic_nerve_reference_fem"};
+                        for(const auto objectName:nerveObjectNames) {
+                            const auto objectIt=std::find_if(
+                                restingPassiveFasciaOwner->authoredWorldSource.objects.begin(),
+                                restingPassiveFasciaOwner->authoredWorldSource.objects.end(),
+                                [&](const auto& object){return object.name==objectName;});
+                            require(objectIt!=restingPassiveFasciaOwner->authoredWorldSource.objects.end(),
+                                    "optic nerve source fingerprint cannot find its authored FEM object");
+                            const auto& object=*objectIt;
+                            const std::string prefix="resting_registered_optic_nerve_"+std::string(objectName)+"_";
+                            appendSource(prefix+"current_nodes_v1",std::as_bytes(std::span(object.femNodes)));
+                            appendSource(prefix+"reference_nodes_v1",std::as_bytes(std::span(object.femReferenceNodes)));
+                            appendSource(prefix+"tetrahedra_v1",std::as_bytes(std::span(object.tetrahedra)));
+                            appendSource(prefix+"material_indices_v1",std::as_bytes(std::span(object.femMaterialIndices)));
+                            appendSource(prefix+"material_source_identity_v1",
+                                std::as_bytes(std::span(object.femMaterialSourceIdentity)));
+                            appendSource(prefix+"reference_source_identity_v1",
+                                std::as_bytes(std::span(object.femReferenceSourceIdentity)));
+                            appendSource(prefix+"contact_node_indices_v1",
+                                std::as_bytes(std::span(object.femContactNodes)));
+                            appendSource(prefix+"fixed_node_indices_v1",
+                                std::as_bytes(std::span(object.femFixedNodes)));
+                            const auto rangeIt=std::find_if(
+                                restingPassiveFasciaOwner->femLoadDescriptors.begin(),
+                                restingPassiveFasciaOwner->femLoadDescriptors.end(),
+                                [&](const auto& range){return range.objectName==objectName;});
+                            require(rangeIt!=restingPassiveFasciaOwner->femLoadDescriptors.end()&&
+                                        rangeIt->firstNode<=restingPassiveFasciaOwner->nodeAnchors.size()&&
+                                        rangeIt->nodeCount<=restingPassiveFasciaOwner->nodeAnchors.size()-rangeIt->firstNode,
+                                    "optic nerve accepted anchor fingerprint range is unavailable");
+                            const std::array<std::uint32_t,4u> layout{
+                                rangeIt->firstNode,rangeIt->nodeCount,
+                                rangeIt->firstTetrahedron,rangeIt->tetrahedronCount};
+                            appendSource(prefix+"compiled_world_layout_v1",
+                                std::as_bytes(std::span(layout)));
+                            std::vector<std::uint32_t> anchorNodes,anchorBodies,anchorFlags;
+                            std::vector<float> anchorLocalPoints;
+                            for(std::uint32_t local=0u;local<rangeIt->nodeCount;++local) {
+                                const auto& anchor=restingPassiveFasciaOwner->nodeAnchors[rangeIt->firstNode+local];
+                                if((anchor.flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)==0u)continue;
+                                anchorNodes.push_back(local);
+                                anchorBodies.push_back(anchor.bodyIndex);
+                                anchorFlags.push_back(anchor.flags);
+                                anchorLocalPoints.insert(anchorLocalPoints.end(),
+                                    {anchor.localPoint.x,anchor.localPoint.y,anchor.localPoint.z});
+                            }
+                            appendSource(prefix+"anchor_local_nodes_v1",std::as_bytes(std::span(anchorNodes)));
+                            appendSource(prefix+"anchor_body_indices_v1",std::as_bytes(std::span(anchorBodies)));
+                            appendSource(prefix+"anchor_flags_v1",std::as_bytes(std::span(anchorFlags)));
+                            appendSource(prefix+"anchor_body_local_points_v1",std::as_bytes(std::span(anchorLocalPoints)));
+                        }
                     }
                     overriddenPoseQ=initialTissueQ;poseQ=overriddenPoseQ;
                     appendSource("resting_fascia_executed_body_mass_frames_v1",

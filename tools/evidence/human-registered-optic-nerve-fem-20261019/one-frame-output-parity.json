@@ -1,0 +1,18 @@
+{
+  "schema": "numi.optic_nerve_source_fingerprint_output_parity.v1",
+  "baseline_run": "native-001, pre-source-fingerprint app",
+  "candidate_run": "native-004, final app source hash 71775778330b4b4c6450ae994bd86618918003cc3f375f7c178ee3092cc40fe5",
+  "compared_artifacts": {
+    "resting-coupled.csv": {
+      "baseline_sha256": "dad3a360d39f1f8837100caf22dd9da645973259dc2159abe3f5d64d446f8e36",
+      "candidate_sha256": "dad3a360d39f1f8837100caf22dd9da645973259dc2159abe3f5d64d446f8e36",
+      "byte_identical": true
+    },
+    "resting-surface-audit.csv": {
+      "baseline_sha256": "838f7736d6aef579caef71fa07b372e8c996651bd3b9ff8b4b45a691e6592cc2",
+      "candidate_sha256": "838f7736d6aef579caef71fa07b372e8c996651bd3b9ff8b4b45a691e6592cc2",
+      "byte_identical": true
+    }
+  },
+  "interpretation": "Byte-identical CSV and surface-audit outputs support that the added source-fingerprint binding did not change these one-frame physical outputs. This is not a claim that all internal state or all frames are identical."
+}

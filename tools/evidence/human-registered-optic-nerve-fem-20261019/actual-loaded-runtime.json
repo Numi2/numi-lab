@@ -1,0 +1,9 @@
+{
+  "schema": "numi.optic_nerve_loaded_runtime_proof.v1",
+  "native_log_sha256": "0bd1bb361a97e184a253c4b4fc13a2bdddbbd886497f77a3e6fbc985ae70931f",
+  "dyld_print_line": "dyld[56623]: <D647063F-59CA-3E30-A1E1-7AC1DE07DDA6> /Users/numi/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/libmetalrobo-233.dylib",
+  "resolved_library_path": "/Users/numi/numi-human-separation-20261018/C/continuum-integrated-234/build-cpu-006/libmetalrobo-233.dylib",
+  "loaded_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "planned_library_sha256": "71372f858367c5945eed34e7334f184f210f06c7cd21e6ec48cb340a4aebd60a",
+  "match": true
+}
