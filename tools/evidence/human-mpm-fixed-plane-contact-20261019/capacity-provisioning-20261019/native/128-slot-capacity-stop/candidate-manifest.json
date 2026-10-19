@@ -1,0 +1,89 @@
+{
+  "candidate": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/resolution-knob-candidate-001",
+  "base_header": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/publication-guard-staging-001/matter/tools/human_resting_runtime.hpp",
+  "base_header_sha256": "06263a97dcc254913d959e066e856fd3c4c20c730d66165ed24a9a81c8aa757e",
+  "candidate_header": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/resolution-knob-candidate-001/source/matter/tools/human_resting_runtime.hpp",
+  "candidate_header_sha256": "8845842ddcd98207cf744c8b3887b5846d1c1990893f8c8a71b204cfe10efc2c",
+  "fixture": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/resolution-knob-candidate-001/native/fixture-grid-kkt-free-slip-64-h005-frame40.mm",
+  "fixture_sha256": "f9fbc0a03dcc20d04068b443a45f858a478c1ce0777adb7d7ec18261da65c7b7",
+  "support_header_sha256": "7f8096607108b81a92b5c72eb894935d3f6adb09c3db90f5b9c22a7ef4e315cd",
+  "support_encoder_sha256": "afd3244cb4ff33a13112804b20019aa59d02ebede716a7c03c6f32787ecd9aef",
+  "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+  "parameters": {
+    "cell_width_m": 0.005,
+    "bounds_m": [
+      -0.025,
+      -0.025,
+      -0.025,
+      0.025,
+      0.025,
+      0.025
+    ],
+    "packet_volume_m3": 1.5625e-08,
+    "packet_cell_volume_fraction": 0.125,
+    "velocity_m_s": [
+      0,
+      0,
+      -0.5
+    ],
+    "frame_dt_s": 0.001,
+    "frames": 64,
+    "late_reject_frame": 40,
+    "nondefault_padded_grid_node_budget": 1048576
+  },
+  "base_fixture": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native/fixture-grid-kkt-free-slip-96-kkt-impulse-frame64-002.mm",
+  "base_fixture_sha256": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+  "padded_grid_dimensions": [
+    14,
+    14,
+    14
+  ],
+  "padded_grid_nodes": 2744,
+  "preflight_cases": [
+    {
+      "cell_width": "-0.001",
+      "bounds": "valid",
+      "expect": "reject before world/device allocation"
+    },
+    {
+      "cell_width": "NaN",
+      "bounds": "valid",
+      "expect": "reject before world/device allocation"
+    },
+    {
+      "cell_width": "0.051",
+      "bounds": "valid",
+      "expect": "reject before world/device allocation"
+    },
+    {
+      "cell_width": "0.005",
+      "bounds": "unset or empty",
+      "expect": "reject before world/device allocation because non-default width requires explicit bounds; test fixture preserves absent bounds in resolution-preflight mode"
+    },
+    {
+      "cell_width": "0.005",
+      "bounds": "-0.5,-0.5,-0.5,0.5,0.5,0.5",
+      "expect": "reject before allocation by one-million-node opt-in budget (within existing 10 m extent cap)"
+    }
+  ],
+  "fixture_patch_sha256": "05b290369106034e48d6a0298446bc5a9ed0e23787e5b1a53c233e11a8feb1eb",
+  "header_patch_sha256": "7022abeaa1f6e8db02c85665cb4ad8963b99438c080007dc1ff4285797a07e3e",
+  "compile_only_test_define": "NUMI_HUMAN_BLOOD_MPM_RESOLUTION_PREFLIGHT_TEST=1 (preflight copy only; not in production candidate header)",
+  "compile_only_test_environment": "NUMI_HUMAN_BLOOD_MPM_RESOLUTION_COMPILE_ONLY=1",
+  "default_fingerprint_reference": {
+    "cell_width_m": 0.05,
+    "bounds_m": [
+      -0.25,
+      -0.25,
+      -0.25,
+      0.25,
+      0.25,
+      0.25
+    ],
+    "frame_dt_s": 0.00025,
+    "expected_world_fingerprint_u64": "15327204808233676512",
+    "reference_run": "native-kkt-grid-floor32-final-005/stdout.log"
+  },
+  "preflight_copy_header_sha256": "f0390575496afbbb54717ea34f9dfa03e60159d749acdff1fa89a6c2348f045c",
+  "preflight_copy_fixture_sha256": "f9fbc0a03dcc20d04068b443a45f858a478c1ce0777adb7d7ec18261da65c7b7"
+}

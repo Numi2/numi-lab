@@ -1,0 +1,36 @@
+{
+  "executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+  "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "cases": [
+    {
+      "name": "capacity-below-min",
+      "exit_code": 1,
+      "expected_diagnostic": "must be in [128,16384]",
+      "matched": true,
+      "no_runtime_init": true,
+      "log": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/preflight-invalid-capacity-001/capacity-below-min.log",
+      "log_sha256": "ed7c4d818bc4f6078d7a9752dbca1b9af7131c97a5d1869c72666681a6713f16",
+      "pass": true
+    },
+    {
+      "name": "capacity-above-max",
+      "exit_code": 1,
+      "expected_diagnostic": "exceeds 16384",
+      "matched": true,
+      "no_runtime_init": true,
+      "log": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/preflight-invalid-capacity-001/capacity-above-max.log",
+      "log_sha256": "eb26bf510d284a281ef91200d0fab1bfac426bb7fd3c175cc6c092583d26cd4b",
+      "pass": true
+    },
+    {
+      "name": "capacity-nondigit",
+      "exit_code": 1,
+      "expected_diagnostic": "only decimal digits",
+      "matched": true,
+      "no_runtime_init": true,
+      "log": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/preflight-invalid-capacity-001/capacity-nondigit.log",
+      "log_sha256": "1bb3a3b3bc36af129278b02c8689a1cd1ac45e696c8513726a4f00186243c1e4",
+      "pass": true
+    }
+  ]
+}

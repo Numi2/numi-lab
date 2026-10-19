@@ -1,0 +1,12 @@
+{
+  "classification": "diagnostic-correction",
+  "correction": "This was a false contact interpretation. The fixture treated multiphysics failure diagnostics as candidate velocity and used failing_index as a contact-pair index. The exact source status is handoff capacity admission; diagnostics are batch volume, mass, remaining dormant capacity volume, and grid width.",
+  "not_a_claim": "The log is retained; no particle velocity, contact gap, or rigid-pair failure should be inferred from that payload.",
+  "observed_native_failure": "Old run stopped at accepted frame 11, with 128 active particles, 1.7187498335680118e-7 m3 represented volume, no remaining admissible dormant volume, status 11. It is capacity admission, not an MPM contact failure.",
+  "old_fixture_line": "floor_contact_pair_payload pair_index=0 continuum_node=0 current_gap_m=0.004999999888241291 seeded_marker=0 candidate_velocity_m_s=1.5624999960550667e-08,1.6415624486398883e-05,0 proxy_index=0 proxy_flags=0 proxy_shape=0 inverse_mass=0 sample_identity_w=0 sample_available=1",
+  "owner": "nm_human_blood_mpm_handoff",
+  "preserved_bad_diagnostic_line": "The mislabeled candidate_velocity_m_s tuple maps to status.diagnostics.x/y/z: packet volume 1.5624999960550667e-8 m3, packet mass 1.6415624486398883e-5 kg, and capacityVolume 0 m3. The separate field mislabeled current_gap_m came from abs(status.diagnostics.w)=h, about 0.005 m.",
+  "source": "sustained-blood-230/source/matter/src/human_respiration.metal",
+  "source_lines": "1570-1581: after bounded coalescence search, insufficient remaining capacity marks invalid and reports float4(batch.x,batch.y,capacityVolume,h), then n.status.w=11. Lines 1624-1631 are a separate defensive post-assignment leftover guard and were not the identified old-128 path.",
+  "test_source": "native-mpm-grid-boundary-001/resolution-knob-candidate-001/native/fixture-grid-kkt-free-slip-64-h005-frame40.mm:547-570"
+}

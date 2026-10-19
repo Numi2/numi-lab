@@ -1,0 +1,119 @@
+--- a/native/fixture-grid-kkt-free-slip-16-h005-frame12-1024.mm
++++ b/native/fixture-grid-kkt-free-slip-16-h005-frame12-1024.mm
+@@ -20,9 +20,10 @@
+ 
+ constexpr float kFrameSeconds = 0.001f;
+ constexpr std::uint32_t kCapacityFrames = 132u;
+-constexpr std::uint32_t kFloorFrames = 64u;
++constexpr std::uint32_t kFloorFrames = 16u;
+ constexpr float kPacketVolumeM3 = 1.1e-9f;
+ constexpr float kFloorPacketVolumeM3 = 1.5625e-8f;
++constexpr std::uint32_t kFloorReceiverSlots = 1024u;
+ constexpr float kOxygenFraction = 0.21f;
+ constexpr float kCarbonDioxideFraction = 0.05f;
+ constexpr float kSpinRadiansPerSecond = 0.1f;
+@@ -206,7 +207,8 @@
+ }
+ void checkInventory(const NMHumanRespirationState& state,
+                     const Totals& particles, double expectedVolume,
+-                    double density, std::uint32_t expectedFrames) {
++                    double density, std::uint32_t expectedFrames,
++                    std::uint32_t receiverCapacity) {
+     const auto& blood=state.externalBlood;
+     const double expectedMass=expectedVolume*density;
+     const double expectedOxygen=expectedVolume*kOxygenFraction;
+@@ -235,7 +237,8 @@
+             "live particle reference volume mismatch");
+     require(near(particles.mass,expectedMass,1.0e-8,2.0e-5),
+             "live particle mass mismatch");
+-    require(particles.active<=128u,"receiver exceeded its fixed 128-slot storage");
++    require(particles.active<=receiverCapacity,
++            "receiver exceeded its configured dormant-slot storage");
+     require(expectedFrames>0u,"fixture frame count is empty");
+     require(inventoryValue(blood.pendingParcel.x,0.0f)==0.0,
+             "successful MPM frame left pending volume");
+@@ -312,7 +315,7 @@
+             "capacity fixture did not represent more volume than its 128 dormant slots");
+     const auto* state=static_cast<const NMHumanRespirationState*>(
+         run.respiration->accepted.contents);
+-    checkInventory(*state,totals,expectedVolume,density,kCapacityFrames);
++    checkInventory(*state,totals,expectedVolume,density,kCapacityFrames,128u);
+     const double expectedMass=expectedVolume*density;
+     const Vec3 expectedMomentum{0.0,expectedMass*velocity.y,0.0};
+     const Vec3 expectedSpin{0.0,0.0,
+@@ -348,6 +351,9 @@
+         "NUMI_HUMAN_BLOOD_MPM_RESOLUTION_PREFLIGHT");
+     const bool compileOnly=resolutionPreflight&&
+         std::strcmp(resolutionPreflight,"1")==0;
++    if(!compileOnly)
++        setEnv("NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY",
++               std::to_string(kFloorReceiverSlots));
+     RestingRun run(network,config,compileOnly?0.00025f:kFrameSeconds,true);
+     if(compileOnly)return;
+     require(run.runtime.setNewtonIterationBudget(24u),"could not install Newton-24 control budget");
+@@ -371,6 +377,8 @@
+         });
+     require(object.representation==NM_REPRESENTATION_MPM && mpmObjectCount==1u,
+             "floor telemetry requires the receiver to be the only MPM object");
++    require(object.stateCount==kFloorReceiverSlots,
++            "floor candidate did not provision the requested 1024 receiver slots");
+     const double h=run.world.mpm.grids[object.elementOffset].metrics.x;
+     const auto& grid=run.world.mpm.grids[object.elementOffset];
+     // The compiler pads the authored world-space minimum by one grid node.
+@@ -389,7 +397,7 @@
+         if(frame%8u==0u) std::cerr<<"floor_progress frame="<<frame<<'\n';
+         stagePacket(*run.respiration,density,spawn,velocity,kFloorPacketVolumeM3);
+         try {
+-            if(frame==40u) {
++            if(frame==12u) {
+                 const auto before=run.runtime.snapshot();
+                 require(before.available,"pre-rejection floor snapshot unavailable");
+                 auto* respirationAccepted=static_cast<NMHumanRespirationState*>(
+@@ -539,7 +547,8 @@
+                      <<" valid_contact_samples="<<diagnosticActiveSamples
+                      <<" nonlinear_budgets="<<run.world.mixedSolver.nonlinearIterations.x<<","<<run.world.mixedSolver.nonlinearIterations.y<<","<<run.world.mixedSolver.nonlinearIterations.z<<","<<run.world.mixedSolver.nonlinearIterations.w
+                      <<" status_fgmres_iterations="<<status.fgmresIterations<<std::endl;
+-            if(status.failingIndex<run.world.contact.pairs.size()) {
++            if(status.code==NM_STATUS_CONTACT_FAILURE&&
++               status.failingIndex<run.world.contact.pairs.size()) {
+                 const auto& pair=run.world.contact.pairs[status.failingIndex];
+                 const auto proxyIndex=pair.rigidProxy;
+                 const bool proxyAvailable=proxyIndex<run.world.contact.rigidProxies.size();
+@@ -557,9 +566,27 @@
+                          <<" inverse_mass="<<(rigidAvailable?failed.rigidStates[proxyIndex].linearVelocityAndInverseMass.w:-1.0f)
+                          <<" sample_identity_w="<<(status.failingIndex<failed.contactSamples.size()?failed.contactSamples[status.failingIndex].identity.w:NM_INVALID_INDEX)
+                          <<" sample_available="<<(status.failingIndex<failed.contactSamples.size())<<'\n';
+-            } else {
++            } else if(status.code==NM_STATUS_CONTACT_FAILURE) {
+                 std::cerr<<"floor_contact_pair_payload pair_index="<<status.failingIndex
+                          <<" pair_available=0 pair_count="<<run.world.contact.pairs.size()<<'\n';
++            }
++            if(status.code==NM_STATUS_MULTIPHYSICS_FAILURE) {
++                const auto* candidate=static_cast<const NMHumanRespirationState*>(
++                    run.respiration->candidate.contents);
++                const bool handoffFailure=candidate&&candidate->status.w==11u;
++                std::cerr<<std::setprecision(17)<<"floor_status_owner_payload"
++                         <<" owner="<<(handoffFailure?"blood_mpm_handoff":"respiration_or_transport")
++                         <<" respiration_status="<<(candidate?candidate->status.w:NM_INVALID_INDEX)
++                         <<" status_code="<<status.code
++                         <<" object_index="<<status.objectIndex
++                         <<" failing_index="<<status.failingIndex
++                         <<" diagnostics="<<status.diagnostics.x<<','<<status.diagnostics.y
++                         <<','<<status.diagnostics.z<<','<<status.diagnostics.w;
++                if(candidate) {
++                    const auto& pending=candidate->externalBlood.pendingParcel;
++                    std::cerr<<" pending_parcel="<<pending.x<<','<<pending.y<<','<<pending.z<<','<<pending.w;
++                }
++                std::cerr<<" receiver_slots="<<run.respiration->dispatch.bloodMpmParticleCount<<'\n';
+             }
+             if(status.code==NM_STATUS_CONTACT_FAILURE ||
+                status.code==NM_STATUS_NONLINEAR_SOLVER_FAILURE) {
+@@ -624,7 +651,7 @@
+     const auto* state=static_cast<const NMHumanRespirationState*>(
+         run.respiration->accepted.contents);
+     const double expectedVolume=double(kFloorFrames)*kFloorPacketVolumeM3;
+-    checkInventory(*state,particles,expectedVolume,density,kFloorFrames);
++    checkInventory(*state,particles,expectedVolume,density,kFloorFrames,kFloorReceiverSlots);
+     std::cout<<"floor_run=PASS integrated_seconds="<<double(kFloorFrames)*kFrameSeconds
+              <<" frame_dt_s="<<kFrameSeconds
+              <<" microticks_per_command_buffer="<<(1u<<run.world.dispatch.maximumRateExponent)

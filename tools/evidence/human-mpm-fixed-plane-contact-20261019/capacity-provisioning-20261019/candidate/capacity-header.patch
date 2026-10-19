@@ -1,0 +1,78 @@
+--- a/source/matter/tools/human_resting_runtime.hpp
++++ b/source/matter/tools/human_resting_runtime.hpp
+@@ -25,6 +25,20 @@
+ static_assert(offsetof(NMHumanRespirationDispatch,bloodMpmBulkModulus)==136u,
+               "blood bulk coefficient must remain at the dispatch ABI tail offset");
+ inline void need(bool value,const std::string& message){if(!value)throw std::runtime_error(message);}
++inline std::uint32_t nmHumanBloodMpmParticleCapacity(const char* capacity) {
++    constexpr const char* name="NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY";
++    if(!capacity) return 128u;
++    need(capacity[0]!='\0',std::string(name)+" must be an integer in [128,16384]");
++    std::uint32_t parsed=0u;
++    for(const char* digit=capacity;*digit;++digit) {
++        need(*digit>='0'&&*digit<='9',std::string(name)+" must contain only decimal digits");
++        const std::uint32_t value=static_cast<std::uint32_t>(*digit-'0');
++        need(parsed<=(16384u-value)/10u,std::string(name)+" exceeds 16384");
++        parsed=10u*parsed+value;
++    }
++    need(parsed>=128u&&parsed<=16384u,std::string(name)+" must be in [128,16384]");
++    return parsed;
++}
+ inline std::string nmHumanBloodSourceSHA256(const std::string& path) {
+     std::ifstream input(path,std::ios::binary);
+     need(input.good(),"cannot read source-bound blood constitutive material");
+@@ -119,6 +133,12 @@
+         need(!bloodMpmSetting||std::strcmp(bloodMpmSetting,"0")==0||
+              std::strcmp(bloodMpmSetting,"1")==0,
+              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
++        const bool bloodMpmEnabled=bloodMpmSetting&&
++            std::strcmp(bloodMpmSetting,"1")==0;
++        const std::uint32_t bloodMpmParticleCapacity=bloodMpmEnabled
++            ?nmHumanBloodMpmParticleCapacity(
++                std::getenv("NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY"))
++            :128u;
+         const char* bloodContactSetting=
+             std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
+         need(!bloodContactSetting||std::strcmp(bloodContactSetting,"0")==0||
+@@ -169,7 +189,8 @@
+                 need(hasFixedUpwardPlanePair,
+                      "blood MPM contact opt-in requires a compiled receiver pair against a world-fixed upward plane");
+             }
+-            need(object.stateCount>0u&&object.stateCount<=4096u&&
++            need(object.stateCount==bloodMpmParticleCapacity&&
++                 object.stateCount>=128u&&object.stateCount<=16384u&&
+                  object.elementCount==1u&&object.elementOffset<world.mpm.grids.size()&&
+                  std::uint64_t(object.stateOffset)+object.stateCount<=world.mpm.particles.size()&&
+                  world.dispatch.particleCount==world.mpm.particles.size(),
+@@ -945,6 +966,10 @@
+         need(!bloodMode||std::strcmp(bloodMode,"0")==0||std::strcmp(bloodMode,"1")==0,
+              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+         const bool bloodEnabled=bloodMode&&std::strcmp(bloodMode,"1")==0;
++        const std::uint32_t bloodMpmParticleCapacity=bloodEnabled
++            ?nmHumanBloodMpmParticleCapacity(
++                std::getenv("NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY"))
++            :128u;
+         const char* contactMode=std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
+         need(!contactMode||std::strcmp(contactMode,"0")==0||
+              std::strcmp(contactMode,"1")==0,
+@@ -1076,7 +1101,7 @@
+                 0.5*(receiver.mpmGridMinimum[0]+receiver.mpmGridMaximum[0]),
+                 0.5*(receiver.mpmGridMinimum[1]+receiver.mpmGridMaximum[1]),
+                 0.5*(receiver.mpmGridMinimum[2]+receiver.mpmGridMaximum[2])};
+-            for(unsigned slot=0;slot<128u;++slot) {
++            for(unsigned slot=0;slot<bloodMpmParticleCapacity;++slot) {
+                 // Inactive receiver slots still require finite, in-domain
+                 // positions because the compiler validates their quadratic
+                 // support stencil before activation.
+@@ -1107,8 +1132,9 @@
+                  "blood numerical bulk proxy is outside the GPU scalar range");
+             appendRestingBloodMaterial(source,std::move(material.material),std::move(receiver));
+             const auto& appendedReceiver=source.objects.back();
+-            std::cerr<<"blood_mpm_source=reference slots=128 capacity_uL=128 cell_width_m="
+-                     <<appendedReceiver.characteristicLength
++            std::cerr<<"blood_mpm_source=reference slots="<<bloodMpmParticleCapacity
++                     <<" dormant_capacity_uL="<<bloodMpmParticleCapacity
++                     <<" cell_width_m="<<appendedReceiver.characteristicLength
+                      <<" material_sha256="<<bloodMaterialSHA256
+                      <<" numerical_bulk_proxy_pa="<<sourcePinnedBloodBulkModulus
+                      <<" grid_min_m="<<appendedReceiver.mpmGridMinimum[0]<<","<<appendedReceiver.mpmGridMinimum[1]<<","<<appendedReceiver.mpmGridMinimum[2]

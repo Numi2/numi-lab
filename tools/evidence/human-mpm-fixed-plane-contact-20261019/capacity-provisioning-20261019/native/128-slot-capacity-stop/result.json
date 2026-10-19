@@ -1,0 +1,19 @@
+{
+  "schema": "numi.human_blood_fine_grid_native_result.v1",
+  "exit_code": 1,
+  "timed_out": false,
+  "watchdog_seconds": 900,
+  "wall_seconds": 331.77341662498657,
+  "stdout_sha256": "8ddc12c058f4a1ecde7065099311ad171f64cb3aa210399434d9d524415ba7c7",
+  "invocation_sha256": "eb5c47517b46943f063601e4be98fbd23cfdf94559f8982836c5e6f642ea8652",
+  "pins": {
+    "executable_sha256": "6c2019a2abd3d672060670f278fadafedec4bcfc3da1a4c84b4fe4368ee1e2c6",
+    "header_sha256": "8845842ddcd98207cf744c8b3887b5846d1c1990893f8c8a71b204cfe10efc2c",
+    "fixture_sha256": "f9fbc0a03dcc20d04068b443a45f858a478c1ce0777adb7d7ec18261da65c7b7",
+    "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "circulation_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "respiration_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "numi.sustained_blood_capacity_provisioned_native_result.v1",
+  "classification": "watchdog_censored_incomplete_not_physics_failure",
+  "pass": null,
+  "physics_failure": null,
+  "watchdog_seconds": 900,
+  "watchdog_terminated_process_group": true,
+  "process_alive_after_termination": false,
+  "accepted_frames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "accepted_frame_count": 15,
+  "expected_frames": 16,
+  "late_reject_candidate_frame_zero_based": 12,
+  "late_reject_retry_reached_accepted_frame_13": true,
+  "frame16_final_assertions_reached": false,
+  "stdout_tail": "floor_accepted_trajectory frame=15 time_s=0.01500000071246177 active_particles=240 min_center_z_m=-0.01257569994777441 max_center_z_m=-0.0071291797794401646 particle_volume_m3=2.3437497775891103e-07 particle_mass_kg=0.00024623434342174733 momentum_z_kg_m_s=-0.00010774133113942505 translational_kinetic_energy_J=2.5302498315719424e-05 barrier_normal_impulse_Ns=0 kkt_normal_impulse_Ns=5.1619264240798657e-06 total_normal_contact_impulse_Ns=5.1619264240798657e-06 accepted_kkt_plane_samples=9 minimum_accepted_active_positive_mass_node_gap_m=0 accepted_plane_pair_samples=2744 accepted_active_positive_mass_plane_samples=9 pending_injected_kinetic_energy_J=0 coalescence_dissipation_J=0",
+  "stdout_sha256": "20eeea9e0a5efc690b3c0b507279ba5a1d7cd5182d67369c7d6d7b28d2a229a0",
+  "invocation_sha256": "8cca45fcbc066e05b23d5384e4c76c46d412883f0f196410c7ff78843a25e7eb",
+  "pins": {
+    "executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+    "fixture_sha256": "24a9970cacfc04db137b6d0ab0d7420c8e71081905c3cab04a376087ccfc9486",
+    "header_sha256": "d3022a6f250533c58423d08d21b96f378635452ccd715e320291dd26026e0a09",
+    "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "circulation_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "respiration_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+  },
+  "notes": [
+    "The reject/retry branch ran at candidate frame 12; exact particle and respiration snapshot checks are immediately before retry, and the run proceeded through accepted frame 13.",
+    "The run was terminated by the declared 900-second watchdog before frame 16 and before final inventory/rollback summary assertions; do not treat it as a pass or as a physics failure."
+  ]
+}

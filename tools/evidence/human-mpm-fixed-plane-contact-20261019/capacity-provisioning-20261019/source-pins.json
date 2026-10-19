@@ -1,0 +1,16 @@
+{
+  "blood_material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+  "candidate_header_patch_sha256": "9f9bd8db9c6cd46710501fc54d2ee793b4486075b72c1ef8f18dc4dcddf95d75",
+  "candidate_header_sha256": "d3022a6f250533c58423d08d21b96f378635452ccd715e320291dd26026e0a09",
+  "capacity_preflight_executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+  "current_main_head": "a778267aee1af8f78e7f778f62a1526eb92b1777",
+  "current_main_header_sha256": "06263a97dcc254913d959e066e856fd3c4c20c730d66165ed24a9a81c8aa757e",
+  "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+  "fixture_sha256": "24a9970cacfc04db137b6d0ab0d7420c8e71081905c3cab04a376087ccfc9486",
+  "grid_width_preflight_fingerprint_omitted_and_explicit_default": "15327204808233676512",
+  "grid_width_preflight_header_sha256": "8845842ddcd98207cf744c8b3887b5846d1c1990893f8c8a71b204cfe10efc2c",
+  "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+  "old_128_run_executable_sha256": "6c2019a2abd3d672060670f278fadafedec4bcfc3da1a4c84b4fe4368ee1e2c6",
+  "old_128_run_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34"
+}

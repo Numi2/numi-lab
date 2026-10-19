@@ -1,0 +1,15 @@
+{
+  "compile_exit": 0,
+  "link_exit": 0,
+  "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "link_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "executable": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/build-001/blood-floor16-1024",
+  "executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+  "pins": {
+    "fixture_sha256": "24a9970cacfc04db137b6d0ab0d7420c8e71081905c3cab04a376087ccfc9486",
+    "header_sha256": "d3022a6f250533c58423d08d21b96f378635452ccd715e320291dd26026e0a09",
+    "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e"
+  }
+}

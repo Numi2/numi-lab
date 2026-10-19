@@ -1,0 +1,61 @@
+{
+  "schema": "numi.sustained_blood_capacity_provisioned_native_invocation.v1",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/build-001/blood-floor16-1024",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "environment": {
+    "NUMI_HUMAN_BLOOD_MPM_ENABLED": "1",
+    "NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED": "1",
+    "NUMI_HUMAN_BLOOD_MPM_MATERIAL": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter",
+    "NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY": "1024",
+    "NUMI_HUMAN_BLOOD_MPM_CELL_WIDTH_M": "0.005",
+    "NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M": "-0.025,-0.025,-0.025,0.025,0.025,0.025",
+    "NUMI_HUMAN_BLOOD_MPM_MAX_RATE_EXPONENT": "0",
+    "NUMI_SUSTAINED_FLOOR_ONLY": "1",
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/capacity-provisioned-1024-candidate-002/build-001/loader",
+    "DYLD_PRINT_LIBRARIES": "1"
+  },
+  "pins": {
+    "executable_sha256": "171491406c695f0286af002bd157b3ca42ec8623d1d09bc8c0e38168eee8caa6",
+    "fixture_sha256": "24a9970cacfc04db137b6d0ab0d7420c8e71081905c3cab04a376087ccfc9486",
+    "header_sha256": "d3022a6f250533c58423d08d21b96f378635452ccd715e320291dd26026e0a09",
+    "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "material_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "circulation_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "respiration_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+  },
+  "fixture_settings": {
+    "cell_width_m": 0.005,
+    "bounds_m": [
+      -0.025,
+      -0.025,
+      -0.025,
+      0.025,
+      0.025,
+      0.025
+    ],
+    "receiver_slots": 1024,
+    "packet_volume_m3": 1.5625e-08,
+    "velocity_m_s": [
+      0,
+      0,
+      -0.5
+    ],
+    "frame_dt_s": 0.001,
+    "frames": 16,
+    "late_reject_frame": 12,
+    "newton_iterations": 24,
+    "microticks_per_command_buffer": 1
+  },
+  "watchdog_seconds": 900,
+  "scope": "synthetic high-shear MPM fixed-plane grid contact and capacity provisioning; no free-surface or pooling claim"
+}

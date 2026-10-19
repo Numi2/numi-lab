@@ -25,6 +25,20 @@ static_assert(sizeof(NMHumanRespirationDispatch)==144u,
 static_assert(offsetof(NMHumanRespirationDispatch,bloodMpmBulkModulus)==136u,
               "blood bulk coefficient must remain at the dispatch ABI tail offset");
 inline void need(bool value,const std::string& message){if(!value)throw std::runtime_error(message);}
+inline std::uint32_t nmHumanBloodMpmParticleCapacity(const char* capacity) {
+    constexpr const char* name="NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY";
+    if(!capacity) return 128u;
+    need(capacity[0]!='\0',std::string(name)+" must be an integer in [128,16384]");
+    std::uint32_t parsed=0u;
+    for(const char* digit=capacity;*digit;++digit) {
+        need(*digit>='0'&&*digit<='9',std::string(name)+" must contain only decimal digits");
+        const std::uint32_t value=static_cast<std::uint32_t>(*digit-'0');
+        need(parsed<=(16384u-value)/10u,std::string(name)+" exceeds 16384");
+        parsed=10u*parsed+value;
+    }
+    need(parsed>=128u&&parsed<=16384u,std::string(name)+" must be in [128,16384]");
+    return parsed;
+}
 inline std::string nmHumanBloodSourceSHA256(const std::string& path) {
     std::ifstream input(path,std::ios::binary);
     need(input.good(),"cannot read source-bound blood constitutive material");
@@ -119,6 +133,12 @@ struct Respiration {
         need(!bloodMpmSetting||std::strcmp(bloodMpmSetting,"0")==0||
              std::strcmp(bloodMpmSetting,"1")==0,
              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
+        const bool bloodMpmEnabled=bloodMpmSetting&&
+            std::strcmp(bloodMpmSetting,"1")==0;
+        const std::uint32_t bloodMpmParticleCapacity=bloodMpmEnabled
+            ?nmHumanBloodMpmParticleCapacity(
+                std::getenv("NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY"))
+            :128u;
         const char* bloodContactSetting=
             std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
         need(!bloodContactSetting||std::strcmp(bloodContactSetting,"0")==0||
@@ -169,7 +189,8 @@ struct Respiration {
                 need(hasFixedUpwardPlanePair,
                      "blood MPM contact opt-in requires a compiled receiver pair against a world-fixed upward plane");
             }
-            need(object.stateCount>0u&&object.stateCount<=4096u&&
+            need(object.stateCount==bloodMpmParticleCapacity&&
+                 object.stateCount>=128u&&object.stateCount<=16384u&&
                  object.elementCount==1u&&object.elementOffset<world.mpm.grids.size()&&
                  std::uint64_t(object.stateOffset)+object.stateCount<=world.mpm.particles.size()&&
                  world.dispatch.particleCount==world.mpm.particles.size(),
@@ -945,6 +966,10 @@ struct RestingRun {
         need(!bloodMode||std::strcmp(bloodMode,"0")==0||std::strcmp(bloodMode,"1")==0,
              "NUMI_HUMAN_BLOOD_MPM_ENABLED must be exactly 0 or 1");
         const bool bloodEnabled=bloodMode&&std::strcmp(bloodMode,"1")==0;
+        const std::uint32_t bloodMpmParticleCapacity=bloodEnabled
+            ?nmHumanBloodMpmParticleCapacity(
+                std::getenv("NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY"))
+            :128u;
         const char* contactMode=std::getenv("NUMI_HUMAN_BLOOD_MPM_CONTACT_ENABLED");
         need(!contactMode||std::strcmp(contactMode,"0")==0||
              std::strcmp(contactMode,"1")==0,
@@ -988,6 +1013,21 @@ struct RestingRun {
             need(foundBulk&&std::isfinite(numericalBulkProxy)&&numericalBulkProxy>0.0&&
                  material.material.internalState.empty(),
                  "source-pinned blood proxy must retain its positive stateless numerical bulk energy");
+            double bloodCellWidth=0.05;
+            if(const char* width=std::getenv("NUMI_HUMAN_BLOOD_MPM_CELL_WIDTH_M")) {
+                if(*width) {
+                    char* end=nullptr;
+                    bloodCellWidth=std::strtod(width,&end);
+                    need(end!=width&&*end=='\0'&&std::isfinite(bloodCellWidth)&&
+                         bloodCellWidth>=0.001&&bloodCellWidth<=0.05,
+                         "NUMI_HUMAN_BLOOD_MPM_CELL_WIDTH_M must be finite and between 0.001 and 0.05 metres");
+                }
+            }
+            const char* bloodGridBounds=std::getenv(
+                "NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M");
+            need(bloodCellWidth==0.05 || (bloodGridBounds&&*bloodGridBounds),
+                 "a non-default blood MPM cell width requires explicit bounded grid coordinates");
+
             ObjectSource receiver;
             receiver.name="external_blood_dormant_receiver";
             // Assigned against the appended material table after preserving
@@ -1003,13 +1043,13 @@ struct RestingRun {
             // volume-preserving F projection; measured bulk-energy loss joins
             // the merge ledger. Merged deformed volume remains below half a
             // grid cell. If no pair qualifies, the step rejects.
-            receiver.characteristicLength=0.05;
+            receiver.characteristicLength=bloodCellWidth;
             receiver.mpmGridMinimum={-1.5,-1.5,-1.0};
             receiver.mpmGridMaximum={1.5,1.5,3.0};
             // Bounded experiments may declare a smaller world-space domain
             // without changing cell width or the physical update schedule.
             // Leaving the domain rejects; it never clips or drops fluid.
-            if(const char* bounds=std::getenv("NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M")) {
+            if(const char* bounds=bloodGridBounds) {
                 double values[6]{};
                 const char* cursor=bounds;
                 for(unsigned axis=0;axis<6u;++axis) {
@@ -1029,11 +1069,39 @@ struct RestingRun {
                 receiver.mpmGridMinimum={values[0],values[1],values[2]};
                 receiver.mpmGridMaximum={values[3],values[4],values[5]};
             }
+            // Match compiler_impl.cpp's fixed-grid padding and its existing
+            // 32-bit cooked-node-count admission before world compilation.
+            std::uint64_t predictedBloodGridNodes=1u;
+            for(unsigned axis=0u;axis<3u;++axis) {
+                const double scaledMinimum=
+                    receiver.mpmGridMinimum[axis]/receiver.characteristicLength;
+                const double scaledMaximum=
+                    receiver.mpmGridMaximum[axis]/receiver.characteristicLength;
+                need(std::isfinite(scaledMinimum)&&std::isfinite(scaledMaximum)&&
+                     scaledMinimum>=double(std::numeric_limits<int>::min()+4)&&
+                     scaledMaximum<=double(std::numeric_limits<int>::max()-4),
+                     "blood MPM grid bounds exceed the compiler's signed integer grid domain");
+                const auto authoredMinimum=static_cast<std::int64_t>(
+                    std::floor(scaledMinimum));
+                const auto authoredMaximum=static_cast<std::int64_t>(
+                    std::floor(scaledMaximum));
+                const std::uint64_t dimension=static_cast<std::uint64_t>(
+                    authoredMaximum-authoredMinimum+4);
+                need(dimension>2u&&
+                     predictedBloodGridNodes<=
+                         std::numeric_limits<std::uint32_t>::max()/dimension,
+                     "blood MPM padded grid exceeds the compiler's 32-bit cooked node-count limit");
+                predictedBloodGridNodes*=dimension;
+            }
+            if(bloodCellWidth!=0.05) {
+                need(predictedBloodGridNodes<=1048576u,
+                     "non-default blood MPM bounds exceed the one-million-node opt-in budget");
+            }
             const std::array<double,3> dormantGridCenter={
                 0.5*(receiver.mpmGridMinimum[0]+receiver.mpmGridMaximum[0]),
                 0.5*(receiver.mpmGridMinimum[1]+receiver.mpmGridMaximum[1]),
                 0.5*(receiver.mpmGridMinimum[2]+receiver.mpmGridMaximum[2])};
-            for(unsigned slot=0;slot<128u;++slot) {
+            for(unsigned slot=0;slot<bloodMpmParticleCapacity;++slot) {
                 // Inactive receiver slots still require finite, in-domain
                 // positions because the compiler validates their quadratic
                 // support stencil before activation.
@@ -1064,7 +1132,9 @@ struct RestingRun {
                  "blood numerical bulk proxy is outside the GPU scalar range");
             appendRestingBloodMaterial(source,std::move(material.material),std::move(receiver));
             const auto& appendedReceiver=source.objects.back();
-            std::cerr<<"blood_mpm_source=reference slots=128 capacity_uL=128 cell_width_m=0.05"
+            std::cerr<<"blood_mpm_source=reference slots="<<bloodMpmParticleCapacity
+                     <<" dormant_capacity_uL="<<bloodMpmParticleCapacity
+                     <<" cell_width_m="<<appendedReceiver.characteristicLength
                      <<" material_sha256="<<bloodMaterialSHA256
                      <<" numerical_bulk_proxy_pa="<<sourcePinnedBloodBulkModulus
                      <<" grid_min_m="<<appendedReceiver.mpmGridMinimum[0]<<","<<appendedReceiver.mpmGridMinimum[1]<<","<<appendedReceiver.mpmGridMinimum[2]
