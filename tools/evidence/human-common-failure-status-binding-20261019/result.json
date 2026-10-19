@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "expected_failure": true,
+    "matter_code": true,
+    "matter_object": true,
+    "matter_index": true,
+    "matter_diagnostics": true
+  },
+  "pass": true,
+  "exit_code": 1,
+  "wall_seconds": 15.238370708015282,
+  "scope": "known rejected step; diagnostic status identity only, not new physical qualification"
+}

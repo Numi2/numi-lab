@@ -1,0 +1,15 @@
+{
+  "scope": "diagnostic buffer identity correction only; no solver/state changes",
+  "files": [
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "base_sha256": "30d082199d1f52bfbfa2502a7143f43069f6d73ce680cf03878e3b8313ee33f2",
+      "candidate_sha256": "3e1059dd0cd9113b1474cde2bcb3653a2f415635ae91f75e4b167a18bf907ed6"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "base_sha256": "cd754892cd03316cf146e5a89e91140081a745afdab294663f7896ac9f70c6c4",
+      "candidate_sha256": "de2b989ad2ca6330c932c7d3466c8cc555a98d5dfa8e1977a650b1edde8daff3"
+    }
+  ]
+}

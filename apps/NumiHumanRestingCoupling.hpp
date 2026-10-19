@@ -732,7 +732,7 @@ public:
                 auto latch=[cb computeCommandEncoder];need(latch!=nil,"common failure latch encoder");
                 [latch setComputePipelineState:latchCommonFailure];[latch setBytes:&d length:sizeof(d) atIndex:0];
                 [latch setBuffer:numi::human::buffer(p.standStatuses) offset:0 atIndex:1];
-                [latch setBuffer:physiology.statuses offset:0 atIndex:2];
+                [latch setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:2];
                 [latch setBuffer:physiology.respiration->candidate offset:0 atIndex:3];
                 [latch setBuffer:physiology.respiration->accepted offset:0 atIndex:4];
                 [latch setBuffer:presentationCandidateCommonCoordinates offset:0 atIndex:5];

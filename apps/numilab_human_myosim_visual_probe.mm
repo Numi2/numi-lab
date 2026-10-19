@@ -8863,12 +8863,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                     writeJsonFloat(value.z); receipt << ',';
                                     writeJsonFloat(value.w); receipt << ']';
                                 };
-                                receipt << ",\n  \"legacy_first_failure_latch\": {\n    \"binding_note\": \"legacy MSL buffer(2) was bound to MRMetalWorldStatusGPU but declared NMMatterStatusGPU; matter-labelled values are world-layout reinterpretations\",\n    \"step\": "
-                                        << f.identity.x << ",\n    \"legacy_world_code\": " << f.identity.y
+                                receipt << ",\n  \"first_failure_latch\": {\n    \"binding_note\": \"buffer(2) is bound to the authoritative NMMatterStatusGPU runtime status\",\n    \"step\": "
+                                        << f.identity.x << ",\n    \"matter_code\": " << f.identity.y
                                         << ",\n    \"stand_code\": " << f.identity.z
-                                        << ",\n    \"legacy_world_status_words\": ";
+                                        << ",\n    \"matter_status\": ";
                                 writeU32Array(f.matterStatus);
-                                receipt << ",\n    \"legacy_world_diagnostics\": ";writeF32Array(f.matterDiagnostics);
+                                receipt << ",\n    \"matter_diagnostics\": ";writeF32Array(f.matterDiagnostics);
                                 receipt << ",\n    \"stand_status\": ";writeU32Array(f.standStatus);
                                 receipt << ",\n    \"respiration_candidate_status\": ";writeU32Array(f.respirationCandidateStatus);
                                 receipt << ",\n    \"respiration_accepted_status\": ";writeU32Array(f.respirationAcceptedStatus);
