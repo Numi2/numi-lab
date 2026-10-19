@@ -1,0 +1,13 @@
+Full retained remote log SHA256: 60890628476f0c179005f23e756b9757d53fd61b45137b666ddd13579bd4952b
+resting_job_lock waiting pid=27339
+resting_job_lock acquired pid=27339
+scope objects=2 fem_nodes=8 tets=2 particles=0 mpm_grids=0 mpm_nodes=0 material_state_stride=2 contacts=0 attachments=0 dt_s=0.00025
+device=Apple M6 fingerprint=16820135133648190640
+initial_snapshot_fem_nodes=8 fem_history=4 particles=1 particle_history=4 certificates=2
+attempt_accept=0 matter_status=9 diagnostic=0.999913,0,0,0 object=4294967295 failing=0 completed_microsteps=1 gpu_seconds=1.18556 callbacks=1,1,1,1 fem_node_count=8 fem_history_count=4
+attempt_accept=1 matter_status=0 diagnostic=0.999913,0,0,0 object=4294967295 failing=4294967295 completed_microsteps=1 gpu_seconds=1.17695 callbacks=1,1,1,1 fem_node_count=8 fem_history_count=4
+accepted_contact_history_l1=0.000433248 history_records=0
+prescribed_target_contact_force_l1_N=1.73319 fixed_positions_unchanged=1
+accepted_node_max_abs_delta_m=0.0281964 accepted_material_history_max_abs_delta=0.000127221 accepted_particle_max_abs_delta=0 initial_history=0,0,0,0, accepted_history=0,0.000127221,0,0,
+attempt_accept=1 matter_status=0 diagnostic=0.999913,0,0,0 object=4294967295 failing=4294967295 completed_microsteps=1 gpu_seconds=1.17686 callbacks=1,1,1,1 fem_node_count=8 fem_history_count=4
+PASS static_contact_FEM_vascular_late_reject_retry

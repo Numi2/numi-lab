@@ -10,3 +10,5 @@ Native Apple M6 on SSH Numi, no visual verification:
 - 027: fixed-plane contact with full graph also passes.
 
 Each attempt uses one 0.25 ms microtick, synthetic history-bearing silicone, production residual tolerance 1e-4, 32 Newton iterations and 16 line-search trials. Node-state maximum includes velocities. These are bounded numerical regressions, not whole-body contact, biological material validation, prolonged circulation or sustained blood-liquid qualification. The exact source, binary and library snapshots remain in each remote named run directory; compact commands, source identities, hashes, device and outputs are retained here. Older failing evidence remains unchanged.
+
+Follow-up 028 also passes with explicit checks that all seven prescribed node positions remain bitwise unchanged and the fixed target receives nonzero contact support force (L1 1.73319 N). The fixture blits the existing private reaction buffer once for this regression; this is not a production per-step readback.
