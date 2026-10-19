@@ -1,0 +1,58 @@
+{
+  "schema": "numi.mpm_fixed_plane_momentum_closure_audit.v1",
+  "result_sha256": "fc934f701ae64f3d1480ba910be0d8995fd3b2d3d1af8530bfbd02dc945745ac",
+  "stdout_sha256": "25c814796b8f69d55b0c11266ff8bc86e0626e9be447f694867c49a538afc741",
+  "invocation_sha256": "0a91568a0fd17babffb4119275addfdc1d292da2416e88227ae656f34798ea47",
+  "matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+  "dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+  "fixture_sha256": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+  "fixture_settings": {
+    "frames": 96,
+    "late_reject_frame": 64,
+    "frame_dt_s": 0.00025,
+    "duration_s": 0.024,
+    "newton_iterations": 24,
+    "microticks_per_command_buffer": 1
+  },
+  "accepted_frame_rows": 96,
+  "accepted_frame_sequence_exact": true,
+  "per_frame_kkt_impulse_rows": 96,
+  "per_frame_kkt_impulse_rows_finite_nonnegative": true,
+  "frames_with_positive_kkt_impulse": 95,
+  "mass_per_accepted_packet_kg": 1.050599962582055e-06,
+  "reference_volume_per_packet_m3": 9.999999717180685e-10,
+  "packets": 96,
+  "authored_world_gravity_m_s2": [
+    0.0,
+    0.0,
+    -9.81
+  ],
+  "compiled_float32_gravity_z_m_s2": -9.8100004196167,
+  "compiled_float32_frame_dt_s": 0.0002500000118743628,
+  "initial_vertical_velocity_m_s": -10.0,
+  "sum_per_accepted_frame_kkt_normal_impulse_Ns": 0.0006954297132787252,
+  "note_kkt_impulse_semantics": "Each floor_accepted_trajectory row reports only that accepted step impulse; the summary line reports the final step value, not a cumulative total.",
+  "momentum_balance": {
+    "injected_momentum_Ns": -0.0010085759640787728,
+    "gravity_impulse_Ns": -1.1996633959688556e-05,
+    "sum_kkt_normal_impulse_frames_1_through_95_Ns": 0.0006845244026757319,
+    "frame_96_kkt_normal_impulse_only_Ns": 1.0905310602993268e-05,
+    "sum_kkt_normal_impulse_frames_1_through_96_Ns": 0.0006954297132787252,
+    "frame_95": {
+      "predicted_momentum_kg_m_s": -0.00032529484245938964,
+      "observed_momentum_kg_m_s": -0.00032529229678850895,
+      "observed_minus_predicted_kg_m_s": 2.545670880690909e-09
+    },
+    "predicted_final_momentum_kg_m_s": -0.00032514288475973623,
+    "observed_final_momentum_kg_m_s": -0.0003251403369937284,
+    "observed_minus_predicted_kg_m_s": 2.5477660078225897e-09,
+    "relative_to_injected_momentum": 2.526102245704124e-06
+  },
+  "scope": "Vertical momentum consistency audit of existing 96-frame synthetic fixed-grid MPM run; no free-surface/pooling inference.",
+  "rollback_retry": {
+    "injected_reject_frame": 64,
+    "accepted_frames_after_retry": 96,
+    "fixture_assertion_source_sha256": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+    "fixture_source_has_byte_exact_rollback_assertions": true
+  }
+}

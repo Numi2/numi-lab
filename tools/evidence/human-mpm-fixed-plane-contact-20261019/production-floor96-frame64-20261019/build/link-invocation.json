@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-arch",
+    "arm64",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-active-set-trial-001/build-probe-frame64-002/probe.o",
+    "-L/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "Accelerate",
+    "-lz",
+    "-o",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-active-set-trial-001/build-probe-frame64-002/input-probe-frame64"
+  ],
+  "pins": {
+    "original_fixture_sha256": "2307fd202ae7d00102cb1c489ba82de4ea635facf3be99090b8115de99a52076",
+    "candidate_fixture_sha256": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+    "source_trigger_frame": 64,
+    "old_probe_sha256": "d0e5aea418f512c0faa93e7494ffa9b7bc1d1ee18dcf565bb2a8f57a90b8cc08",
+    "old_build_receipt_sha256": "2c89dd16b50eaddca3c21cccf054ba8b033424b732d0c2bd1050c146d626c520",
+    "production_source": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal",
+    "production_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "production_dylib": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+    "production_dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e"
+  }
+}

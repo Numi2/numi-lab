@@ -1,0 +1,10 @@
+{
+  "audit_sum_matches_csv_within_1e-14_Ns": true,
+  "correction": "Each accepted trajectory row's kkt_normal_impulse_Ns is the accepted-step impulse. The terminal summary value is the final step impulse; cumulative impulse is the sum of the 96 accepted-frame rows.",
+  "frame_96_step_impulse_Ns": 1.0905310602993268e-05,
+  "frame_rows": 96,
+  "schema": "numi.mpm_frame_impulse_semantics_note.v1",
+  "source_momentum_audit_sha256": "cec72259d483a2b43a6497a19188ad7c1a53b571acca7ba672b7ef77df2f5743",
+  "sum_frames_1_through_95_Ns": 0.0006845244026757319,
+  "sum_frames_1_through_96_Ns": 0.0006954297132787252
+}

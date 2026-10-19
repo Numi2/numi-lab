@@ -1,0 +1,9 @@
+# 96-frame fixed-grid MPM replay with a frame-64 rejected-step retry
+
+This is evidence for the production fixed-plane KKT MPM path using the frame-64 active-set fixture. The native replay exited successfully after 96 accepted frames (24 ms simulated time) and 726.925 s wall time. It injected a rejection at frame 64, asserted byte-exact particle and staged-respiration rollback, retried, and finished at 96 accepted frames. See the preserved invocation, result, stdout, fixture, compile dependency pins, and build receipts.
+
+The momentum audit compares injected momentum, gravity impulse, and the sum of accepted per-frame normal KKT impulses. In the CSV, `kkt_normal_impulse_Ns` is the impulse for that accepted frame only. The total across frames 1–96 is 0.0006954297132787252 N·s; frame 96 itself contributes 0.000010905310602993268 N·s. The summary log’s final KKT impulse is a single-step value, not the cumulative sum. Final observed-minus-predicted vertical momentum is 2.5477660078225897e-9 kg·m/s (2.5261e-6 relative to injected momentum).
+
+The exact production Metal source (SHA-256 `85fba053…4b2f34`) is already retained in parent commit `ccb8ac8d499d60c04b1a45661be4c121388a75a5` under `tools/evidence/human-mpm-fixed-plane-kkt-active-set-20261019/source/MatterSource.metal.gz`; this package references that pin rather than duplicating the source. The loaded production dylib SHA-256 is `ec651fdc…efd3854e`. The material is the existing `blood_high_shear_newtonian_proxy.nmatter` (SHA-256 `d496433a…75412f`).
+
+This synthetic fixed-plane run uses a 50 mm grid cell, which is strongly underresolved for microlitre pooling geometry. It provides no pooling or free-surface inference, and does not qualify full-body tissue mechanics, physiological behavior, or clinical behavior. This evidence does not change the already-published runtime source.

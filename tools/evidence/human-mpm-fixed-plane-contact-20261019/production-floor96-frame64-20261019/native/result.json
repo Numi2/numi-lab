@@ -1,0 +1,9 @@
+{
+  "schema": "numi.mpm_fixed_plane_active_set_production_result.v1",
+  "exit_code": 0,
+  "timed_out": false,
+  "watchdog_seconds": 900,
+  "wall_seconds": 726.925,
+  "stdout_sha256": "25c814796b8f69d55b0c11266ff8bc86e0626e9be447f694867c49a538afc741",
+  "loaded_dylib_sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e"
+}

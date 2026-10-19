@@ -1,0 +1,35 @@
+{
+  "fixture": {
+    "path": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native/fixture-grid-kkt-free-slip-96-kkt-impulse-frame64-002.mm",
+    "sha256": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49"
+  },
+  "grid_cell_width_m": 0.05,
+  "input_hashes": {
+    "circulation": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "dylib": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "fixture": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+    "material": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "matter_source": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "original_fixture": "2307fd202ae7d00102cb1c489ba82de4ea635facf3be99090b8115de99a52076",
+    "probe": "c3a84a1008632b1a116a97fd3fb3bd811359a2da6267a41771a7f338240b2469",
+    "probe_build_receipt": "54451e26e27314625bb9aa0e1eebf947bf9c2c52406619dd9b0ae37dfde92556",
+    "production_build_receipt": "5c8d17c2fef66e2b34095f5b8cde0156616ada51e66e72cfb03d459ebb43b195",
+    "respiration": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+  },
+  "material": {
+    "path": "matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+    "sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f"
+  },
+  "production_library": {
+    "build_receipt_sha256": "5c8d17c2fef66e2b34095f5b8cde0156616ada51e66e72cfb03d459ebb43b195",
+    "path": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/build-production-001/libmetalrobo.dylib",
+    "sha256": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e"
+  },
+  "production_source_commit": "ccb8ac8d499d60c04b1a45661be4c121388a75a",
+  "production_source_in_parent_commit": {
+    "compressed_blob_sha256": "c7de40966271cafa1ca2697af37bd89609007ba52772a96f207739e3eafcae80",
+    "decompressed_matter_source_sha256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "path": "tools/evidence/human-mpm-fixed-plane-kkt-active-set-20261019/source/MatterSource.metal.gz"
+  },
+  "schema": "numi.mpm_fixed_plane_frame64_source_pins.v1"
+}

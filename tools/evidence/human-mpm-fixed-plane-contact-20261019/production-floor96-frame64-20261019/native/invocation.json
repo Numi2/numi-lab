@@ -1,0 +1,41 @@
+{
+  "schema": "numi.mpm_fixed_plane_active_set_production_invocation.v1",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/n/numi-human-final-integration-publish-1397/tools/run_resting_job_exclusive.py",
+    "--",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-active-set-trial-001/build-probe-frame64-002/input-probe-frame64",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-circulation.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor32-final-005/input-blood_high_shear_newtonian_proxy.nmatter"
+  ],
+  "environment": {
+    "NUMI_MATTER_TEST_SOURCE": "/Users/n/numi-human-separation-20261018/C/integrated-general-tissue-258/production-merged-007/MatterSource.metal",
+    "NUMI_MATTER_TEST_SOURCE_SHA256": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "NUMI_SUSTAINED_FLOOR_ONLY": "1",
+    "DYLD_LIBRARY_PATH": "/Users/n/numi-human-separation-20261018/C/sustained-blood-247/native-mpm-grid-boundary-001/native-kkt-grid-floor96-prep-001/native-kkt-grid-active-set-trial-001/native-floor96-merged-frame64-001/loader",
+    "DYLD_PRINT_LIBRARIES": "1"
+  },
+  "pins": {
+    "fixture": "d2a83785099a89ef37de9bedadc17aa3c62738a05d20778f8ae04f58c1e74d49",
+    "original_fixture": "2307fd202ae7d00102cb1c489ba82de4ea635facf3be99090b8115de99a52076",
+    "probe": "c3a84a1008632b1a116a97fd3fb3bd811359a2da6267a41771a7f338240b2469",
+    "probe_build_receipt": "54451e26e27314625bb9aa0e1eebf947bf9c2c52406619dd9b0ae37dfde92556",
+    "matter_source": "85fba053a66dac84e818b2a34ca406cc5d608eddd1ef2df1d6f6b0b55f4b2f34",
+    "dylib": "ec651fdc3ebd835f22590b9937308fa88678e0e90ae3dcf36f131cf5efd3854e",
+    "production_build_receipt": "5c8d17c2fef66e2b34095f5b8cde0156616ada51e66e72cfb03d459ebb43b195",
+    "material": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "circulation": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "respiration": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a"
+  },
+  "fixture_settings": {
+    "frames": 96,
+    "late_reject_frame": 64,
+    "frame_dt_s": 0.00025,
+    "duration_s": 0.024,
+    "newton_iterations": 24,
+    "microticks_per_command_buffer": 1
+  },
+  "watchdog_seconds": 900,
+  "scope": "Merged production MSL active-set trial; no trace override. Intermediate KKT grid velocity fraction-to-boundary skipped. Final grid KKT, strict particle endpoint/sweep certificates, merit checks, and transactional rollback remain enabled."
+}
