@@ -13,6 +13,8 @@
 #include <set>
 #include <span>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace metalrobo::human::coarse_tissue {
@@ -74,7 +76,13 @@ struct GeometryAudit { double volumeM3=0, minFaceAreaM2=0; std::uint64_t testedP
 struct PreparedOrganicFEM {
     std::string sourceName, sourceMember, meshSHA256, payloadSHA256;
     std::string materialName, materialProvenance;
+    // Compatibility scalar: populated only for a uniform field; zero for a
+    // spatially varying field. Use the explicit vertex values and bounds below.
     double layerThicknessM=0.0;
+    // Indexed in the registered source surface's current vertex order.
+    std::vector<double> layerThicknessBySurfaceVertexM;
+    std::string layerThicknessProvenance;
+    double layerThicknessMinM=0.0, layerThicknessMaxM=0.0;
     std::uint32_t sourceStableIdentifier=0, sourceBodyIndex=NM_INVALID_INDEX;
     bool aggregateIdentity=false;
     std::uint32_t materialIndex=NM_INVALID_INDEX, firstGlobalFEMNode=NM_INVALID_INDEX;
@@ -270,7 +278,12 @@ inline bool deriveSkinFatBoundaries(const RegisteredSurface& skin,std::span<cons
 
 struct PairedBoundaryLayer {
     std::vector<V3> outerWorld,innerWorld,outerLocal,innerLocal;
-    double volumeM3=0,thicknessM=0;
+    double volumeM3=0;
+    // Compatibility scalar: zero when thicknessByVertexM is nonuniform.
+    double thicknessM=0;
+    std::vector<double> thicknessByVertexM;
+    std::string thicknessProvenance;
+    double minThicknessM=0.0,maxThicknessM=0.0;
 };
 struct PreparedShellFEM { numi::matter::ObjectSource object; PreparedOrganicFEM report; };
 // Keep the retained high-detail visual surface untouched. Mechanical callers
@@ -325,62 +338,111 @@ inline RegisteredSurface offsetRegisteredSurface(const RegisteredSurface& source
     }
     return out;
 }
-inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const SkinFatReference& ref,double fatThicknessM,
+inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const SkinFatReference& ref,
+        std::span<const double> skinThicknessByVertexM,std::span<const double> fatThicknessByVertexM,
+        std::string_view skinThicknessProvenance,std::string_view fatThicknessProvenance,
         PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error){
     GeometryAudit sourceAudit;if(!auditClosedSurface(skin,sourceAudit,error,true))return false;
-    if(!(std::isfinite(ref.skinThicknessM)&&ref.skinThicknessM>=ref.minSkinThicknessM&&ref.skinThicknessM<=ref.maxSkinThicknessM&&
-         std::isfinite(fatThicknessM)&&fatThicknessM>=ref.minFatThicknessM&&fatThicknessM<=ref.maxFatThicknessM)){
-        error="skin/fat thickness is outside its explicit adult-reference sensitivity range";return false;
+    const std::size_t n=skin.worldPoints.size();
+    if(skinThicknessByVertexM.size()!=n||fatThicknessByVertexM.size()!=n){error="per-vertex skin/fat thickness field count must exactly match registered source vertices";return false;}
+    if(skinThicknessProvenance.empty()||fatThicknessProvenance.empty()){error="per-vertex thickness fields require caller-supplied provenance";return false;}
+    if(!(std::isfinite(ref.minSkinThicknessM)&&std::isfinite(ref.maxSkinThicknessM)&&ref.minSkinThicknessM>0&&ref.maxSkinThicknessM>=ref.minSkinThicknessM&&
+         std::isfinite(ref.minFatThicknessM)&&std::isfinite(ref.maxFatThicknessM)&&ref.minFatThicknessM>0&&ref.maxFatThicknessM>=ref.minFatThicknessM)){
+        error="skin/fat thickness reference bounds are invalid";return false;
+    }
+    double skinMin=std::numeric_limits<double>::infinity(),skinMax=0.0,fatMin=std::numeric_limits<double>::infinity(),fatMax=0.0;
+    for(std::size_t i=0;i<n;i++){
+        const double st=skinThicknessByVertexM[i],ft=fatThicknessByVertexM[i];
+        if(!std::isfinite(st)||st<ref.minSkinThicknessM||st>ref.maxSkinThicknessM||!std::isfinite(ft)||ft<ref.minFatThicknessM||ft>ref.maxFatThicknessM){
+            error="per-vertex thickness contains a nonfinite or out-of-reference value";return false;
+        }
+        skinMin=std::min(skinMin,st);skinMax=std::max(skinMax,st);fatMin=std::min(fatMin,ft);fatMax=std::max(fatMax,ft);
     }
     std::vector<V3> worldNormals,localNormals;
     if(!skin.outwardWorldNormals.empty())worldNormals=skin.outwardWorldNormals;
     else if(!outwardVertexNormals(skin.worldPoints,skin.faces,worldNormals,error))return false;
-    if(worldNormals.size()!=skin.worldPoints.size()){error="registered outward-normal ancestry count differs from the source vertices";return false;}
-    for(const auto& n:worldNormals)if(!std::isfinite(norm(n))||std::abs(norm(n)-1.0)>1e-4){error="registered skin outward normal is not unit length";return false;}
+    if(worldNormals.size()!=n){error="registered outward-normal ancestry count differs from source vertices";return false;}
+    for(const auto& normal:worldNormals){const double length=norm(normal);if(!std::isfinite(length)||std::abs(length-1.0)>1e-4){error="registered skin outward normal is not unit length";return false;}}
     if(!skin.worldToDonorLocalLinear.empty()){
-        if(skin.worldToDonorLocalLinear.size()!=skin.worldPoints.size()){error="per-vertex world-to-donor frame map is incomplete";return false;}
-        localNormals.resize(worldNormals.size());
-        for(std::size_t i=0;i<worldNormals.size();i++){const auto& m=skin.worldToDonorLocalLinear[i];V3 q{m[0]*worldNormals[i][0]+m[1]*worldNormals[i][1]+m[2]*worldNormals[i][2],m[3]*worldNormals[i][0]+m[4]*worldNormals[i][1]+m[5]*worldNormals[i][2],m[6]*worldNormals[i][0]+m[7]*worldNormals[i][1]+m[8]*worldNormals[i][2]};double l=norm(q);if(!std::isfinite(l)||l<=1e-12){error="world-to-donor normal map is singular";return false;}localNormals[i]=mul(q,1.0/l);}
+        if(skin.worldToDonorLocalLinear.size()!=n){error="per-vertex world-to-donor frame map is incomplete";return false;}
+        localNormals.resize(n);
+        for(std::size_t i=0;i<n;i++){
+            const auto& m=skin.worldToDonorLocalLinear[i];
+            if(!std::all_of(m.begin(),m.end(),[](double x){return std::isfinite(x);})){error="world-to-donor normal map contains a nonfinite coefficient";return false;}
+            const double determinant=m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]);
+            if(!std::isfinite(determinant)||std::abs(determinant)<=1e-12){error="world-to-donor normal map is singular";return false;}
+            const auto& normal=worldNormals[i];
+            V3 q{m[0]*normal[0]+m[1]*normal[1]+m[2]*normal[2],m[3]*normal[0]+m[4]*normal[1]+m[5]*normal[2],m[6]*normal[0]+m[7]*normal[1]+m[8]*normal[2]};
+            const double length=norm(q);if(!std::isfinite(length)||length<=1e-12){error="world-to-donor normal map is singular";return false;}
+            localNormals[i]=mul(q,1.0/length);
+        }
     }else if(!outwardVertexNormals(skin.donorLocalPoints,skin.faces,localNormals,error))return false;
-    const auto skinInner=offsetRegisteredSurface(skin,worldNormals,localNormals,ref.skinThicknessM);
+    RegisteredSurface skinInner=skin;skinInner.name=skin.name+" offset boundary";
+    for(std::size_t i=0;i<n;i++){
+        skinInner.worldPoints[i]=sub(skin.worldPoints[i],mul(worldNormals[i],skinThicknessByVertexM[i]));
+        skinInner.donorLocalPoints[i]=sub(skin.donorLocalPoints[i],mul(localNormals[i],skinThicknessByVertexM[i]));
+    }
     std::vector<V3> innerWorldNormals,innerLocalNormals;
     if(!outwardVertexNormals(skinInner.worldPoints,skin.faces,innerWorldNormals,error))return false;
     if(!skin.worldToDonorLocalLinear.empty()){
-        // Donor-local points belong to different bone frames. Triangulating
-        // them together cannot produce a meaningful local surface normal.
-        innerLocalNormals.resize(innerWorldNormals.size());
-        for(std::size_t i=0;i<innerWorldNormals.size();i++){
-            const auto& m=skin.worldToDonorLocalLinear[i];const auto& n=innerWorldNormals[i];
-            V3 q{m[0]*n[0]+m[1]*n[1]+m[2]*n[2],
-                 m[3]*n[0]+m[4]*n[1]+m[5]*n[2],
-                 m[6]*n[0]+m[7]*n[1]+m[8]*n[2]};
-            const double l=norm(q);
-            if(!std::isfinite(l)||l<=1e-12){error="world-to-donor inner normal map is singular";return false;}
-            innerLocalNormals[i]=mul(q,1.0/l);
+        innerLocalNormals.resize(n);
+        for(std::size_t i=0;i<n;i++){
+            const auto& m=skin.worldToDonorLocalLinear[i];const auto& normal=innerWorldNormals[i];
+            V3 q{m[0]*normal[0]+m[1]*normal[1]+m[2]*normal[2],m[3]*normal[0]+m[4]*normal[1]+m[5]*normal[2],m[6]*normal[0]+m[7]*normal[1]+m[8]*normal[2]};
+            const double length=norm(q);if(!std::isfinite(length)||length<=1e-12){error="world-to-donor inner normal map is singular";return false;}
+            innerLocalNormals[i]=mul(q,1.0/length);
         }
     }else if(!outwardVertexNormals(skinInner.donorLocalPoints,skin.faces,innerLocalNormals,error))return false;
-    const auto fatInner=offsetRegisteredSurface(skinInner,innerWorldNormals,innerLocalNormals,fatThicknessM);
+    RegisteredSurface fatInner=skinInner;fatInner.name=skinInner.name+" offset boundary";
+    for(std::size_t i=0;i<n;i++){
+        fatInner.worldPoints[i]=sub(skinInner.worldPoints[i],mul(innerWorldNormals[i],fatThicknessByVertexM[i]));
+        fatInner.donorLocalPoints[i]=sub(skinInner.donorLocalPoints[i],mul(innerLocalNormals[i],fatThicknessByVertexM[i]));
+    }
     GeometryAudit innerAudit,fatAudit;
     if(!auditClosedSurface(skinInner,innerAudit,error,true)||!auditClosedSurface(fatInner,fatAudit,error,true))return false;
-    auto pairedVolume=[&](const std::vector<V3>& outer,const std::vector<V3>& inner,double& total){
-        total=0;const double scale=std::max(1e-8,norm(sub(outer[0],inner[0])));
-        for(auto face:skin.faces){std::sort(face.begin(),face.end());auto a=face[0],b=face[1],c=face[2];
-            const double v0=tetVolume(outer[a],outer[b],outer[c],inner[c]);
-            const double v1=tetVolume(outer[a],outer[b],inner[b],inner[c]);
-            const double v2=tetVolume(outer[a],inner[a],inner[b],inner[c]);
-            if(!std::isfinite(v0)||!std::isfinite(v1)||!std::isfinite(v2)||std::abs(v0)<=scale*scale*scale*1e-12||std::abs(v1)<=scale*scale*scale*1e-12||std::abs(v2)<=scale*scale*scale*1e-12)return false;
-            const double expectedSign=dot(cross(sub(outer[b],outer[a]),sub(outer[c],outer[a])),sub(inner[c],outer[c]));
-            if(!std::isfinite(expectedSign)||std::abs(expectedSign)<=scale*scale*scale*1e-12||((v0>0)!=(expectedSign>0))||((v1>0)==(expectedSign>0))||((v2>0)!=(expectedSign>0)))return false;
+    auto pairedVolume=[&](const std::vector<V3>& outer,const std::vector<V3>& inner,std::span<const double> thickness,double& total,std::uint32_t& failedFace){
+        total=0;failedFace=NM_INVALID_INDEX;
+        const bool uniform=std::all_of(thickness.begin(),thickness.end(),[&](double value){return value==thickness.front();});
+        const double uniformScale=uniform?std::max(1e-8,norm(sub(outer[0],inner[0]))):0.0;
+        for(std::uint32_t fi=0;fi<skin.faces.size();fi++){
+            auto face=skin.faces[fi];std::sort(face.begin(),face.end());const auto a=face[0],b=face[1],c=face[2];
+            const double scale=uniform?uniformScale:std::max(1e-8,std::max({thickness[a],thickness[b],thickness[c]})),tol=scale*scale*scale*1e-12;
+            const double v0=tetVolume(outer[a],outer[b],outer[c],inner[c]),v1=tetVolume(outer[a],outer[b],inner[b],inner[c]),v2=tetVolume(outer[a],inner[a],inner[b],inner[c]);
+            if(!std::isfinite(v0)||!std::isfinite(v1)||!std::isfinite(v2)||std::abs(v0)<=tol||std::abs(v1)<=tol||std::abs(v2)<=tol){failedFace=fi;return false;}
+            const double sign=dot(cross(sub(outer[b],outer[a]),sub(outer[c],outer[a])),sub(inner[c],outer[c]));
+            if(!std::isfinite(sign)||std::abs(sign)<=tol||((v0>0)!=(sign>0))||((v1>0)==(sign>0))||((v2>0)!=(sign>0))){failedFace=fi;return false;}
             total+=std::abs(v0)+std::abs(v1)+std::abs(v2);
-        }return std::isfinite(total)&&total>0;
+        }
+        return std::isfinite(total)&&total>0;
     };
-    double skinVolume=0,fatVolume=0;
-    if(!pairedVolume(skin.worldPoints,skinInner.worldPoints,skinVolume)||!pairedVolume(skinInner.worldPoints,fatInner.worldPoints,fatVolume)){
-        error="skin/fat offset pair contains an inverted or degenerate prism; no volume admitted";return false;
+    double skinVolume=0,fatVolume=0;std::uint32_t badFace=NM_INVALID_INDEX;
+    if(!pairedVolume(skin.worldPoints,skinInner.worldPoints,skinThicknessByVertexM,skinVolume,badFace)){
+        error="skin per-vertex offset prism inverted or degenerate at local source face "+std::to_string(badFace);return false;
     }
-    skinLayer={skin.worldPoints,skinInner.worldPoints,skin.donorLocalPoints,skinInner.donorLocalPoints,skinVolume,ref.skinThicknessM};
-    fatLayer={skinInner.worldPoints,fatInner.worldPoints,skinInner.donorLocalPoints,fatInner.donorLocalPoints,fatVolume,fatThicknessM};
+    if(!pairedVolume(skinInner.worldPoints,fatInner.worldPoints,fatThicknessByVertexM,fatVolume,badFace)){
+        error="fat per-vertex offset prism inverted or degenerate at local source face "+std::to_string(badFace);return false;
+    }
+    const auto scalarThickness=[](std::span<const double> values){return std::all_of(values.begin(),values.end(),[&](double value){return value==values.front();})?values.front():0.0;};
+    skinLayer={};
+    skinLayer.outerWorld=skin.worldPoints;skinLayer.innerWorld=skinInner.worldPoints;
+    skinLayer.outerLocal=skin.donorLocalPoints;skinLayer.innerLocal=skinInner.donorLocalPoints;
+    skinLayer.volumeM3=skinVolume;skinLayer.thicknessM=scalarThickness(skinThicknessByVertexM);
+    skinLayer.thicknessByVertexM.assign(skinThicknessByVertexM.begin(),skinThicknessByVertexM.end());
+    skinLayer.thicknessProvenance=std::string(skinThicknessProvenance);skinLayer.minThicknessM=skinMin;skinLayer.maxThicknessM=skinMax;
+    fatLayer={};
+    fatLayer.outerWorld=skinInner.worldPoints;fatLayer.innerWorld=fatInner.worldPoints;
+    fatLayer.outerLocal=skinInner.donorLocalPoints;fatLayer.innerLocal=fatInner.donorLocalPoints;
+    fatLayer.volumeM3=fatVolume;fatLayer.thicknessM=scalarThickness(fatThicknessByVertexM);
+    fatLayer.thicknessByVertexM.assign(fatThicknessByVertexM.begin(),fatThicknessByVertexM.end());
+    fatLayer.thicknessProvenance=std::string(fatThicknessProvenance);fatLayer.minThicknessM=fatMin;fatLayer.maxThicknessM=fatMax;
     return true;
+}
+inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const SkinFatReference& ref,double fatThicknessM,
+        PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,std::string& error){
+    const std::vector<double> skinField(skin.worldPoints.size(),ref.skinThicknessM),fatField(skin.worldPoints.size(),fatThicknessM);
+    return deriveRegisteredSkinFatLayers(skin,ref,skinField,fatField,
+        ref.skinEvidence?std::string_view(ref.skinEvidence):std::string_view{},ref.fatEvidence?std::string_view(ref.fatEvidence):std::string_view{},
+        skinLayer,fatLayer,error);
 }
 inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,const RegisteredSurface& source,
         const PairedBoundaryLayer& layer,std::uint32_t materialIndex,std::string_view expectedMaterialName,
@@ -434,7 +496,7 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
     for(const auto& [edge,count]:sourceEdgeUse){if(count>2||count==0)return fail("paired source boundary has a nonmanifold edge");if(count==1){const auto a=edge[0],b=edge[1];expected.insert({a,b,static_cast<std::uint32_t>(n+b)});expected.insert({a,static_cast<std::uint32_t>(n+a),static_cast<std::uint32_t>(n+b)});}}
     if(boundary!=expected||std::any_of(boundaryEdges.begin(),boundaryEdges.end(),[](const auto& e){return e.second!=2;}))return fail("prism FEM boundary is not a closed source-derived shell");
     out.report.sourceName=source.name;out.report.sourceMember=source.sourceMember;out.report.meshSHA256=source.sourceMeshSHA256;out.report.payloadSHA256=source.sourcePayloadSHA256;
-    out.report.sourceStableIdentifier=source.stableIdentifier;out.report.sourceBodyIndex=source.sourceBodyIndex;out.report.aggregateIdentity=source.aggregateIdentity;out.report.materialIndex=materialIndex;out.report.materialName=material.name;out.report.materialProvenance=std::string(materialProvenance);out.report.layerThicknessM=layer.thicknessM;
+    out.report.sourceStableIdentifier=source.stableIdentifier;out.report.sourceBodyIndex=source.sourceBodyIndex;out.report.aggregateIdentity=source.aggregateIdentity;out.report.materialIndex=materialIndex;out.report.materialName=material.name;out.report.materialProvenance=std::string(materialProvenance);out.report.layerThicknessM=layer.thicknessM;out.report.layerThicknessBySurfaceVertexM=layer.thicknessByVertexM;out.report.layerThicknessProvenance=layer.thicknessProvenance;out.report.layerThicknessMinM=layer.minThicknessM;out.report.layerThicknessMaxM=layer.maxThicknessM;
     out.report.firstGlobalFEMNode=firstGlobalFEMNode;out.report.volumeM3=layer.volumeM3;out.report.massDebitKg=donorDebitKg;out.report.densityKgM3=rho;out.report.massResidualKg=rho*tetVolumeSum-donorDebitKg;out.report.audit=ao;
     out.report.nodeSourceVertex.resize(2*n);for(std::uint32_t i=0;i<n;i++){const auto parent=source.sourceVertexIndices.empty()?i:source.sourceVertexIndices[i];out.report.nodeSourceVertex[i]=parent;out.report.nodeSourceVertex[n+i]=parent;}
     out.report.donorMassNodes.clear();out.report.donorMassNodes.reserve(2*n);
@@ -446,14 +508,16 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
 inline bool appendRegisteredSkinFatFEM(numi::matter::WorldSource& world,const RegisteredSurface& skin,
         std::uint32_t skinMaterialIndex,std::string_view skinMaterialName,std::string_view skinProvenance,double skinDonorDebitKg,
         std::uint32_t fatMaterialIndex,std::string_view fatMaterialName,std::string_view fatProvenance,double fatDonorDebitKg,
-        double fatThicknessM,const SkinFatReference& reference,std::string skinObjectName,std::string fatObjectName,
+        std::span<const double> skinThicknessByVertexM,std::span<const double> fatThicknessByVertexM,
+        std::string_view skinThicknessProvenance,std::string_view fatThicknessProvenance,
+        const SkinFatReference& reference,std::string skinObjectName,std::string fatObjectName,
         const std::array<std::uint64_t,4>& materialSourceIdentity,
         PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,std::string& error){
     auto fail=[&](const char* m){error=m;return false;};
     if(std::all_of(materialSourceIdentity.begin(),materialSourceIdentity.end(),[](auto word){return word==0u;}))
         return fail("shared skin/fat FEM requires a nonzero regional-material source identity");
     PairedBoundaryLayer skinLayer,fatLayer;
-    if(!deriveRegisteredSkinFatLayers(skin,reference,fatThicknessM,skinLayer,fatLayer,error))return false;
+    if(!deriveRegisteredSkinFatLayers(skin,reference,skinThicknessByVertexM,fatThicknessByVertexM,skinThicknessProvenance,fatThicknessProvenance,skinLayer,fatLayer,error))return false;
     std::uint32_t first=0;for(const auto& old:world.objects){if(old.femNodes.size()>std::numeric_limits<std::uint32_t>::max()-first){error="existing FEM node index overflow";return false;}first+=static_cast<std::uint32_t>(old.femNodes.size());}
     PreparedShellFEM ps,pf;
     if(!preparePairedBoundaryFEM(world,skin,skinLayer,skinMaterialIndex,skinMaterialName,skinProvenance,skinDonorDebitKg,std::move(skinObjectName),first,true,ps,error))return false;
@@ -522,6 +586,19 @@ inline bool appendRegisteredSkinFatFEM(numi::matter::WorldSource& world,const Re
     preparedFat.donorMassNodes.clear();
     world.objects.push_back(std::move(combined));
     return true;
+}
+
+inline bool appendRegisteredSkinFatFEM(numi::matter::WorldSource& world,const RegisteredSurface& skin,
+        std::uint32_t skinMaterialIndex,std::string_view skinMaterialName,std::string_view skinProvenance,double skinDonorDebitKg,
+        std::uint32_t fatMaterialIndex,std::string_view fatMaterialName,std::string_view fatProvenance,double fatDonorDebitKg,
+        double fatThicknessM,const SkinFatReference& reference,std::string skinObjectName,std::string fatObjectName,
+        const std::array<std::uint64_t,4>& materialSourceIdentity,
+        PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,std::string& error){
+    const std::vector<double> skinField(skin.worldPoints.size(),reference.skinThicknessM),fatField(skin.worldPoints.size(),fatThicknessM);
+    return appendRegisteredSkinFatFEM(world,skin,skinMaterialIndex,skinMaterialName,skinProvenance,skinDonorDebitKg,
+        fatMaterialIndex,fatMaterialName,fatProvenance,fatDonorDebitKg,skinField,fatField,
+        reference.skinEvidence?std::string_view(reference.skinEvidence):std::string_view{},reference.fatEvidence?std::string_view(reference.fatEvidence):std::string_view{},
+        reference,std::move(skinObjectName),std::move(fatObjectName),materialSourceIdentity,preparedSkin,preparedFat,error);
 }
 } // namespace metalrobo::human::coarse_tissue
 
