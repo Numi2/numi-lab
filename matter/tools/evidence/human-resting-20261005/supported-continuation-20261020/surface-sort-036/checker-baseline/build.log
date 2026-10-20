@@ -1,0 +1,52 @@
+Change Dir: '/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039'
+
+Run Build Command(s): /opt/homebrew/bin/ninja -v numi-matter-cardboard-contact-geometry-check
+[0/2] /opt/homebrew/bin/cmake -P /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/CMakeFiles/VerifyGlobs.cmake
+[1/4] cd /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter && /opt/homebrew/bin/cmake -E make_directory /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -MMD -MF /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.d -MT /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.air && xcrun -sdk macosx metallib /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.air -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib && /opt/homebrew/bin/cmake -E cmake_transform_depfile Ninja gccdepfile /Users/numi/numi-human-aortic-contact-opt-20261019 /Users/numi/numi-human-aortic-contact-opt-20261019/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.d /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/CMakeFiles/d/2e44237792f5f5f6d94a840c1ee1abdfc89f9f8d4dc5b57595515e40d008d820.d
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3337:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3346:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3337:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3327:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3783:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3800:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3783:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3663:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1497:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1456:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.
+[2/4] /usr/bin/clang++ -DNUMI_CARDBOARD_GEOMETRY_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -MF matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o.d -o matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm
+[3/4] : && /usr/bin/clang++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -o matter/numi-matter-cardboard-contact-geometry-check  -framework Foundation  -framework Metal && :
+

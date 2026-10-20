@@ -1,10 +1,16 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
+#include "../include/numi/matter/shared.h"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <utility>
+#include <vector>
+#include <cstring>
+#include <cstdint>
 #include <cstdio>
 #include <limits>
 #include <fcntl.h>
@@ -328,11 +334,268 @@ void writeExclusive(const std::string& path,const void* data,std::size_t bytes) 
     require(::fsync(fd)==0,"output fsync failed");
     require(::close(fd)==0,"output close failed");
 }
+
+constexpr std::uint32_t kSortEnvironmentCount = 2u;
+constexpr std::uint32_t kSortSentinel = 0xcafef00du;
+struct SurfaceSortCase {
+    std::uint32_t id=0u, primitiveCount=0u, surfaceFaceCount=0u, gridNodeCount=0u, useCache=0u;
+    std::array<std::uint32_t,kSortEnvironmentCount> cacheFlags{};
+    unsigned activityMode=0u;
+    std::vector<NMContinuumSurfacePrimitiveGPU> primitives;
+};
+struct SurfaceSortExpected {
+    std::vector<std::uint32_t> keys, indices;
+};
+std::uint32_t spreadMortonBits(std::uint32_t value) {
+    value &= 0x3ffu;
+    value = (value | (value << 16u)) & 0x030000ffu;
+    value = (value | (value << 8u)) & 0x0300f00fu;
+    value = (value | (value << 4u)) & 0x030c30c3u;
+    return (value | (value << 2u)) & 0x09249249u;
+}
+std::uint32_t referenceMortonKey(const std::array<float,3>& center,
+    const std::array<float,3>& minimum, const std::array<float,3>& inverseExtent) {
+    std::array<std::uint32_t,3> q{};
+    for (unsigned axis=0u; axis<3u; ++axis) {
+        const float normalized=(center[axis]-minimum[axis])*inverseExtent[axis];
+        q[axis]=static_cast<std::uint32_t>(std::clamp(normalized*1023.0f,0.0f,1023.0f));
+    }
+    return spreadMortonBits(q[0]) | (spreadMortonBits(q[1])<<1u) |
+        (spreadMortonBits(q[2])<<2u);
+}
+bool sortCaseActive(unsigned mode, unsigned environment, std::uint32_t index) {
+    if (mode==0u) return false;
+    if (mode==1u) return true;
+    if (index<2u) return true;
+    if (mode==2u)
+        return environment==0u ? (index%4u!=1u && index%9u!=3u)
+                               : (index%5u!=0u && index%7u!=2u);
+    if (mode==3u) return index%17u!=0u && (index+environment*11u)%23u!=0u;
+    return false;
+}
+std::array<float,3> sortCaseCentroid(unsigned environment, std::uint32_t index) {
+    if (index==0u) return {0.0f,0.0f,0.0f};
+    if (index==1u) return {1.0f,1.0f,1.0f};
+    if (index%7u==2u) return {0.5f,0.25f,0.75f};
+    const float x=static_cast<float>(index%8u)/8.0f;
+    return {environment==0u ? x : 1.0f-x,
+        static_cast<float>((index/8u)%8u)/8.0f,
+        static_cast<float>((index/64u)%4u)/4.0f};
+}
+SurfaceSortCase makeSurfaceSortCase(std::uint32_t id, std::uint32_t count,
+    std::uint32_t faceCount, unsigned activityMode, std::uint32_t useCache,
+    std::array<std::uint32_t,kSortEnvironmentCount> cacheFlags) {
+    require(faceCount<=count,"surface sort face count exceeds primitive count");
+    SurfaceSortCase result;
+    result.id=id; result.primitiveCount=count; result.surfaceFaceCount=faceCount;
+    result.gridNodeCount=count-faceCount; result.activityMode=activityMode;
+    result.useCache=useCache; result.cacheFlags=cacheFlags;
+    result.primitives.resize(static_cast<std::size_t>(kSortEnvironmentCount)*count);
+    for (std::uint32_t env=0u; env<kSortEnvironmentCount; ++env) {
+        for (std::uint32_t local=0u; local<count; ++local) {
+            const auto center=sortCaseCentroid(env,local);
+            constexpr float hx=1.0f/1024.0f, hy=1.0f/512.0f, hz=1.0f/256.0f;
+            NMContinuumSurfacePrimitiveGPU primitive{};
+            primitive.nodesAndObject={local,local+1u,local+2u,env};
+            primitive.identity={local,
+                local<faceCount ? NM_CONTINUUM_SURFACE_TRIANGLE : NM_CONTINUUM_SURFACE_POINT,
+                1u,sortCaseActive(activityMode,env,local) ? NM_TOPOLOGY_ACTIVE : 0u};
+            primitive.boundsMinimum={center[0]-hx,center[1]-hy,center[2]-hz,1.0f};
+            primitive.boundsMaximum={center[0]+hx,center[1]+hy,center[2]+hz,1.0f/64.0f};
+            result.primitives[static_cast<std::size_t>(env)*count+local]=primitive;
+        }
+    }
+    return result;
+}
+std::vector<SurfaceSortExpected> surfaceSortReference(const SurfaceSortCase& test) {
+    std::vector<SurfaceSortExpected> result(kSortEnvironmentCount);
+    for (std::uint32_t env=0u; env<kSortEnvironmentCount; ++env) {
+        if (test.useCache!=0u && test.cacheFlags[env]!=0u) continue;
+        std::array<float,3> minimum={INFINITY,INFINITY,INFINITY};
+        std::array<float,3> maximum={-INFINITY,-INFINITY,-INFINITY};
+        std::vector<std::pair<std::uint32_t,std::array<float,3>>> active;
+        for (std::uint32_t local=0u; local<test.primitiveCount; ++local) {
+            const auto& p=test.primitives[static_cast<std::size_t>(env)*test.primitiveCount+local];
+            if ((p.identity.w&NM_TOPOLOGY_ACTIVE)==0u) continue;
+            const std::array<float,3> center={
+                0.5f*(p.boundsMinimum.x+p.boundsMaximum.x),
+                0.5f*(p.boundsMinimum.y+p.boundsMaximum.y),
+                0.5f*(p.boundsMinimum.z+p.boundsMaximum.z)};
+            for (unsigned axis=0u; axis<3u; ++axis) {
+                minimum[axis]=std::min(minimum[axis],center[axis]);
+                maximum[axis]=std::max(maximum[axis],center[axis]);
+            }
+            active.emplace_back(local,center);
+        }
+        std::array<float,3> inverseExtent{};
+        for (unsigned axis=0u; axis<3u; ++axis)
+            inverseExtent[axis]=1.0f/std::max(maximum[axis]-minimum[axis],1.0e-12f);
+        std::vector<std::pair<std::uint32_t,std::uint32_t>> keyed;
+        keyed.reserve(active.size());
+        for (const auto& item:active)
+            keyed.emplace_back(referenceMortonKey(item.second,minimum,inverseExtent),item.first);
+        std::stable_sort(keyed.begin(),keyed.end(),
+            [](const auto& a,const auto& b){return a.first<b.first;});
+        for (const auto& item:keyed) {
+            result[env].keys.push_back(item.first);
+            result[env].indices.push_back(item.second);
+        }
+    }
+    return result;
+}
+id<MTLBuffer> sharedSortBuffer(id<MTLDevice> device,const void* data,std::size_t bytes) {
+    const std::size_t allocation=std::max<std::size_t>(bytes,sizeof(std::uint32_t));
+    id<MTLBuffer> buffer=[device newBufferWithLength:allocation options:MTLResourceStorageModeShared];
+    require(buffer!=nil,"surface sort buffer allocation failed");
+    std::memset(buffer.contents,0,allocation);
+    if (data!=nullptr && bytes!=0u) std::memcpy(buffer.contents,data,bytes);
+    return buffer;
+}
+void appendLittleEndian(std::vector<std::uint8_t>& output,std::uint32_t value) {
+    for (unsigned shift=0u; shift<32u; shift+=8u)
+        output.push_back(static_cast<std::uint8_t>(value>>shift));
+}
+int runSurfaceSortOnly(int argc,const char** argv) {
+    require(argc==3 || (argc==5 && std::string(argv[3])=="--output"),
+        "usage: cardboard-contact-geometry-check --surface-sort-only /absolute/NumiMatter.metallib [--output fresh.bin]");
+    const std::string metallibPath=argv[2];
+    require(!metallibPath.empty() && metallibPath.front()=='/',
+        "surface sort requires an absolute metallib path");
+    id<MTLDevice> device=MTLCreateSystemDefaultDevice();
+    require(device!=nil,"no Metal device");
+    NSError* error=nil;
+    NSString* path=[NSString stringWithUTF8String:metallibPath.c_str()];
+    id<MTLLibrary> library=[device newLibraryWithURL:[NSURL fileURLWithPath:path] error:&error];
+    require(library!=nil,"cannot load requested surface sort metallib");
+    id<MTLFunction> function=[library newFunctionWithName:
+        @"numi_matter_metal::nm_contact_sort_surface_primitives"];
+    require(function!=nil,"requested metallib is missing nm_contact_sort_surface_primitives");
+    id<MTLComputePipelineState> pipeline=[device newComputePipelineStateWithFunction:function error:&error];
+    require(pipeline!=nil,"cannot create surface sort pipeline");
+    id<MTLCommandQueue> queue=[device newCommandQueue];
+    require(queue!=nil,"cannot create surface sort command queue");
+    std::vector<SurfaceSortCase> cases;
+    cases.push_back(makeSurfaceSortCase(0u,0u,0u,0u,0u,{0u,0u}));
+    cases.push_back(makeSurfaceSortCase(1u,17u,13u,0u,0u,{0u,0u}));
+    cases.push_back(makeSurfaceSortCase(2u,37u,29u,1u,0u,{0u,0u}));
+    cases.push_back(makeSurfaceSortCase(3u,35u,27u,2u,0u,{0u,0u}));
+    cases.push_back(makeSurfaceSortCase(4u,31u,23u,1u,1u,{1u,0u}));
+    cases.push_back(makeSurfaceSortCase(5u,31u,23u,1u,0u,{1u,1u}));
+    cases.push_back(makeSurfaceSortCase(6u,20000u,19200u,3u,0u,{0u,0u}));
+    std::vector<std::uint8_t> raw;
+    const char magic[8]={'N','M','S','O','R','T','1','\0'};
+    raw.insert(raw.end(),magic,magic+8);
+    appendLittleEndian(raw,1u);
+    appendLittleEndian(raw,static_cast<std::uint32_t>(cases.size()));
+    appendLittleEndian(raw,kSortEnvironmentCount);
+    appendLittleEndian(raw,0u);
+    std::printf("{\"mode\":\"surface_sort\",\"cases\":[");
+    for (std::size_t ci=0u; ci<cases.size(); ++ci) {
+        const auto& test=cases[ci];
+        NMMatterDispatchGPU dispatch{};
+        dispatch.abiVersion=NM_MATTER_ABI_VERSION;
+        dispatch.flags=NM_MATTER_STATIC_FEM_SURFACE_MAP;
+        dispatch.environmentCount=kSortEnvironmentCount;
+        dispatch.surfaceFaceCount=test.surfaceFaceCount;
+        dispatch.gridNodeCount=test.gridNodeCount;
+        const std::size_t total=static_cast<std::size_t>(kSortEnvironmentCount)*test.primitiveCount;
+        const std::size_t bytes=total*sizeof(std::uint32_t);
+        std::vector<std::uint32_t> sentinels(total,kSortSentinel);
+        const std::array<std::uint32_t,kSortEnvironmentCount> sentinelCounts={kSortSentinel,kSortSentinel};
+        id<MTLBuffer> primitives=sharedSortBuffer(device,test.primitives.data(),
+            test.primitives.size()*sizeof(NMContinuumSurfacePrimitiveGPU));
+        id<MTLBuffer> keysA=sharedSortBuffer(device,sentinels.data(),bytes);
+        id<MTLBuffer> keysB=sharedSortBuffer(device,sentinels.data(),bytes);
+        id<MTLBuffer> indicesA=sharedSortBuffer(device,sentinels.data(),bytes);
+        id<MTLBuffer> indicesB=sharedSortBuffer(device,sentinels.data(),bytes);
+        id<MTLBuffer> counts=sharedSortBuffer(device,sentinelCounts.data(),sizeof(sentinelCounts));
+        id<MTLBuffer> cacheFlags=sharedSortBuffer(device,test.cacheFlags.data(),sizeof(test.cacheFlags));
+        id<MTLBuffer> useCache=sharedSortBuffer(device,&test.useCache,sizeof(test.useCache));
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        require(command!=nil,"cannot create surface sort command buffer");
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        require(encoder!=nil,"cannot create surface sort encoder");
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+        [encoder setBuffer:primitives offset:0 atIndex:1];
+        [encoder setBuffer:keysA offset:0 atIndex:2];
+        [encoder setBuffer:keysB offset:0 atIndex:3];
+        [encoder setBuffer:indicesA offset:0 atIndex:4];
+        [encoder setBuffer:indicesB offset:0 atIndex:5];
+        [encoder setBuffer:counts offset:0 atIndex:6];
+        [encoder setBuffer:cacheFlags offset:0 atIndex:7];
+        [encoder setBuffer:useCache offset:0 atIndex:8];
+        [encoder dispatchThreadgroups:MTLSizeMake(kSortEnvironmentCount,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"surface sort GPU command failed");
+        require(test.primitives.empty() || std::memcmp(test.primitives.data(),primitives.contents,
+            test.primitives.size()*sizeof(NMContinuumSurfacePrimitiveGPU))==0,
+            "surface sort modified immutable source primitives");
+        const auto expected=surfaceSortReference(test);
+        const auto* outKeys=static_cast<const std::uint32_t*>(keysA.contents);
+        const auto* outIndices=static_cast<const std::uint32_t*>(indicesA.contents);
+        const auto* outCounts=static_cast<const std::uint32_t*>(counts.contents);
+        for (std::uint32_t env=0u; env<kSortEnvironmentCount; ++env) {
+            const std::size_t base=static_cast<std::size_t>(env)*test.primitiveCount;
+            if (test.useCache!=0u && test.cacheFlags[env]!=0u) {
+                require(outCounts[env]==kSortSentinel,"cached environment count was unexpectedly overwritten");
+                for (std::uint32_t i=0u; i<test.primitiveCount; ++i)
+                    require(outKeys[base+i]==kSortSentinel && outIndices[base+i]==kSortSentinel,
+                        "cached environment arrays were unexpectedly overwritten");
+                continue;
+            }
+            require(outCounts[env]==expected[env].keys.size(),"surface active count differs from CPU reference");
+            require(expected[env].keys.size()<=test.primitiveCount,"CPU active count exceeds primitive capacity");
+            for (std::size_t i=0u; i<expected[env].keys.size(); ++i) {
+                require(outKeys[base+i]==expected[env].keys[i],"surface Morton key differs from exact lattice reference");
+                require(outIndices[base+i]==expected[env].indices[i],"surface permutation differs from stable CPU reference");
+                if (i!=0u) {
+                    require(outKeys[base+i-1u]<=outKeys[base+i],"surface keys are not nondecreasing");
+                    if (outKeys[base+i-1u]==outKeys[base+i])
+                        require(outIndices[base+i-1u]<outIndices[base+i],
+                            "equal Morton keys lost stable source-index ordering");
+                }
+            }
+            for (std::uint32_t i=static_cast<std::uint32_t>(expected[env].keys.size());
+                 i<test.primitiveCount; ++i)
+                require(outKeys[base+i]==kSortSentinel && outIndices[base+i]==kSortSentinel,
+                    "surface sort wrote beyond active prefix");
+        }
+        appendLittleEndian(raw,test.id);
+        appendLittleEndian(raw,test.primitiveCount);
+        appendLittleEndian(raw,test.surfaceFaceCount);
+        appendLittleEndian(raw,test.gridNodeCount);
+        appendLittleEndian(raw,test.useCache);
+        appendLittleEndian(raw,test.cacheFlags[0]);
+        appendLittleEndian(raw,test.cacheFlags[1]);
+        for (std::uint32_t env=0u; env<kSortEnvironmentCount; ++env) {
+            appendLittleEndian(raw,outCounts[env]);
+            const std::size_t base=static_cast<std::size_t>(env)*test.primitiveCount;
+            for (std::uint32_t i=0u; i<test.primitiveCount; ++i) appendLittleEndian(raw,outKeys[base+i]);
+            for (std::uint32_t i=0u; i<test.primitiveCount; ++i) appendLittleEndian(raw,outIndices[base+i]);
+        }
+        if (ci!=0u) std::printf(",");
+        const double gpuMS=std::max(0.0,command.GPUEndTime-command.GPUStartTime)*1000.0;
+        std::printf("{\"id\":%u,\"primitive_count\":%u,\"surface_face_count\":%u,"
+            "\"grid_node_count\":%u,\"active_env0\":%u,\"active_env1\":%u,\"gpu_ms\":%.6f}",
+            test.id,test.primitiveCount,test.surfaceFaceCount,test.gridNodeCount,
+            outCounts[0],outCounts[1],gpuMS);
+    }
+    std::printf("],\"physical_transactions\":0}\n");
+    if (argc==5) writeExclusive(argv[4],raw.data(),raw.size());
+    return 0;
+}
+
 }
 
 int main(int argc,const char** argv) {
     @autoreleasepool {
         try {
+            if (argc>=2 && std::string(argv[1])=="--surface-sort-only")
+                return runSurfaceSortOnly(argc,argv);
             require(argc==1 || (argc==3 && std::string(argv[1])=="--output"),
                 "usage: cardboard-contact-geometry-check [--output fresh.bin]");
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();

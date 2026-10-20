@@ -1,0 +1,8 @@
+{
+  "source_revision": "1a817140097fb43bfaab15b28ddb8b02cd9023d9",
+  "source_contact_sha256": "8e72681af495a13395c67e249711655446ad15e962e42d1e7f6444b62d90360c",
+  "metallib_sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7",
+  "retained_metallib_sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7",
+  "byte_count": 7706668,
+  "scope": "Preserved before pending source-only surface-sort optimization; no GPU use or active file overwrite"
+}

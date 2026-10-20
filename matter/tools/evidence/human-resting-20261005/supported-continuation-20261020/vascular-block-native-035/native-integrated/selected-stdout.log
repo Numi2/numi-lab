@@ -1,0 +1,27 @@
+# Selected lines copied verbatim from stdout.log; full source log hash/size is in raw-log-identities.json.
+255: human_execution_stage=native_horizon_begin wall_elapsed_ms=921.958583 stage_step=0
+258: resting_native_profile step=1 command_ms=9344.00025 gpu_ms=9343.59591664 host_copy_ms=0.027458 full_state_readback=0
+261: resting_native_profile step=2 command_ms=6950.214375 gpu_ms=6949.71270836 host_copy_ms=0.012 full_state_readback=0
+264: resting_native_profile step=3 command_ms=6961.115083 gpu_ms=6960.48166673 host_copy_ms=0.014292 full_state_readback=0
+267: resting_native_profile step=4 command_ms=18566.145917 gpu_ms=18565.6676666 host_copy_ms=0.018417 full_state_readback=0
+270: resting_native_profile step=5 command_ms=19147.484959 gpu_ms=19146.9280833 host_copy_ms=0.014708 full_state_readback=0
+273: resting_native_profile step=6 command_ms=19045.904125 gpu_ms=19045.4034583 host_copy_ms=0.021166 full_state_readback=0
+276: resting_native_profile step=7 command_ms=20083.1785 gpu_ms=20082.450625 host_copy_ms=0.019459 full_state_readback=0
+279: resting_native_profile step=8 command_ms=20900.098125 gpu_ms=20899.57 host_copy_ms=0.019875 full_state_readback=0
+282: resting_native_profile step=9 command_ms=21010.275417 gpu_ms=21009.7111249 host_copy_ms=0.019042 full_state_readback=0
+285: resting_native_profile step=10 command_ms=20923.876833 gpu_ms=20923.1924167 host_copy_ms=0.018542 full_state_readback=0
+288: resting_native_profile step=11 command_ms=20875.586292 gpu_ms=20875.0242499 host_copy_ms=0.016917 full_state_readback=0
+291: resting_native_profile step=12 command_ms=20917.09775 gpu_ms=20916.516875 host_copy_ms=0.019625 full_state_readback=0
+294: resting_native_profile step=13 command_ms=21047.288542 gpu_ms=21046.724 host_copy_ms=0.01925 full_state_readback=0
+297: resting_native_profile step=14 command_ms=21083.780083 gpu_ms=21083.2187916 host_copy_ms=0.020417 full_state_readback=0
+300: resting_native_profile step=15 command_ms=21204.86275 gpu_ms=21204.270375 host_copy_ms=0.020833 full_state_readback=0
+303: resting_native_profile step=16 command_ms=21185.209791 gpu_ms=21184.6630417 host_copy_ms=0.018542 full_state_readback=0
+306: resting_native_profile step=17 command_ms=21199.267833 gpu_ms=21198.579625 host_copy_ms=0.018334 full_state_readback=0
+309: resting_native_profile step=18 command_ms=21455.731291 gpu_ms=21455.2225 host_copy_ms=0.019167 full_state_readback=0
+312: resting_native_profile step=19 command_ms=21401.350542 gpu_ms=21400.67675 host_copy_ms=0.01925 full_state_readback=0
+315: resting_native_profile step=20 command_ms=21483.359875 gpu_ms=21482.8075001 host_copy_ms=0.019291 full_state_readback=0
+318: resting_native_profile step=21 command_ms=25302.474416 gpu_ms=25301.8622916 host_copy_ms=0.021167 full_state_readback=0
+321: resting_native_profile step=22 command_ms=27447.25 gpu_ms=27446.7108333 host_copy_ms=0.015792 full_state_readback=0
+324: resting_native_profile step=23 command_ms=28180.009542 gpu_ms=28179.5087918 host_copy_ms=0.019375 full_state_readback=0
+327: resting_native_profile step=24 command_ms=27498.101416 gpu_ms=27488.4661667 host_copy_ms=0.029625 full_state_readback=0
+330: human_execution_stage=native_horizon_end wall_elapsed_ms=498264.466833 stage_step=24

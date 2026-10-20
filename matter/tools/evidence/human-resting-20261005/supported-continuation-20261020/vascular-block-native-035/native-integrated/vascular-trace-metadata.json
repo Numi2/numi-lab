@@ -1,0 +1,1399 @@
+{
+  "arena_payloads_omitted": true,
+  "iteration_min_max": [
+    0,
+    23
+  ],
+  "metadata_events": [
+    {
+      "iteration": 0,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 35,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 0,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 36,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 1,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 37,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 1,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 38,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 2,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 39,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 2,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 40,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 3,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 41,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 3,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 42,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 4,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 43,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 4,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 44,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 5,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 45,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 5,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 46,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 6,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 47,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 6,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 48,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 7,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 49,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 7,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 50,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 8,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 51,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 8,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 52,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 9,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 53,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 9,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 54,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 10,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 55,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 10,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 56,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 11,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 57,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 11,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 58,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 12,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 59,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 12,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 60,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 13,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 61,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 13,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 62,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 14,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 63,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 14,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 64,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 15,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 65,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 15,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 66,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 16,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 67,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 16,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 68,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 17,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 69,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 17,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 70,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 18,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 71,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 18,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 72,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 19,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 73,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 19,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 74,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 20,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 75,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 20,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 76,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 21,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 77,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 21,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 78,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 22,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 79,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 22,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 80,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 81,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 23,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 82,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 0,
+      "root": 23,
+      "source_line": 83,
+      "stage": "certificate"
+    },
+    {
+      "iteration": 0,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 84,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 0,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 85,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 1,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 86,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 1,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 87,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 2,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 88,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 2,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 89,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 3,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 90,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 3,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 91,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 4,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 92,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 4,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 93,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 5,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 94,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 5,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 95,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 6,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 96,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 6,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 97,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 7,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 98,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 7,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 99,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 8,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 100,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 8,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 101,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 9,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 102,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 9,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 103,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 10,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 104,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 10,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 105,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 11,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 106,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 11,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 107,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 12,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 108,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 12,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 109,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 13,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 110,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 13,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 111,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 14,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 112,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 14,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 113,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 15,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 114,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 15,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 115,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 16,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 116,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 16,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 117,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 17,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 118,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 17,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 119,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 18,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 120,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 18,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 121,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 19,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 122,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 19,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 123,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 20,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 124,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 20,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 125,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 21,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 126,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 21,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 127,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 22,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 128,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 22,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 129,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 130,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 23,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 131,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 1,
+      "root": 23,
+      "source_line": 132,
+      "stage": "certificate"
+    },
+    {
+      "iteration": 0,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 133,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 0,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 134,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 1,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 135,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 1,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 136,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 2,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 137,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 2,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 138,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 3,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 139,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 3,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 140,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 4,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 141,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 4,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 142,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 5,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 143,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 5,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 144,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 6,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 145,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 6,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 146,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 7,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 147,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 7,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 148,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 8,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 149,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 8,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 150,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 9,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 151,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 9,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 152,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 10,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 153,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 10,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 154,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 11,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 155,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 11,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 156,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 12,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 157,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 12,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 158,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 13,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 159,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 13,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 160,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 14,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 161,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 14,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 162,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 15,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 163,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 15,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 164,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 16,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 165,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 16,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 166,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 17,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 167,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 17,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 168,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 18,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 169,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 18,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 170,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 19,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 171,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 19,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 172,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 20,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 173,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 20,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 174,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 21,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 175,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 21,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 176,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 22,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 177,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 22,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 178,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 179,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 23,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 180,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 2,
+      "root": 23,
+      "source_line": 181,
+      "stage": "certificate"
+    },
+    {
+      "iteration": 0,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 182,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 0,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 183,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 1,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 184,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 1,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 185,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 2,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 186,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 2,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 187,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 3,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 188,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 3,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 189,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 4,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 190,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 4,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 191,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 5,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 192,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 5,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 193,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 6,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 194,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 6,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 195,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 7,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 196,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 7,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 197,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 8,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 198,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 8,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 199,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 9,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 200,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 9,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 201,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 10,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 202,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 10,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 203,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 11,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 204,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 11,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 205,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 12,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 206,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 12,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 207,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 13,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 208,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 13,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 209,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 14,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 210,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 14,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 211,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 15,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 212,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 15,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 213,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 16,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 214,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 16,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 215,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 17,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 216,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 17,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 217,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 18,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 218,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 18,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 219,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 19,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 220,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 19,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 221,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 20,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 222,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 20,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 223,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 21,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 224,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 21,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 225,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 22,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 226,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 22,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 227,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 228,
+      "stage": "assembly"
+    },
+    {
+      "iteration": 23,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 229,
+      "stage": "line_search"
+    },
+    {
+      "iteration": 23,
+      "microtick": 3,
+      "root": 23,
+      "source_line": 230,
+      "stage": "certificate"
+    }
+  ],
+  "microticks": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "raw_stderr_bytes": 1358988,
+  "raw_stderr_sha256": "cfe747e20318247f20cca76ec44b1b5b17e8f3de523e768eefb0dfda5a9af43a",
+  "raw_trace_event_count": 196,
+  "schema": "numi.human.vascular_trace_metadata.v1",
+  "stage_counts": {
+    "assembly": 96,
+    "certificate": 4,
+    "line_search": 96
+  },
+  "trace_root_values": [
+    23
+  ]
+}

@@ -1,0 +1,6 @@
+repository=/Users/numi/numi-human-aortic-contact-opt-20261019
+build_dir=build-integrated-validation-20261019/profile-build-039
+build_command=cmake --build build-integrated-validation-20261019/profile-build-039 --target numi-matter-cardboard-contact-geometry-check --verbose
+legacy_sort_command=build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check --surface-sort-only /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-036/legacy-NumiMatter.metallib --output build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/legacy-sort.bin
+current_sort_command=build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check --surface-sort-only /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib --output build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/current-sort.bin
+normal_geometry_command=build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check

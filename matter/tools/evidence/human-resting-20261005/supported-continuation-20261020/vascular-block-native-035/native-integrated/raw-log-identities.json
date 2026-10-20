@@ -1,0 +1,14 @@
+{
+  "stderr.log": {
+    "line_count": 236,
+    "sha256": "cfe747e20318247f20cca76ec44b1b5b17e8f3de523e768eefb0dfda5a9af43a",
+    "size_bytes": 1358988,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/stderr.log"
+  },
+  "stdout.log": {
+    "line_count": 330,
+    "sha256": "3a2661c8deb66f5dd218669b347dd1991a3ce9ed754259e88fa98eec49b965a4",
+    "size_bytes": 124282,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/stdout.log"
+  }
+}

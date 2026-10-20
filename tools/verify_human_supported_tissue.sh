@@ -51,6 +51,8 @@ mkdir "$VERIFY_OUT/compact-boundary"
   c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5 >"$VERIFY_OUT/compact-boundary.run.log" 2>&1
 "$VERIFY_BUILD/bin/metalrobo_numilab_human_tendon_fem_load_probe" >"$VERIFY_OUT/fem-body-interface.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" >"$VERIFY_OUT/contact-geometry.run.log" 2>&1
+"$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" --surface-sort-only \
+  "$VERIFY_BUILD/matter/shaders/NumiMatter.metallib" >"$VERIFY_OUT/contact-surface-sort.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-fem-reference-check" --backtracking-only >"$VERIFY_OUT/fem-backtracking.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-preconditioner-only \
   /Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json >"$VERIFY_OUT/vascular-block.run.log" 2>&1
