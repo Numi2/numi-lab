@@ -18,7 +18,7 @@
 
 namespace {
 using Vector = std::array<double, 3>;
-constexpr std::size_t kRows = 102u;
+constexpr std::size_t kRows = 112u;
 constexpr std::size_t kWordsPerRow = 72u;
 constexpr std::size_t kBytes = kRows * kWordsPerRow * sizeof(float);
 void require(bool okay, const char* message) {
@@ -197,6 +197,124 @@ std::array<double, 2> mollifierError(const float* row) {
         norm(subtract(vectorAt(row,4u),gradientSecond))/std::max(norm(gradientSecond),1.0/secondLength));
     return {std::abs(row[20u]-expected),gradientError};
 }
+struct TriangleOracle {
+    std::array<double,3> bary{};
+    Vector closest{}, relative{};
+    double separation=0.0;
+};
+TriangleOracle triangleOracle(Vector p,Vector a,Vector b,Vector c) {
+    TriangleOracle best; best.separation=INFINITY;
+    const Vector ab=subtract(b,a),ac=subtract(c,a),ap=subtract(p,a);
+    const double d00=dot(ab,ab),d01=dot(ab,ac),d11=dot(ac,ac);
+    const double d20=dot(ap,ab),d21=dot(ap,ac);
+    const double determinant=d00*d11-d01*d01;
+    auto consider=[&](std::array<double,3> bary) {
+        const Vector q=add(a,add(scale(ab,bary[1]),scale(ac,bary[2])));
+        const Vector r=subtract(p,q); const double distance=norm(r);
+        if(distance<best.separation) best={bary,q,r,distance};
+    };
+    if(determinant>std::numeric_limits<double>::epsilon()*d00*d11) {
+        const double v=(d11*d20-d01*d21)/determinant;
+        const double w=(d00*d21-d01*d20)/determinant;
+        if(v>=0.0 && w>=0.0 && v+w<=1.0) consider({1.0-v-w,v,w});
+    }
+    const std::array<Vector,3> vertices={a,b,c};
+    for(unsigned edge=0u;edge<3u;++edge) {
+        const unsigned i=edge,j=(edge+1u)%3u;
+        const Vector direction=subtract(vertices[j],vertices[i]);
+        const double length2=dot(direction,direction);
+        const double t=length2>0.0?std::clamp(dot(subtract(p,vertices[i]),direction)/length2,0.0,1.0):0.0;
+        std::array<double,3> bary{}; bary[i]=1.0-t; bary[j]=t; consider(bary);
+    }
+    require(std::isfinite(best.separation),"triangle oracle produced no candidate");
+    return best;
+}
+double triangleMollifier(Vector a,Vector b,Vector c) {
+    const Vector u=subtract(b,a),v=subtract(c,a);
+    const Vector crossUV={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+    const double uu=dot(u,u),vv=dot(v,v);
+    if(!(uu>0.0)||!(vv>0.0)) return 0.0;
+    const double ratio=std::clamp((dot(crossUV,crossUV)/(uu*vv))/1.0e-3,0.0,1.0);
+    return ratio*(2.0-ratio);
+}
+struct TriangleErrors { double gap,relative,bary,energy,legacy,oracleGap,oracleNormal; };
+TriangleErrors triangleErrors(const float* row) {
+    const Vector p=vectorAt(row,1u),a=vectorAt(row,2u),b=vectorAt(row,3u),c=vectorAt(row,4u);
+    const auto oracle=triangleOracle(p,a,b,c);
+    const Vector bary=vectorAt(row,5u),relative=add(vectorAt(row,7u),vectorAt(row,8u));
+    const double baryError=std::max({std::abs(bary[0]-oracle.bary[0]),std::abs(bary[1]-oracle.bary[1]),std::abs(bary[2]-oracle.bary[2])});
+    const Vector ab=subtract(b,a),ac=subtract(c,a);
+    const Vector closestFromBary=add(a,add(scale(ab,bary[1]),scale(ac,bary[2])));
+    const Vector expectedRelative=subtract(p,closestFromBary);
+    const double parameterBound=std::abs(bary[1]-oracle.bary[1])*norm(ab)+std::abs(bary[2]-oracle.bary[2])*norm(ac);
+    const double relativeError=norm(subtract(relative,expectedRelative));
+    const double gapError=std::abs(row[1u]-norm(expectedRelative));
+    const double oracleGapError=std::abs(row[1u]-oracle.separation);
+    const double roundingBound=2.0e-9+5.0e-7*(norm(ab)+norm(ac));
+    require(row[2u]==1.0f,"VF compensated witness rejected valid geometry");
+    require(row[10u*4u+3u]==1.0f&&row[14u*4u+2u]==1.0f,"VF barrier evaluation rejected witness");
+    require(baryError<=3.0e-5,"VF barycentrics disagree with independent FP64 closest point");
+    require(relativeError<=parameterBound+roundingBound,"VF relative vector disagrees with independent FP64 geometry");
+    require(gapError<=parameterBound+roundingBound,"VF gap disagrees with independent FP64 geometry");
+    const Vector normal=vectorAt(row,9u);
+    require(std::abs(norm(normal)-1.0)<=2.0e-5&&norm(subtract(normal,scale(relative,1.0/std::max(double(row[1u]),1.0e-30))))<=3.0e-4,
+        "VF normal does not share the compensated witness direction");
+    const double oracleNormalError=norm(subtract(normal,scale(oracle.relative,1.0/std::max(oracle.separation,1.0e-30))));
+    if(row[0u]<2.0f) require(oracleGapError<=2.0e-10&&oracleNormalError<=1.0e-6,
+        "captured VF gap or normal differs from the independent FP64 witness");
+    const Vector cp=vectorAt(row,6u); double worldError=0.0,worldUlp=0.0;
+    for(unsigned axis=0u;axis<3u;++axis) {
+        worldError=std::max(worldError,std::abs(cp[axis]-oracle.closest[axis]));
+        const float f=static_cast<float>(oracle.closest[axis]);
+        worldUlp=std::max(worldUlp,static_cast<double>(std::nextafterf(f,INFINITY)-f));
+    }
+    require(worldError<=worldUlp+parameterBound+2.0e-9,"VF closest-point presentation exceeds FP32 rounding bound");
+    const double thickness=row[10u*4u],stiffness=row[10u*4u+1u];
+    const double mollifier=triangleMollifier(a,b,c);
+    const double expectedEnergy=barrierEnergy(row[1u],thickness,stiffness)*mollifier;
+    const double energyError=std::abs(row[14u*4u]-expectedEnergy)/std::max(std::abs(expectedEnergy),1.0e-30);
+    require(std::abs(row[14u*4u+1u]-row[1u])<=1.0e-12,"VF barrier energy used a different gap");
+    require(std::abs(row[14u*4u+3u]-mollifier)<=3.0e-4,"VF barrier mollifier differs from FP64");
+    require(energyError<=3.0e-3,"VF barrier energy differs from FP64");
+    const Vector legacyRelative=subtract(p,vectorAt(row,12u));
+    return {gapError,relativeError,baryError,energyError,norm(subtract(legacyRelative,oracle.relative)),oracleGapError,oracleNormalError};
+}
+std::array<double,4> mappedWitnessErrors(const float* row) {
+    const Vector p=vectorAt(row,1u),a=vectorAt(row,2u),b=vectorAt(row,3u),c=vectorAt(row,4u);
+    const auto oracle=triangleOracle(p,a,b,c);
+    const unsigned side=static_cast<unsigned>(row[3u]); const double separation=row[1u];
+    require(row[2u]==1.0f&&(side==0u||side==1u),"mapped VF helper rejected witness or invalid side");
+    Vector weighted{}; double weightSum=0.0;
+    for(unsigned i=0u;i<6u;++i) {
+        const double w=i<4u?row[11u*4u+i]:row[12u*4u+i-4u];
+        const Vector node=i<3u?vectorAt(row,5u+i):vectorAt(row,8u+i-3u);
+        weightSum+=w; weighted=add(weighted,scale(node,w));
+    }
+    const Vector normal=vectorAt(row,14u);
+    require(norm(subtract(vectorAt(row,15u),oracle.closest))<=5.0e-9,
+        "mapped VF contact point is not the triangle projection");
+    const Vector torque={weighted[1]*normal[2]-weighted[2]*normal[1],weighted[2]*normal[0]-weighted[0]*normal[2],weighted[0]*normal[1]-weighted[1]*normal[0]};
+    const double witnessError=norm(subtract(weighted,oracle.relative));
+    const bool fallback=row[0u]==2.0f;
+    const double directionError=fallback
+        ? std::abs(dot(weighted,normal)-dot(oracle.relative,normal))
+        : std::abs(dot(weighted,normal)-separation);
+    const Vector expectedTorque=fallback
+        ? Vector{oracle.relative[1]*normal[2]-oracle.relative[2]*normal[1],
+            oracle.relative[2]*normal[0]-oracle.relative[0]*normal[2],
+            oracle.relative[0]*normal[1]-oracle.relative[1]*normal[0]}
+        : Vector{};
+    const double torqueError=norm(subtract(torque,expectedTorque));
+    require(std::abs(weightSum)<=3.0e-6,"mapped VF support weights do not conserve net force");
+    require(witnessError<=2.0e-6+3.0e-5*norm(oracle.relative),"mapped VF weights do not reproduce independent relative witness");
+    require(directionError<=2.0e-6+3.0e-5*separation,"mapped VF force direction does not recover physical gap");
+    require(torqueError<=2.0e-6+3.0e-5*separation,"mapped VF torque differs from analytical force moment");
+    require(norm(subtract(weighted,vectorAt(row,13u)))<=2.0e-7,"mapped VF weighted-position diagnostic mismatch");
+    if(fallback) require(separation<1.0e-12&&norm(subtract(normal,vectorAt(row,16u)))<=1.0e-6,
+        "tiny-gap mapped VF did not use configured fallback normal");
+    else require(std::abs(norm(normal)-1.0)<=2.0e-5,"mapped VF normal is not unit length");
+    return {std::abs(weightSum),witnessError,directionError,torqueError};
+}
 void writeExclusive(const std::string& path,const void* data,std::size_t bytes) {
     const int fd = ::open(path.c_str(),O_WRONLY|O_CREAT|O_EXCL,0600);
     require(fd >= 0,"output must be fresh");
@@ -250,6 +368,9 @@ int main(int argc,const char** argv) {
             double eeArithmeticVectorMaximum=0.0,eeControlDistanceRelativeMaximum=0.0;
             double baselineOldWitnessError=0.0;
             std::array<double,6> eeOracleDistances{};
+            double vfGapMaximum=0.0,vfRelativeMaximum=0.0,vfBaryMaximum=0.0,vfEnergyMaximum=0.0,vfLegacyMaximum=0.0;
+            double vfCapturedGapMaximum=0.0,vfCapturedNormalMaximum=0.0,vfCapturedLegacyMaximum=0.0;
+            double mappedWeightMaximum=0.0,mappedWitnessMaximum=0.0,mappedDirectionMaximum=0.0,mappedTorqueMaximum=0.0;
             for (std::size_t i = 0u; i < kRows; ++i) {
                 const float* row = words+i*kWordsPerRow;
                 for (unsigned j = 0u; j < kWordsPerRow; ++j)
@@ -259,6 +380,18 @@ int main(int argc,const char** argv) {
                     const auto errors = mollifierError(row);
                     valueMaximum = std::max(valueMaximum,errors[0]);
                     gradientMaximum = std::max(gradientMaximum,errors[1]);
+                } else if(i>=102u&&i<109u) {
+                    const auto errors=triangleErrors(row);
+                    vfGapMaximum=std::max(vfGapMaximum,errors.gap); vfRelativeMaximum=std::max(vfRelativeMaximum,errors.relative);
+                    vfBaryMaximum=std::max(vfBaryMaximum,errors.bary); vfEnergyMaximum=std::max(vfEnergyMaximum,errors.energy);
+                    vfLegacyMaximum=std::max(vfLegacyMaximum,errors.legacy);
+                    if(row[0u]<2.0f) { vfCapturedGapMaximum=std::max(vfCapturedGapMaximum,errors.oracleGap);
+                        vfCapturedNormalMaximum=std::max(vfCapturedNormalMaximum,errors.oracleNormal);
+                        vfCapturedLegacyMaximum=std::max(vfCapturedLegacyMaximum,errors.legacy); }
+                } else if(i>=109u) {
+                    const auto errors=mappedWitnessErrors(row);
+                    mappedWeightMaximum=std::max(mappedWeightMaximum,errors[0]); mappedWitnessMaximum=std::max(mappedWitnessMaximum,errors[1]);
+                    mappedDirectionMaximum=std::max(mappedDirectionMaximum,errors[2]); mappedTorqueMaximum=std::max(mappedTorqueMaximum,errors[3]);
                 } else {
                     const auto errors=segmentErrors(row);
                     const auto oracle=segmentOracle(vectorAt(row,1u),vectorAt(row,2u),
@@ -280,11 +413,14 @@ int main(int argc,const char** argv) {
             require(std::abs((eeOracleDistances[1]-eeOracleDistances[0])-8.754313078e-9)<=2.0e-10 &&
                     std::abs((eeOracleDistances[2]-eeOracleDistances[0])-0.352480818e-9)<=2.0e-10,
                 "captured EE trial gaps do not reproduce the independent FP64 increase");
-            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"legacy_base_world_delta_error_m\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,baselineOldWitnessError);
+            require(vfCapturedLegacyMaximum>1.0e-9,"captured legacy rounded-world-point VF control did not reproduce the measured nanometer-scale witness error");
+            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError);
             require(nearestMaximum <= 1.0e-3 && valueMaximum <= 1.0e-3 && gradientMaximum <= 1.0e-3 &&
                     eeDistanceMaximum <= 2.0e-10 && eeVectorMaximum <= 2.0e-9 &&
                     eeArithmeticVectorMaximum <= 2.0e-10 &&
-                    eeControlDistanceRelativeMaximum <= 5.0e-8 && eeEnergyMaximum <= 2.0e-3,
+                    eeControlDistanceRelativeMaximum <= 5.0e-8 && eeEnergyMaximum <= 2.0e-3 &&
+                    vfGapMaximum<=1.0e-6 && vfRelativeMaximum<=1.0e-6 && vfBaryMaximum<=3.0e-5 && vfEnergyMaximum<=3.0e-3 &&
+                    mappedWeightMaximum<=3.0e-6 && mappedWitnessMaximum<=2.0e-6 && mappedDirectionMaximum<=2.0e-6 && mappedTorqueMaximum<=2.0e-6,
                 "native contact geometry exceeded the analytical gate");
             return 0;
         } catch (const std::exception& ex) {

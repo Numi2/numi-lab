@@ -734,8 +734,15 @@ inline bool contactCompensatedSegmentWitness(
         isfinite(separation) && separation >= 0.0f;
 }
 
-inline bool contactCompensatedVertexTriangleSeparation(
+// Preserve the paired nearest point through subtraction. Barrier energy,
+// generated normal and barycentric force distribution must share this same
+// Voronoi-region decision; a separately rounded world point changes a micron
+// gap and can reverse an otherwise tiny directional derivative.
+inline bool contactCompensatedVertexTriangleWitness(
     const float3 point, const float3 a, const float3 b, const float3 c,
+    thread float3& barycentric,
+    thread float3& closestPoint,
+    thread MRCompensatedPositionGPU& relative,
     thread float& separation
 ) {
     const auto p = mrCompensatedVector(float4(point, 0.0f));
@@ -751,6 +758,7 @@ inline bool contactCompensatedVertexTriangleSeparation(
     const auto d1 = mrCompensatedVectorDot(ab, ap);
     const auto d2 = mrCompensatedVectorDot(ac, ap);
     MRCompensatedPositionGPU closest = aPair;
+    barycentric = float3(1.0f, 0.0f, 0.0f);
     bool usedFallback = false;
 
     if (contactCompensatedSign(d1) <= 0 &&
@@ -764,6 +772,7 @@ inline bool contactCompensatedVertexTriangleSeparation(
         if (contactCompensatedSign(d3) >= 0 &&
             contactCompensatedSign(contactCompensatedSubtract(d4, d3)) <= 0) {
             closest = bPair;
+            barycentric = float3(0.0f, 1.0f, 0.0f);
         } else {
             const auto vc = contactCompensatedSubtract(
                 mrCompensatedMultiply(d1, d4),
@@ -776,6 +785,8 @@ inline bool contactCompensatedVertexTriangleSeparation(
                     usedFallback = true;
                 } else {
                     const auto v = mrCompensatedDivide(d1, denominator);
+                    const float parameter = v.high + v.low;
+                    barycentric = float3(1.0f - parameter, parameter, 0.0f);
                     closest = mrCompensatedVectorAdd(aPair,
                         mrCompensatedVectorScale(ab, v));
                 }
@@ -788,6 +799,7 @@ inline bool contactCompensatedVertexTriangleSeparation(
                     contactCompensatedSign(
                         contactCompensatedSubtract(d5, d6)) <= 0) {
                     closest = cPair;
+                    barycentric = float3(0.0f, 0.0f, 1.0f);
                 } else {
                     const auto vb = contactCompensatedSubtract(
                         mrCompensatedMultiply(d5, d2),
@@ -801,6 +813,8 @@ inline bool contactCompensatedVertexTriangleSeparation(
                             usedFallback = true;
                         } else {
                             const auto w = mrCompensatedDivide(d2, denominator);
+                            const float parameter = w.high + w.low;
+                            barycentric = float3(1.0f - parameter, 0.0f, parameter);
                             closest = mrCompensatedVectorAdd(aPair,
                                 mrCompensatedVectorScale(ac, w));
                         }
@@ -822,6 +836,8 @@ inline bool contactCompensatedVertexTriangleSeparation(
                             } else {
                                 const auto w = mrCompensatedDivide(
                                     d4d3, denominator);
+                                const float parameter = w.high + w.low;
+                                barycentric = float3(0.0f, 1.0f - parameter, parameter);
                                 const auto cb = mrCompensatedVectorAdd(
                                     cPair, mrCompensatedVectorNegate(bPair));
                                 closest = mrCompensatedVectorAdd(bPair,
@@ -835,6 +851,9 @@ inline bool contactCompensatedVertexTriangleSeparation(
                             } else {
                                 const auto v = mrCompensatedDivide(vb, denominator);
                                 const auto w = mrCompensatedDivide(vc, denominator);
+                                const float vValue = v.high + v.low;
+                                const float wValue = w.high + w.low;
+                                barycentric = float3(1.0f - vValue - wValue, vValue, wValue);
                                 closest = mrCompensatedVectorAdd(
                                     mrCompensatedVectorAdd(aPair,
                                         mrCompensatedVectorScale(ab, v)),
@@ -847,23 +866,42 @@ inline bool contactCompensatedVertexTriangleSeparation(
         }
     }
     if (usedFallback) {
-        float3 barycentric;
-        const float3 fallback = closestPointOnTriangle(
-            point, a, b, c, barycentric);
-        closest = mrCompensatedVector(float4(fallback, 0.0f));
+        closestPointOnTriangle(point, a, b, c, barycentric);
+        closest = mrCompensatedVectorAdd(
+            mrCompensatedVectorAdd(aPair,
+                mrCompensatedVectorScale(ab, {barycentric.y, 0.0f})),
+            mrCompensatedVectorScale(ac, {barycentric.z, 0.0f}));
     }
-    const auto delta = mrCompensatedVectorAdd(p,
+    closestPoint = closest.high.xyz + closest.low.xyz;
+    relative = mrCompensatedVectorAdd(p,
         mrCompensatedVectorNegate(closest));
-    const auto squared = mrCompensatedVectorDot(delta, delta);
+    const auto squared = mrCompensatedVectorDot(relative, relative);
     if (contactCompensatedSign(squared) < 0 ||
         !isfinite(squared.high) || !isfinite(squared.low)) {
         separation = NAN;
         return false;
     }
+    if (squared.high == 0.0f && squared.low == 0.0f) {
+        separation = 0.0f;
+        return finite3(closestPoint) && finite3(barycentric);
+    }
     const auto distance = mrCompensatedSqrt(squared);
     separation = distance.high + distance.low;
     return isfinite(distance.high) && isfinite(distance.low) &&
-        isfinite(separation) && separation >= 0.0f;
+        isfinite(separation) && separation >= 0.0f &&
+        finite3(closestPoint) && finite3(barycentric);
+}
+
+// Energy, normal and support weights must use the same nearest feature.
+// Keep the old separation-only entrypoint for existing barrier callers.
+inline bool contactCompensatedVertexTriangleSeparation(
+    const float3 point, const float3 a, const float3 b, const float3 c,
+    thread float& separation
+) {
+    float3 barycentric, closestPoint;
+    MRCompensatedPositionGPU relative;
+    return contactCompensatedVertexTriangleWitness(
+        point, a, b, c, barycentric, closestPoint, relative, separation);
 }
 
 inline bool deformableBarrierEnergyAt(
@@ -2119,6 +2157,40 @@ struct NMMortarContactData {
     float3 auditLeftBarycentric;
     float3 auditRightBarycentric;
 };
+
+// Map the same positive-point / negative-triangle witness to both parent
+// triangles. Parent ordering never changes the normal's physical orientation.
+inline bool contactMortarVertexTriangleWitness(
+    thread const NMMortarContactData& mapping,
+    thread const float3* featurePosition,
+    thread float3& normal,
+    thread float3& point,
+    thread float& separation,
+    thread float* supportWeights
+) {
+    float3 localBarycentric;
+    MRCompensatedPositionGPU relative;
+    if (!contactCompensatedVertexTriangleWitness(
+            featurePosition[0], featurePosition[1], featurePosition[2],
+            featurePosition[3], localBarycentric, point, relative, separation))
+        return false;
+    const float3 triangleBarycentric =
+        localBarycentric.x * mapping.featureBarycentric[1] +
+        localBarycentric.y * mapping.featureBarycentric[2] +
+        localBarycentric.z * mapping.featureBarycentric[3];
+    const float3 delta = relative.high.xyz + relative.low.xyz;
+    normal = separation > kGeometryFloor ? delta / separation : mapping.normal;
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        if (mapping.positiveSide == 0u) {
+            supportWeights[corner] = mapping.featureBarycentric[0][corner];
+            supportWeights[3u + corner] = -triangleBarycentric[corner];
+        } else {
+            supportWeights[corner] = -triangleBarycentric[corner];
+            supportWeights[3u + corner] = mapping.featureBarycentric[0][corner];
+        }
+    }
+    return finite3(normal) && all(isfinite(triangleBarycentric));
+}
 
 inline float3 mortarBaryPoint(
     const float3 barycentric,
@@ -5728,39 +5800,15 @@ kernel void nm_contact_narrowphase_deformable(
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
         if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
-            float3 localTriangleBarycentric;
-            const float3 closest = closestPointOnTriangle(
-                featurePosition[0], featurePosition[1],
-                featurePosition[2], featurePosition[3],
-                localTriangleBarycentric);
-            const float3 triangleBarycentric =
-                localTriangleBarycentric.x *
-                    bestMortar.featureBarycentric[1] +
-                localTriangleBarycentric.y *
-                    bestMortar.featureBarycentric[2] +
-                localTriangleBarycentric.z *
-                    bestMortar.featureBarycentric[3];
-            const float3 delta = bestMortar.positiveSide == 0u
-                ? featurePosition[0] - closest
-                : closest - featurePosition[0];
-            bestNormal = length(delta) > kGeometryFloor
-                ? normalize(delta) : bestMortar.normal;
-            bestPoint = bestMortar.negativeSide == 0u
-                ? closest : featurePosition[0];
-            bestSeparation = length(delta);
-            if (bestMortar.positiveSide == 0u) {
-                for (uint corner = 0u; corner < 3u; ++corner) {
-                    supportWeights[corner] =
-                        bestMortar.featureBarycentric[0][corner];
-                    supportWeights[3u + corner] =
-                        -triangleBarycentric[corner];
-                }
-            } else {
-                for (uint corner = 0u; corner < 3u; ++corner) {
-                    supportWeights[corner] = -triangleBarycentric[corner];
-                    supportWeights[3u + corner] =
-                        bestMortar.featureBarycentric[0][corner];
-                }
+            if (!contactMortarVertexTriangleWitness(
+                    bestMortar, featurePosition, bestNormal, bestPoint,
+                    bestSeparation, supportWeights)) {
+                recordDeformableNarrowphaseFailure(
+                    deterministicStatusSelection, statuses, candidateStatuses,
+                    environment, candidateGlobal,
+                    NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
+                    float4(NAN, 0.0f, 0.0f, 0.0f));
+                return;
             }
         } else {
             float firstParameter, secondParameter;
@@ -5816,14 +5864,20 @@ kernel void nm_contact_narrowphase_deformable(
     } else if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
         float3 barycentric;
         const float3 positive = finish[bestSources[0]];
-        const float3 negative = closestPointOnTriangle(
-            positive,
-            finish[bestSources[1]],
-            finish[bestSources[2]],
-            finish[bestSources[3]],
-            barycentric);
-        const float3 delta = positive - negative;
-        const float distance = length(delta);
+        float3 negative;
+        MRCompensatedPositionGPU relative;
+        float distance;
+        if (!contactCompensatedVertexTriangleWitness(
+                positive, finish[bestSources[1]], finish[bestSources[2]],
+                finish[bestSources[3]], barycentric, negative, relative, distance)) {
+            recordDeformableNarrowphaseFailure(
+                deterministicStatusSelection, statuses, candidateStatuses,
+                environment, candidateGlobal,
+                NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
+                float4(NAN, 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        const float3 delta = relative.high.xyz + relative.low.xyz;
         bestNormal = distance > kGeometryFloor
             ? delta / distance : bestNormal;
         bestPoint = negative;

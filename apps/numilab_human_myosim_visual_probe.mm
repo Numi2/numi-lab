@@ -29950,18 +29950,30 @@ int main(int argc, char** argv) {
                         ? &*restingPassiveFasciaOwner->aorticWall : nullptr);
                 const char* restingFgmresBudgetSetting =
                     std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
-                require(restingFgmresBudgetSetting == nullptr ||
-                            std::strcmp(restingFgmresBudgetSetting, "0") == 0 ||
-                            std::strcmp(restingFgmresBudgetSetting, "16") == 0,
-                        "NUMI_HUMAN_RESTING_FGMRES_BUDGET must be unset, 0, or 16");
+                // A bounded override uses Matter's existing restarted solve.
+                // More iterations repair an exhausted linear direction without
+                // changing equations, residual tolerances or the default budget.
+                std::uint32_t requestedFgmresBudget = 0u;
+                if (restingFgmresBudgetSetting != nullptr) {
+                    const char* end = restingFgmresBudgetSetting +
+                        std::strlen(restingFgmresBudgetSetting);
+                    const auto parsed = std::from_chars(
+                        restingFgmresBudgetSetting, end, requestedFgmresBudget);
+                    require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                                (requestedFgmresBudget == 0u ||
+                                 requestedFgmresBudget == 16u ||
+                                 requestedFgmresBudget == 32u ||
+                                 requestedFgmresBudget == 64u),
+                            "NUMI_HUMAN_RESTING_FGMRES_BUDGET must be unset, 0, 16, 32, or 64");
+                }
                 const auto cookedFgmresBudget =
                     coupled.physiology.runtime.fgmresIterationBudget();
-                if (restingFgmresBudgetSetting != nullptr &&
-                    std::strcmp(restingFgmresBudgetSetting, "16") == 0) {
-                    require(cookedFgmresBudget >= 16u &&
-                                coupled.physiology.runtime.setFGMRESIterationBudget(16u) &&
-                                coupled.physiology.runtime.fgmresIterationBudget() == 16u,
-                            "Matter rejected the opt-in 16-iteration FGMRES budget");
+                if (requestedFgmresBudget != 0u) {
+                    require(coupled.physiology.runtime.setFGMRESIterationBudget(
+                                requestedFgmresBudget) &&
+                                coupled.physiology.runtime.fgmresIterationBudget() ==
+                                    requestedFgmresBudget,
+                            "Matter rejected the requested bounded FGMRES budget");
                 }
                 std::cout << "resting_fgmres_budget_selection requested="
                           << (restingFgmresBudgetSetting == nullptr ? "default" : restingFgmresBudgetSetting)
