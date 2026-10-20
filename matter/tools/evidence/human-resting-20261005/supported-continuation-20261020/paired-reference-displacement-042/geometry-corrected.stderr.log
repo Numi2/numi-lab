@@ -1,0 +1,2 @@
+paired_displacement_diagnostic coordinate_m=0 bary=2.3283064365386963e-10 gap_m=0 energy_relative=5.3091124217409956e-07 delta_energy_relative=0.32851269367289032 gap_increase_m=9.0949470177292824e-13 delta_energy_J=-2.5579538487363607e-13 response_relative=2.9390260947904927e-07 legacy_gap_m=0 legacy_energy_J=0
+cardboard contact geometry check failed: paired FEM expansion geometry/energy/response oracle exceeded declared gates

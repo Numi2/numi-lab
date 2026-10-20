@@ -151,6 +151,22 @@ def synthetic_capture():
 
 
 class AssemblyAdmissionTests(unittest.TestCase):
+    def test_v2_retains_reference_displacement_low_word(self):
+        header, nodes, tets, integrity = synthetic_capture()
+        header["schema"] = "numi.cardboard.fem-newton-capture.v2"
+        for node in nodes:
+            node["center"]["raw_state_float4s"].append([2.0**-40, 0.0, 0.0, 0.0])
+        result = audit.validate_and_assemble(header, nodes, tets, integrity, 0)
+        state = result[-1]["captured_node_state_f32"]
+        self.assertEqual(state.shape, (4, 24))
+        np.testing.assert_array_equal(state[:, 20], np.float32(2.0**-40))
+
+    def test_v2_rejects_truncated_node_state(self):
+        header, nodes, tets, integrity = synthetic_capture()
+        header["schema"] = "numi.cardboard.fem-newton-capture.v2"
+        with self.assertRaises(ValueError):
+            audit.validate_and_assemble(header, nodes, tets, integrity, 0)
+
     def test_operator_assembly_uses_canonical_native_f32_operands(self):
         def wire_f32(value):
             return float(format(float(np.float32(value)), ".9g"))

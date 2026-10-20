@@ -1,0 +1,65 @@
+{
+  "source_base_revision": "9c034846fed76d8e9424a841496cad819a84554e",
+  "verification_042": {
+    "build": "failed at initial attempt: missing metalrobo/compensated_translation_gpu.h",
+    "geometry": "later corrected geometry build log retained"
+  },
+  "verification_042c": {
+    "geometry_suite": "passed; compact-boundary result overall_ok=true; offline contact geometry reports physical_transactions=0",
+    "reference_probe": "stopped before native execution because vascular principal block requires 1 through 64 vascular unknowns"
+  },
+  "verification_042d": {
+    "checks": "passed",
+    "native_exit_code": 0,
+    "native_wall_s": 39.20466320798732,
+    "requested_steps": 2,
+    "step_seconds": 0.000125,
+    "accepted_steps": 2,
+    "simulated_seconds": 0.00025,
+    "late_reject_retry": "passed; state/adapter/respiration/body/DOF rollback markers all true; same-context retry true",
+    "skin_fat_preparation": "accepted; reference geometry construction, not anatomical qualification",
+    "fascia_regions": 26,
+    "registered_ligament_force_rows": 28,
+    "legacy_fascia_reduced_ligament_rows": 0,
+    "mass_partition_conserved": true,
+    "root_assistance": false,
+    "presentation_qualification": "pending"
+  },
+  "long_native_32_step_run": {
+    "status": "failed; prediction refuted",
+    "requested_steps": 32,
+    "step_seconds": 0.000125,
+    "accepted_steps": 12,
+    "accepted_simulated_seconds": 0.0015,
+    "exit_code": 1,
+    "wall_s": 191.89440441608895,
+    "failure_segment_start": 12,
+    "matter_code": 10,
+    "matter_object_index": 4294967295,
+    "matter_failing_index": 0,
+    "matter_microsteps": 1,
+    "matter_diagnostics": [
+      1.0904112059506588e-05,
+      9.999999747378752e-06,
+      0.4613182544708252,
+      0
+    ],
+    "prior_041b_accepted_roots": 21,
+    "difference_roots": -9,
+    "interpretation": "earlier than the 041b 21-root failure frontier; no stability improvement supported",
+    "evidence": "native-integrated-042d/"
+  },
+  "scope_limit": "These records are compiler/geometry/CPU-fixture checks and a 0.25 ms native mechanics microcheck. They do not establish sustained contact, settled stance, physiological support, or human performance.",
+  "diagnostic_replay_042d": {
+    "requested_steps": 13,
+    "accepted_steps": 12,
+    "exit_code": 1,
+    "wall_s": 191.5182613329962,
+    "coupled_csv_byte_identical_to_default": true,
+    "surface_audit_byte_identical_to_default": true,
+    "common_failure_byte_identical_to_default": true,
+    "source_executable_metallib_suite_library_identity_matches": true,
+    "evidence": "replay-root12-042d/",
+    "interpretation": "reproduces the default failure; not an independent stability result"
+  }
+}

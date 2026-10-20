@@ -364,7 +364,8 @@ kernel void nm_fgmres_base_cgls_validate_warm_breakdown_rows(
             baseCGLSFinite4(node.velocityAndInverseMass) &&
             baseCGLSFinite4(node.restAndFixed) &&
             baseCGLSFinite4(node.deltaVelocity) &&
-            baseCGLSFinite4(node.referenceDisplacementAndMode);
+            baseCGLSFinite4(node.referenceDisplacementAndMode) &&
+            baseCGLSFinite4(node.referenceDisplacementLow);
         if (!finiteNode) rowError |= kBaseCGLSErrorNonfinite;
         const float tag = node.restAndFixed.w;
         const bool free = tag == 0.0f;

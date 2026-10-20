@@ -625,7 +625,7 @@ const char kImageAnchor = 0;
 // Fixed float4 record layout shared with the opt-in kernels in fem.metalinc.
 // The rich capture is a bounded binary arena on GPU; JSONL is produced only
 // after the selected command buffer completes.
-constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 37u;
+constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 43u;
 constexpr std::size_t kFEMOperatorFDTetCaptureSlots = 254u;
 constexpr std::size_t kFEMOperatorFDCachedTangentSlots = 22u;
 constexpr std::size_t kFEMOperatorFDTetCenterOffset = 7u;
@@ -15975,8 +15975,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     appendVec3(line, slots[4]);
                                     line << ",\"reference_u_mode\":";
                                     capturedAppendTraceFloat(line, slots[4].w);
+                                    line << ",\"reference_u_low_m\":";
+                                    appendVec3(line, slots[5]);
                                     line << ",\"raw_state_float4s\":[";
-                                    for (std::size_t slot = 0u; slot < 5u; ++slot) {
+                                    for (std::size_t slot = 0u; slot < 6u; ++slot) {
                                         if (slot != 0u) line << ',';
                                         appendVec4(line, slots[slot]);
                                     }
@@ -16015,7 +16017,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         });
                                 std::ostringstream header;
                                 header << std::setprecision(9)
-                                    << "{\"record\":\"header\",\"schema\":\"numi.cardboard.fem-newton-capture.v1\",\"root\":"
+                                    << "{\"record\":\"header\",\"schema\":\"numi.cardboard.fem-newton-capture.v2\",\"root\":"
                                     << capturedRoot << ",\"newton_iteration\":"
                                     << capturedIteration << ",\"world_fingerprint_hex\":\""
                                     << std::hex << capturedWorldFingerprint
@@ -16145,47 +16147,47 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                              << ",\"accepted\":";
                                         appendNodeState(line, slots);
                                         line << ",\"center\":";
-                                        appendNodeState(line, slots + 5u);
+                                        appendNodeState(line, slots + 6u);
                                         line << ",\"epsilon_pair_0_plus\":";
-                                        appendNodeState(line, slots + 10u);
+                                        appendNodeState(line, slots + 12u);
                                         line << ",\"epsilon_pair_0_minus\":";
-                                        appendNodeState(line, slots + 15u);
+                                        appendNodeState(line, slots + 18u);
                                         line << ",\"epsilon_pair_1_plus\":";
-                                        appendNodeState(line, slots + 20u);
+                                        appendNodeState(line, slots + 24u);
                                         line << ",\"epsilon_pair_1_minus\":";
-                                        appendNodeState(line, slots + 25u);
+                                        appendNodeState(line, slots + 30u);
                                         line << ",\"correction_delta_v_m_s\":";
-                                        appendVec3(line, slots[30u]);
+                                        appendVec3(line, slots[36u]);
                                         line << ",\"epsilon_pair_realized_position_delta_m\":[";
                                         for (std::size_t pairSide = 0u;
                                              pairSide < 4u; ++pairSide) {
                                             if (pairSide != 0u) line << ',';
                                             appendDifference3(line,
-                                                slots[10u + 5u * pairSide], slots[5u]);
+                                                slots[12u + 6u * pairSide], slots[6u]);
                                         }
                                         line << "],\"epsilon_pair_realized_velocity_delta_m_s\":[";
                                         for (std::size_t pairSide = 0u;
                                              pairSide < 4u; ++pairSide) {
                                             if (pairSide != 0u) line << ',';
                                             appendDifference3(line,
-                                                slots[11u + 5u * pairSide], slots[6u]);
+                                                slots[13u + 6u * pairSide], slots[7u]);
                                         }
                                         line << "],\"epsilon_pair_realized_u_delta_m\":[";
                                         for (std::size_t pairSide = 0u;
                                              pairSide < 4u; ++pairSide) {
                                             if (pairSide != 0u) line << ',';
                                             appendDifference3(line,
-                                                slots[14u + 5u * pairSide], slots[9u]);
+                                                slots[16u + 6u * pairSide], slots[10u]);
                                         }
                                         line << ']';
                                         line << ",\"center_residual_impulse_Ns\":";
-                                        appendVec4(line, slots[31u]);
+                                        appendVec4(line, slots[37u]);
                                         line << ",\"production_A_delta_v_impulse_Ns\":";
-                                        appendVec4(line, slots[32u]);
+                                        appendVec4(line, slots[38u]);
                                         line << ",\"epsilon_pair_residual_impulses_Ns\":[";
                                         for (std::size_t side = 0u; side < 4u; ++side) {
                                             if (side != 0u) line << ',';
-                                            appendVec4(line, slots[33u + side]);
+                                            appendVec4(line, slots[39u + side]);
                                         }
                                         line << "]}";
                                         outputOkay = writeLine(line.str() + "\n");
@@ -30535,7 +30537,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                      slot < 2u * capturedEnvironments; ++slot)
                     present += records[slot].capture.x != 0u ? 1u : 0u;
                 std::ostringstream manifest;
-                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v1\","
+                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v2\","
                     << "\"capture_point\":\"immediately_after_selected_fem_status5_producer_before_next_dispatch_or_rollback\","
                     << "\"byte_order\":\"native_little_endian_f32_u32\","
                     << "\"root\":" << capturedRoot
@@ -35124,14 +35126,24 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             for (std::size_t local = 0u; local < object.stateCount; ++local) {
                 const auto& node = snapshot.femNodes[nodeBase + object.stateOffset + local];
                 const auto& u = node.referenceDisplacementAndMode;
+                const auto& uLow = node.referenceDisplacementLow;
                 const bool finite = std::isfinite(u.x) && std::isfinite(u.y) &&
-                    std::isfinite(u.z) && std::isfinite(u.w);
+                    std::isfinite(u.z) && std::isfinite(u.w) &&
+                    std::isfinite(uLow.x) && std::isfinite(uLow.y) &&
+                    std::isfinite(uLow.z) && std::isfinite(uLow.w);
                 const bool canonical = displacementMode
-                    ? u.w == 1.0f &&
-                        node.positionAndMass.x == node.restAndFixed.x + u.x &&
-                        node.positionAndMass.y == node.restAndFixed.y + u.y &&
-                        node.positionAndMass.z == node.restAndFixed.z + u.z
-                    : u.x == 0.0f && u.y == 0.0f && u.z == 0.0f && u.w == 0.0f;
+                    ? u.w == 1.0f && uLow.w == 0.0f &&
+                        mrCompensatedCanonicalScalar(u.x, uLow.x) &&
+                        mrCompensatedCanonicalScalar(u.y, uLow.y) &&
+                        mrCompensatedCanonicalScalar(u.z, uLow.z) &&
+                        node.positionAndMass.x == mrCompensatedProjectionScalar(
+                            node.restAndFixed.x, u.x, uLow.x) &&
+                        node.positionAndMass.y == mrCompensatedProjectionScalar(
+                            node.restAndFixed.y, u.y, uLow.y) &&
+                        node.positionAndMass.z == mrCompensatedProjectionScalar(
+                            node.restAndFixed.z, u.z, uLow.z)
+                    : u.x == 0.0f && u.y == 0.0f && u.z == 0.0f && u.w == 0.0f &&
+                        uLow.x == 0.0f && uLow.y == 0.0f && uLow.z == 0.0f && uLow.w == 0.0f;
                 if (!finite || !canonical) {
                     diagnostics.message =
                         "Matter snapshot has a noncanonical FEM reference displacement state";

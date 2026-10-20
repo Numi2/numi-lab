@@ -1,0 +1,6 @@
+{
+  "status": "partial verification; not all checks passed",
+  "geometry": "pass; offline boundary result overall_ok=true, physical_transactions=0",
+  "fem_reference_probe": "configuration error: vascular principal block requires 1 through 64 vascular unknowns",
+  "native_execution": "none"
+}

@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "accepted_physical_steps": 0,
+  "stage": "C++ compilation",
+  "cause": "compiler_objects missing private suite include path for compensated translation helper",
+  "tested_patch_sha256": "f1bcbdbec5b67d4d392b75409a51378025c5406caa7be501de4f3798baec772e"
+}

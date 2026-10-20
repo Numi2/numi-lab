@@ -1,0 +1,837 @@
+{
+  "package": "paired-reference-displacement-042",
+  "source_run_root": "build-integrated-validation-20261019/supported-skin-ligaments-20261020",
+  "completed_runs_only": [
+    "verification-042",
+    "verification-042c",
+    "verification-042d"
+  ],
+  "active_32_step_native_run": "completed; compact outcome packaged under native-integrated-042d; diagnostic replay remains root-owned and not inspected",
+  "copied_artifacts": [
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/build.log",
+      "destination": "verification-042/build.log",
+      "size_bytes": 1563,
+      "sha256": "f5ba1b084cc4321fd56d2eec62bd67dc5fcdbec1c7e6f7e6e9fc6eeb9b55db9a",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/configure.log",
+      "destination": "verification-042/configure.log",
+      "size_bytes": 268,
+      "sha256": "f6559ec5486fd43168c58c8dd52c896809045682bdde4f2922636b047f7d5d9a",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/input-identities.json",
+      "destination": "verification-042/input-identities.json",
+      "size_bytes": 182,
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/geometry-build.log",
+      "destination": "verification-042/geometry-build.log",
+      "size_bytes": 7274,
+      "sha256": "5fe5d25e1070e739186325cc37791499f82031b5aed76bc831b0dc54884cdab9",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/geometry-build-b.log",
+      "destination": "verification-042/geometry-build-b.log",
+      "size_bytes": 265,
+      "sha256": "31225be15428235eee6fd30a924ee2f0052c3a1883fbd05ee62612deff253b17",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/geometry-build-corrected.log",
+      "destination": "verification-042/geometry-build-corrected.log",
+      "size_bytes": 3403,
+      "sha256": "e925ce7c2245d7e3e56ea0f88ca655b2f135e781c1681d347fcb3367a794b59e",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/geometry-build-diagnostic.log",
+      "destination": "verification-042/geometry-build-diagnostic.log",
+      "size_bytes": 265,
+      "sha256": "31225be15428235eee6fd30a924ee2f0052c3a1883fbd05ee62612deff253b17",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/runtime-rebuild-configure.log",
+      "destination": "verification-042/runtime-rebuild-configure.log",
+      "size_bytes": 268,
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042/runtime-rebuild.log",
+      "destination": "verification-042/runtime-rebuild.log",
+      "size_bytes": 7169,
+      "sha256": "2c3a42d5a7d255577886578d32f8c0930065484f86750c4f80e7701ca1616ad8",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/build.log",
+      "destination": "verification-042c/build.log",
+      "size_bytes": 7893,
+      "sha256": "ee104723cad504e282880a4cefa545faab911c47446b211dd90e4024c5d1d525",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/configure.log",
+      "destination": "verification-042c/configure.log",
+      "size_bytes": 268,
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/input-identities.json",
+      "destination": "verification-042c/input-identities.json",
+      "size_bytes": 182,
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/contact-geometry.run.log",
+      "destination": "verification-042c/contact-geometry.run.log",
+      "size_bytes": 4471,
+      "sha256": "2bfd97550967d282d94e79c074c2763b45f27ab52ecb814127231413126d616b",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/contact-surface-sort.run.log",
+      "destination": "verification-042c/contact-surface-sort.run.log",
+      "size_bytes": 959,
+      "sha256": "7802431c0a7b03658545a26ac4f91d6912e92a7a3170bc5f72912a461a934037",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/fat-self-crossings.csv",
+      "destination": "verification-042c/fat-self-crossings.csv",
+      "size_bytes": 78,
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/fem-backtracking.run.log",
+      "destination": "verification-042c/fem-backtracking.run.log",
+      "size_bytes": 354,
+      "sha256": "3bb59b3b658eaadfee680c192d6de468100ae14b7d2e3be5f86eb791d7af2758",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/fem-body-interface.run.log",
+      "destination": "verification-042c/fem-body-interface.run.log",
+      "size_bytes": 3854,
+      "sha256": "a9af4c82d2a1bc56dfcb805b964a904d16fc92688d4fd05adbac13b61cd022e3",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/fem-reference.run.log",
+      "destination": "verification-042c/fem-reference.run.log",
+      "size_bytes": 1922,
+      "sha256": "24a12e19c793b3540601b5eb2d469b96c12a09768f9c6313d3f6fc2d19265361",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/float32-audit.compile.log",
+      "destination": "verification-042c/float32-audit.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/float32-audit.run.log",
+      "destination": "verification-042c/float32-audit.run.log",
+      "size_bytes": 101,
+      "sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/float32-geometry.json",
+      "destination": "verification-042c/float32-geometry.json",
+      "size_bytes": 1284,
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "destination": "verification-042c/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "destination": "verification-042c/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "size_bytes": 124,
+      "sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_skin_fat_from_layers_precomputed.compile.log",
+      "destination": "verification-042c/human_skin_fat_from_layers_precomputed.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_skin_fat_from_layers_precomputed.run.log",
+      "destination": "verification-042c/human_skin_fat_from_layers_precomputed.run.log",
+      "size_bytes": 702,
+      "sha256": "1f93d724463a0ec67a02510d236a442ca5d82cc6ac223dd182ee405524339b6c",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_wholebody_skin_layers.compile.log",
+      "destination": "verification-042c/human_wholebody_skin_layers.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/human_wholebody_skin_layers.run.log",
+      "destination": "verification-042c/human_wholebody_skin_layers.run.log",
+      "size_bytes": 473,
+      "sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/numi_human_registered_ligaments_test.compile.log",
+      "destination": "verification-042c/numi_human_registered_ligaments_test.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/numi_human_registered_ligaments_test.run.log",
+      "destination": "verification-042c/numi_human_registered_ligaments_test.run.log",
+      "size_bytes": 89,
+      "sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/static-support.run.log",
+      "destination": "verification-042c/static-support.run.log",
+      "size_bytes": 747,
+      "sha256": "35108b557698c044b413edf8879536d44bfe70cde34c10825e948044aa2876e7",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/support-capture-metal.run.log",
+      "destination": "verification-042c/support-capture-metal.run.log",
+      "size_bytes": 436,
+      "sha256": "3d135f57915e1208c33112edc884d8bec5227c65ecb5eb0aa5e79f79b66a7b7e",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/compact-boundary.compile.log",
+      "destination": "verification-042c/compact-boundary.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/compact-boundary.run.log",
+      "destination": "verification-042c/compact-boundary.run.log",
+      "size_bytes": 123,
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/compact-boundary/result.json",
+      "destination": "verification-042c/compact-boundary/result.json",
+      "size_bytes": 1438,
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/compact-boundary/boundary-edge-errors.csv",
+      "destination": "verification-042c/compact-boundary/boundary-edge-errors.csv",
+      "size_bytes": 36,
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042c/compact-boundary/boundary-self-crossings.csv",
+      "destination": "verification-042c/compact-boundary/boundary-self-crossings.csv",
+      "size_bytes": 42,
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/build.log",
+      "destination": "verification-042d/build.log",
+      "size_bytes": 63,
+      "sha256": "c2ed93ffd93c840755c0e91392ae593b1b52de9b7aaf6c208123feaceb1dde2e",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/configure.log",
+      "destination": "verification-042d/configure.log",
+      "size_bytes": 268,
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/input-identities.json",
+      "destination": "verification-042d/input-identities.json",
+      "size_bytes": 182,
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/preparation-provenance.json",
+      "destination": "verification-042d/preparation-provenance.json",
+      "size_bytes": 11808,
+      "sha256": "05669754916adb1de296dea34ff67e0c9b333063f099304c94323016f839eca7",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/contact-geometry.run.log",
+      "destination": "verification-042d/contact-geometry.run.log",
+      "size_bytes": 4471,
+      "sha256": "2bfd97550967d282d94e79c074c2763b45f27ab52ecb814127231413126d616b",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/contact-surface-sort.run.log",
+      "destination": "verification-042d/contact-surface-sort.run.log",
+      "size_bytes": 958,
+      "sha256": "74919d586e2f48f4b216b2c665071267f9536858f24cfbe69bf05a1d654aac54",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fat-self-crossings.csv",
+      "destination": "verification-042d/fat-self-crossings.csv",
+      "size_bytes": 78,
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fem-backtracking.run.log",
+      "destination": "verification-042d/fem-backtracking.run.log",
+      "size_bytes": 354,
+      "sha256": "3bb59b3b658eaadfee680c192d6de468100ae14b7d2e3be5f86eb791d7af2758",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fem-body-interface.run.log",
+      "destination": "verification-042d/fem-body-interface.run.log",
+      "size_bytes": 3854,
+      "sha256": "a9af4c82d2a1bc56dfcb805b964a904d16fc92688d4fd05adbac13b61cd022e3",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fem-kinematic-release.run.log",
+      "destination": "verification-042d/fem-kinematic-release.run.log",
+      "size_bytes": 533,
+      "sha256": "1fd4c1bca53e6bb72cd0756a3badea3e299dd3e3b3aa74dc1c860daca5733b67",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fem-mutable-snapshot.run.log",
+      "destination": "verification-042d/fem-mutable-snapshot.run.log",
+      "size_bytes": 187,
+      "sha256": "e452b93d63a2ae2a6ee726e55628452b0dcb06160318e3cab638cd3f54a36645",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/fem-reference.run.log",
+      "destination": "verification-042d/fem-reference.run.log",
+      "size_bytes": 4037,
+      "sha256": "0ff2993ab648708c8e085225a3c3d85982036d73683a44694b850c7f6e301a39",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/float32-audit.compile.log",
+      "destination": "verification-042d/float32-audit.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/float32-audit.run.log",
+      "destination": "verification-042d/float32-audit.run.log",
+      "size_bytes": 101,
+      "sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/float32-geometry.json",
+      "destination": "verification-042d/float32-geometry.json",
+      "size_bytes": 1284,
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "destination": "verification-042d/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "destination": "verification-042d/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "size_bytes": 124,
+      "sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_skin_fat_from_layers_precomputed.compile.log",
+      "destination": "verification-042d/human_skin_fat_from_layers_precomputed.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_skin_fat_from_layers_precomputed.run.log",
+      "destination": "verification-042d/human_skin_fat_from_layers_precomputed.run.log",
+      "size_bytes": 702,
+      "sha256": "1f93d724463a0ec67a02510d236a442ca5d82cc6ac223dd182ee405524339b6c",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_wholebody_skin_layers.compile.log",
+      "destination": "verification-042d/human_wholebody_skin_layers.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_wholebody_skin_layers.run.log",
+      "destination": "verification-042d/human_wholebody_skin_layers.run.log",
+      "size_bytes": 473,
+      "sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/numi_human_registered_ligaments_test.compile.log",
+      "destination": "verification-042d/numi_human_registered_ligaments_test.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/numi_human_registered_ligaments_test.run.log",
+      "destination": "verification-042d/numi_human_registered_ligaments_test.run.log",
+      "size_bytes": 89,
+      "sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/static-support.run.log",
+      "destination": "verification-042d/static-support.run.log",
+      "size_bytes": 747,
+      "sha256": "35108b557698c044b413edf8879536d44bfe70cde34c10825e948044aa2876e7",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/support-capture-metal.run.log",
+      "destination": "verification-042d/support-capture-metal.run.log",
+      "size_bytes": 436,
+      "sha256": "3d135f57915e1208c33112edc884d8bec5227c65ecb5eb0aa5e79f79b66a7b7e",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/vascular-block.run.log",
+      "destination": "verification-042d/vascular-block.run.log",
+      "size_bytes": 361,
+      "sha256": "0ec167f1881c19e687258ddcd89fa8df7bb16f23c02f8aa9a57519f430acec90",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary.compile.log",
+      "destination": "verification-042d/compact-boundary.compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary.run.log",
+      "destination": "verification-042d/compact-boundary.run.log",
+      "size_bytes": 123,
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/result.json",
+      "destination": "verification-042d/compact-boundary/result.json",
+      "size_bytes": 1438,
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/boundary-edge-errors.csv",
+      "destination": "verification-042d/compact-boundary/boundary-edge-errors.csv",
+      "size_bytes": 36,
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/boundary-self-crossings.csv",
+      "destination": "verification-042d/compact-boundary/boundary-self-crossings.csv",
+      "size_bytes": 42,
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/execution.json",
+      "destination": "verification-042d/native/execution.json",
+      "size_bytes": 52,
+      "sha256": "269fb8657e6c90c2266a395fcb1be2d097ea45ca29ee85615424649eed9f5c92",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/invocation.json",
+      "destination": "verification-042d/native/invocation.json",
+      "size_bytes": 7569,
+      "sha256": "3c6d89d0a55be5da31461dc177b0dc69dca244597414ba274002522ff4ec3a53",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/provenance.json",
+      "destination": "verification-042d/native/provenance.json",
+      "size_bytes": 6145,
+      "sha256": "311d6c685ceae7b2bf0b4dd4b970cf16e5508d432a44632c087b3f2fa10e37f2",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/stderr.log",
+      "destination": "verification-042d/native/stderr.log",
+      "size_bytes": 2497,
+      "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/output/resting-coupled.csv",
+      "destination": "verification-042d/native/output/resting-coupled.csv",
+      "size_bytes": 3304,
+      "sha256": "dbf87111695e79085a8396e099f6667f8811c52132713db86f26f1d641362548",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/output/resting-surface-audit.csv",
+      "destination": "verification-042d/native/output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "destination_sha256_verified": true,
+      "copy_action": "copied or hash-verified existing destination"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/stdout.log",
+      "destination": "verification-042d/native/selected-stdout.log",
+      "size_bytes": 5518,
+      "sha256": "116994397f0b0dc594725e871cdbad5b6b3148f84c782a3a7577576afa51a839",
+      "selection": "line-numbered allowlist of initialization, admission, mass, rollback, terminal, and run markers; raw stdout omitted",
+      "destination_sha256_verified": true,
+      "copy_action": "filtered from source"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/execution.json",
+      "destination": "native-integrated-042d/execution.json",
+      "size_bytes": 53,
+      "sha256": "1d13c7f6130cf6408275a7072f44c7596fdd7942dd561bdc5ebbc0df35ad28b5"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/invocation.json",
+      "destination": "native-integrated-042d/invocation.json",
+      "size_bytes": 7570,
+      "sha256": "599557545983293f635a82541c6a178cb2595e431951396d2b36f53f1508c255"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/provenance.json",
+      "destination": "native-integrated-042d/provenance.json",
+      "size_bytes": 6145,
+      "sha256": "311d6c685ceae7b2bf0b4dd4b970cf16e5508d432a44632c087b3f2fa10e37f2"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/common-field-failure.json",
+      "destination": "native-integrated-042d/common-field-failure.json",
+      "size_bytes": 4366,
+      "sha256": "f01f14f13cfe9940d2e81c33fd970eaf01e7473335ea765246ab5589a6a230df"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stderr.log",
+      "destination": "native-integrated-042d/stderr.log",
+      "size_bytes": 7493,
+      "sha256": "11b34219757840d92c9e72865a1498929eade3253546a2ae14a1464cf39f3014"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stdout.log",
+      "destination": "native-integrated-042d/stdout.log",
+      "size_bytes": 128832,
+      "sha256": "09efab9c29e1bcccaca752f5b09b7946cc5a4c518f73f89ac4efc805a688522e"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/output/resting-coupled.csv",
+      "destination": "native-integrated-042d/output/resting-coupled.csv",
+      "size_bytes": 11110,
+      "sha256": "aa190e2aac3c3b3367ebcccde15877252b37600d20b286d1af3e04ae6836353a"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/output/resting-surface-audit.csv",
+      "destination": "native-integrated-042d/output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stdout.log",
+      "destination": "native-integrated-042d/selected-stdout.log",
+      "size_bytes": 4598,
+      "sha256": "4065c164d01952a3ded0552e0de808cb8aa6866e5042a82b3b227cc23b32054e",
+      "selection": "line-numbered initialization, pose, geometry, and tissue setup allowlist"
+    },
+    {
+      "source": "native-paired-reference-displacement-042d execution record",
+      "destination": "native-integrated-042d/raw-identities.json",
+      "size_bytes": 7753,
+      "sha256": "d728ce38d578218a9af1607cd3026a7c614cb0a76cb0b44b0d399b0a51a78176",
+      "copy_action": "generated metadata"
+    },
+    {
+      "source": "native-paired-reference-displacement-042d failure summary",
+      "destination": "native-integrated-042d/outcome.json",
+      "size_bytes": 952,
+      "sha256": "415943e92ca4f377c32e9e0b7edc9a75379da313a79218a451c8031b71f0e691",
+      "copy_action": "generated metadata"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/execution.json",
+      "destination": "replay-root12-042d/execution.json",
+      "size_bytes": 52,
+      "sha256": "a79fecbf5ebadc9f488f8cbd6aa7cc2fe9a092e35c1c3abbd9af6fe5ac567597"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/invocation.json",
+      "destination": "replay-root12-042d/invocation.json",
+      "size_bytes": 7588,
+      "sha256": "b62f32233ac695d5de26ec08366fecc2ecff71b1caf6994acce38f07c2eaca0c"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/provenance.json",
+      "destination": "replay-root12-042d/provenance.json",
+      "size_bytes": 6145,
+      "sha256": "311d6c685ceae7b2bf0b4dd4b970cf16e5508d432a44632c087b3f2fa10e37f2"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/common-field-failure.json",
+      "destination": "replay-root12-042d/common-field-failure.json",
+      "size_bytes": 4366,
+      "sha256": "f01f14f13cfe9940d2e81c33fd970eaf01e7473335ea765246ab5589a6a230df"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/stderr.log",
+      "destination": "replay-root12-042d/stderr.log",
+      "size_bytes": 1356187,
+      "sha256": "f4ff24c3a138f0ccf40c5ecf216d6e10b3eb29cdde4b26fccbfc0740fb99053d"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/stdout.log",
+      "destination": "replay-root12-042d/stdout.log",
+      "size_bytes": 128845,
+      "sha256": "44e8bb539b0fa9fb5ac23d196992ef743a7694b92fd25284510b5c5acb61b4ad"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/output/resting-coupled.csv",
+      "destination": "replay-root12-042d/output/resting-coupled.csv",
+      "size_bytes": 11110,
+      "sha256": "aa190e2aac3c3b3367ebcccde15877252b37600d20b286d1af3e04ae6836353a"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/output/resting-surface-audit.csv",
+      "destination": "replay-root12-042d/output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-paired-reference-root12-042d/stdout.log",
+      "destination": "replay-root12-042d/selected-stdout.log",
+      "size_bytes": 4598,
+      "sha256": "4065c164d01952a3ded0552e0de808cb8aa6866e5042a82b3b227cc23b32054e",
+      "selection": "line-numbered initialization, pose, geometry, and setup markers"
+    },
+    {
+      "source": "replay-paired-reference-root12-042d raw output identity metadata",
+      "destination": "replay-root12-042d/raw-identities.json",
+      "size_bytes": 8759,
+      "sha256": "7ed5a9f02301acc51082a33253d0d0bdfe85710e3d9d2060d327e437ac8457ab",
+      "copy_action": "generated metadata"
+    },
+    {
+      "source": "replay-paired-reference-root12-042d outcome summary",
+      "destination": "replay-root12-042d/outcome.json",
+      "size_bytes": 357,
+      "sha256": "0d62b95e768ae197cc4e59a03acfc24bd79c33b6ae2741a0573717dfc0e580a3",
+      "copy_action": "generated metadata"
+    }
+  ],
+  "excluded_from_042d_source": [
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/compact-boundary-vertex-map.csv",
+      "size_bytes": 379185,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/compact-exposed-boundary.csv",
+      "size_bytes": 371267,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/positive-tetrahedra.csv",
+      "size_bytes": 1624439,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary/raw-face-expected-orientation.csv",
+      "size_bytes": 3256869,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/compact-boundary-audit",
+      "size_bytes": 102808,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/float32-audit",
+      "size_bytes": 104736,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_accepted_fem_skin_transfer_mixed_donor",
+      "size_bytes": 80528,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_skin_fat_from_layers_precomputed",
+      "size_bytes": 698040,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/human_wholebody_skin_layers",
+      "size_bytes": 826072,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/output/resting-airway-anchor-map.json",
+      "size_bytes": 82553,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/native/stdout.log",
+      "size_bytes": 13703112,
+      "reason": "large runtime artifact or executable; not copied"
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-042d/numi_human_registered_ligaments_test",
+      "size_bytes": 95944,
+      "reason": "large runtime artifact or executable; not copied"
+    }
+  ],
+  "native_042d_outcome": {
+    "exit_code": 1,
+    "wall_s": 191.89440441608895,
+    "accepted_steps": 12,
+    "requested_steps": 32,
+    "failure_code": 10,
+    "comparison_to_041b_accepted_roots": -9,
+    "accepted_before_segment": 12,
+    "failure_diagnostics": [
+      1.0904112059506588e-05,
+      9.999999747378752e-06,
+      0.4613182544708252,
+      0
+    ]
+  },
+  "diagnostic_replay_042d": {
+    "requested_steps": 13,
+    "accepted_steps": 12,
+    "exit_code": 1,
+    "byte_identical_csv_failure_and_surface_audit": true,
+    "source_binary_library_identity_matches": true
+  }
+}

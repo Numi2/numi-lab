@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 45u
+#define NM_MATTER_ABI_VERSION 46u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
@@ -1214,9 +1214,11 @@ typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
     nm_float4 velocityAndInverseMass;
     nm_float4 restAndFixed;
     nm_float4 deltaVelocity;
-    // Opt-in reference-displacement FEM stores the authoritative FP32
+    // Opt-in reference-displacement FEM stores the high limb of authoritative
     // displacement u in xyz and mode tag 1 in w. Legacy nodes require zero.
     nm_float4 referenceDisplacementAndMode;
+    // Low limb of reference displacement; w is reserved and must be zero.
+    nm_float4 referenceDisplacementLow;
 } NMFEMNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMTetrahedronGPU {
@@ -1560,7 +1562,7 @@ static_assert(sizeof(NMVascularCavityGPU) == 96);
 static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
 static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
-static_assert(sizeof(NMFEMNodeStateGPU) == 80);
+static_assert(sizeof(NMFEMNodeStateGPU) == 96);
 static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
 static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
 static_assert(sizeof(NMMortarComplementAuditGPU) == 384);

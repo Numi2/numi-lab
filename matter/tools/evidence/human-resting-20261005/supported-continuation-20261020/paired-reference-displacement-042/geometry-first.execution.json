@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check"
+  ],
+  "sha256": {
+    "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check": "8f5bf6ebacf0c433fb1870c8704d20cc0c999ff9396464c6d939fb8da4f86b62",
+    "build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib": "ddd802d9a372d71d93e9a1e793559283750e270b35871269ab92307d190bb985",
+    "matter/tools/cardboard_contact_geometry_check.mm": "3e869c421fcf6b16ce854e5315aff2fbc8a2c598bf202fcfd41753ecbed4abd4",
+    "matter/tools/cardboard_contact_geometry_check.metal": "40ee642caea223958f1603533eac348d9e3e50e367c7d0d3cb349f60017592cb"
+  },
+  "exit_code": 2,
+  "wall_s": 27.619804417015985
+}

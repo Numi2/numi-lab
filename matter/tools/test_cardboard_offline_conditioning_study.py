@@ -249,12 +249,14 @@ class NativeRAPFormatTests(unittest.TestCase):
 
 class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
     def _fixture(self, folder: Path, *, iteration=23, capture_point=None,
-                 corrupt_payload=False, wrong_low=False, wrong_candidate=False):
+                 corrupt_payload=False, wrong_low=False, wrong_candidate=False, node_words=20):
         folder.mkdir(parents=True, exist_ok=True)
         envs, nodes, tets, modes, stride = 1, 5, 2, 1, 13
-        state = np.zeros((envs, nodes, 20), dtype="<f4")
+        state = np.zeros((envs, nodes, node_words), dtype="<f4")
         state[0, :, 3] = 1.0
         state[0, 0, 11] = 1.0
+        if node_words == 24:
+            state[0, :, 20] = 2.0**-40
         captured_state = state.copy()
         if wrong_candidate:
             state[0, 1, 0] = 1.0
@@ -309,6 +311,8 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
                   "tetrahedron_count_per_environment": tets,
                   "dt_seconds": 0.1, "dt_seconds_by_environment": [0.1],
                   "production_inputs_bitwise_unchanged": True}
+        if node_words == 24:
+            header["schema"] = "numi.cardboard.fem-newton-capture.v2"
         rows = [header]
         for tet in range(tets):
             fmat = high[0, tet, :, :3].astype(float).tolist()
@@ -326,7 +330,7 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
         array_raw = {}
         for name, dtype, shape, array in arrays:
             element_bytes = {"<f4x4": 16, "<f4": 4, "<u4": 4,
-                             "struct:NMFEMNodeStateGPU": 80,
+                             "struct:NMFEMNodeStateGPU": node_words * 4,
                              "struct:NMMatterStatusGPU": study.NMMATTER_STATUS_GPU_BYTES}[dtype]
             if name == "production_status":
                 raw = array.tobytes(order="C")
@@ -410,6 +414,15 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
                          max_iterations=16, relative_tolerance=1e-10,
                          schwarz_patch_nodes=4, schwarz_anchor_stride=2)
         return study.run(args)
+
+    def test_selected_newton_v2_preserves_96_byte_node_binding(self):
+        with tempfile.TemporaryDirectory() as temp:
+            audit, sidecar = self._fixture(Path(temp) / "paired", node_words=24)
+            result = self._run_sidecar(audit, sidecar)
+            self.assertTrue(result["fixed_physical_operator"]["same_A_and_b_for_both_methods"])
+            manifest, arrays, _, _ = study._read_regional_payload(sidecar)
+            self.assertEqual(arrays["candidate_nodes"].shape, (1, 5, 24))
+            np.testing.assert_array_equal(arrays["candidate_nodes"][0, :, 20], np.float32(2.0**-40))
 
     def test_selected_newton_sidecar_is_admitted_and_runs_same_matrix(self):
         with tempfile.TemporaryDirectory() as temp:

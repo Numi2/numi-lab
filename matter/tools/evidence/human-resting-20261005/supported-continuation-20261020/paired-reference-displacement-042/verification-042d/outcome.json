@@ -1,0 +1,12 @@
+{
+  "status": "passed verification and two-step native microcheck",
+  "native_exit_code": 0,
+  "wall_s": 39.20466320798732,
+  "accepted_steps": 2,
+  "step_seconds": 0.000125,
+  "simulated_seconds": 0.00025,
+  "late_reject_retry": "passed",
+  "root_assistance": false,
+  "presentation_qualification": "pending",
+  "scope": "short mechanics check; not sustained support or physiological qualification"
+}

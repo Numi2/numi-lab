@@ -80,7 +80,9 @@ def starch_oracle(state, direction, parameters):
 
 def normalize_native(records):
     """Normalize the explicit native JSONL names without regenerating inputs."""
-    if not records or records[0].get("schema") != "numi.cardboard.fem-newton-capture.v1":
+    if not records or records[0].get("schema") not in {
+            "numi.cardboard.fem-newton-capture.v1",
+            "numi.cardboard.fem-newton-capture.v2"}:
         return records
     # The native exporter writes GPU floats with nine round-trip digits. Widen
     # the reconstructed FP32 values, not the decimal text treated as exact

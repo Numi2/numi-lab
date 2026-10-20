@@ -11,7 +11,8 @@
 // Keeping I + grad(u) as two words avoids quantizing small strains to zero
 // before the authored material program sees them. Matrices are row-major.
 inline void nmFEMReferenceDeformationWords(
-    NM_FEM_WORD_THREAD const float* displacement,
+    NM_FEM_WORD_THREAD const float* displacementHigh,
+    NM_FEM_WORD_THREAD const float* displacementLow,
     NM_FEM_WORD_THREAD const float* inverseRest,
     NM_FEM_WORD_THREAD const float* frame,
     NM_FEM_WORD_THREAD float* high,
@@ -22,8 +23,8 @@ inline void nmFEMReferenceDeformationWords(
             MRCompensatedScalar value{row==column ? 1.0f : 0.0f,0.0f};
             for(unsigned k=0u;k<3u;++k) {
                 const auto difference=mrCompensatedAdd(
-                    {displacement[3u*(k+1u)+row],0.0f},
-                    {-displacement[row],0.0f});
+                    {displacementHigh[3u*(k+1u)+row],displacementLow[3u*(k+1u)+row]},
+                    {-displacementHigh[row],-displacementLow[row]});
                 value=mrCompensatedAdd(value,mrCompensatedMultiply(
                     difference,{inverseRest[3u*k+column],0.0f}));
             }
@@ -40,6 +41,19 @@ inline void nmFEMReferenceDeformationWords(
             low[3u*row+column]=value.low;
         }
     }
+}
+
+// Preserve the original single-word API for standalone arithmetic callers.
+inline void nmFEMReferenceDeformationWords(
+    NM_FEM_WORD_THREAD const float* displacement,
+    NM_FEM_WORD_THREAD const float* inverseRest,
+    NM_FEM_WORD_THREAD const float* frame,
+    NM_FEM_WORD_THREAD float* high,
+    NM_FEM_WORD_THREAD float* low) {
+    NM_FEM_WORD_THREAD float displacementLow[12];
+    for (unsigned i=0u;i<12u;++i) displacementLow[i]=0.0f;
+    nmFEMReferenceDeformationWords(
+        displacement,displacementLow,inverseRest,frame,high,low);
 }
 
 #undef NM_FEM_WORD_THREAD

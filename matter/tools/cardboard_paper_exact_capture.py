@@ -88,7 +88,7 @@ def export_capture(
 
     if header is None or set(selected) != requested or integrity is None:
         raise ValueError("capture is missing its header, one or more requested tets, or terminal integrity record")
-    if header.get("schema") != "numi.cardboard.fem-newton-capture.v1":
+    if header.get("schema") not in {"numi.cardboard.fem-newton-capture.v1", "numi.cardboard.fem-newton-capture.v2"}:
         raise ValueError("unsupported native capture schema")
     if not integrity.get("production_inputs_bitwise_unchanged"):
         raise ValueError("native capture reports changed production inputs")

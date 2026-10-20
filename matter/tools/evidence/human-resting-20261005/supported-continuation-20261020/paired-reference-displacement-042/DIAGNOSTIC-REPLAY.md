@@ -1,0 +1,3 @@
+# Single diagnostic replay
+
+The frozen042d default32 trial failed after12 accepted roots (1.5ms), before the041 frontier. Matter status10 local0 diagnostics are produced by nm_vascular_certify: vascular residual1.0904112059506588e-5 exceeds unchanged1e-5 tolerance. The integrated stability prediction is refuted. One exact13-root replay records NM_VASCULAR_TRACE_ROOT=12 using existing bounded observational capture. No source, binary, physical, solver, or acceptance changes. Prediction: accepted prefix and terminal failure match the default; trace identifies whether the vascular residual decreases during Newton or stagnates. Retain failure even if replay differs. No other replay under this trial.

@@ -34,7 +34,7 @@ constexpr float kTimestep = 0.25f;
 constexpr float kFiniteDifferenceStep = 1.0e-3f;
 
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32u);
-static_assert(sizeof(NMFEMNodeStateGPU) == 64u);
+static_assert(sizeof(NMFEMNodeStateGPU) == 96u);
 
 void require(const bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);

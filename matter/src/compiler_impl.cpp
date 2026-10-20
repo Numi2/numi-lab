@@ -1,6 +1,7 @@
 #include "numi/matter/detail.hpp"
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/vascular.hpp"
+#include "metalrobo/compensated_translation_gpu.h"
 
 #include <algorithm>
 #include <array>
@@ -2054,21 +2055,35 @@ CompileResult compileWorld(
                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
                 if (object.femReferenceDisplacementGradient) {
-                    node.referenceDisplacementAndMode = f4(
+                    const std::array<double, 3> sourceDisplacement{
                         sourceNode[0] - referenceNode[0],
                         sourceNode[1] - referenceNode[1],
-                        sourceNode[2] - referenceNode[2],
-                        1.0
-                    );
-                    // The stored displacement is authoritative for reference-
-                    // displacement mode; position remains its FP32 materialization
-                    // for contact, output, and compatibility with existing APIs.
+                        sourceNode[2] - referenceNode[2]
+                    };
+                    const std::array<float, 3> displacementHigh{
+                        static_cast<float>(sourceDisplacement[0]),
+                        static_cast<float>(sourceDisplacement[1]),
+                        static_cast<float>(sourceDisplacement[2])
+                    };
+                    const std::array<float, 3> displacementLow{
+                        static_cast<float>(sourceDisplacement[0] - double(displacementHigh[0])),
+                        static_cast<float>(sourceDisplacement[1] - double(displacementHigh[1])),
+                        static_cast<float>(sourceDisplacement[2] - double(displacementHigh[2]))
+                    };
+                    node.referenceDisplacementAndMode = f4(
+                        displacementHigh[0], displacementHigh[1], displacementHigh[2], 1.0);
+                    node.referenceDisplacementLow = f4(
+                        displacementLow[0], displacementLow[1], displacementLow[2], 0.0);
+                    // Materialize with the same ordered compensated projection used
+                    // by Metal so source initialization is byte-canonical.
                     node.positionAndMass = f4(
-                        double(node.restAndFixed.x) + node.referenceDisplacementAndMode.x,
-                        double(node.restAndFixed.y) + node.referenceDisplacementAndMode.y,
-                        double(node.restAndFixed.z) + node.referenceDisplacementAndMode.z,
-                        0.0
-                    );
+                        mrCompensatedProjectionScalar(node.restAndFixed.x,
+                            displacementHigh[0], displacementLow[0]),
+                        mrCompensatedProjectionScalar(node.restAndFixed.y,
+                            displacementHigh[1], displacementLow[1]),
+                        mrCompensatedProjectionScalar(node.restAndFixed.z,
+                            displacementHigh[2], displacementLow[2]),
+                        0.0);
                 } else {
                     node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 }
@@ -2308,10 +2323,16 @@ CompileResult compileWorld(
                     if (object.femReferenceDisplacementGradient) {
                         Mat3 du{};
                         const auto stored = [&](std::uint32_t slot) {
-                            const auto& value = world.fem.nodes[
+                            const auto& state = world.fem.nodes[
                                 descriptor.stateOffset + sourceTet.nodes[slot]
-                            ].referenceDisplacementAndMode;
-                            return Vec3{value.x, value.y, value.z};
+                            ];
+                            return Vec3{
+                                double(state.referenceDisplacementAndMode.x) +
+                                    double(state.referenceDisplacementLow.x),
+                                double(state.referenceDisplacementAndMode.y) +
+                                    double(state.referenceDisplacementLow.y),
+                                double(state.referenceDisplacementAndMode.z) +
+                                    double(state.referenceDisplacementLow.z)};
                         };
                         const auto u0 = stored(0);
                         const auto u1 = stored(1);

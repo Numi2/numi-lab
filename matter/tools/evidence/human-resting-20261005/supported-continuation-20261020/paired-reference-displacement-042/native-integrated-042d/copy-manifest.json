@@ -1,0 +1,95 @@
+{
+  "source_run": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d",
+  "source_base_revision": "9c034846fed76d8e9424a841496cad819a84554e",
+  "copied_files": [
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/execution.json",
+      "destination": "native-integrated-042d/execution.json",
+      "size_bytes": 53,
+      "sha256": "1d13c7f6130cf6408275a7072f44c7596fdd7942dd561bdc5ebbc0df35ad28b5"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/invocation.json",
+      "destination": "native-integrated-042d/invocation.json",
+      "size_bytes": 7570,
+      "sha256": "599557545983293f635a82541c6a178cb2595e431951396d2b36f53f1508c255"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/provenance.json",
+      "destination": "native-integrated-042d/provenance.json",
+      "size_bytes": 6145,
+      "sha256": "311d6c685ceae7b2bf0b4dd4b970cf16e5508d432a44632c087b3f2fa10e37f2"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/common-field-failure.json",
+      "destination": "native-integrated-042d/common-field-failure.json",
+      "size_bytes": 4366,
+      "sha256": "f01f14f13cfe9940d2e81c33fd970eaf01e7473335ea765246ab5589a6a230df"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stderr.log",
+      "destination": "native-integrated-042d/stderr.log",
+      "size_bytes": 7493,
+      "sha256": "11b34219757840d92c9e72865a1498929eade3253546a2ae14a1464cf39f3014"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stdout.log",
+      "destination": "native-integrated-042d/stdout.log",
+      "size_bytes": 128832,
+      "sha256": "09efab9c29e1bcccaca752f5b09b7946cc5a4c518f73f89ac4efc805a688522e"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/output/resting-coupled.csv",
+      "destination": "native-integrated-042d/output/resting-coupled.csv",
+      "size_bytes": 11110,
+      "sha256": "aa190e2aac3c3b3367ebcccde15877252b37600d20b286d1af3e04ae6836353a"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/output/resting-surface-audit.csv",
+      "destination": "native-integrated-042d/output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-paired-reference-displacement-042d/stdout.log",
+      "destination": "native-integrated-042d/selected-stdout.log",
+      "size_bytes": 4598,
+      "sha256": "4065c164d01952a3ded0552e0de808cb8aa6866e5042a82b3b227cc23b32054e",
+      "selection": "line-numbered initialization, pose, geometry, and tissue setup allowlist"
+    }
+  ],
+  "excluded_large_artifacts": [
+    {
+      "path": "output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "large runtime pack omitted"
+    },
+    {
+      "path": "output/resting-airway-anchor-map.json",
+      "size_bytes": 82553,
+      "reason": "large ancillary JSON omitted"
+    },
+    {
+      "path": "output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "large ancillary JSON omitted"
+    }
+  ],
+  "raw_output_hashes": "raw-identities.json",
+  "native_scope": {
+    "requested_steps": 32,
+    "accepted_steps": 12,
+    "simulated_s": 0.0015,
+    "exit_code": 1
+  },
+  "generated_metadata": {
+    "raw-identities.json": {
+      "size_bytes": 7753,
+      "sha256": "d728ce38d578218a9af1607cd3026a7c614cb0a76cb0b44b0d399b0a51a78176"
+    },
+    "outcome.json": {
+      "size_bytes": 952,
+      "sha256": "415943e92ca4f377c32e9e0b7edc9a75379da313a79218a451c8031b71f0e691"
+    }
+  }
+}

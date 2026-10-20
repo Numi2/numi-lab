@@ -153,7 +153,7 @@ def validate_pairing(report: dict, matrix: sparse.csr_matrix, vectors: dict,
     rhs = np.asarray(vectors.get("native_rhs_free_impulse_Ns"), dtype=np.float64)
     candidate = np.asarray(vectors.get("captured_node_state_f32"), dtype=np.float32)
     if free_nodes.ndim != 1 or rhs.shape != (matrix.shape[0],) or \
-            candidate.ndim != 2 or candidate.shape[1] != 20:
+            candidate.ndim != 2 or candidate.shape[1] not in (20, 24):
         raise ValueError("operator vector/topology sidecars lack native RHS or candidate state")
     require_finite("captured native RHS", rhs)
     if np.linalg.norm(rhs) == 0.0:
@@ -171,11 +171,14 @@ def validate_pairing(report: dict, matrix: sparse.csr_matrix, vectors: dict,
 
 
 def _dtype_layout(dtype: str, element_bytes: int) -> tuple[str, int]:
+    if dtype == "struct:NMFEMNodeStateGPU":
+        if int(element_bytes) not in (80, 96):
+            raise ValueError("regional FEM node record must have 80 or 96 bytes")
+        return "<f4", int(element_bytes)
     layouts = {
         "<f4x4": ("<f4", 16),
         "<f4": ("<f4", 4),
         "<u4": ("<u4", 4),
-        "struct:NMFEMNodeStateGPU": ("<f4", 80),
         "struct:NMMatterStatusGPU": ("|u1", NMMATTER_STATUS_GPU_BYTES),
     }
     if dtype not in layouts:
@@ -293,7 +296,7 @@ def _read_regional_payload(manifest_path: Path) -> tuple[dict, dict[str, np.ndar
             value = np.frombuffer(raw, dtype="|u1").reshape(
                 expected_shapes[name] + (NMMATTER_STATUS_GPU_BYTES,)).copy()
         elif dtype == "struct:NMFEMNodeStateGPU":
-            value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (20,)).copy()
+            value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (element_bytes // 4,)).copy()
         elif dtype == "<f4x4":
             value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (4,)).copy()
         else:
@@ -344,7 +347,7 @@ def _capture_tetrahedra(capture_path: Path, report: dict, manifest: dict,
                 if key in tet_rows:
                     raise ValueError("rich operator capture has duplicate tetrahedron IDs")
                 tet_rows[key] = row
-    if not isinstance(header, dict) or header.get("schema") != "numi.cardboard.fem-newton-capture.v1":
+    if not isinstance(header, dict) or header.get("schema") not in {"numi.cardboard.fem-newton-capture.v1", "numi.cardboard.fem-newton-capture.v2"}:
         raise ValueError("unsupported or missing rich operator capture header")
     if not isinstance(integrity, dict) or integrity.get("production_inputs_bitwise_unchanged") is not True:
         raise ValueError("rich operator capture lacks a passing final integrity record")
@@ -579,12 +582,15 @@ def load_native_rap(folder: Path, report: dict, matrix: sparse.csr_matrix,
     pivots = np.fromfile(files["pivots"], dtype="<u4").reshape(envs, modes)[selected_env]
     valid = np.fromfile(files["factor_valid"], dtype="<u4").reshape(envs)[selected_env]
     node_blocks = read_f32("node_block_inverse", (envs, nodes, 3, 4))[selected_env]
-    state_raw = np.fromfile(files["candidate_nodes"], dtype="<f4").reshape(envs, nodes, 20)[selected_env]
     expected_state = np.asarray(vectors["captured_node_state_f32"], dtype=np.float32)
+    if expected_state.shape != (nodes, 20) and expected_state.shape != (nodes, 24):
+        raise ValueError("operator capture has an unsupported FEM node layout")
+    state_raw = np.fromfile(files["candidate_nodes"], dtype="<f4").reshape(
+        envs, nodes, expected_state.shape[1])[selected_env]
     if not np.array_equal(state_raw.view(np.uint32), expected_state.view(np.uint32)):
         raise ValueError("native RAP candidate node state differs from operator capture")
     free_nodes = np.asarray(vectors["free_node_ids"], dtype=np.int64)
-    tags = state_raw[:, 11]  # restAndFixed.w in NMFEMNodeStateGPU (5 float4s)
+    tags = state_raw[:, 11]  # restAndFixed.w in NMFEMNodeStateGPU (unchanged prefix)
     expected_free = np.flatnonzero(~np.isin(tags, [1.0, 3.0]))
     if not np.array_equal(free_nodes, expected_free):
         raise ValueError("RAP candidate constraints differ from offline free-node mapping")

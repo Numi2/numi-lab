@@ -1,0 +1,1 @@
+The first geometry GPU trial returned2: paired FEM geometry/energy/response gate failed. It emitted no per-metric summary before rejection. Add only pre-gate metric output and rerun the same shader/fixture/bounds to identify the failed quantity; preserve the initial trial. This diagnostic run does not amend bounds or authorize the body continuation.

@@ -1,7 +1,140 @@
 #include "../src/matter_kernels.metal"
 namespace numi_matter_metal {
 kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]], uint global [[thread_position_in_grid]]) {
-    if (global>=130u) return;
+    if (global>=133u) return;
+    if (global>=130u && global<133u) {
+        const uint test=global-130u;
+        const uint base=global*18u;
+        for(uint j=0u;j<18u;++j) output[base+j]=float4(0.0f);
+        const float3 origin=float3(8192.0f,-4096.0f,2048.0f);
+        const float scales[3]={0.0078125f,0.015625f,0.03125f};
+        const float scale=scales[test];
+        const float queryU=40.0f*0x1p-20f;
+        const float triangleU=33.0f*0x1p-20f;
+        const float thickness=10.0e-6f;
+        const float stiffness=1.0e14f;
+        const float dt=0x1p-10f;
+        const float3 correction=float3(0x1p-29f,0.0f,0x1p-30f);
+        const float3 rests[4]={
+            origin+float3(0.25f*scale,0.25f*scale,0.0f),
+            origin,
+            origin+float3(scale,0.0f,0.0f),
+            origin+float3(0.0f,scale,0.0f)};
+        NMFEMNodeStateGPU states[4]={};
+        MRCompensatedPositionGPU basePosition[4];
+        for(uint i=0u;i<4u;++i) {
+            states[i].restAndFixed=float4(rests[i],0.0f);
+            const float3 u=i==0u
+                ? float3(queryU,queryU,queryU)
+                : float3(0.0f,0.0f,triangleU);
+            states[i].referenceDisplacementAndMode=float4(u,1.0f);
+            states[i].referenceDisplacementLow=float4(0.0f);
+            states[i].positionAndMass=float4(rests[i]+u,1.0f);
+            states[i].velocityAndInverseMass=float4(0.0f,0.0f,0.0f,1.0f);
+            basePosition[i]=femContactPositionRelativeExpansion(states[i],origin);
+        }
+        const NMFEMNodeStateGPU trialPoint=femTrialNodeAtAlpha(
+            states[0],states[0],correction,1.0f,dt,true);
+        const NMFEMNodeStateGPU repeatedTrial=femTrialNodeAtAlpha(
+            states[0],states[0],correction,1.0f,dt,true);
+        MRCompensatedPositionGPU trialPosition[4];
+        trialPosition[0]=femContactPositionRelativeExpansion(trialPoint,origin);
+        for(uint i=1u;i<4u;++i)trialPosition[i]=basePosition[i];
+        NMDeformableContactGPU contact{};
+        contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+        contact.barrier.z=thickness;
+        contact.mollifier.x=1.0f;
+        contact.mollifier.w=stiffness;
+        float3 baseBary,baseClosest,trialBary,trialClosest;
+        MRCompensatedPositionGPU baseRelative,trialRelative;
+        float baseGap,trialGap;
+        const bool baseWitness=contactCompensatedVertexTriangleWitness(
+            basePosition[0],basePosition[1],basePosition[2],basePosition[3],
+            baseBary,baseClosest,baseRelative,baseGap);
+        const bool trialWitness=contactCompensatedVertexTriangleWitness(
+            trialPosition[0],trialPosition[1],trialPosition[2],trialPosition[3],
+            trialBary,trialClosest,trialRelative,trialGap);
+        float baseEnergy,trialEnergy,baseEnergyGap,trialEnergyGap;
+        const bool baseEnergyValid=deformableBarrierEnergyAt(
+            contact,basePosition,baseEnergy,baseEnergyGap);
+        const bool trialEnergyValid=deformableBarrierEnergyAt(
+            contact,trialPosition,trialEnergy,trialEnergyGap);
+        float3 roundedBase[4],roundedTrial[4];
+        for(uint i=0u;i<4u;++i) {
+            roundedBase[i]=states[i].positionAndMass.xyz-origin;
+            roundedTrial[i]=i==0u
+                ? trialPoint.positionAndMass.xyz-origin : roundedBase[i];
+        }
+        float legacyBaseEnergy,legacyTrialEnergy,legacyBaseGap,legacyTrialGap;
+        const bool legacyBaseValid=deformableBarrierEnergyAt(
+            contact,roundedBase,legacyBaseEnergy,legacyBaseGap);
+        const bool legacyTrialValid=deformableBarrierEnergyAt(
+            contact,roundedTrial,legacyTrialEnergy,legacyTrialGap);
+        const float4 baseResponse=ipcBarrierResponse(baseGap,thickness,1.0f,
+            dt,0.0f,false,0.0f,stiffness);
+        const float4 trialResponse=ipcBarrierResponse(trialGap,thickness,1.0f,
+            dt,0.0f,false,0.0f,stiffness);
+        NMFEMNodeStateGPU fixed=states[0];
+        fixed.restAndFixed.w=1.0f;
+        const NMFEMNodeStateGPU fixedTrial=femTrialNodeAtAlpha(
+            fixed,fixed,correction,1.0f,dt,true);
+        const NMFEMNodeStateGPU zeroTrial=femTrialNodeAtAlpha(
+            states[0],states[0],correction,0.0f,dt,true);
+        const bool fixedExact=all(fixedTrial.positionAndMass==fixed.positionAndMass)&&
+            all(fixedTrial.velocityAndInverseMass==fixed.velocityAndInverseMass)&&
+            all(fixedTrial.restAndFixed==fixed.restAndFixed)&&
+            all(fixedTrial.deltaVelocity==fixed.deltaVelocity)&&
+            all(fixedTrial.referenceDisplacementAndMode==fixed.referenceDisplacementAndMode)&&
+            all(fixedTrial.referenceDisplacementLow==fixed.referenceDisplacementLow);
+        const bool zeroExact=all(zeroTrial.positionAndMass==states[0].positionAndMass)&&
+            all(zeroTrial.velocityAndInverseMass==states[0].velocityAndInverseMass)&&
+            all(zeroTrial.restAndFixed==states[0].restAndFixed)&&
+            all(zeroTrial.deltaVelocity==states[0].deltaVelocity)&&
+            all(zeroTrial.referenceDisplacementAndMode==states[0].referenceDisplacementAndMode)&&
+            all(zeroTrial.referenceDisplacementLow==states[0].referenceDisplacementLow);
+        const bool repeatExact=all(repeatedTrial.positionAndMass==trialPoint.positionAndMass)&&
+            all(repeatedTrial.velocityAndInverseMass==trialPoint.velocityAndInverseMass)&&
+            all(repeatedTrial.restAndFixed==trialPoint.restAndFixed)&&
+            all(repeatedTrial.deltaVelocity==trialPoint.deltaVelocity)&&
+            all(repeatedTrial.referenceDisplacementAndMode==trialPoint.referenceDisplacementAndMode)&&
+            all(repeatedTrial.referenceDisplacementLow==trialPoint.referenceDisplacementLow);
+        output[base]=float4(float(test),baseWitness&&trialWitness?1.0f:0.0f,
+            baseEnergyValid&&trialEnergyValid&&legacyBaseValid&&legacyTrialValid?1.0f:0.0f,
+            fixedExact&&zeroExact?1.0f:0.0f);
+        for(uint i=0u;i<4u;++i) {
+            output[base+1u+2u*i]=basePosition[i].high;
+            output[base+2u+2u*i]=basePosition[i].low;
+        }
+        output[base+9u]=trialPosition[0].high;
+        output[base+10u]=trialPosition[0].low;
+        output[base+11u]=float4(baseBary,baseGap);
+        output[base+12u]=float4(trialBary,trialGap);
+        output[base+13u]=float4(baseEnergy,trialEnergy,baseEnergyGap,trialEnergyGap);
+        output[base+14u]=float4(legacyBaseEnergy,legacyTrialEnergy,
+            legacyBaseGap,legacyTrialGap);
+        output[base+15u]=trialPoint.referenceDisplacementAndMode;
+        output[base+16u]=trialPoint.referenceDisplacementLow;
+        output[base+17u]=float4(baseResponse.x,trialResponse.x,
+            all(trialPoint.positionAndMass==states[0].positionAndMass)?1.0f:0.0f,
+            repeatExact?1.0f:0.0f);
+        const float floor=1.0e-4f*thickness;
+        const float floorGap=(0.5f+0.5f*float(test))*floor;
+        const float epsilon=1.0e-4f*floor;
+        const auto floorEnergy=ipcFEMBarrierEnergyCompensated({floorGap,0.0f},thickness,stiffness);
+        const auto plusEnergy=ipcFEMBarrierEnergyCompensated(
+            mrCompensatedSum(floorGap,epsilon),thickness,stiffness);
+        const auto minusEnergy=ipcFEMBarrierEnergyCompensated(
+            mrCompensatedSum(floorGap,-epsilon),thickness,stiffness);
+        const auto slope=mrCompensatedDivide(
+            mrCompensatedAdd(plusEnergy,mrCompensatedNegate(minusEnergy)),
+            {2.0f*epsilon,0.0f});
+        output[base+1u].w=floorEnergy.high+floorEnergy.low;
+        output[base+2u].w=floorGap;
+        output[base+3u].w=slope.high+slope.low;
+        output[base+4u].w=-ipcBarrierResponse(floorGap,thickness,1.0f,
+            1.0f,0.0f,false,0.0f,stiffness).x;
+        return;
+    }
     if (global>=125u && global<130u) {
         const uint test=global-125u;
         const uint base=global*18u;

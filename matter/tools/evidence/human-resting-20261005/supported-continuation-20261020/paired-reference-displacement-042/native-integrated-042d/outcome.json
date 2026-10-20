@@ -1,0 +1,32 @@
+{
+  "status": "failed; no qualification",
+  "exit_code": 1,
+  "wall_s": 191.89440441608895,
+  "requested_steps": 32,
+  "step_seconds": 0.000125,
+  "accepted_steps": 12,
+  "accepted_simulated_seconds": 0.0015,
+  "failure": {
+    "segment_start": 12,
+    "accepted_before_segment": 12,
+    "matter_code": 10,
+    "matter_environment": 0,
+    "matter_object_index": 4294967295,
+    "matter_failing_index": 0,
+    "matter_microsteps": 1,
+    "matter_diagnostics": [
+      1.0904112059506588e-05,
+      9.999999747378752e-06,
+      0.4613182544708252,
+      0
+    ],
+    "first_failure_latch_stand_code": 9
+  },
+  "comparison_to_041b": {
+    "prior_accepted_roots": 21,
+    "current_accepted_roots": 12,
+    "difference_roots": -9,
+    "prediction": "refuted; the 042 displacement change did not improve the recorded horizon"
+  },
+  "scope": "native mechanics run failed before the requested 32 steps; no sustained-support or physiological qualification"
+}

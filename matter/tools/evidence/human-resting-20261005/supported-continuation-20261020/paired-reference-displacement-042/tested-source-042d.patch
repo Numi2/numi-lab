@@ -1,0 +1,2165 @@
+diff --git a/apps/numanx_matter_attachment_runtime_probe.mm b/apps/numanx_matter_attachment_runtime_probe.mm
+index 64f11fcf..ef387006 100644
+--- a/apps/numanx_matter_attachment_runtime_probe.mm
++++ b/apps/numanx_matter_attachment_runtime_probe.mm
+@@ -34,7 +34,7 @@ constexpr float kTimestep = 0.25f;
+ constexpr float kFiniteDifferenceStep = 1.0e-3f;
+ 
+ static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32u);
+-static_assert(sizeof(NMFEMNodeStateGPU) == 64u);
++static_assert(sizeof(NMFEMNodeStateGPU) == 96u);
+ 
+ void require(const bool condition, const std::string& message) {
+     if (!condition) throw std::runtime_error(message);
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index d4ec97ef..e886e521 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -63,6 +63,7 @@
+ #include "metalrobo/VisualPlatform.hpp"
+ #include "metalrobo/WorldCompiler.hpp"
+ #include "numi/matter/matter.hpp"
++#include "metalrobo/compensated_translation_gpu.h"
+ #include "numi/matter/numi_human.hpp"
+ #include <CommonCrypto/CommonDigest.h>
+ 
+@@ -10208,7 +10209,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+                                 if (node.referenceDisplacementAndMode.w==1.0f) {
+                                     const float* rest=&node.restAndFixed.x;
+                                     const float* disp=&node.referenceDisplacementAndMode.x;
+-                                    return double(rest[axis])+double(disp[axis]);
++                                    const float* low=&node.referenceDisplacementLow.x;
++                                    return double(mrCompensatedProjectionScalar(
++                                        rest[axis],disp[axis],low[axis]));
+                                 }
+                                 return double(pos[axis]);
+                             };
+@@ -10985,26 +10988,33 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+             const auto& u1=n1.referenceDisplacementAndMode;
+             const auto& u2=n2.referenceDisplacementAndMode;
+             const auto& u3=n3.referenceDisplacementAndMode;
++            const auto& l0=n0.referenceDisplacementLow;
++            const auto& l1=n1.referenceDisplacementLow;
++            const auto& l2=n2.referenceDisplacementLow;
++            const auto& l3=n3.referenceDisplacementLow;
+             const bool referenceDisplacementMode = u0.w==1.0f && u1.w==1.0f &&
+                 u2.w==1.0f && u3.w==1.0f;
+-            const auto edge=[&](const auto& node,const auto& u){
++            const auto edge=[&](const auto& node,const auto& u,const auto& low){
+                 const auto& r0=n0.restAndFixed;
+                 const auto& ri=node.restAndFixed;
+                 const auto& p0=n0.positionAndMass;
+                 const auto& pi=node.positionAndMass;
+                 return std::array<double,3>{
+                     referenceDisplacementMode
+-                        ? (double(ri.x)-double(r0.x))+(double(u.x)-double(u0.x))
++                        ? (double(ri.x)-double(r0.x))+(double(u.x)-double(u0.x))+
++                            (double(low.x)-double(l0.x))
+                         : double(pi.x)-double(p0.x),
+                     referenceDisplacementMode
+-                        ? (double(ri.y)-double(r0.y))+(double(u.y)-double(u0.y))
++                        ? (double(ri.y)-double(r0.y))+(double(u.y)-double(u0.y))+
++                            (double(low.y)-double(l0.y))
+                         : double(pi.y)-double(p0.y),
+                     referenceDisplacementMode
+-                        ? (double(ri.z)-double(r0.z))+(double(u.z)-double(u0.z))
++                        ? (double(ri.z)-double(r0.z))+(double(u.z)-double(u0.z))+
++                            (double(low.z)-double(l0.z))
+                         : double(pi.z)-double(p0.z),
+                 };
+             };
+-            const auto b=edge(n1,u1),c=edge(n2,u2),d=edge(n3,u3);
++            const auto b=edge(n1,u1,l1),c=edge(n2,u2,l2),d=edge(n3,u3,l3);
+             return b[0]*(c[1]*d[2]-c[2]*d[1])-
+                 b[1]*(c[0]*d[2]-c[2]*d[0])+
+                 b[2]*(c[0]*d[1]-c[1]*d[0]);
+@@ -21418,6 +21428,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+             const auto& current = sourceObject.femNodes[localNode];
+             const auto& reference = sourceObject.femReferenceNodes[localNode];
+             require(compiledNode.referenceDisplacementAndMode.w == 1.0f &&
++                        compiledNode.referenceDisplacementLow.w == 0.0f &&
++                        compiledNode.positionAndMass.x ==
++                            mrCompensatedProjectionScalar(
++                                compiledNode.restAndFixed.x,
++                                compiledNode.referenceDisplacementAndMode.x,
++                                compiledNode.referenceDisplacementLow.x) &&
++                        compiledNode.positionAndMass.y ==
++                            mrCompensatedProjectionScalar(
++                                compiledNode.restAndFixed.y,
++                                compiledNode.referenceDisplacementAndMode.y,
++                                compiledNode.referenceDisplacementLow.y) &&
++                        compiledNode.positionAndMass.z ==
++                            mrCompensatedProjectionScalar(
++                                compiledNode.restAndFixed.z,
++                                compiledNode.referenceDisplacementAndMode.z,
++                                compiledNode.referenceDisplacementLow.z) &&
+                         compiledNode.positionAndMass.x ==
+                             static_cast<float>(current[0]) &&
+                         compiledNode.positionAndMass.y ==
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+index 1dbfe940..ed8b160b 100644
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -37,6 +37,8 @@ target_include_directories(
+     PUBLIC
+         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include>"
++    PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+ )
+ target_compile_options(
+     numi_matter_compiler_objects
+diff --git a/matter/include/numi/matter/fem_compensated_deformation.h b/matter/include/numi/matter/fem_compensated_deformation.h
+index 9fb586b3..66b3b45b 100644
+--- a/matter/include/numi/matter/fem_compensated_deformation.h
++++ b/matter/include/numi/matter/fem_compensated_deformation.h
+@@ -11,7 +11,8 @@
+ // Keeping I + grad(u) as two words avoids quantizing small strains to zero
+ // before the authored material program sees them. Matrices are row-major.
+ inline void nmFEMReferenceDeformationWords(
+-    NM_FEM_WORD_THREAD const float* displacement,
++    NM_FEM_WORD_THREAD const float* displacementHigh,
++    NM_FEM_WORD_THREAD const float* displacementLow,
+     NM_FEM_WORD_THREAD const float* inverseRest,
+     NM_FEM_WORD_THREAD const float* frame,
+     NM_FEM_WORD_THREAD float* high,
+@@ -22,8 +23,8 @@ inline void nmFEMReferenceDeformationWords(
+             MRCompensatedScalar value{row==column ? 1.0f : 0.0f,0.0f};
+             for(unsigned k=0u;k<3u;++k) {
+                 const auto difference=mrCompensatedAdd(
+-                    {displacement[3u*(k+1u)+row],0.0f},
+-                    {-displacement[row],0.0f});
++                    {displacementHigh[3u*(k+1u)+row],displacementLow[3u*(k+1u)+row]},
++                    {-displacementHigh[row],-displacementLow[row]});
+                 value=mrCompensatedAdd(value,mrCompensatedMultiply(
+                     difference,{inverseRest[3u*k+column],0.0f}));
+             }
+@@ -42,4 +43,17 @@ inline void nmFEMReferenceDeformationWords(
+     }
+ }
+ 
++// Preserve the original single-word API for standalone arithmetic callers.
++inline void nmFEMReferenceDeformationWords(
++    NM_FEM_WORD_THREAD const float* displacement,
++    NM_FEM_WORD_THREAD const float* inverseRest,
++    NM_FEM_WORD_THREAD const float* frame,
++    NM_FEM_WORD_THREAD float* high,
++    NM_FEM_WORD_THREAD float* low) {
++    NM_FEM_WORD_THREAD float displacementLow[12];
++    for (unsigned i=0u;i<12u;++i) displacementLow[i]=0.0f;
++    nmFEMReferenceDeformationWords(
++        displacement,displacementLow,inverseRest,frame,high,low);
++}
++
+ #undef NM_FEM_WORD_THREAD
+diff --git a/matter/include/numi/matter/shared.h b/matter/include/numi/matter/shared.h
+index 4cc7bd8e..9a33de1e 100644
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
+ } nm_int4;
+ #endif
+ 
+-#define NM_MATTER_ABI_VERSION 45u
++#define NM_MATTER_ABI_VERSION 46u
+ #define NM_INVALID_INDEX 0xffffffffu
+ #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
+ #define NM_EXPRESSION_STACK_CAPACITY 96u
+@@ -1214,9 +1214,11 @@ typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
+     nm_float4 velocityAndInverseMass;
+     nm_float4 restAndFixed;
+     nm_float4 deltaVelocity;
+-    // Opt-in reference-displacement FEM stores the authoritative FP32
++    // Opt-in reference-displacement FEM stores the high limb of authoritative
+     // displacement u in xyz and mode tag 1 in w. Legacy nodes require zero.
+     nm_float4 referenceDisplacementAndMode;
++    // Low limb of reference displacement; w is reserved and must be zero.
++    nm_float4 referenceDisplacementLow;
+ } NMFEMNodeStateGPU;
+ 
+ typedef struct NM_ALIGN16 NMTetrahedronGPU {
+@@ -1560,7 +1562,7 @@ static_assert(sizeof(NMVascularCavityGPU) == 96);
+ static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
+ static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
+ static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
+-static_assert(sizeof(NMFEMNodeStateGPU) == 80);
++static_assert(sizeof(NMFEMNodeStateGPU) == 96);
+ static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
+ static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
+ static_assert(sizeof(NMMortarComplementAuditGPU) == 384);
+diff --git a/matter/src/compiler_impl.cpp b/matter/src/compiler_impl.cpp
+index d2f94ee9..6eadf66c 100644
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -1,6 +1,7 @@
+ #include "numi/matter/detail.hpp"
+ #include "fem_reference_geometry.hpp"
+ #include "numi/matter/vascular.hpp"
++#include "metalrobo/compensated_translation_gpu.h"
+ 
+ #include <algorithm>
+ #include <array>
+@@ -2054,21 +2055,35 @@ CompileResult compileWorld(
+                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
+                 );
+                 if (object.femReferenceDisplacementGradient) {
+-                    node.referenceDisplacementAndMode = f4(
++                    const std::array<double, 3> sourceDisplacement{
+                         sourceNode[0] - referenceNode[0],
+                         sourceNode[1] - referenceNode[1],
+-                        sourceNode[2] - referenceNode[2],
+-                        1.0
+-                    );
+-                    // The stored displacement is authoritative for reference-
+-                    // displacement mode; position remains its FP32 materialization
+-                    // for contact, output, and compatibility with existing APIs.
++                        sourceNode[2] - referenceNode[2]
++                    };
++                    const std::array<float, 3> displacementHigh{
++                        static_cast<float>(sourceDisplacement[0]),
++                        static_cast<float>(sourceDisplacement[1]),
++                        static_cast<float>(sourceDisplacement[2])
++                    };
++                    const std::array<float, 3> displacementLow{
++                        static_cast<float>(sourceDisplacement[0] - double(displacementHigh[0])),
++                        static_cast<float>(sourceDisplacement[1] - double(displacementHigh[1])),
++                        static_cast<float>(sourceDisplacement[2] - double(displacementHigh[2]))
++                    };
++                    node.referenceDisplacementAndMode = f4(
++                        displacementHigh[0], displacementHigh[1], displacementHigh[2], 1.0);
++                    node.referenceDisplacementLow = f4(
++                        displacementLow[0], displacementLow[1], displacementLow[2], 0.0);
++                    // Materialize with the same ordered compensated projection used
++                    // by Metal so source initialization is byte-canonical.
+                     node.positionAndMass = f4(
+-                        double(node.restAndFixed.x) + node.referenceDisplacementAndMode.x,
+-                        double(node.restAndFixed.y) + node.referenceDisplacementAndMode.y,
+-                        double(node.restAndFixed.z) + node.referenceDisplacementAndMode.z,
+-                        0.0
+-                    );
++                        mrCompensatedProjectionScalar(node.restAndFixed.x,
++                            displacementHigh[0], displacementLow[0]),
++                        mrCompensatedProjectionScalar(node.restAndFixed.y,
++                            displacementHigh[1], displacementLow[1]),
++                        mrCompensatedProjectionScalar(node.restAndFixed.z,
++                            displacementHigh[2], displacementLow[2]),
++                        0.0);
+                 } else {
+                     node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
+                 }
+@@ -2308,10 +2323,16 @@ CompileResult compileWorld(
+                     if (object.femReferenceDisplacementGradient) {
+                         Mat3 du{};
+                         const auto stored = [&](std::uint32_t slot) {
+-                            const auto& value = world.fem.nodes[
++                            const auto& state = world.fem.nodes[
+                                 descriptor.stateOffset + sourceTet.nodes[slot]
+-                            ].referenceDisplacementAndMode;
+-                            return Vec3{value.x, value.y, value.z};
++                            ];
++                            return Vec3{
++                                double(state.referenceDisplacementAndMode.x) +
++                                    double(state.referenceDisplacementLow.x),
++                                double(state.referenceDisplacementAndMode.y) +
++                                    double(state.referenceDisplacementLow.y),
++                                double(state.referenceDisplacementAndMode.z) +
++                                    double(state.referenceDisplacementLow.z)};
+                         };
+                         const auto u0 = stored(0);
+                         const auto u1 = stored(1);
+diff --git a/matter/src/fem_reference_geometry.hpp b/matter/src/fem_reference_geometry.hpp
+index 2ad522fc..c832e2b5 100644
+--- a/matter/src/fem_reference_geometry.hpp
++++ b/matter/src/fem_reference_geometry.hpp
+@@ -1,6 +1,8 @@
+ #pragma once
+ 
+ #include "numi/matter/shared.h"
++#include "metalrobo/compensated_translation_gpu.h"
++#include "numi/matter/fem_compensated_deformation.h"
+ #include <algorithm>
+ #include <array>
+ #include <cmath>
+@@ -41,7 +43,7 @@ struct FEMReferenceDeterminantInterval {
+     FEMReferenceDeterminantInterval out;
+     constexpr double u = double(std::numeric_limits<float>::epsilon()) * 0.5;
+     constexpr double eta = std::numeric_limits<float>::min();
+-    constexpr double gamma12 = (12.0*u)/(1.0-12.0*u);
++    constexpr double gamma64 = (64.0*u)/(1.0-64.0*u);
+     constexpr double maximum = std::numeric_limits<float>::max();
+     const std::array<nm_u32,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+     const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
+@@ -49,6 +51,8 @@ struct FEMReferenceDeterminantInterval {
+     std::array<std::array<double,3>,4> displacement{};
+     std::array<std::array<double,3>,4> displacementError{};
+     std::array<std::array<float,3>,4> displacement32{};
++    std::array<std::array<float,3>,4> displacementHigh{};
++    std::array<std::array<float,3>,4> displacementLow{};
+     bool safe = true;
+     const auto normalOrZero = [](float v) {
+         return std::isfinite(v) && (v == 0.0f || std::abs(v) >= std::numeric_limits<float>::min());
+@@ -59,12 +63,17 @@ struct FEMReferenceDeterminantInterval {
+         for (unsigned r=0;r<3;++r) {
+             const float stored = r==0 ? node.referenceDisplacementAndMode.x :
+                 r==1 ? node.referenceDisplacementAndMode.y : node.referenceDisplacementAndMode.z;
+-            safe=safe&&normalOrZero(stored);
+-            displacement[n][r]=double(stored);
+-            displacement32[n][r]=stored;
+-            // Stored FP32 u is the state variable, not a subtraction from
+-            // centimeter-scale absolute coordinates.
+-            displacementError[n][r]=0.0;
++            const float low = r==0 ? node.referenceDisplacementLow.x :
++                r==1 ? node.referenceDisplacementLow.y : node.referenceDisplacementLow.z;
++            safe=safe&&normalOrZero(stored)&&std::isfinite(low)&&
++                mrCompensatedCanonicalScalar(stored,low);
++            displacementHigh[n][r]=stored;
++            displacementLow[n][r]=low;
++            displacement[n][r]=double(stored)+double(low);
++            displacement32[n][r]=mrCompensatedProjectionScalar(0.0f,stored,low);
++            // Bound pair normalization and compensated FEM pair operations.
++            displacementError[n][r]=gamma64*(std::abs(double(stored))+
++                std::abs(double(low)))+64.0*eta;
+             safe=safe&&std::isfinite(displacement[n][r])&&std::isfinite(displacement32[n][r])&&
+                 std::abs(displacement[n][r])<=maximum&&
+                 std::abs(double(displacement32[n][r]))<=maximum;
+@@ -78,8 +87,8 @@ struct FEMReferenceDeterminantInterval {
+     for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
+         du[3*r+c]=displacement[c+1][r]-displacement[0][r];
+         du32[3*r+c]=displacement32[c+1][r]-displacement32[0][r];
+-        duError[3*r+c]=u*(std::abs(double(displacement32[c+1][r]))+
+-            std::abs(double(displacement32[0][r])))+eta;
++        duError[3*r+c]=displacementError[c+1][r]+displacementError[0][r]+
++            gamma64*(std::abs(du[3*r+c]))+64.0*eta;
+         safe=safe&&std::isfinite(du[3*r+c])&&std::isfinite(du32[3*r+c])&&
+             std::abs(du[3*r+c])<=maximum&&std::abs(double(du32[3*r+c]))<=maximum;
+     }
+@@ -100,11 +109,27 @@ struct FEMReferenceDeterminantInterval {
+             f[3*r+c]+=du[3*r+k]*inv;
+         }
+         f[3*r+c]+=(r==c)?1.0:0.0;
+-        error[3*r+c]=propagated+gamma12*(magnitude+1.0)+
+-            16.0*eta*(inverseMagnitude+8.0);
++        error[3*r+c]=propagated+gamma64*(magnitude+1.0)+
++            256.0*eta*(inverseMagnitude+8.0);
+         safe=safe&&std::isfinite(f[3*r+c])&&std::isfinite(error[3*r+c])&&
+             magnitude+error[3*r+c]<=maximum&&std::abs(double(f32[3*r+c]))<=maximum;
+     }
++    {
++        float displacementHighWords[12],displacementLowWords[12],inverseWords[9],frameWords[9];
++        float highWords[9],lowWords[9];
++        for (unsigned node=0u;node<4u;++node)
++            for (unsigned axis=0u;axis<3u;++axis) {
++                displacementHighWords[3u*node+axis]=displacementHigh[node][axis];
++                displacementLowWords[3u*node+axis]=displacementLow[node][axis];
++            }
++        for (unsigned i=0u;i<9u;++i) {
++            inverseWords[i]=inverse[i];
++            frameWords[i]=(i%4u)==0u ? 1.0f : 0.0f;
++        }
++        nmFEMReferenceDeformationWords(displacementHighWords,displacementLowWords,
++            inverseWords,frameWords,highWords,lowWords);
++        for (unsigned i=0u;i<9u;++i) f32[i]=highWords[i];
++    }
+     out.center=f[0]*(f[4]*f[8]-f[5]*f[7])-f[1]*(f[3]*f[8]-f[5]*f[6])+f[2]*(f[3]*f[7]-f[4]*f[6]);
+     out.nominal=f32[0]*(f32[4]*f32[8]-f32[5]*f32[7])-f32[1]*(f32[3]*f32[8]-f32[5]*f32[6])+f32[2]*(f32[3]*f32[7]-f32[4]*f32[6]);
+     constexpr std::array<std::array<unsigned,3>,6> terms{{{{0,4,8}},{{0,5,7}},{{1,3,8}},{{1,5,6}},{{2,3,7}},{{2,4,6}}}};
+@@ -116,9 +141,9 @@ struct FEMReferenceDeterminantInterval {
+         expandedMagnitude+=(a+da)*(b+db)*(c+dc);
+     }
+     double largest=0.0;for (unsigned i=0;i<9;++i) largest=std::max(largest,std::abs(f[i])+error[i]);
+-    out.radius=perturbation+gamma12*expandedMagnitude+32.0*eta*(1.0+largest+largest*largest);
+-    out.noIntermediateOverflow=safe&&(1.0+gamma12)*expandedMagnitude<=maximum&&
+-        2.0*(1.0+gamma12)*largest*largest<=maximum;
++    out.radius=perturbation+gamma64*expandedMagnitude+256.0*eta*(1.0+largest+largest*largest);
++    out.noIntermediateOverflow=safe&&(1.0+gamma64)*expandedMagnitude<=maximum&&
++        2.0*(1.0+gamma64)*largest*largest<=maximum;
+     out.finite=std::isfinite(out.center)&&std::isfinite(out.radius)&&out.radius>=0.0;
+     return out;
+ }
+diff --git a/matter/src/metal/base_cgls_runtime.metalinc b/matter/src/metal/base_cgls_runtime.metalinc
+index a4a96aca..e5b2d613 100644
+--- a/matter/src/metal/base_cgls_runtime.metalinc
++++ b/matter/src/metal/base_cgls_runtime.metalinc
+@@ -364,7 +364,8 @@ kernel void nm_fgmres_base_cgls_validate_warm_breakdown_rows(
+             baseCGLSFinite4(node.velocityAndInverseMass) &&
+             baseCGLSFinite4(node.restAndFixed) &&
+             baseCGLSFinite4(node.deltaVelocity) &&
+-            baseCGLSFinite4(node.referenceDisplacementAndMode);
++            baseCGLSFinite4(node.referenceDisplacementAndMode) &&
++            baseCGLSFinite4(node.referenceDisplacementLow);
+         if (!finiteNode) rowError |= kBaseCGLSErrorNonfinite;
+         const float tag = node.restAndFixed.w;
+         const bool free = tag == 0.0f;
+diff --git a/matter/src/metal/common.metalinc b/matter/src/metal/common.metalinc
+index effbd6bb..3d947a5e 100644
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -166,6 +166,66 @@ inline float ipcBarrierEnergy(
+         0.5f * radialCurvature * displacement * displacement, 0.0f);
+ }
+ 
++// Two-word evaluation of the unshifted FEM IPC barrier. The scalar law,
++// activation width, floor location, and linear C1 continuation are identical
++// to ipcBarrierEnergy; only intermediate rounding retains the paired distance.
++inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
++    const MRCompensatedScalar separation,
++    const float thickness,
++    const float stiffness
++) {
++    if (!(thickness > 0.0f) || !(stiffness > 0.0f))
++        return {0.0f, 0.0f};
++    if (!isfinite(separation.high) || !isfinite(separation.low) ||
++        !isfinite(thickness) || !isfinite(stiffness))
++        return {NAN, 0.0f};
++    const auto activationDelta = mrCompensatedAdd(
++        separation, {-thickness, 0.0f});
++    if (activationDelta.high > 0.0f ||
++        (activationDelta.high == 0.0f && activationDelta.low >= 0.0f))
++        return {0.0f, 0.0f};
++
++    const float regularizationFloor = 1.0e-4f * thickness;
++    const auto floorDelta = mrCompensatedAdd(
++        separation, {-regularizationFloor, 0.0f});
++    const bool belowFloor = floorDelta.high < 0.0f ||
++        (floorDelta.high == 0.0f && floorDelta.low < 0.0f);
++    const MRCompensatedScalar distance = belowFloor
++        ? MRCompensatedScalar{regularizationFloor, 0.0f}
++        : separation;
++    const auto squaredDistance = mrCompensatedMultiply(distance, distance);
++    const auto squaredThickness = mrCompensatedProduct(thickness, thickness);
++    const auto offset = mrCompensatedAdd(
++        squaredDistance, mrCompensatedNegate(squaredThickness));
++    const auto logarithm = nmCompensatedLog(
++        mrCompensatedDivide(squaredDistance, squaredThickness));
++    const auto offsetSquared = mrCompensatedMultiply(offset, offset);
++    const auto energyAtDistance = mrCompensatedNegate(
++        mrCompensatedMultiply({stiffness, 0.0f},
++            mrCompensatedMultiply(offsetSquared, logarithm)));
++    if (!belowFloor)
++        return energyAtDistance.high < 0.0f ||
++            (energyAtDistance.high == 0.0f && energyAtDistance.low < 0.0f)
++                ? MRCompensatedScalar{0.0f, 0.0f}
++                : energyAtDistance;
++
++    const auto firstSquared = mrCompensatedNegate(
++        mrCompensatedMultiply({stiffness, 0.0f},
++            mrCompensatedAdd(
++                mrCompensatedMultiply({2.0f, 0.0f},
++                    mrCompensatedMultiply(offset, logarithm)),
++                mrCompensatedDivide(offsetSquared, squaredDistance))));
++    const auto energyDerivativeAtFloor = mrCompensatedMultiply(
++        mrCompensatedMultiply({2.0f, 0.0f}, distance), firstSquared);
++    const auto continuation = mrCompensatedAdd(
++        energyAtDistance,
++        mrCompensatedMultiply(energyDerivativeAtFloor, floorDelta));
++    return continuation.high < 0.0f ||
++        (continuation.high == 0.0f && continuation.low < 0.0f)
++            ? MRCompensatedScalar{0.0f, 0.0f}
++            : continuation;
++}
++
+ inline bool finite3(const float3 value) {
+     return all(isfinite(value));
+ }
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+index d82a8481..19d16f41 100644
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1022,22 +1022,13 @@ inline bool deformableBarrierEnergyAt(
+     thread float& separation
+ ) {
+     float featureMollifier = 1.0f;
++    MRCompensatedPositionGPU relative;
+     if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+-        const auto relative = mrCompensatedVectorAdd(position[0],
++        relative = mrCompensatedVectorAdd(position[0],
+             mrCompensatedVectorNegate(position[1]));
+-        const auto squared = mrCompensatedVectorDot(relative, relative);
+-        if (contactCompensatedSign(squared) < 0 ||
+-            !isfinite(squared.high) || !isfinite(squared.low)) {
+-            energy = INFINITY;
+-            separation = NAN;
+-            return false;
+-        }
+-        const auto distance = mrCompensatedSqrt(squared);
+-        separation = distance.high + distance.low;
+     } else if (contact.identity.z ==
+                NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+         float3 barycentric, closestPoint;
+-        MRCompensatedPositionGPU relative;
+         if (!contactCompensatedVertexTriangleWitness(
+                 position[0], position[1], position[2], position[3],
+                 barycentric, closestPoint, relative, separation)) {
+@@ -1056,7 +1047,6 @@ inline bool deformableBarrierEnergyAt(
+     } else if (contact.identity.z == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+         float firstParameter, secondParameter;
+         float3 firstPoint, secondPoint;
+-        MRCompensatedPositionGPU relative;
+         if (!contactCompensatedSegmentWitness(
+                 position[0], position[1], position[2], position[3],
+                 firstParameter, secondParameter, firstPoint, secondPoint,
+@@ -1078,9 +1068,24 @@ inline bool deformableBarrierEnergyAt(
+         separation = -INFINITY;
+         return false;
+     }
+-    energy = featureMollifier * ipcBarrierEnergy(
+-        separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
+-    return isfinite(separation) && isfinite(energy);
++
++    const MRCompensatedScalar squared = mrCompensatedVectorDot(relative, relative);
++    if (contactCompensatedSign(squared) < 0 ||
++        !isfinite(squared.high) || !isfinite(squared.low)) {
++        energy = INFINITY;
++        separation = NAN;
++        return false;
++    }
++    const MRCompensatedScalar distance = mrCompensatedSqrt(squared);
++    separation = distance.high + distance.low;
++    const MRCompensatedScalar barrierEnergy =
++        ipcFEMBarrierEnergyCompensated(
++            distance, contact.barrier.z, contact.mollifier.w);
++    const MRCompensatedScalar mollifiedEnergy = mrCompensatedMultiply(
++        barrierEnergy, {featureMollifier, 0.0f});
++    energy = mollifiedEnergy.high + mollifiedEnergy.low;
++    return isfinite(distance.high) && isfinite(distance.low) &&
++        isfinite(separation) && isfinite(energy);
+ }
+ 
+ inline bool deformableBarrierEnergyAt(
+@@ -8363,10 +8368,22 @@ kernel void nm_contact_initialize_prescribed_fem_candidate(
+             const float clearance = max(0.125f * dispatch.numericalLimits.x, 2.0f * floor);
+             const float3 shift = (clearance - gap) * normal;
+             if (next.referenceDisplacementAndMode.w == 1.0f) {
+-                next.referenceDisplacementAndMode.xyz += shift;
+-                next.positionAndMass.xyz = next.restAndFixed.xyz + next.referenceDisplacementAndMode.xyz;
+-                next.velocityAndInverseMass.xyz = (next.referenceDisplacementAndMode.xyz -
+-                    previous.referenceDisplacementAndMode.xyz) / micro.time.x;
++                for (uint axis = 0u; axis < 3u; ++axis) {
++                    const MRCompensatedScalar shifted = mrCompensatedAdd(
++                        {next.referenceDisplacementAndMode[axis],
++                         next.referenceDisplacementLow[axis]}, {shift[axis], 0.0f});
++                    const MRCompensatedScalar delta = mrCompensatedAdd(shifted,
++                        mrCompensatedNegate({previous.referenceDisplacementAndMode[axis],
++                                             previous.referenceDisplacementLow[axis]}));
++                    next.referenceDisplacementAndMode[axis] = shifted.high;
++                    next.referenceDisplacementLow[axis] = shifted.low;
++                    next.positionAndMass[axis] = femReferencePositionProjection(
++                        next.restAndFixed[axis], shifted.high, shifted.low);
++                    const MRCompensatedScalar velocity = mrCompensatedDivide(
++                        delta, {micro.time.x, 0.0f});
++                    next.velocityAndInverseMass[axis] = mrCompensatedProjectionScalar(
++                        0.0f, velocity.high, velocity.low);
++                }
+             } else {
+                 next.positionAndMass.xyz += shift;
+                 next.velocityAndInverseMass.xyz = (next.positionAndMass.xyz - previous.positionAndMass.xyz) / micro.time.x;
+diff --git a/matter/src/metal/fem.metalinc b/matter/src/metal/fem.metalinc
+index f020db42..15d9a01a 100644
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -30,19 +30,30 @@ inline bool femHumanAttachmentConstraint(const float marker) {
+ // The caller must have verified referenceDisplacementAndMode.w == 1.0f.
+ // Keeping rest-origin subtraction and displacement addition compensated
+ // preserves the local coordinate residual for contact witnesses.
++inline MRCompensatedScalar femReferenceDisplacementAdd(
++    const float high, const float low, const float incrementHigh,
++    const float incrementLow = 0.0f) {
++    return mrCompensatedAdd({high, low}, {incrementHigh, incrementLow});
++}
++
++inline float femReferencePositionProjection(
++    const float rest, const float high, const float low) {
++    return mrCompensatedProjectionScalar(rest, high, low);
++}
++
+ inline MRCompensatedPositionGPU femContactPositionRelativeExpansion(
+     const NMFEMNodeStateGPU state,
+     const float3 referenceOrigin
+ ) {
+     const MRCompensatedScalar x = mrCompensatedPositionScalar(
+         state.restAndFixed.x, state.referenceDisplacementAndMode.x,
+-        0.0f, -referenceOrigin.x);
++        state.referenceDisplacementLow.x, -referenceOrigin.x);
+     const MRCompensatedScalar y = mrCompensatedPositionScalar(
+         state.restAndFixed.y, state.referenceDisplacementAndMode.y,
+-        0.0f, -referenceOrigin.y);
++        state.referenceDisplacementLow.y, -referenceOrigin.y);
+     const MRCompensatedScalar z = mrCompensatedPositionScalar(
+         state.restAndFixed.z, state.referenceDisplacementAndMode.z,
+-        0.0f, -referenceOrigin.z);
++        state.referenceDisplacementLow.z, -referenceOrigin.z);
+     return {
+         float4(x.high, y.high, z.high, 0.0f),
+         float4(x.low, y.low, z.low, 0.0f)
+@@ -310,12 +321,23 @@ inline float3x3 tetrahedronDeformation(
+         // adding micron-scale motion to centimeter-scale X cannot quantize the
+         // strain unknown. positionAndMass remains the materialized X + u used
+         // by collision/output paths.
+-        const float3 u0 = nodes[nodeBase + tetrahedron.nodes.x].referenceDisplacementAndMode.xyz;
+-        const float3 u1 = nodes[nodeBase + tetrahedron.nodes.y].referenceDisplacementAndMode.xyz;
+-        const float3 u2 = nodes[nodeBase + tetrahedron.nodes.z].referenceDisplacementAndMode.xyz;
+-        const float3 u3 = nodes[nodeBase + tetrahedron.nodes.w].referenceDisplacementAndMode.xyz;
+-        const float3x3 du = float3x3(u1 - u0, u2 - u0, u3 - u0);
+-        return float3x3(1.0f) + du * inverseRest;
++        float displacementHigh[12], displacementLow[12], inverse[9], frame[9];
++        float deformationHigh[9], deformationLow[9];
++        const uint4 nodeIds = tetrahedron.nodes;
++        for (uint node = 0u; node < 4u; ++node) {
++            const NMFEMNodeStateGPU state = nodes[nodeBase + nodeIds[node]];
++            for (uint axis = 0u; axis < 3u; ++axis) {
++                displacementHigh[3u * node + axis] =
++                    state.referenceDisplacementAndMode[axis];
++                displacementLow[3u * node + axis] =
++                    state.referenceDisplacementLow[axis];
++            }
++        }
++        matrixComponents(inverseRest, inverse);
++        matrixComponents(float3x3(1.0f), frame);
++        nmFEMReferenceDeformationWords(displacementHigh, displacementLow,
++            inverse, frame, deformationHigh, deformationLow);
++        return componentsMatrix(deformationHigh);
+     }
+     const float3x3 ds = float3x3(x1 - x0, x2 - x0, x3 - x0);
+     return ds * inverseRest;
+@@ -334,16 +356,19 @@ inline float3x3 femMaterialDeformationWords(
+                            NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) == 0u ||
+         (tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)==0u)
+         return femMaterialInput(object,tetrahedron,deformation);
+-    float displacement[12],inverse[9],frame[9],high[9];
++    float displacementHigh[12],displacementLow[12],inverse[9],frame[9],high[9];
+     for(uint node=0u;node<4u;++node) {
+-        const float3 u=nodes[nodeBase+tetrahedron.nodes[node]].referenceDisplacementAndMode.xyz;
+-        for(uint axis=0u;axis<3u;++axis) displacement[3u*node+axis]=u[axis];
++        const NMFEMNodeStateGPU state=nodes[nodeBase+tetrahedron.nodes[node]];
++        for(uint axis=0u;axis<3u;++axis) {
++            displacementHigh[3u*node+axis]=state.referenceDisplacementAndMode[axis];
++            displacementLow[3u*node+axis]=state.referenceDisplacementLow[axis];
++        }
+     }
+     matrixComponents(matrixFromRows(tetrahedron.inverseRestRow0,
+         tetrahedron.inverseRestRow1,tetrahedron.inverseRestRow2),inverse);
+     matrixComponents((object.flags & NM_OBJECT_FEM_MATERIAL_FRAME)!=0u
+         ? femMaterialFrame(tetrahedron) : float3x3(1.0f),frame);
+-    nmFEMReferenceDeformationWords(displacement,inverse,frame,high,low);
++    nmFEMReferenceDeformationWords(displacementHigh,displacementLow,inverse,frame,high,low);
+     return componentsMatrix(high);
+ }
+ 
+@@ -919,10 +944,22 @@ kernel void nm_fem_apply_kinematic_targets(
+         return;
+     }
+     const float remaining = float(microstep.microtickCount - microstep.microtick);
+-    const float3 displacement = previous.referenceDisplacementAndMode.w == 1.0f
+-        ? ((target.xyz - previous.restAndFixed.xyz) -
+-            previous.referenceDisplacementAndMode.xyz) / remaining
+-        : (target.xyz - previous.positionAndMass.xyz) / remaining;
++    MRCompensatedScalar displacementPair[3];
++    float3 displacement;
++    if (previous.referenceDisplacementAndMode.w == 1.0f) {
++        for (uint axis = 0u; axis < 3u; ++axis) {
++            const MRCompensatedScalar targetU = mrCompensatedAdd(
++                {target[axis], 0.0f}, {-previous.restAndFixed[axis], 0.0f});
++            const MRCompensatedScalar gap = mrCompensatedAdd(targetU,
++                {-previous.referenceDisplacementAndMode[axis],
++                 -previous.referenceDisplacementLow[axis]});
++            displacementPair[axis] = mrCompensatedDivide(gap, {remaining, 0.0f});
++            displacement[axis] = mrCompensatedProjectionScalar(
++                0.0f, displacementPair[axis].high, displacementPair[axis].low);
++        }
++    } else {
++        displacement = (target.xyz - previous.positionAndMass.xyz) / remaining;
++    }
+     const float3 velocity = displacement / microstep.time.x;
+     if (!all(isfinite(displacement)) || !all(isfinite(velocity))) {
+         recordFailure(
+@@ -934,11 +971,17 @@ kernel void nm_fem_apply_kinematic_targets(
+     }
+     NMFEMNodeStateGPU next = candidate[global];
+     if (previous.referenceDisplacementAndMode.w == 1.0f) {
+-        const float3 nextDisplacement =
+-            previous.referenceDisplacementAndMode.xyz + displacement;
+-        next.referenceDisplacementAndMode.xyz = nextDisplacement;
+-        next.positionAndMass.xyz =
+-            previous.restAndFixed.xyz + nextDisplacement;
++        for (uint axis = 0u; axis < 3u; ++axis) {
++            const MRCompensatedScalar nextDisplacement = mrCompensatedAdd(
++                {previous.referenceDisplacementAndMode[axis],
++                 previous.referenceDisplacementLow[axis]},
++                displacementPair[axis]);
++            next.referenceDisplacementAndMode[axis] = nextDisplacement.high;
++            next.referenceDisplacementLow[axis] = nextDisplacement.low;
++            next.positionAndMass[axis] = femReferencePositionProjection(
++                next.restAndFixed[axis], nextDisplacement.high,
++                nextDisplacement.low);
++        }
+     } else {
+         next.positionAndMass.xyz =
+             previous.positionAndMass.xyz + displacement;
+@@ -1062,10 +1105,21 @@ kernel void nm_fem_human_attachment_drive_candidate(
+             object, attachmentIndex, bodyLow);
+         return;
+     }
++    const MRCompensatedScalar targetPosition[3] = {
++        compensatedTranslation != 0u
++            ? mrCompensatedPositionScalar(bodyState.position.x, bodyLow.x, 0.0f, offset.x)
++            : mrCompensatedSum(bodyState.position.x, offset.x),
++        compensatedTranslation != 0u
++            ? mrCompensatedPositionScalar(bodyState.position.y, bodyLow.y, 0.0f, offset.y)
++            : mrCompensatedSum(bodyState.position.y, offset.y),
++        compensatedTranslation != 0u
++            ? mrCompensatedPositionScalar(bodyState.position.z, bodyLow.z, 0.0f, offset.z)
++            : mrCompensatedSum(bodyState.position.z, offset.z)
++    };
+     const float3 position = compensatedTranslation != 0u ? float3(
+-        mrCompensatedPositionScalar(bodyState.position.x, bodyLow.x, 0.0f, offset.x).high,
+-        mrCompensatedPositionScalar(bodyState.position.y, bodyLow.y, 0.0f, offset.y).high,
+-        mrCompensatedPositionScalar(bodyState.position.z, bodyLow.z, 0.0f, offset.z).high)
++        mrCompensatedProjectionScalar(0.0f, targetPosition[0].high, targetPosition[0].low),
++        mrCompensatedProjectionScalar(0.0f, targetPosition[1].high, targetPosition[1].low),
++        mrCompensatedProjectionScalar(0.0f, targetPosition[2].high, targetPosition[2].low))
+         : bodyState.position.xyz + offset;
+     const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
+         cross(bodyState.angularVelocity.xyz, offset);
+@@ -1079,8 +1133,14 @@ kernel void nm_fem_human_attachment_drive_candidate(
+ 
+     NMFEMNodeStateGPU next = candidate[nodeGlobal];
+     if (next.referenceDisplacementAndMode.w == 1.0f) {
+-        next.referenceDisplacementAndMode.xyz = position - next.restAndFixed.xyz;
+-        next.positionAndMass.xyz = next.restAndFixed.xyz + next.referenceDisplacementAndMode.xyz;
++        for (uint axis = 0u; axis < 3u; ++axis) {
++            const MRCompensatedScalar displacement = mrCompensatedAdd(
++                targetPosition[axis], {-next.restAndFixed[axis], 0.0f});
++            next.referenceDisplacementAndMode[axis] = displacement.high;
++            next.referenceDisplacementLow[axis] = displacement.low;
++            next.positionAndMass[axis] = femReferencePositionProjection(
++                next.restAndFixed[axis], displacement.high, displacement.low);
++        }
+     } else {
+         next.positionAndMass.xyz = position;
+     }
+@@ -3783,11 +3843,17 @@ inline NMFEMNodeStateGPU femTrialNodeAtAlpha(
+     next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
+         acceptedState.velocityAndInverseMass.xyz;
+     if (next.referenceDisplacementAndMode.w == 1.0f) {
+-        next.referenceDisplacementAndMode.xyz =
+-            acceptedState.referenceDisplacementAndMode.xyz +
+-            dt * next.velocityAndInverseMass.xyz;
+-        next.positionAndMass.xyz = next.restAndFixed.xyz +
+-            next.referenceDisplacementAndMode.xyz;
++        for (uint axis = 0u; axis < 3u; ++axis) {
++            const MRCompensatedScalar update = mrCompensatedProduct(
++                dt, next.velocityAndInverseMass[axis]);
++            const MRCompensatedScalar displacement = mrCompensatedAdd(
++                {acceptedState.referenceDisplacementAndMode[axis],
++                 acceptedState.referenceDisplacementLow[axis]}, update);
++            next.referenceDisplacementAndMode[axis] = displacement.high;
++            next.referenceDisplacementLow[axis] = displacement.low;
++            next.positionAndMass[axis] = femReferencePositionProjection(
++                next.restAndFixed[axis], displacement.high, displacement.low);
++        }
+     } else {
+         next.positionAndMass.xyz = acceptedState.positionAndMass.xyz +
+             dt * next.velocityAndInverseMass.xyz;
+@@ -3924,6 +3990,7 @@ kernel void nm_fem_select_backtracking(
+ 
+             float3 x[4];
+             float3 u[4];
++            float3 uLow[4];
+             for (uint slot = 0u; slot < 4u; ++slot) {
+                 const uint index = nodeBase + tetrahedron.nodes[slot];
+                 const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
+@@ -3931,6 +3998,7 @@ kernel void nm_fem_select_backtracking(
+                     alpha, dt, true);
+                 x[slot] = trialNode.positionAndMass.xyz;
+                 u[slot] = trialNode.referenceDisplacementAndMode.xyz;
++                uLow[slot] = trialNode.referenceDisplacementLow.xyz;
+             }
+             const float3x3 inverseRest = matrixFromRows(
+                 tetrahedron.inverseRestRow0,
+@@ -3940,9 +4008,18 @@ kernel void nm_fem_select_backtracking(
+             float3x3 deformation;
+             if ((tetrahedron.identity.w &
+                     NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+-                deformation = float3x3(1.0f) + float3x3(
+-                    u[1] - u[0], u[2] - u[0], u[3] - u[0]
+-                ) * inverseRest;
++                float displacementHigh[12], displacementLow[12];
++                float inverse[9], frame[9], high[9], low[9];
++                for (uint slot = 0u; slot < 4u; ++slot)
++                    for (uint axis = 0u; axis < 3u; ++axis) {
++                        displacementHigh[3u * slot + axis] = u[slot][axis];
++                        displacementLow[3u * slot + axis] = uLow[slot][axis];
++                    }
++                matrixComponents(inverseRest, inverse);
++                matrixComponents(float3x3(1.0f), frame);
++                nmFEMReferenceDeformationWords(displacementHigh, displacementLow,
++                    inverse, frame, high, low);
++                deformation = componentsMatrix(high);
+             } else {
+                 deformation = float3x3(
+                     x[1] - x[0], x[2] - x[0], x[3] - x[0]
+@@ -4120,7 +4197,7 @@ kernel void nm_fem_operator_fd_initialize(
+ // Rich selected-Newton capture. These fixed float4 layouts are intentionally
+ // private and diagnostic-only; runtime.mm serializes them as JSONL after the
+ // selected command buffer finishes. Slot values are raw FP32 observations.
+-constant uint kFEMOperatorFDNodeCaptureSlots = 37u;
++constant uint kFEMOperatorFDNodeCaptureSlots = 43u;
+ constant uint kFEMOperatorFDTetCaptureSlots = 254u;
+ constant uint kFEMOperatorFDCachedTangentSlots = 22u;
+ constant uint kFEMOperatorFDParameterValuesPerSlot = 4u;
+@@ -4183,6 +4260,7 @@ inline void fdCaptureWriteNodeState(
+     destination[offset + 2u] = state.restAndFixed;
+     destination[offset + 3u] = state.deltaVelocity;
+     destination[offset + 4u] = state.referenceDisplacementAndMode;
++    destination[offset + 5u] = state.referenceDisplacementLow;
+ }
+ 
+ inline float4 fdCaptureHillIndicators(
+@@ -4306,17 +4384,17 @@ kernel void nm_fem_operator_fd_capture_nodes(
+     const uint record = global * kFEMOperatorFDNodeCaptureSlots;
+     if (centerRecord != 0u) {
+         fdCaptureWriteNodeState(capture, record, accepted[global]);
+-        fdCaptureWriteNodeState(capture, record + 5u, center[global]);
+-        capture[record + 30u] = correction[global];
+-        capture[record + 31u] = centerResidual[global];
+-        capture[record + 32u] = operatorAction[global];
++        fdCaptureWriteNodeState(capture, record + 6u, center[global]);
++        capture[record + 36u] = correction[global];
++        capture[record + 37u] = centerResidual[global];
++        capture[record + 38u] = operatorAction[global];
+         return;
+     }
+     if (pairIndex >= 2u || side >= 2u) return;
+     const uint stateIndex = 2u + 2u * pairIndex + (side == 0u ? 0u : 1u);
+-    fdCaptureWriteNodeState(capture, record + stateIndex * 5u,
++    fdCaptureWriteNodeState(capture, record + stateIndex * 6u,
+         sideCandidate[global]);
+-    const uint residualIndex = 33u + 2u * pairIndex + side;
++    const uint residualIndex = 39u + 2u * pairIndex + side;
+     capture[record + residualIndex] = sideResidual[global];
+ }
+ 
+@@ -5202,12 +5280,19 @@ kernel void nm_fem_integrate(
+         objectDue(object, scheduler, adaptiveState, microstep) &&
+         candidate[global].restAndFixed.w <= 0.5f) {
+         if (candidate[global].referenceDisplacementAndMode.w == 1.0f) {
+-            candidate[global].referenceDisplacementAndMode.xyz =
+-                accepted[global].referenceDisplacementAndMode.xyz +
+-                objectTimestep(dispatch, scheduler) *
+-                candidate[global].velocityAndInverseMass.xyz;
+-            candidate[global].positionAndMass.xyz = candidate[global].restAndFixed.xyz +
+-                candidate[global].referenceDisplacementAndMode.xyz;
++            const float dt = objectTimestep(dispatch, scheduler);
++            for (uint axis = 0u; axis < 3u; ++axis) {
++                const MRCompensatedScalar update = mrCompensatedProduct(
++                    dt, candidate[global].velocityAndInverseMass[axis]);
++                const MRCompensatedScalar displacement = mrCompensatedAdd(
++                    {accepted[global].referenceDisplacementAndMode[axis],
++                     accepted[global].referenceDisplacementLow[axis]}, update);
++                candidate[global].referenceDisplacementAndMode[axis] = displacement.high;
++                candidate[global].referenceDisplacementLow[axis] = displacement.low;
++                candidate[global].positionAndMass[axis] = femReferencePositionProjection(
++                    candidate[global].restAndFixed[axis],
++                    displacement.high, displacement.low);
++            }
+         } else {
+             candidate[global].positionAndMass.xyz =
+                 accepted[global].positionAndMass.xyz +
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index e8d1d18c..bc5d70ba 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -625,7 +625,7 @@ const char kImageAnchor = 0;
+ // Fixed float4 record layout shared with the opt-in kernels in fem.metalinc.
+ // The rich capture is a bounded binary arena on GPU; JSONL is produced only
+ // after the selected command buffer completes.
+-constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 37u;
++constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 43u;
+ constexpr std::size_t kFEMOperatorFDTetCaptureSlots = 254u;
+ constexpr std::size_t kFEMOperatorFDCachedTangentSlots = 22u;
+ constexpr std::size_t kFEMOperatorFDTetCenterOffset = 7u;
+@@ -15975,8 +15975,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                     appendVec3(line, slots[4]);
+                                     line << ",\"reference_u_mode\":";
+                                     capturedAppendTraceFloat(line, slots[4].w);
++                                    line << ",\"reference_u_low_m\":";
++                                    appendVec3(line, slots[5]);
+                                     line << ",\"raw_state_float4s\":[";
+-                                    for (std::size_t slot = 0u; slot < 5u; ++slot) {
++                                    for (std::size_t slot = 0u; slot < 6u; ++slot) {
+                                         if (slot != 0u) line << ',';
+                                         appendVec4(line, slots[slot]);
+                                     }
+@@ -16015,7 +16017,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                         });
+                                 std::ostringstream header;
+                                 header << std::setprecision(9)
+-                                    << "{\"record\":\"header\",\"schema\":\"numi.cardboard.fem-newton-capture.v1\",\"root\":"
++                                    << "{\"record\":\"header\",\"schema\":\"numi.cardboard.fem-newton-capture.v2\",\"root\":"
+                                     << capturedRoot << ",\"newton_iteration\":"
+                                     << capturedIteration << ",\"world_fingerprint_hex\":\""
+                                     << std::hex << capturedWorldFingerprint
+@@ -16145,47 +16147,47 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                              << ",\"accepted\":";
+                                         appendNodeState(line, slots);
+                                         line << ",\"center\":";
+-                                        appendNodeState(line, slots + 5u);
++                                        appendNodeState(line, slots + 6u);
+                                         line << ",\"epsilon_pair_0_plus\":";
+-                                        appendNodeState(line, slots + 10u);
++                                        appendNodeState(line, slots + 12u);
+                                         line << ",\"epsilon_pair_0_minus\":";
+-                                        appendNodeState(line, slots + 15u);
++                                        appendNodeState(line, slots + 18u);
+                                         line << ",\"epsilon_pair_1_plus\":";
+-                                        appendNodeState(line, slots + 20u);
++                                        appendNodeState(line, slots + 24u);
+                                         line << ",\"epsilon_pair_1_minus\":";
+-                                        appendNodeState(line, slots + 25u);
++                                        appendNodeState(line, slots + 30u);
+                                         line << ",\"correction_delta_v_m_s\":";
+-                                        appendVec3(line, slots[30u]);
++                                        appendVec3(line, slots[36u]);
+                                         line << ",\"epsilon_pair_realized_position_delta_m\":[";
+                                         for (std::size_t pairSide = 0u;
+                                              pairSide < 4u; ++pairSide) {
+                                             if (pairSide != 0u) line << ',';
+                                             appendDifference3(line,
+-                                                slots[10u + 5u * pairSide], slots[5u]);
++                                                slots[12u + 6u * pairSide], slots[6u]);
+                                         }
+                                         line << "],\"epsilon_pair_realized_velocity_delta_m_s\":[";
+                                         for (std::size_t pairSide = 0u;
+                                              pairSide < 4u; ++pairSide) {
+                                             if (pairSide != 0u) line << ',';
+                                             appendDifference3(line,
+-                                                slots[11u + 5u * pairSide], slots[6u]);
++                                                slots[13u + 6u * pairSide], slots[7u]);
+                                         }
+                                         line << "],\"epsilon_pair_realized_u_delta_m\":[";
+                                         for (std::size_t pairSide = 0u;
+                                              pairSide < 4u; ++pairSide) {
+                                             if (pairSide != 0u) line << ',';
+                                             appendDifference3(line,
+-                                                slots[14u + 5u * pairSide], slots[9u]);
++                                                slots[16u + 6u * pairSide], slots[10u]);
+                                         }
+                                         line << ']';
+                                         line << ",\"center_residual_impulse_Ns\":";
+-                                        appendVec4(line, slots[31u]);
++                                        appendVec4(line, slots[37u]);
+                                         line << ",\"production_A_delta_v_impulse_Ns\":";
+-                                        appendVec4(line, slots[32u]);
++                                        appendVec4(line, slots[38u]);
+                                         line << ",\"epsilon_pair_residual_impulses_Ns\":[";
+                                         for (std::size_t side = 0u; side < 4u; ++side) {
+                                             if (side != 0u) line << ',';
+-                                            appendVec4(line, slots[33u + side]);
++                                            appendVec4(line, slots[39u + side]);
+                                         }
+                                         line << "]}";
+                                         outputOkay = writeLine(line.str() + "\n");
+@@ -30535,7 +30537,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                      slot < 2u * capturedEnvironments; ++slot)
+                     present += records[slot].capture.x != 0u ? 1u : 0u;
+                 std::ostringstream manifest;
+-                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v1\","
++                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v2\","
+                     << "\"capture_point\":\"immediately_after_selected_fem_status5_producer_before_next_dispatch_or_rollback\","
+                     << "\"byte_order\":\"native_little_endian_f32_u32\","
+                     << "\"root\":" << capturedRoot
+@@ -35124,14 +35126,24 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
+             for (std::size_t local = 0u; local < object.stateCount; ++local) {
+                 const auto& node = snapshot.femNodes[nodeBase + object.stateOffset + local];
+                 const auto& u = node.referenceDisplacementAndMode;
++                const auto& uLow = node.referenceDisplacementLow;
+                 const bool finite = std::isfinite(u.x) && std::isfinite(u.y) &&
+-                    std::isfinite(u.z) && std::isfinite(u.w);
++                    std::isfinite(u.z) && std::isfinite(u.w) &&
++                    std::isfinite(uLow.x) && std::isfinite(uLow.y) &&
++                    std::isfinite(uLow.z) && std::isfinite(uLow.w);
+                 const bool canonical = displacementMode
+-                    ? u.w == 1.0f &&
+-                        node.positionAndMass.x == node.restAndFixed.x + u.x &&
+-                        node.positionAndMass.y == node.restAndFixed.y + u.y &&
+-                        node.positionAndMass.z == node.restAndFixed.z + u.z
+-                    : u.x == 0.0f && u.y == 0.0f && u.z == 0.0f && u.w == 0.0f;
++                    ? u.w == 1.0f && uLow.w == 0.0f &&
++                        mrCompensatedCanonicalScalar(u.x, uLow.x) &&
++                        mrCompensatedCanonicalScalar(u.y, uLow.y) &&
++                        mrCompensatedCanonicalScalar(u.z, uLow.z) &&
++                        node.positionAndMass.x == mrCompensatedProjectionScalar(
++                            node.restAndFixed.x, u.x, uLow.x) &&
++                        node.positionAndMass.y == mrCompensatedProjectionScalar(
++                            node.restAndFixed.y, u.y, uLow.y) &&
++                        node.positionAndMass.z == mrCompensatedProjectionScalar(
++                            node.restAndFixed.z, u.z, uLow.z)
++                    : u.x == 0.0f && u.y == 0.0f && u.z == 0.0f && u.w == 0.0f &&
++                        uLow.x == 0.0f && uLow.y == 0.0f && uLow.z == 0.0f && uLow.w == 0.0f;
+                 if (!finite || !canonical) {
+                     diagnostics.message =
+                         "Matter snapshot has a noncanonical FEM reference displacement state";
+diff --git a/matter/src/validation_impl.cpp b/matter/src/validation_impl.cpp
+index e1052702..a4208980 100644
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -1,6 +1,7 @@
+ #include "numi/matter/detail.hpp"
+ #include "fem_reference_geometry.hpp"
+ #include "numi/matter/vascular.hpp"
++#include "metalrobo/compensated_translation_gpu.h"
+ 
+ #include <algorithm>
+ #include <array>
+@@ -127,11 +128,20 @@ constexpr std::uint32_t kKnownRigidFlags =
+     if ((t.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+         Matrix du{};
+         for (unsigned c=0;c<3;++c) {
+-            const auto& node = nodes[indices[c+1]].referenceDisplacementAndMode;
+-            const auto& origin = nodes[indices[0]].referenceDisplacementAndMode;
+-            du[c] = double(node.x)-origin.x;
+-            du[3+c] = double(node.y)-origin.y;
+-            du[6+c] = double(node.z)-origin.z;
++            const auto& node = nodes[indices[c+1]];
++            const auto& origin = nodes[indices[0]];
++            du[c] = (double(node.referenceDisplacementAndMode.x) +
++                double(node.referenceDisplacementLow.x)) -
++                (double(origin.referenceDisplacementAndMode.x) +
++                double(origin.referenceDisplacementLow.x));
++            du[3+c] = (double(node.referenceDisplacementAndMode.y) +
++                double(node.referenceDisplacementLow.y)) -
++                (double(origin.referenceDisplacementAndMode.y) +
++                double(origin.referenceDisplacementLow.y));
++            du[6+c] = (double(node.referenceDisplacementAndMode.z) +
++                double(node.referenceDisplacementLow.z)) -
++                (double(origin.referenceDisplacementAndMode.z) +
++                double(origin.referenceDisplacementLow.z));
+         }
+         Matrix f{};
+         for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
+@@ -1907,18 +1917,39 @@ private:
+                     const NMFEMNodeStateGPU& node = world_.fem.nodes[nodeIndex];
+                     const bool displacementStateValid = referenceDisplacement
+                         ? node.referenceDisplacementAndMode.w == 1.0f &&
+-                            node.positionAndMass.x == node.restAndFixed.x + node.referenceDisplacementAndMode.x &&
+-                            node.positionAndMass.y == node.restAndFixed.y + node.referenceDisplacementAndMode.y &&
+-                            node.positionAndMass.z == node.restAndFixed.z + node.referenceDisplacementAndMode.z
++                            node.referenceDisplacementLow.w == 0.0f &&
++                            mrCompensatedCanonicalScalar(
++                                node.referenceDisplacementAndMode.x,
++                                node.referenceDisplacementLow.x) &&
++                            mrCompensatedCanonicalScalar(
++                                node.referenceDisplacementAndMode.y,
++                                node.referenceDisplacementLow.y) &&
++                            mrCompensatedCanonicalScalar(
++                                node.referenceDisplacementAndMode.z,
++                                node.referenceDisplacementLow.z) &&
++                            node.positionAndMass.x == mrCompensatedProjectionScalar(
++                                node.restAndFixed.x, node.referenceDisplacementAndMode.x,
++                                node.referenceDisplacementLow.x) &&
++                            node.positionAndMass.y == mrCompensatedProjectionScalar(
++                                node.restAndFixed.y, node.referenceDisplacementAndMode.y,
++                                node.referenceDisplacementLow.y) &&
++                            node.positionAndMass.z == mrCompensatedProjectionScalar(
++                                node.restAndFixed.z, node.referenceDisplacementAndMode.z,
++                                node.referenceDisplacementLow.z)
+                         : node.referenceDisplacementAndMode.x == 0.0f &&
+                             node.referenceDisplacementAndMode.y == 0.0f &&
+                             node.referenceDisplacementAndMode.z == 0.0f &&
+-                            node.referenceDisplacementAndMode.w == 0.0f;
++                            node.referenceDisplacementAndMode.w == 0.0f &&
++                            node.referenceDisplacementLow.x == 0.0f &&
++                            node.referenceDisplacementLow.y == 0.0f &&
++                            node.referenceDisplacementLow.z == 0.0f &&
++                            node.referenceDisplacementLow.w == 0.0f;
+                     if (!finite4(node.positionAndMass) ||
+                         !finite4(node.velocityAndInverseMass) ||
+                         !finite4(node.restAndFixed) ||
+                         !finite4(node.deltaVelocity) ||
+                         !finite4(node.referenceDisplacementAndMode) ||
++                        !finite4(node.referenceDisplacementLow) ||
+                         !displacementStateValid ||
+                         node.positionAndMass.w < 0.0f ||
+                         node.velocityAndInverseMass.w < 0.0f ||
+@@ -1993,7 +2024,9 @@ private:
+                     if (displacementElement &&
+                         std::ranges::any_of(nodes, [&](std::uint32_t nodeIndex) {
+                             const auto& node = world_.fem.nodes[nodeIndex];
+-                            return node.referenceDisplacementAndMode.w != 1.0f;
++                            return node.referenceDisplacementAndMode.w != 1.0f ||
++                                node.referenceDisplacementLow.w != 0.0f ||
++                                !finite4(node.referenceDisplacementLow);
+                         })) {
+                         return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                             "reference-displacement element has a node without canonical stored displacement");
+diff --git a/matter/tools/cardboard_cached_operator_audit.py b/matter/tools/cardboard_cached_operator_audit.py
+index 53bef14d..18404fc3 100644
+--- a/matter/tools/cardboard_cached_operator_audit.py
++++ b/matter/tools/cardboard_cached_operator_audit.py
+@@ -437,7 +437,7 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
+                                                                        np.ndarray,
+                                                                        np.ndarray,
+                                                                        dict]:
+-    if header.get("schema") != CAPTURE_SCHEMA:
++    if header.get("schema") not in {CAPTURE_SCHEMA, "numi.cardboard.fem-newton-capture.v2"}:
+         raise ValueError("unsupported capture schema")
+     if header.get("production_inputs_bitwise_unchanged") is not True:
+         raise ValueError("capture header does not attest unchanged production inputs")
+@@ -504,7 +504,8 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
+     native_action = np.zeros((node_count, 3), dtype=np.float64)
+     center_residual = np.zeros((node_count, 3), dtype=np.float64)
+     positions = np.zeros((node_count, 3), dtype=np.float64)
+-    captured_node_state_f32 = np.zeros((node_count, 20), dtype=np.float32)
++    node_words = 6 if header["schema"].endswith(".v2") else 5
++    captured_node_state_f32 = np.zeros((node_count, 4 * node_words), dtype=np.float32)
+     for node_id, row in node_by_id.items():
+         center = row["center"]
+         masses[node_id] = captured_f32_scalar(center["mass_kg"],
+@@ -521,12 +522,12 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
+         center_residual[node_id] = captured_f32_array(
+             row.get("center_residual_impulse_Ns"), (4,),
+             f"node {node_id} center residual")[:3]
+-        raw_state = finite_array(center.get("raw_state_float4s"), (5, 4),
++        raw_state = finite_array(center.get("raw_state_float4s"), (node_words, 4),
+                                  f"node {node_id} captured state words")
+         raw_state_f32 = raw_state.astype(np.float32)
+         if not np.isfinite(raw_state_f32).all():
+             raise ValueError(f"node {node_id} captured state words are not finite FP32")
+-        captured_node_state_f32[node_id] = raw_state_f32.reshape(20)
++        captured_node_state_f32[node_id] = raw_state_f32.reshape(4 * node_words)
+         direction[node_id] = captured_f32_array(
+             row["correction_delta_v_m_s"], (3,),
+             f"node {node_id} velocity correction")
+diff --git a/matter/tools/cardboard_contact_geometry_check.metal b/matter/tools/cardboard_contact_geometry_check.metal
+index 567349a7..b4a63910 100644
+--- a/matter/tools/cardboard_contact_geometry_check.metal
++++ b/matter/tools/cardboard_contact_geometry_check.metal
+@@ -1,7 +1,140 @@
+ #include "../src/matter_kernels.metal"
+ namespace numi_matter_metal {
+ kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]], uint global [[thread_position_in_grid]]) {
+-    if (global>=130u) return;
++    if (global>=133u) return;
++    if (global>=130u && global<133u) {
++        const uint test=global-130u;
++        const uint base=global*18u;
++        for(uint j=0u;j<18u;++j) output[base+j]=float4(0.0f);
++        const float3 origin=float3(8192.0f,-4096.0f,2048.0f);
++        const float scales[3]={0.0078125f,0.015625f,0.03125f};
++        const float scale=scales[test];
++        const float queryU=40.0f*0x1p-20f;
++        const float triangleU=33.0f*0x1p-20f;
++        const float thickness=10.0e-6f;
++        const float stiffness=1.0e14f;
++        const float dt=0x1p-10f;
++        const float3 correction=float3(0x1p-29f,0.0f,0x1p-30f);
++        const float3 rests[4]={
++            origin+float3(0.25f*scale,0.25f*scale,0.0f),
++            origin,
++            origin+float3(scale,0.0f,0.0f),
++            origin+float3(0.0f,scale,0.0f)};
++        NMFEMNodeStateGPU states[4]={};
++        MRCompensatedPositionGPU basePosition[4];
++        for(uint i=0u;i<4u;++i) {
++            states[i].restAndFixed=float4(rests[i],0.0f);
++            const float3 u=i==0u
++                ? float3(queryU,queryU,queryU)
++                : float3(0.0f,0.0f,triangleU);
++            states[i].referenceDisplacementAndMode=float4(u,1.0f);
++            states[i].referenceDisplacementLow=float4(0.0f);
++            states[i].positionAndMass=float4(rests[i]+u,1.0f);
++            states[i].velocityAndInverseMass=float4(0.0f,0.0f,0.0f,1.0f);
++            basePosition[i]=femContactPositionRelativeExpansion(states[i],origin);
++        }
++        const NMFEMNodeStateGPU trialPoint=femTrialNodeAtAlpha(
++            states[0],states[0],correction,1.0f,dt,true);
++        const NMFEMNodeStateGPU repeatedTrial=femTrialNodeAtAlpha(
++            states[0],states[0],correction,1.0f,dt,true);
++        MRCompensatedPositionGPU trialPosition[4];
++        trialPosition[0]=femContactPositionRelativeExpansion(trialPoint,origin);
++        for(uint i=1u;i<4u;++i)trialPosition[i]=basePosition[i];
++        NMDeformableContactGPU contact{};
++        contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++        contact.barrier.z=thickness;
++        contact.mollifier.x=1.0f;
++        contact.mollifier.w=stiffness;
++        float3 baseBary,baseClosest,trialBary,trialClosest;
++        MRCompensatedPositionGPU baseRelative,trialRelative;
++        float baseGap,trialGap;
++        const bool baseWitness=contactCompensatedVertexTriangleWitness(
++            basePosition[0],basePosition[1],basePosition[2],basePosition[3],
++            baseBary,baseClosest,baseRelative,baseGap);
++        const bool trialWitness=contactCompensatedVertexTriangleWitness(
++            trialPosition[0],trialPosition[1],trialPosition[2],trialPosition[3],
++            trialBary,trialClosest,trialRelative,trialGap);
++        float baseEnergy,trialEnergy,baseEnergyGap,trialEnergyGap;
++        const bool baseEnergyValid=deformableBarrierEnergyAt(
++            contact,basePosition,baseEnergy,baseEnergyGap);
++        const bool trialEnergyValid=deformableBarrierEnergyAt(
++            contact,trialPosition,trialEnergy,trialEnergyGap);
++        float3 roundedBase[4],roundedTrial[4];
++        for(uint i=0u;i<4u;++i) {
++            roundedBase[i]=states[i].positionAndMass.xyz-origin;
++            roundedTrial[i]=i==0u
++                ? trialPoint.positionAndMass.xyz-origin : roundedBase[i];
++        }
++        float legacyBaseEnergy,legacyTrialEnergy,legacyBaseGap,legacyTrialGap;
++        const bool legacyBaseValid=deformableBarrierEnergyAt(
++            contact,roundedBase,legacyBaseEnergy,legacyBaseGap);
++        const bool legacyTrialValid=deformableBarrierEnergyAt(
++            contact,roundedTrial,legacyTrialEnergy,legacyTrialGap);
++        const float4 baseResponse=ipcBarrierResponse(baseGap,thickness,1.0f,
++            dt,0.0f,false,0.0f,stiffness);
++        const float4 trialResponse=ipcBarrierResponse(trialGap,thickness,1.0f,
++            dt,0.0f,false,0.0f,stiffness);
++        NMFEMNodeStateGPU fixed=states[0];
++        fixed.restAndFixed.w=1.0f;
++        const NMFEMNodeStateGPU fixedTrial=femTrialNodeAtAlpha(
++            fixed,fixed,correction,1.0f,dt,true);
++        const NMFEMNodeStateGPU zeroTrial=femTrialNodeAtAlpha(
++            states[0],states[0],correction,0.0f,dt,true);
++        const bool fixedExact=all(fixedTrial.positionAndMass==fixed.positionAndMass)&&
++            all(fixedTrial.velocityAndInverseMass==fixed.velocityAndInverseMass)&&
++            all(fixedTrial.restAndFixed==fixed.restAndFixed)&&
++            all(fixedTrial.deltaVelocity==fixed.deltaVelocity)&&
++            all(fixedTrial.referenceDisplacementAndMode==fixed.referenceDisplacementAndMode)&&
++            all(fixedTrial.referenceDisplacementLow==fixed.referenceDisplacementLow);
++        const bool zeroExact=all(zeroTrial.positionAndMass==states[0].positionAndMass)&&
++            all(zeroTrial.velocityAndInverseMass==states[0].velocityAndInverseMass)&&
++            all(zeroTrial.restAndFixed==states[0].restAndFixed)&&
++            all(zeroTrial.deltaVelocity==states[0].deltaVelocity)&&
++            all(zeroTrial.referenceDisplacementAndMode==states[0].referenceDisplacementAndMode)&&
++            all(zeroTrial.referenceDisplacementLow==states[0].referenceDisplacementLow);
++        const bool repeatExact=all(repeatedTrial.positionAndMass==trialPoint.positionAndMass)&&
++            all(repeatedTrial.velocityAndInverseMass==trialPoint.velocityAndInverseMass)&&
++            all(repeatedTrial.restAndFixed==trialPoint.restAndFixed)&&
++            all(repeatedTrial.deltaVelocity==trialPoint.deltaVelocity)&&
++            all(repeatedTrial.referenceDisplacementAndMode==trialPoint.referenceDisplacementAndMode)&&
++            all(repeatedTrial.referenceDisplacementLow==trialPoint.referenceDisplacementLow);
++        output[base]=float4(float(test),baseWitness&&trialWitness?1.0f:0.0f,
++            baseEnergyValid&&trialEnergyValid&&legacyBaseValid&&legacyTrialValid?1.0f:0.0f,
++            fixedExact&&zeroExact?1.0f:0.0f);
++        for(uint i=0u;i<4u;++i) {
++            output[base+1u+2u*i]=basePosition[i].high;
++            output[base+2u+2u*i]=basePosition[i].low;
++        }
++        output[base+9u]=trialPosition[0].high;
++        output[base+10u]=trialPosition[0].low;
++        output[base+11u]=float4(baseBary,baseGap);
++        output[base+12u]=float4(trialBary,trialGap);
++        output[base+13u]=float4(baseEnergy,trialEnergy,baseEnergyGap,trialEnergyGap);
++        output[base+14u]=float4(legacyBaseEnergy,legacyTrialEnergy,
++            legacyBaseGap,legacyTrialGap);
++        output[base+15u]=trialPoint.referenceDisplacementAndMode;
++        output[base+16u]=trialPoint.referenceDisplacementLow;
++        output[base+17u]=float4(baseResponse.x,trialResponse.x,
++            all(trialPoint.positionAndMass==states[0].positionAndMass)?1.0f:0.0f,
++            repeatExact?1.0f:0.0f);
++        const float floor=1.0e-4f*thickness;
++        const float floorGap=(0.5f+0.5f*float(test))*floor;
++        const float epsilon=1.0e-4f*floor;
++        const auto floorEnergy=ipcFEMBarrierEnergyCompensated({floorGap,0.0f},thickness,stiffness);
++        const auto plusEnergy=ipcFEMBarrierEnergyCompensated(
++            mrCompensatedSum(floorGap,epsilon),thickness,stiffness);
++        const auto minusEnergy=ipcFEMBarrierEnergyCompensated(
++            mrCompensatedSum(floorGap,-epsilon),thickness,stiffness);
++        const auto slope=mrCompensatedDivide(
++            mrCompensatedAdd(plusEnergy,mrCompensatedNegate(minusEnergy)),
++            {2.0f*epsilon,0.0f});
++        output[base+1u].w=floorEnergy.high+floorEnergy.low;
++        output[base+2u].w=floorGap;
++        output[base+3u].w=slope.high+slope.low;
++        output[base+4u].w=-ipcBarrierResponse(floorGap,thickness,1.0f,
++            1.0f,0.0f,false,0.0f,stiffness).x;
++        return;
++    }
+     if (global>=125u && global<130u) {
+         const uint test=global-125u;
+         const uint base=global*18u;
+diff --git a/matter/tools/cardboard_contact_geometry_check.mm b/matter/tools/cardboard_contact_geometry_check.mm
+index aecc5e21..35437903 100644
+--- a/matter/tools/cardboard_contact_geometry_check.mm
++++ b/matter/tools/cardboard_contact_geometry_check.mm
+@@ -24,7 +24,7 @@
+ 
+ namespace {
+ using Vector = std::array<double, 3>;
+-constexpr std::size_t kRows = 130u;
++constexpr std::size_t kRows = 133u;
+ constexpr std::size_t kWordsPerRow = 72u;
+ constexpr std::size_t kBytes = kRows * kWordsPerRow * sizeof(float);
+ void require(bool okay, const char* message) {
+@@ -850,6 +850,214 @@ id<MTLBuffer> sharedSortBuffer(id<MTLDevice> device,const void* data,std::size_t
+     if (data!=nullptr && bytes!=0u) std::memcpy(buffer.contents,data,bytes);
+     return buffer;
+ }
++struct FEMReferenceAccumulationAudit {
++    double displacementErrorM=0.0;
++    double accumulatedLowM=0.0;
++    double expectedIncrementM=0.0;
++    double eightStepErrorM=0.0;
++    double eightStepIncrementM=0.0;
++    double expectedEightStepIncrementM=0.0;
++    double legacyPositionChangeM=0.0;
++    unsigned updates=0u;
++    unsigned eightStepUpdates=0u;
++    bool fixedExact=false;
++    bool nondueExact=false;
++    bool legacyExact=false;
++};
++NMFEMNodeStateGPU makeReferenceFixtureNode(bool referenceMode, bool fixed) {
++    NMFEMNodeStateGPU state{};
++    const nm_float4 origin={8192.0f,-4096.0f,2048.0f,0.0f};
++    const float queryU=40.0f*0x1p-20f;
++    state.restAndFixed={origin.x+0.001953125f,origin.y+0.001953125f,
++        origin.z, fixed?1.0f:0.0f};
++    const float displacement=referenceMode?queryU:0.0f;
++    state.referenceDisplacementAndMode={displacement,displacement,displacement,
++        referenceMode?1.0f:0.0f};
++    state.referenceDisplacementLow={0.0f,0.0f,0.0f,0.0f};
++    state.positionAndMass={
++        state.restAndFixed.x+queryU,
++        state.restAndFixed.y+queryU,
++        state.restAndFixed.z+queryU,1.0f};
++    state.velocityAndInverseMass={0x1p-31f,0.0f,0.0f,1.0f};
++    return state;
++}
++FEMReferenceAccumulationAudit runReferenceAccumulationAudit(
++    id<MTLDevice> device,id<MTLLibrary> library,id<MTLCommandQueue> queue) {
++    NSError* error=nil;
++    id<MTLFunction> integrateFunction=[library newFunctionWithName:
++        @"numi_matter_metal::nm_fem_integrate"];
++    id<MTLFunction> commitFunction=[library newFunctionWithName:
++        @"numi_matter_metal::nm_fem_commit_microstep"];
++    require(integrateFunction!=nil && commitFunction!=nil,
++        "missing production FEM integration/commit kernels");
++    id<MTLComputePipelineState> integratePipeline=[device
++        newComputePipelineStateWithFunction:integrateFunction error:&error];
++    require(integratePipeline!=nil,"cannot create production FEM integrate pipeline");
++    id<MTLComputePipelineState> commitPipeline=[device
++        newComputePipelineStateWithFunction:commitFunction error:&error];
++    require(commitPipeline!=nil,"cannot create production FEM commit pipeline");
++    NMMatterDispatchGPU dispatch{};
++    dispatch.abiVersion=NM_MATTER_ABI_VERSION;
++    dispatch.environmentCount=1u;
++    dispatch.objectCount=1u;
++    dispatch.femNodeCount=1u;
++    dispatch.materialStateStride=1u;
++    dispatch.gravityAndTimestep={0.0f,0.0f,0.0f,0x1p-10f};
++    NMContinuumObjectGPU object{};
++    object.representation=NM_REPRESENTATION_FEM;
++    object.flags=NM_OBJECT_ACTIVE;
++    object.schedulerIndex=0u;
++    object.solver={0u,0u,0u,0u};
++    NMSchedulerStateGPU scheduler{};
++    scheduler.activeExponent=0u;
++    scheduler.numerical.w=1.0f;
++    NMAdaptiveStateGPU adaptive{};
++    adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
++    NMIncidenceRangeGPU nodeRange{};
++    nodeRange.objectIndex=0u;
++    NMMicrostepGPU microstep{};
++    microstep.microtickCount=1u;
++    microstep.time={0x1p-10f,0x1p10f,0.0f,0x1p-10f};
++    NMMatterStatusGPU status{};
++    float dummyMaterialState=0.0f;
++    auto dispatchBuffer=sharedSortBuffer(device,&dispatch,sizeof(dispatch));
++    auto objectBuffer=sharedSortBuffer(device,&object,sizeof(object));
++    auto nodeRangeBuffer=sharedSortBuffer(device,&nodeRange,sizeof(nodeRange));
++    auto schedulerBuffer=sharedSortBuffer(device,&scheduler,sizeof(scheduler));
++    auto adaptiveBuffer=sharedSortBuffer(device,&adaptive,sizeof(adaptive));
++    auto microstepBuffer=sharedSortBuffer(device,&microstep,sizeof(microstep));
++    auto statusBuffer=sharedSortBuffer(device,&status,sizeof(status));
++    auto materialAcceptedBuffer=sharedSortBuffer(device,&dummyMaterialState,sizeof(float));
++    auto materialCandidateBuffer=sharedSortBuffer(device,&dummyMaterialState,sizeof(float));
++    auto initializeNodeBuffers=[&](NMFEMNodeStateGPU initial,
++        id<MTLBuffer> __strong& acceptedBuffer,id<MTLBuffer> __strong& candidateBuffer) {
++        acceptedBuffer=sharedSortBuffer(device,&initial,sizeof(initial));
++        candidateBuffer=sharedSortBuffer(device,&initial,sizeof(initial));
++    };
++    auto encodeIntegrate=[&](id<MTLComputeCommandEncoder> encoder) {
++        [encoder setComputePipelineState:integratePipeline];
++        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++        [encoder setBuffer:microstepBuffer offset:0 atIndex:1];
++        [encoder setBuffer:objectBuffer offset:0 atIndex:2];
++        [encoder setBuffer:nodeRangeBuffer offset:0 atIndex:3];
++        [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
++        [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
++    };
++    auto dispatchIntegrate=[&](id<MTLComputeCommandEncoder> encoder,
++        id<MTLBuffer> acceptedBuffer,id<MTLBuffer> candidateBuffer) {
++        encodeIntegrate(encoder);
++        [encoder setBuffer:acceptedBuffer offset:0 atIndex:6];
++        [encoder setBuffer:candidateBuffer offset:0 atIndex:7];
++        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
++            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
++    };
++    auto dispatchCommit=[&](id<MTLComputeCommandEncoder> encoder,
++        id<MTLBuffer> acceptedBuffer,id<MTLBuffer> candidateBuffer) {
++        [encoder setComputePipelineState:commitPipeline];
++        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
++        [encoder setBuffer:statusBuffer offset:0 atIndex:1];
++        [encoder setBuffer:acceptedBuffer offset:0 atIndex:2];
++        [encoder setBuffer:candidateBuffer offset:0 atIndex:3];
++        [encoder setBuffer:materialAcceptedBuffer offset:0 atIndex:4];
++        [encoder setBuffer:materialCandidateBuffer offset:0 atIndex:5];
++        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
++            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
++    };
++    auto runSingle=[&](NMFEMNodeStateGPU initial,NMContinuumObjectGPU oneObject,
++        NMMicrostepGPU oneMicrostep) {
++        id<MTLBuffer> acceptedBuffer=nil,candidateBuffer=nil;
++        initializeNodeBuffers(initial,acceptedBuffer,candidateBuffer);
++        std::memcpy(objectBuffer.contents,&oneObject,sizeof(oneObject));
++        std::memcpy(microstepBuffer.contents,&oneMicrostep,sizeof(oneMicrostep));
++        id<MTLCommandBuffer> command=[queue commandBuffer];
++        require(command!=nil,"cannot create FEM integration control command");
++        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
++        require(encoder!=nil,"cannot create FEM integration control encoder");
++        dispatchIntegrate(encoder,acceptedBuffer,candidateBuffer);
++        [encoder endEncoding];
++        [command commit]; [command waitUntilCompleted];
++        require(command.status==MTLCommandBufferStatusCompleted,
++            "production FEM integration control failed");
++        NMFEMNodeStateGPU result{};
++        std::memcpy(&result,candidateBuffer.contents,sizeof(result));
++        return std::pair<NMFEMNodeStateGPU,NMFEMNodeStateGPU>{initial,result};
++    };
++    FEMReferenceAccumulationAudit audit;
++    constexpr unsigned updateCount=256u;
++    const NMFEMNodeStateGPU initial=makeReferenceFixtureNode(true,false);
++    id<MTLBuffer> acceptedBuffer=nil,candidateBuffer=nil;
++    initializeNodeBuffers(initial,acceptedBuffer,candidateBuffer);
++    id<MTLCommandBuffer> command=[queue commandBuffer];
++    require(command!=nil,"cannot create repeated FEM integration command");
++    id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
++    require(encoder!=nil,"cannot create repeated FEM integration encoder");
++    for(unsigned step=0u;step<updateCount;++step) {
++        dispatchIntegrate(encoder,acceptedBuffer,candidateBuffer);
++        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        dispatchCommit(encoder,acceptedBuffer,candidateBuffer);
++        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++    }
++    [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
++    require(command.status==MTLCommandBufferStatusCompleted,
++        "repeated production FEM integration failed");
++    NMFEMNodeStateGPU finalState{};
++    std::memcpy(&finalState,acceptedBuffer.contents,sizeof(finalState));
++    const double initialDisplacement=static_cast<double>(initial.referenceDisplacementAndMode.x);
++    const double expectedIncrement=static_cast<double>(updateCount)*0x1p-41;
++    const double finalDisplacement=static_cast<double>(finalState.referenceDisplacementAndMode.x)+
++        static_cast<double>(finalState.referenceDisplacementLow.x);
++    audit.displacementErrorM=std::abs(finalDisplacement-(initialDisplacement+expectedIncrement));
++    audit.accumulatedLowM=finalDisplacement-initialDisplacement;
++    audit.expectedIncrementM=expectedIncrement;
++    audit.updates=updateCount;
++    audit.legacyPositionChangeM=std::abs(
++        static_cast<double>(finalState.positionAndMass.x)-initial.positionAndMass.x);
++    constexpr unsigned eightStepCount=8u;
++    id<MTLBuffer> acceptedEight=nil,candidateEight=nil;
++    initializeNodeBuffers(initial,acceptedEight,candidateEight);
++    id<MTLCommandBuffer> eightCommand=[queue commandBuffer];
++    require(eightCommand!=nil,"cannot create eight-step FEM integration command");
++    id<MTLComputeCommandEncoder> eightEncoder=[eightCommand computeCommandEncoder];
++    require(eightEncoder!=nil,"cannot create eight-step FEM integration encoder");
++    for(unsigned step=0u;step<eightStepCount;++step) {
++        dispatchIntegrate(eightEncoder,acceptedEight,candidateEight);
++        [eightEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        dispatchCommit(eightEncoder,acceptedEight,candidateEight);
++        [eightEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++    }
++    [eightEncoder endEncoding]; [eightCommand commit]; [eightCommand waitUntilCompleted];
++    require(eightCommand.status==MTLCommandBufferStatusCompleted,
++        "eight-step production FEM integration failed");
++    NMFEMNodeStateGPU eightState{};
++    std::memcpy(&eightState,acceptedEight.contents,sizeof(eightState));
++    const double eightFinalDisplacement=
++        static_cast<double>(eightState.referenceDisplacementAndMode.x)+
++        static_cast<double>(eightState.referenceDisplacementLow.x);
++    audit.expectedEightStepIncrementM=static_cast<double>(eightStepCount)*0x1p-41;
++    audit.eightStepIncrementM=eightFinalDisplacement-initialDisplacement;
++    audit.eightStepErrorM=std::abs(eightFinalDisplacement-
++        (initialDisplacement+audit.expectedEightStepIncrementM));
++    audit.eightStepUpdates=eightStepCount;
++    auto fixedObject=object;
++    auto fixedInitial=makeReferenceFixtureNode(true,true);
++    const auto fixedPair=runSingle(fixedInitial,fixedObject,microstep);
++    audit.fixedExact=std::memcmp(&fixedPair.first,&fixedPair.second,sizeof(fixedPair.first))==0;
++    auto nondueObject=object;
++    nondueObject.solver.y=1u;
++    auto nondueMicrostep=microstep;
++    nondueMicrostep.microtick=1u;
++    nondueMicrostep.microtickCount=2u;
++    const auto nonduePair=runSingle(initial,nondueObject,nondueMicrostep);
++    audit.nondueExact=std::memcmp(&nonduePair.first,&nonduePair.second,sizeof(nonduePair.first))==0;
++    auto legacyInitial=makeReferenceFixtureNode(false,false);
++    const auto legacyPair=runSingle(legacyInitial,object,microstep);
++    audit.legacyExact=std::memcmp(&legacyPair.first,&legacyPair.second,sizeof(legacyPair.first))==0;
++    require(audit.displacementErrorM<=2.0e-15&&
++        audit.accumulatedLowM>0.99*expectedIncrement&&
++        audit.fixedExact&&audit.nondueExact&&audit.legacyExact,
++        "production FEM reference-displacement persistence/fixed/nondue/legacy control failed");
++    return audit;
++}
+ void appendLittleEndian(std::vector<std::uint8_t>& output,std::uint32_t value) {
+     for (unsigned shift=0u; shift<32u; shift+=8u)
+         output.push_back(static_cast<std::uint8_t>(value>>shift));
+@@ -1377,6 +1585,12 @@ int main(int argc,const char** argv) {
+             double femExpansionDeltaEnergyError=0.0,femExpansionGapIncrease=INFINITY;
+             double femExpansionTranslationError=0.0,femExpansionLegacyGapChange=0.0;
+             double femExpansionLegacyEnergyChange=0.0;
++            double femPairCoordinateError=0.0,femPairBaryError=0.0;
++            double femPairGapError=0.0,femPairEnergyRelativeError=0.0;
++            double femPairDeltaEnergyRelativeError=0.0,femPairResponseRelativeError=0.0;
++            double femPairGapIncrease=INFINITY,femPairEnergyChange=0.0;
++            double femPairLegacyGapChange=0.0,femPairLegacyEnergyChange=0.0;
++            std::array<bool,3> femPairCases{};
+             double femReferencePositionError=0.0,femTrialPositionError=0.0;
+             double femTrialVelocityError=0.0,femTrialDisplacementError=0.0;
+             double femTrialDeltaVelocityError=0.0,femTrialNoOpChanged=0.0;
+@@ -1384,6 +1598,8 @@ int main(int argc,const char** argv) {
+             double femContactGapIncrease=0.0,femContactEnergyChange=0.0;
+             double femRoundedWorldGapChange=0.0,femRoundedWorldEnergyChange=0.0;
+             const ExactVFJVPResult exactVFJvp=runExactVFJVP(device,library,queue);
++            const FEMReferenceAccumulationAudit femAccumulation=
++                runReferenceAccumulationAudit(device,library,queue);
+             for (std::size_t i = 0u; i < kRows; ++i) {
+                 const float* row = words+i*kWordsPerRow;
+                 for (unsigned j = 0u; j < kWordsPerRow; ++j)
+@@ -1419,6 +1635,120 @@ int main(int argc,const char** argv) {
+                         femRoundedWorldGapChange=errors.roundedWorldGapChangeM;
+                         femRoundedWorldEnergyChange=errors.roundedWorldEnergyChangeJ;
+                     }
++                } else if(i>=130u&&i<133u) {
++                    const unsigned test=static_cast<unsigned>(row[0u]);
++                    require(test<3u && row[1u]==1.0f && row[2u]==1.0f &&
++                        row[3u]==1.0f && row[17u*4u+2u]==1.0f &&
++                        row[17u*4u+3u]==1.0f,
++                        "compensated FEM pair trial/witness/fixed/zero control flags failed");
++                    femPairCases[test]=true;
++                    const double scales[3]={0.0078125,0.015625,0.03125};
++                    const double scale=scales[test];
++                    const double queryU=40.0*std::ldexp(1.0,-20);
++                    const double triangleU=33.0*std::ldexp(1.0,-20);
++                    const Vector expectedBase[4]={
++                        {0.25*scale+queryU,0.25*scale+queryU,queryU},
++                        {0.0,0.0,triangleU},{scale,0.0,triangleU},{0.0,scale,triangleU}};
++                    std::array<Vector,4> base{},trial{};
++                    auto expandedAt=[&](unsigned highSlot,unsigned lowSlot) {
++                        return add(vectorAt(row,highSlot),vectorAt(row,lowSlot));
++                    };
++                    for(unsigned point=0u;point<4u;++point) {
++                        base[point]=expandedAt(1u+2u*point,2u+2u*point);
++                        trial[point]=base[point];
++                        femPairCoordinateError=std::max(femPairCoordinateError,
++                            maximumDifference(base[point],expectedBase[point]));
++                    }
++                    trial[0]=expandedAt(9u,10u);
++                    const Vector expectedTrialPoint={expectedBase[0][0]+0x1p-39,
++                        expectedBase[0][1],expectedBase[0][2]+0x1p-40};
++                    femPairCoordinateError=std::max(femPairCoordinateError,
++                        maximumDifference(trial[0],expectedTrialPoint));
++                    const Vector trialDisplacement={
++                        static_cast<double>(row[15u*4u])+row[16u*4u],
++                        static_cast<double>(row[15u*4u+1u])+row[16u*4u+1u],
++                        static_cast<double>(row[15u*4u+2u])+row[16u*4u+2u]};
++                    const Vector expectedDisplacement={queryU+0x1p-39,
++                        queryU,queryU+0x1p-40};
++                    femPairCoordinateError=std::max(femPairCoordinateError,
++                        maximumDifference(trialDisplacement,expectedDisplacement));
++                    require(row[15u*4u+3u]==1.0f&&row[16u*4u+3u]==0.0f,
++                        "paired FEM trial changed its reference-mode tag or reserved low limb");
++                    const auto baseOracle=triangleOracle(base[0],base[1],base[2],base[3]);
++                    const auto trialOracle=triangleOracle(trial[0],trial[1],trial[2],trial[3]);
++                    const Vector gpuBaseBary={row[11u*4u],row[11u*4u+1u],row[11u*4u+2u]};
++                    const Vector gpuTrialBary={row[12u*4u],row[12u*4u+1u],row[12u*4u+2u]};
++                    femPairBaryError=std::max({femPairBaryError,
++                        maximumDifference(baseOracle.bary,gpuBaseBary),
++                        maximumDifference(trialOracle.bary,gpuTrialBary)});
++                    femPairGapError=std::max({femPairGapError,
++                        std::abs(baseOracle.separation-row[11u*4u+3u]),
++                        std::abs(trialOracle.separation-row[12u*4u+3u]),
++                        std::abs(baseOracle.separation-row[13u*4u+2u]),
++                        std::abs(trialOracle.separation-row[13u*4u+3u])});
++                    constexpr double thickness=10.0e-6,stiffness=1.0e14;
++                    const double floorTestGap=row[2u*4u+3u];
++                    const double floorThickness=double(float(10.0e-6f));
++                    const double floorStiffness=double(float(1.0e14f));
++                    const double floorEnergyOracle=barrierEnergy(
++                        floorTestGap,floorThickness,floorStiffness);
++                    const double floorDistance=std::max(floorTestGap,1.0e-4*floorThickness);
++                    const double floorD2=floorDistance*floorDistance;
++                    const double floorOffset=floorD2-floorThickness*floorThickness;
++                    const double floorDerivative=-2.0*floorDistance*floorStiffness*(
++                        2.0*floorOffset*std::log(floorD2/(floorThickness*floorThickness))+
++                        floorOffset*floorOffset/floorD2);
++                    require(std::abs(double(row[1u*4u+3u])-floorEnergyOracle)/
++                                std::max(std::abs(floorEnergyOracle),1.0e-30)<=5.0e-4&&
++                            std::abs(double(row[3u*4u+3u])-floorDerivative)/
++                                std::max(std::abs(floorDerivative),1.0e-30)<=5.0e-3&&
++                            std::abs(double(row[4u*4u+3u])-floorDerivative)/
++                                std::max(std::abs(floorDerivative),1.0e-30)<=5.0e-3,
++                        "compensated FEM floor energy/derivative control failed");
++                    const double mollifier=triangleMollifier(base[1],base[2],base[3]);
++                    const double oracleBaseEnergy=mollifier*barrierEnergy(
++                        baseOracle.separation,thickness,stiffness);
++                    const double oracleTrialEnergy=mollifier*barrierEnergy(
++                        trialOracle.separation,thickness,stiffness);
++                    const double gpuBaseEnergy=row[13u*4u];
++                    const double gpuTrialEnergy=row[13u*4u+1u];
++                    femPairEnergyRelativeError=std::max({femPairEnergyRelativeError,
++                        std::abs(gpuBaseEnergy-oracleBaseEnergy)/
++                            std::max(std::abs(oracleBaseEnergy),1.0e-30),
++                        std::abs(gpuTrialEnergy-oracleTrialEnergy)/
++                            std::max(std::abs(oracleTrialEnergy),1.0e-30)});
++                    const double oracleDelta=oracleTrialEnergy-oracleBaseEnergy;
++                    const double gpuDelta=gpuTrialEnergy-gpuBaseEnergy;
++                    femPairDeltaEnergyRelativeError=std::max(
++                        femPairDeltaEnergyRelativeError,
++                        std::abs(gpuDelta-oracleDelta)/std::max(std::abs(oracleDelta),1.0e-30));
++                    if(test==0u) {
++                        femPairGapIncrease=trialOracle.separation-baseOracle.separation;
++                        femPairEnergyChange=gpuDelta;
++                        femPairLegacyGapChange=static_cast<double>(row[14u*4u+3u])-row[14u*4u+2u];
++                        femPairLegacyEnergyChange=static_cast<double>(row[14u*4u+1u])-row[14u*4u];
++                    }
++                    const double dt=0x1p-10;
++                    auto oracleImpulse=[&](double gap) {
++                        const double distance=std::max(gap,1.0e-4*thickness);
++                        const double d2=distance*distance,h2=thickness*thickness;
++                        const double offset=d2-h2,logRatio=std::log(d2/h2);
++                        const double first=-stiffness*(2.0*offset*logRatio+offset*offset/d2);
++                        return std::max(-2.0*distance*first,0.0)*dt;
++                    };
++                    const double expectedBaseImpulse=oracleImpulse(baseOracle.separation);
++                    const double expectedTrialImpulse=oracleImpulse(trialOracle.separation);
++                    require(expectedBaseImpulse>expectedTrialImpulse&&
++                        row[17u*4u]>0.0f&&row[17u*4u+1u]>0.0f,
++                        "independent opening response sign or positive GPU response failed");
++                    femPairResponseRelativeError=std::max({femPairResponseRelativeError,
++                        std::abs(static_cast<double>(row[17u*4u])-expectedBaseImpulse)/
++                            std::max(expectedBaseImpulse,1.0e-30),
++                        std::abs(static_cast<double>(row[17u*4u+1u])-expectedTrialImpulse)/
++                            std::max(expectedTrialImpulse,1.0e-30)});
++                    require(row[14u*4u]==row[14u*4u+1u] &&
++                        row[14u*4u+2u]==row[14u*4u+3u],
++                        "legacy rounded-world projection did not preserve its exact unchanged control");
+                 } else if(i>=125u&&i<130u) {
+                     const auto errors=femExpansionErrors(row);
+                     const unsigned test=static_cast<unsigned>(row[0u]);
+@@ -1485,6 +1815,31 @@ int main(int argc,const char** argv) {
+             require(std::all_of(femExpansionCases.begin(),femExpansionCases.end(),
+                     [](bool value){return value;}),
+                 "compensated FEM expansion fixture did not visit all five rows");
++            require(std::all_of(femPairCases.begin(),femPairCases.end(),
++                    [](bool value){return value;}),
++                "paired FEM displacement fixture did not visit all three triangle scales");
++            std::fprintf(stderr,
++                "paired_displacement_diagnostic coordinate_m=%.17g bary=%.17g gap_m=%.17g energy_relative=%.17g delta_energy_relative=%.17g gap_increase_m=%.17g delta_energy_J=%.17g response_relative=%.17g legacy_gap_m=%.17g legacy_energy_J=%.17g\n",
++                femPairCoordinateError,femPairBaryError,femPairGapError,
++                femPairEnergyRelativeError,femPairDeltaEnergyRelativeError,
++                femPairGapIncrease,femPairEnergyChange,femPairResponseRelativeError,
++                femPairLegacyGapChange,femPairLegacyEnergyChange);
++            require(femPairCoordinateError<=2.0e-15&&femPairBaryError<=5.0e-7&&
++                    femPairGapError<=1.0e-11&&femPairEnergyRelativeError<=5.0e-4&&
++                    femPairDeltaEnergyRelativeError<=0.25&&femPairGapIncrease>0.0&&
++                    femPairEnergyChange<0.0&&femPairResponseRelativeError<=5.0e-4&&
++                    femPairLegacyGapChange==0.0&&femPairLegacyEnergyChange==0.0,
++                "paired FEM expansion geometry/energy/response oracle exceeded declared gates");
++            require(femAccumulation.updates==256u&&
++                    femAccumulation.eightStepUpdates==8u&&
++                    femAccumulation.eightStepErrorM<=2.0e-15&&
++                    femAccumulation.eightStepIncrementM>
++                        0.99*femAccumulation.expectedEightStepIncrementM&&
++                    femAccumulation.displacementErrorM<=2.0e-15&&
++                    femAccumulation.accumulatedLowM>0.99*femAccumulation.expectedIncrementM&&
++                    femAccumulation.fixedExact&&femAccumulation.nondueExact&&
++                    femAccumulation.legacyExact,
++                "production FEM paired displacement persistence controls failed");
+             require(femExpansionCoordinateError<=2.0e-15&&
+                     femExpansionBaryError<=5.0e-7&&femExpansionGapError<=1.0e-11&&
+                     femExpansionEnergyError<=5.0e-4&&
+@@ -1522,7 +1877,7 @@ int main(int argc,const char** argv) {
+                     femContactGapIncrease>1.0e-6&&femContactEnergyChange<0.0&&
+                     std::abs(femRoundedWorldGapChange)<=5.0e-9,
+                 "FEM relative-position, exact trial, or synthetic contact gate failed");
+-            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"fem_reference_position_cases\":3,\"fem_trial_state_cases\":3,\"fem_contact_trial_cases\":1,\"fem_reference_position_error_max_m\":%.17g,\"fem_trial_position_error_max_m\":%.17g,\"fem_trial_velocity_error_max_m_per_s\":%.17g,\"fem_trial_reference_displacement_error_max_m\":%.17g,\"fem_trial_delta_velocity_error_max_m_per_s\":%.17g,\"fem_trial_noop_changed_components\":%.17g,\"fem_contact_gap_error_max_m\":%.17g,\"fem_contact_energy_relative_error_max\":%.17g,\"fem_contact_trial_gap_increase_m\":%.17g,\"fem_contact_trial_energy_change_J\":%.17g,\"fem_contact_rounded_world_gap_change_m\":%.17g,\"fem_contact_rounded_world_energy_change_J\":%.17g,\"fem_compensated_expansion_cases\":5,\"fem_compensated_coordinate_error_max_m\":%.17g,\"fem_compensated_barycentric_error_max\":%.17g,\"fem_compensated_gap_error_max_m\":%.17g,\"fem_compensated_energy_relative_error_max\":%.17g,\"fem_compensated_delta_energy_relative_error_max\":%.17g,\"fem_compensated_gap_increase_min_m\":%.17g,\"fem_compensated_translation_error_max_m\":%.17g,\"fem_rounded_legacy_gap_change_max_m\":%.17g,\"fem_rounded_legacy_energy_change_max_J\":%.17g,\"exact_vf_jvp_cases\":2,\"exact_vf_jvp_relative_error_max\":%.17g,\"exact_vf_jvp_absolute_error_max_Ns_per_alpha\":%.17g,\"exact_vf_jvp_near_edge_base_bary_min\":%.17g,\"exact_vf_jvp_near_edge_fd_bary_min\":%.17g,\"exact_vf_jvp_inverse_response_k_effect_Ns_per_alpha\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7],femReferencePositionError,femTrialPositionError,femTrialVelocityError,femTrialDisplacementError,femTrialDeltaVelocityError,femTrialNoOpChanged,femContactGapError,femContactEnergyError,femContactGapIncrease,femContactEnergyChange,femRoundedWorldGapChange,femRoundedWorldEnergyChange,femExpansionCoordinateError,femExpansionBaryError,femExpansionGapError,femExpansionEnergyError,femExpansionDeltaEnergyError,femExpansionGapIncrease,femExpansionTranslationError,femExpansionLegacyGapChange,femExpansionLegacyEnergyChange,exactVFJvp.relativeErrorMaximum,exactVFJvp.absoluteErrorMaximum,exactVFJvp.nearEdgeBaseMinimumBary,exactVFJvp.nearEdgeSampleMinimumBary,exactVFJvp.inverseResponseStiffnessDerivativeNs);
++            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"fem_reference_position_cases\":3,\"fem_trial_state_cases\":3,\"fem_contact_trial_cases\":1,\"fem_reference_position_error_max_m\":%.17g,\"fem_trial_position_error_max_m\":%.17g,\"fem_trial_velocity_error_max_m_per_s\":%.17g,\"fem_trial_reference_displacement_error_max_m\":%.17g,\"fem_trial_delta_velocity_error_max_m_per_s\":%.17g,\"fem_trial_noop_changed_components\":%.17g,\"fem_contact_gap_error_max_m\":%.17g,\"fem_contact_energy_relative_error_max\":%.17g,\"fem_contact_trial_gap_increase_m\":%.17g,\"fem_contact_trial_energy_change_J\":%.17g,\"fem_contact_rounded_world_gap_change_m\":%.17g,\"fem_contact_rounded_world_energy_change_J\":%.17g,\"fem_compensated_pair_cases\":3,\"fem_compensated_pair_coordinate_error_max_m\":%.17g,\"fem_compensated_pair_barycentric_error_max\":%.17g,\"fem_compensated_pair_gap_error_max_m\":%.17g,\"fem_compensated_pair_energy_relative_error_max\":%.17g,\"fem_compensated_pair_delta_energy_relative_error_max\":%.17g,\"fem_compensated_pair_response_relative_error_max\":%.17g,\"fem_compensated_pair_gap_increase_m\":%.17g,\"fem_compensated_pair_energy_change_J\":%.17g,\"fem_compensated_pair_legacy_gap_change_m\":%.17g,\"fem_compensated_pair_legacy_energy_change_J\":%.17g,\"fem_reference_accumulation_updates\":%u,\"fem_reference_accumulation_error_m\":%.17g,\"fem_reference_accumulation_expected_increment_m\":%.17g,\"fem_reference_accumulation_actual_increment_m\":%.17g,\"fem_reference_accumulation_world_projection_change_m\":%.17g,\"fem_reference_accumulation_after8_error_m\":%.17g,\"fem_reference_accumulation_after8_increment_m\":%.17g,\"fem_reference_accumulation_after8_expected_increment_m\":%.17g,\"fem_reference_fixed_exact\":%s,\"fem_reference_nondue_exact\":%s,\"fem_reference_legacy_exact\":%s,\"fem_compensated_expansion_cases\":5,\"fem_compensated_coordinate_error_max_m\":%.17g,\"fem_compensated_barycentric_error_max\":%.17g,\"fem_compensated_gap_error_max_m\":%.17g,\"fem_compensated_energy_relative_error_max\":%.17g,\"fem_compensated_delta_energy_relative_error_max\":%.17g,\"fem_compensated_gap_increase_min_m\":%.17g,\"fem_compensated_translation_error_max_m\":%.17g,\"fem_rounded_legacy_gap_change_max_m\":%.17g,\"fem_rounded_legacy_energy_change_max_J\":%.17g,\"exact_vf_jvp_cases\":2,\"exact_vf_jvp_relative_error_max\":%.17g,\"exact_vf_jvp_absolute_error_max_Ns_per_alpha\":%.17g,\"exact_vf_jvp_near_edge_base_bary_min\":%.17g,\"exact_vf_jvp_near_edge_fd_bary_min\":%.17g,\"exact_vf_jvp_inverse_response_k_effect_Ns_per_alpha\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7],femReferencePositionError,femTrialPositionError,femTrialVelocityError,femTrialDisplacementError,femTrialDeltaVelocityError,femTrialNoOpChanged,femContactGapError,femContactEnergyError,femContactGapIncrease,femContactEnergyChange,femRoundedWorldGapChange,femRoundedWorldEnergyChange,femPairCoordinateError,femPairBaryError,femPairGapError,femPairEnergyRelativeError,femPairDeltaEnergyRelativeError,femPairResponseRelativeError,femPairGapIncrease,femPairEnergyChange,femPairLegacyGapChange,femPairLegacyEnergyChange,femAccumulation.updates,femAccumulation.displacementErrorM,femAccumulation.expectedIncrementM,femAccumulation.accumulatedLowM,femAccumulation.legacyPositionChangeM,femAccumulation.eightStepErrorM,femAccumulation.eightStepIncrementM,femAccumulation.expectedEightStepIncrementM,femAccumulation.fixedExact?"true":"false",femAccumulation.nondueExact?"true":"false",femAccumulation.legacyExact?"true":"false",femExpansionCoordinateError,femExpansionBaryError,femExpansionGapError,femExpansionEnergyError,femExpansionDeltaEnergyError,femExpansionGapIncrease,femExpansionTranslationError,femExpansionLegacyGapChange,femExpansionLegacyEnergyChange,exactVFJvp.relativeErrorMaximum,exactVFJvp.absoluteErrorMaximum,exactVFJvp.nearEdgeBaseMinimumBary,exactVFJvp.nearEdgeSampleMinimumBary,exactVFJvp.inverseResponseStiffnessDerivativeNs);
+             require(nearestMaximum <= 1.0e-3 && valueMaximum <= 1.0e-3 && gradientMaximum <= 1.0e-3 &&
+                     eeDistanceMaximum <= 2.0e-10 && eeVectorMaximum <= 2.0e-9 &&
+                     eeArithmeticVectorMaximum <= 2.0e-10 &&
+diff --git a/matter/tools/cardboard_offline_conditioning_study.py b/matter/tools/cardboard_offline_conditioning_study.py
+index 9b122e06..ff23b2c9 100644
+--- a/matter/tools/cardboard_offline_conditioning_study.py
++++ b/matter/tools/cardboard_offline_conditioning_study.py
+@@ -153,7 +153,7 @@ def validate_pairing(report: dict, matrix: sparse.csr_matrix, vectors: dict,
+     rhs = np.asarray(vectors.get("native_rhs_free_impulse_Ns"), dtype=np.float64)
+     candidate = np.asarray(vectors.get("captured_node_state_f32"), dtype=np.float32)
+     if free_nodes.ndim != 1 or rhs.shape != (matrix.shape[0],) or \
+-            candidate.ndim != 2 or candidate.shape[1] != 20:
++            candidate.ndim != 2 or candidate.shape[1] not in (20, 24):
+         raise ValueError("operator vector/topology sidecars lack native RHS or candidate state")
+     require_finite("captured native RHS", rhs)
+     if np.linalg.norm(rhs) == 0.0:
+@@ -171,11 +171,14 @@ def validate_pairing(report: dict, matrix: sparse.csr_matrix, vectors: dict,
+ 
+ 
+ def _dtype_layout(dtype: str, element_bytes: int) -> tuple[str, int]:
++    if dtype == "struct:NMFEMNodeStateGPU":
++        if int(element_bytes) not in (80, 96):
++            raise ValueError("regional FEM node record must have 80 or 96 bytes")
++        return "<f4", int(element_bytes)
+     layouts = {
+         "<f4x4": ("<f4", 16),
+         "<f4": ("<f4", 4),
+         "<u4": ("<u4", 4),
+-        "struct:NMFEMNodeStateGPU": ("<f4", 80),
+         "struct:NMMatterStatusGPU": ("|u1", NMMATTER_STATUS_GPU_BYTES),
+     }
+     if dtype not in layouts:
+@@ -293,7 +296,7 @@ def _read_regional_payload(manifest_path: Path) -> tuple[dict, dict[str, np.ndar
+             value = np.frombuffer(raw, dtype="|u1").reshape(
+                 expected_shapes[name] + (NMMATTER_STATUS_GPU_BYTES,)).copy()
+         elif dtype == "struct:NMFEMNodeStateGPU":
+-            value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (20,)).copy()
++            value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (element_bytes // 4,)).copy()
+         elif dtype == "<f4x4":
+             value = np.frombuffer(raw, dtype="<f4").reshape(expected_shapes[name] + (4,)).copy()
+         else:
+@@ -344,7 +347,7 @@ def _capture_tetrahedra(capture_path: Path, report: dict, manifest: dict,
+                 if key in tet_rows:
+                     raise ValueError("rich operator capture has duplicate tetrahedron IDs")
+                 tet_rows[key] = row
+-    if not isinstance(header, dict) or header.get("schema") != "numi.cardboard.fem-newton-capture.v1":
++    if not isinstance(header, dict) or header.get("schema") not in {"numi.cardboard.fem-newton-capture.v1", "numi.cardboard.fem-newton-capture.v2"}:
+         raise ValueError("unsupported or missing rich operator capture header")
+     if not isinstance(integrity, dict) or integrity.get("production_inputs_bitwise_unchanged") is not True:
+         raise ValueError("rich operator capture lacks a passing final integrity record")
+@@ -579,12 +582,15 @@ def load_native_rap(folder: Path, report: dict, matrix: sparse.csr_matrix,
+     pivots = np.fromfile(files["pivots"], dtype="<u4").reshape(envs, modes)[selected_env]
+     valid = np.fromfile(files["factor_valid"], dtype="<u4").reshape(envs)[selected_env]
+     node_blocks = read_f32("node_block_inverse", (envs, nodes, 3, 4))[selected_env]
+-    state_raw = np.fromfile(files["candidate_nodes"], dtype="<f4").reshape(envs, nodes, 20)[selected_env]
+     expected_state = np.asarray(vectors["captured_node_state_f32"], dtype=np.float32)
++    if expected_state.shape != (nodes, 20) and expected_state.shape != (nodes, 24):
++        raise ValueError("operator capture has an unsupported FEM node layout")
++    state_raw = np.fromfile(files["candidate_nodes"], dtype="<f4").reshape(
++        envs, nodes, expected_state.shape[1])[selected_env]
+     if not np.array_equal(state_raw.view(np.uint32), expected_state.view(np.uint32)):
+         raise ValueError("native RAP candidate node state differs from operator capture")
+     free_nodes = np.asarray(vectors["free_node_ids"], dtype=np.int64)
+-    tags = state_raw[:, 11]  # restAndFixed.w in NMFEMNodeStateGPU (5 float4s)
++    tags = state_raw[:, 11]  # restAndFixed.w in NMFEMNodeStateGPU (unchanged prefix)
+     expected_free = np.flatnonzero(~np.isin(tags, [1.0, 3.0]))
+     if not np.array_equal(free_nodes, expected_free):
+         raise ValueError("RAP candidate constraints differ from offline free-node mapping")
+diff --git a/matter/tools/cardboard_paper_exact_capture.py b/matter/tools/cardboard_paper_exact_capture.py
+index fc624972..3882b20d 100644
+--- a/matter/tools/cardboard_paper_exact_capture.py
++++ b/matter/tools/cardboard_paper_exact_capture.py
+@@ -88,7 +88,7 @@ def export_capture(
+ 
+     if header is None or set(selected) != requested or integrity is None:
+         raise ValueError("capture is missing its header, one or more requested tets, or terminal integrity record")
+-    if header.get("schema") != "numi.cardboard.fem-newton-capture.v1":
++    if header.get("schema") not in {"numi.cardboard.fem-newton-capture.v1", "numi.cardboard.fem-newton-capture.v2"}:
+         raise ValueError("unsupported native capture schema")
+     if not integrity.get("production_inputs_bitwise_unchanged"):
+         raise ValueError("native capture reports changed production inputs")
+diff --git a/matter/tools/cardboard_solver_capture_analysis.py b/matter/tools/cardboard_solver_capture_analysis.py
+index 30a18ea4..819dfbaf 100644
+--- a/matter/tools/cardboard_solver_capture_analysis.py
++++ b/matter/tools/cardboard_solver_capture_analysis.py
+@@ -80,7 +80,9 @@ def starch_oracle(state, direction, parameters):
+ 
+ def normalize_native(records):
+     """Normalize the explicit native JSONL names without regenerating inputs."""
+-    if not records or records[0].get("schema") != "numi.cardboard.fem-newton-capture.v1":
++    if not records or records[0].get("schema") not in {
++            "numi.cardboard.fem-newton-capture.v1",
++            "numi.cardboard.fem-newton-capture.v2"}:
+         return records
+     # The native exporter writes GPU floats with nine round-trip digits. Widen
+     # the reconstructed FP32 values, not the decimal text treated as exact
+diff --git a/matter/tools/cardboard_solver_pair_analyzer.py b/matter/tools/cardboard_solver_pair_analyzer.py
+index df8a5960..c011ca95 100644
+--- a/matter/tools/cardboard_solver_pair_analyzer.py
++++ b/matter/tools/cardboard_solver_pair_analyzer.py
+@@ -234,7 +234,7 @@ def validate_capture(records: list[dict[str, Any]]) -> tuple[dict[str, Any], lis
+         raise ValueError("capture requires exactly one header and one terminal integrity record")
+     header = headers[0]
+     terminal = integrity[0]
+-    if header.get("schema") != CAPTURE_SCHEMA:
++    if header.get("schema") not in {CAPTURE_SCHEMA, "numi.cardboard.fem-newton-capture.v2"}:
+         raise ValueError("unsupported FEM capture schema")
+     if terminal.get("production_inputs_bitwise_unchanged") is not True:
+         raise ValueError("capture integrity reports modified production inputs")
+diff --git a/matter/tools/cardboard_source370_material_point_check.mm b/matter/tools/cardboard_source370_material_point_check.mm
+index 6564abfc..ab2603b7 100644
+--- a/matter/tools/cardboard_source370_material_point_check.mm
++++ b/matter/tools/cardboard_source370_material_point_check.mm
+@@ -117,6 +117,32 @@ std::vector<T> readRawVector(const std::filesystem::path& path,const std::size_t
+     need(input.good(),"short raw native input read: "+path.string());
+     return result;
+ }
++struct alignas(16) LegacyNMFEMNodeStateGPUv45 {
++    mr_float4 positionAndMass;
++    mr_float4 velocityAndInverseMass;
++    mr_float4 restAndFixed;
++    mr_float4 deltaVelocity;
++    mr_float4 referenceDisplacementAndMode;
++};
++static_assert(sizeof(LegacyNMFEMNodeStateGPUv45) == 80u);
++static_assert(sizeof(NMFEMNodeStateGPU) == 96u);
++
++std::vector<NMFEMNodeStateGPU> readLegacyV45NodeStates(
++    const std::filesystem::path& path, const std::size_t count) {
++    const auto legacy = readRawVector<LegacyNMFEMNodeStateGPUv45>(path, count);
++    std::vector<NMFEMNodeStateGPU> current(count);
++    for (std::size_t i = 0u; i < count; ++i) {
++        auto& dst = current[i];
++        const auto& src = legacy[i];
++        dst.positionAndMass = src.positionAndMass;
++        dst.velocityAndInverseMass = src.velocityAndInverseMass;
++        dst.restAndFixed = src.restAndFixed;
++        dst.deltaVelocity = src.deltaVelocity;
++        dst.referenceDisplacementAndMode = src.referenceDisplacementAndMode;
++        dst.referenceDisplacementLow = {0.0f, 0.0f, 0.0f, 0.0f};
++    }
++    return current;
++}
+ template<class T>
+ id<MTLBuffer> makeBuffer(id<MTLDevice> device,const std::vector<T>& values) {
+     need(!values.empty(),"refusing to create an empty Metal buffer");
+@@ -184,7 +210,8 @@ void verifyRunIdentity(const std::filesystem::path& run,
+                        std::array<float,15>& acceptedState,
+                        NMTetrahedronGPU& tetrahedron,
+                        NMContinuumObjectGPU& objectValue) {
+-    static_assert(sizeof(NMFEMNodeStateGPU)==80u);
++    static_assert(sizeof(LegacyNMFEMNodeStateGPUv45)==80u);
++    static_assert(sizeof(NMFEMNodeStateGPU)==96u);
+     const auto output=run/"output";
+     const auto packagePath=output/"compiled.nmatterpack";
+     const auto candidatePath=output/"rejected-conditioning-000002/candidate_nodes.bin";
+@@ -256,7 +283,7 @@ void verifyRunIdentity(const std::filesystem::path& run,
+          package.materials[kTargetMaterial].localNewtonIterations==32u&&
+          package.materials[kTargetMaterial].flags==213u,
+          "370 package does not contain the recorded accurate medium descriptor");
+-    candidateNodes=readRawVector<NMFEMNodeStateGPU>(candidatePath,
++    candidateNodes=readLegacyV45NodeStates(candidatePath,
+         static_cast<std::size_t>(package.dispatch.environmentCount)*
+         package.dispatch.femNodeCount);
+     NSDictionary* stateDocument=object(readJSON(statePath),"accepted-state export");
+@@ -437,7 +464,8 @@ void writeResult(const std::filesystem::path& path,const std::string& policy,
+ }
+ int run(const bool native,const std::filesystem::path& runPath,
+         const std::filesystem::path& mediumPath,const std::filesystem::path& outputPath) {
+-    static_assert(sizeof(NMFEMNodeStateGPU)==80u);
++    static_assert(sizeof(LegacyNMFEMNodeStateGPUv45)==80u);
++    static_assert(sizeof(NMFEMNodeStateGPU)==96u);
+     CompiledWorld package;
+     std::vector<NMFEMNodeStateGPU> candidateNodes;
+     std::array<float,15> acceptedState{};
+diff --git a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+index 53f4acf1..a204306f 100755
+--- a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
++++ b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+@@ -27,7 +27,7 @@ j['verification_note']='Registered passive ligament fibers with common rigid sup
+ j['binary_sha256']=sha(j['argv'][0]);j['source_invocation_sha256']=sha(args.source)
+ j['source_sha256']=sha(root/'apps/numilab_human_myosim_visual_probe.mm')
+ (p/'invocation.json').write_text(json.dumps(j,indent=2)+'\n')
+-files=['apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h','matter/include/numi/matter/shared.h','include/metalrobo/MetalArticulatedOperator.hpp','src/metal/MetalArticulatedOperator.mm','include/metalrobo/NumiHumanMuscleEquilibrium.hpp','src/core/NumiHumanMuscleEquilibrium.cpp','tests/numi_human_static_support_test.cpp','tests/numi_human_per_contact_plane_metal_test.mm','CMakeLists.txt','matter/CMakeLists.txt']
++files=['apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h','matter/include/numi/matter/shared.h','include/metalrobo/MetalArticulatedOperator.hpp','src/metal/MetalArticulatedOperator.mm','include/metalrobo/NumiHumanMuscleEquilibrium.hpp','src/core/NumiHumanMuscleEquilibrium.cpp','tests/numi_human_static_support_test.cpp','tests/numi_human_per_contact_plane_metal_test.mm','CMakeLists.txt','matter/CMakeLists.txt','matter/include/numi/matter/fem_compensated_deformation.h','matter/src/compiler_impl.cpp','matter/src/validation_impl.cpp','matter/src/fem_reference_geometry.hpp','matter/src/metal/base_cgls_runtime.metalinc','matter/src/metal/common.metalinc','matter/include/numi/matter/paper_compensated_bytecode.h','include/metalrobo/compensated_translation_gpu.h','apps/numanx_matter_attachment_runtime_probe.mm','matter/tools/cardboard_cached_operator_audit.py','matter/tools/cardboard_offline_conditioning_study.py','matter/tools/cardboard_paper_exact_capture.py','matter/tools/cardboard_solver_capture_analysis.py','matter/tools/cardboard_solver_pair_analyzer.py','matter/tools/test_cardboard_cached_operator_audit.py','matter/tools/test_cardboard_offline_conditioning_study.py','matter/tools/fem_kinematic_release_check.mm','matter/tools/fem_mutable_snapshot_check.mm','matter/tools/cardboard_source370_material_point_check.mm','matter/tools/fem_reference_check.mm','matter/tools/cardboard_contact_geometry_check.mm','matter/tools/cardboard_contact_geometry_check.metal','tools/verify_human_supported_tissue.sh','matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py']
+ (p/'provenance.json').write_text(json.dumps({'source_base_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'executable_sha256':j['binary_sha256'],'metallib_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib'),'suite_library_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib'),'source_sha256':{f:sha(root/f) for f in files},'actual_pose_geometry_audit_sha256':sha(args.geometry_audit or root/'matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/geometry/native-009-actual-pose-26.json'),'host':platform.node()},indent=2)+'\n')
+ env={k:v for k,v in os.environ.items() if not k.startswith('NUMI_HUMAN_') and k!='NM_VASCULAR_TRACE_ROOT'};env.update(j['environment'])
+ start=time.monotonic()
+diff --git a/matter/tools/fem_reference_check.mm b/matter/tools/fem_reference_check.mm
+index 974efea0..03feaea6 100644
+--- a/matter/tools/fem_reference_check.mm
++++ b/matter/tools/fem_reference_check.mm
+@@ -224,7 +224,13 @@ Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bo
+     const auto& t=w.fem.tetrahedra[ti];const unsigned base=e*w.dispatch.femNodeCount;
+     const auto at=[&](unsigned n){return direction?xyz(v.direction[base+n]):rate?xyz(v.nodes[base+n].velocityAndInverseMass):xyz(v.nodes[base+n].positionAndMass);};
+     if(!rate&&!direction&&(t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0u){
+-        const auto displacement=[&](unsigned n){return xyz(v.nodes[base+n].referenceDisplacementAndMode);};
++        const auto displacement=[&](unsigned n){
++            const auto& node=v.nodes[base+n];
++            return Vec{
++                double(node.referenceDisplacementAndMode.x)+double(node.referenceDisplacementLow.x),
++                double(node.referenceDisplacementAndMode.y)+double(node.referenceDisplacementLow.y),
++                double(node.referenceDisplacementAndMode.z)+double(node.referenceDisplacementLow.z)};
++        };
+         const Vec u=displacement(t.nodes.x);
+         Matrix result=ref::multiply(columns(sub(displacement(t.nodes.y),u),sub(displacement(t.nodes.z),u),sub(displacement(t.nodes.w),u)),inverseRest(t));
+         for(unsigned i=0;i<3;++i)result[4*i]+=1.0;
+@@ -233,25 +239,42 @@ Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bo
+     const Vec x=at(t.nodes.x);return ref::multiply(columns(sub(at(t.nodes.y),x),sub(at(t.nodes.z),x),sub(at(t.nodes.w),x)),inverseRest(t));
+ }
+ Matrix executableRestF32(const CompiledWorld& w,unsigned ti,bool displacementGradient){
+-    const auto& t=w.fem.tetrahedra[ti];std::array<std::array<float,3>,4> current{},reference{},u{};
++    const auto& t=w.fem.tetrahedra[ti];
+     const std::array<unsigned,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+-    for(unsigned n=0;n<4;++n){const auto& node=w.fem.nodes[ids[n]];
+-        current[n]={node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};
+-        reference[n]={node.restAndFixed.x,node.restAndFixed.y,node.restAndFixed.z};
+-        for(unsigned r=0;r<3;++r)u[n][r]=displacementGradient
+-            ? (r==0?node.referenceDisplacementAndMode.x:r==1?node.referenceDisplacementAndMode.y:node.referenceDisplacementAndMode.z)
+-            : current[n][r]-reference[n][r];}
+-    std::array<float,9> edge{};
+-    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c)
+-        edge[3*r+c]=displacementGradient?u[c+1][r]-u[0][r]:current[c+1][r]-current[0][r];
+     const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
+         t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,
+         t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
++    if(displacementGradient){
++        std::array<float,12> displacementHigh{},displacementLow{};
++        for(unsigned n=0;n<4;++n){
++            const auto& node=w.fem.nodes[ids[n]];
++            const float hi[3]={node.referenceDisplacementAndMode.x,
++                node.referenceDisplacementAndMode.y,node.referenceDisplacementAndMode.z};
++            const float lo[3]={node.referenceDisplacementLow.x,
++                node.referenceDisplacementLow.y,node.referenceDisplacementLow.z};
++            for(unsigned axis=0;axis<3;++axis){
++                displacementHigh[3*n+axis]=hi[axis];
++                displacementLow[3*n+axis]=lo[axis];
++            }
++        }
++        constexpr std::array<float,9> identityFrame{1,0,0,0,1,0,0,0,1};
++        std::array<float,9> deformationHigh{},deformationLow{};
++        nmFEMReferenceDeformationWords(displacementHigh.data(),displacementLow.data(),
++            inverse.data(),identityFrame.data(),deformationHigh.data(),deformationLow.data());
++        Matrix f{};
++        for(unsigned i=0;i<9;++i)f[i]=double(deformationHigh[i])+double(deformationLow[i]);
++        return f;
++    }
++    std::array<std::array<float,3>,4> current{};
++    for(unsigned n=0;n<4;++n){const auto& node=w.fem.nodes[ids[n]];
++        current[n]={node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};}
++    std::array<float,9> edge{};
++    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c)
++        edge[3*r+c]=current[c+1][r]-current[0][r];
+     Matrix f{};
+     for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c){
+         const float a=edge[3*r]*inverse[c],b=edge[3*r+1]*inverse[3+c],d=edge[3*r+2]*inverse[6+c];
+-        f[3*r+c]=double((a+b)+d)+(displacementGradient&&r==c?1.0:0.0);
+-    }
++        f[3*r+c]=double((a+b)+d);}
+     return f;
+ }
+ std::array<Vec,4> forces(const NMTetrahedronGPU& t,const Matrix& p){
+@@ -276,18 +299,31 @@ double finiteDifference(Device& d,const CompiledWorld& w,const Inputs& v,const s
+         plus.nodes[i].positionAndMass.y+=epsilon*p.y;minus.nodes[i].positionAndMass.y-=epsilon*p.y;
+         plus.nodes[i].positionAndMass.z+=epsilon*p.z;minus.nodes[i].positionAndMass.z-=epsilon*p.z;
+         if(plus.nodes[i].referenceDisplacementAndMode.w==1.0f){
+-            plus.nodes[i].referenceDisplacementAndMode.x+=float(epsilon*p.x);
+-            plus.nodes[i].referenceDisplacementAndMode.y+=float(epsilon*p.y);
+-            plus.nodes[i].referenceDisplacementAndMode.z+=float(epsilon*p.z);
+-            minus.nodes[i].referenceDisplacementAndMode.x-=float(epsilon*p.x);
+-            minus.nodes[i].referenceDisplacementAndMode.y-=float(epsilon*p.y);
+-            minus.nodes[i].referenceDisplacementAndMode.z-=float(epsilon*p.z);
+-            plus.nodes[i].positionAndMass.x=plus.nodes[i].restAndFixed.x+plus.nodes[i].referenceDisplacementAndMode.x;
+-            plus.nodes[i].positionAndMass.y=plus.nodes[i].restAndFixed.y+plus.nodes[i].referenceDisplacementAndMode.y;
+-            plus.nodes[i].positionAndMass.z=plus.nodes[i].restAndFixed.z+plus.nodes[i].referenceDisplacementAndMode.z;
+-            minus.nodes[i].positionAndMass.x=minus.nodes[i].restAndFixed.x+minus.nodes[i].referenceDisplacementAndMode.x;
+-            minus.nodes[i].positionAndMass.y=minus.nodes[i].restAndFixed.y+minus.nodes[i].referenceDisplacementAndMode.y;
+-            minus.nodes[i].positionAndMass.z=minus.nodes[i].restAndFixed.z+minus.nodes[i].referenceDisplacementAndMode.z;
++            const float directionComponent[3]={p.x,p.y,p.z};
++            float* plusHigh[3]={&plus.nodes[i].referenceDisplacementAndMode.x,
++                &plus.nodes[i].referenceDisplacementAndMode.y,&plus.nodes[i].referenceDisplacementAndMode.z};
++            float* plusLow[3]={&plus.nodes[i].referenceDisplacementLow.x,
++                &plus.nodes[i].referenceDisplacementLow.y,&plus.nodes[i].referenceDisplacementLow.z};
++            float* minusHigh[3]={&minus.nodes[i].referenceDisplacementAndMode.x,
++                &minus.nodes[i].referenceDisplacementAndMode.y,&minus.nodes[i].referenceDisplacementAndMode.z};
++            float* minusLow[3]={&minus.nodes[i].referenceDisplacementLow.x,
++                &minus.nodes[i].referenceDisplacementLow.y,&minus.nodes[i].referenceDisplacementLow.z};
++            float* plusPosition[3]={&plus.nodes[i].positionAndMass.x,
++                &plus.nodes[i].positionAndMass.y,&plus.nodes[i].positionAndMass.z};
++            float* minusPosition[3]={&minus.nodes[i].positionAndMass.x,
++                &minus.nodes[i].positionAndMass.y,&minus.nodes[i].positionAndMass.z};
++            const float rest[3]={plus.nodes[i].restAndFixed.x,
++                plus.nodes[i].restAndFixed.y,plus.nodes[i].restAndFixed.z};
++            for(unsigned axis=0;axis<3;++axis){
++                const auto positive=mrCompensatedAdd({*plusHigh[axis],*plusLow[axis]},
++                    mrCompensatedProduct(float(epsilon),directionComponent[axis]));
++                const auto negative=mrCompensatedAdd({*minusHigh[axis],*minusLow[axis]},
++                    mrCompensatedProduct(float(-epsilon),directionComponent[axis]));
++                *plusHigh[axis]=positive.high;*plusLow[axis]=positive.low;
++                *minusHigh[axis]=negative.high;*minusLow[axis]=negative.low;
++                *plusPosition[axis]=mrCompensatedProjectionScalar(rest[axis],positive.high,positive.low);
++                *minusPosition[axis]=mrCompensatedProjectionScalar(rest[axis],negative.high,negative.low);
++            }
+         }
+         plus.nodes[i].velocityAndInverseMass.x+=epsilon*p.x/dt;minus.nodes[i].velocityAndInverseMass.x-=epsilon*p.x/dt;
+         plus.nodes[i].velocityAndInverseMass.y+=epsilon*p.y/dt;minus.nodes[i].velocityAndInverseMass.y-=epsilon*p.y/dt;
+@@ -412,12 +448,30 @@ void referenceDisplacementChecks(const WorldSource& regionalReference){
+         need((t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0,
+              "reference-displacement element flag was not cooked");
+     for(const auto& node:w.fem.nodes)
+-        need(node.referenceDisplacementAndMode.w==1.0f&&
+-             node.positionAndMass.x==node.restAndFixed.x+node.referenceDisplacementAndMode.x&&
+-             node.positionAndMass.y==node.restAndFixed.y+node.referenceDisplacementAndMode.y&&
+-             node.positionAndMass.z==node.restAndFixed.z+node.referenceDisplacementAndMode.z,
+-             "reference-displacement node state is not canonical");
+-    const auto loaded=manufactured(w);const Matrix expected{1.015625,.0078125,0,0,1,0,0,0,1};
++        need(node.referenceDisplacementAndMode.w==1.0f&&node.referenceDisplacementLow.w==0.0f&&
++             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.x,node.referenceDisplacementLow.x)&&
++             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.y,node.referenceDisplacementLow.y)&&
++             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.z,node.referenceDisplacementLow.z)&&
++             node.positionAndMass.x==mrCompensatedProjectionScalar(node.restAndFixed.x,
++                 node.referenceDisplacementAndMode.x,node.referenceDisplacementLow.x)&&
++             node.positionAndMass.y==mrCompensatedProjectionScalar(node.restAndFixed.y,
++                 node.referenceDisplacementAndMode.y,node.referenceDisplacementLow.y)&&
++             node.positionAndMass.z==mrCompensatedProjectionScalar(node.restAndFixed.z,
++                 node.referenceDisplacementAndMode.z,node.referenceDisplacementLow.z),
++             "reference-displacement node state is not a canonical high/low pair");
++    auto loaded=manufactured(w);const Matrix expected{1.015625,.0078125,0,0,1,0,0,0,1};
++    const auto highOnly=loaded;
++    auto& pairedNode=loaded.nodes[3];
++    pairedNode.referenceDisplacementLow.x=0x1p-35f;
++    pairedNode.positionAndMass.x=mrCompensatedProjectionScalar(
++        pairedNode.restAndFixed.x,pairedNode.referenceDisplacementAndMode.x,
++        pairedNode.referenceDisplacementLow.x);
++    need(mrCompensatedCanonicalScalar(pairedNode.referenceDisplacementAndMode.x,
++             pairedNode.referenceDisplacementLow.x),"finite-difference low limb is not normalized");
++    const Matrix highOnlyGradient=gradient(w,highOnly,0,0);
++    const Matrix pairGradient=gradient(w,loaded,0,0);
++    need(std::abs((pairGradient[2]-highOnlyGradient[2])-0x1p-29)<1e-15,
++         "independent CPU FEM gradient ignored the reference-displacement low limb");++cpuCheckCount;
+     double affineError=0;
+     for(unsigned ti=0;ti<w.dispatch.tetrahedronCount;++ti){const auto actual=gradient(w,loaded,0,ti);
+         for(unsigned i=0;i<9;++i)affineError=std::max(affineError,std::abs(actual[i]-expected[i]));}
+@@ -461,6 +515,9 @@ void referenceDisplacementChecks(const WorldSource& regionalReference){
+         need(!validateCompiledWorldLayout(c,&error),std::string("reference-displacement cooked layout accepted ")+label);++cpuCheckCount;};
+     rejectCooked("object mode without element mode",[](auto& c){c.fem.tetrahedra[0].identity.w&=~NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT;});
+     rejectCooked("element mode without object mode",[](auto& c){c.objects[0].flags&=~NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT;});
++    rejectCooked("reference low reserved component",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.w=1.0f;});
++    rejectCooked("nonfinite reference low limb",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.x=std::numeric_limits<float>::infinity();});
++    rejectCooked("noncanonical reference pair",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.x=0.125f;});
+     const auto path=std::filesystem::temp_directory_path()/(std::string("numi-reference-displacement-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
+     CompileResult package;package.world=w;std::string error;need(writePackage(package,path,&error),error);CompiledWorld decoded;
+     const bool ok=readPackage(path,decoded,nullptr,&error);std::error_code removed;
+@@ -648,6 +705,9 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
+     deny("fixed constraint",[](auto& s){s.femNodes[3].restAndFixed.w=1;});
+     if (authored.objects[0].femReferenceDisplacementGradient) {
+         deny("reference-displacement mode tag",[](auto& s){s.femNodes[3].referenceDisplacementAndMode.w=0.0f;});
++        deny("reference-displacement low reserved component",[](auto& s){s.femNodes[3].referenceDisplacementLow.w=1.0f;});
++        deny("reference-displacement nonfinite low limb",[](auto& s){s.femNodes[3].referenceDisplacementLow.x=std::numeric_limits<float>::quiet_NaN();});
++        deny("reference-displacement noncanonical pair",[](auto& s){s.femNodes[3].referenceDisplacementLow.x=0.125f;});
+         deny("reference-displacement materialization",[](auto& s){s.femNodes[3].positionAndMass.x=std::nextafter(s.femNodes[3].positionAndMass.x,INFINITY);});
+     }
+     deny("inverted current geometry",[](auto& s){s.femNodes[3].positionAndMass.z=s.femNodes[4].positionAndMass.z;});
+diff --git a/matter/tools/test_cardboard_cached_operator_audit.py b/matter/tools/test_cardboard_cached_operator_audit.py
+index d2b269e6..68480b86 100644
+--- a/matter/tools/test_cardboard_cached_operator_audit.py
++++ b/matter/tools/test_cardboard_cached_operator_audit.py
+@@ -151,6 +151,22 @@ def synthetic_capture():
+ 
+ 
+ class AssemblyAdmissionTests(unittest.TestCase):
++    def test_v2_retains_reference_displacement_low_word(self):
++        header, nodes, tets, integrity = synthetic_capture()
++        header["schema"] = "numi.cardboard.fem-newton-capture.v2"
++        for node in nodes:
++            node["center"]["raw_state_float4s"].append([2.0**-40, 0.0, 0.0, 0.0])
++        result = audit.validate_and_assemble(header, nodes, tets, integrity, 0)
++        state = result[-1]["captured_node_state_f32"]
++        self.assertEqual(state.shape, (4, 24))
++        np.testing.assert_array_equal(state[:, 20], np.float32(2.0**-40))
++
++    def test_v2_rejects_truncated_node_state(self):
++        header, nodes, tets, integrity = synthetic_capture()
++        header["schema"] = "numi.cardboard.fem-newton-capture.v2"
++        with self.assertRaises(ValueError):
++            audit.validate_and_assemble(header, nodes, tets, integrity, 0)
++
+     def test_operator_assembly_uses_canonical_native_f32_operands(self):
+         def wire_f32(value):
+             return float(format(float(np.float32(value)), ".9g"))
+diff --git a/matter/tools/test_cardboard_offline_conditioning_study.py b/matter/tools/test_cardboard_offline_conditioning_study.py
+index 446a6d2b..c32c8d20 100644
+--- a/matter/tools/test_cardboard_offline_conditioning_study.py
++++ b/matter/tools/test_cardboard_offline_conditioning_study.py
+@@ -249,12 +249,14 @@ class NativeRAPFormatTests(unittest.TestCase):
+ 
+ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
+     def _fixture(self, folder: Path, *, iteration=23, capture_point=None,
+-                 corrupt_payload=False, wrong_low=False, wrong_candidate=False):
++                 corrupt_payload=False, wrong_low=False, wrong_candidate=False, node_words=20):
+         folder.mkdir(parents=True, exist_ok=True)
+         envs, nodes, tets, modes, stride = 1, 5, 2, 1, 13
+-        state = np.zeros((envs, nodes, 20), dtype="<f4")
++        state = np.zeros((envs, nodes, node_words), dtype="<f4")
+         state[0, :, 3] = 1.0
+         state[0, 0, 11] = 1.0
++        if node_words == 24:
++            state[0, :, 20] = 2.0**-40
+         captured_state = state.copy()
+         if wrong_candidate:
+             state[0, 1, 0] = 1.0
+@@ -309,6 +311,8 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
+                   "tetrahedron_count_per_environment": tets,
+                   "dt_seconds": 0.1, "dt_seconds_by_environment": [0.1],
+                   "production_inputs_bitwise_unchanged": True}
++        if node_words == 24:
++            header["schema"] = "numi.cardboard.fem-newton-capture.v2"
+         rows = [header]
+         for tet in range(tets):
+             fmat = high[0, tet, :, :3].astype(float).tolist()
+@@ -326,7 +330,7 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
+         array_raw = {}
+         for name, dtype, shape, array in arrays:
+             element_bytes = {"<f4x4": 16, "<f4": 4, "<u4": 4,
+-                             "struct:NMFEMNodeStateGPU": 80,
++                             "struct:NMFEMNodeStateGPU": node_words * 4,
+                              "struct:NMMatterStatusGPU": study.NMMATTER_STATUS_GPU_BYTES}[dtype]
+             if name == "production_status":
+                 raw = array.tobytes(order="C")
+@@ -411,6 +415,15 @@ class SelectedNewtonRegionalSidecarTests(unittest.TestCase):
+                          schwarz_patch_nodes=4, schwarz_anchor_stride=2)
+         return study.run(args)
+ 
++    def test_selected_newton_v2_preserves_96_byte_node_binding(self):
++        with tempfile.TemporaryDirectory() as temp:
++            audit, sidecar = self._fixture(Path(temp) / "paired", node_words=24)
++            result = self._run_sidecar(audit, sidecar)
++            self.assertTrue(result["fixed_physical_operator"]["same_A_and_b_for_both_methods"])
++            manifest, arrays, _, _ = study._read_regional_payload(sidecar)
++            self.assertEqual(arrays["candidate_nodes"].shape, (1, 5, 24))
++            np.testing.assert_array_equal(arrays["candidate_nodes"][0, :, 20], np.float32(2.0**-40))
++
+     def test_selected_newton_sidecar_is_admitted_and_runs_same_matrix(self):
+         with tempfile.TemporaryDirectory() as temp:
+             audit, sidecar = self._fixture(Path(temp) / "positive")
+diff --git a/tools/verify_human_supported_tissue.sh b/tools/verify_human_supported_tissue.sh
+index 619bdb5c..e76ff316 100755
+--- a/tools/verify_human_supported_tissue.sh
++++ b/tools/verify_human_supported_tissue.sh
+@@ -30,7 +30,7 @@ assert actual==expected,"audited CSV differs from the compiled header identity"
+ print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest()),indent=2))
+ PY
+ /opt/homebrew/bin/cmake -S "$VERIFY_ROOT" -B "$VERIFY_BUILD" -DBUILD_TESTING=ON >"$VERIFY_OUT/configure.log" 2>&1
+-/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
++/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
+ for VERIFY_TEST in human_wholebody_skin_layers human_skin_fat_from_layers_precomputed numi_human_registered_ligaments_test human_accepted_fem_skin_transfer_mixed_donor; do
+   clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iapps -Iinclude -Imatter/include \
+     "tests/$VERIFY_TEST.cpp" "$VERIFY_BUILD/matter/libnumi_matter_compiler.a" -framework Foundation \
+@@ -56,14 +56,17 @@ mkdir "$VERIFY_OUT/compact-boundary"
+ "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" >"$VERIFY_OUT/contact-geometry.run.log" 2>&1
+ "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" --surface-sort-only \
+   "$VERIFY_BUILD/matter/shaders/NumiMatter.metallib" >"$VERIFY_OUT/contact-surface-sort.run.log" 2>&1
+-"$VERIFY_BUILD/matter/numi-matter-fem-reference-check" --backtracking-only >"$VERIFY_OUT/fem-backtracking.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-reference-check" --backtracking-only >"$VERIFY_OUT/fem-backtracking.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-reference-check" matter/materials/rodero2021_ventricular_guccione_passive.nmatter matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter >"$VERIFY_OUT/fem-reference.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-kinematic-release-check" >"$VERIFY_OUT/fem-kinematic-release.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-mutable-snapshot-check" >"$VERIFY_OUT/fem-mutable-snapshot.run.log" 2>&1
+ "$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-preconditioner-only \
+   /Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json >"$VERIFY_OUT/vascular-block.run.log" 2>&1
+ python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
+ import pathlib,hashlib,json,subprocess,sys,platform
+ root,out,build=map(pathlib.Path,sys.argv[1:])
+ sha=lambda p:hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
+-sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt"]
++sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt","matter/include/numi/matter/fem_compensated_deformation.h","matter/src/compiler_impl.cpp","matter/src/validation_impl.cpp","matter/src/fem_reference_geometry.hpp","matter/src/metal/base_cgls_runtime.metalinc","matter/src/metal/common.metalinc","matter/include/numi/matter/paper_compensated_bytecode.h","include/metalrobo/compensated_translation_gpu.h","apps/numanx_matter_attachment_runtime_probe.mm","matter/tools/cardboard_cached_operator_audit.py","matter/tools/cardboard_offline_conditioning_study.py","matter/tools/cardboard_paper_exact_capture.py","matter/tools/cardboard_solver_capture_analysis.py","matter/tools/cardboard_solver_pair_analyzer.py","matter/tools/test_cardboard_cached_operator_audit.py","matter/tools/test_cardboard_offline_conditioning_study.py","matter/tools/fem_kinematic_release_check.mm","matter/tools/fem_mutable_snapshot_check.mm","matter/tools/cardboard_source370_material_point_check.mm"]
+ receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
+ (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
+ PYPROVENANCE

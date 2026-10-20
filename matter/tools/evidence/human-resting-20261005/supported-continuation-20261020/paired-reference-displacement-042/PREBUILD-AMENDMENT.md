@@ -1,0 +1,3 @@
+# 042 prebuild compatibility checks
+
+Before the first 042 build or GPU execution: the ABI change also updates current JSON capture readers to accept v1 five-word and v2 six-word records explicitly. Old immutable evidence is retained unchanged; residual bytes may not be dropped from new records. Reader regressions cover a nonzero low word and truncated v2 rejection. Existing FEM kinematic-release and mutable-snapshot native probes are added to the shared verification entrypoint because their production paths now carry the low limb. All existing physical acceptance thresholds and the preregistered 32-root continuation prediction remain unchanged.

@@ -1,0 +1,7 @@
+# 042c compensated FEM barrier energy
+
+The corrected original fixture remains failed: coordinate error0, gap error0, barycentric error2.3283064365386963e-10, opening2^-40m; potential relative error5.309112421740996e-7 and response error2.939026094790493e-7, but delta-energy relative error0.3285126936728903 exceeds the unchanged0.25 gate. GPU delta energy is -2.5579538487363607e-13J. The persistent displacement precision works on these witnesses; the complete declared geometry/energy prediction is refuted.
+
+Before another GPU trial: reuse the existing compensated scalar and logarithm arithmetic for the compensated FEM geometry overload's IPC potential evaluation. Preserve the same squared-distance barrier equation and C1 linear continuation below its existing floor. Leave MPM/quadratic-floor and legacy float3 paths unchanged. This is arithmetic precision, not a new force, state owner, acceptance relaxation or physical model. Predict the same three original fixtures meet all unchanged bounds, including25percent delta-energy error, and all130 original geometry cases and exact-VT-JVP controls remain passing. Stop at the first failure; no bound or fixture retuning.
+
+If preparation passes, perform the same single default32 continuation from the unchanged template/dt/pose/settings. Retain all earlier compile and GPU failures separately. No sustained support, physiology, performance or clinical inference from these numerical tests.

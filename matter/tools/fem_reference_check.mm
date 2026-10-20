@@ -224,7 +224,13 @@ Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bo
     const auto& t=w.fem.tetrahedra[ti];const unsigned base=e*w.dispatch.femNodeCount;
     const auto at=[&](unsigned n){return direction?xyz(v.direction[base+n]):rate?xyz(v.nodes[base+n].velocityAndInverseMass):xyz(v.nodes[base+n].positionAndMass);};
     if(!rate&&!direction&&(t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0u){
-        const auto displacement=[&](unsigned n){return xyz(v.nodes[base+n].referenceDisplacementAndMode);};
+        const auto displacement=[&](unsigned n){
+            const auto& node=v.nodes[base+n];
+            return Vec{
+                double(node.referenceDisplacementAndMode.x)+double(node.referenceDisplacementLow.x),
+                double(node.referenceDisplacementAndMode.y)+double(node.referenceDisplacementLow.y),
+                double(node.referenceDisplacementAndMode.z)+double(node.referenceDisplacementLow.z)};
+        };
         const Vec u=displacement(t.nodes.x);
         Matrix result=ref::multiply(columns(sub(displacement(t.nodes.y),u),sub(displacement(t.nodes.z),u),sub(displacement(t.nodes.w),u)),inverseRest(t));
         for(unsigned i=0;i<3;++i)result[4*i]+=1.0;
@@ -233,25 +239,42 @@ Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bo
     const Vec x=at(t.nodes.x);return ref::multiply(columns(sub(at(t.nodes.y),x),sub(at(t.nodes.z),x),sub(at(t.nodes.w),x)),inverseRest(t));
 }
 Matrix executableRestF32(const CompiledWorld& w,unsigned ti,bool displacementGradient){
-    const auto& t=w.fem.tetrahedra[ti];std::array<std::array<float,3>,4> current{},reference{},u{};
+    const auto& t=w.fem.tetrahedra[ti];
     const std::array<unsigned,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
-    for(unsigned n=0;n<4;++n){const auto& node=w.fem.nodes[ids[n]];
-        current[n]={node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};
-        reference[n]={node.restAndFixed.x,node.restAndFixed.y,node.restAndFixed.z};
-        for(unsigned r=0;r<3;++r)u[n][r]=displacementGradient
-            ? (r==0?node.referenceDisplacementAndMode.x:r==1?node.referenceDisplacementAndMode.y:node.referenceDisplacementAndMode.z)
-            : current[n][r]-reference[n][r];}
-    std::array<float,9> edge{};
-    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c)
-        edge[3*r+c]=displacementGradient?u[c+1][r]-u[0][r]:current[c+1][r]-current[0][r];
     const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
         t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,
         t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
+    if(displacementGradient){
+        std::array<float,12> displacementHigh{},displacementLow{};
+        for(unsigned n=0;n<4;++n){
+            const auto& node=w.fem.nodes[ids[n]];
+            const float hi[3]={node.referenceDisplacementAndMode.x,
+                node.referenceDisplacementAndMode.y,node.referenceDisplacementAndMode.z};
+            const float lo[3]={node.referenceDisplacementLow.x,
+                node.referenceDisplacementLow.y,node.referenceDisplacementLow.z};
+            for(unsigned axis=0;axis<3;++axis){
+                displacementHigh[3*n+axis]=hi[axis];
+                displacementLow[3*n+axis]=lo[axis];
+            }
+        }
+        constexpr std::array<float,9> identityFrame{1,0,0,0,1,0,0,0,1};
+        std::array<float,9> deformationHigh{},deformationLow{};
+        nmFEMReferenceDeformationWords(displacementHigh.data(),displacementLow.data(),
+            inverse.data(),identityFrame.data(),deformationHigh.data(),deformationLow.data());
+        Matrix f{};
+        for(unsigned i=0;i<9;++i)f[i]=double(deformationHigh[i])+double(deformationLow[i]);
+        return f;
+    }
+    std::array<std::array<float,3>,4> current{};
+    for(unsigned n=0;n<4;++n){const auto& node=w.fem.nodes[ids[n]];
+        current[n]={node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};}
+    std::array<float,9> edge{};
+    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c)
+        edge[3*r+c]=current[c+1][r]-current[0][r];
     Matrix f{};
     for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c){
         const float a=edge[3*r]*inverse[c],b=edge[3*r+1]*inverse[3+c],d=edge[3*r+2]*inverse[6+c];
-        f[3*r+c]=double((a+b)+d)+(displacementGradient&&r==c?1.0:0.0);
-    }
+        f[3*r+c]=double((a+b)+d);}
     return f;
 }
 std::array<Vec,4> forces(const NMTetrahedronGPU& t,const Matrix& p){
@@ -276,18 +299,31 @@ double finiteDifference(Device& d,const CompiledWorld& w,const Inputs& v,const s
         plus.nodes[i].positionAndMass.y+=epsilon*p.y;minus.nodes[i].positionAndMass.y-=epsilon*p.y;
         plus.nodes[i].positionAndMass.z+=epsilon*p.z;minus.nodes[i].positionAndMass.z-=epsilon*p.z;
         if(plus.nodes[i].referenceDisplacementAndMode.w==1.0f){
-            plus.nodes[i].referenceDisplacementAndMode.x+=float(epsilon*p.x);
-            plus.nodes[i].referenceDisplacementAndMode.y+=float(epsilon*p.y);
-            plus.nodes[i].referenceDisplacementAndMode.z+=float(epsilon*p.z);
-            minus.nodes[i].referenceDisplacementAndMode.x-=float(epsilon*p.x);
-            minus.nodes[i].referenceDisplacementAndMode.y-=float(epsilon*p.y);
-            minus.nodes[i].referenceDisplacementAndMode.z-=float(epsilon*p.z);
-            plus.nodes[i].positionAndMass.x=plus.nodes[i].restAndFixed.x+plus.nodes[i].referenceDisplacementAndMode.x;
-            plus.nodes[i].positionAndMass.y=plus.nodes[i].restAndFixed.y+plus.nodes[i].referenceDisplacementAndMode.y;
-            plus.nodes[i].positionAndMass.z=plus.nodes[i].restAndFixed.z+plus.nodes[i].referenceDisplacementAndMode.z;
-            minus.nodes[i].positionAndMass.x=minus.nodes[i].restAndFixed.x+minus.nodes[i].referenceDisplacementAndMode.x;
-            minus.nodes[i].positionAndMass.y=minus.nodes[i].restAndFixed.y+minus.nodes[i].referenceDisplacementAndMode.y;
-            minus.nodes[i].positionAndMass.z=minus.nodes[i].restAndFixed.z+minus.nodes[i].referenceDisplacementAndMode.z;
+            const float directionComponent[3]={p.x,p.y,p.z};
+            float* plusHigh[3]={&plus.nodes[i].referenceDisplacementAndMode.x,
+                &plus.nodes[i].referenceDisplacementAndMode.y,&plus.nodes[i].referenceDisplacementAndMode.z};
+            float* plusLow[3]={&plus.nodes[i].referenceDisplacementLow.x,
+                &plus.nodes[i].referenceDisplacementLow.y,&plus.nodes[i].referenceDisplacementLow.z};
+            float* minusHigh[3]={&minus.nodes[i].referenceDisplacementAndMode.x,
+                &minus.nodes[i].referenceDisplacementAndMode.y,&minus.nodes[i].referenceDisplacementAndMode.z};
+            float* minusLow[3]={&minus.nodes[i].referenceDisplacementLow.x,
+                &minus.nodes[i].referenceDisplacementLow.y,&minus.nodes[i].referenceDisplacementLow.z};
+            float* plusPosition[3]={&plus.nodes[i].positionAndMass.x,
+                &plus.nodes[i].positionAndMass.y,&plus.nodes[i].positionAndMass.z};
+            float* minusPosition[3]={&minus.nodes[i].positionAndMass.x,
+                &minus.nodes[i].positionAndMass.y,&minus.nodes[i].positionAndMass.z};
+            const float rest[3]={plus.nodes[i].restAndFixed.x,
+                plus.nodes[i].restAndFixed.y,plus.nodes[i].restAndFixed.z};
+            for(unsigned axis=0;axis<3;++axis){
+                const auto positive=mrCompensatedAdd({*plusHigh[axis],*plusLow[axis]},
+                    mrCompensatedProduct(float(epsilon),directionComponent[axis]));
+                const auto negative=mrCompensatedAdd({*minusHigh[axis],*minusLow[axis]},
+                    mrCompensatedProduct(float(-epsilon),directionComponent[axis]));
+                *plusHigh[axis]=positive.high;*plusLow[axis]=positive.low;
+                *minusHigh[axis]=negative.high;*minusLow[axis]=negative.low;
+                *plusPosition[axis]=mrCompensatedProjectionScalar(rest[axis],positive.high,positive.low);
+                *minusPosition[axis]=mrCompensatedProjectionScalar(rest[axis],negative.high,negative.low);
+            }
         }
         plus.nodes[i].velocityAndInverseMass.x+=epsilon*p.x/dt;minus.nodes[i].velocityAndInverseMass.x-=epsilon*p.x/dt;
         plus.nodes[i].velocityAndInverseMass.y+=epsilon*p.y/dt;minus.nodes[i].velocityAndInverseMass.y-=epsilon*p.y/dt;
@@ -412,12 +448,30 @@ void referenceDisplacementChecks(const WorldSource& regionalReference){
         need((t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0,
              "reference-displacement element flag was not cooked");
     for(const auto& node:w.fem.nodes)
-        need(node.referenceDisplacementAndMode.w==1.0f&&
-             node.positionAndMass.x==node.restAndFixed.x+node.referenceDisplacementAndMode.x&&
-             node.positionAndMass.y==node.restAndFixed.y+node.referenceDisplacementAndMode.y&&
-             node.positionAndMass.z==node.restAndFixed.z+node.referenceDisplacementAndMode.z,
-             "reference-displacement node state is not canonical");
-    const auto loaded=manufactured(w);const Matrix expected{1.015625,.0078125,0,0,1,0,0,0,1};
+        need(node.referenceDisplacementAndMode.w==1.0f&&node.referenceDisplacementLow.w==0.0f&&
+             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.x,node.referenceDisplacementLow.x)&&
+             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.y,node.referenceDisplacementLow.y)&&
+             mrCompensatedCanonicalScalar(node.referenceDisplacementAndMode.z,node.referenceDisplacementLow.z)&&
+             node.positionAndMass.x==mrCompensatedProjectionScalar(node.restAndFixed.x,
+                 node.referenceDisplacementAndMode.x,node.referenceDisplacementLow.x)&&
+             node.positionAndMass.y==mrCompensatedProjectionScalar(node.restAndFixed.y,
+                 node.referenceDisplacementAndMode.y,node.referenceDisplacementLow.y)&&
+             node.positionAndMass.z==mrCompensatedProjectionScalar(node.restAndFixed.z,
+                 node.referenceDisplacementAndMode.z,node.referenceDisplacementLow.z),
+             "reference-displacement node state is not a canonical high/low pair");
+    auto loaded=manufactured(w);const Matrix expected{1.015625,.0078125,0,0,1,0,0,0,1};
+    const auto highOnly=loaded;
+    auto& pairedNode=loaded.nodes[3];
+    pairedNode.referenceDisplacementLow.x=0x1p-35f;
+    pairedNode.positionAndMass.x=mrCompensatedProjectionScalar(
+        pairedNode.restAndFixed.x,pairedNode.referenceDisplacementAndMode.x,
+        pairedNode.referenceDisplacementLow.x);
+    need(mrCompensatedCanonicalScalar(pairedNode.referenceDisplacementAndMode.x,
+             pairedNode.referenceDisplacementLow.x),"finite-difference low limb is not normalized");
+    const Matrix highOnlyGradient=gradient(w,highOnly,0,0);
+    const Matrix pairGradient=gradient(w,loaded,0,0);
+    need(std::abs((pairGradient[2]-highOnlyGradient[2])-0x1p-29)<1e-15,
+         "independent CPU FEM gradient ignored the reference-displacement low limb");++cpuCheckCount;
     double affineError=0;
     for(unsigned ti=0;ti<w.dispatch.tetrahedronCount;++ti){const auto actual=gradient(w,loaded,0,ti);
         for(unsigned i=0;i<9;++i)affineError=std::max(affineError,std::abs(actual[i]-expected[i]));}
@@ -461,6 +515,9 @@ void referenceDisplacementChecks(const WorldSource& regionalReference){
         need(!validateCompiledWorldLayout(c,&error),std::string("reference-displacement cooked layout accepted ")+label);++cpuCheckCount;};
     rejectCooked("object mode without element mode",[](auto& c){c.fem.tetrahedra[0].identity.w&=~NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT;});
     rejectCooked("element mode without object mode",[](auto& c){c.objects[0].flags&=~NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT;});
+    rejectCooked("reference low reserved component",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.w=1.0f;});
+    rejectCooked("nonfinite reference low limb",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.x=std::numeric_limits<float>::infinity();});
+    rejectCooked("noncanonical reference pair",[](auto& c){c.fem.nodes[3].referenceDisplacementLow.x=0.125f;});
     const auto path=std::filesystem::temp_directory_path()/(std::string("numi-reference-displacement-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
     CompileResult package;package.world=w;std::string error;need(writePackage(package,path,&error),error);CompiledWorld decoded;
     const bool ok=readPackage(path,decoded,nullptr,&error);std::error_code removed;
@@ -648,6 +705,9 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
     deny("fixed constraint",[](auto& s){s.femNodes[3].restAndFixed.w=1;});
     if (authored.objects[0].femReferenceDisplacementGradient) {
         deny("reference-displacement mode tag",[](auto& s){s.femNodes[3].referenceDisplacementAndMode.w=0.0f;});
+        deny("reference-displacement low reserved component",[](auto& s){s.femNodes[3].referenceDisplacementLow.w=1.0f;});
+        deny("reference-displacement nonfinite low limb",[](auto& s){s.femNodes[3].referenceDisplacementLow.x=std::numeric_limits<float>::quiet_NaN();});
+        deny("reference-displacement noncanonical pair",[](auto& s){s.femNodes[3].referenceDisplacementLow.x=0.125f;});
         deny("reference-displacement materialization",[](auto& s){s.femNodes[3].positionAndMass.x=std::nextafter(s.femNodes[3].positionAndMass.x,INFINITY);});
     }
     deny("inverted current geometry",[](auto& s){s.femNodes[3].positionAndMass.z=s.femNodes[4].positionAndMass.z;});

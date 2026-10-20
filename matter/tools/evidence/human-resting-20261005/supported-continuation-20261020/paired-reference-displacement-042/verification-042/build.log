@@ -1,0 +1,14 @@
+[0/2] Re-checking globbed directories...
+[1/46] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/46] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/46] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[4/46] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+FAILED: [code=1] matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o 
+/usr/bin/c++  -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -MD -MT matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o -MF matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o.d -o matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/compiler_impl.cpp
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/compiler_impl.cpp:2:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/fem_reference_geometry.hpp:4:10: fatal error: 'metalrobo/compensated_translation_gpu.h' file not found
+    4 | #include "metalrobo/compensated_translation_gpu.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+[5/46] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+ninja: build stopped: subcommand failed.

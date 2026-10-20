@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "wall_s": 191.5182613329962,
+  "requested_steps": 13,
+  "step_seconds": 0.000125,
+  "accepted_steps": 12,
+  "accepted_simulated_seconds": 0.0015,
+  "reproduces_default_failure": true,
+  "source_binary_library_identity_matches_default": true,
+  "scope": "diagnostic replay of the root-12 failure; not an independent stability result"
+}

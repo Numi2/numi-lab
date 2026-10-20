@@ -437,7 +437,7 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
                                                                        np.ndarray,
                                                                        np.ndarray,
                                                                        dict]:
-    if header.get("schema") != CAPTURE_SCHEMA:
+    if header.get("schema") not in {CAPTURE_SCHEMA, "numi.cardboard.fem-newton-capture.v2"}:
         raise ValueError("unsupported capture schema")
     if header.get("production_inputs_bitwise_unchanged") is not True:
         raise ValueError("capture header does not attest unchanged production inputs")
@@ -504,7 +504,8 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
     native_action = np.zeros((node_count, 3), dtype=np.float64)
     center_residual = np.zeros((node_count, 3), dtype=np.float64)
     positions = np.zeros((node_count, 3), dtype=np.float64)
-    captured_node_state_f32 = np.zeros((node_count, 20), dtype=np.float32)
+    node_words = 6 if header["schema"].endswith(".v2") else 5
+    captured_node_state_f32 = np.zeros((node_count, 4 * node_words), dtype=np.float32)
     for node_id, row in node_by_id.items():
         center = row["center"]
         masses[node_id] = captured_f32_scalar(center["mass_kg"],
@@ -521,12 +522,12 @@ def validate_and_assemble(header: dict, nodes: list[dict], tets: list[dict],
         center_residual[node_id] = captured_f32_array(
             row.get("center_residual_impulse_Ns"), (4,),
             f"node {node_id} center residual")[:3]
-        raw_state = finite_array(center.get("raw_state_float4s"), (5, 4),
+        raw_state = finite_array(center.get("raw_state_float4s"), (node_words, 4),
                                  f"node {node_id} captured state words")
         raw_state_f32 = raw_state.astype(np.float32)
         if not np.isfinite(raw_state_f32).all():
             raise ValueError(f"node {node_id} captured state words are not finite FP32")
-        captured_node_state_f32[node_id] = raw_state_f32.reshape(20)
+        captured_node_state_f32[node_id] = raw_state_f32.reshape(4 * node_words)
         direction[node_id] = captured_f32_array(
             row["correction_delta_v_m_s"], (3,),
             f"node {node_id} velocity correction")

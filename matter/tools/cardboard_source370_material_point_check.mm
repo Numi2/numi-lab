@@ -117,6 +117,32 @@ std::vector<T> readRawVector(const std::filesystem::path& path,const std::size_t
     need(input.good(),"short raw native input read: "+path.string());
     return result;
 }
+struct alignas(16) LegacyNMFEMNodeStateGPUv45 {
+    nm_float4 positionAndMass;
+    nm_float4 velocityAndInverseMass;
+    nm_float4 restAndFixed;
+    nm_float4 deltaVelocity;
+    nm_float4 referenceDisplacementAndMode;
+};
+static_assert(sizeof(LegacyNMFEMNodeStateGPUv45) == 80u);
+static_assert(sizeof(NMFEMNodeStateGPU) == 96u);
+
+std::vector<NMFEMNodeStateGPU> readLegacyV45NodeStates(
+    const std::filesystem::path& path, const std::size_t count) {
+    const auto legacy = readRawVector<LegacyNMFEMNodeStateGPUv45>(path, count);
+    std::vector<NMFEMNodeStateGPU> current(count);
+    for (std::size_t i = 0u; i < count; ++i) {
+        auto& dst = current[i];
+        const auto& src = legacy[i];
+        dst.positionAndMass = src.positionAndMass;
+        dst.velocityAndInverseMass = src.velocityAndInverseMass;
+        dst.restAndFixed = src.restAndFixed;
+        dst.deltaVelocity = src.deltaVelocity;
+        dst.referenceDisplacementAndMode = src.referenceDisplacementAndMode;
+        dst.referenceDisplacementLow = {0.0f, 0.0f, 0.0f, 0.0f};
+    }
+    return current;
+}
 template<class T>
 id<MTLBuffer> makeBuffer(id<MTLDevice> device,const std::vector<T>& values) {
     need(!values.empty(),"refusing to create an empty Metal buffer");
@@ -184,7 +210,8 @@ void verifyRunIdentity(const std::filesystem::path& run,
                        std::array<float,15>& acceptedState,
                        NMTetrahedronGPU& tetrahedron,
                        NMContinuumObjectGPU& objectValue) {
-    static_assert(sizeof(NMFEMNodeStateGPU)==80u);
+    static_assert(sizeof(LegacyNMFEMNodeStateGPUv45)==80u);
+    static_assert(sizeof(NMFEMNodeStateGPU)==96u);
     const auto output=run/"output";
     const auto packagePath=output/"compiled.nmatterpack";
     const auto candidatePath=output/"rejected-conditioning-000002/candidate_nodes.bin";
@@ -256,7 +283,7 @@ void verifyRunIdentity(const std::filesystem::path& run,
          package.materials[kTargetMaterial].localNewtonIterations==32u&&
          package.materials[kTargetMaterial].flags==213u,
          "370 package does not contain the recorded accurate medium descriptor");
-    candidateNodes=readRawVector<NMFEMNodeStateGPU>(candidatePath,
+    candidateNodes=readLegacyV45NodeStates(candidatePath,
         static_cast<std::size_t>(package.dispatch.environmentCount)*
         package.dispatch.femNodeCount);
     NSDictionary* stateDocument=object(readJSON(statePath),"accepted-state export");
@@ -437,7 +464,8 @@ void writeResult(const std::filesystem::path& path,const std::string& policy,
 }
 int run(const bool native,const std::filesystem::path& runPath,
         const std::filesystem::path& mediumPath,const std::filesystem::path& outputPath) {
-    static_assert(sizeof(NMFEMNodeStateGPU)==80u);
+    static_assert(sizeof(LegacyNMFEMNodeStateGPUv45)==80u);
+    static_assert(sizeof(NMFEMNodeStateGPU)==96u);
     CompiledWorld package;
     std::vector<NMFEMNodeStateGPU> candidateNodes;
     std::array<float,15> acceptedState{};

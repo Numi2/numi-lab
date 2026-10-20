@@ -166,6 +166,66 @@ inline float ipcBarrierEnergy(
         0.5f * radialCurvature * displacement * displacement, 0.0f);
 }
 
+// Two-word evaluation of the unshifted FEM IPC barrier. The scalar law,
+// activation width, floor location, and linear C1 continuation are identical
+// to ipcBarrierEnergy; only intermediate rounding retains the paired distance.
+inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
+    const MRCompensatedScalar separation,
+    const float thickness,
+    const float stiffness
+) {
+    if (!(thickness > 0.0f) || !(stiffness > 0.0f))
+        return {0.0f, 0.0f};
+    if (!isfinite(separation.high) || !isfinite(separation.low) ||
+        !isfinite(thickness) || !isfinite(stiffness))
+        return {NAN, 0.0f};
+    const auto activationDelta = mrCompensatedAdd(
+        separation, {-thickness, 0.0f});
+    if (activationDelta.high > 0.0f ||
+        (activationDelta.high == 0.0f && activationDelta.low >= 0.0f))
+        return {0.0f, 0.0f};
+
+    const float regularizationFloor = 1.0e-4f * thickness;
+    const auto floorDelta = mrCompensatedAdd(
+        separation, {-regularizationFloor, 0.0f});
+    const bool belowFloor = floorDelta.high < 0.0f ||
+        (floorDelta.high == 0.0f && floorDelta.low < 0.0f);
+    const MRCompensatedScalar distance = belowFloor
+        ? MRCompensatedScalar{regularizationFloor, 0.0f}
+        : separation;
+    const auto squaredDistance = mrCompensatedMultiply(distance, distance);
+    const auto squaredThickness = mrCompensatedProduct(thickness, thickness);
+    const auto offset = mrCompensatedAdd(
+        squaredDistance, mrCompensatedNegate(squaredThickness));
+    const auto logarithm = nmCompensatedLog(
+        mrCompensatedDivide(squaredDistance, squaredThickness));
+    const auto offsetSquared = mrCompensatedMultiply(offset, offset);
+    const auto energyAtDistance = mrCompensatedNegate(
+        mrCompensatedMultiply({stiffness, 0.0f},
+            mrCompensatedMultiply(offsetSquared, logarithm)));
+    if (!belowFloor)
+        return energyAtDistance.high < 0.0f ||
+            (energyAtDistance.high == 0.0f && energyAtDistance.low < 0.0f)
+                ? MRCompensatedScalar{0.0f, 0.0f}
+                : energyAtDistance;
+
+    const auto firstSquared = mrCompensatedNegate(
+        mrCompensatedMultiply({stiffness, 0.0f},
+            mrCompensatedAdd(
+                mrCompensatedMultiply({2.0f, 0.0f},
+                    mrCompensatedMultiply(offset, logarithm)),
+                mrCompensatedDivide(offsetSquared, squaredDistance))));
+    const auto energyDerivativeAtFloor = mrCompensatedMultiply(
+        mrCompensatedMultiply({2.0f, 0.0f}, distance), firstSquared);
+    const auto continuation = mrCompensatedAdd(
+        energyAtDistance,
+        mrCompensatedMultiply(energyDerivativeAtFloor, floorDelta));
+    return continuation.high < 0.0f ||
+        (continuation.high == 0.0f && continuation.low < 0.0f)
+            ? MRCompensatedScalar{0.0f, 0.0f}
+            : continuation;
+}
+
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
 }

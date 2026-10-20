@@ -234,7 +234,7 @@ def validate_capture(records: list[dict[str, Any]]) -> tuple[dict[str, Any], lis
         raise ValueError("capture requires exactly one header and one terminal integrity record")
     header = headers[0]
     terminal = integrity[0]
-    if header.get("schema") != CAPTURE_SCHEMA:
+    if header.get("schema") not in {CAPTURE_SCHEMA, "numi.cardboard.fem-newton-capture.v2"}:
         raise ValueError("unsupported FEM capture schema")
     if terminal.get("production_inputs_bitwise_unchanged") is not True:
         raise ValueError("capture integrity reports modified production inputs")

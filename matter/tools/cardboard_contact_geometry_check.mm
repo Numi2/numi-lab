@@ -24,7 +24,7 @@
 
 namespace {
 using Vector = std::array<double, 3>;
-constexpr std::size_t kRows = 130u;
+constexpr std::size_t kRows = 133u;
 constexpr std::size_t kWordsPerRow = 72u;
 constexpr std::size_t kBytes = kRows * kWordsPerRow * sizeof(float);
 void require(bool okay, const char* message) {
@@ -850,6 +850,214 @@ id<MTLBuffer> sharedSortBuffer(id<MTLDevice> device,const void* data,std::size_t
     if (data!=nullptr && bytes!=0u) std::memcpy(buffer.contents,data,bytes);
     return buffer;
 }
+struct FEMReferenceAccumulationAudit {
+    double displacementErrorM=0.0;
+    double accumulatedLowM=0.0;
+    double expectedIncrementM=0.0;
+    double eightStepErrorM=0.0;
+    double eightStepIncrementM=0.0;
+    double expectedEightStepIncrementM=0.0;
+    double legacyPositionChangeM=0.0;
+    unsigned updates=0u;
+    unsigned eightStepUpdates=0u;
+    bool fixedExact=false;
+    bool nondueExact=false;
+    bool legacyExact=false;
+};
+NMFEMNodeStateGPU makeReferenceFixtureNode(bool referenceMode, bool fixed) {
+    NMFEMNodeStateGPU state{};
+    const nm_float4 origin={8192.0f,-4096.0f,2048.0f,0.0f};
+    const float queryU=40.0f*0x1p-20f;
+    state.restAndFixed={origin.x+0.001953125f,origin.y+0.001953125f,
+        origin.z, fixed?1.0f:0.0f};
+    const float displacement=referenceMode?queryU:0.0f;
+    state.referenceDisplacementAndMode={displacement,displacement,displacement,
+        referenceMode?1.0f:0.0f};
+    state.referenceDisplacementLow={0.0f,0.0f,0.0f,0.0f};
+    state.positionAndMass={
+        state.restAndFixed.x+queryU,
+        state.restAndFixed.y+queryU,
+        state.restAndFixed.z+queryU,1.0f};
+    state.velocityAndInverseMass={0x1p-31f,0.0f,0.0f,1.0f};
+    return state;
+}
+FEMReferenceAccumulationAudit runReferenceAccumulationAudit(
+    id<MTLDevice> device,id<MTLLibrary> library,id<MTLCommandQueue> queue) {
+    NSError* error=nil;
+    id<MTLFunction> integrateFunction=[library newFunctionWithName:
+        @"numi_matter_metal::nm_fem_integrate"];
+    id<MTLFunction> commitFunction=[library newFunctionWithName:
+        @"numi_matter_metal::nm_fem_commit_microstep"];
+    require(integrateFunction!=nil && commitFunction!=nil,
+        "missing production FEM integration/commit kernels");
+    id<MTLComputePipelineState> integratePipeline=[device
+        newComputePipelineStateWithFunction:integrateFunction error:&error];
+    require(integratePipeline!=nil,"cannot create production FEM integrate pipeline");
+    id<MTLComputePipelineState> commitPipeline=[device
+        newComputePipelineStateWithFunction:commitFunction error:&error];
+    require(commitPipeline!=nil,"cannot create production FEM commit pipeline");
+    NMMatterDispatchGPU dispatch{};
+    dispatch.abiVersion=NM_MATTER_ABI_VERSION;
+    dispatch.environmentCount=1u;
+    dispatch.objectCount=1u;
+    dispatch.femNodeCount=1u;
+    dispatch.materialStateStride=1u;
+    dispatch.gravityAndTimestep={0.0f,0.0f,0.0f,0x1p-10f};
+    NMContinuumObjectGPU object{};
+    object.representation=NM_REPRESENTATION_FEM;
+    object.flags=NM_OBJECT_ACTIVE;
+    object.schedulerIndex=0u;
+    object.solver={0u,0u,0u,0u};
+    NMSchedulerStateGPU scheduler{};
+    scheduler.activeExponent=0u;
+    scheduler.numerical.w=1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
+    NMIncidenceRangeGPU nodeRange{};
+    nodeRange.objectIndex=0u;
+    NMMicrostepGPU microstep{};
+    microstep.microtickCount=1u;
+    microstep.time={0x1p-10f,0x1p10f,0.0f,0x1p-10f};
+    NMMatterStatusGPU status{};
+    float dummyMaterialState=0.0f;
+    auto dispatchBuffer=sharedSortBuffer(device,&dispatch,sizeof(dispatch));
+    auto objectBuffer=sharedSortBuffer(device,&object,sizeof(object));
+    auto nodeRangeBuffer=sharedSortBuffer(device,&nodeRange,sizeof(nodeRange));
+    auto schedulerBuffer=sharedSortBuffer(device,&scheduler,sizeof(scheduler));
+    auto adaptiveBuffer=sharedSortBuffer(device,&adaptive,sizeof(adaptive));
+    auto microstepBuffer=sharedSortBuffer(device,&microstep,sizeof(microstep));
+    auto statusBuffer=sharedSortBuffer(device,&status,sizeof(status));
+    auto materialAcceptedBuffer=sharedSortBuffer(device,&dummyMaterialState,sizeof(float));
+    auto materialCandidateBuffer=sharedSortBuffer(device,&dummyMaterialState,sizeof(float));
+    auto initializeNodeBuffers=[&](NMFEMNodeStateGPU initial,
+        id<MTLBuffer> __strong& acceptedBuffer,id<MTLBuffer> __strong& candidateBuffer) {
+        acceptedBuffer=sharedSortBuffer(device,&initial,sizeof(initial));
+        candidateBuffer=sharedSortBuffer(device,&initial,sizeof(initial));
+    };
+    auto encodeIntegrate=[&](id<MTLComputeCommandEncoder> encoder) {
+        [encoder setComputePipelineState:integratePipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
+        [encoder setBuffer:microstepBuffer offset:0 atIndex:1];
+        [encoder setBuffer:objectBuffer offset:0 atIndex:2];
+        [encoder setBuffer:nodeRangeBuffer offset:0 atIndex:3];
+        [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
+        [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
+    };
+    auto dispatchIntegrate=[&](id<MTLComputeCommandEncoder> encoder,
+        id<MTLBuffer> acceptedBuffer,id<MTLBuffer> candidateBuffer) {
+        encodeIntegrate(encoder);
+        [encoder setBuffer:acceptedBuffer offset:0 atIndex:6];
+        [encoder setBuffer:candidateBuffer offset:0 atIndex:7];
+        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+    };
+    auto dispatchCommit=[&](id<MTLComputeCommandEncoder> encoder,
+        id<MTLBuffer> acceptedBuffer,id<MTLBuffer> candidateBuffer) {
+        [encoder setComputePipelineState:commitPipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];
+        [encoder setBuffer:statusBuffer offset:0 atIndex:1];
+        [encoder setBuffer:acceptedBuffer offset:0 atIndex:2];
+        [encoder setBuffer:candidateBuffer offset:0 atIndex:3];
+        [encoder setBuffer:materialAcceptedBuffer offset:0 atIndex:4];
+        [encoder setBuffer:materialCandidateBuffer offset:0 atIndex:5];
+        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+    };
+    auto runSingle=[&](NMFEMNodeStateGPU initial,NMContinuumObjectGPU oneObject,
+        NMMicrostepGPU oneMicrostep) {
+        id<MTLBuffer> acceptedBuffer=nil,candidateBuffer=nil;
+        initializeNodeBuffers(initial,acceptedBuffer,candidateBuffer);
+        std::memcpy(objectBuffer.contents,&oneObject,sizeof(oneObject));
+        std::memcpy(microstepBuffer.contents,&oneMicrostep,sizeof(oneMicrostep));
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        require(command!=nil,"cannot create FEM integration control command");
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        require(encoder!=nil,"cannot create FEM integration control encoder");
+        dispatchIntegrate(encoder,acceptedBuffer,candidateBuffer);
+        [encoder endEncoding];
+        [command commit]; [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,
+            "production FEM integration control failed");
+        NMFEMNodeStateGPU result{};
+        std::memcpy(&result,candidateBuffer.contents,sizeof(result));
+        return std::pair<NMFEMNodeStateGPU,NMFEMNodeStateGPU>{initial,result};
+    };
+    FEMReferenceAccumulationAudit audit;
+    constexpr unsigned updateCount=256u;
+    const NMFEMNodeStateGPU initial=makeReferenceFixtureNode(true,false);
+    id<MTLBuffer> acceptedBuffer=nil,candidateBuffer=nil;
+    initializeNodeBuffers(initial,acceptedBuffer,candidateBuffer);
+    id<MTLCommandBuffer> command=[queue commandBuffer];
+    require(command!=nil,"cannot create repeated FEM integration command");
+    id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+    require(encoder!=nil,"cannot create repeated FEM integration encoder");
+    for(unsigned step=0u;step<updateCount;++step) {
+        dispatchIntegrate(encoder,acceptedBuffer,candidateBuffer);
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        dispatchCommit(encoder,acceptedBuffer,candidateBuffer);
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+    [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+    require(command.status==MTLCommandBufferStatusCompleted,
+        "repeated production FEM integration failed");
+    NMFEMNodeStateGPU finalState{};
+    std::memcpy(&finalState,acceptedBuffer.contents,sizeof(finalState));
+    const double initialDisplacement=static_cast<double>(initial.referenceDisplacementAndMode.x);
+    const double expectedIncrement=static_cast<double>(updateCount)*0x1p-41;
+    const double finalDisplacement=static_cast<double>(finalState.referenceDisplacementAndMode.x)+
+        static_cast<double>(finalState.referenceDisplacementLow.x);
+    audit.displacementErrorM=std::abs(finalDisplacement-(initialDisplacement+expectedIncrement));
+    audit.accumulatedLowM=finalDisplacement-initialDisplacement;
+    audit.expectedIncrementM=expectedIncrement;
+    audit.updates=updateCount;
+    audit.legacyPositionChangeM=std::abs(
+        static_cast<double>(finalState.positionAndMass.x)-initial.positionAndMass.x);
+    constexpr unsigned eightStepCount=8u;
+    id<MTLBuffer> acceptedEight=nil,candidateEight=nil;
+    initializeNodeBuffers(initial,acceptedEight,candidateEight);
+    id<MTLCommandBuffer> eightCommand=[queue commandBuffer];
+    require(eightCommand!=nil,"cannot create eight-step FEM integration command");
+    id<MTLComputeCommandEncoder> eightEncoder=[eightCommand computeCommandEncoder];
+    require(eightEncoder!=nil,"cannot create eight-step FEM integration encoder");
+    for(unsigned step=0u;step<eightStepCount;++step) {
+        dispatchIntegrate(eightEncoder,acceptedEight,candidateEight);
+        [eightEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        dispatchCommit(eightEncoder,acceptedEight,candidateEight);
+        [eightEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+    [eightEncoder endEncoding]; [eightCommand commit]; [eightCommand waitUntilCompleted];
+    require(eightCommand.status==MTLCommandBufferStatusCompleted,
+        "eight-step production FEM integration failed");
+    NMFEMNodeStateGPU eightState{};
+    std::memcpy(&eightState,acceptedEight.contents,sizeof(eightState));
+    const double eightFinalDisplacement=
+        static_cast<double>(eightState.referenceDisplacementAndMode.x)+
+        static_cast<double>(eightState.referenceDisplacementLow.x);
+    audit.expectedEightStepIncrementM=static_cast<double>(eightStepCount)*0x1p-41;
+    audit.eightStepIncrementM=eightFinalDisplacement-initialDisplacement;
+    audit.eightStepErrorM=std::abs(eightFinalDisplacement-
+        (initialDisplacement+audit.expectedEightStepIncrementM));
+    audit.eightStepUpdates=eightStepCount;
+    auto fixedObject=object;
+    auto fixedInitial=makeReferenceFixtureNode(true,true);
+    const auto fixedPair=runSingle(fixedInitial,fixedObject,microstep);
+    audit.fixedExact=std::memcmp(&fixedPair.first,&fixedPair.second,sizeof(fixedPair.first))==0;
+    auto nondueObject=object;
+    nondueObject.solver.y=1u;
+    auto nondueMicrostep=microstep;
+    nondueMicrostep.microtick=1u;
+    nondueMicrostep.microtickCount=2u;
+    const auto nonduePair=runSingle(initial,nondueObject,nondueMicrostep);
+    audit.nondueExact=std::memcmp(&nonduePair.first,&nonduePair.second,sizeof(nonduePair.first))==0;
+    auto legacyInitial=makeReferenceFixtureNode(false,false);
+    const auto legacyPair=runSingle(legacyInitial,object,microstep);
+    audit.legacyExact=std::memcmp(&legacyPair.first,&legacyPair.second,sizeof(legacyPair.first))==0;
+    require(audit.displacementErrorM<=2.0e-15&&
+        audit.accumulatedLowM>0.99*expectedIncrement&&
+        audit.fixedExact&&audit.nondueExact&&audit.legacyExact,
+        "production FEM reference-displacement persistence/fixed/nondue/legacy control failed");
+    return audit;
+}
 void appendLittleEndian(std::vector<std::uint8_t>& output,std::uint32_t value) {
     for (unsigned shift=0u; shift<32u; shift+=8u)
         output.push_back(static_cast<std::uint8_t>(value>>shift));
@@ -1377,6 +1585,12 @@ int main(int argc,const char** argv) {
             double femExpansionDeltaEnergyError=0.0,femExpansionGapIncrease=INFINITY;
             double femExpansionTranslationError=0.0,femExpansionLegacyGapChange=0.0;
             double femExpansionLegacyEnergyChange=0.0;
+            double femPairCoordinateError=0.0,femPairBaryError=0.0;
+            double femPairGapError=0.0,femPairEnergyRelativeError=0.0;
+            double femPairDeltaEnergyRelativeError=0.0,femPairResponseRelativeError=0.0;
+            double femPairGapIncrease=INFINITY,femPairEnergyChange=0.0;
+            double femPairLegacyGapChange=0.0,femPairLegacyEnergyChange=0.0;
+            std::array<bool,3> femPairCases{};
             double femReferencePositionError=0.0,femTrialPositionError=0.0;
             double femTrialVelocityError=0.0,femTrialDisplacementError=0.0;
             double femTrialDeltaVelocityError=0.0,femTrialNoOpChanged=0.0;
@@ -1384,6 +1598,8 @@ int main(int argc,const char** argv) {
             double femContactGapIncrease=0.0,femContactEnergyChange=0.0;
             double femRoundedWorldGapChange=0.0,femRoundedWorldEnergyChange=0.0;
             const ExactVFJVPResult exactVFJvp=runExactVFJVP(device,library,queue);
+            const FEMReferenceAccumulationAudit femAccumulation=
+                runReferenceAccumulationAudit(device,library,queue);
             for (std::size_t i = 0u; i < kRows; ++i) {
                 const float* row = words+i*kWordsPerRow;
                 for (unsigned j = 0u; j < kWordsPerRow; ++j)
@@ -1419,6 +1635,120 @@ int main(int argc,const char** argv) {
                         femRoundedWorldGapChange=errors.roundedWorldGapChangeM;
                         femRoundedWorldEnergyChange=errors.roundedWorldEnergyChangeJ;
                     }
+                } else if(i>=130u&&i<133u) {
+                    const unsigned test=static_cast<unsigned>(row[0u]);
+                    require(test<3u && row[1u]==1.0f && row[2u]==1.0f &&
+                        row[3u]==1.0f && row[17u*4u+2u]==1.0f &&
+                        row[17u*4u+3u]==1.0f,
+                        "compensated FEM pair trial/witness/fixed/zero control flags failed");
+                    femPairCases[test]=true;
+                    const double scales[3]={0.0078125,0.015625,0.03125};
+                    const double scale=scales[test];
+                    const double queryU=40.0*std::ldexp(1.0,-20);
+                    const double triangleU=33.0*std::ldexp(1.0,-20);
+                    const Vector expectedBase[4]={
+                        {0.25*scale+queryU,0.25*scale+queryU,queryU},
+                        {0.0,0.0,triangleU},{scale,0.0,triangleU},{0.0,scale,triangleU}};
+                    std::array<Vector,4> base{},trial{};
+                    auto expandedAt=[&](unsigned highSlot,unsigned lowSlot) {
+                        return add(vectorAt(row,highSlot),vectorAt(row,lowSlot));
+                    };
+                    for(unsigned point=0u;point<4u;++point) {
+                        base[point]=expandedAt(1u+2u*point,2u+2u*point);
+                        trial[point]=base[point];
+                        femPairCoordinateError=std::max(femPairCoordinateError,
+                            maximumDifference(base[point],expectedBase[point]));
+                    }
+                    trial[0]=expandedAt(9u,10u);
+                    const Vector expectedTrialPoint={expectedBase[0][0]+0x1p-39,
+                        expectedBase[0][1],expectedBase[0][2]+0x1p-40};
+                    femPairCoordinateError=std::max(femPairCoordinateError,
+                        maximumDifference(trial[0],expectedTrialPoint));
+                    const Vector trialDisplacement={
+                        static_cast<double>(row[15u*4u])+row[16u*4u],
+                        static_cast<double>(row[15u*4u+1u])+row[16u*4u+1u],
+                        static_cast<double>(row[15u*4u+2u])+row[16u*4u+2u]};
+                    const Vector expectedDisplacement={queryU+0x1p-39,
+                        queryU,queryU+0x1p-40};
+                    femPairCoordinateError=std::max(femPairCoordinateError,
+                        maximumDifference(trialDisplacement,expectedDisplacement));
+                    require(row[15u*4u+3u]==1.0f&&row[16u*4u+3u]==0.0f,
+                        "paired FEM trial changed its reference-mode tag or reserved low limb");
+                    const auto baseOracle=triangleOracle(base[0],base[1],base[2],base[3]);
+                    const auto trialOracle=triangleOracle(trial[0],trial[1],trial[2],trial[3]);
+                    const Vector gpuBaseBary={row[11u*4u],row[11u*4u+1u],row[11u*4u+2u]};
+                    const Vector gpuTrialBary={row[12u*4u],row[12u*4u+1u],row[12u*4u+2u]};
+                    femPairBaryError=std::max({femPairBaryError,
+                        maximumDifference(baseOracle.bary,gpuBaseBary),
+                        maximumDifference(trialOracle.bary,gpuTrialBary)});
+                    femPairGapError=std::max({femPairGapError,
+                        std::abs(baseOracle.separation-row[11u*4u+3u]),
+                        std::abs(trialOracle.separation-row[12u*4u+3u]),
+                        std::abs(baseOracle.separation-row[13u*4u+2u]),
+                        std::abs(trialOracle.separation-row[13u*4u+3u])});
+                    constexpr double thickness=10.0e-6,stiffness=1.0e14;
+                    const double floorTestGap=row[2u*4u+3u];
+                    const double floorThickness=double(float(10.0e-6f));
+                    const double floorStiffness=double(float(1.0e14f));
+                    const double floorEnergyOracle=barrierEnergy(
+                        floorTestGap,floorThickness,floorStiffness);
+                    const double floorDistance=std::max(floorTestGap,1.0e-4*floorThickness);
+                    const double floorD2=floorDistance*floorDistance;
+                    const double floorOffset=floorD2-floorThickness*floorThickness;
+                    const double floorDerivative=-2.0*floorDistance*floorStiffness*(
+                        2.0*floorOffset*std::log(floorD2/(floorThickness*floorThickness))+
+                        floorOffset*floorOffset/floorD2);
+                    require(std::abs(double(row[1u*4u+3u])-floorEnergyOracle)/
+                                std::max(std::abs(floorEnergyOracle),1.0e-30)<=5.0e-4&&
+                            std::abs(double(row[3u*4u+3u])-floorDerivative)/
+                                std::max(std::abs(floorDerivative),1.0e-30)<=5.0e-3&&
+                            std::abs(double(row[4u*4u+3u])-floorDerivative)/
+                                std::max(std::abs(floorDerivative),1.0e-30)<=5.0e-3,
+                        "compensated FEM floor energy/derivative control failed");
+                    const double mollifier=triangleMollifier(base[1],base[2],base[3]);
+                    const double oracleBaseEnergy=mollifier*barrierEnergy(
+                        baseOracle.separation,thickness,stiffness);
+                    const double oracleTrialEnergy=mollifier*barrierEnergy(
+                        trialOracle.separation,thickness,stiffness);
+                    const double gpuBaseEnergy=row[13u*4u];
+                    const double gpuTrialEnergy=row[13u*4u+1u];
+                    femPairEnergyRelativeError=std::max({femPairEnergyRelativeError,
+                        std::abs(gpuBaseEnergy-oracleBaseEnergy)/
+                            std::max(std::abs(oracleBaseEnergy),1.0e-30),
+                        std::abs(gpuTrialEnergy-oracleTrialEnergy)/
+                            std::max(std::abs(oracleTrialEnergy),1.0e-30)});
+                    const double oracleDelta=oracleTrialEnergy-oracleBaseEnergy;
+                    const double gpuDelta=gpuTrialEnergy-gpuBaseEnergy;
+                    femPairDeltaEnergyRelativeError=std::max(
+                        femPairDeltaEnergyRelativeError,
+                        std::abs(gpuDelta-oracleDelta)/std::max(std::abs(oracleDelta),1.0e-30));
+                    if(test==0u) {
+                        femPairGapIncrease=trialOracle.separation-baseOracle.separation;
+                        femPairEnergyChange=gpuDelta;
+                        femPairLegacyGapChange=static_cast<double>(row[14u*4u+3u])-row[14u*4u+2u];
+                        femPairLegacyEnergyChange=static_cast<double>(row[14u*4u+1u])-row[14u*4u];
+                    }
+                    const double dt=0x1p-10;
+                    auto oracleImpulse=[&](double gap) {
+                        const double distance=std::max(gap,1.0e-4*thickness);
+                        const double d2=distance*distance,h2=thickness*thickness;
+                        const double offset=d2-h2,logRatio=std::log(d2/h2);
+                        const double first=-stiffness*(2.0*offset*logRatio+offset*offset/d2);
+                        return std::max(-2.0*distance*first,0.0)*dt;
+                    };
+                    const double expectedBaseImpulse=oracleImpulse(baseOracle.separation);
+                    const double expectedTrialImpulse=oracleImpulse(trialOracle.separation);
+                    require(expectedBaseImpulse>expectedTrialImpulse&&
+                        row[17u*4u]>0.0f&&row[17u*4u+1u]>0.0f,
+                        "independent opening response sign or positive GPU response failed");
+                    femPairResponseRelativeError=std::max({femPairResponseRelativeError,
+                        std::abs(static_cast<double>(row[17u*4u])-expectedBaseImpulse)/
+                            std::max(expectedBaseImpulse,1.0e-30),
+                        std::abs(static_cast<double>(row[17u*4u+1u])-expectedTrialImpulse)/
+                            std::max(expectedTrialImpulse,1.0e-30)});
+                    require(row[14u*4u]==row[14u*4u+1u] &&
+                        row[14u*4u+2u]==row[14u*4u+3u],
+                        "legacy rounded-world projection did not preserve its exact unchanged control");
                 } else if(i>=125u&&i<130u) {
                     const auto errors=femExpansionErrors(row);
                     const unsigned test=static_cast<unsigned>(row[0u]);
@@ -1485,6 +1815,31 @@ int main(int argc,const char** argv) {
             require(std::all_of(femExpansionCases.begin(),femExpansionCases.end(),
                     [](bool value){return value;}),
                 "compensated FEM expansion fixture did not visit all five rows");
+            require(std::all_of(femPairCases.begin(),femPairCases.end(),
+                    [](bool value){return value;}),
+                "paired FEM displacement fixture did not visit all three triangle scales");
+            std::fprintf(stderr,
+                "paired_displacement_diagnostic coordinate_m=%.17g bary=%.17g gap_m=%.17g energy_relative=%.17g delta_energy_relative=%.17g gap_increase_m=%.17g delta_energy_J=%.17g response_relative=%.17g legacy_gap_m=%.17g legacy_energy_J=%.17g\n",
+                femPairCoordinateError,femPairBaryError,femPairGapError,
+                femPairEnergyRelativeError,femPairDeltaEnergyRelativeError,
+                femPairGapIncrease,femPairEnergyChange,femPairResponseRelativeError,
+                femPairLegacyGapChange,femPairLegacyEnergyChange);
+            require(femPairCoordinateError<=2.0e-15&&femPairBaryError<=5.0e-7&&
+                    femPairGapError<=1.0e-11&&femPairEnergyRelativeError<=5.0e-4&&
+                    femPairDeltaEnergyRelativeError<=0.25&&femPairGapIncrease>0.0&&
+                    femPairEnergyChange<0.0&&femPairResponseRelativeError<=5.0e-4&&
+                    femPairLegacyGapChange==0.0&&femPairLegacyEnergyChange==0.0,
+                "paired FEM expansion geometry/energy/response oracle exceeded declared gates");
+            require(femAccumulation.updates==256u&&
+                    femAccumulation.eightStepUpdates==8u&&
+                    femAccumulation.eightStepErrorM<=2.0e-15&&
+                    femAccumulation.eightStepIncrementM>
+                        0.99*femAccumulation.expectedEightStepIncrementM&&
+                    femAccumulation.displacementErrorM<=2.0e-15&&
+                    femAccumulation.accumulatedLowM>0.99*femAccumulation.expectedIncrementM&&
+                    femAccumulation.fixedExact&&femAccumulation.nondueExact&&
+                    femAccumulation.legacyExact,
+                "production FEM paired displacement persistence controls failed");
             require(femExpansionCoordinateError<=2.0e-15&&
                     femExpansionBaryError<=5.0e-7&&femExpansionGapError<=1.0e-11&&
                     femExpansionEnergyError<=5.0e-4&&
@@ -1522,7 +1877,7 @@ int main(int argc,const char** argv) {
                     femContactGapIncrease>1.0e-6&&femContactEnergyChange<0.0&&
                     std::abs(femRoundedWorldGapChange)<=5.0e-9,
                 "FEM relative-position, exact trial, or synthetic contact gate failed");
-            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"fem_reference_position_cases\":3,\"fem_trial_state_cases\":3,\"fem_contact_trial_cases\":1,\"fem_reference_position_error_max_m\":%.17g,\"fem_trial_position_error_max_m\":%.17g,\"fem_trial_velocity_error_max_m_per_s\":%.17g,\"fem_trial_reference_displacement_error_max_m\":%.17g,\"fem_trial_delta_velocity_error_max_m_per_s\":%.17g,\"fem_trial_noop_changed_components\":%.17g,\"fem_contact_gap_error_max_m\":%.17g,\"fem_contact_energy_relative_error_max\":%.17g,\"fem_contact_trial_gap_increase_m\":%.17g,\"fem_contact_trial_energy_change_J\":%.17g,\"fem_contact_rounded_world_gap_change_m\":%.17g,\"fem_contact_rounded_world_energy_change_J\":%.17g,\"fem_compensated_expansion_cases\":5,\"fem_compensated_coordinate_error_max_m\":%.17g,\"fem_compensated_barycentric_error_max\":%.17g,\"fem_compensated_gap_error_max_m\":%.17g,\"fem_compensated_energy_relative_error_max\":%.17g,\"fem_compensated_delta_energy_relative_error_max\":%.17g,\"fem_compensated_gap_increase_min_m\":%.17g,\"fem_compensated_translation_error_max_m\":%.17g,\"fem_rounded_legacy_gap_change_max_m\":%.17g,\"fem_rounded_legacy_energy_change_max_J\":%.17g,\"exact_vf_jvp_cases\":2,\"exact_vf_jvp_relative_error_max\":%.17g,\"exact_vf_jvp_absolute_error_max_Ns_per_alpha\":%.17g,\"exact_vf_jvp_near_edge_base_bary_min\":%.17g,\"exact_vf_jvp_near_edge_fd_bary_min\":%.17g,\"exact_vf_jvp_inverse_response_k_effect_Ns_per_alpha\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7],femReferencePositionError,femTrialPositionError,femTrialVelocityError,femTrialDisplacementError,femTrialDeltaVelocityError,femTrialNoOpChanged,femContactGapError,femContactEnergyError,femContactGapIncrease,femContactEnergyChange,femRoundedWorldGapChange,femRoundedWorldEnergyChange,femExpansionCoordinateError,femExpansionBaryError,femExpansionGapError,femExpansionEnergyError,femExpansionDeltaEnergyError,femExpansionGapIncrease,femExpansionTranslationError,femExpansionLegacyGapChange,femExpansionLegacyEnergyChange,exactVFJvp.relativeErrorMaximum,exactVFJvp.absoluteErrorMaximum,exactVFJvp.nearEdgeBaseMinimumBary,exactVFJvp.nearEdgeSampleMinimumBary,exactVFJvp.inverseResponseStiffnessDerivativeNs);
+            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"fem_reference_position_cases\":3,\"fem_trial_state_cases\":3,\"fem_contact_trial_cases\":1,\"fem_reference_position_error_max_m\":%.17g,\"fem_trial_position_error_max_m\":%.17g,\"fem_trial_velocity_error_max_m_per_s\":%.17g,\"fem_trial_reference_displacement_error_max_m\":%.17g,\"fem_trial_delta_velocity_error_max_m_per_s\":%.17g,\"fem_trial_noop_changed_components\":%.17g,\"fem_contact_gap_error_max_m\":%.17g,\"fem_contact_energy_relative_error_max\":%.17g,\"fem_contact_trial_gap_increase_m\":%.17g,\"fem_contact_trial_energy_change_J\":%.17g,\"fem_contact_rounded_world_gap_change_m\":%.17g,\"fem_contact_rounded_world_energy_change_J\":%.17g,\"fem_compensated_pair_cases\":3,\"fem_compensated_pair_coordinate_error_max_m\":%.17g,\"fem_compensated_pair_barycentric_error_max\":%.17g,\"fem_compensated_pair_gap_error_max_m\":%.17g,\"fem_compensated_pair_energy_relative_error_max\":%.17g,\"fem_compensated_pair_delta_energy_relative_error_max\":%.17g,\"fem_compensated_pair_response_relative_error_max\":%.17g,\"fem_compensated_pair_gap_increase_m\":%.17g,\"fem_compensated_pair_energy_change_J\":%.17g,\"fem_compensated_pair_legacy_gap_change_m\":%.17g,\"fem_compensated_pair_legacy_energy_change_J\":%.17g,\"fem_reference_accumulation_updates\":%u,\"fem_reference_accumulation_error_m\":%.17g,\"fem_reference_accumulation_expected_increment_m\":%.17g,\"fem_reference_accumulation_actual_increment_m\":%.17g,\"fem_reference_accumulation_world_projection_change_m\":%.17g,\"fem_reference_accumulation_after8_error_m\":%.17g,\"fem_reference_accumulation_after8_increment_m\":%.17g,\"fem_reference_accumulation_after8_expected_increment_m\":%.17g,\"fem_reference_fixed_exact\":%s,\"fem_reference_nondue_exact\":%s,\"fem_reference_legacy_exact\":%s,\"fem_compensated_expansion_cases\":5,\"fem_compensated_coordinate_error_max_m\":%.17g,\"fem_compensated_barycentric_error_max\":%.17g,\"fem_compensated_gap_error_max_m\":%.17g,\"fem_compensated_energy_relative_error_max\":%.17g,\"fem_compensated_delta_energy_relative_error_max\":%.17g,\"fem_compensated_gap_increase_min_m\":%.17g,\"fem_compensated_translation_error_max_m\":%.17g,\"fem_rounded_legacy_gap_change_max_m\":%.17g,\"fem_rounded_legacy_energy_change_max_J\":%.17g,\"exact_vf_jvp_cases\":2,\"exact_vf_jvp_relative_error_max\":%.17g,\"exact_vf_jvp_absolute_error_max_Ns_per_alpha\":%.17g,\"exact_vf_jvp_near_edge_base_bary_min\":%.17g,\"exact_vf_jvp_near_edge_fd_bary_min\":%.17g,\"exact_vf_jvp_inverse_response_k_effect_Ns_per_alpha\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7],femReferencePositionError,femTrialPositionError,femTrialVelocityError,femTrialDisplacementError,femTrialDeltaVelocityError,femTrialNoOpChanged,femContactGapError,femContactEnergyError,femContactGapIncrease,femContactEnergyChange,femRoundedWorldGapChange,femRoundedWorldEnergyChange,femPairCoordinateError,femPairBaryError,femPairGapError,femPairEnergyRelativeError,femPairDeltaEnergyRelativeError,femPairResponseRelativeError,femPairGapIncrease,femPairEnergyChange,femPairLegacyGapChange,femPairLegacyEnergyChange,femAccumulation.updates,femAccumulation.displacementErrorM,femAccumulation.expectedIncrementM,femAccumulation.accumulatedLowM,femAccumulation.legacyPositionChangeM,femAccumulation.eightStepErrorM,femAccumulation.eightStepIncrementM,femAccumulation.expectedEightStepIncrementM,femAccumulation.fixedExact?"true":"false",femAccumulation.nondueExact?"true":"false",femAccumulation.legacyExact?"true":"false",femExpansionCoordinateError,femExpansionBaryError,femExpansionGapError,femExpansionEnergyError,femExpansionDeltaEnergyError,femExpansionGapIncrease,femExpansionTranslationError,femExpansionLegacyGapChange,femExpansionLegacyEnergyChange,exactVFJvp.relativeErrorMaximum,exactVFJvp.absoluteErrorMaximum,exactVFJvp.nearEdgeBaseMinimumBary,exactVFJvp.nearEdgeSampleMinimumBary,exactVFJvp.inverseResponseStiffnessDerivativeNs);
             require(nearestMaximum <= 1.0e-3 && valueMaximum <= 1.0e-3 && gradientMaximum <= 1.0e-3 &&
                     eeDistanceMaximum <= 2.0e-10 && eeVectorMaximum <= 2.0e-9 &&
                     eeArithmeticVectorMaximum <= 2.0e-10 &&

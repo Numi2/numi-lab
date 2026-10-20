@@ -1,0 +1,86 @@
+[0/2] Re-checking globbed directories...
+[1/4] Generating shaders/cardboard_paper_check.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_paper_check.metal:4:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3469:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3478:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3469:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3459:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3915:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3932:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3915:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3795:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_paper_check.metal:4:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1497:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1456:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.
+[2/4] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o
+FAILED: [code=1] matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o 
+/usr/bin/clang++ -DNUMI_CARDBOARD_PAPER_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_paper_check.metallib\" -DNUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256=\"09ae737a09623ff15fc4b1d13f8a96cb14e5d87e0c245cb7b1deb70bcf145d97\" -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o -MF matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o.d -o matter/CMakeFiles/numi-matter-cardboard-source370-material-point-check.dir/tools/cardboard_source370_material_point_check.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm:121:5: error: unknown type name 'mr_float4'; did you mean 'nm_float4'?
+  121 |     mr_float4 positionAndMass;
+      |     ^~~~~~~~~
+      |     nm_float4
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h:27:3: note: 'nm_float4' declared here
+   27 | } nm_float4;
+      |   ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm:122:5: error: unknown type name 'mr_float4'; did you mean 'nm_float4'?
+  122 |     mr_float4 velocityAndInverseMass;
+      |     ^~~~~~~~~
+      |     nm_float4
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h:27:3: note: 'nm_float4' declared here
+   27 | } nm_float4;
+      |   ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm:123:5: error: unknown type name 'mr_float4'; did you mean 'nm_float4'?
+  123 |     mr_float4 restAndFixed;
+      |     ^~~~~~~~~
+      |     nm_float4
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h:27:3: note: 'nm_float4' declared here
+   27 | } nm_float4;
+      |   ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm:124:5: error: unknown type name 'mr_float4'; did you mean 'nm_float4'?
+  124 |     mr_float4 deltaVelocity;
+      |     ^~~~~~~~~
+      |     nm_float4
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h:27:3: note: 'nm_float4' declared here
+   27 | } nm_float4;
+      |   ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_source370_material_point_check.mm:125:5: error: unknown type name 'mr_float4'; did you mean 'nm_float4'?
+  125 |     mr_float4 referenceDisplacementAndMode;
+      |     ^~~~~~~~~
+      |     nm_float4
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h:27:3: note: 'nm_float4' declared here
+   27 | } nm_float4;
+      |   ^
+5 errors generated.
+ninja: build stopped: subcommand failed.

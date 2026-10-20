@@ -63,6 +63,7 @@
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 #include "numi/matter/matter.hpp"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "numi/matter/numi_human.hpp"
 #include <CommonCrypto/CommonDigest.h>
 
@@ -10208,7 +10209,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                 if (node.referenceDisplacementAndMode.w==1.0f) {
                                     const float* rest=&node.restAndFixed.x;
                                     const float* disp=&node.referenceDisplacementAndMode.x;
-                                    return double(rest[axis])+double(disp[axis]);
+                                    const float* low=&node.referenceDisplacementLow.x;
+                                    return double(mrCompensatedProjectionScalar(
+                                        rest[axis],disp[axis],low[axis]));
                                 }
                                 return double(pos[axis]);
                             };
@@ -10985,26 +10988,33 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const auto& u1=n1.referenceDisplacementAndMode;
             const auto& u2=n2.referenceDisplacementAndMode;
             const auto& u3=n3.referenceDisplacementAndMode;
+            const auto& l0=n0.referenceDisplacementLow;
+            const auto& l1=n1.referenceDisplacementLow;
+            const auto& l2=n2.referenceDisplacementLow;
+            const auto& l3=n3.referenceDisplacementLow;
             const bool referenceDisplacementMode = u0.w==1.0f && u1.w==1.0f &&
                 u2.w==1.0f && u3.w==1.0f;
-            const auto edge=[&](const auto& node,const auto& u){
+            const auto edge=[&](const auto& node,const auto& u,const auto& low){
                 const auto& r0=n0.restAndFixed;
                 const auto& ri=node.restAndFixed;
                 const auto& p0=n0.positionAndMass;
                 const auto& pi=node.positionAndMass;
                 return std::array<double,3>{
                     referenceDisplacementMode
-                        ? (double(ri.x)-double(r0.x))+(double(u.x)-double(u0.x))
+                        ? (double(ri.x)-double(r0.x))+(double(u.x)-double(u0.x))+
+                            (double(low.x)-double(l0.x))
                         : double(pi.x)-double(p0.x),
                     referenceDisplacementMode
-                        ? (double(ri.y)-double(r0.y))+(double(u.y)-double(u0.y))
+                        ? (double(ri.y)-double(r0.y))+(double(u.y)-double(u0.y))+
+                            (double(low.y)-double(l0.y))
                         : double(pi.y)-double(p0.y),
                     referenceDisplacementMode
-                        ? (double(ri.z)-double(r0.z))+(double(u.z)-double(u0.z))
+                        ? (double(ri.z)-double(r0.z))+(double(u.z)-double(u0.z))+
+                            (double(low.z)-double(l0.z))
                         : double(pi.z)-double(p0.z),
                 };
             };
-            const auto b=edge(n1,u1),c=edge(n2,u2),d=edge(n3,u3);
+            const auto b=edge(n1,u1,l1),c=edge(n2,u2,l2),d=edge(n3,u3,l3);
             return b[0]*(c[1]*d[2]-c[2]*d[1])-
                 b[1]*(c[0]*d[2]-c[2]*d[0])+
                 b[2]*(c[0]*d[1]-c[1]*d[0]);
@@ -21418,6 +21428,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             const auto& current = sourceObject.femNodes[localNode];
             const auto& reference = sourceObject.femReferenceNodes[localNode];
             require(compiledNode.referenceDisplacementAndMode.w == 1.0f &&
+                        compiledNode.referenceDisplacementLow.w == 0.0f &&
+                        compiledNode.positionAndMass.x ==
+                            mrCompensatedProjectionScalar(
+                                compiledNode.restAndFixed.x,
+                                compiledNode.referenceDisplacementAndMode.x,
+                                compiledNode.referenceDisplacementLow.x) &&
+                        compiledNode.positionAndMass.y ==
+                            mrCompensatedProjectionScalar(
+                                compiledNode.restAndFixed.y,
+                                compiledNode.referenceDisplacementAndMode.y,
+                                compiledNode.referenceDisplacementLow.y) &&
+                        compiledNode.positionAndMass.z ==
+                            mrCompensatedProjectionScalar(
+                                compiledNode.restAndFixed.z,
+                                compiledNode.referenceDisplacementAndMode.z,
+                                compiledNode.referenceDisplacementLow.z) &&
                         compiledNode.positionAndMass.x ==
                             static_cast<float>(current[0]) &&
                         compiledNode.positionAndMass.y ==

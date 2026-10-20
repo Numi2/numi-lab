@@ -1,6 +1,8 @@
 #pragma once
 
 #include "numi/matter/shared.h"
+#include "metalrobo/compensated_translation_gpu.h"
+#include "numi/matter/fem_compensated_deformation.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -41,7 +43,7 @@ struct FEMReferenceDeterminantInterval {
     FEMReferenceDeterminantInterval out;
     constexpr double u = double(std::numeric_limits<float>::epsilon()) * 0.5;
     constexpr double eta = std::numeric_limits<float>::min();
-    constexpr double gamma12 = (12.0*u)/(1.0-12.0*u);
+    constexpr double gamma64 = (64.0*u)/(1.0-64.0*u);
     constexpr double maximum = std::numeric_limits<float>::max();
     const std::array<nm_u32,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
     const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
@@ -49,6 +51,8 @@ struct FEMReferenceDeterminantInterval {
     std::array<std::array<double,3>,4> displacement{};
     std::array<std::array<double,3>,4> displacementError{};
     std::array<std::array<float,3>,4> displacement32{};
+    std::array<std::array<float,3>,4> displacementHigh{};
+    std::array<std::array<float,3>,4> displacementLow{};
     bool safe = true;
     const auto normalOrZero = [](float v) {
         return std::isfinite(v) && (v == 0.0f || std::abs(v) >= std::numeric_limits<float>::min());
@@ -59,12 +63,17 @@ struct FEMReferenceDeterminantInterval {
         for (unsigned r=0;r<3;++r) {
             const float stored = r==0 ? node.referenceDisplacementAndMode.x :
                 r==1 ? node.referenceDisplacementAndMode.y : node.referenceDisplacementAndMode.z;
-            safe=safe&&normalOrZero(stored);
-            displacement[n][r]=double(stored);
-            displacement32[n][r]=stored;
-            // Stored FP32 u is the state variable, not a subtraction from
-            // centimeter-scale absolute coordinates.
-            displacementError[n][r]=0.0;
+            const float low = r==0 ? node.referenceDisplacementLow.x :
+                r==1 ? node.referenceDisplacementLow.y : node.referenceDisplacementLow.z;
+            safe=safe&&normalOrZero(stored)&&std::isfinite(low)&&
+                mrCompensatedCanonicalScalar(stored,low);
+            displacementHigh[n][r]=stored;
+            displacementLow[n][r]=low;
+            displacement[n][r]=double(stored)+double(low);
+            displacement32[n][r]=mrCompensatedProjectionScalar(0.0f,stored,low);
+            // Bound pair normalization and compensated FEM pair operations.
+            displacementError[n][r]=gamma64*(std::abs(double(stored))+
+                std::abs(double(low)))+64.0*eta;
             safe=safe&&std::isfinite(displacement[n][r])&&std::isfinite(displacement32[n][r])&&
                 std::abs(displacement[n][r])<=maximum&&
                 std::abs(double(displacement32[n][r]))<=maximum;
@@ -78,8 +87,8 @@ struct FEMReferenceDeterminantInterval {
     for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
         du[3*r+c]=displacement[c+1][r]-displacement[0][r];
         du32[3*r+c]=displacement32[c+1][r]-displacement32[0][r];
-        duError[3*r+c]=u*(std::abs(double(displacement32[c+1][r]))+
-            std::abs(double(displacement32[0][r])))+eta;
+        duError[3*r+c]=displacementError[c+1][r]+displacementError[0][r]+
+            gamma64*(std::abs(du[3*r+c]))+64.0*eta;
         safe=safe&&std::isfinite(du[3*r+c])&&std::isfinite(du32[3*r+c])&&
             std::abs(du[3*r+c])<=maximum&&std::abs(double(du32[3*r+c]))<=maximum;
     }
@@ -100,10 +109,26 @@ struct FEMReferenceDeterminantInterval {
             f[3*r+c]+=du[3*r+k]*inv;
         }
         f[3*r+c]+=(r==c)?1.0:0.0;
-        error[3*r+c]=propagated+gamma12*(magnitude+1.0)+
-            16.0*eta*(inverseMagnitude+8.0);
+        error[3*r+c]=propagated+gamma64*(magnitude+1.0)+
+            256.0*eta*(inverseMagnitude+8.0);
         safe=safe&&std::isfinite(f[3*r+c])&&std::isfinite(error[3*r+c])&&
             magnitude+error[3*r+c]<=maximum&&std::abs(double(f32[3*r+c]))<=maximum;
+    }
+    {
+        float displacementHighWords[12],displacementLowWords[12],inverseWords[9],frameWords[9];
+        float highWords[9],lowWords[9];
+        for (unsigned node=0u;node<4u;++node)
+            for (unsigned axis=0u;axis<3u;++axis) {
+                displacementHighWords[3u*node+axis]=displacementHigh[node][axis];
+                displacementLowWords[3u*node+axis]=displacementLow[node][axis];
+            }
+        for (unsigned i=0u;i<9u;++i) {
+            inverseWords[i]=inverse[i];
+            frameWords[i]=(i%4u)==0u ? 1.0f : 0.0f;
+        }
+        nmFEMReferenceDeformationWords(displacementHighWords,displacementLowWords,
+            inverseWords,frameWords,highWords,lowWords);
+        for (unsigned i=0u;i<9u;++i) f32[i]=highWords[i];
     }
     out.center=f[0]*(f[4]*f[8]-f[5]*f[7])-f[1]*(f[3]*f[8]-f[5]*f[6])+f[2]*(f[3]*f[7]-f[4]*f[6]);
     out.nominal=f32[0]*(f32[4]*f32[8]-f32[5]*f32[7])-f32[1]*(f32[3]*f32[8]-f32[5]*f32[6])+f32[2]*(f32[3]*f32[7]-f32[4]*f32[6]);
@@ -116,9 +141,9 @@ struct FEMReferenceDeterminantInterval {
         expandedMagnitude+=(a+da)*(b+db)*(c+dc);
     }
     double largest=0.0;for (unsigned i=0;i<9;++i) largest=std::max(largest,std::abs(f[i])+error[i]);
-    out.radius=perturbation+gamma12*expandedMagnitude+32.0*eta*(1.0+largest+largest*largest);
-    out.noIntermediateOverflow=safe&&(1.0+gamma12)*expandedMagnitude<=maximum&&
-        2.0*(1.0+gamma12)*largest*largest<=maximum;
+    out.radius=perturbation+gamma64*expandedMagnitude+256.0*eta*(1.0+largest+largest*largest);
+    out.noIntermediateOverflow=safe&&(1.0+gamma64)*expandedMagnitude<=maximum&&
+        2.0*(1.0+gamma64)*largest*largest<=maximum;
     out.finite=std::isfinite(out.center)&&std::isfinite(out.radius)&&out.radius>=0.0;
     return out;
 }

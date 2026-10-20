@@ -1022,22 +1022,13 @@ inline bool deformableBarrierEnergyAt(
     thread float& separation
 ) {
     float featureMollifier = 1.0f;
+    MRCompensatedPositionGPU relative;
     if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
-        const auto relative = mrCompensatedVectorAdd(position[0],
+        relative = mrCompensatedVectorAdd(position[0],
             mrCompensatedVectorNegate(position[1]));
-        const auto squared = mrCompensatedVectorDot(relative, relative);
-        if (contactCompensatedSign(squared) < 0 ||
-            !isfinite(squared.high) || !isfinite(squared.low)) {
-            energy = INFINITY;
-            separation = NAN;
-            return false;
-        }
-        const auto distance = mrCompensatedSqrt(squared);
-        separation = distance.high + distance.low;
     } else if (contact.identity.z ==
                NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
         float3 barycentric, closestPoint;
-        MRCompensatedPositionGPU relative;
         if (!contactCompensatedVertexTriangleWitness(
                 position[0], position[1], position[2], position[3],
                 barycentric, closestPoint, relative, separation)) {
@@ -1056,7 +1047,6 @@ inline bool deformableBarrierEnergyAt(
     } else if (contact.identity.z == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
         float firstParameter, secondParameter;
         float3 firstPoint, secondPoint;
-        MRCompensatedPositionGPU relative;
         if (!contactCompensatedSegmentWitness(
                 position[0], position[1], position[2], position[3],
                 firstParameter, secondParameter, firstPoint, secondPoint,
@@ -1078,9 +1068,24 @@ inline bool deformableBarrierEnergyAt(
         separation = -INFINITY;
         return false;
     }
-    energy = featureMollifier * ipcBarrierEnergy(
-        separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
-    return isfinite(separation) && isfinite(energy);
+
+    const MRCompensatedScalar squared = mrCompensatedVectorDot(relative, relative);
+    if (contactCompensatedSign(squared) < 0 ||
+        !isfinite(squared.high) || !isfinite(squared.low)) {
+        energy = INFINITY;
+        separation = NAN;
+        return false;
+    }
+    const MRCompensatedScalar distance = mrCompensatedSqrt(squared);
+    separation = distance.high + distance.low;
+    const MRCompensatedScalar barrierEnergy =
+        ipcFEMBarrierEnergyCompensated(
+            distance, contact.barrier.z, contact.mollifier.w);
+    const MRCompensatedScalar mollifiedEnergy = mrCompensatedMultiply(
+        barrierEnergy, {featureMollifier, 0.0f});
+    energy = mollifiedEnergy.high + mollifiedEnergy.low;
+    return isfinite(distance.high) && isfinite(distance.low) &&
+        isfinite(separation) && isfinite(energy);
 }
 
 inline bool deformableBarrierEnergyAt(
@@ -8363,10 +8368,22 @@ kernel void nm_contact_initialize_prescribed_fem_candidate(
             const float clearance = max(0.125f * dispatch.numericalLimits.x, 2.0f * floor);
             const float3 shift = (clearance - gap) * normal;
             if (next.referenceDisplacementAndMode.w == 1.0f) {
-                next.referenceDisplacementAndMode.xyz += shift;
-                next.positionAndMass.xyz = next.restAndFixed.xyz + next.referenceDisplacementAndMode.xyz;
-                next.velocityAndInverseMass.xyz = (next.referenceDisplacementAndMode.xyz -
-                    previous.referenceDisplacementAndMode.xyz) / micro.time.x;
+                for (uint axis = 0u; axis < 3u; ++axis) {
+                    const MRCompensatedScalar shifted = mrCompensatedAdd(
+                        {next.referenceDisplacementAndMode[axis],
+                         next.referenceDisplacementLow[axis]}, {shift[axis], 0.0f});
+                    const MRCompensatedScalar delta = mrCompensatedAdd(shifted,
+                        mrCompensatedNegate({previous.referenceDisplacementAndMode[axis],
+                                             previous.referenceDisplacementLow[axis]}));
+                    next.referenceDisplacementAndMode[axis] = shifted.high;
+                    next.referenceDisplacementLow[axis] = shifted.low;
+                    next.positionAndMass[axis] = femReferencePositionProjection(
+                        next.restAndFixed[axis], shifted.high, shifted.low);
+                    const MRCompensatedScalar velocity = mrCompensatedDivide(
+                        delta, {micro.time.x, 0.0f});
+                    next.velocityAndInverseMass[axis] = mrCompensatedProjectionScalar(
+                        0.0f, velocity.high, velocity.low);
+                }
             } else {
                 next.positionAndMass.xyz += shift;
                 next.velocityAndInverseMass.xyz = (next.positionAndMass.xyz - previous.positionAndMass.xyz) / micro.time.x;

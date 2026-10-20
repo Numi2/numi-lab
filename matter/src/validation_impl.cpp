@@ -1,6 +1,7 @@
 #include "numi/matter/detail.hpp"
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/vascular.hpp"
+#include "metalrobo/compensated_translation_gpu.h"
 
 #include <algorithm>
 #include <array>
@@ -127,11 +128,20 @@ constexpr std::uint32_t kKnownRigidFlags =
     if ((t.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
         Matrix du{};
         for (unsigned c=0;c<3;++c) {
-            const auto& node = nodes[indices[c+1]].referenceDisplacementAndMode;
-            const auto& origin = nodes[indices[0]].referenceDisplacementAndMode;
-            du[c] = double(node.x)-origin.x;
-            du[3+c] = double(node.y)-origin.y;
-            du[6+c] = double(node.z)-origin.z;
+            const auto& node = nodes[indices[c+1]];
+            const auto& origin = nodes[indices[0]];
+            du[c] = (double(node.referenceDisplacementAndMode.x) +
+                double(node.referenceDisplacementLow.x)) -
+                (double(origin.referenceDisplacementAndMode.x) +
+                double(origin.referenceDisplacementLow.x));
+            du[3+c] = (double(node.referenceDisplacementAndMode.y) +
+                double(node.referenceDisplacementLow.y)) -
+                (double(origin.referenceDisplacementAndMode.y) +
+                double(origin.referenceDisplacementLow.y));
+            du[6+c] = (double(node.referenceDisplacementAndMode.z) +
+                double(node.referenceDisplacementLow.z)) -
+                (double(origin.referenceDisplacementAndMode.z) +
+                double(origin.referenceDisplacementLow.z));
         }
         Matrix f{};
         for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
@@ -1907,18 +1917,39 @@ private:
                     const NMFEMNodeStateGPU& node = world_.fem.nodes[nodeIndex];
                     const bool displacementStateValid = referenceDisplacement
                         ? node.referenceDisplacementAndMode.w == 1.0f &&
-                            node.positionAndMass.x == node.restAndFixed.x + node.referenceDisplacementAndMode.x &&
-                            node.positionAndMass.y == node.restAndFixed.y + node.referenceDisplacementAndMode.y &&
-                            node.positionAndMass.z == node.restAndFixed.z + node.referenceDisplacementAndMode.z
+                            node.referenceDisplacementLow.w == 0.0f &&
+                            mrCompensatedCanonicalScalar(
+                                node.referenceDisplacementAndMode.x,
+                                node.referenceDisplacementLow.x) &&
+                            mrCompensatedCanonicalScalar(
+                                node.referenceDisplacementAndMode.y,
+                                node.referenceDisplacementLow.y) &&
+                            mrCompensatedCanonicalScalar(
+                                node.referenceDisplacementAndMode.z,
+                                node.referenceDisplacementLow.z) &&
+                            node.positionAndMass.x == mrCompensatedProjectionScalar(
+                                node.restAndFixed.x, node.referenceDisplacementAndMode.x,
+                                node.referenceDisplacementLow.x) &&
+                            node.positionAndMass.y == mrCompensatedProjectionScalar(
+                                node.restAndFixed.y, node.referenceDisplacementAndMode.y,
+                                node.referenceDisplacementLow.y) &&
+                            node.positionAndMass.z == mrCompensatedProjectionScalar(
+                                node.restAndFixed.z, node.referenceDisplacementAndMode.z,
+                                node.referenceDisplacementLow.z)
                         : node.referenceDisplacementAndMode.x == 0.0f &&
                             node.referenceDisplacementAndMode.y == 0.0f &&
                             node.referenceDisplacementAndMode.z == 0.0f &&
-                            node.referenceDisplacementAndMode.w == 0.0f;
+                            node.referenceDisplacementAndMode.w == 0.0f &&
+                            node.referenceDisplacementLow.x == 0.0f &&
+                            node.referenceDisplacementLow.y == 0.0f &&
+                            node.referenceDisplacementLow.z == 0.0f &&
+                            node.referenceDisplacementLow.w == 0.0f;
                     if (!finite4(node.positionAndMass) ||
                         !finite4(node.velocityAndInverseMass) ||
                         !finite4(node.restAndFixed) ||
                         !finite4(node.deltaVelocity) ||
                         !finite4(node.referenceDisplacementAndMode) ||
+                        !finite4(node.referenceDisplacementLow) ||
                         !displacementStateValid ||
                         node.positionAndMass.w < 0.0f ||
                         node.velocityAndInverseMass.w < 0.0f ||
@@ -1993,7 +2024,9 @@ private:
                     if (displacementElement &&
                         std::ranges::any_of(nodes, [&](std::uint32_t nodeIndex) {
                             const auto& node = world_.fem.nodes[nodeIndex];
-                            return node.referenceDisplacementAndMode.w != 1.0f;
+                            return node.referenceDisplacementAndMode.w != 1.0f ||
+                                node.referenceDisplacementLow.w != 0.0f ||
+                                !finite4(node.referenceDisplacementLow);
                         })) {
                         return failIndexed("FEM tetrahedron", tetrahedronIndex,
                             "reference-displacement element has a node without canonical stored displacement");
