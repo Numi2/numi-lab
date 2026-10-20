@@ -1,0 +1,38 @@
+{
+  "accepted_csv": {
+    "candidate_first_two_data_rows_byte_identical_to_baseline": true,
+    "candidate_steps": 2
+  },
+  "candidate_shader_sha256": "584591407eb76d3ff2907e6c956f9b4ff510a8119f9b188e554a8df45ef4c50d",
+  "direct_production_fixture": {
+    "bytes": 322692,
+    "candidate_vs_legacy_byte_identical": true,
+    "geometry_112_status": "pass",
+    "geometry_log_sha256": "4d368044aabfa1500bd70395de15291ea443a932cb39dddc781b4227e2badbb3",
+    "sha256": "01c68229f754aaaf4486f22401e24b3162eae88659e61dfde0bba081182d512b"
+  },
+  "root1_contact_kernel_comparison": {
+    "compact_deformable_median_ms": {
+      "baseline": 3.004625,
+      "candidate": 3.0044375
+    },
+    "compact_scan_unchanged": false,
+    "note": "Compact and scan medians are close, with only small measured differences; the candidate change is assessed as a sorter-only cost result.",
+    "scan_deformable_node_incidence_median_ms": {
+      "baseline": 0.6315,
+      "candidate": 0.631542
+    },
+    "sort_cost_reduction_percent": 27.44,
+    "sort_median_ms": {
+      "baseline": 10.0364995,
+      "candidate": 7.282354
+    },
+    "sort_samples": 100,
+    "sort_sum_ms": {
+      "baseline": 1003.526872,
+      "candidate": 728.182577
+    }
+  },
+  "schema": "numi.human.surface_sort_candidate_profile.v1",
+  "scope": "kernel cost only; no whole-body or sustained-runtime claim"
+}

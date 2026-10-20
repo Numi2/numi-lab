@@ -1,0 +1,40 @@
+{
+  "dispatch_count_records": 75,
+  "dispatch_count_total": 7500,
+  "failure_mechanism_analyzed": false,
+  "microtick1_trace_capture": {
+    "active_counts": 0,
+    "requested_captures": 24,
+    "status": "miss"
+  },
+  "run": "native-sort-baseline-trace-036",
+  "sampled_kernel_stats": {
+    "nm_contact_compact_deformable": {
+      "max_ns": 3044958,
+      "median_ns": 3004625.0,
+      "min_ns": 3002500,
+      "p95_nearest_rank_ns": 3006500,
+      "samples": 100,
+      "sum_ns": 300506129
+    },
+    "nm_contact_scan_deformable_node_incidence": {
+      "max_ns": 784083,
+      "median_ns": 631500.0,
+      "min_ns": 630875,
+      "p95_nearest_rank_ns": 631625,
+      "samples": 100,
+      "sum_ns": 63581664
+    },
+    "nm_contact_sort_surface_primitives": {
+      "max_ns": 10041375,
+      "median_ns": 10036499.5,
+      "min_ns": 10004041,
+      "p95_nearest_rank_ns": 10040084,
+      "samples": 100,
+      "sum_ns": 1003526872
+    }
+  },
+  "schema": "numi.human.gpu_timing_capture_summary.v1",
+  "scope": "root-1 kernel samples only; not whole-body speedup",
+  "step": 1
+}

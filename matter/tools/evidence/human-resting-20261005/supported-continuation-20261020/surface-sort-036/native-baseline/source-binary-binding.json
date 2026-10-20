@@ -1,0 +1,26 @@
+{
+  "actual_pose_geometry_audit_sha256": "1e346c4202051a1578de3cf16e9f77deda1a7cfd5f91b617ba09887d1635a037",
+  "executable_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+  "metallib_sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7",
+  "note": "run provenance binds the source and binaries; packaging HEAD may be later",
+  "packaging_head": "f77b8a42dbaf72107924db881fe68f0870f3083c",
+  "run_source_base_revision": "1a817140097fb43bfaab15b28ddb8b02cd9023d9",
+  "source_sha256": {
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+    "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+    "apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "apps/numilab_human_myosim_visual_probe.mm": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+    "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+    "matter/src/metal/contact.metalinc": "8e72681af495a13395c67e249711655446ad15e962e42d1e7f6444b62d90360c",
+    "matter/src/metal/fem.metalinc": "972b64eb072adf0110531e6b1e5eb5cc334c313633be58ac08a2f8eed0c596c9",
+    "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+    "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+    "matter/src/metal/vascular.metalinc": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+    "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+    "matter/src/runtime.mm": "0dfaf96fbd59b658910f5af8e11e6c646adab218f81668cd296e1a6ecb0b3017"
+  },
+  "suite_library_sha256": "468f9874db607cf67e480ed3eb18c98e36eeecb80f395554602eabb6671ae230"
+}

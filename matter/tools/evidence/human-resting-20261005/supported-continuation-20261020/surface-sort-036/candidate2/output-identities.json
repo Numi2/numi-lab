@@ -1,0 +1,32 @@
+{
+  "resting-airway-anchor-map.json": {
+    "bytes": 82553,
+    "copied": false,
+    "sha256": "f516b94a8be793b9ed3601899a508942375e2ffffc44c77c93616f12f03944fa",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-airway-anchor-map.json"
+  },
+  "resting-coupled.csv": {
+    "bytes": 3300,
+    "copied": true,
+    "package_path": "resting-coupled.csv",
+    "sha256": "84377b66ce67553a0c6eb88c21d91a04ad8168e26b5b62c8af238fd9775e1148"
+  },
+  "resting-human.mrvpack": {
+    "bytes": 297078784,
+    "copied": false,
+    "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack"
+  },
+  "resting-ocular-sclera-window.json": {
+    "bytes": 1210039,
+    "copied": false,
+    "sha256": "e71dadccd1ccba086f4a4bdccdafd4a709dcf288f31d242a010fde688ef1f3e3",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-ocular-sclera-window.json"
+  },
+  "resting-surface-audit.csv": {
+    "bytes": 894,
+    "copied": true,
+    "package_path": "resting-surface-audit.csv",
+    "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+  }
+}

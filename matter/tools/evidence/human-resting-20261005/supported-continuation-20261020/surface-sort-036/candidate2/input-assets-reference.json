@@ -1,0 +1,85 @@
+{
+  "all_sha256_reverified": true,
+  "assets": [
+    {
+      "bytes": 60324,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "verified": true
+    },
+    {
+      "bytes": 149372,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "verified": true
+    },
+    {
+      "bytes": 12078264,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "verified": true
+    },
+    {
+      "bytes": 1620,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "verified": true
+    },
+    {
+      "bytes": 4976,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "verified": true
+    },
+    {
+      "bytes": 158800,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+      "sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "verified": true
+    },
+    {
+      "bytes": 25901,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "verified": true
+    },
+    {
+      "bytes": 5765,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+      "sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "verified": true
+    },
+    {
+      "bytes": 26091000,
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+      "verified": true
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "verified": true
+    },
+    {
+      "bytes": 95774088,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+      "sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "verified": true
+    },
+    {
+      "bytes": 70053067,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+      "sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "verified": true
+    },
+    {
+      "bytes": 225956,
+      "path": "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+      "sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "verified": true
+    }
+  ],
+  "reference": "vascular-block-native-035/native-integrated/input-assets-sha256.txt",
+  "same_13_paths": true
+}

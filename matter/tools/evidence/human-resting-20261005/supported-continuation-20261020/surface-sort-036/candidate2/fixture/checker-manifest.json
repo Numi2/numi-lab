@@ -1,0 +1,85 @@
+{
+  "build_command": "cmake --build build-integrated-validation-20261019/profile-build-039 --target numi-matter-cardboard-contact-geometry-check --verbose",
+  "build_directory": "build-integrated-validation-20261019/profile-build-039",
+  "hashes": {
+    "checker_binary": {
+      "bytes": 91680,
+      "repository_path": "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "1cefba12b9e98a87d0db019b232cb9fa125fb0ed23838f94a7066b083cf7b943"
+    },
+    "checker_source": {
+      "bytes": 40432,
+      "repository_path": "matter/tools/cardboard_contact_geometry_check.mm",
+      "sha256": "029f85e592358987b861d036d94a0a8a2c65983a8b24e6cc08e8f60eb57bf34b"
+    },
+    "contact_shader": {
+      "bytes": 559607,
+      "repository_path": "matter/src/metal/contact.metalinc",
+      "sha256": "8e72681af495a13395c67e249711655446ad15e962e42d1e7f6444b62d90360c"
+    },
+    "current_sort_receipt": {
+      "bytes": 322692,
+      "repository_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/current-sort.bin",
+      "sha256": "01c68229f754aaaf4486f22401e24b3162eae88659e61dfde0bba081182d512b"
+    },
+    "focused_checker_metallib": {
+      "bytes": 7736262,
+      "repository_path": "build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "e474a52d40bd0068170da5ff5fd1ee1f826d200250af6a9198ca23ac75d1fc2d"
+    },
+    "legacy_sort_receipt": {
+      "bytes": 322692,
+      "repository_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/legacy-sort.bin",
+      "sha256": "01c68229f754aaaf4486f22401e24b3162eae88659e61dfde0bba081182d512b"
+    },
+    "retained_legacy_metallib": {
+      "bytes": 7706668,
+      "repository_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-036/legacy-NumiMatter.metallib",
+      "sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7"
+    },
+    "shared_abi": {
+      "bytes": 61580,
+      "repository_path": "matter/include/numi/matter/shared.h",
+      "sha256": "ec2af7918e23470a8386d81c1aa59a13aa9ab9d5bf352fdf6afd8fbee39e948c"
+    }
+  },
+  "library_identity": {
+    "current": "Focused cardboard geometry-check metallib built by the target; it is not the main NumiMatter library.",
+    "legacy": "Retained legacy-NumiMatter.metallib from the existing surface-sort-036 provenance record."
+  },
+  "logs": [
+    "build.log",
+    "legacy-sort.log",
+    "current-sort.log",
+    "geometry-112.log",
+    "results.txt",
+    "commands.txt"
+  ],
+  "raw_receipts": {
+    "current_repository_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/current-sort.bin",
+    "legacy_repository_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/surface-sort-039/legacy-sort.bin",
+    "sha256": "01c68229f754aaaf4486f22401e24b3162eae88659e61dfde0bba081182d512b"
+  },
+  "results": {
+    "cases": [
+      "zero_primitives",
+      "nonzero_all_inactive",
+      "odd_all_active_with_equal_keys",
+      "odd_mixed_active_two_environments",
+      "cache_skip_one_environment",
+      "cache_flag_bypass_when_disabled",
+      "20000_primitives_19200_static_faces"
+    ],
+    "focused_current_surface_sort": "pass",
+    "legacy_current_receipts_byte_identical": true,
+    "legacy_surface_sort": "pass",
+    "normal_112_row_geometry": "pass",
+    "raw_receipts_sha256": "01c68229f754aaaf4486f22401e24b3162eae88659e61dfde0bba081182d512b",
+    "scope": "Synthetic production-kernel ordering fixture; no physics or whole-scene claim.",
+    "target_build": "pass",
+    "timing": "Single-run per-case GPU timings are diagnostics only; no speed claim."
+  },
+  "schema": "numi_contact_surface_sort_checker_baseline_v1",
+  "source_revision": "1a817140097fb43bfaab15b28ddb8b02cd9023d9",
+  "target": "numi-matter-cardboard-contact-geometry-check"
+}

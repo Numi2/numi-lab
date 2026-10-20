@@ -1338,9 +1338,9 @@ kernel void nm_contact_sort_surface_primitives(
     const float3 inverseExtent = 1.0f /
         max(boundsMaximum - boundsMinimum, float3(1.0e-12f));
 
-    threadgroup uint compactedCount;
-    if (lane == 0u) compactedCount = 0u;
-    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    // simd_sum returns the same tile count in every lane, so each lane can
+    // carry the same compacted prefix without per-tile shared-state barriers.
+    uint compactedCount = 0u;
     for (uint first = 0u; first < primitiveCount; first += 32u) {
         const uint local = first + lane;
         const bool selected = local < primitiveCount &&
@@ -1358,10 +1358,10 @@ kernel void nm_contact_sort_surface_primitives(
                 (centroid - boundsMinimum) * inverseExtent);
             indicesA[primitiveBase + output] = local;
         }
-        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-        if (lane == 0u) compactedCount += count;
-        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        compactedCount += count;
     }
+    // Publish compacted key/index writes before the first radix read.
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     const uint activeCount = compactedCount;
     if (lane == 0u) activeCounts[environment] = activeCount;
     if (activeCount == 0u) return;
@@ -1406,22 +1406,26 @@ kernel void nm_contact_sort_surface_primitives(
             const bool valid = local < activeCount;
             const uint key = valid ? sourceKeys[local] : 0u;
             const uint bucket = (key >> (3u * pass)) & 7u;
+            uint output = 0u;
+            uint bucketCount = 0u;
             for (uint candidate = 0u; candidate < 8u; ++candidate) {
                 const bool selected = valid && bucket == candidate;
                 const uint prefix = simd_prefix_exclusive_sum(
                     selected ? 1u : 0u);
                 const uint count = simd_sum(selected ? 1u : 0u);
-                if (selected) {
-                    const uint output = bucketCursors[candidate] + prefix;
-                    destinationKeys[output] = key;
-                    destinationIndices[output] = sourceIndices[local];
-                }
-                threadgroup_barrier(
-                    mem_flags::mem_device | mem_flags::mem_threadgroup);
-                if (lane == 0u) bucketCursors[candidate] += count;
-                threadgroup_barrier(
-                    mem_flags::mem_device | mem_flags::mem_threadgroup);
+                if (lane == candidate) bucketCount = count;
+                if (selected)
+                    output = bucketCursors[candidate] + prefix;
             }
+            if (valid) {
+                destinationKeys[output] = key;
+                destinationIndices[output] = sourceIndices[local];
+            }
+            threadgroup_barrier(
+                mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane < 8u) bucketCursors[lane] += bucketCount;
+            threadgroup_barrier(
+                mem_flags::mem_device | mem_flags::mem_threadgroup);
         }
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     }

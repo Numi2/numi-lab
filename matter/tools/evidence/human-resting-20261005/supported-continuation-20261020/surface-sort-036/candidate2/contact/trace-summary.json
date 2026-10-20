@@ -1,0 +1,34 @@
+{
+  "dispatch_count_records": 6,
+  "dispatch_count_total": 600,
+  "run": "native-sort-candidate-036",
+  "sampled_kernel_stats": {
+    "nm_contact_compact_deformable": {
+      "max_ns": 3029750,
+      "median_ns": 3004437.5,
+      "min_ns": 3002709,
+      "p95_nearest_rank_ns": 3006042,
+      "samples": 100,
+      "sum_ns": 300480714
+    },
+    "nm_contact_scan_deformable_node_incidence": {
+      "max_ns": 782667,
+      "median_ns": 631542.0,
+      "min_ns": 630875,
+      "p95_nearest_rank_ns": 631709,
+      "samples": 100,
+      "sum_ns": 63583088
+    },
+    "nm_contact_sort_surface_primitives": {
+      "max_ns": 7314333,
+      "median_ns": 7282354.0,
+      "min_ns": 7251000,
+      "p95_nearest_rank_ns": 7285625,
+      "samples": 100,
+      "sum_ns": 728182577
+    }
+  },
+  "schema": "numi.human.gpu_timing_capture_summary.v1",
+  "scope": "root-1 kernel samples only; not whole-body speedup",
+  "step": 1
+}

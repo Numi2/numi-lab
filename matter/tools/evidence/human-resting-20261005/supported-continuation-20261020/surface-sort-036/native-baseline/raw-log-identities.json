@@ -1,0 +1,15 @@
+{
+  "stderr": {
+    "bytes": 89830,
+    "package_path": "stderr.log",
+    "sha256": "9ba26df95d131fc5a30e3c52627d49722ad2bdfc2d95bde17084e0996b7ddade"
+  },
+  "stdout": {
+    "bytes": 124290,
+    "selected_bytes": 3105,
+    "selected_path": "selected-stdout.log",
+    "selected_sha256": "77327f96ab70b2bc2c47a673054fba44aeade1f0859cfe7e455fd8154dfe5ed0",
+    "sha256": "19e288a5f34f39cf80e98b34548585689c673edbe5e8d06d1d2dfe33dd77eec2",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/stdout.log"
+  }
+}
