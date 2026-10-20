@@ -1,0 +1,209 @@
+{
+  "control_body_rtf": "1.7015523695382448e-05",
+  "control_wall_seconds": 18.60729899990838,
+  "limitations": "single-root prefix; compare full 4-root replay before retaining optimization",
+  "metrics": {
+    "body_contact_force_residual_N": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 1e-07,
+        "control": 0.0,
+        "passed": true,
+        "treatment": 0.0
+      }
+    ],
+    "body_contact_moment_residual_Nm": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 1e-07,
+        "control": 8.99797397382e-11,
+        "passed": true,
+        "treatment": 8.99797397382e-11
+      }
+    ],
+    "body_contact_normal_force_N": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.000151652181521,
+        "control": 0.0151652181521,
+        "passed": true,
+        "treatment": 0.0151652181521
+      }
+    ],
+    "center_of_mass_xyz_m": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.000250191089616,
+        "control": -0.0250191089616,
+        "passed": true,
+        "treatment": -0.0250191089616
+      },
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.00756772854933,
+        "control": -0.756772854933,
+        "passed": true,
+        "treatment": -0.756772854933
+      },
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.00113618181656,
+        "control": 0.113618181656,
+        "passed": true,
+        "treatment": 0.113618181656
+      }
+    ],
+    "contact_count": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.07,
+        "control": 7.0,
+        "passed": true,
+        "treatment": 7.0
+      }
+    ],
+    "max_J": [
+      {
+        "abs_delta": 2.809199999287415e-07,
+        "allowed": 0.0110928299211,
+        "control": 1.10928299211,
+        "passed": true,
+        "treatment": 1.10928271119
+      }
+    ],
+    "max_anchor_reaction_N": [
+      {
+        "abs_delta": 4.5752946000066075e-05,
+        "allowed": 0.008957222942050001,
+        "control": 0.895676541259,
+        "passed": true,
+        "treatment": 0.895722294205
+      }
+    ],
+    "max_displacement_m": [
+      {
+        "abs_delta": 1.0424100000067452e-10,
+        "allowed": 3.68956087675e-06,
+        "control": 0.000368956087675,
+        "passed": true,
+        "treatment": 0.000368955983434
+      }
+    ],
+    "max_generalized_acceleration": [
+      {
+        "abs_delta": 0.008788999999524094,
+        "allowed": 105.042568359,
+        "control": 10504.2568359,
+        "passed": true,
+        "treatment": 10504.2480469
+      }
+    ],
+    "min_J": [
+      {
+        "abs_delta": 8.460420000133695e-07,
+        "allowed": 0.00980970408336,
+        "control": 0.980970408336,
+        "passed": true,
+        "treatment": 0.980969562294
+      }
+    ],
+    "passive_ligament_force_residual_N": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 1e-07,
+        "control": 0.0,
+        "passed": true,
+        "treatment": 0.0
+      }
+    ],
+    "passive_ligament_max_tension_N": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 9.991485625509999e-05,
+        "control": 0.00999148562551,
+        "passed": true,
+        "treatment": 0.00999148562551
+      }
+    ],
+    "passive_ligament_moment_residual_Nm": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 1e-07,
+        "control": 1.11535203906e-10,
+        "passed": true,
+        "treatment": 1.11535203906e-10
+      }
+    ],
+    "penetration_m": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 1.0114460747e-06,
+        "control": 0.00010114460747,
+        "passed": true,
+        "treatment": 0.00010114460747
+      }
+    ],
+    "root_linear_speed_m_s": [
+      {
+        "abs_delta": 5.204430000294025e-07,
+        "allowed": 0.00436143340516,
+        "control": 0.436143340516,
+        "passed": true,
+        "treatment": 0.436142820073
+      }
+    ],
+    "root_linear_velocity_xyz_m_s": [
+      {
+        "abs_delta": 1.3411050001077562e-07,
+        "allowed": 0.0006296828389170001,
+        "control": -0.0629682838917,
+        "passed": true,
+        "treatment": -0.0629681497812
+      },
+      {
+        "abs_delta": 1.1175900000576222e-08,
+        "allowed": 0.000261374823749,
+        "control": 0.0261374823749,
+        "passed": true,
+        "treatment": 0.026137471199
+      },
+      {
+        "abs_delta": 5.066390000307841e-07,
+        "allowed": 0.00430781662464,
+        "control": -0.430781662464,
+        "passed": true,
+        "treatment": -0.430781155825
+      }
+    ],
+    "root_xyz_m": [
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.000500078722835,
+        "control": -0.0500078722835,
+        "passed": true,
+        "treatment": -0.0500078722835
+      },
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.00200003266335,
+        "control": 0.200003266335,
+        "passed": true,
+        "treatment": 0.200003266335
+      },
+      {
+        "abs_delta": 0.0,
+        "allowed": 0.00105666086078,
+        "control": 0.105666086078,
+        "passed": true,
+        "treatment": 0.105666086078
+      }
+    ]
+  },
+  "old_control_binary_sha256": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "process_wall_ratio_control_over_treatment": 0.9926982363874901,
+  "schema": "numi.matter.orthogonalization-width-comparison-070.v1",
+  "terminal_metrics_within_tolerance": true,
+  "treatment_binary_sha256": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "treatment_body_rtf": "1.7626954564719146e-05",
+  "treatment_wall_seconds": 18.74416445789393
+}

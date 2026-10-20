@@ -2562,6 +2562,10 @@ struct Runtime::State {
     std::shared_ptr<GrowthOwnership> growthOwnership =
         std::make_shared<GrowthOwnership>();
     std::vector<NMContinuumObjectGPU> objectLayout;
+    // Compile-time proof for omitting transport-field preconditioner work when
+    // the world has neither multiphysics continuum objects nor field boundaries.
+    bool mixedFieldSmoothingEnabled = true;
+    std::uint32_t mixedFieldObjectCount = 0u;
     // Authored material fields require immutable topology. Pin complete element
     // records so restore cannot rebind frames or regions to other nodes/rest axes.
     // Empty avoids extra host storage for legacy worlds.
@@ -2709,6 +2713,11 @@ struct Runtime::State {
     id<MTLBuffer> mpmActiveBlocks = nil;
     id<MTLBuffer> mpmSortedParticleIndices = nil;
     id<MTLBuffer> mpmActiveDispatch = nil;
+    // GPU-authored FGMRES node/element dispatch extents. Single-environment
+    // solves set these to zero after their Arnoldi residual converges so the
+    // statically encoded Krylov tail does not launch full-mesh no-op kernels.
+    id<MTLBuffer> fgmresNodeActiveDispatch = nil;
+    id<MTLBuffer> fgmresElementActiveDispatch = nil;
     id<MTLBuffer> femAccepted = nil;
     id<MTLBuffer> femCandidate = nil;
     id<MTLBuffer> femCheckpoint = nil;
@@ -4065,6 +4074,20 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         candidate->objectLayout = world.objects;
+        candidate->mixedFieldObjectCount = static_cast<std::uint32_t>(
+            std::count_if(world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & NM_OBJECT_MULTIPHYSICS) != 0u;
+                }));
+        candidate->mixedFieldSmoothingEnabled =
+            candidate->mixedFieldObjectCount != 0u ||
+            world.dispatch.fieldBoundaryCount != 0u;
+        std::fprintf(stderr,
+            "[NumiMatter] mixed-field smoother %s: multiphysics_objects=%u "
+            "field_boundaries=%u; mechanical and vascular solve unchanged\n",
+            candidate->mixedFieldSmoothingEnabled ? "enabled" : "skipped_empty",
+            candidate->mixedFieldObjectCount,
+            world.dispatch.fieldBoundaryCount);
         candidate->femArmijoMixedCohesiveSupported =
             world.dispatch.cohesiveFaceCount != 0u &&
             detail::fullContactArmijoSupportsCohesiveFaces(
@@ -6590,6 +6613,12 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->mpmActiveDispatch = privateScratch<NMIndirectDispatchGPU>(
             candidate->device, 1u, valid, candidate->residentBytes);
+        candidate->fgmresNodeActiveDispatch =
+            privateScratch<NMIndirectDispatchGPU>(
+                candidate->device, 1u, valid, candidate->residentBytes);
+        candidate->fgmresElementActiveDispatch =
+            privateScratch<NMIndirectDispatchGPU>(
+                candidate->device, 1u, valid, candidate->residentBytes);
         candidate->mpmActiveNodeIndices = privateScratch<std::uint32_t>(
             candidate->device,
             multiplied(world.dispatch.mpmActiveNodeCapacity),
@@ -10547,6 +10576,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
         std::unordered_map<std::string, std::uint64_t>
             gpuTimingKernelDispatchCounts;
         gpuTimingKernelDispatchCounts.reserve(128u);
+        std::uint64_t skippedMixedFieldSmootherDispatches = 0u;
+        std::uint64_t fgmresNodeIndirectDispatchCount = 0u;
+        std::uint64_t fgmresElementIndirectDispatchCount = 0u;
+        bool fgmresColumnDispatch = false;
         std::uint32_t gpuTimingSampleEvery = 1u;
         if (const char* everySetting =
                 std::getenv("NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY")) {
@@ -10599,9 +10632,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return;
                 }
             }
-            ++diagnostics.threadDispatchCount;
-            diagnostics.requestedThreadCount +=
-                static_cast<std::uint64_t>(count);
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             [encoder setComputePipelineState:pipeline];
             bind();
@@ -10609,8 +10639,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 256u,
                 pipeline.maxTotalThreadsPerThreadgroup
             );
-            [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            id<MTLBuffer> fgmresActiveDispatch = nil;
+            if (fgmresColumnDispatch &&
+                state.dispatch.environmentCount == 1u && width == 256u) {
+                if (count == state.dispatch.femNodeCount)
+                    fgmresActiveDispatch = state.fgmresNodeActiveDispatch;
+                else if (count == state.dispatch.tetrahedronCount)
+                    fgmresActiveDispatch = state.fgmresElementActiveDispatch;
+            }
+            if (fgmresActiveDispatch != nil) {
+                ++diagnostics.indirectDispatchCount;
+                if (fgmresActiveDispatch == state.fgmresNodeActiveDispatch)
+                    ++fgmresNodeIndirectDispatchCount;
+                else
+                    ++fgmresElementIndirectDispatchCount;
+                [encoder dispatchThreadgroupsWithIndirectBuffer:
+                    fgmresActiveDispatch indirectBufferOffset:0u
+                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            } else {
+                ++diagnostics.threadDispatchCount;
+                diagnostics.requestedThreadCount +=
+                    static_cast<std::uint64_t>(count);
+                [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
                 [encoder endEncoding];
@@ -10725,6 +10777,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bind();
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
+                else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
+        };
+        const auto dispatchGroups512 = [&](const char* name,
+                                            const NSUInteger groupCount,
+                                            const auto& bind) {
+            if (groupCount == 0u) return;
+            id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            if (pipeline.maxTotalThreadsPerThreadgroup < 512u) {
+                diagnostics.message = std::string(name) +
+                    " requires a 512-thread Metal threadgroup";
+                return;
+            }
+            const bool profileKernel = selectedGpuTimingKernel(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    name, request.controlStep);
+                primalResourcesEncoder = nil;
+                if (encoder == nil) {
+                    diagnostics.message = "failed to create selected kernel timing encoder";
+                    return;
+                }
+            }
+            ++diagnostics.simdgroupDispatchCount;
+            diagnostics.requestedThreadgroupCount +=
+                static_cast<std::uint64_t>(groupCount);
+            [encoder setComputePipelineState:pipeline];
+            bind();
+            [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(512u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
                 [encoder endEncoding];
@@ -23229,6 +23318,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(state.humanSupportDispatch) atIndex:20u];
                     [encoder setBuffer:state.humanSupportContacts
                                  offset:0u atIndex:21u];
+                    [encoder setBuffer:state.fgmresNodeActiveDispatch
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:state.fgmresElementActiveDispatch
+                                 offset:0u atIndex:23u];
                 });
                 const std::uint32_t useWorkingSet = 1u;
                 dispatchGroups32("nm_vascular_dense_solve", environments, [&] {
@@ -24484,6 +24577,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(state.humanSupportDispatch) atIndex:20u];
                 [encoder setBuffer:state.humanSupportContacts
                              offset:0u atIndex:21u];
+                [encoder setBuffer:state.fgmresNodeActiveDispatch
+                             offset:0u atIndex:22u];
+                [encoder setBuffer:state.fgmresElementActiveDispatch
+                             offset:0u atIndex:23u];
             });
             if (state.mixedSolverValue.executionBudgets.z == 0u) {
                 dispatchThreads(
@@ -24562,6 +24659,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            fgmresColumnDispatch = state.dispatch.environmentCount == 1u &&
+                state.fgmresNodeActiveDispatch != nil &&
+                state.fgmresElementActiveDispatch != nil;
+            if (fgmresColumnDispatch)
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -24645,8 +24747,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.mixedSolverValue.executionBudgets.x,
                     static_cast<std::uint32_t>(fieldSmootherDamping.size()));
                 const std::uint32_t fieldSmootherAllowConverged = 0u;
+                if (!state.mixedFieldSmoothingEnabled) {
+                    // Each pass would otherwise encode element apply, node
+                    // gather, and field Jacobi work. With no authored transport
+                    // unknowns or boundary rows, these are provably empty. Keep
+                    // field scratch initialization/export and cross-preconditioning
+                    // to preserve their zeroing and existing consumer contracts.
+                    skippedMixedFieldSmootherDispatches +=
+                        static_cast<std::uint64_t>(fieldSmoothingPasses) * 3u;
+                }
                 for (std::uint32_t fieldPass = 0u;
-                     fieldPass < fieldSmoothingPasses; ++fieldPass) {
+                     state.mixedFieldSmoothingEnabled &&
+                         fieldPass < fieldSmoothingPasses; ++fieldPass) {
                     fieldPreconditionerMicro.solverIteration = fieldPass;
                     dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                         setDispatch();
@@ -26039,10 +26151,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
-                dispatchGroups256(
-                    "nm_fgmres_orthogonalize_and_finish_column",
-                    environments,
-                    [&] {
+                // The single-environment large-Human profile benefits from a wider
+                // reduction group; keep batched/smaller scenes on the established path.
+                const std::uint32_t orthogonalizeThreadgroupWidth =
+                    state.dispatch.environmentCount == 1u &&
+                    state.dispatch.femNodeCount >= 8192u ? 512u : 256u;
+                const auto dispatchOrthogonalizeColumn = [&](const auto& bind) {
+                    if (orthogonalizeThreadgroupWidth == 512u)
+                        dispatchGroups512(
+                            "nm_fgmres_orthogonalize_and_finish_column",
+                            environments, bind);
+                    else
+                        dispatchGroups256(
+                            "nm_fgmres_orthogonalize_and_finish_column",
+                            environments, bind);
+                };
+                dispatchOrthogonalizeColumn([&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver
                                      offset:0u atIndex:1u];
@@ -26065,8 +26189,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:9u];
                         [encoder setBytes:&linearForcing
                                    length:sizeof(linearForcing) atIndex:10u];
+                        [encoder setBuffer:state.fgmresNodeActiveDispatch
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:state.fgmresElementActiveDispatch
+                                     offset:0u atIndex:12u];
+                        [encoder setBytes:&orthogonalizeThreadgroupWidth
+                                   length:sizeof(orthogonalizeThreadgroupWidth)
+                                  atIndex:13u];
                     });
+                if (fgmresColumnDispatch)
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            fgmresColumnDispatch = false;
             const std::uint32_t finalRestartCycle =
                 restartCycle + 1u == restartCycleCount ? 1u : 0u;
             dispatchThreads("nm_fgmres_finalize_cycle", environments, [&] {
@@ -31340,6 +31474,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "matter_gpu_kernel_dispatch_count=%s step=%u count=%llu sample_every=%u\n",
                 kernel.c_str(), request.controlStep,
                 static_cast<unsigned long long>(count), gpuTimingSampleEvery);
+        }
+        if (skippedMixedFieldSmootherDispatches != 0u) {
+            std::fprintf(stderr,
+                "matter_mixed_field_smoother_dispatch_count=skipped "
+                "step=%u count=%llu multiphysics_objects=%u field_boundaries=%u\n",
+                request.controlStep,
+                static_cast<unsigned long long>(skippedMixedFieldSmootherDispatches),
+                state.mixedFieldObjectCount, state.dispatch.fieldBoundaryCount);
+        }
+        if (fgmresNodeIndirectDispatchCount != 0u ||
+            fgmresElementIndirectDispatchCount != 0u) {
+            std::fprintf(stderr,
+                "matter_fgmres_gpu_indirect_dispatch_count=encoded step=%u "
+                "node=%llu element=%llu environment_count=%u\n",
+                request.controlStep,
+                static_cast<unsigned long long>(fgmresNodeIndirectDispatchCount),
+                static_cast<unsigned long long>(fgmresElementIndirectDispatchCount),
+                state.dispatch.environmentCount);
         }
         diagnostics.encoded = true;
         diagnostics.residentBytes = state.residentBytes;

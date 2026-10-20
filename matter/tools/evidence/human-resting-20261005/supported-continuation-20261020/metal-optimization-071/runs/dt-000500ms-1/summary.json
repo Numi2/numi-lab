@@ -1,0 +1,61 @@
+{
+  "accepted_segment_ends": [
+    1
+  ],
+  "body": {
+    "physiology_body_clock": "matched",
+    "presentation_qualification": "pending",
+    "real_time_factor": "3.6273214354333149e-05",
+    "root_assistance": "false",
+    "simulated_s": "0.00050000002374872565",
+    "wall_s": "13.784276708"
+  },
+  "fascia_terminal_passed": true,
+  "fem_terminal_passed": true,
+  "finished_utc": "2026-10-20T14:34:09.627971+00:00",
+  "returncode": 0,
+  "root_assistance_false": true,
+  "root_profiles": [
+    {
+      "command_ms": 12751.93625,
+      "gpu_ms": 12751.5398749,
+      "host_copy_ms": 0.064708,
+      "step": 1
+    }
+  ],
+  "stderr_sha256": "9a8f236425c085af7b374e24fddf0ee45b29376cb7a9357a085f1e31d02b26f5",
+  "stdout_sha256": "390288c37c7acb67bafaef5b0b224db6e06c8321b6c2375ea965b8d589df570e",
+  "terminal_metrics": {
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 8.99797397382e-11,
+    "body_contact_normal_force_N": 0.0151652181521,
+    "center_of_mass_xyz_m": [
+      -0.0250191089616,
+      -0.756772854933,
+      0.113618181656
+    ],
+    "contact_count": 7.0,
+    "max_J": 1.03125580051,
+    "max_anchor_reaction_N": 0.319167643624,
+    "max_displacement_m": 0.000732439959134,
+    "max_generalized_acceleration": 709.043151855,
+    "min_J": 0.972117155391,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_max_tension_N": 0.00999148562551,
+    "passive_ligament_moment_residual_Nm": 1.11535203906e-10,
+    "penetration_m": 0.00010114460747,
+    "root_linear_speed_m_s": 0.148684913956,
+    "root_linear_velocity_xyz_m_s": [
+      -0.0228957943618,
+      0.00834184326231,
+      -0.146674469113
+    ],
+    "root_xyz_m": [
+      -0.0500114485621,
+      0.200004175305,
+      0.105646595359
+    ]
+  },
+  "valid": true,
+  "wall_seconds": 25.181676874984987
+}

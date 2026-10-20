@@ -1,0 +1,94 @@
+{
+  "authoritative_root_steps": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "body": {
+    "physiology_body_clock": "matched",
+    "presentation_qualification": "pending",
+    "real_time_factor": "6.7242415609099793e-06",
+    "root_assistance": "false",
+    "simulated_s": "0.00050000002374872565",
+    "wall_s": "74.357831915999995"
+  },
+  "fascia_terminal_passed": true,
+  "fem_terminal_passed": true,
+  "finished_utc": "2026-10-20T14:00:14.925482+00:00",
+  "integrated_throughput": {
+    "accepted_end_step": "4",
+    "accepted_start_step": "1",
+    "excludes": "load_compile_initial_parity_first_accepted_observer_movie_finalization",
+    "includes": "physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export",
+    "real_time_factor": "6.16712666287e-06",
+    "simulated_s": "0.000375000017812",
+    "wall_s": "60.806277917"
+  },
+  "label": "sorted-1",
+  "process_wall_seconds": 85.57092333305627,
+  "rejected_steps": [],
+  "returncode": 0,
+  "root_assistance_false": true,
+  "root_profiles": [
+    {
+      "command_ms": 12492.919,
+      "gpu_ms": 12492.509125,
+      "host_copy_ms": 0.019542,
+      "step": 1
+    },
+    {
+      "command_ms": 19804.075666,
+      "gpu_ms": 19803.4991251,
+      "host_copy_ms": 0.019334,
+      "step": 2
+    },
+    {
+      "command_ms": 20407.811459,
+      "gpu_ms": 20407.2295834,
+      "host_copy_ms": 0.021041,
+      "step": 3
+    },
+    {
+      "command_ms": 20325.655333,
+      "gpu_ms": 20325.098375,
+      "host_copy_ms": 0.062167,
+      "step": 4
+    }
+  ],
+  "stderr_sha256": "32a531755dcd92292d738889193101541a22f89ed75da8f60380f44192f471b8",
+  "stdout_sha256": "814230921039e2eb702e473c4955562dfda5174d77e1e92a403310176193444b",
+  "terminal_metrics": {
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 1.60870506204e-08,
+    "body_contact_normal_force_N": 3.1451382637,
+    "center_of_mass_xyz_m": [
+      -0.02502410394,
+      -0.756760931555,
+      0.113638610195
+    ],
+    "contact_count": 7.0,
+    "max_J": 1.11624710839,
+    "max_anchor_reaction_N": 2.44516844081,
+    "max_displacement_m": 0.000817404307405,
+    "max_generalized_acceleration": 515.893432617,
+    "min_J": 0.968932772146,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_max_tension_N": 0.254089236259,
+    "passive_ligament_moment_residual_Nm": 2.67889332389e-08,
+    "penetration_m": 4.15507929574e-05,
+    "root_linear_speed_m_s": 0.479335006701,
+    "root_linear_velocity_xyz_m_s": [
+      -0.0624420493841,
+      0.0258136894554,
+      -0.47454893589
+    ],
+    "root_xyz_m": [
+      -0.0500313527882,
+      0.200012996793,
+      0.105493582785
+    ]
+  },
+  "treatment": true,
+  "valid": true
+}

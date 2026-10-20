@@ -1,0 +1,683 @@
+{
+  "accepted_segment_ends": [
+    1
+  ],
+  "all_profiled_kernel_dispatch_counts": [
+    {
+      "count": 1,
+      "kernel": "nm_topology_publish_growth_request"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_contact_rollback_deformable_contact_histories"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_complete_microstep"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_vascular_commit"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_invalidate_solver_certificate_after_late_failure"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mixed_certify"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_fem_validate"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_fem_integrate"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_contact_publish_fem_constraint_contact_force"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_contact_publish_deformable_history"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_mixed_apply_kkt_solution"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fem_apply_solution"
+    },
+    {
+      "count": 192,
+      "kernel": "nm_human_support_limit_line_search"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_contact_limit_rigid_line_search"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_contact_limit_deformable_line_search"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_mpm_limit_implicit_line_search"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fem_select_backtracking"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_topology_commit"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fgmres_measure_correction"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_human_support_resolve_working_set"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_vascular_resolve_working_set"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_scheduler_observe"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_accumulate_vascular"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_latch_matter_status_into_rigid_world"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_vascular_certify"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_accumulate_fields"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_accumulate"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_orthogonalize_and_finish_column"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_vascular_operator"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_apply_mpm_constitutive"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_vascular_cavity_operator"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_add_cohesive_operator"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_gather_nodes"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fem_apply_operator_elements"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_vascular_precondition"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition_cross"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_field_smoother_export"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition_coarse"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition_patches"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_vascular_cavity_schur_preconditioner"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_build_preconditioner"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_begin"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_vascular_rollback"
+    },
+    {
+      "count": 192,
+      "kernel": "nm_vascular_limit_line_search"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fem_build_algorithmic_tangent_cache_columns"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fem_prepare_algorithmic_tangent_columns"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fgmres_import_field_residual"
+    },
+    {
+      "count": 192,
+      "kernel": "nm_fem_synchronize_environment_line_search"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_accumulate_deformable_fem_residual"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_accumulate_fem_residual"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_fem_rollback_frame"
+    },
+    {
+      "count": 288,
+      "kernel": "nm_fgmres_restart_residual_vascular"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scan_deformable_node_incidence"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scatter_deformable_active_work"
+    },
+    {
+      "count": 384,
+      "kernel": "nm_fgmres_finalize_cycle"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_compact_deformable"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_narrowphase_deformable"
+    },
+    {
+      "count": 200,
+      "kernel": "nm_contact_scan_deformable_active_counts"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scan_deformable_candidate_counts"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_count_deformable_candidates"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_count_deformable_node_incidence"
+    },
+    {
+      "count": 1500,
+      "kernel": "nm_contact_build_surface_bvh_level"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_build_surface_bvh_leaves"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_vascular_apply_solution"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_sort_surface_primitives"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_build_surface_primitives"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mixed_commit"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_fem_add_cohesive_residual"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_fem_build_mechanical_residual"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition_mpm_objects"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_vascular_cavity_forces"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_fem_internal_forces"
+    },
+    {
+      "count": 288,
+      "kernel": "nm_fgmres_restart_residual_nodes"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_mixed_build_residual_diagonal"
+    },
+    {
+      "count": 6244,
+      "kernel": "nm_mixed_apply_operator_nodes"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_compact_active"
+    },
+    {
+      "count": 6244,
+      "kernel": "nm_mixed_apply_operator_elements"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_mixed_prepare_residual"
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_field_smoother_initialize"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_vascular_begin_working_set"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_fem_apply_kinematic_targets"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_vascular_prepare_candidate"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_human_support_validate_final_line_search"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_fem_prepare_candidate"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_mpm_build_constitutive_residual"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_compact_active_nodes"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_vascular_residual"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scatter_deformable_candidates"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_sort_block_particles"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_scan_environment_counts"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_scan_environment_blocks"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_mixed_rollback"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_topology_rollback"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_prepare_sparse"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_vascular_prepare_elastance"
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scatter_deformable_node_incidence"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_vascular_checkpoint"
+    },
+    {
+      "count": 96,
+      "kernel": "nm_fem_finalize_algorithmic_tangent_columns"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_vascular_prepare_clock"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_mixed_checkpoint"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_fem_commit_microstep"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_contact_checkpoint_deformable_contact_histories"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_topology_checkpoint"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mixed_prepare_microstep"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_fem_checkpoint"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_prepare_scheduler"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_contact_commit_deformable_contact_histories"
+    },
+    {
+      "count": 4,
+      "kernel": "nm_mpm_p2g"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_prepare_status"
+    },
+    {
+      "count": 1,
+      "kernel": "nm_checkpoint_scheduler"
+    }
+  ],
+  "counter_samples_dropped": [],
+  "dispatch_count_names": 111,
+  "fascia_terminal_passed": true,
+  "fem_terminal_passed": true,
+  "finished_utc": "2026-10-20T14:29:08.375781+00:00",
+  "largest_sample_scaled_kernels": [
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_orthogonalize_and_finish_column",
+      "mean_ns": 299732.5833333333,
+      "median_ns": 1583,
+      "sample_scaled_estimate_ns": 1841556992.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_precondition_patches",
+      "mean_ns": 85899.25,
+      "median_ns": 1833,
+      "sample_scaled_estimate_ns": 527764992.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_vascular_operator",
+      "mean_ns": 27559.0,
+      "median_ns": 1917,
+      "sample_scaled_estimate_ns": 169322496.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_precondition_coarse",
+      "mean_ns": 20201.25,
+      "median_ns": 1584,
+      "sample_scaled_estimate_ns": 124116480.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fem_apply_operator_elements",
+      "mean_ns": 11934.083333333334,
+      "median_ns": 1750,
+      "sample_scaled_estimate_ns": 73323008.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_gather_nodes",
+      "mean_ns": 8569.5,
+      "median_ns": 1916,
+      "sample_scaled_estimate_ns": 52651008.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6244,
+      "kernel": "nm_mixed_apply_operator_elements",
+      "mean_ns": 8073.0,
+      "median_ns": 2041,
+      "sample_scaled_estimate_ns": 50407812.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_vascular_cavity_operator",
+      "mean_ns": 6736.0,
+      "median_ns": 1834,
+      "sample_scaled_estimate_ns": 41385984.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_vascular_precondition",
+      "mean_ns": 4559.083333333333,
+      "median_ns": 4125,
+      "sample_scaled_estimate_ns": 28011008.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_precondition",
+      "mean_ns": 3972.1666666666665,
+      "median_ns": 2041,
+      "sample_scaled_estimate_ns": 24404992.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_field_smoother_initialize",
+      "mean_ns": 3944.5833333333335,
+      "median_ns": 2000,
+      "sample_scaled_estimate_ns": 24235520.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_add_cohesive_operator",
+      "mean_ns": 2548.5833333333335,
+      "median_ns": 1833,
+      "sample_scaled_estimate_ns": 15658496.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6244,
+      "kernel": "nm_mixed_apply_operator_nodes",
+      "mean_ns": 2413.25,
+      "median_ns": 1834,
+      "sample_scaled_estimate_ns": 15068333.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_field_smoother_export",
+      "mean_ns": 2403.0,
+      "median_ns": 1834,
+      "sample_scaled_estimate_ns": 14764032.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_precondition_cross",
+      "mean_ns": 2111.0,
+      "median_ns": 1875,
+      "sample_scaled_estimate_ns": 12969984.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 6144,
+      "kernel": "nm_fgmres_precondition_mpm_objects",
+      "mean_ns": 1475.6666666666667,
+      "median_ns": 1459,
+      "sample_scaled_estimate_ns": 9066496.0,
+      "samples": 12
+    },
+    {
+      "dispatches": 1500,
+      "kernel": "nm_contact_build_surface_bvh_level",
+      "mean_ns": 2396.0,
+      "median_ns": 2625,
+      "sample_scaled_estimate_ns": 3594000.0,
+      "samples": 2
+    },
+    {
+      "dispatches": 0,
+      "kernel": "matter_pre",
+      "mean_ns": 707875.0,
+      "median_ns": 707875,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "brain_advance",
+      "mean_ns": 60584.0,
+      "median_ns": 60584,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "respiratory_mechanics",
+      "mean_ns": 2764667.0,
+      "median_ns": 2764667,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "matter_after_frame_begin",
+      "mean_ns": 668264792.0,
+      "median_ns": 668264792,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "matter_after_candidate_ready",
+      "mean_ns": 31421072.5,
+      "median_ns": 31490916,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 4
+    },
+    {
+      "dispatches": 0,
+      "kernel": "matter_after_microstep",
+      "mean_ns": 478443906.25,
+      "median_ns": 550313583,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 4
+    },
+    {
+      "dispatches": 0,
+      "kernel": "respiratory_gas_exchange",
+      "mean_ns": 1721417.0,
+      "median_ns": 1721417,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "matter_post",
+      "mean_ns": 24000.0,
+      "median_ns": 24000,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "brain_resolve",
+      "mean_ns": 1291.0,
+      "median_ns": 1291,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    },
+    {
+      "dispatches": 0,
+      "kernel": "respiratory_resolve",
+      "mean_ns": 680333.0,
+      "median_ns": 680333,
+      "sample_scaled_estimate_ns": 0.0,
+      "samples": 1
+    }
+  ],
+  "returncode": 0,
+  "root_profiles": [
+    "resting_native_profile step=1 command_ms=6391.024708 gpu_ms=6390.43050003 host_copy_ms=0.117125 full_state_readback=1"
+  ],
+  "sample_count": 210,
+  "schema": "numi.matter.all-kernel-profile-069.v1",
+  "stderr_sha256": "b9828d61e38585174a52f615cb6ed2855979c6d5a2bccbb25dc882882c35472e",
+  "stdout_sha256": "15569634a517dcb779833eb5f382f5ca231db8f32dfb5f46309700eb7981f8dc",
+  "wall_seconds": 19.117122416966595
+}

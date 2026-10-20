@@ -1,0 +1,827 @@
+{
+  "baseline_simulated_s": 0.0005,
+  "criteria": "accepted roots, 0.5 ms total duration, FEM/fascia terminal audits, no root assistance, endpoint metrics within fixed 1% versus two accepted dt=0.125 ms controls",
+  "interpretation": "mechanics-only supported-pose replay; not sustained coupled physiological qualification",
+  "schema": "numi.matter.muscle-timestep-sensitivity-071.v1",
+  "source_head": "aadcd68e0747540978edd88a23af0cd114932942",
+  "treatments": [
+    {
+      "all_metrics_within_1pct": false,
+      "arm": 0,
+      "baseline_comparisons": {
+        "control-1": {
+          "baseline_valid": true,
+          "metrics": {
+            "body_contact_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "body_contact_moment_residual_Nm": [
+              {
+                "absolute_delta": 7.098978482770001e-09,
+                "allowed": 1e-07,
+                "control": 1.60870506204e-08,
+                "passed": true,
+                "treatment": 8.98807213763e-09
+              }
+            ],
+            "body_contact_normal_force_N": [
+              {
+                "absolute_delta": 0.6341338157700003,
+                "allowed": 0.0377927207947,
+                "control": 3.1451382637,
+                "passed": false,
+                "treatment": 3.77927207947
+              }
+            ],
+            "center_of_mass_xyz_m": [
+              {
+                "absolute_delta": 3.314486300001057e-06,
+                "allowed": 0.00025024103940000003,
+                "control": -0.02502410394,
+                "passed": true,
+                "treatment": -0.0250207894537
+              },
+              {
+                "absolute_delta": 7.702973000012214e-06,
+                "allowed": 0.0075676863452800005,
+                "control": -0.756760931555,
+                "passed": true,
+                "treatment": -0.756768634528
+              },
+              {
+                "absolute_delta": 1.3834569000004127e-05,
+                "allowed": 0.00113638610195,
+                "control": 0.113638610195,
+                "passed": true,
+                "treatment": 0.113624775626
+              }
+            ],
+            "contact_count": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 0.07,
+                "control": 7.0,
+                "passed": true,
+                "treatment": 7.0
+              }
+            ],
+            "max_J": [
+              {
+                "absolute_delta": 0.08270142203999997,
+                "allowed": 0.011162471083900002,
+                "control": 1.11624710839,
+                "passed": false,
+                "treatment": 1.03354568635
+              }
+            ],
+            "max_anchor_reaction_N": [
+              {
+                "absolute_delta": 1.5391413359369999,
+                "allowed": 0.0244516844081,
+                "control": 2.44516844081,
+                "passed": false,
+                "treatment": 0.906027104873
+              }
+            ],
+            "max_displacement_m": [
+              {
+                "absolute_delta": 3.6012058692999984e-05,
+                "allowed": 8.17404307405e-06,
+                "control": 0.000817404307405,
+                "passed": false,
+                "treatment": 0.000781392248712
+              }
+            ],
+            "max_generalized_acceleration": [
+              {
+                "absolute_delta": 3.3220214849999365,
+                "allowed": 5.19215454102,
+                "control": 515.893432617,
+                "passed": true,
+                "treatment": 519.215454102
+              }
+            ],
+            "min_J": [
+              {
+                "absolute_delta": 0.0017604808089999313,
+                "allowed": 0.00970693252955,
+                "control": 0.968932772146,
+                "passed": true,
+                "treatment": 0.970693252955
+              }
+            ],
+            "passive_ligament_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "passive_ligament_max_tension_N": [
+              {
+                "absolute_delta": 0.149183556437,
+                "allowed": 0.00254089236259,
+                "control": 0.254089236259,
+                "passed": false,
+                "treatment": 0.104905679822
+              }
+            ],
+            "passive_ligament_moment_residual_Nm": [
+              {
+                "absolute_delta": 2.480575673289e-08,
+                "allowed": 1e-07,
+                "control": 2.67889332389e-08,
+                "passed": true,
+                "treatment": 1.98317650601e-09
+              }
+            ],
+            "penetration_m": [
+              {
+                "absolute_delta": 3.96956202167e-05,
+                "allowed": 8.12464131741e-07,
+                "control": 4.15507929574e-05,
+                "passed": false,
+                "treatment": 8.12464131741e-05
+              }
+            ],
+            "root_linear_speed_m_s": [
+              {
+                "absolute_delta": 0.215912969234,
+                "allowed": 0.00479335006701,
+                "control": 0.479335006701,
+                "passed": false,
+                "treatment": 0.263422037467
+              }
+            ],
+            "root_linear_velocity_xyz_m_s": [
+              {
+                "absolute_delta": 0.028313159942600002,
+                "allowed": 0.000624420493841,
+                "control": -0.0624420493841,
+                "passed": false,
+                "treatment": -0.0341288894415
+              },
+              {
+                "absolute_delta": 0.0121860662475,
+                "allowed": 0.000258136894554,
+                "control": 0.0258136894554,
+                "passed": false,
+                "treatment": 0.0136276232079
+              },
+              {
+                "absolute_delta": 0.21370285749400003,
+                "allowed": 0.0047454893589,
+                "control": -0.47454893589,
+                "passed": false,
+                "treatment": -0.260846078396
+              }
+            ],
+            "root_xyz_m": [
+              {
+                "absolute_delta": 1.4234334200002863e-05,
+                "allowed": 0.000500313527882,
+                "control": -0.0500313527882,
+                "passed": true,
+                "treatment": -0.050017118454
+              },
+              {
+                "absolute_delta": 6.139279000005882e-06,
+                "allowed": 0.00200012996793,
+                "control": 0.200012996793,
+                "passed": true,
+                "treatment": 0.200006857514
+              },
+              {
+                "absolute_delta": 0.00010338425599999701,
+                "allowed": 0.00105596967041,
+                "control": 0.105493582785,
+                "passed": true,
+                "treatment": 0.105596967041
+              }
+            ]
+          },
+          "metrics_within_1pct": false
+        },
+        "control-2": {
+          "baseline_valid": true,
+          "metrics": {
+            "body_contact_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "body_contact_moment_residual_Nm": [
+              {
+                "absolute_delta": 7.098978482770001e-09,
+                "allowed": 1e-07,
+                "control": 1.60870506204e-08,
+                "passed": true,
+                "treatment": 8.98807213763e-09
+              }
+            ],
+            "body_contact_normal_force_N": [
+              {
+                "absolute_delta": 0.6341338157700003,
+                "allowed": 0.0377927207947,
+                "control": 3.1451382637,
+                "passed": false,
+                "treatment": 3.77927207947
+              }
+            ],
+            "center_of_mass_xyz_m": [
+              {
+                "absolute_delta": 3.314486300001057e-06,
+                "allowed": 0.00025024103940000003,
+                "control": -0.02502410394,
+                "passed": true,
+                "treatment": -0.0250207894537
+              },
+              {
+                "absolute_delta": 7.702973000012214e-06,
+                "allowed": 0.0075676863452800005,
+                "control": -0.756760931555,
+                "passed": true,
+                "treatment": -0.756768634528
+              },
+              {
+                "absolute_delta": 1.3834569000004127e-05,
+                "allowed": 0.00113638610195,
+                "control": 0.113638610195,
+                "passed": true,
+                "treatment": 0.113624775626
+              }
+            ],
+            "contact_count": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 0.07,
+                "control": 7.0,
+                "passed": true,
+                "treatment": 7.0
+              }
+            ],
+            "max_J": [
+              {
+                "absolute_delta": 0.08270142203999997,
+                "allowed": 0.011162471083900002,
+                "control": 1.11624710839,
+                "passed": false,
+                "treatment": 1.03354568635
+              }
+            ],
+            "max_anchor_reaction_N": [
+              {
+                "absolute_delta": 1.5391413359369999,
+                "allowed": 0.0244516844081,
+                "control": 2.44516844081,
+                "passed": false,
+                "treatment": 0.906027104873
+              }
+            ],
+            "max_displacement_m": [
+              {
+                "absolute_delta": 3.6012058692999984e-05,
+                "allowed": 8.17404307405e-06,
+                "control": 0.000817404307405,
+                "passed": false,
+                "treatment": 0.000781392248712
+              }
+            ],
+            "max_generalized_acceleration": [
+              {
+                "absolute_delta": 3.3220214849999365,
+                "allowed": 5.19215454102,
+                "control": 515.893432617,
+                "passed": true,
+                "treatment": 519.215454102
+              }
+            ],
+            "min_J": [
+              {
+                "absolute_delta": 0.0017604808089999313,
+                "allowed": 0.00970693252955,
+                "control": 0.968932772146,
+                "passed": true,
+                "treatment": 0.970693252955
+              }
+            ],
+            "passive_ligament_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "passive_ligament_max_tension_N": [
+              {
+                "absolute_delta": 0.149183556437,
+                "allowed": 0.00254089236259,
+                "control": 0.254089236259,
+                "passed": false,
+                "treatment": 0.104905679822
+              }
+            ],
+            "passive_ligament_moment_residual_Nm": [
+              {
+                "absolute_delta": 2.480575673289e-08,
+                "allowed": 1e-07,
+                "control": 2.67889332389e-08,
+                "passed": true,
+                "treatment": 1.98317650601e-09
+              }
+            ],
+            "penetration_m": [
+              {
+                "absolute_delta": 3.96956202167e-05,
+                "allowed": 8.12464131741e-07,
+                "control": 4.15507929574e-05,
+                "passed": false,
+                "treatment": 8.12464131741e-05
+              }
+            ],
+            "root_linear_speed_m_s": [
+              {
+                "absolute_delta": 0.215912969234,
+                "allowed": 0.00479335006701,
+                "control": 0.479335006701,
+                "passed": false,
+                "treatment": 0.263422037467
+              }
+            ],
+            "root_linear_velocity_xyz_m_s": [
+              {
+                "absolute_delta": 0.028313159942600002,
+                "allowed": 0.000624420493841,
+                "control": -0.0624420493841,
+                "passed": false,
+                "treatment": -0.0341288894415
+              },
+              {
+                "absolute_delta": 0.0121860662475,
+                "allowed": 0.000258136894554,
+                "control": 0.0258136894554,
+                "passed": false,
+                "treatment": 0.0136276232079
+              },
+              {
+                "absolute_delta": 0.21370285749400003,
+                "allowed": 0.0047454893589,
+                "control": -0.47454893589,
+                "passed": false,
+                "treatment": -0.260846078396
+              }
+            ],
+            "root_xyz_m": [
+              {
+                "absolute_delta": 1.4234334200002863e-05,
+                "allowed": 0.000500313527882,
+                "control": -0.0500313527882,
+                "passed": true,
+                "treatment": -0.050017118454
+              },
+              {
+                "absolute_delta": 6.139279000005882e-06,
+                "allowed": 0.00200012996793,
+                "control": 0.200012996793,
+                "passed": true,
+                "treatment": 0.200006857514
+              },
+              {
+                "absolute_delta": 0.00010338425599999701,
+                "allowed": 0.00105596967041,
+                "control": 0.105493582785,
+                "passed": true,
+                "treatment": 0.105596967041
+              }
+            ]
+          },
+          "metrics_within_1pct": false
+        }
+      },
+      "valid": true
+    },
+    {
+      "all_metrics_within_1pct": false,
+      "arm": 1,
+      "baseline_comparisons": {
+        "control-1": {
+          "baseline_valid": true,
+          "metrics": {
+            "body_contact_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "body_contact_moment_residual_Nm": [
+              {
+                "absolute_delta": 1.59970708806618e-08,
+                "allowed": 1e-07,
+                "control": 1.60870506204e-08,
+                "passed": true,
+                "treatment": 8.99797397382e-11
+              }
+            ],
+            "body_contact_normal_force_N": [
+              {
+                "absolute_delta": 3.1299730455479,
+                "allowed": 0.031451382637,
+                "control": 3.1451382637,
+                "passed": false,
+                "treatment": 0.0151652181521
+              }
+            ],
+            "center_of_mass_xyz_m": [
+              {
+                "absolute_delta": 4.994978400001127e-06,
+                "allowed": 0.00025024103940000003,
+                "control": -0.02502410394,
+                "passed": true,
+                "treatment": -0.0250191089616
+              },
+              {
+                "absolute_delta": 1.1923377999933926e-05,
+                "allowed": 0.00756772854933,
+                "control": -0.756760931555,
+                "passed": true,
+                "treatment": -0.756772854933
+              },
+              {
+                "absolute_delta": 2.04285390000003e-05,
+                "allowed": 0.00113638610195,
+                "control": 0.113638610195,
+                "passed": true,
+                "treatment": 0.113618181656
+              }
+            ],
+            "contact_count": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 0.07,
+                "control": 7.0,
+                "passed": true,
+                "treatment": 7.0
+              }
+            ],
+            "max_J": [
+              {
+                "absolute_delta": 0.08499130787999998,
+                "allowed": 0.011162471083900002,
+                "control": 1.11624710839,
+                "passed": false,
+                "treatment": 1.03125580051
+              }
+            ],
+            "max_anchor_reaction_N": [
+              {
+                "absolute_delta": 2.1260007971859998,
+                "allowed": 0.0244516844081,
+                "control": 2.44516844081,
+                "passed": false,
+                "treatment": 0.319167643624
+              }
+            ],
+            "max_displacement_m": [
+              {
+                "absolute_delta": 8.496434827100002e-05,
+                "allowed": 8.17404307405e-06,
+                "control": 0.000817404307405,
+                "passed": false,
+                "treatment": 0.000732439959134
+              }
+            ],
+            "max_generalized_acceleration": [
+              {
+                "absolute_delta": 193.149719238,
+                "allowed": 7.09043151855,
+                "control": 515.893432617,
+                "passed": false,
+                "treatment": 709.043151855
+              }
+            ],
+            "min_J": [
+              {
+                "absolute_delta": 0.003184383244999922,
+                "allowed": 0.00972117155391,
+                "control": 0.968932772146,
+                "passed": true,
+                "treatment": 0.972117155391
+              }
+            ],
+            "passive_ligament_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "passive_ligament_max_tension_N": [
+              {
+                "absolute_delta": 0.24409775063348998,
+                "allowed": 0.00254089236259,
+                "control": 0.254089236259,
+                "passed": false,
+                "treatment": 0.00999148562551
+              }
+            ],
+            "passive_ligament_moment_residual_Nm": [
+              {
+                "absolute_delta": 2.6677398034994e-08,
+                "allowed": 1e-07,
+                "control": 2.67889332389e-08,
+                "passed": true,
+                "treatment": 1.11535203906e-10
+              }
+            ],
+            "penetration_m": [
+              {
+                "absolute_delta": 5.9593814512599996e-05,
+                "allowed": 1.0114460747e-06,
+                "control": 4.15507929574e-05,
+                "passed": false,
+                "treatment": 0.00010114460747
+              }
+            ],
+            "root_linear_speed_m_s": [
+              {
+                "absolute_delta": 0.330650092745,
+                "allowed": 0.00479335006701,
+                "control": 0.479335006701,
+                "passed": false,
+                "treatment": 0.148684913956
+              }
+            ],
+            "root_linear_velocity_xyz_m_s": [
+              {
+                "absolute_delta": 0.0395462550223,
+                "allowed": 0.000624420493841,
+                "control": -0.0624420493841,
+                "passed": false,
+                "treatment": -0.0228957943618
+              },
+              {
+                "absolute_delta": 0.01747184619309,
+                "allowed": 0.000258136894554,
+                "control": 0.0258136894554,
+                "passed": false,
+                "treatment": 0.00834184326231
+              },
+              {
+                "absolute_delta": 0.32787446677700005,
+                "allowed": 0.0047454893589,
+                "control": -0.47454893589,
+                "passed": false,
+                "treatment": -0.146674469113
+              }
+            ],
+            "root_xyz_m": [
+              {
+                "absolute_delta": 1.9904226100000977e-05,
+                "allowed": 0.000500313527882,
+                "control": -0.0500313527882,
+                "passed": true,
+                "treatment": -0.0500114485621
+              },
+              {
+                "absolute_delta": 8.821487999993716e-06,
+                "allowed": 0.00200012996793,
+                "control": 0.200012996793,
+                "passed": true,
+                "treatment": 0.200004175305
+              },
+              {
+                "absolute_delta": 0.00015301257400000823,
+                "allowed": 0.00105646595359,
+                "control": 0.105493582785,
+                "passed": true,
+                "treatment": 0.105646595359
+              }
+            ]
+          },
+          "metrics_within_1pct": false
+        },
+        "control-2": {
+          "baseline_valid": true,
+          "metrics": {
+            "body_contact_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "body_contact_moment_residual_Nm": [
+              {
+                "absolute_delta": 1.59970708806618e-08,
+                "allowed": 1e-07,
+                "control": 1.60870506204e-08,
+                "passed": true,
+                "treatment": 8.99797397382e-11
+              }
+            ],
+            "body_contact_normal_force_N": [
+              {
+                "absolute_delta": 3.1299730455479,
+                "allowed": 0.031451382637,
+                "control": 3.1451382637,
+                "passed": false,
+                "treatment": 0.0151652181521
+              }
+            ],
+            "center_of_mass_xyz_m": [
+              {
+                "absolute_delta": 4.994978400001127e-06,
+                "allowed": 0.00025024103940000003,
+                "control": -0.02502410394,
+                "passed": true,
+                "treatment": -0.0250191089616
+              },
+              {
+                "absolute_delta": 1.1923377999933926e-05,
+                "allowed": 0.00756772854933,
+                "control": -0.756760931555,
+                "passed": true,
+                "treatment": -0.756772854933
+              },
+              {
+                "absolute_delta": 2.04285390000003e-05,
+                "allowed": 0.00113638610195,
+                "control": 0.113638610195,
+                "passed": true,
+                "treatment": 0.113618181656
+              }
+            ],
+            "contact_count": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 0.07,
+                "control": 7.0,
+                "passed": true,
+                "treatment": 7.0
+              }
+            ],
+            "max_J": [
+              {
+                "absolute_delta": 0.08499130787999998,
+                "allowed": 0.011162471083900002,
+                "control": 1.11624710839,
+                "passed": false,
+                "treatment": 1.03125580051
+              }
+            ],
+            "max_anchor_reaction_N": [
+              {
+                "absolute_delta": 2.1260007971859998,
+                "allowed": 0.0244516844081,
+                "control": 2.44516844081,
+                "passed": false,
+                "treatment": 0.319167643624
+              }
+            ],
+            "max_displacement_m": [
+              {
+                "absolute_delta": 8.496434827100002e-05,
+                "allowed": 8.17404307405e-06,
+                "control": 0.000817404307405,
+                "passed": false,
+                "treatment": 0.000732439959134
+              }
+            ],
+            "max_generalized_acceleration": [
+              {
+                "absolute_delta": 193.149719238,
+                "allowed": 7.09043151855,
+                "control": 515.893432617,
+                "passed": false,
+                "treatment": 709.043151855
+              }
+            ],
+            "min_J": [
+              {
+                "absolute_delta": 0.003184383244999922,
+                "allowed": 0.00972117155391,
+                "control": 0.968932772146,
+                "passed": true,
+                "treatment": 0.972117155391
+              }
+            ],
+            "passive_ligament_force_residual_N": [
+              {
+                "absolute_delta": 0.0,
+                "allowed": 1e-07,
+                "control": 0.0,
+                "passed": true,
+                "treatment": 0.0
+              }
+            ],
+            "passive_ligament_max_tension_N": [
+              {
+                "absolute_delta": 0.24409775063348998,
+                "allowed": 0.00254089236259,
+                "control": 0.254089236259,
+                "passed": false,
+                "treatment": 0.00999148562551
+              }
+            ],
+            "passive_ligament_moment_residual_Nm": [
+              {
+                "absolute_delta": 2.6677398034994e-08,
+                "allowed": 1e-07,
+                "control": 2.67889332389e-08,
+                "passed": true,
+                "treatment": 1.11535203906e-10
+              }
+            ],
+            "penetration_m": [
+              {
+                "absolute_delta": 5.9593814512599996e-05,
+                "allowed": 1.0114460747e-06,
+                "control": 4.15507929574e-05,
+                "passed": false,
+                "treatment": 0.00010114460747
+              }
+            ],
+            "root_linear_speed_m_s": [
+              {
+                "absolute_delta": 0.330650092745,
+                "allowed": 0.00479335006701,
+                "control": 0.479335006701,
+                "passed": false,
+                "treatment": 0.148684913956
+              }
+            ],
+            "root_linear_velocity_xyz_m_s": [
+              {
+                "absolute_delta": 0.0395462550223,
+                "allowed": 0.000624420493841,
+                "control": -0.0624420493841,
+                "passed": false,
+                "treatment": -0.0228957943618
+              },
+              {
+                "absolute_delta": 0.01747184619309,
+                "allowed": 0.000258136894554,
+                "control": 0.0258136894554,
+                "passed": false,
+                "treatment": 0.00834184326231
+              },
+              {
+                "absolute_delta": 0.32787446677700005,
+                "allowed": 0.0047454893589,
+                "control": -0.47454893589,
+                "passed": false,
+                "treatment": -0.146674469113
+              }
+            ],
+            "root_xyz_m": [
+              {
+                "absolute_delta": 1.9904226100000977e-05,
+                "allowed": 0.000500313527882,
+                "control": -0.0500313527882,
+                "passed": true,
+                "treatment": -0.0500114485621
+              },
+              {
+                "absolute_delta": 8.821487999993716e-06,
+                "allowed": 0.00200012996793,
+                "control": 0.200012996793,
+                "passed": true,
+                "treatment": 0.200004175305
+              },
+              {
+                "absolute_delta": 0.00015301257400000823,
+                "allowed": 0.00105646595359,
+                "control": 0.105493582785,
+                "passed": true,
+                "treatment": 0.105646595359
+              }
+            ]
+          },
+          "metrics_within_1pct": false
+        }
+      },
+      "valid": true
+    }
+  ]
+}

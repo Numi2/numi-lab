@@ -1,0 +1,35 @@
+{
+  "accepted_segment_ends": [
+    1
+  ],
+  "body": {
+    "physiology_body_clock": "matched",
+    "presentation_qualification": "pending",
+    "real_time_factor": "1.752228450530465e-05",
+    "root_assistance": "false",
+    "simulated_s": "0.00012500000593718141",
+    "wall_s": "7.1337733329999997"
+  },
+  "controller_steps_advanced": 0,
+  "external_blood_volume_m3": 0.0,
+  "fascia_terminal_passed": true,
+  "fem_terminal_passed": true,
+  "finished_utc": "2026-10-20T14:36:13.504375+00:00",
+  "interpretation": "The native body step advanced and passed FEM/fascia audits. The captured terminal-presentation record reports zero controller steps; no cardiac, respiratory, gas-exchange response series was emitted. This does not qualify integrated physiology, controller cost, or interactive viewer performance.",
+  "native_step_accepted": true,
+  "physiology_body_clock": "matched",
+  "presentation_qualification": "pending",
+  "process_wall_seconds": 19.248414666973986,
+  "respiratory_status": 1,
+  "returncode": 0,
+  "root_assistance_false": true,
+  "root_profiles": [
+    "resting_native_profile step=1 command_ms=6064.386 gpu_ms=6063.97712498 host_copy_ms=0.061292 full_state_readback=1"
+  ],
+  "schema": "numi.human.native-no-mechanics-only-prefix-072.v1",
+  "stderr_sha256": "5393d9d75fb56265a6a440f1d285afcf84d0a56e5ac3d314360394db8a5dafab",
+  "stdout_sha256": "c319a374ac5d539822e459718f97f95273500fd273da63b015de35117fbecd6f",
+  "step1_present_wall_ms": 31.7591249477,
+  "step1_render_gpu_ms": 21.4428750332,
+  "terminal_presentation_capture_physical_steps_advanced": 0
+}

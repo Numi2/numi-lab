@@ -1,0 +1,16 @@
+{
+  "authoritative_root_steps": [],
+  "body": {},
+  "fascia_terminal_passed": false,
+  "fem_terminal_passed": false,
+  "finished_utc": "2026-10-20T14:11:03.225714+00:00",
+  "label": "block-1",
+  "process_wall_seconds": 143.20285962498747,
+  "returncode": -2,
+  "root_assistance_false": false,
+  "root_profiles": [],
+  "stderr_sha256": "aac4ea90fdfd7707365976e82020b07c97222f1b681a7d647711dfa343c12821",
+  "stdout_sha256": "c4b084353ec40598ddb3e45c5f4ece9ebc81c5ad3c09b82706881ccdb447b8c2",
+  "terminal_metrics": {},
+  "valid": false
+}

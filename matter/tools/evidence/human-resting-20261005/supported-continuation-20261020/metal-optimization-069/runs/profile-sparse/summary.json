@@ -1,0 +1,156 @@
+{
+  "accepted_segment_ends": [
+    1
+  ],
+  "counter_samples_dropped": [],
+  "fascia_terminal_passed": true,
+  "fem_terminal_passed": true,
+  "finished_utc": "2026-10-20T14:28:04.997596+00:00",
+  "kernel_dispatch_counts": [
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_orthogonalize_and_finish_column",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_gather_nodes",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fem_apply_operator_elements",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition_patches",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 6144,
+      "kernel": "nm_fgmres_precondition",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scatter_deformable_node_incidence",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_scan_deformable_node_incidence",
+      "sample_every": 128,
+      "step": 0
+    },
+    {
+      "count": 100,
+      "kernel": "nm_contact_count_deformable_node_incidence",
+      "sample_every": 128,
+      "step": 0
+    }
+  ],
+  "profile_sample_count": 256,
+  "profile_samples": {
+    "brain_advance": {
+      "count": 1,
+      "mean_ns": 14208.0,
+      "median_ns": 14208,
+      "sum_ns": 14208
+    },
+    "brain_resolve": {
+      "count": 1,
+      "mean_ns": 1250.0,
+      "median_ns": 1250,
+      "sum_ns": 1250
+    },
+    "matter_after_candidate_ready": {
+      "count": 4,
+      "mean_ns": 31425562.75,
+      "median_ns": 31493458,
+      "sum_ns": 125702251
+    },
+    "matter_after_frame_begin": {
+      "count": 1,
+      "mean_ns": 397983375.0,
+      "median_ns": 397983375,
+      "sum_ns": 397983375
+    },
+    "matter_after_microstep": {
+      "count": 4,
+      "mean_ns": 187943968.75,
+      "median_ns": 242471708,
+      "sum_ns": 751775875
+    },
+    "matter_post": {
+      "count": 1,
+      "mean_ns": 24292.0,
+      "median_ns": 24292,
+      "sum_ns": 24292
+    },
+    "matter_pre": {
+      "count": 1,
+      "mean_ns": 827917.0,
+      "median_ns": 827917,
+      "sum_ns": 827917
+    },
+    "nm_fem_apply_operator_elements": {
+      "count": 48,
+      "mean_ns": 12085.979166666666,
+      "median_ns": 1750,
+      "sum_ns": 580127
+    },
+    "nm_fgmres_gather_nodes": {
+      "count": 48,
+      "mean_ns": 8488.6875,
+      "median_ns": 1875,
+      "sum_ns": 407457
+    },
+    "nm_fgmres_orthogonalize_and_finish_column": {
+      "count": 48,
+      "mean_ns": 298274.3333333333,
+      "median_ns": 1542,
+      "sum_ns": 14317168
+    },
+    "nm_fgmres_precondition": {
+      "count": 48,
+      "mean_ns": 2648.3958333333335,
+      "median_ns": 1917,
+      "sum_ns": 127123
+    },
+    "nm_fgmres_precondition_patches": {
+      "count": 48,
+      "mean_ns": 85697.14583333333,
+      "median_ns": 1834,
+      "sum_ns": 4113463
+    },
+    "respiratory_gas_exchange": {
+      "count": 1,
+      "mean_ns": 1709666.0,
+      "median_ns": 1709666,
+      "sum_ns": 1709666
+    },
+    "respiratory_mechanics": {
+      "count": 1,
+      "mean_ns": 3302209.0,
+      "median_ns": 3302209,
+      "sum_ns": 3302209
+    },
+    "respiratory_resolve": {
+      "count": 1,
+      "mean_ns": 672042.0,
+      "median_ns": 672042,
+      "sum_ns": 672042
+    }
+  },
+  "returncode": 0,
+  "stderr_sha256": "34468f9e47e0ff20b2eb8117e88fe97fc2c883b718121c61741063dcbb77fce3",
+  "stdout_sha256": "3f27e6c71d355957d48cd45e24bd2f2b71eee961a068e732b18e1a9208269c5a",
+  "wall_seconds": 18.598016374977306
+}

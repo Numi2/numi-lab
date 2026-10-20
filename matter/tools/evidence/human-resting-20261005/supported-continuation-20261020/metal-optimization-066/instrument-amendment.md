@@ -1,0 +1,3 @@
+# Instrument amendment 066-A
+
+The initial control completed one native root and passed both terminal FEM and fascia audits with `root_assistance=false`, but the runner's validity gate compared the printed Float32-derived simulated time to 0.000125 s with an absolute tolerance of 1e-12 s. The printed value was 0.00012500000593718141 s, a representation difference of 5.94e-12 s. This was a parser/gate defect, not a solver rejection. Before observing any tangent-block treatment, amend the check to 1e-8 s (well below the 125 microsecond root), retain and reparse the exact control logs, and continue the preregistered ABBA sequence. All physical acceptance checks and the 15% promotion threshold remain unchanged.
