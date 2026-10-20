@@ -1,0 +1,84 @@
+registered_ligament_source_geometry=admitted rows=30 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+passive_fem_clock_selection maximum_rate_exponent=2 physical_frame_s=0.000125 blood_enabled=0
+matter_runtime_initialize_begin
+[NumiMatter] vascular principal block enabled: 46 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular block predictor enabled: 4 bounded fixed-FEM hydraulic Newton initial-guess passes; full coupled solve and certificates unchanged
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+resting_support_debug step=0 region=0 selected=25847 region_error=0 global_error=0 nonfinite_j=0 point=(-0.035726279,-0.114374325,0.0242399983) max_abs_j=0.999999702
+resting_support_debug step=0 region=1 selected=17764 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0974992439,-0.411784649,3.97487732e-08) max_abs_j=0.999999702
+resting_support_debug step=0 region=2 selected=37607 region_error=0 global_error=0 nonfinite_j=0 point=(0.0478288345,-0.410489172,0.000598085229) max_abs_j=0.99999994
+resting_support_debug step=0 region=3 selected=16238 region_error=0 global_error=0 nonfinite_j=0 point=(-0.114833854,-0.423934639,0.00142133143) max_abs_j=0.999999821
+resting_support_debug step=0 region=4 selected=34320 region_error=0 global_error=0 nonfinite_j=0 point=(0.0176047646,-0.847421348,-7.53462004e-09) max_abs_j=1.04742146
+resting_support_debug step=0 region=5 selected=21161 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0672978386,-0.850672007,5.25917869e-08) max_abs_j=1.05067205
+resting_support_debug step=0 region=6 selected=34324 region_error=0 global_error=0 nonfinite_j=0 point=(0.018905839,-0.835723937,0.00108118344) max_abs_j=1.03572369
+resting_support_debug step=0 region=7 selected=21170 region_error=0 global_error=0 nonfinite_j=0 point=(-0.067014195,-0.830619156,0.00192592258) max_abs_j=1.03061903
+resting_support_debug step=0 region=8 selected=18326 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0962447897,-0.555896282,0.0260612797) max_abs_j=1.00000012
+resting_support_debug step=0 region=9 selected=38108 region_error=0 global_error=0 nonfinite_j=0 point=(0.051407095,-0.533489645,0.0229670126) max_abs_j=1
+resting_support_debug step=0 region=10 selected=18299 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0926439166,-1.42244589,0.0343875811) max_abs_j=1.62244594
+resting_support_debug step=0 region=11 selected=36233 region_error=0 global_error=0 nonfinite_j=0 point=(0.038645342,-1.41769576,0.0345992744) max_abs_j=1.61769569
+resting_support_debug step=0 region=12 selected=7059 region_error=0 global_error=0 nonfinite_j=0 point=(-0.228026837,-0.651259124,0.0532663763) max_abs_j=0.99999994
+resting_support_debug step=0 region=13 selected=55940 region_error=0 global_error=0 nonfinite_j=0 point=(-0.290653437,-0.933901072,0.0948849246) max_abs_j=1.133901
+resting_support_debug step=0 region=14 selected=12754 region_error=0 global_error=0 nonfinite_j=0 point=(-0.150512397,-0.916548073,0.0483773649) max_abs_j=1.11654818
+resting_support_debug step=0 region=15 selected=9301 region_error=0 global_error=0 nonfinite_j=0 point=(-0.18051818,-0.932779193,0.102641158) max_abs_j=1.13277936
+resting_support_debug step=0 region=16 selected=24926 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0412762091,-1.08702064,0.0867263824) max_abs_j=1.2870208
+resting_support_debug step=0 region=17 selected=12669 region_error=0 global_error=0 nonfinite_j=0 point=(-0.156650335,-1.2003094,0.0961407423) max_abs_j=1.40030956
+resting_support_debug step=0 region=18 selected=17660 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0990130231,-1.09015965,0.0476772301) max_abs_j=1.29015982
+resting_support_debug step=0 region=19 selected=14916 region_error=0 global_error=0 nonfinite_j=0 point=(-0.130471066,-0.9544034,0.0383763202) max_abs_j=1.15440345
+resting_support_debug step=0 region=20 selected=20233 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0958682224,-1.72157347,0.0427796505) max_abs_j=1.9215734
+resting_support_debug step=0 region=21 selected=17706 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0983752832,-1.41551125,0.034385886) max_abs_j=1.61551142
+resting_support_debug step=0 region=22 selected=35615 region_error=0 global_error=0 nonfinite_j=0 point=(0.0297732465,-0.536807477,0.0200069472) max_abs_j=0.999999762
+resting_support_debug step=0 region=23 selected=52336 region_error=0 global_error=0 nonfinite_j=0 point=(0.25499481,-0.806618989,0.110974833) max_abs_j=1.00661886
+resting_support_debug step=0 region=24 selected=43044 region_error=0 global_error=0 nonfinite_j=0 point=(0.101216778,-0.909955084,0.0503496453) max_abs_j=1.10995507
+resting_support_debug step=0 region=25 selected=30272 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0113753416,-1.04343033,0.0833801478) max_abs_j=1.24343038
+resting_support_debug step=0 region=26 selected=31096 region_error=0 global_error=0 nonfinite_j=0 point=(-0.00204553804,-1.10472727,0.074292101) max_abs_j=1.3047272
+resting_support_debug step=0 region=27 selected=41272 region_error=0 global_error=0 nonfinite_j=0 point=(0.0909845158,-1.18839216,0.0802140534) max_abs_j=1.38839221
+resting_support_debug step=0 region=28 selected=37485 region_error=0 global_error=0 nonfinite_j=0 point=(0.0475508794,-1.12952983,0.0527438447) max_abs_j=1.32953
+resting_support_debug step=0 region=29 selected=40242 region_error=0 global_error=0 nonfinite_j=0 point=(0.0782663226,-0.953799784,0.0374424234) max_abs_j=1.15379977
+resting_support_debug step=0 region=30 selected=34830 region_error=0 global_error=0 nonfinite_j=0 point=(0.0437288247,-1.72293305,0.0421624444) max_abs_j=1.92293298
+resting_support_debug step=0 region=31 selected=36890 region_error=0 global_error=0 nonfinite_j=0 point=(0.0436113179,-1.41476023,0.0346141979) max_abs_j=1.61476016
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_speculative_contact_admission requested_override_m=0.0199999996 effective_max_m=0.0199999996 support_contacts=32
+resting_support_debug step=0 region=0 selected=25847 region_error=0 global_error=0 nonfinite_j=0 point=(-0.035726279,-0.114374325,0.0242399983) max_abs_j=0.999999702
+resting_support_debug step=0 region=1 selected=17764 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0974992439,-0.411784649,3.97487732e-08) max_abs_j=0.999999702
+resting_support_debug step=0 region=2 selected=37607 region_error=0 global_error=0 nonfinite_j=0 point=(0.0478288345,-0.410489172,0.000598085229) max_abs_j=0.99999994
+resting_support_debug step=0 region=3 selected=16238 region_error=0 global_error=0 nonfinite_j=0 point=(-0.114833854,-0.423934639,0.00142133143) max_abs_j=0.999999821
+resting_support_debug step=0 region=4 selected=34320 region_error=0 global_error=0 nonfinite_j=0 point=(0.0176047646,-0.847421348,-7.53462004e-09) max_abs_j=1.04742146
+resting_support_debug step=0 region=5 selected=21161 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0672978386,-0.850672007,5.25917869e-08) max_abs_j=1.05067205
+resting_support_debug step=0 region=6 selected=34324 region_error=0 global_error=0 nonfinite_j=0 point=(0.018905839,-0.835723937,0.00108118344) max_abs_j=1.03572369
+resting_support_debug step=0 region=7 selected=21170 region_error=0 global_error=0 nonfinite_j=0 point=(-0.067014195,-0.830619156,0.00192592258) max_abs_j=1.03061903
+resting_support_debug step=0 region=8 selected=18326 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0962447897,-0.555896282,0.0260612797) max_abs_j=1.00000012
+resting_support_debug step=0 region=9 selected=38108 region_error=0 global_error=0 nonfinite_j=0 point=(0.051407095,-0.533489645,0.0229670126) max_abs_j=1
+resting_support_debug step=0 region=10 selected=18299 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0926439166,-1.42244589,0.0343875811) max_abs_j=1.62244594
+resting_support_debug step=0 region=11 selected=36233 region_error=0 global_error=0 nonfinite_j=0 point=(0.038645342,-1.41769576,0.0345992744) max_abs_j=1.61769569
+resting_support_debug step=0 region=12 selected=7059 region_error=0 global_error=0 nonfinite_j=0 point=(-0.228026837,-0.651259124,0.0532663763) max_abs_j=0.99999994
+resting_support_debug step=0 region=13 selected=55940 region_error=0 global_error=0 nonfinite_j=0 point=(-0.290653437,-0.933901072,0.0948849246) max_abs_j=1.133901
+resting_support_debug step=0 region=14 selected=12754 region_error=0 global_error=0 nonfinite_j=0 point=(-0.150512397,-0.916548073,0.0483773649) max_abs_j=1.11654818
+resting_support_debug step=0 region=15 selected=9301 region_error=0 global_error=0 nonfinite_j=0 point=(-0.18051818,-0.932779193,0.102641158) max_abs_j=1.13277936
+resting_support_debug step=0 region=16 selected=24926 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0412762091,-1.08702064,0.0867263824) max_abs_j=1.2870208
+resting_support_debug step=0 region=17 selected=12669 region_error=0 global_error=0 nonfinite_j=0 point=(-0.156650335,-1.2003094,0.0961407423) max_abs_j=1.40030956
+resting_support_debug step=0 region=18 selected=17660 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0990130231,-1.09015965,0.0476772301) max_abs_j=1.29015982
+resting_support_debug step=0 region=19 selected=14916 region_error=0 global_error=0 nonfinite_j=0 point=(-0.130471066,-0.9544034,0.0383763202) max_abs_j=1.15440345
+resting_support_debug step=0 region=20 selected=20233 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0958682224,-1.72157347,0.0427796505) max_abs_j=1.9215734
+resting_support_debug step=0 region=21 selected=17706 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0983752832,-1.41551125,0.034385886) max_abs_j=1.61551142
+resting_support_debug step=0 region=22 selected=35615 region_error=0 global_error=0 nonfinite_j=0 point=(0.0297732465,-0.536807477,0.0200069472) max_abs_j=0.999999762
+resting_support_debug step=0 region=23 selected=52336 region_error=0 global_error=0 nonfinite_j=0 point=(0.25499481,-0.806618989,0.110974833) max_abs_j=1.00661886
+resting_support_debug step=0 region=24 selected=43044 region_error=0 global_error=0 nonfinite_j=0 point=(0.101216778,-0.909955084,0.0503496453) max_abs_j=1.10995507
+resting_support_debug step=0 region=25 selected=30272 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0113753416,-1.04343033,0.0833801478) max_abs_j=1.24343038
+resting_support_debug step=0 region=26 selected=31096 region_error=0 global_error=0 nonfinite_j=0 point=(-0.00204553804,-1.10472727,0.074292101) max_abs_j=1.3047272
+resting_support_debug step=0 region=27 selected=41272 region_error=0 global_error=0 nonfinite_j=0 point=(0.0909845158,-1.18839216,0.0802140534) max_abs_j=1.38839221
+resting_support_debug step=0 region=28 selected=37485 region_error=0 global_error=0 nonfinite_j=0 point=(0.0475508794,-1.12952983,0.0527438447) max_abs_j=1.32953
+resting_support_debug step=0 region=29 selected=40242 region_error=0 global_error=0 nonfinite_j=0 point=(0.0782663226,-0.953799784,0.0374424234) max_abs_j=1.15379977
+resting_support_debug step=0 region=30 selected=34830 region_error=0 global_error=0 nonfinite_j=0 point=(0.0437288247,-1.72293305,0.0421624444) max_abs_j=1.92293298
+resting_support_debug step=0 region=31 selected=36890 region_error=0 global_error=0 nonfinite_j=0 point=(0.0436113179,-1.41476023,0.0346141979) max_abs_j=1.61476016
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=2 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=3 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=4 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=5 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=6 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=7 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=8 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0

@@ -1,0 +1,93 @@
+{
+  "source_run": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048",
+  "copied_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/execution.json",
+      "destination": "execution.json",
+      "size_bytes": 52,
+      "sha256": "240456ca81973f8b41638be544b521a51bb73416e99efefce53370cbc5232ba9"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/invocation.json",
+      "destination": "invocation.json",
+      "size_bytes": 7793,
+      "sha256": "384e5972aee6952090cee8f831612fbc3953f292b246e5ff143849651b2433b7"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/output/resting-coupled.csv",
+      "destination": "output/resting-coupled.csv",
+      "size_bytes": 3423,
+      "sha256": "1bf1d25be3bccf251c30aba5c46568c23a711ac7b6c258f8c512787f35a07927"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/output/resting-surface-audit.csv",
+      "destination": "output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/provenance.json",
+      "destination": "provenance.json",
+      "size_bytes": 6145,
+      "sha256": "cd9856ddda8bceff8c666c53ad78e9a34315f33f9f1c112e2780bd9ae5762537"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/stderr.log",
+      "destination": "stderr.log",
+      "size_bytes": 2649,
+      "sha256": "29d48fd196a3f1be3035a9c1d1ce0ef6548d4a043d19eebcb1e5cbe53a2b1cd9"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-rollback-048/stdout.log",
+      "destination": "stdout.selected.log",
+      "size_bytes": 14205,
+      "sha256": "50a0cc41f97f052d5cd05e40510cf5626decf29272ab98d05806f6aaf928349b",
+      "selection": "filtered diagnostic markers; raw log omitted due size"
+    }
+  ],
+  "context_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/multipoint-support-048/TRIAL.md",
+      "destination": "context/TRIAL.md",
+      "size_bytes": 1683,
+      "sha256": "3c00749cf1aa321bb0b5cf59c8125762748aa0ce3ea7498ce9d6863cc5c957b8"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/multipoint-support-048/TRIAL.sha256",
+      "destination": "context/TRIAL.sha256",
+      "size_bytes": 75,
+      "sha256": "edb55158ed7ae0bd1a91238f91c25a358b4e46a6d365bcc080cdf8167e11d066"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/multipoint-support-048/template.json",
+      "destination": "context/template.json",
+      "size_bytes": 7437,
+      "sha256": "d0272b93f7d2bd3248d0709bb2ab86b1699fe42abd7ce1aadab6f83e3a41b164"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/multipoint-support-048/native.log",
+      "destination": "context/native.log",
+      "size_bytes": 47,
+      "sha256": "f9d31e03e2e93ab9bf784ba720fd40b43f6b7eeba77117c047101c13dfa42c03"
+    }
+  ],
+  "omitted_large_files": [
+    {
+      "path": "output/resting-airway-anchor-map.json",
+      "size_bytes": 82552,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "binary, input payload, or pack excluded"
+    }
+  ],
+  "identity_record": "raw-identities.json",
+  "outcome_record": "outcome.json"
+}

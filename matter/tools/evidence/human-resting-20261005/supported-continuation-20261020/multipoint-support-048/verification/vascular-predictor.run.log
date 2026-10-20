@@ -1,0 +1,17 @@
+[NumiMatter] vascular principal block enabled: 6 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular principal block enabled: 6 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular principal block enabled: 6 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular block predictor enabled: 4 bounded fixed-FEM hydraulic Newton initial-guess passes; full coupled solve and certificates unchanged
+[NumiMatter] vascular principal block enabled: 6 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular block predictor enabled: 4 bounded fixed-FEM hydraulic Newton initial-guess passes; full coupled solve and certificates unchanged
+[NumiMatter] vascular principal block enabled: 6 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular block predictor enabled: 4 bounded fixed-FEM hydraulic Newton initial-guess passes; full coupled solve and certificates unchanged
+cavity_device=Apple M6 abi=46 world_fingerprint=7005924496806085523
+cavity_device=Apple M6 abi=46 world_fingerprint=7005924496806085523
+cavity_device=Apple M6 abi=46 world_fingerprint=7005924496806085523
+vascular_block_predictor_policy=pass preconditioner=1 predictor_unset_zero_initial_and_first_step=bitwise enabled_initial_state=bitwise fem_mass_kg=0.025999997902545147 initial_cavity_volume_m3=9.9999999747524271e-07 first_step_cavity_volume_m3=1.0000940536044608e-06 enabled_step_matches_off=different enabled_minus_off_cavity_volume_m3=0 prediction_improvement=not_claimed
+cavity_device=Apple M6 abi=46 world_fingerprint=7005924496806085523
+cavity_coupled_equations=pass signed_pressure=pass geometry_residual_fp64=pass geometry_jv_absolute_error=1.7358028989861163e-10 flow_pressure_jv_absolute_error=1.0583569298727724e-08 rowwise_jv_fd_relative_max=0.00055171439989779253 translated_force_relative_error=9.0374877939921959e-08 translated_work_relative_error=7.7015852163142446e-07
+cavity_production_operators=pass force_fp64_relative_max=8.2342668393235706e-08 pressure_work_relative_max=4.8919826392536154e-07 jv_finite_difference_relative_max=1.8824254381020651e-05 external_load_merge=pass pressure_gauge_invariance=pass static_and_converged_rows=unchanged
+cavity_device=Apple M6 abi=46 world_fingerprint=12424904258219445159
+cavity_moving_wall=pass accepted_steps=32 environments=2 max_displacement_m=1.7168202199931778e-05 max_flow_m3_per_s=9.7525377221157721e-08 fixed_wall_flow_m3_per_s=0 normalized_geometry_residual=1.0475661684528578e-07 normalized_volume_balance=5.8294642819402175e-08 normalized_flow_residual=3.4571439609278399e-07 relative_blood_conservation=1.4305114746093749e-07 relative_tracer_conservation=1.4068791634182394e-07 fp64_work_identity_relative_error=5.0979331091558219e-12 clock=exact replay=bitwise isolated_rollback=pass reset=bitwise signed_pressure_restore=accepted invalid_pressure_restore=denied geometry_restore=denied scheduler_restore=denied qualification=synthetic_moving_wall_interface blood_mechanical_mass=absent biological_calibration=unqualified

@@ -1,0 +1,12 @@
+{
+  "base_revision": "ccde4ef80ccbe1d88cd858930f090c7852c6cc0d",
+  "source_sha256": {
+    "apps/NumiHumanRegisteredLigaments.hpp": "795aceccd7e7d79f4c76f2ecdcd40a5c812b112d5f588fb9c08e88a668ad7758",
+    "apps/numilab_human_myosim_visual_probe.mm": "365bc992645879a789fd2f190e015598313baa1e0d78cba10f9d63a807317e9c",
+    "tools/verify_human_supported_tissue.sh": "b85f343fde990ae402ee9ccce635038e258cc42a2a1733ec8329ec60873e9f47",
+    "apps/NumiHumanRestingSupportGeometry.hpp": "684851e2a354fafdd0cdd3dca95efa80e9824f5cb8017c7f038cbe628df792cf"
+  },
+  "binary_sha256": "707fd05b6aa3d030cdac912bb362a89179962ee123cc3e4224f7922b2921df04",
+  "native_code_unchanged_since_047": true,
+  "changes": "Known launch root/config and shared verification selection; no physics code changes"
+}

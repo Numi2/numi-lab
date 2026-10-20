@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "wall_s": 109.09990483301226,
+  "requested_steps": 8,
+  "step_seconds": 0.000125,
+  "accepted_coupled_rows": 8,
+  "failure": null,
+  "scope": "mechanics evidence only; interpret qualification from the preregistered trial and completed run record"
+}

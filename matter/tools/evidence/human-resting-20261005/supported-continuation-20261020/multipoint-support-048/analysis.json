@@ -1,0 +1,175 @@
+{
+  "observation": {
+    "execution": {
+      "exit_code": 0,
+      "wall_s": 22.799098709016107
+    },
+    "accepted_rows": 1,
+    "markers": {
+      "static_support_witness_source=": [
+        "static_support_witness_source=registered_skin_callback capture_mode=current_q_point_jacobian_only contact_rows=32 initial_gap_min_m=-3.19870631035e-09 initial_gap_max_m=0.110337747951 closed_rows=1 closed_world_xy_rank=0 closed_world_xy_extent_m=0 capture_physical_steps=0 capture_physical_publication=0 capture_host_result_published=1 reference_q=float32_frozen"
+      ],
+      "resting_initialization=": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=141.703749919 maximum_acceleration_residual=550.74756046 floating_root_residual_evaluated=1 maximum_root_acceleration_residual=162.505482782 support_force_n=404.754014718 active_support_rows=1 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "compiled_support_geometry=": [
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-3.19870631035e-09 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0"
+      ],
+      "resting_FEM_terminal_audit=": [
+        "resting_FEM_terminal_audit=passed expected_steps=1 initial_control=0 final_control=0 initial_substep=0 final_substep=0 accepted_steps=1 adapter_passes=1 expected_adapter_passes=1 min_J=0.713580537884 max_J=1.10921330997 max_displacement_m=0.000385937697246 max_anchor_reaction_N=0.228349454658 capture=terminal_only"
+      ],
+      "resting_fascia_fem_terminal_audit=": [
+        "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=30 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=1 passive_ligament_max_tension_N=0.0101699056104 passive_ligament_min_effective_stretch=0.999992191792 passive_ligament_max_effective_stretch=1.00000679493 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=9.24538942317e-11 body_contact_samples=515 body_contact_audited_steps=1 body_contact_closed_samples=68 body_contact_normal_force_N=0.0171989761293 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=4.7515507116e-11 total_passive_ligament_force_rows=30 legacy_passive_force_rows=0 accepted_steps=1 capture=terminal_only"
+      ],
+      "resting_integrated_body=completed": [
+        "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=11.501513791000001 real_time_factor=1.0868135117569882e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "shared_tissue_late_reject_retry=": []
+    },
+    "preparation_failure": [],
+    "max_penetration_m": 3.19870641086e-09,
+    "normal_impulses_Ns": [
+      0.0108196763322
+    ],
+    "max_mass_error_kg": 0.0,
+    "root_assistance_n": 0.0
+  },
+  "candidate1-rejected": {
+    "execution": {
+      "exit_code": 1,
+      "wall_s": 11.237257833010517
+    },
+    "accepted_rows": 0,
+    "markers": {
+      "static_support_witness_source=": [
+        "static_support_witness_source=registered_skin_callback capture_mode=current_q_point_jacobian_only contact_rows=32 initial_gap_min_m=-4.37100716903e-06 initial_gap_max_m=0.110958103138 closed_rows=2 closed_world_xy_rank=1 closed_world_xy_extent_m=0.439925239647 capture_physical_steps=0 capture_physical_publication=0 capture_host_result_published=1 reference_q=float32_frozen"
+      ],
+      "resting_initialization=": [],
+      "compiled_support_geometry=": [],
+      "resting_FEM_terminal_audit=": [],
+      "resting_fascia_fem_terminal_audit=": [],
+      "resting_integrated_body=completed": [],
+      "shared_tissue_late_reject_retry=": []
+    },
+    "preparation_failure": [
+      "myosim_articulated_visual=failed error=\"source-constrained stand equilibrium failed: supportPenetration failing_index=4 residual=0.000000 initial=0.000000 max_acceleration=0.000000 root_acceleration=0.000000 support_force=0.000000 active_supports=0\""
+    ]
+  },
+  "candidate2-smoke": {
+    "execution": {
+      "exit_code": 0,
+      "wall_s": 26.546364624984562
+    },
+    "accepted_rows": 1,
+    "markers": {
+      "static_support_witness_source=": [
+        "static_support_witness_source=registered_skin_callback capture_mode=current_q_point_jacobian_only contact_rows=32 initial_gap_min_m=-7.53462014752e-09 initial_gap_max_m=0.110974833821 closed_rows=3 closed_world_xy_rank=2 closed_world_xy_extent_m=0.45058656458 capture_physical_steps=0 capture_physical_publication=0 capture_host_result_published=1 reference_q=float32_frozen"
+      ],
+      "resting_initialization=": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=148.302898026 maximum_acceleration_residual=556.614687329 floating_root_residual_evaluated=1 maximum_root_acceleration_residual=182.501103987 support_force_n=811.443488506 active_support_rows=3 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "compiled_support_geometry=": [
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-7.53462014752e-09 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=29 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0"
+      ],
+      "resting_FEM_terminal_audit=": [
+        "resting_FEM_terminal_audit=passed expected_steps=1 initial_control=0 final_control=0 initial_substep=0 final_substep=0 accepted_steps=1 adapter_passes=1 expected_adapter_passes=1 min_J=0.713626373324 max_J=1.10921954525 max_displacement_m=0.000385469482128 max_anchor_reaction_N=0.209909498933 capture=terminal_only"
+      ],
+      "resting_fascia_fem_terminal_audit=": [
+        "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=30 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=1 passive_ligament_max_tension_N=0.00926871784031 passive_ligament_min_effective_stretch=0.999990522861 passive_ligament_max_effective_stretch=1.00000667572 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=1.84311855808e-10 body_contact_samples=515 body_contact_audited_steps=1 body_contact_closed_samples=25 body_contact_normal_force_N=0.00100120913703 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=1.86970740594e-11 total_passive_ligament_force_rows=30 legacy_passive_force_rows=0 accepted_steps=1 capture=terminal_only"
+      ],
+      "resting_integrated_body=completed": [
+        "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=15.292081625 real_time_factor=8.1741654931286326e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "shared_tissue_late_reject_retry=": []
+    },
+    "preparation_failure": [],
+    "max_penetration_m": 7.534620039e-09,
+    "normal_impulses_Ns": [
+      0.0694588348269
+    ],
+    "max_mass_error_kg": 0.0,
+    "root_assistance_n": 0.0
+  },
+  "native-integrated": {
+    "execution": {
+      "exit_code": 0,
+      "wall_s": 109.09990483301226
+    },
+    "accepted_rows": 8,
+    "markers": {
+      "static_support_witness_source=": [
+        "static_support_witness_source=registered_skin_callback capture_mode=current_q_point_jacobian_only contact_rows=32 initial_gap_min_m=-7.53462014752e-09 initial_gap_max_m=0.110974833821 closed_rows=3 closed_world_xy_rank=2 closed_world_xy_extent_m=0.45058656458 capture_physical_steps=0 capture_physical_publication=0 capture_host_result_published=1 reference_q=float32_frozen"
+      ],
+      "resting_initialization=": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=148.302898026 maximum_acceleration_residual=556.614687329 floating_root_residual_evaluated=1 maximum_root_acceleration_residual=182.501103987 support_force_n=811.443488506 active_support_rows=3 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "compiled_support_geometry=": [
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-7.53462014752e-09 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=29 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0"
+      ],
+      "resting_FEM_terminal_audit=": [
+        "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.706189221497 max_J=1.11873327923 max_displacement_m=0.00236236046256 max_anchor_reaction_N=2.98331595701 capture=terminal_only"
+      ],
+      "resting_fascia_fem_terminal_audit=": [
+        "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=30 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=1 passive_ligament_max_tension_N=0.278911113739 passive_ligament_min_effective_stretch=0.999868631363 passive_ligament_max_effective_stretch=1.00016319752 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=3.74504679414e-08 body_contact_samples=515 body_contact_audited_steps=8 body_contact_closed_samples=150 body_contact_normal_force_N=0.114086180925 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=3.5660574924e-10 total_passive_ligament_force_rows=30 legacy_passive_force_rows=0 accepted_steps=8 capture=terminal_only"
+      ],
+      "resting_integrated_body=completed": [
+        "resting_integrated_body=completed simulated_s=0.0010000000474974513 wall_s=97.813439208000005 real_time_factor=1.0223544490353253e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "shared_tissue_late_reject_retry=": []
+    },
+    "preparation_failure": [],
+    "max_penetration_m": 1.09781970181e-08,
+    "normal_impulses_Ns": [
+      0.0694588348269,
+      0.069584466517,
+      0.0697050094604,
+      0.0698346719146,
+      0.0699333176017,
+      0.0700266882777,
+      0.0701320022345,
+      0.0702393949032
+    ],
+    "max_mass_error_kg": 0.0,
+    "root_assistance_n": 0.0
+  },
+  "rollback": {
+    "execution": {
+      "exit_code": 0,
+      "wall_s": 45.41579137498047
+    },
+    "accepted_rows": 2,
+    "markers": {
+      "static_support_witness_source=": [
+        "static_support_witness_source=registered_skin_callback capture_mode=current_q_point_jacobian_only contact_rows=32 initial_gap_min_m=-7.53462014752e-09 initial_gap_max_m=0.110974833821 closed_rows=3 closed_world_xy_rank=2 closed_world_xy_extent_m=0.45058656458 capture_physical_steps=0 capture_physical_publication=0 capture_host_result_published=1 reference_q=float32_frozen"
+      ],
+      "resting_initialization=": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=148.302898026 maximum_acceleration_residual=556.614687329 floating_root_residual_evaluated=1 maximum_root_acceleration_residual=182.501103987 support_force_n=811.443488506 active_support_rows=3 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "compiled_support_geometry=": [
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-7.53462014752e-09 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=29 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0"
+      ],
+      "resting_FEM_terminal_audit=": [
+        "resting_FEM_terminal_audit=passed expected_steps=2 initial_control=0 final_control=1 initial_substep=0 final_substep=0 accepted_steps=2 adapter_passes=3 expected_adapter_passes=3 min_J=0.717231621511 max_J=1.10895118003 max_displacement_m=0.000578620290314 max_anchor_reaction_N=1.28710967545 capture=terminal_only"
+      ],
+      "resting_fascia_fem_terminal_audit=": [
+        "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=30 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=1 passive_ligament_max_tension_N=0.0228238049895 passive_ligament_min_effective_stretch=0.99999243021 passive_ligament_max_effective_stretch=1.00001299381 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=1.45667438054e-09 body_contact_samples=515 body_contact_audited_steps=2 body_contact_closed_samples=55 body_contact_normal_force_N=0.00502465292811 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=1.91144812754e-11 total_passive_ligament_force_rows=30 legacy_passive_force_rows=0 accepted_steps=2 capture=terminal_only"
+      ],
+      "resting_integrated_body=completed": [
+        "resting_integrated_body=completed simulated_s=0.00025000001187436283 wall_s=33.995528999999998 real_time_factor=7.3539085646928113e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "shared_tissue_late_reject_retry=": [
+        "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1"
+      ]
+    },
+    "preparation_failure": [],
+    "max_penetration_m": 1.00586801111e-08,
+    "normal_impulses_Ns": [
+      0.0694588348269,
+      0.069584466517
+    ],
+    "max_mass_error_kg": 0.0,
+    "root_assistance_n": 0.0
+  },
+  "rollback_accepted_trace_equals_ordinary_prefix": true,
+  "scope": "Mechanics-only1ms accepted horizon, unbalanced initialization; not settled support/full tissue coverage/long-run or physiological qualification"
+}

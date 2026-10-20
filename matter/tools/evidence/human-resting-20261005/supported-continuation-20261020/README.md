@@ -1,5 +1,7 @@
 # Resting tissue and ligament continuation, SSH Numi
 
+Latest retained increment: [multi-point supported placement048](multipoint-support-048/README.md), following [CC integration / first-touch047](supported-first-touch-047/README.md). Current qualification remains mechanics-only1ms, unbalanced initialization; broader ligament/contact coverage and settled rest remain incomplete.
+
 This continues the existing native Human/Matter/Metal scene. The source and
 outer-skin repair remain intact. It is a development increment, not completion
 of whole-body tissue contact or long-horizon physiology qualification.

@@ -1,0 +1,42 @@
+registered_ligament_source_geometry=admitted rows=30 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+passive_fem_clock_selection maximum_rate_exponent=2 physical_frame_s=0.000125 blood_enabled=0
+matter_runtime_initialize_begin
+[NumiMatter] vascular principal block enabled: 46 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+[NumiMatter] vascular block predictor enabled: 4 bounded fixed-FEM hydraulic Newton initial-guess passes; full coupled solve and certificates unchanged
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+resting_support_debug step=0 region=0 selected=25847 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0357302539,-0.114374608,0.0242357552) max_abs_j=0.999999702
+resting_support_debug step=0 region=1 selected=17764 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0975044966,-0.411785036,5.0695391e-08) max_abs_j=0.999999702
+resting_support_debug step=0 region=2 selected=37607 region_error=0 global_error=0 nonfinite_j=0 point=(0.0478236303,-0.410489589,0.000590577663) max_abs_j=0.99999994
+resting_support_debug step=0 region=3 selected=16238 region_error=0 global_error=0 nonfinite_j=0 point=(-0.114839032,-0.423935056,0.00142228522) max_abs_j=0.999999821
+resting_support_debug step=0 region=4 selected=34320 region_error=0 global_error=0 nonfinite_j=0 point=(0.0175994858,-0.847421706,-4.37100698e-06) max_abs_j=1.04742181
+resting_support_debug step=0 region=5 selected=21161 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0673031136,-0.850672364,8.28753954e-08) max_abs_j=1.05067229
+resting_support_debug step=0 region=6 selected=34324 region_error=0 global_error=0 nonfinite_j=0 point=(0.018900618,-0.835724354,0.00107671146) max_abs_j=1.03572404
+resting_support_debug step=0 region=7 selected=21170 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0670193657,-0.830619514,0.00192586775) max_abs_j=1.03061938
+resting_support_debug step=0 region=8 selected=18326 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0962486938,-0.55589658,0.0260617528) max_abs_j=1.00000012
+resting_support_debug step=0 region=9 selected=38108 region_error=0 global_error=0 nonfinite_j=0 point=(0.0514030345,-0.533490002,0.0229597688) max_abs_j=1
+resting_support_debug step=0 region=10 selected=18299 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0926475227,-1.42244613,0.0343909338) max_abs_j=1.62244618
+resting_support_debug step=0 region=11 selected=36233 region_error=0 global_error=0 nonfinite_j=0 point=(0.0386417396,-1.417696,0.0345958434) max_abs_j=1.61769593
+resting_support_debug step=0 region=12 selected=7059 region_error=0 global_error=0 nonfinite_j=0 point=(-0.228029445,-0.651259303,0.0532740764) max_abs_j=0.99999994
+resting_support_debug step=0 region=13 selected=55940 region_error=0 global_error=0 nonfinite_j=0 point=(-0.290653974,-0.933901072,0.0948969349) max_abs_j=1.133901
+resting_support_debug step=0 region=14 selected=12754 region_error=0 global_error=0 nonfinite_j=0 point=(-0.150515184,-0.916548312,0.0483819172) max_abs_j=1.1165483
+resting_support_debug step=0 region=15 selected=9301 region_error=0 global_error=0 nonfinite_j=0 point=(-0.180518165,-0.932779193,0.102647312) max_abs_j=1.13277936
+resting_support_debug step=0 region=16 selected=24926 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0412770472,-1.08702075,0.0867259055) max_abs_j=1.2870208
+resting_support_debug step=0 region=17 selected=12669 region_error=0 global_error=0 nonfinite_j=0 point=(-0.156650707,-1.20030951,0.0961466134) max_abs_j=1.40030944
+resting_support_debug step=0 region=18 selected=17660 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0990158692,-1.09015989,0.0476797447) max_abs_j=1.29015994
+resting_support_debug step=0 region=19 selected=14916 region_error=0 global_error=0 nonfinite_j=0 point=(-0.130474374,-0.954403579,0.0383799747) max_abs_j=1.15440357
+resting_support_debug step=0 region=20 selected=20233 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0958714783,-1.72157359,0.0427842215) max_abs_j=1.92157352
+resting_support_debug step=0 region=21 selected=17706 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0983788893,-1.41551149,0.034389507) max_abs_j=1.61551154
+resting_support_debug step=0 region=22 selected=35615 region_error=0 global_error=0 nonfinite_j=0 point=(0.0297690332,-0.536807775,0.020000834) max_abs_j=0.999999762
+resting_support_debug step=0 region=23 selected=52336 region_error=0 global_error=0 nonfinite_j=0 point=(0.254995197,-0.806619048,0.110958107) max_abs_j=1.00661898
+resting_support_debug step=0 region=24 selected=43044 region_error=0 global_error=0 nonfinite_j=0 point=(0.101214088,-0.909955323,0.0503411889) max_abs_j=1.10995531
+resting_support_debug step=0 region=25 selected=30272 region_error=0 global_error=0 nonfinite_j=0 point=(-0.0113763548,-1.04343033,0.0833779797) max_abs_j=1.2434305
+resting_support_debug step=0 region=26 selected=31096 region_error=0 global_error=0 nonfinite_j=0 point=(-0.00204703305,-1.10472751,0.0742896646) max_abs_j=1.30472732
+resting_support_debug step=0 region=27 selected=41272 region_error=0 global_error=0 nonfinite_j=0 point=(0.0909833163,-1.1883924,0.0802071095) max_abs_j=1.38839245
+resting_support_debug step=0 region=28 selected=37485 region_error=0 global_error=0 nonfinite_j=0 point=(0.0475482717,-1.12953007,0.0527389348) max_abs_j=1.32953012
+resting_support_debug step=0 region=29 selected=40242 region_error=0 global_error=0 nonfinite_j=0 point=(0.0782629624,-0.953800023,0.0374353081) max_abs_j=1.15380001
+resting_support_debug step=0 region=30 selected=34830 region_error=0 global_error=0 nonfinite_j=0 point=(0.0437255539,-1.72293329,0.0421598293) max_abs_j=1.92293322
+resting_support_debug step=0 region=31 selected=36890 region_error=0 global_error=0 nonfinite_j=0 point=(0.0436077155,-1.41476047,0.0346105024) max_abs_j=1.6147604
+myosim_articulated_visual=failed error="source-constrained stand equilibrium failed: supportPenetration failing_index=4 residual=0.000000 initial=0.000000 max_acceleration=0.000000 root_acceleration=0.000000 support_force=0.000000 active_supports=0"
