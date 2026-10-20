@@ -1,0 +1,59 @@
+{
+  "schema": "numi.human.vascular-initial-guess-043.root12-analysis.v1",
+  "run": {
+    "directory": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-predictor-043",
+    "exit_code": 0,
+    "wall_seconds": 680.7863612920046,
+    "accepted_steps": 32,
+    "step_seconds": 0.000125,
+    "simulated_duration_seconds": 0.004,
+    "coupled_csv_data_rows": 32,
+    "binary_sha256": "74bd6388906580df99180562ba4c98be6632b8c0d8ad1460fe0cc7812efa93bb",
+    "source_sha256": "30e06736e0d93158f7c71c1548948592566ec39a15c616d32f89ae92cc36c49b",
+    "source_patch_sha256": "340a3de846140f40daf4fc117e784b25c13cb9ba65f8c2e712ab2df689db4453",
+    "predictor_opt_in": true,
+    "principal_block_preconditioner_opt_in": true,
+    "registered_ligaments": true
+  },
+  "trace": {
+    "selector": {"root": 12, "microtick": 1},
+    "raw_stderr": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-predictor-043/stderr.log",
+    "raw_stderr_sha256": "62461bd74d84f30da1456aa2ecd1ac3975184a39e475a0a0a7d8e577b92450cb",
+    "decoded_jsonl": "analysis/root12-tick1.jsonl",
+    "predictor_begin": {
+      "candidate_row0": 0.46131470799446106,
+      "absolute_residual_row0": 0.000011022555554518476
+    },
+    "predictor_end": {
+      "candidate_row0": 0.46132421493530273,
+      "absolute_residual_row0": 0.000000005631173305431503,
+      "candidate_delta_from_begin": 0.000009506940841674805,
+      "residual_ratio_end_over_begin": 0.0005108772895341059,
+      "working_set_changed": 0
+    },
+    "first_full_newton_step": {
+      "iteration": 0,
+      "line_search_alpha": 1.0,
+      "candidate_row0_after_next_assembly": 0.46132516860961914,
+      "candidate_delta_after_full_step": 0.00000095367431640625,
+      "absolute_residual_row0_after_next_assembly": 0.000000008105668136693112
+    },
+    "full_newton_certificate": {
+      "iteration": 23,
+      "candidate_row0": 0.46132516860961914,
+      "absolute_residual_row0": 0.000000013160772027731582,
+      "fgmres_nonlinear": [0.006069061812013388, 0.000008641567546874285, 0.0, 1.0],
+      "status_code": 0
+    }
+  },
+  "historical_control": {
+    "trace": "control-root12-trajectory.json",
+    "sha256": "8f11b84e144204beeb6c5b58e41a2004fc2b2f83f18cfee5917e0bf68e6eb201",
+    "scope_note": "Prior unaccelerated root12/tick1 trajectory retained as a reference, not a same-binary matched control.",
+    "iteration0_candidate_row0": 0.4613182246685028,
+    "iteration0_absolute_residual_row0": 0.000010936180842691101,
+    "iteration23_candidate_row0": 0.4613182544708252,
+    "iteration23_absolute_residual_row0": 0.000010904112059506588
+  },
+  "interpretation": "The trace directly observes the predictor changing the candidate and reducing the selected vascular row residual by about 99.95% before the ordinary coupled Newton iteration. The ordinary full solver then runs and the native 32-step transaction completes. This is a 4 ms run result; it does not establish sustained physiological qualification."
+}

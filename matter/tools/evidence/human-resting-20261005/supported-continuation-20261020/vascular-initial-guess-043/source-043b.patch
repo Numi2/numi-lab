@@ -1,0 +1,615 @@
+diff --git a/matter/src/metal/vascular.metalinc b/matter/src/metal/vascular.metalinc
+index f691cb0b..23d96771 100644
+--- a/matter/src/metal/vascular.metalinc
++++ b/matter/src/metal/vascular.metalinc
+@@ -1243,6 +1243,65 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
+ #undef NM_VASCULAR_EVALUATE
+ #undef NM_VASCULAR_EQUATION_ARGUMENTS
+ 
++// Predictor-only line search marker. Runtime uses a private copy of the
++// microstep record for this dispatch only; accepted state retains its generation.
++#define NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER 0x56505244u
++
++// Seed the exact principal-block Newton direction and reset only transient
++// Krylov/candidate scratch. The global FGMRES vector concatenates solver domains;
++// only its final vascular slice receives the Newton RHS and solved direction.
++// phase 0 initializes scratch, phase 1 copies the block solve, and phase 2
++// records a rejected factor without changing the physical candidate.
++kernel void nm_vascular_predictor_prepare(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(1)]],
++    device const float4* residual [[buffer(2)]],
++    device float4* basis [[buffer(3)]],
++    device float4* preconditioned [[buffer(4)]],
++    device float4* solution [[buffer(5)]],
++    device NMFGMRESStateGPU* states [[buffer(6)]],
++    device float* environmentLineSearch [[buffer(7)]],
++    device uint* workingSetChanged [[buffer(8)]],
++    device const uint* factorValid [[buffer(9)]],
++    constant uint& phase [[buffer(10)]],
++    device float4* objectLineSearch [[buffer(11)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint objectTotal = dispatch.environmentCount * dispatch.objectCount;
++    if (layout.unknownCount == 0u || dispatch.environmentCount == 0u ||
++        (global >= layout.unknownCount && global >= dispatch.environmentCount &&
++         !(phase == 3u && global < objectTotal))) return;
++    if (global < layout.unknownCount) {
++        if (phase == 0u) {
++            solution[global] = float4(0.0f);
++            basis[global] = float4(0.0f);
++            preconditioned[global] = float4(0.0f);
++            if (global >= layout.vascularBase &&
++                global < layout.vascularBase +
++                    layout.vascularUnknownCount * dispatch.environmentCount)
++                basis[global] = residual[global]; // residual kernel already writes -F
++        } else if (phase == 1u && global >= layout.vascularBase) {
++            const uint row = global - layout.vascularBase;
++            const uint environment = row / layout.vascularUnknownCount;
++            solution[global] = environment < dispatch.environmentCount &&
++                factorValid[environment] != 0u
++                ? preconditioned[global] : float4(0.0f);
++        }
++    }
++    if (global < dispatch.environmentCount) {
++        if (phase == 0u) {
++            states[global].diagnostics.z = 0.0f;
++            environmentLineSearch[global] = 1.0f;
++            workingSetChanged[global] = 0u;
++        } else if (phase == 2u && factorValid[global] == 0u) {
++            workingSetChanged[global] = 2u;
++        } else if (phase == 3u) {
++            environmentLineSearch[global] = 1.0f;
++        }
++    }
++    if (phase == 3u && global < objectTotal)
++        objectLineSearch[global].x = 1.0f;
++}
++
+ // Factor the exact principal Jacobian over the bounded vascular state slice.
+ // The ordinary matrix-free operator retains all FEM/vascular cross terms;
+ // this LU is used only as a right preconditioner for the vascular block.
+@@ -1820,7 +1879,7 @@ kernel void nm_vascular_limit_line_search(
+     device const NMVascularCompartmentGPU* compartments [[buffer(7)]],
+     device const NMVascularConnectionGPU* connections [[buffer(8)]],
+     device const uint* workingSet [[buffer(9)]],
+-    device const uint* changed [[buffer(10)]],
++    device uint* changed [[buffer(10)]],
+     constant NMMicrostepGPU& microstep [[buffer(11)]],
+     device const NMVascularUnknownGPU* unknowns [[buffer(12)]],
+     device const float4* accepted [[buffer(13)]],
+@@ -1844,6 +1903,8 @@ kernel void nm_vascular_limit_line_search(
+     uint lane [[thread_index_in_threadgroup]],
+     uint environment [[threadgroup_position_in_grid]]) {
+     if (lane >= 32u || environment >= dispatch.environmentCount) return;
++    const bool predictorMode = (microstep.flags & 0x80000000u) != 0u &&
++        microstep.reserved == NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER;
+     float alpha = environmentLineSearch[environment];
+     for (uint local = lane; local < graph.ranges.z; local += 32u) {
+         const uint row = environment * graph.ranges.z + local;
+@@ -1851,8 +1912,9 @@ kernel void nm_vascular_limit_line_search(
+         const float correction = solution[layout.vascularBase + row].x;
+         if (!vascularAdmissible(graph, local, value, compartments, connections, unknowns) || !isfinite(correction)) {
+             alpha = 0.0f;
+-            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+-                NM_INVALID_INDEX, local, float4(value, correction, 0.0f, 0.0f));
++            if (!predictorMode)
++                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
++                    NM_INVALID_INDEX, local, float4(value, correction, 0.0f, 0.0f));
+         } else {
+             if (local < graph.offsets.y && compartments[local].identity.w == 3u && correction != 0.0f) {
+                 const float variableScale = unknowns[local].initialAndScaling.y;
+@@ -1885,8 +1947,9 @@ kernel void nm_vascular_limit_line_search(
+                     if (!(breakpoint > 0.0f) || !isfinite(breakpoint) ||
+                         (value > 0.0f ? atBreakpoint > 0.0f : atBreakpoint < 0.0f)) {
+                         alpha = 0.0f;
+-                        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+-                            NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
++                        if (!predictorMode)
++                            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
++                                NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
+                     } else alpha = min(alpha, breakpoint);
+                 }
+             }
+@@ -1986,19 +2049,25 @@ kernel void nm_vascular_limit_line_search(
+             const float worstRatio = simd_max(localWorstRatio);
+             const uint witnessRow = simd_min(
+                 localWorstRatio == worstRatio ? localWorstRow : NM_INVALID_INDEX);
+-            if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+-                NM_INVALID_INDEX, witnessRow,
+-                float4(testedAlpha, initialMerit, trialMerit, worstRatio));
++            if (lane == 0u && !predictorMode)
++                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
++                    NM_INVALID_INDEX, witnessRow,
++                    float4(testedAlpha, initialMerit, trialMerit, worstRatio));
+             alpha = 0.0f;
++            if (lane == 0u && predictorMode) changed[environment] = 2u;
+         }
+     }
+     if (lane == 0u) {
+         environmentLineSearch[environment] = alpha;
+         if ((graph.ranges.z == 0u || changed[environment] == 0u) &&
+             environmentHealthy(statuses, environment) &&
+-            (!(alpha > 0.0f) || !isfinite(alpha)))
+-            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+-                NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
++            (!(alpha > 0.0f) || !isfinite(alpha))) {
++            if (!predictorMode)
++                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
++                    NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
++            else
++                changed[environment] = 2u;
++        }
+     }
+     for (uint object = lane; object < dispatch.objectCount; object += 32u)
+         lineSearch[environment * dispatch.objectCount + object].x = alpha;
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index bc5d70ba..ffa14f05 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2232,6 +2232,7 @@ struct Runtime::State {
+     id<MTLBuffer> vascularCavityNodeRanges = nil;
+     id<MTLBuffer> vascularCavitySchurDiagonal = nil;
+     bool vascularBlockPreconditionerEnabled = false;
++    bool vascularBlockPredictorEnabled = false;
+     id<MTLBuffer> vascularPrincipalFactors = nil;
+     id<MTLBuffer> vascularPrincipalPivots = nil;
+     id<MTLBuffer> vascularPrincipalValid = nil;
+@@ -4039,6 +4040,23 @@ RuntimeDiagnostics Runtime::initialize(
+             candidate->vascularBlockPreconditionerEnabled =
+                 std::strcmp(policy, "1") == 0;
+         }
++        if (const char* policy = std::getenv(
++                "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR")) {
++            if (std::strcmp(policy, "0") != 0 &&
++                std::strcmp(policy, "1") != 0) {
++                diagnostics.message =
++                    "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR must be exactly 0 or 1";
++                return diagnostics;
++            }
++            candidate->vascularBlockPredictorEnabled =
++                std::strcmp(policy, "1") == 0;
++        }
++        if (candidate->vascularBlockPredictorEnabled &&
++            !candidate->vascularBlockPreconditionerEnabled) {
++            diagnostics.message =
++                "vascular block predictor requires NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=1";
++            return diagnostics;
++        }
+         if (candidate->vascularBlockPreconditionerEnabled &&
+             (world.vascular.layout.ranges.z == 0u ||
+              world.vascular.layout.ranges.z > 64u)) {
+@@ -4655,6 +4673,10 @@ RuntimeDiagnostics Runtime::initialize(
+             candidate->executionFingerprint = mixFingerprint(
+                 candidate->executionFingerprint, 0x565052424c4b3031ull); // VPRBLK01
+         }
++        if (candidate->vascularBlockPredictorEnabled) {
++            candidate->executionFingerprint = mixFingerprint(
++                candidate->executionFingerprint, 0x5650525052453031ull); // VPRPRE01
++        }
+         candidate->acceptedStateProofProgramFingerprint =
+             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
+                     0u
+@@ -5093,6 +5115,7 @@ RuntimeDiagnostics Runtime::initialize(
+             "nm_vascular_residual",
+             "nm_vascular_dense_solve",
+             "nm_vascular_operator",
++            "nm_vascular_predictor_prepare",
+             "nm_vascular_cavity_forces",
+             "nm_vascular_cavity_operator",
+             "nm_vascular_cavity_schur_preconditioner",
+@@ -5241,6 +5264,9 @@ RuntimeDiagnostics Runtime::initialize(
+                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
+         };
+         for (const char* name : kernelNames) {
++            if (!candidate->vascularBlockPredictorEnabled &&
++                std::strcmp(name, "nm_vascular_predictor_prepare") == 0)
++                continue;
+             if (!candidate->vascularBlockPreconditionerEnabled &&
+                 (std::strcmp(name, "nm_vascular_factor_principal_block") == 0 ||
+                  std::strcmp(name, "nm_vascular_apply_principal_block") == 0))
+@@ -5587,6 +5613,11 @@ RuntimeDiagnostics Runtime::initialize(
+                 "%zu scratch bytes/environment; physical operator unchanged\n",
+                 world.vascular.layout.ranges.z,
+                 4096u * sizeof(float) + 65u * sizeof(std::uint32_t));
++            if (candidate->vascularBlockPredictorEnabled)
++                std::fprintf(stderr,
++                    "[NumiMatter] vascular block predictor enabled: 4 bounded "
++                    "fixed-FEM hydraulic Newton initial-guess passes; "
++                    "full coupled solve and certificates unchanged\n");
+         }
+         const bool hasVascularBloodMass = std::any_of(
+             world.vascular.tissues.begin(), world.vascular.tissues.end(),
+@@ -19541,6 +19572,246 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             }
+             bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
+             std::uint32_t baseCGLSBestOfSelectedNewtonIteration = 0u;
++            if (state.vascularBlockPredictorEnabled && vascularTotal != 0u) {
++                // Establish the same valve working set as the ordinary solve,
++                // then make at most four fixed-FEM hydraulic Newton updates.
++                dispatchThreads("nm_vascular_begin_working_set",
++                    vascularTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&state.vascularValue.layout
++                        length:sizeof(state.vascularValue.layout) atIndex:1u];
++                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
++                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
++                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
++                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:5u];
++                    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:6u];
++                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:7u];
++                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:8u];
++                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:9u];
++                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:10u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                const auto preparePredictorScratch = [&](const std::uint32_t phase) {
++                    dispatchThreads("nm_vascular_predictor_prepare",
++                        std::max<NSUInteger>(
++                            std::max<NSUInteger>(
++                                state.fgmresLayout.unknownCount, environments),
++                            environments * state.dispatch.objectCount), [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.fgmresLayout
++                            length:sizeof(state.fgmresLayout) atIndex:1u];
++                        [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
++                        [encoder setBuffer:state.fgmresBasis offset:0u atIndex:3u];
++                        [encoder setBuffer:state.fgmresPreconditionedBasis
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
++                        [encoder setBuffer:state.environmentLineSearch
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularWorkingSetChanged
++                                     offset:0u atIndex:8u];
++                        [encoder setBuffer:state.vascularPrincipalValid
++                                     offset:0u atIndex:9u];
++                        [encoder setBytes:&phase length:sizeof(phase) atIndex:10u];
++                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:11u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                const auto factorPredictorBlock = [&] {
++                    const std::uint32_t useWorkingSet = 1u;
++                    dispatchGroups32("nm_vascular_factor_principal_block",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.vascularValue.layout
++                            length:sizeof(state.vascularValue.layout) atIndex:1u];
++                        [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
++                        [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
++                        [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
++                        [encoder setBuffer:state.vascularConnections offset:0u atIndex:5u];
++                        [encoder setBuffer:state.vascularTissues offset:0u atIndex:6u];
++                        [encoder setBuffer:state.vascularExchanges offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:8u];
++                        [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:9u];
++                        [encoder setBuffer:state.vascularBloodExchangeIncidence
++                                     offset:0u atIndex:10u];
++                        [encoder setBuffer:state.vascularBloodExchangeRanges
++                                     offset:0u atIndex:11u];
++                        [encoder setBuffer:state.vascularTissueExchangeIncidence
++                                     offset:0u atIndex:12u];
++                        [encoder setBuffer:state.vascularTissueExchangeRanges
++                                     offset:0u atIndex:13u];
++                        [encoder setBuffer:state.vascularAccepted offset:0u atIndex:14u];
++                        [encoder setBuffer:state.vascularCandidate offset:0u atIndex:15u];
++                        [encoder setBuffer:state.fgmresBasis offset:0u atIndex:16u];
++                        [encoder setBuffer:state.vascularElastance offset:0u atIndex:20u];
++                        [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:21u];
++                        [encoder setBytes:&useWorkingSet
++                                   length:sizeof(useWorkingSet) atIndex:22u];
++                        [encoder setBuffer:state.vascularCavities offset:0u atIndex:23u];
++                        [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:24u];
++                        [encoder setBuffer:state.vascularCompartmentCavity
++                                     offset:0u atIndex:25u];
++                        [encoder setBuffer:state.femCandidate offset:0u atIndex:26u];
++                        [encoder setBuffer:state.femAccepted offset:0u atIndex:27u];
++                        [encoder setBuffer:state.vascularPrincipalFactors
++                                     offset:0u atIndex:28u];
++                        [encoder setBuffer:state.vascularPrincipalPivots
++                                     offset:0u atIndex:29u];
++                        [encoder setBuffer:state.vascularPrincipalValid
++                                     offset:0u atIndex:30u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                const auto applyPredictorBlock = [&] {
++                    const std::uint32_t useWorkingSet = 1u;
++                    dispatchGroups32("nm_vascular_apply_principal_block",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.vascularValue.layout
++                            length:sizeof(state.vascularValue.layout) atIndex:1u];
++                        [encoder setBytes:&state.fgmresLayout
++                            length:sizeof(state.fgmresLayout) atIndex:2u];
++                        [encoder setBuffer:state.fgmresBasis offset:0u atIndex:3u];
++                        [encoder setBuffer:state.fgmresPreconditionedBasis
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
++                        [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:6u];
++                        [encoder setBuffer:state.vascularPrincipalFactors
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularPrincipalPivots
++                                     offset:0u atIndex:8u];
++                        [encoder setBuffer:state.vascularPrincipalValid
++                                     offset:0u atIndex:9u];
++                        [encoder setBytes:&useWorkingSet
++                                   length:sizeof(useWorkingSet) atIndex:10u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                const auto resolvePredictorWorkingSet = [&] {
++                    dispatchGroups32("nm_vascular_resolve_working_set",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.vascularValue.layout
++                            length:sizeof(state.vascularValue.layout) atIndex:1u];
++                        [encoder setBuffer:state.vascularConnections
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.vascularCandidate offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:4u];
++                        [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:5u];
++                        [encoder setBuffer:state.vascularWorkingSetChanged
++                                     offset:0u atIndex:6u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:8u];
++                        [encoder setBuffer:state.vascularCompartments
++                                     offset:0u atIndex:9u];
++                        [encoder setBuffer:state.vascularElastance offset:0u atIndex:10u];
++                        [encoder setBuffer:state.vascularCavities offset:0u atIndex:11u];
++                        [encoder setBuffer:state.vascularCompartmentCavity
++                                     offset:0u atIndex:12u];
++                        [encoder setBytes:&state.fgmresLayout
++                            length:sizeof(state.fgmresLayout) atIndex:30u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                const auto limitPredictorStep = [&] {
++                    NMMicrostepGPU predictorMicro = micro;
++                    // The generation word alone can recur in a long run.
++                    // Scope the private mode with a flag no physical dispatch sets.
++                    predictorMicro.flags |= 0x80000000u;
++                    predictorMicro.reserved =
++                        0x56505244u; // private line-search mode; never published
++                    dispatchGroups32("nm_vascular_limit_line_search",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.vascularValue.layout
++                            length:sizeof(state.vascularValue.layout) atIndex:1u];
++                        [encoder setBuffer:state.vascularCandidate offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
++                        [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:5u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
++                        [encoder setBuffer:state.vascularCompartments
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularConnections offset:0u atIndex:8u];
++                        [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:9u];
++                        [encoder setBuffer:state.vascularWorkingSetChanged
++                                     offset:0u atIndex:10u];
++                        [encoder setBytes:&predictorMicro
++                                   length:sizeof(predictorMicro) atIndex:11u];
++                        [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:12u];
++                        [encoder setBuffer:state.vascularAccepted offset:0u atIndex:13u];
++                        [encoder setBuffer:state.vascularTissues offset:0u atIndex:14u];
++                        [encoder setBuffer:state.vascularExchanges offset:0u atIndex:15u];
++                        [encoder setBuffer:state.vascularConnectionIncidence
++                                     offset:0u atIndex:16u];
++                        [encoder setBuffer:state.vascularConnectionRanges
++                                     offset:0u atIndex:17u];
++                        [encoder setBuffer:state.vascularBloodExchangeIncidence
++                                     offset:0u atIndex:18u];
++                        [encoder setBuffer:state.vascularBloodExchangeRanges
++                                     offset:0u atIndex:19u];
++                        [encoder setBuffer:state.vascularTissueExchangeIncidence
++                                     offset:0u atIndex:20u];
++                        [encoder setBuffer:state.vascularTissueExchangeRanges
++                                     offset:0u atIndex:21u];
++                        [encoder setBuffer:state.vascularElastance offset:0u atIndex:22u];
++                        [encoder setBuffer:state.vascularLineSearchTrial
++                                     offset:0u atIndex:23u];
++                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:24u];
++                        [encoder setBuffer:state.vascularCavities offset:0u atIndex:25u];
++                        [encoder setBuffer:state.vascularCavityFaces
++                                     offset:0u atIndex:26u];
++                        [encoder setBuffer:state.vascularCompartmentCavity
++                                     offset:0u atIndex:27u];
++                        [encoder setBuffer:state.femCandidate offset:0u atIndex:28u];
++                        [encoder setBuffer:state.femAccepted offset:0u atIndex:29u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                for (std::uint32_t predictorIteration = 0u;
++                     predictorIteration < 4u; ++predictorIteration) {
++                    encodeVascularEquation("nm_vascular_residual",
++                        state.femSolution, 0u, state.femResidual);
++                    preparePredictorScratch(0u);
++                    if (predictorIteration == 0u &&
++                        !encodeVascularTrace("predictor_begin")) {
++                        ownership->preDynamicsOpen = false;
++                        return diagnostics;
++                    }
++                    factorPredictorBlock();
++                    applyPredictorBlock();
++                    preparePredictorScratch(1u);
++                    resolvePredictorWorkingSet();
++                    preparePredictorScratch(2u);
++                    limitPredictorStep();
++                    dispatchThreads("nm_vascular_apply_solution",
++                        vascularTotal, [&] {
++                        setDispatch();
++                        [encoder setBytes:&state.vascularValue.layout
++                            length:sizeof(state.vascularValue.layout) atIndex:1u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
++                        [encoder setBuffer:state.environmentLineSearch
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.vascularCandidate offset:0u atIndex:4u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:5u];
++                        [encoder setBuffer:state.vascularWorkingSet
++                                     offset:0u atIndex:6u];
++                        [encoder setBuffer:state.vascularWorkingSetChanged
++                                     offset:0u atIndex:7u];
++                        [encoder setBuffer:state.vascularConnections
++                                     offset:0u atIndex:8u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
++                encodeVascularEquation("nm_vascular_residual",
++                    state.femSolution, 0u, state.femResidual);
++                if (!encodeVascularTrace("predictor_end")) {
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                preparePredictorScratch(3u);
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
+             for (std::uint32_t nonlinearIteration = 0u;
+                  nonlinearIteration < nonlinearIterationBudget;
+                  ++nonlinearIteration) {
+diff --git a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+index a204306f..769f9646 100755
+--- a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
++++ b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+@@ -14,8 +14,10 @@ p=args.destination.resolve();p.mkdir(exist_ok=False)
+ sha=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
+ j=json.loads(args.source.read_text());j['argv'][4]=str(p/'output')
+ # Record the selected solver policy rather than inheriting it invisibly.
+-if 'NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER' in os.environ:
+- j['environment']['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']=os.environ['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']
++for policy in ('NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER','NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR'):
++ if policy in os.environ:
++  if os.environ[policy] not in ('0','1'):ap.error(policy+' must be exactly 0 or 1')
++  j['environment'][policy]=os.environ[policy]
+ if '--resting-registered-ligaments' not in j['argv']:j['argv'].append('--resting-registered-ligaments')
+ j['argv'][j['argv'].index('--muscle-step-count')+1]=str(args.steps)
+ if args.root_z is not None:j['argv'][j['argv'].index('--root-pose')+3]=str(args.root_z)
+diff --git a/matter/tools/vascular_cavity_check.mm b/matter/tools/vascular_cavity_check.mm
+index 7897780a..8051f6f9 100644
+--- a/matter/tools/vascular_cavity_check.mm
++++ b/matter/tools/vascular_cavity_check.mm
+@@ -8,6 +8,7 @@
+ #include <bit>
+ #include <cmath>
+ #include <cstring>
++#include <cstdlib>
+ #include <iomanip>
+ #include <iostream>
+ #include <limits>
+@@ -30,6 +31,24 @@ bool samePhysical(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
+ bool sameBloodMomentumState(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
+     return same(a.femNodes,b.femNodes)&&same(a.vascularState,b.vascularState)&&same(a.vascularClock,b.vascularClock);
+ }
++struct ScopedEnvironment {
++    std::string key;
++    bool wasSet=false;
++    std::string prior;
++    ScopedEnvironment(const char* name,const char* value):key(name){
++        if(const char* current=std::getenv(name)){wasSet=true;prior=current;}
++        if(value){if(setenv(name,value,1)!=0)throw std::runtime_error("setenv failed for "+key);}
++        else if(unsetenv(name)!=0)throw std::runtime_error("unsetenv failed for "+key);
++    }
++    ~ScopedEnvironment(){if(wasSet)setenv(key.c_str(),prior.c_str(),1);else unsetenv(key.c_str());}
++};
++struct ScopedVascularPolicy {
++    ScopedEnvironment block;
++    ScopedEnvironment predictor;
++    ScopedVascularPolicy(const char* blockValue,const char* predictorValue):
++        block("NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER",blockValue),
++        predictor("NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR",predictorValue){}
++};
+ std::vector<fixture::Vec> positions(const RuntimeStateSnapshot& s,unsigned env,unsigned nodes){
+     need(s.femNodes.size()==2*nodes,"accepted FEM node coverage");std::vector<fixture::Vec> x(nodes);
+     for(unsigned i=0;i<nodes;++i){const auto& p=s.femNodes[env*nodes+i].positionAndMass;x[i]={p.x,p.y,p.z};}
+@@ -959,9 +978,55 @@ void blockPreconditioner(const std::filesystem::path& physiologyPath){
+         <<" rhs_per_factor=2 invalid_factor_diagonal_fallback=preserved state=bitwise biological_qualification=none\n";
+ }
+ 
++struct PredictorProbe {
++    std::uint64_t fingerprint=0;
++    RuntimeStateSnapshot initial,accepted;
++    double femMass=0,initialCavityVolume=0,acceptedCavityVolume=0;
++};
++PredictorProbe predictorProbe(const char* blockPolicy,const char* predictorPolicy){
++    ScopedVascularPolicy policy(blockPolicy,predictorPolicy);
++    Run run(fixture::world());PredictorProbe probe;probe.fingerprint=run.world.fingerprint;
++    for(const auto& node:run.world.fem.nodes)probe.femMass+=double(node.positionAndMass.w);
++    probe.initial=run.state();
++    const unsigned volumeRow=run.world.vascular.cavities.at(0).identity.y;
++    probe.initialCavityVolume=run.physical(probe.initial,volumeRow);
++    run.step(0);probe.accepted=run.state();
++    probe.acceptedCavityVolume=run.physical(probe.accepted,volumeRow);
++    need(std::isfinite(probe.initialCavityVolume)&&std::isfinite(probe.acceptedCavityVolume)&&
++        probe.initialCavityVolume>0&&probe.acceptedCavityVolume>0,
++        "block predictor fixture lost its positive finite cavity blood volume");
++    return probe;
++}
++void blockPredictorOnly(){
++    // The caller policy is restored after each initialization. This tests the
++    // actual Runtime capture point without leaking the opt-in to other probes.
++    const auto unset=predictorProbe("1",nullptr);
++    const auto explicitOff=predictorProbe("1","0");
++    const auto enabled=predictorProbe("1","1");
++    need(unset.fingerprint==explicitOff.fingerprint&&unset.fingerprint==enabled.fingerprint,
++        "vascular predictor policy changed the compiled physical world");
++    need(samePhysical(unset.initial,explicitOff.initial)&&samePhysical(unset.accepted,explicitOff.accepted),
++        "unset and explicit-off vascular predictor changed accepted snapshot bits");
++    need(samePhysical(unset.initial,enabled.initial)&&unset.femMass==explicitOff.femMass&&
++        unset.femMass==enabled.femMass,
++        "vascular predictor initialization changed initial physical state or FEM mass");
++    need(unset.initial.vascularState.size()==enabled.initial.vascularState.size()&&
++        unset.initial.femNodes.size()==enabled.initial.femNodes.size(),
++        "vascular predictor added physical state storage");
++    const bool enabledStepMatchesOff=samePhysical(unset.accepted,enabled.accepted);
++    std::cout<<"vascular_block_predictor_policy=pass preconditioner=1 predictor_unset_zero_initial_and_first_step=bitwise enabled_initial_state=bitwise fem_mass_kg="
++        <<enabled.femMass<<" initial_cavity_volume_m3="<<enabled.initialCavityVolume
++        <<" first_step_cavity_volume_m3="<<enabled.acceptedCavityVolume
++        <<" enabled_step_matches_off="<<(enabledStepMatchesOff?"bitwise":"different")
++        <<" enabled_minus_off_cavity_volume_m3="<<(enabled.acceptedCavityVolume-unset.acceptedCavityVolume)
++        <<" prediction_improvement=not_claimed\n";
++    {ScopedVascularPolicy policy("1","1");movingWall();}
++}
++
+ } // namespace
+ int main(int argc,char** argv){@autoreleasepool{try{std::cout<<std::setprecision(17);
+ if(argc==3&&std::string(argv[1])=="--block-preconditioner-only"){blockPreconditioner(argv[2]);return 0;}
+-need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json]");
++if(argc==2&&std::string(argv[1])=="--block-predictor-only"){blockPredictorOnly();return 0;}
++need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json | --block-predictor-only]");
+ geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
+ catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}
+diff --git a/tools/verify_human_supported_tissue.sh b/tools/verify_human_supported_tissue.sh
+index e76ff316..3845b331 100755
+--- a/tools/verify_human_supported_tissue.sh
++++ b/tools/verify_human_supported_tissue.sh
+@@ -19,6 +19,15 @@ case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
+   1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/vascular-principal-block-033/template.json" ;;
+   *) echo "Vascular block policy must be exactly 0 or 1." >&2; exit 2 ;;
+ esac
++VERIFY_PREDICTOR=${NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR:-0}
++case "$VERIFY_PREDICTOR" in
++  0) ;;
++  1) test "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
++  *) echo "Vascular predictor policy must be exactly 0 or 1." >&2; exit 2 ;;
++esac
++# Unrelated synthetic fixtures have no vascular graph. The vascular owner
++# fixture selects both policies internally; native Human receives the request.
++export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0
+ python3 - "$VERIFY_ROOT" >"$VERIFY_OUT/input-identities.json" <<'PY'
+ import pathlib,hashlib,re,sys,json
+ r=pathlib.Path(sys.argv[1])
+@@ -62,6 +71,7 @@ NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fe
+ NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-mutable-snapshot-check" >"$VERIFY_OUT/fem-mutable-snapshot.run.log" 2>&1
+ "$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-preconditioner-only \
+   /Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json >"$VERIFY_OUT/vascular-block.run.log" 2>&1
++"$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-predictor-only >"$VERIFY_OUT/vascular-predictor.run.log" 2>&1
+ python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
+ import pathlib,hashlib,json,subprocess,sys,platform
+ root,out,build=map(pathlib.Path,sys.argv[1:])
+@@ -70,6 +80,7 @@ sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySki
+ receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
+ (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
+ PYPROVENANCE
++export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR="$VERIFY_PREDICTOR"
+ if test -n "$VERIFY_MODE"; then
+   if test "$VERIFY_MODE" = --rollback; then
+     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \

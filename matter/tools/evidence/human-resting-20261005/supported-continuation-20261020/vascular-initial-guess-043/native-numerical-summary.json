@@ -1,0 +1,13 @@
+{
+  "accepted_steps": 32,
+  "physical_seconds": 0.00400000018999,
+  "peak_abs_csv": {
+    "body_mass_residual_kg": 0.0,
+    "root_assistance_n": 0.0,
+    "root_assistance_nm": 0.0,
+    "peak_penetration_m": 0.0,
+    "blood_error_ml": 0.00139698386192
+  },
+  "csv_sha256": "7bcbaf8e69b0aa74398eb069d630075c7d249b9bc4ee4ea1738f180fd0e5ebdf",
+  "scope": "32 roots of the full tissue mechanics scene; mechanics-only mode; not continuous full-body/physiological qualification"
+}

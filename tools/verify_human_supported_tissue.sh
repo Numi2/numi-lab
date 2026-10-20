@@ -19,6 +19,15 @@ case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
   1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/vascular-principal-block-033/template.json" ;;
   *) echo "Vascular block policy must be exactly 0 or 1." >&2; exit 2 ;;
 esac
+VERIFY_PREDICTOR=${NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR:-0}
+case "$VERIFY_PREDICTOR" in
+  0) ;;
+  1) test "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
+  *) echo "Vascular predictor policy must be exactly 0 or 1." >&2; exit 2 ;;
+esac
+# Unrelated synthetic fixtures have no vascular graph. The vascular owner
+# fixture selects both policies internally; native Human receives the request.
+export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0
 python3 - "$VERIFY_ROOT" >"$VERIFY_OUT/input-identities.json" <<'PY'
 import pathlib,hashlib,re,sys,json
 r=pathlib.Path(sys.argv[1])
@@ -62,6 +71,7 @@ NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fe
 NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-mutable-snapshot-check" >"$VERIFY_OUT/fem-mutable-snapshot.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-preconditioner-only \
   /Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json >"$VERIFY_OUT/vascular-block.run.log" 2>&1
+"$VERIFY_BUILD/matter/numi-matter-vascular-cavity-check" --block-predictor-only >"$VERIFY_OUT/vascular-predictor.run.log" 2>&1
 python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
 import pathlib,hashlib,json,subprocess,sys,platform
 root,out,build=map(pathlib.Path,sys.argv[1:])
@@ -70,6 +80,7 @@ sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySki
 receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
 (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
 PYPROVENANCE
+export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR="$VERIFY_PREDICTOR"
 if test -n "$VERIFY_MODE"; then
   if test "$VERIFY_MODE" = --rollback; then
     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \

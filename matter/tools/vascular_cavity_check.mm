@@ -8,6 +8,7 @@
 #include <bit>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -30,6 +31,24 @@ bool samePhysical(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
 bool sameBloodMomentumState(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){
     return same(a.femNodes,b.femNodes)&&same(a.vascularState,b.vascularState)&&same(a.vascularClock,b.vascularClock);
 }
+struct ScopedEnvironment {
+    std::string key;
+    bool wasSet=false;
+    std::string prior;
+    ScopedEnvironment(const char* name,const char* value):key(name){
+        if(const char* current=std::getenv(name)){wasSet=true;prior=current;}
+        if(value){if(setenv(name,value,1)!=0)throw std::runtime_error("setenv failed for "+key);}
+        else if(unsetenv(name)!=0)throw std::runtime_error("unsetenv failed for "+key);
+    }
+    ~ScopedEnvironment(){if(wasSet)setenv(key.c_str(),prior.c_str(),1);else unsetenv(key.c_str());}
+};
+struct ScopedVascularPolicy {
+    ScopedEnvironment block;
+    ScopedEnvironment predictor;
+    ScopedVascularPolicy(const char* blockValue,const char* predictorValue):
+        block("NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER",blockValue),
+        predictor("NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR",predictorValue){}
+};
 std::vector<fixture::Vec> positions(const RuntimeStateSnapshot& s,unsigned env,unsigned nodes){
     need(s.femNodes.size()==2*nodes,"accepted FEM node coverage");std::vector<fixture::Vec> x(nodes);
     for(unsigned i=0;i<nodes;++i){const auto& p=s.femNodes[env*nodes+i].positionAndMass;x[i]={p.x,p.y,p.z};}
@@ -959,9 +978,55 @@ void blockPreconditioner(const std::filesystem::path& physiologyPath){
         <<" rhs_per_factor=2 invalid_factor_diagonal_fallback=preserved state=bitwise biological_qualification=none\n";
 }
 
+struct PredictorProbe {
+    std::uint64_t fingerprint=0;
+    RuntimeStateSnapshot initial,accepted;
+    double femMass=0,initialCavityVolume=0,acceptedCavityVolume=0;
+};
+PredictorProbe predictorProbe(const char* blockPolicy,const char* predictorPolicy){
+    ScopedVascularPolicy policy(blockPolicy,predictorPolicy);
+    Run run(fixture::world());PredictorProbe probe;probe.fingerprint=run.world.fingerprint;
+    for(const auto& node:run.world.fem.nodes)probe.femMass+=double(node.positionAndMass.w);
+    probe.initial=run.state();
+    const unsigned volumeRow=run.world.vascular.cavities.at(0).identity.y;
+    probe.initialCavityVolume=run.physical(probe.initial,volumeRow);
+    run.step(0);probe.accepted=run.state();
+    probe.acceptedCavityVolume=run.physical(probe.accepted,volumeRow);
+    need(std::isfinite(probe.initialCavityVolume)&&std::isfinite(probe.acceptedCavityVolume)&&
+        probe.initialCavityVolume>0&&probe.acceptedCavityVolume>0,
+        "block predictor fixture lost its positive finite cavity blood volume");
+    return probe;
+}
+void blockPredictorOnly(){
+    // The caller policy is restored after each initialization. This tests the
+    // actual Runtime capture point without leaking the opt-in to other probes.
+    const auto unset=predictorProbe("1",nullptr);
+    const auto explicitOff=predictorProbe("1","0");
+    const auto enabled=predictorProbe("1","1");
+    need(unset.fingerprint==explicitOff.fingerprint&&unset.fingerprint==enabled.fingerprint,
+        "vascular predictor policy changed the compiled physical world");
+    need(samePhysical(unset.initial,explicitOff.initial)&&samePhysical(unset.accepted,explicitOff.accepted),
+        "unset and explicit-off vascular predictor changed accepted snapshot bits");
+    need(samePhysical(unset.initial,enabled.initial)&&unset.femMass==explicitOff.femMass&&
+        unset.femMass==enabled.femMass,
+        "vascular predictor initialization changed initial physical state or FEM mass");
+    need(unset.initial.vascularState.size()==enabled.initial.vascularState.size()&&
+        unset.initial.femNodes.size()==enabled.initial.femNodes.size(),
+        "vascular predictor added physical state storage");
+    const bool enabledStepMatchesOff=samePhysical(unset.accepted,enabled.accepted);
+    std::cout<<"vascular_block_predictor_policy=pass preconditioner=1 predictor_unset_zero_initial_and_first_step=bitwise enabled_initial_state=bitwise fem_mass_kg="
+        <<enabled.femMass<<" initial_cavity_volume_m3="<<enabled.initialCavityVolume
+        <<" first_step_cavity_volume_m3="<<enabled.acceptedCavityVolume
+        <<" enabled_step_matches_off="<<(enabledStepMatchesOff?"bitwise":"different")
+        <<" enabled_minus_off_cavity_volume_m3="<<(enabled.acceptedCavityVolume-unset.acceptedCavityVolume)
+        <<" prediction_improvement=not_claimed\n";
+    {ScopedVascularPolicy policy("1","1");movingWall();}
+}
+
 } // namespace
 int main(int argc,char** argv){@autoreleasepool{try{std::cout<<std::setprecision(17);
 if(argc==3&&std::string(argv[1])=="--block-preconditioner-only"){blockPreconditioner(argv[2]);return 0;}
-need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json]");
+if(argc==2&&std::string(argv[1])=="--block-predictor-only"){blockPredictorOnly();return 0;}
+need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json | --block-predictor-only]");
 geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
 catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}

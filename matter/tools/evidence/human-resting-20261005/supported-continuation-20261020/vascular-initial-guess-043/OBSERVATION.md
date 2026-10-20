@@ -1,0 +1,3 @@
+# Bounded observation before execution
+
+The one opt-in32-root continuation will use existing NM_VASCULAR_TRACE_ROOT=12, including predictor_begin/predictor_end stages at each microtick if admitted. These copy only existing candidate/solver arenas observationally, do not submit or wait on an additional queue, and never feed the solver. Compare initial vascular candidate and residual before/after the guess to distinguish requested from applied predictor progress. No new always-read-back telemetry or physical state. If the run fails before root12, initialization admission alone will not be called proof of an applied correction. All original outcome, tolerance and stopping criteria remain.

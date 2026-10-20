@@ -1,0 +1,52 @@
+[0/2] Re-checking globbed directories...
+[1/8] Linking OBJCXX executable metalrobo_numi_human_per_contact_plane_metal_test
+[2/8] Linking CXX executable bin/metalrobo_numi_human_static_support_test
+[3/8] Linking OBJCXX executable bin/metalrobo_numilab_human_tendon_fem_load_probe
+[4/8] Linking CXX executable matter/numi-matter-fem-kinematic-release-check
+[5/8] Linking CXX executable matter/numi-matter-fem-mutable-snapshot-check
+[6/8] Linking CXX executable matter/numi-matter-fem-reference-check
+[7/8] Generating shaders/cardboard_contact_geometry_check.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3469:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3478:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3469:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3459:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3915:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3932:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3915:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3795:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1526:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1556:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1526:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1515:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.

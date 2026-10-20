@@ -14,8 +14,10 @@ p=args.destination.resolve();p.mkdir(exist_ok=False)
 sha=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
 j=json.loads(args.source.read_text());j['argv'][4]=str(p/'output')
 # Record the selected solver policy rather than inheriting it invisibly.
-if 'NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER' in os.environ:
- j['environment']['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']=os.environ['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']
+for policy in ('NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER','NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR'):
+ if policy in os.environ:
+  if os.environ[policy] not in ('0','1'):ap.error(policy+' must be exactly 0 or 1')
+  j['environment'][policy]=os.environ[policy]
 if '--resting-registered-ligaments' not in j['argv']:j['argv'].append('--resting-registered-ligaments')
 j['argv'][j['argv'].index('--muscle-step-count')+1]=str(args.steps)
 if args.root_z is not None:j['argv'][j['argv'].index('--root-pose')+3]=str(args.root_z)

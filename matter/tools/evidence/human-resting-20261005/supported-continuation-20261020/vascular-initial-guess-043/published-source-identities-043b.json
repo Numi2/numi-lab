@@ -1,0 +1,13 @@
+{
+  "base_revision": "3e56825fa5ffc04168c046603f5573a398c6f847",
+  "source_patch": "source-043b.patch",
+  "source_patch_sha256": "5b5bb8145a09d75a730833b248982cbfdcc45d96d46eeb6cd48b9721b159f7fe",
+  "reconstruction": "exact",
+  "source_sha256": {
+    "matter/src/metal/vascular.metalinc": "9c0a95e5edaaa0d3ea05296198444d089a8d067f0d5ed6f3b9168c832fb864b1",
+    "matter/src/runtime.mm": "10269b0cf2a8d5960b34fdce727586b717d275fdf0e543e95a17fad83bbba916",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py": "012055b1e979ef7f56867e9ddc02f5ea3f5ca343ad27001d99ba6050c30bfc33",
+    "matter/tools/vascular_cavity_check.mm": "b4a39d160dd39d6151fcd06eb00d75762fc314ef718851a63db84df972b9856d",
+    "tools/verify_human_supported_tissue.sh": "837a8312d74ce6333e63925c1fc26926d10c1f60b36a6753f25f5c9be048af4b"
+  }
+}

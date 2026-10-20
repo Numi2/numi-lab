@@ -1,0 +1,33 @@
+{
+  "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+  "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+  "no_open_handles": true,
+  "actions": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-043/native/output/resting-human.mrvpack",
+      "prior_inode": 3293200,
+      "canonical_inode": 3107272,
+      "size_bytes": 297078784
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-off-043/output/resting-human.mrvpack",
+      "prior_inode": 3293223,
+      "canonical_inode": 3107272,
+      "size_bytes": 297078784
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-predictor-043/output/resting-human.mrvpack",
+      "prior_inode": 3293309,
+      "canonical_inode": 3107272,
+      "size_bytes": 297078784
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/output/resting-human.mrvpack",
+      "prior_inode": 3293538,
+      "canonical_inode": 3107272,
+      "size_bytes": 297078784
+    }
+  ],
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 179559024  17594860    92%  914710 175948600    1%   /System/Volumes/Data\n",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 178398544  18755340    91%  914706 187553400    0%   /System/Volumes/Data\n"
+}

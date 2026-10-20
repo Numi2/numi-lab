@@ -1243,6 +1243,65 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
 #undef NM_VASCULAR_EVALUATE
 #undef NM_VASCULAR_EQUATION_ARGUMENTS
 
+// Predictor-only line search marker. Runtime uses a private copy of the
+// microstep record for this dispatch only; accepted state retains its generation.
+#define NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER 0x56505244u
+
+// Seed the exact principal-block Newton direction and reset only transient
+// Krylov/candidate scratch. The global FGMRES vector concatenates solver domains;
+// only its final vascular slice receives the Newton RHS and solved direction.
+// phase 0 initializes scratch, phase 1 copies the block solve, and phase 2
+// records a rejected factor without changing the physical candidate.
+kernel void nm_vascular_predictor_prepare(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(1)]],
+    device const float4* residual [[buffer(2)]],
+    device float4* basis [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device float4* solution [[buffer(5)]],
+    device NMFGMRESStateGPU* states [[buffer(6)]],
+    device float* environmentLineSearch [[buffer(7)]],
+    device uint* workingSetChanged [[buffer(8)]],
+    device const uint* factorValid [[buffer(9)]],
+    constant uint& phase [[buffer(10)]],
+    device float4* objectLineSearch [[buffer(11)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint objectTotal = dispatch.environmentCount * dispatch.objectCount;
+    if (layout.unknownCount == 0u || dispatch.environmentCount == 0u ||
+        (global >= layout.unknownCount && global >= dispatch.environmentCount &&
+         !(phase == 3u && global < objectTotal))) return;
+    if (global < layout.unknownCount) {
+        if (phase == 0u) {
+            solution[global] = float4(0.0f);
+            basis[global] = float4(0.0f);
+            preconditioned[global] = float4(0.0f);
+            if (global >= layout.vascularBase &&
+                global < layout.vascularBase +
+                    layout.vascularUnknownCount * dispatch.environmentCount)
+                basis[global] = residual[global]; // residual kernel already writes -F
+        } else if (phase == 1u && global >= layout.vascularBase) {
+            const uint row = global - layout.vascularBase;
+            const uint environment = row / layout.vascularUnknownCount;
+            solution[global] = environment < dispatch.environmentCount &&
+                factorValid[environment] != 0u
+                ? preconditioned[global] : float4(0.0f);
+        }
+    }
+    if (global < dispatch.environmentCount) {
+        if (phase == 0u) {
+            states[global].diagnostics.z = 0.0f;
+            environmentLineSearch[global] = 1.0f;
+            workingSetChanged[global] = 0u;
+        } else if (phase == 2u && factorValid[global] == 0u) {
+            workingSetChanged[global] = 2u;
+        } else if (phase == 3u) {
+            environmentLineSearch[global] = 1.0f;
+        }
+    }
+    if (phase == 3u && global < objectTotal)
+        objectLineSearch[global].x = 1.0f;
+}
+
 // Factor the exact principal Jacobian over the bounded vascular state slice.
 // The ordinary matrix-free operator retains all FEM/vascular cross terms;
 // this LU is used only as a right preconditioner for the vascular block.
@@ -1820,7 +1879,7 @@ kernel void nm_vascular_limit_line_search(
     device const NMVascularCompartmentGPU* compartments [[buffer(7)]],
     device const NMVascularConnectionGPU* connections [[buffer(8)]],
     device const uint* workingSet [[buffer(9)]],
-    device const uint* changed [[buffer(10)]],
+    device uint* changed [[buffer(10)]],
     constant NMMicrostepGPU& microstep [[buffer(11)]],
     device const NMVascularUnknownGPU* unknowns [[buffer(12)]],
     device const float4* accepted [[buffer(13)]],
@@ -1844,6 +1903,8 @@ kernel void nm_vascular_limit_line_search(
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const bool predictorMode = (microstep.flags & 0x80000000u) != 0u &&
+        microstep.reserved == NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER;
     float alpha = environmentLineSearch[environment];
     for (uint local = lane; local < graph.ranges.z; local += 32u) {
         const uint row = environment * graph.ranges.z + local;
@@ -1851,8 +1912,9 @@ kernel void nm_vascular_limit_line_search(
         const float correction = solution[layout.vascularBase + row].x;
         if (!vascularAdmissible(graph, local, value, compartments, connections, unknowns) || !isfinite(correction)) {
             alpha = 0.0f;
-            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                NM_INVALID_INDEX, local, float4(value, correction, 0.0f, 0.0f));
+            if (!predictorMode)
+                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, local, float4(value, correction, 0.0f, 0.0f));
         } else {
             if (local < graph.offsets.y && compartments[local].identity.w == 3u && correction != 0.0f) {
                 const float variableScale = unknowns[local].initialAndScaling.y;
@@ -1885,8 +1947,9 @@ kernel void nm_vascular_limit_line_search(
                     if (!(breakpoint > 0.0f) || !isfinite(breakpoint) ||
                         (value > 0.0f ? atBreakpoint > 0.0f : atBreakpoint < 0.0f)) {
                         alpha = 0.0f;
-                        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                            NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
+                        if (!predictorMode)
+                            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                                NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
                     } else alpha = min(alpha, breakpoint);
                 }
             }
@@ -1986,19 +2049,25 @@ kernel void nm_vascular_limit_line_search(
             const float worstRatio = simd_max(localWorstRatio);
             const uint witnessRow = simd_min(
                 localWorstRatio == worstRatio ? localWorstRow : NM_INVALID_INDEX);
-            if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                NM_INVALID_INDEX, witnessRow,
-                float4(testedAlpha, initialMerit, trialMerit, worstRatio));
+            if (lane == 0u && !predictorMode)
+                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, witnessRow,
+                    float4(testedAlpha, initialMerit, trialMerit, worstRatio));
             alpha = 0.0f;
+            if (lane == 0u && predictorMode) changed[environment] = 2u;
         }
     }
     if (lane == 0u) {
         environmentLineSearch[environment] = alpha;
         if ((graph.ranges.z == 0u || changed[environment] == 0u) &&
             environmentHealthy(statuses, environment) &&
-            (!(alpha > 0.0f) || !isfinite(alpha)))
-            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
+            (!(alpha > 0.0f) || !isfinite(alpha))) {
+            if (!predictorMode)
+                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
+            else
+                changed[environment] = 2u;
+        }
     }
     for (uint object = lane; object < dispatch.objectCount; object += 32u)
         lineSearch[environment * dispatch.objectCount + object].x = alpha;

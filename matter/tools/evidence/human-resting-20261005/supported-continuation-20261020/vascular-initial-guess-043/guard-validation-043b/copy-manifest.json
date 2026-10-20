@@ -1,0 +1,81 @@
+{
+  "source_run": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b",
+  "copied_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/execution.json",
+      "destination": "execution.json",
+      "size_bytes": 51,
+      "sha256": "9d259f20e00169aed4c5f5b5d243ccf0e519312fa057de8d97d4f5ed46f64d4a"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/invocation.json",
+      "destination": "invocation.json",
+      "size_bytes": 7627,
+      "sha256": "372e65bcf7c161fbc6ce65cf74dc17f202fec3a5a0868424c106c39b850eeb7b"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/output/resting-coupled.csv",
+      "destination": "output/resting-coupled.csv",
+      "size_bytes": 3286,
+      "sha256": "236ae9b4b36dc81e17cce54a63d200ba002dc31629fef998b1abbb56a965fe14"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/output/resting-surface-audit.csv",
+      "destination": "output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/provenance.json",
+      "destination": "provenance.json",
+      "size_bytes": 6145,
+      "sha256": "623f5bfea7eb3c73dde6fa2dfc9dec8dfa18e2da7ce723d06ade8da60b615c25"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/stderr.log",
+      "destination": "stderr.log",
+      "size_bytes": 2649,
+      "sha256": "cdcf49f4944da1a75f245d31027212b8f3fde529d0a944d1914af625519efef1"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/stdout.log",
+      "destination": "stdout.selected.log",
+      "size_bytes": 7112,
+      "sha256": "135f657f8316bb7561914982d10dca5a1d5ef8cacb0e22eae15d68d8e824bba3",
+      "selection": "filtered diagnostic markers; raw log omitted due size"
+    }
+  ],
+  "context_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/vascular-initial-guess-043/source-043.patch",
+      "destination": "context/source-043.patch",
+      "size_bytes": 39595,
+      "sha256": "340a3de846140f40daf4fc117e784b25c13cb9ba65f8c2e712ab2df689db4453"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/vascular-initial-guess-043/control-root12-trajectory.json",
+      "destination": "context/control-root12-trajectory.json",
+      "size_bytes": 29112,
+      "sha256": "8f11b84e144204beeb6c5b58e41a2004fc2b2f83f18cfee5917e0bf68e6eb201"
+    }
+  ],
+  "omitted_large_files": [
+    {
+      "path": "output/resting-airway-anchor-map.json",
+      "size_bytes": 82553,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "binary, input payload, or pack excluded"
+    }
+  ],
+  "identity_record": "raw-identities.json",
+  "outcome_record": "outcome.json"
+}
