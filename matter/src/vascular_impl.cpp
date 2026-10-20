@@ -165,6 +165,7 @@ bool validateCavities(const CompiledWorld& world,std::string* error) {
     std::vector<std::uint32_t> owners(C,NM_INVALID_INDEX);
     std::vector<std::vector<std::uint32_t>> nodeFaces(world.fem.nodes.size());
     std::map<std::uint32_t,std::map<CavityFaceKey,std::vector<std::uint32_t>>> objectFaces;
+    std::map<std::uint32_t,std::set<std::uint32_t>> objectBoundaryNodes;
     std::set<CavityFaceKey> ownedFaces;
     std::size_t nextFace=0;
     for(std::size_t i=0;i<B;++i) {
@@ -203,8 +204,12 @@ bool validateCavities(const CompiledWorld& world,std::string* error) {
                     boundary[cavityKey(key)].push_back(nodes[opposite]);
                 }
             }
+            auto& exposedNodes=objectBoundaryNodes[objectIndex];
+            for(const auto& [face,opposites]:boundary)if(opposites.size()==1)
+                exposedNodes.insert(face.begin(),face.end());
         }
         const auto& boundary=objectFaces.at(objectIndex);
+        const auto& exposedNodes=objectBoundaryNodes.at(objectIndex);
         std::map<std::array<std::uint32_t,2>,std::vector<std::pair<std::uint32_t,int>>> edges;
         std::map<std::uint32_t,std::vector<std::array<std::uint32_t,2>>> vertexLinks;
         std::vector<std::vector<std::uint32_t>> adjacent(cavity.faces.y);
@@ -212,19 +217,29 @@ bool validateCavities(const CompiledWorld& world,std::string* error) {
         for(std::uint32_t j=0;j<cavity.faces.y;++j) {
             const auto faceIndex=std::uint32_t(nextFace+j);const auto& face=c.cavityFaces[faceIndex];
             const std::array<std::uint32_t,3> nodes{face.nodes.x,face.nodes.y,face.nodes.z};
+            const auto role=static_cast<VascularCavityFaceRole>(face.identity.z);
             if(face.nodes.w||face.identity.x!=i||!face.identity.y||
                (j&&face.identity.y<=c.cavityFaces[faceIndex-1].identity.y)||
-               face.identity.z!=std::uint32_t(VascularCavityFaceRole::materialWall)||face.identity.w)
-                return fail("invalid face identity or nonmaterial interface role");
+               (role!=VascularCavityFaceRole::materialWall&&role!=VascularCavityFaceRole::hydraulicPortClosure)||face.identity.w)
+                return fail("invalid face identity or unsupported interface role");
             for(auto node:nodes)if(node<object.stateOffset||std::uint64_t(node)>=std::uint64_t(object.stateOffset)+object.stateCount)
                 return fail("cavity face escapes wall FEM node ownership");
             const auto key=cavityKey(nodes);const auto found=boundary.find(key);
-            if(nodes[0]==nodes[1]||nodes[1]==nodes[2]||nodes[2]==nodes[0]||!ownedFaces.insert(key).second||
-               found==boundary.end()||found->second.size()!=1)return fail("duplicate face or face is not an exposed material boundary");
+            if(nodes[0]==nodes[1]||nodes[1]==nodes[2]||nodes[2]==nodes[0]||!ownedFaces.insert(key).second)
+                return fail("duplicate or degenerate cavity face");
             const auto a=point(nodes[0]),b=point(nodes[1]),d=point(nodes[2]);
             const auto normal=cavityCross(cavitySubtract(b,a),cavitySubtract(d,a));
-            const auto side=cavityDot(normal,cavitySubtract(point(found->second.front()),a));
-            if(!std::isfinite(side)||!(side>0))return fail("degenerate or outer-wall face; cavity normal must point into material");
+            if(role==VascularCavityFaceRole::materialWall) {
+                if(found==boundary.end()||found->second.size()!=1)
+                    return fail("material wall face is not an exposed tetra boundary face");
+                const auto side=cavityDot(normal,cavitySubtract(point(found->second.front()),a));
+                if(!std::isfinite(side)||!(side>0))return fail("degenerate or outer-wall face; cavity normal must point into material");
+            } else {
+                if(found!=boundary.end())return fail("hydraulic port closure coincides with a tetrahedron face");
+                if(std::any_of(nodes.begin(),nodes.end(),[&](auto node){return !exposedNodes.contains(node);}))
+                    return fail("hydraulic port closure node is not on this object's exposed FEM boundary");
+                if(!(cavityDot(normal,normal)>0))return fail("degenerate hydraulic port closure triangle");
+            }
             if(j==0)origin=a;
             volume+=cavityDot(cavitySubtract(a,origin),cavityCross(cavitySubtract(b,origin),cavitySubtract(d,origin)))/6;
             for(unsigned k=0;k<3;++k) {
@@ -501,9 +516,10 @@ bool compileVascular(const WorldSource& source, CompiledWorld& world, std::vecto
         for(unsigned k=0;k<4;++k){cavityGPU.sourceIdentity[k]=x.sourceIdentity[k];cavityGPU.mechanicalIdentity[k]=x.mechanicalIdentity[k];}
         for(auto faceIndex:order(x.faces)) {
             const auto& face=x.faces[faceIndex];
-            if(face.role!=VascularCavityFaceRole::materialWall ||
+            if((face.role!=VascularCavityFaceRole::materialWall&&
+                face.role!=VascularCavityFaceRole::hydraulicPortClosure) ||
                std::any_of(face.nodes.begin(),face.nodes.end(),[&](auto n){return n>=object.stateCount;}))
-                return fail("cavity face must bind material-wall FEM nodes; artificial interfaces are unsupported");
+                return fail("cavity face must bind real FEM boundary nodes with a supported wall or port-closure role");
             c.cavityFaces.push_back({{object.stateOffset+face.nodes[0],object.stateOffset+face.nodes[1],object.stateOffset+face.nodes[2],0u},
                 {cavity,face.stableIdentifier,std::uint32_t(face.role),0u}});
         }

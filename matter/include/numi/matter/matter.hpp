@@ -777,11 +777,12 @@ struct VascularExchangeSource {
 // fingerprints the exact FEM geometry, material, incidence and these identities.
 // This contract supplies hydraulic wall work, not blood mechanical mass.
 enum class VascularCavityFaceRole : std::uint32_t {
-    unspecified = 0u, materialWall = 1u, artificialPartitionInterface = 2u
+    unspecified = 0u, materialWall = 1u, artificialPartitionInterface = 2u,
+    hydraulicPortClosure = 3u
 };
 struct VascularCavityFaceSource {
     std::uint32_t stableIdentifier = 0u;
-    std::array<std::uint32_t, 3> nodes{}; // object-local real boundary FEM nodes
+    std::array<std::uint32_t, 3> nodes{}; // object-local boundary FEM nodes, including virtual closure rings
     VascularCavityFaceRole role = VascularCavityFaceRole::unspecified;
 };
 struct VascularCavitySource {

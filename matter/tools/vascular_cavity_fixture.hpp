@@ -17,31 +17,34 @@ inline Vec subtract(Vec a,const Vec& b){for(unsigned i=0;i<3;++i)a[i]-=b[i];retu
 inline Vec scaled(Vec a,double s){for(double& v:a)v*=s;return a;}
 inline double dot(const Vec& a,const Vec& b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 inline Vec cross(const Vec& a,const Vec& b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
-inline std::uint32_t node(unsigned x,unsigned y,unsigned z){return x+4u*y+16u*z;}
+inline std::uint32_t node(unsigned x,unsigned y,unsigned z,unsigned side=4u){return x+side*y+side*side*z;}
 struct Shell {
     numi::matter::ObjectSource object;
     std::vector<Face> lumenFaces;
+    std::vector<Face> closureFaces;
     std::vector<std::uint32_t> innerNodes;
 };
-inline Shell hollowShell(bool pinInner=false) {
+inline Shell hollowShell(bool pinInner=false,bool openEnded=false) {
     using namespace numi::matter;
     Shell shell;
     auto& object=shell.object;
-    object.name="synthetic:hollow_tissue_shell";object.representation=Representation::fem;
+    object.name=openEnded?"synthetic:open_ended_vessel_wall":"synthetic:hollow_tissue_shell";object.representation=Representation::fem;
     object.characteristicLength=.01;object.deformableContact=false;object.mixedFEM=false;
-    for(unsigned z=0;z<4;++z)for(unsigned y=0;y<4;++y)for(unsigned x=0;x<4;++x){
-        object.femNodes.push_back({(double(x)-1.5)*.01,(double(y)-1.5)*.01,(double(z)-1.5)*.01});
-        if(x==0||y==0||z==0||x==3||y==3||z==3||pinInner)object.femFixedNodes.push_back(node(x,y,z));
-        if(x>0&&x<3&&y>0&&y<3&&z>0&&z<3)shell.innerNodes.push_back(node(x,y,z));
+    const unsigned side=openEnded?5u:4u;
+    for(unsigned z=0;z<side;++z)for(unsigned y=0;y<side;++y)for(unsigned x=0;x<side;++x){
+        const double center=openEnded?2.0:1.5;
+        object.femNodes.push_back({(double(x)-center)*.01,(double(y)-center)*.01,(double(z)-center)*.01});
+        if(x==0||y==0||z==0||x+1==side||y+1==side||z+1==side||pinInner)object.femFixedNodes.push_back(node(x,y,z,side));
+        if(x>0&&x+1<side&&y>0&&y+1<side&&z>0&&z+1<side)shell.innerNodes.push_back(node(x,y,z,side));
     }
-    for(unsigned z=0;z<3;++z)for(unsigned y=0;y<3;++y)for(unsigned x=0;x<3;++x){
-        if(x==1&&y==1&&z==1)continue;
+    for(unsigned z=0;z+1<side;++z)for(unsigned y=0;y+1<side;++y)for(unsigned x=0;x+1<side;++x){
+        if(openEnded?(x==2&&y==2):(x==1&&y==1&&z==1))continue;
         std::array<unsigned,3> axes{0,1,2};
         do {
             std::array<unsigned,3> corner{x,y,z};
-            std::array<std::uint32_t,4> tet{node(x,y,z),0,0,node(x+1,y+1,z+1)};
-            ++corner[axes[0]];tet[1]=node(corner[0],corner[1],corner[2]);
-            ++corner[axes[1]];tet[2]=node(corner[0],corner[1],corner[2]);
+            std::array<std::uint32_t,4> tet{node(x,y,z,side),0,0,node(x+1,y+1,z+1,side)};
+            ++corner[axes[0]];tet[1]=node(corner[0],corner[1],corner[2],side);
+            ++corner[axes[1]];tet[2]=node(corner[0],corner[1],corner[2],side);
             const auto a=subtract(object.femNodes[tet[1]],object.femNodes[tet[0]]);
             const auto b=subtract(object.femNodes[tet[2]],object.femNodes[tet[0]]);
             const auto c=subtract(object.femNodes[tet[3]],object.femNodes[tet[0]]);
@@ -57,10 +60,22 @@ inline Shell hollowShell(bool pinInner=false) {
         }
     }
     for(const auto& [key,entry]:boundary)if(entry.count==1){
-        const bool inner=std::all_of(key.begin(),key.end(),[&](auto i){return std::find(shell.innerNodes.begin(),shell.innerNodes.end(),i)!=shell.innerNodes.end();});
+        const bool inner=openEnded
+            ? std::all_of(key.begin(),key.end(),[&](auto i){const auto x=i%side,y=(i/side)%side;return x>=2&&x<=3&&y>=2&&y<=3;}) &&
+              std::min({key[0]/(side*side),key[1]/(side*side),key[2]/(side*side)}) !=
+              std::max({key[0]/(side*side),key[1]/(side*side),key[2]/(side*side)})
+            : std::all_of(key.begin(),key.end(),[&](auto i){return std::find(shell.innerNodes.begin(),shell.innerNodes.end(),i)!=shell.innerNodes.end();});
         if(inner){auto face=entry.oriented;std::swap(face[1],face[2]);shell.lumenFaces.push_back(face);}
     }
-    if(shell.lumenFaces.size()!=12||shell.innerNodes.size()!=8||object.tetrahedra.size()!=156)
+    if(openEnded) {
+        const auto a=node(2,2,0,side),b=node(3,2,0,side),c=node(3,3,0,side),d=node(2,3,0,side);
+        shell.closureFaces={{a,c,b},{a,d,c}};
+        const auto topA=node(2,2,side-1,side),topB=node(3,2,side-1,side),topC=node(3,3,side-1,side),topD=node(2,3,side-1,side);
+        shell.closureFaces.push_back({topA,topB,topC});shell.closureFaces.push_back({topA,topC,topD});
+    }
+    const auto expectedFaces=openEnded?32u:12u,expectedInner=openEnded?27u:8u,expectedTets=openEnded?360u:156u;
+    if(shell.lumenFaces.size()!=expectedFaces||shell.innerNodes.size()!=expectedInner||object.tetrahedra.size()!=expectedTets||
+       shell.closureFaces.size()!=(openEnded?4u:0u))
         throw std::runtime_error("hollow shell generator topology differs");
     return shell;
 }
@@ -78,7 +93,7 @@ inline std::vector<Vec> discreteGradient(const std::vector<Vec>& old,const std::
     for(unsigned i=0;i<a.size();++i)a[i]=scaled(add(add(a[i],scaled(b[i],4)),c[i]),1./6);
     return a;
 }
-inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool bloodMass=false,bool pressureMomentum=false){
+inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool bloodMass=false,bool pressureMomentum=false,bool openEnded=false){
     using namespace numi::matter;
     WorldSource s;s.environmentCount=2;s.frameTimestep=dt;s.gravity={0,0,0};
     s.mixedSolver.relativeResidual=1e-7;s.mixedSolver.newtonIterations=12;s.mixedSolver.fgmresIterations=64;
@@ -92,14 +107,15 @@ inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool b
       limits {minimum_J=0.1;maximum_J=10;maximum_stress=1e9;maximum_energy_density=1e9;}
     })");
     if(!material.succeeded())throw std::runtime_error("synthetic hollow shell material parse failed");
-    s.materials.push_back(material.material);auto shell=hollowShell(pinInner);s.objects.push_back(shell.object);
+    s.materials.push_back(material.material);auto shell=hollowShell(pinInner,openEnded);s.objects.push_back(shell.object);
     auto& n=s.vascular;
     // Explicit synthetic identities; all exact fixture data are also covered
     // by normal compiled-world fingerprints. No source-calibration claim.
     n.contentIdentity={0x686f6c6c6f772d63ULL,0x61766974792d7631ULL,0,1};
     n.species.push_back({1,"synthetic:tracer",1e-6,1e-5});
     VascularCompartmentSource cavity;cavity.stableIdentifier=11;cavity.anatomicalIdentifier="synthetic:hollow_lumen";
-    cavity.initialVolume=volume(shell.object.femNodes,shell.lumenFaces);cavity.volumeScale=1e-6;cavity.volumeResidualTolerance=1e-5;
+    auto enclosedFaces=shell.lumenFaces;enclosedFaces.insert(enclosedFaces.end(),shell.closureFaces.begin(),shell.closureFaces.end());
+    cavity.initialVolume=volume(shell.object.femNodes,enclosedFaces);cavity.volumeScale=1e-6;cavity.volumeResidualTolerance=1e-5;
     cavity.initialSpeciesAmounts={0};cavity.pressureLaw=VascularPressureLaw::deformingCavity;
     n.compartments.push_back(cavity);
     VascularCompartmentSource reservoir;reservoir.stableIdentifier=12;reservoir.anatomicalIdentifier="synthetic:linear_reservoir";
@@ -111,6 +127,7 @@ inline numi::matter::WorldSource world(bool pinInner=false,double dt=.001,bool b
     boundary.initialPressure=0;boundary.pressureScale=100;boundary.geometryResidualTolerance=1e-5;
     boundary.sourceIdentity={0x73796e7468657469ULL,0x632d636176697479ULL,0,1};boundary.mechanicalIdentity={0x686f6c6c6f772d66ULL,0x656d2d7368656c6cULL,0,1};
     for(unsigned i=0;i<shell.lumenFaces.size();++i)boundary.faces.push_back({100+i,shell.lumenFaces[i],VascularCavityFaceRole::materialWall});
+    for(unsigned i=0;i<shell.closureFaces.size();++i)boundary.faces.push_back({100u+std::uint32_t(shell.lumenFaces.size())+i,shell.closureFaces[i],VascularCavityFaceRole::hydraulicPortClosure});
     if(bloodMass || pressureMomentum){
         s.gravity={0,0,-9.81};
         VascularTissueSource owner;owner.stableIdentifier=41;owner.anatomicalIdentifier="synthetic:blood_mass_owner";

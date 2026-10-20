@@ -871,8 +871,8 @@ inline void requireSameRestingVascularGraphWithRegisteredAorticWall(
         0x1a191fe2f6c4a1cbULL,0x03ee290bc850b800ULL,
         0x11cc267577992ea8ULL,0x6abb3a4cb39f4108ULL};
     constexpr std::array<std::uint64_t,4u> expectedMechanics{
-        0x61726f727469632dULL,0x77616c6c2d763100ULL,
-        0x6c6162726f737365ULL,0x3139333435333536ULL};
+        0x616f727469632d70ULL,0x6f72742d76322d30ULL,
+        0x6f70656e2d656e64ULL,0x66656d2d706f7274ULL};
     need(cavity.stableIdentifier==9007u&&cavity.compartment==7u&&
          cavity.objectIndex<tissueSeed.objects.size()&&
          cavity.sourceIdentity==expectedSource&&
@@ -880,7 +880,7 @@ inline void requireSameRestingVascularGraphWithRegisteredAorticWall(
          !cavity.faces.empty()&&
          tissueSeed.objects[cavity.objectIndex].representation==Representation::fem&&
          tissueSeed.objects[cavity.objectIndex].name==
-             "Human/BodyParts3D/stable-9/reduced-cavity-wall-v1",
+             "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2",
          "resting vascular seed does not own the pinned registered aortic FEM cavity");
     const auto& base=network.compartments[aortaIndex];
     const double initialPressure=base.referencePressure+
@@ -891,8 +891,9 @@ inline void requireSameRestingVascularGraphWithRegisteredAorticWall(
          "resting aortic cavity initialization differs from the admitted CVSim pressure/volume row");
     for(const auto& face:cavity.faces) {
         need(face.stableIdentifier>=90070000u&&
-             face.role==VascularCavityFaceRole::materialWall,
-             "resting aortic cavity contains an unregistered or non-wall boundary face");
+             (face.role==VascularCavityFaceRole::materialWall||
+              face.role==VascularCavityFaceRole::hydraulicPortClosure),
+             "resting aortic cavity contains an unregistered or unsupported face role");
         for(const auto node:face.nodes)
             need(node<tissueSeed.objects[cavity.objectIndex].femNodes.size(),
                  "resting aortic cavity face escapes the registered wall object");

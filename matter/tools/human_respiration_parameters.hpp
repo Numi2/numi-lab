@@ -115,7 +115,8 @@ inline NMHumanRespirationState initializeRespiration(const NMHumanRespirationPar
                 faceIndex<cavity.faces.x+cavity.faces.y;++faceIndex) {
             const auto& face=vascular.cavityFaces[faceIndex];
             validFaces=validFaces&&face.identity.x==0u&&
-                face.identity.z==static_cast<std::uint32_t>(VascularCavityFaceRole::materialWall)&&
+                (face.identity.z==static_cast<std::uint32_t>(VascularCavityFaceRole::materialWall)||
+                 face.identity.z==static_cast<std::uint32_t>(VascularCavityFaceRole::hydraulicPortClosure))&&
                 face.nodes.x<w.fem.nodes.size()&&face.nodes.y<w.fem.nodes.size()&&
                 face.nodes.z<w.fem.nodes.size();
         }

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 
 using namespace numi::matter;
@@ -220,6 +221,63 @@ int main() {
         // Direct lumen-to-material coupling requires an actual hollow wall;
         // the independent fixture helper leaves all central-cell tissue absent.
         const auto cavitySource=vascular_cavity_fixture::world();
+        static_assert(static_cast<std::uint32_t>(VascularCavityFaceRole::hydraulicPortClosure)==3u);
+        // A hydraulic lumen may end at open ports: source triangles close its
+        // volume over exposed FEM ring nodes without adding cap tetrahedra.
+        const auto openPortSource=vascular_cavity_fixture::world(false,.001,false,false,true);
+        const auto openPortShell=vascular_cavity_fixture::hollowShell(false,true);
+        require(openPortShell.object.tetrahedra.size()==360u&&openPortShell.closureFaces.size()==4u,
+                "open-ended vessel fixture added cap tissue or lost its virtual end faces");
+        const auto openPortWorld=compileWorld(openPortSource);
+        require(openPortWorld.succeeded(),"open hydraulic port closure rejected: "+messages(openPortWorld));
+        const auto& openPortCooked=openPortWorld.world.vascular;
+        require(openPortCooked.cavityFaces.size()==36u&&
+                std::count_if(openPortCooked.cavityFaces.begin(),openPortCooked.cavityFaces.end(),[](const auto& face){return face.identity.z==3u;})==4,
+                "hydraulic port closure roles were not preserved in cooked faces");
+        for(std::uint32_t faceIndex=0;faceIndex<openPortCooked.cavityFaces.size();++faceIndex) {
+            const auto& face=openPortCooked.cavityFaces[faceIndex];
+            if(face.identity.z!=static_cast<std::uint32_t>(VascularCavityFaceRole::hydraulicPortClosure))continue;
+            for(const auto node:{face.nodes.x,face.nodes.y,face.nodes.z}) {
+                const auto& range=openPortCooked.cavityNodeRanges[node];
+                require(std::find(openPortCooked.cavityNodeIncidence.begin()+range.first,
+                                  openPortCooked.cavityNodeIncidence.begin()+range.first+range.count,faceIndex)!=
+                        openPortCooked.cavityNodeIncidence.begin()+range.first+range.count,
+                        "virtual port face was omitted from ring-node cavity force incidence");
+            }
+        }
+        auto openPortChanged=openPortSource;
+        auto duplicatePort=openPortChanged.vascular.cavities[0].faces.back();duplicatePort.stableIdentifier=9999u;
+        openPortChanged.vascular.cavities[0].faces.push_back(duplicatePort);
+        rejected(openPortChanged,"duplicate hydraulic port closure triangle");
+        openPortChanged=openPortSource;
+        std::swap(openPortChanged.vascular.cavities[0].faces.back().nodes[0],
+                  openPortChanged.vascular.cavities[0].faces.back().nodes[1]);
+        rejected(openPortChanged,"inconsistently oriented hydraulic port closure");
+        openPortChanged=openPortSource;
+        openPortChanged.vascular.cavities[0].faces[32].nodes[0]=vascular_cavity_fixture::node(1,1,2,5);
+        rejected(openPortChanged,"hydraulic port node outside same-object exposed boundary");
+        // Add a virtual face that is a real outer tetra boundary face. It must
+        // not be reclassified as an artificial cap just because its nodes are real.
+        using TestFace=std::array<std::uint32_t,3>;
+        std::map<TestFace,unsigned> tetFaceIncidence;
+        for(const auto& tet:openPortShell.object.tetrahedra) {
+            const auto& n=tet.nodes;
+            for(TestFace face:std::array<TestFace,4>{{{n[1],n[2],n[3]},{n[0],n[3],n[2]},{n[0],n[1],n[3]},{n[0],n[2],n[1]}}}) {
+                std::sort(face.begin(),face.end());++tetFaceIncidence[face];
+            }
+        }
+        const auto hasCavityFace=[&](const TestFace& key) {
+            return std::any_of(openPortSource.vascular.cavities[0].faces.begin(),openPortSource.vascular.cavities[0].faces.end(),[&](const auto& face) {
+                auto candidate=face.nodes;std::sort(candidate.begin(),candidate.end());return candidate==key;
+            });
+        };
+        const auto outerTetFace=std::find_if(tetFaceIncidence.begin(),tetFaceIncidence.end(),[&](const auto& item) {
+            return item.second==1u&&!hasCavityFace(item.first);
+        });
+        require(outerTetFace!=tetFaceIncidence.end(),"open fixture has no unused exposed tetra face for rejection coverage");
+        openPortChanged=openPortSource;
+        openPortChanged.vascular.cavities[0].faces.push_back({9998u,outerTetFace->first,VascularCavityFaceRole::hydraulicPortClosure});
+        rejected(openPortChanged,"virtual closure coincident with tetra boundary face");
         const auto cavityWorld=compileWorld(cavitySource);
         require(cavityWorld.succeeded(),"hollow cavity fixture rejected: "+messages(cavityWorld));
         const auto& cv=cavityWorld.world.vascular;

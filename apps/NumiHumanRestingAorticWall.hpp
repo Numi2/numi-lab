@@ -5,9 +5,11 @@
 // 1a191fe2f6c4a1cb03ee290bc850b80011cc267577992ea86abb3a4cb39f4108.
 // The 87-edge section is the BodyParts3D EXTERNAL SURFACE section, not a
 // patent lumen. Its inward contour and wall thickness below are explicit
-// population-level proxies. This creates a closed, capped lumped reservoir
-// segment: CVSim remains the sole blood-volume/flow owner; the caps are
-// pressure-transfer boundaries, not spatial blood ports or a patent lumen.
+// population-level proxies. This creates an open-ended vessel-wall segment
+// whose lumen is volume-closed by hydraulic port faces on the end rings. The
+// port faces transfer pressure thrust to the real wall nodes without adding
+// artificial, pressure-loaded tissue plugs. CVSim remains the sole blood-
+// volume/flow owner; the port closures do not represent spatial blood ports.
 // Its reference coordinates are derived from an axisymmetric finite-Lame
 // thick-wall equilibrium at the admitted initial compartment pressure. The
 // source geometry remains the initial current mesh; axial stretch and isotropic
@@ -108,12 +110,12 @@ struct Config {
     // Finite compressibility is retained in the loaded-reference radial solve.
     std::uint32_t circumferentialSegments=24; // coarse area-preserving section proxy
     std::uint32_t axialSegments=8;
-    // Opt-in exterior-only contact on the outer lateral annulus. Cap and lumen
-    // surfaces remain excluded; the default preserves the contact-free wall.
+    // Opt-in exterior-only contact on the outer lateral annulus. Lumen and
+    // hydraulic port closures remain excluded; default preserves prior scope.
     bool outerLateralContact=false;
     std::uint32_t attachmentStableBase=910000u;
-    // Explicit inferred axial stretch used by the cylindrical loaded-reference
-    // solve. Unity is a reference assumption, not a measured axial stretch.
+    // Nominal prior for the closed-end loaded-reference axial solve. The
+    // admitted solution balances the pressure thrust on the vessel end rings.
     double inferredAxialStretch=1.0;
     std::uint32_t equilibriumIntegrationSegments=2048u;
 };
@@ -143,6 +145,9 @@ struct LoadedReferenceEquilibrium {
     double axialStretch=1.0;
     double innerBoundaryResidualPa=0.0;
     double outerBoundaryResidualPa=0.0;
+    double axialWallResultantN=0.0;
+    double axialPressureResultantN=0.0;
+    double axialEquilibriumResidualN=0.0;
     double maxRadialEquilibriumResidualPaPerM=0.0;
     double minimumJacobian=0.0;
     double maximumJacobian=0.0;
@@ -201,6 +206,7 @@ struct RadialEquilibriumIntegration {
     std::vector<RadialEquilibriumSample> samples;
     double outerResidualPa=0.0,minimumJacobian=0.0,maximumJacobian=0.0;
     double maximumBalanceResidualPaPerM=0.0;
+    double axialWallResultantN=0.0;
 };
 inline RadialEquilibriumIntegration integrateFiniteLaméCylinder(
     double currentInnerRadius,double currentOuterRadius,double referenceInnerRadius,
@@ -251,6 +257,7 @@ inline RadialEquilibriumIntegration integrateFiniteLaméCylinder(
                                   y.referenceRadius,y.radialStress});
     }
     result.outerResidualPa=y.radialStress+outerPressure;
+    double previousRadius=0.0,previousAxialStress=0.0;
     for(const auto& sample:result.samples){
         const double lambdaTheta=sample.radius/sample.referenceRadius;
         const double lambdaR=radialStretchForCauchyStress(
@@ -259,6 +266,17 @@ inline RadialEquilibriumIntegration integrateFiniteLaméCylinder(
         const double J=lambdaR*lambdaTheta*axialStretch;
         result.minimumJacobian=std::min(result.minimumJacobian,J);
         result.maximumJacobian=std::max(result.maximumJacobian,J);
+        const double axialStress=neoHookeanCauchyPrincipalStress(
+            axialStretch,J,mu,lameLambda);
+        if(previousRadius>0.0){
+            // Integrate the axial Cauchy stress over the loaded annular
+            // cross-section: N = integral sigma_z 2*pi*r dr.
+            result.axialWallResultantN+=
+                3.14159265358979323846*(sample.radius-previousRadius)*
+                (sample.radius*axialStress+previousRadius*previousAxialStress);
+        }
+        previousRadius=sample.radius;
+        previousAxialStress=axialStress;
     }
     // Independent centered finite-difference check of d(sigma_r)/dr =
     // (sigma_theta-sigma_r)/r along the integrated solution.
@@ -297,42 +315,138 @@ inline double incompressibleCylinderPressure(
 }
 inline LoadedReferenceEquilibrium solveLoadedReference(
     double currentInnerRadius,double currentOuterRadius,double innerPressure,
-    double outerPressure,double mu,double lameLambda,double axialStretch,
+    double outerPressure,double mu,double lameLambda,double axialStretchSeed,
     std::uint32_t segments){
     if(segments%2u)++segments;
+    if(!(currentInnerRadius>0.0&&currentOuterRadius>currentInnerRadius&&
+         innerPressure>=outerPressure&&outerPressure>=0.0&&mu>0.0&&
+         lameLambda>0.0&&axialStretchSeed>0.0&&segments>=32u))
+        throw std::runtime_error("closed-end loaded-reference inputs are outside the admitted domain");
+    struct RadialRoot {
+        double referenceInnerRadiusM=0.0;
+        RadialEquilibriumIntegration integration;
+    };
+    auto integrate=[&](double referenceInnerRadius,double axialStretch){
+        return integrateFiniteLaméCylinder(currentInnerRadius,currentOuterRadius,
+            referenceInnerRadius,innerPressure,outerPressure,mu,lameLambda,
+            axialStretch,segments);
+    };
+    auto solveRadial=[&](double axialStretch){
+        double lo=currentInnerRadius*0.25,hi=currentInnerRadius*0.999999;
+        const auto low=integrate(lo,axialStretch),high=integrate(hi,axialStretch);
+        if(!(low.outerResidualPa>0.0&&high.outerResidualPa<0.0))
+            throw std::runtime_error("finite-Lame reference-radius shooting did not bracket the outer traction");
+        for(unsigned i=0;i<48u;++i){
+            const double mid=0.5*(lo+hi);
+            const auto trial=integrate(mid,axialStretch);
+            if(trial.outerResidualPa>0.0)lo=mid;else hi=mid;
+        }
+        RadialRoot root;
+        root.referenceInnerRadiusM=0.5*(lo+hi);
+        root.integration=integrate(root.referenceInnerRadiusM,axialStretch);
+        return root;
+    };
+    // A pressurized vessel transfers a real axial pressure resultant through
+    // the end rings. Solve radial traction and axial wall resultant together,
+    // so the proximal attachment does not absorb a fictitious startup impulse.
+    constexpr double minimumAxialStretch=0.8;
+    constexpr double maximumAxialStretch=1.2;
+    const double targetAxialForceN=innerPressure*3.14159265358979323846*
+        currentInnerRadius*currentInnerRadius;
+    const double pressureScale=std::max(innerPressure,1.0);
+    const double forceScale=std::max(targetAxialForceN,1.0e-6);
+    auto normalizedResidual=[&](const RadialEquilibriumIntegration& profile){
+        return std::array<double,2>{
+            profile.outerResidualPa/pressureScale,
+            (profile.axialWallResultantN-targetAxialForceN)/forceScale};
+    };
+    auto residualNorm=[&](const RadialEquilibriumIntegration& profile){
+        const auto f=normalizedResidual(profile);
+        return std::max(std::abs(f[0]),std::abs(f[1]));
+    };
+    double axialStretch=std::clamp(axialStretchSeed,
+        minimumAxialStretch,maximumAxialStretch);
+    RadialRoot solved=solveRadial(axialStretch);
+    bool converged=false;
+    for(unsigned iteration=0;iteration<12u;++iteration){
+        const auto f=normalizedResidual(solved.integration);
+        const double radialTolerance=std::max(1.0e-7,innerPressure*1.0e-10)/pressureScale;
+        const double axialTolerance=1.0e-6;
+        if(std::abs(f[0])<=radialTolerance&&std::abs(f[1])<=axialTolerance){
+            converged=true;
+            break;
+        }
+        const double referenceStep=std::max(1.0e-10,
+            std::abs(solved.referenceInnerRadiusM)*1.0e-4);
+        const double stretchStep=1.0e-4;
+        const auto referencePerturb=integrate(
+            solved.referenceInnerRadiusM+referenceStep,axialStretch);
+        const auto stretchPerturb=integrate(
+            solved.referenceInnerRadiusM,axialStretch+stretchStep);
+        const auto fReference=normalizedResidual(referencePerturb);
+        const auto fStretch=normalizedResidual(stretchPerturb);
+        const double a=(fReference[0]-f[0])/referenceStep;
+        const double c=(fReference[1]-f[1])/referenceStep;
+        const double b=(fStretch[0]-f[0])/stretchStep;
+        const double d=(fStretch[1]-f[1])/stretchStep;
+        const double determinant=a*d-b*c;
+        if(!std::isfinite(determinant)||std::abs(determinant)<1.0e-14)
+            throw std::runtime_error("closed-end aortic preload tangent is singular");
+        double referenceCorrection=(-f[0]*d+b*f[1])/determinant;
+        double stretchCorrection=(-a*f[1]+c*f[0])/determinant;
+        referenceCorrection=std::clamp(referenceCorrection,
+            -0.1*currentInnerRadius,0.1*currentInnerRadius);
+        stretchCorrection=std::clamp(stretchCorrection,-0.05,0.05);
+        const double before=residualNorm(solved.integration);
+        bool accepted=false;
+        double alpha=1.0;
+        for(unsigned backtrack=0;backtrack<12u;++backtrack,alpha*=0.5){
+            const double trialReference=solved.referenceInnerRadiusM+
+                alpha*referenceCorrection;
+            const double trialStretch=axialStretch+alpha*stretchCorrection;
+            if(!(trialReference>currentInnerRadius*0.25&&
+                 trialReference<currentInnerRadius*0.999999&&
+                 trialStretch>=minimumAxialStretch&&
+                 trialStretch<=maximumAxialStretch))continue;
+            auto trial=integrate(trialReference,trialStretch);
+            if(residualNorm(trial)<before){
+                solved.referenceInnerRadiusM=trialReference;
+                solved.integration=std::move(trial);
+                axialStretch=trialStretch;
+                accepted=true;
+                break;
+            }
+        }
+        if(!accepted)
+            throw std::runtime_error("closed-end aortic preload Newton step failed its residual line search");
+    }
+    const auto finalResidual=normalizedResidual(solved.integration);
+    const double radialTolerance=std::max(1.0e-7,innerPressure*1.0e-10)/pressureScale;
+    if(!converged&&std::abs(finalResidual[0])<=radialTolerance&&
+       std::abs(finalResidual[1])<=1.0e-6)converged=true;
+    if(!converged)
+        throw std::runtime_error("closed-end aortic preload failed to converge both pressure and axial force");
+    const auto& profile=solved.integration;
     LoadedReferenceEquilibrium out;
     out.currentInnerRadiusM=currentInnerRadius;out.currentOuterRadiusM=currentOuterRadius;
     out.innerPressurePa=innerPressure;out.outerPressurePa=outerPressure;
     out.axialStretch=axialStretch;out.lameLambdaPa=lameLambda;out.shearModulusPa=mu;
-    double lo=currentInnerRadius*0.25,hi=currentInnerRadius*0.999999;
-    auto integrate=[&](double refRi){
-        return integrateFiniteLaméCylinder(currentInnerRadius,currentOuterRadius,refRi,
-            innerPressure,outerPressure,mu,lameLambda,axialStretch,segments);
-    };
-    auto low=integrate(lo),high=integrate(hi);
-    if(!(low.outerResidualPa>0.0&&high.outerResidualPa<0.0))
-        throw std::runtime_error("finite-Lame reference-radius shooting did not bracket the outer traction");
-    RadialEquilibriumIntegration solved;
-    for(unsigned i=0;i<64u;++i){
-        const double mid=0.5*(lo+hi);
-        auto trial=integrate(mid);
-        if(trial.outerResidualPa>0.0){lo=mid;}else{hi=mid;}
-        solved=std::move(trial);
-    }
-    const double referenceRi=0.5*(lo+hi);
-    solved=integrate(referenceRi);
-    out.referenceInnerRadiusM=referenceRi;
-    out.referenceOuterRadiusM=solved.samples.back().referenceRadius;
-    out.innerBoundaryResidualPa=solved.samples.front().radialStress+innerPressure;
-    out.outerBoundaryResidualPa=solved.outerResidualPa;
-    out.maxRadialEquilibriumResidualPaPerM=solved.maximumBalanceResidualPaPerM;
-    out.minimumJacobian=solved.minimumJacobian;out.maximumJacobian=solved.maximumJacobian;
-    const double pressureTolerance=std::max(1.0e-7,innerPressure*1.0e-10);
-    if(std::abs(out.innerBoundaryResidualPa)>pressureTolerance||
-       std::abs(out.outerBoundaryResidualPa)>pressureTolerance||
+    out.referenceInnerRadiusM=solved.referenceInnerRadiusM;
+    out.referenceOuterRadiusM=profile.samples.back().referenceRadius;
+    out.innerBoundaryResidualPa=profile.samples.front().radialStress+innerPressure;
+    out.outerBoundaryResidualPa=profile.outerResidualPa;
+    out.axialWallResultantN=profile.axialWallResultantN;
+    out.axialPressureResultantN=targetAxialForceN;
+    out.axialEquilibriumResidualN=profile.axialWallResultantN-targetAxialForceN;
+    out.maxRadialEquilibriumResidualPaPerM=profile.maximumBalanceResidualPaPerM;
+    out.minimumJacobian=profile.minimumJacobian;out.maximumJacobian=profile.maximumJacobian;
+    const double closedEndForceTolerance=std::max(1.0e-7,targetAxialForceN*1.0e-6);
+    if(std::abs(out.innerBoundaryResidualPa)>std::max(1.0e-7,innerPressure*1.0e-10)||
+       std::abs(out.outerBoundaryResidualPa)>std::max(1.0e-7,innerPressure*1.0e-10)||
+       std::abs(profile.axialWallResultantN-targetAxialForceN)>closedEndForceTolerance||
        !(out.minimumJacobian>0.0&&out.maximumJacobian<10.0)||
        !std::isfinite(out.maxRadialEquilibriumResidualPaPerM))
-        throw std::runtime_error("finite-Lame loaded-reference boundary residual did not converge");
+        throw std::runtime_error("closed-end finite-Lame loaded-reference force balance did not converge");
     double ilo=currentInnerRadius*0.25,ihi=currentInnerRadius*0.999999;
     const std::uint32_t simpsonSegments=std::max<std::uint32_t>(segments,512u);
     for(unsigned i=0;i<64u;++i){
@@ -410,7 +524,7 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
     out.circumferentialSegments=cfg.circumferentialSegments;out.axialSegments=cfg.axialSegments;
     out.loadedReference=loaded;
     out.segmentLengthM=length;out.attachmentBody=runtimeAttachmentBody;out.donorBody=massDonorRuntimeBody;
-    auto& object=out.object;object.name="Human/BodyParts3D/stable-9/reduced-cavity-wall-v1";
+    auto& object=out.object;object.name="Human/BodyParts3D/stable-9/open-end-cavity-wall-v2";
     object.representation=Representation::fem;object.automaticRepresentation=false;
     // Matter explicit reference coordinates are admitted only for immutable,
     // non-mixed FEM; the current mesh remains the initialized position.
@@ -421,9 +535,8 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
     // hashes the actual reference coordinate array and constitutive parameters.
     object.femReferenceSourceIdentity={
         0x4152544552594c44ULL,0x5245464552454e43ULL,
-        0x4e48414c44303136ULL,0x46494e4954454b31ULL};
+        0x4e48414c44303136ULL,0x46494e4954454b32ULL};
     const std::size_t n=outer.size();const std::uint32_t axial=cfg.axialSegments;
-    const double cap=cfg.wallThicknessM;
     const Vec com=attachmentBodyCOM;
     auto bodyPoint=[&](const Vec& surface,double axialOffset){return sub(add(surface,mul(axis,axialOffset)),com);};
     const double axialMidpoint=0.5*length;
@@ -441,7 +554,7 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
         radial=sub(radial,mul(axis,dot(radial,axis)));
         const double currentEquivalentRadius=wallFraction<=0.0?currentInnerRadius:currentOuterRadius;
         if(currentEquivalentRadius>1.0e-12)radial=mul(radial,referenceRadius/currentEquivalentRadius);
-        const double referenceAxial=(axialOffset-axialMidpoint)/cfg.inferredAxialStretch+axialMidpoint;
+        const double referenceAxial=(axialOffset-axialMidpoint)/loaded.axialStretch+axialMidpoint;
         const Vec referenceBodyLocal=sub(add(add(centroid,mul(axis,referenceAxial)),radial),com);
         const Vec referenceWorld=add(Vec{attachmentPose.position.x,attachmentPose.position.y,attachmentPose.position.z},
                             rotate(attachmentPose.orientation,referenceBodyLocal));
@@ -469,43 +582,19 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
            std::adjacent_find(object.femContactNodes.begin(),object.femContactNodes.end())!=object.femContactNodes.end())
             throw std::runtime_error("aortic outer-lateral contact node mask is not exact and unique");
     }
-    const std::uint32_t lowCenter=addNode(centroid,0.0,0.0);
-    const std::uint32_t highCenter=addNode(centroid,length,0.0);
-    std::vector<std::uint32_t> lowInner(n),lowOuter(n),highInner(n),highOuter(n);
-    std::uint32_t lowCapCenter=addNode(centroid,-cap,0.0);
-    std::uint32_t highCapCenter=addNode(centroid,length+cap,0.0);
-    for(std::size_t i=0;i<n;++i){
-        lowInner[i]=addNode(inner[i],-cap,0.0);lowOuter[i]=addNode(outer[i],-cap,1.0);
-        highInner[i]=addNode(inner[i],length+cap,0.0);highOuter[i]=addNode(outer[i],length+cap,1.0);
-    }
     const auto hex=[&](std::array<std::uint32_t,8> h){
         static constexpr std::array<std::array<unsigned,4>,6> split{{
             {{0,1,2,6}},{{0,2,3,6}},{{0,3,7,6}},{{0,7,4,6}},{{0,4,5,6}},{{0,5,1,6}}
         }};
         for(const auto& s:split)appendTet(object,{h[s[0]],h[s[1]],h[s[2]],h[s[3]]});
     };
-    const auto prism=[&](std::array<std::uint32_t,6> p){
-        appendTet(object,{p[0],p[1],p[2],p[5]});
-        appendTet(object,{p[0],p[1],p[4],p[5]});
-        appendTet(object,{p[0],p[3],p[4],p[5]});
-    };
-    // Annular wall and both closed, pressure-bearing cut-end membranes.
+    // Annular wall only. End-port closure faces below are hydraulic geometry:
+    // their volume gradients apply pressure thrust directly to real end-ring
+    // wall nodes, with no artificial solid caps or pressure-loaded center.
     for(std::uint32_t z=0;z<axial;++z)for(std::size_t i=0;i<n;++i){
         const std::size_t j=(i+1)%n;
         hex({sideInner[z][i],sideOuter[z][i],sideOuter[z][j],sideInner[z][j],
              sideInner[z+1][i],sideOuter[z+1][i],sideOuter[z+1][j],sideInner[z+1][j]});
-    }
-    for(std::size_t i=0;i<n;++i){
-        const std::size_t j=(i+1)%n;
-        // proximal cap slab from z=-t to the source cut plane z=0
-        hex({lowInner[i],lowOuter[i],lowOuter[j],lowInner[j],
-             sideInner[0][i],sideOuter[0][i],sideOuter[0][j],sideInner[0][j]});
-        prism({lowCapCenter,lowInner[i],lowInner[j],lowCenter,sideInner[0][i],sideInner[0][j]});
-        // distal cap slab from z=L to z=L+t
-        hex({sideInner[axial][i],sideOuter[axial][i],sideOuter[axial][j],sideInner[axial][j],
-             highInner[i],highOuter[i],highOuter[j],highInner[j]});
-        prism({highCenter,sideInner[axial][i],sideInner[axial][j],
-               highCapCenter,highInner[i],highInner[j]});
     }
     struct Occ{unsigned count=0;Face oriented{};};std::map<Face,Occ> boundary;
     auto sorted=[](Face f){std::sort(f.begin(),f.end());return f;};
@@ -536,23 +625,76 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
            object.femDisabledContactSurfaceFaces.empty())
             throw std::runtime_error("aortic source contact-face selection is incomplete");
     }
-    std::set<std::uint32_t> innerSet;for(const auto& ring:sideInner)innerSet.insert(ring.begin(),ring.end());
-    std::set<Face> capKeys;
-    for(std::size_t i=0;i<n;++i){const std::size_t j=(i+1)%n;
-        capKeys.insert(sorted({lowCenter,sideInner[0][i],sideInner[0][j]}));
-        capKeys.insert(sorted({highCenter,sideInner[axial][i],sideInner[axial][j]}));
-    }
+    std::set<std::uint32_t> innerSet;
+    for(const auto& ring:sideInner)innerSet.insert(ring.begin(),ring.end());
     std::vector<Face> cavityFaces;
-    for(const auto& [key,e]:boundary)if(e.count==1){
-        const bool innerSide=std::all_of(key.begin(),key.end(),[&](auto node){return innerSet.contains(node);});
-        if(innerSide||capKeys.contains(key)){Face f=e.oriented;std::swap(f[1],f[2]);cavityFaces.push_back(f);}
+    std::vector<VascularCavityFaceRole> cavityFaceRoles;
+    for(const auto& [key,e]:boundary)if(e.count==1u){
+        const bool innerSide=std::all_of(key.begin(),key.end(),
+            [&](auto node){return innerSet.contains(node);});
+        if(innerSide){
+            Face face=e.oriented;
+            std::swap(face[1],face[2]);
+            cavityFaces.push_back(face);
+            cavityFaceRoles.push_back(VascularCavityFaceRole::materialWall);
+        }
     }
-    if(cavityFaces.size()!=2u*n*axial+2u*n)
-        throw std::runtime_error("aortic cavity boundary failed closed sidewall/capped-port topology admission");
+    const std::size_t expectedSideFaces=2u*n*axial;
+    if(cavityFaces.size()!=expectedSideFaces)
+        throw std::runtime_error("aortic inner sidewall boundary is incomplete");
+    double ringOrientation=0.0;
+    for(std::size_t i=0;i<n;++i){
+        const auto a=sub(inner[i],centroid),b=sub(inner[(i+1u)%n],centroid);
+        ringOrientation+=dot(axis,cross(a,b));
+    }
+    if(std::abs(ringOrientation)<1.0e-12)
+        throw std::runtime_error("aortic hydraulic port ring has degenerate orientation");
+    const bool ringWindsPositiveAxis=ringOrientation>0.0;
+    const auto addHydraulicPortClosure=[&](const std::vector<std::uint32_t>& ring,
+                                           bool positiveAxisNormal){
+        if(ring.size()!=n||n<3u)
+            throw std::runtime_error("aortic hydraulic port ring has invalid topology");
+        std::vector<std::uint32_t> polygon=ring;
+        const auto addFace=[&](std::uint32_t a,std::uint32_t b,std::uint32_t c){
+            Face face{a,b,c};
+            if(ringWindsPositiveAxis!=positiveAxisNormal)
+                std::swap(face[1],face[2]);
+            cavityFaces.push_back(face);
+            cavityFaceRoles.push_back(VascularCavityFaceRole::hydraulicPortClosure);
+        };
+        while(polygon.size()>3u){
+            if((polygon.size()&1u)!=0u){
+                for(std::size_t i=1u;i+1u<polygon.size();++i)
+                    addFace(polygon[0],polygon[i],polygon[i+1u]);
+                polygon.resize(3u);
+                break;
+            }
+            std::vector<std::uint32_t> reduced;
+            reduced.reserve(polygon.size()/2u);
+            for(std::size_t i=0u;i<polygon.size();i+=2u)
+                reduced.push_back(polygon[i]);
+            for(std::size_t i=1u;i<polygon.size();i+=2u){
+                const std::size_t previous=(i+polygon.size()-1u)%polygon.size();
+                const std::size_t next=(i+1u)%polygon.size();
+                addFace(polygon[previous],polygon[i],polygon[next]);
+            }
+            polygon=std::move(reduced);
+        }
+        addFace(polygon[0],polygon[1],polygon[2]);
+    };
+    addHydraulicPortClosure(sideInner.front(),false);
+    addHydraulicPortClosure(sideInner.back(),true);
+    const std::size_t expectedPortFaces=2u*(n-2u);
+    if(cavityFaces.size()!=expectedSideFaces+expectedPortFaces||
+       cavityFaceRoles.size()!=cavityFaces.size())
+        throw std::runtime_error("aortic hydraulic port closure topology is incomplete");
     double signedV=cavityVolume(object.femNodes,cavityFaces);
-    if(signedV<0){for(auto& f:cavityFaces)std::swap(f[1],f[2]);signedV=-signedV;}
+    if(signedV<0){
+        for(auto& face:cavityFaces)std::swap(face[1],face[2]);
+        signedV=-signedV;
+    }
     if(!(signedV>0)||std::abs(signedV-targetBloodVolumeM3)>targetBloodVolumeM3*2e-4)
-        throw std::runtime_error("aortic closed-reservoir geometry does not match the existing CVSim blood volume");
+        throw std::runtime_error("aortic open-end cavity geometry does not match the existing CVSim blood volume");
     const std::uint32_t materialIndex=0u;object.materialIndex=materialIndex;
     // The source section ring is attached to the source abdomen body (7).
     // Its mechanical mass is separately attributed to the registered torso
@@ -566,9 +708,10 @@ inline Built build(const SectionProof& proof,const MRBodyStateGPU& attachmentPos
     out.cavity.stableIdentifier=9007u;out.cavity.compartment=7u;out.cavity.objectIndex=0u;
     out.cavity.pressureScale=13300.0;out.cavity.geometryResidualTolerance=1e-5;
     out.cavity.sourceIdentity={0x1a191fe2f6c4a1cbULL,0x03ee290bc850b800ULL,0x11cc267577992ea8ULL,0x6abb3a4cb39f4108ULL};
-    out.cavity.mechanicalIdentity={0x61726f727469632dULL,0x77616c6c2d763100ULL,0x6c6162726f737365ULL,0x3139333435333536ULL};
+    out.cavity.mechanicalIdentity={0x616f727469632d70ULL,0x6f72742d76322d30ULL,0x6f70656e2d656e64ULL,0x66656d2d706f7274ULL};
     for(std::size_t i=0;i<cavityFaces.size();++i)
-        out.cavity.faces.push_back({90070000u+static_cast<std::uint32_t>(i),cavityFaces[i],VascularCavityFaceRole::materialWall});
+        out.cavity.faces.push_back({90070000u+static_cast<std::uint32_t>(i),
+            cavityFaces[i],cavityFaceRoles[i]});
     return out;
 }
 struct AnnularMechanicalWall {
@@ -596,7 +739,7 @@ inline AnnularMechanicalWall makeAnnularMechanicalWall(const Built& built,
     if(circum<3u||axial==0u)
         throw std::runtime_error("annular wall grid dimensions are absent");
     // The builder emits exactly six Freudenthal tetrahedra per annular
-    // circumferential-sector/axial cell before adding its artificial end caps.
+    // circumferential-sector/axial cell; hydraulic port closures are not FEM tets.
     const std::size_t sideTetCount=6u*circum*axial;
     if(built.object.tetrahedra.size()<sideTetCount)
         throw std::runtime_error("annular wall source is missing the sidewall tet prefix");
