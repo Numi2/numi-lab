@@ -1364,6 +1364,8 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
     bool standUsePerContactSupportPlanes = false;
+    bool captureSupportGeometryOnly = false;
+    std::vector<MRNumiHumanStandContactGPU> supportGeometryContactBaseline;
     bool standRootMomentumDiagnosticsCaptured = false;
     bool standEndpointLinearMomentumCaptured = false;
     __strong id<MTLBuffer> standEndpointMomentumScratch = nil;
@@ -2162,6 +2164,92 @@ bool validNumiHumanStand(
         reason = "mutable DoF properties require ABI 6 and one ordinary stand-reconciliation environment";
         return false;
     }
+    if (input.captureSupportGeometryOnly) {
+        const std::uint64_t bodyEnd =
+            static_cast<std::uint64_t>(articulation.firstBody) +
+            articulation.bodyCount;
+        if (stand.enabled() || input.environmentCount != 1u ||
+            !config.pointJacobiansOnly || input.millard.enabled() ||
+            input.mujoco.enabled() || input.rootTranslations.size() != 1u ||
+            input.points.empty() || !input.collectFullResultToHost ||
+            input.publishAcceptedResidentState ||
+            input.residentContinuation.configured() ||
+            !stand.enableContact || stand.contacts.empty() ||
+            stand.contacts.size() > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
+            stand.usePerContactSupportPlanes !=
+                stand.supportGeometryProgram.usePerContactSupportPlanes ||
+            !stand.supportGeometryProgram.valid() ||
+            config.standContactWarmStart || !stand.v.empty() ||
+            !stand.jointEqualities.empty() ||
+            !stand.preloadedGeneralizedForce.empty() ||
+            !stand.passiveJointProgram.empty() ||
+            !stand.hipCapsuleTerms.empty() ||
+            !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
+            stand.tendonLoadProgram.configured() ||
+            stand.numanXTransactionProgram.configured() ||
+            stand.numanXHumanMatterProgram.configured() ||
+            stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
+            stand.rootMomentumDiagnosticLastAcceptedStep != 0u ||
+            stand.jointEqualityPrefixRelease.configured() ||
+            mrNumiHumanTimedRootForceConfigured(stand.timedRootForce) ||
+            stand.stepIndexOffset != 0u ||
+            stand.authoritativeStepCount != 0u ||
+            !finite(stand.groundPoint) || !finite(stand.groundNormal) ||
+            stand.groundPoint.w != 0.0f || stand.groundNormal.w != 0.0f) {
+            reason = "current-pose support capture requires one point-J-only paired-FK environment, a full result, and no Stand or other physical owner";
+            return false;
+        }
+        const float groundNormalLength = std::sqrt(
+            stand.groundNormal.x * stand.groundNormal.x +
+            stand.groundNormal.y * stand.groundNormal.y +
+            stand.groundNormal.z * stand.groundNormal.z);
+        if (!std::isfinite(groundNormalLength) ||
+            std::abs(groundNormalLength - 1.0f) > 1.0e-5f) {
+            reason = "current-pose support capture requires a finite unit ground normal";
+            return false;
+        }
+        if (!stand.usePerContactSupportPlanes) {
+            for (const auto& contact : stand.contacts) {
+                if (std::memcmp(&contact.planePoint, &stand.groundPoint,
+                                sizeof(mr_float4)) != 0 ||
+                    std::memcmp(&contact.planeNormal, &stand.groundNormal,
+                                sizeof(mr_float4)) != 0) {
+                    reason = "global-plane support capture rows must copy the exact common ground plane";
+                    return false;
+                }
+            }
+        }
+        std::vector<std::uint32_t> pointQueries;
+        pointQueries.reserve(stand.contacts.size());
+        for (std::size_t contactIndex = 0u;
+             contactIndex < stand.contacts.size(); ++contactIndex) {
+            const auto& contact = stand.contacts[contactIndex];
+            if (contact.bodyIndex < articulation.firstBody ||
+                static_cast<std::uint64_t>(contact.bodyIndex) >= bodyEnd ||
+                contact.pointQueryIndex >= input.pointCount ||
+                !std::isfinite(contact.boundaryNormalVelocity) ||
+                !finite(contact.frictionSlopAndStabilization) ||
+                contact.frictionSlopAndStabilization.x < 0.0f ||
+                contact.frictionSlopAndStabilization.y < 0.0f ||
+                contact.frictionSlopAndStabilization.z < 0.0f ||
+                contact.frictionSlopAndStabilization.z > 1.0f ||
+                contact.frictionSlopAndStabilization.w != 0.0f) {
+                reason = "current-pose support capture contact row is malformed or carries a reaction seed";
+                return false;
+            }
+            const auto& query = input.points[contact.pointQueryIndex];
+            if (query.bodyIndex != contact.bodyIndex ||
+                (query.flags & ~(MR_ARTICULATED_POINT_SPHERE_SUPPORT |
+                                 MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
+                std::find(pointQueries.begin(), pointQueries.end(),
+                          contact.pointQueryIndex) != pointQueries.end()) {
+                reason = "current-pose support capture rows must map one-to-one to matching point queries";
+                return false;
+            }
+            pointQueries.push_back(contact.pointQueryIndex);
+        }
+        return true;
+    }
     if (!stand.enabled()) {
         if (!stand.v.empty() || !stand.contacts.empty() ||
             !stand.jointEqualities.empty() ||
@@ -2449,7 +2537,8 @@ bool validNumiHumanStand(
         return false;
     }
     if (stand.supportGeometryProgram.configured() &&
-        (!stand.supportGeometryProgram.valid() || !stand.enabled() ||
+        (!stand.supportGeometryProgram.valid() ||
+         (!stand.enabled() && !input.captureSupportGeometryOnly) ||
          !stand.enableContact || stand.contacts.empty())) {
         reason = "stand support-geometry consumer requires a complete contact owner";
         return false;
@@ -3276,6 +3365,7 @@ bool buildRequirements(
     if (layout.standStatusElements == 0u) {
         for (std::size_t index = kStandContactsBuffer;
              index < kStandBufferCount; ++index) {
+            if (index == kStandContactsBuffer && layout.standContactElements != 0u) continue;
             if (hasCompensatedGeometry(layout) &&
                 (index == kStandRootTranslationBuffer || index == kStandBodyPositionLowBuffer ||
                  index == kStandPointPositionLowBuffer)) continue;
@@ -3616,7 +3706,10 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         if (articulation.rootType != MR_ROOT_FLOATING || articulation.nq < 7u ||
             input.q.size() != layout.qElements || input.rootTranslations.size() != input.environmentCount ||
             (!input.stand.enabled() && (!config.pointJacobiansOnly || input.millard.enabled() ||
-                                       input.residentContinuation.configured())))
+                                       input.residentContinuation.configured())) ||
+            (input.captureSupportGeometryOnly &&
+             (!config.pointJacobiansOnly || input.mujoco.enabled() ||
+              input.millard.enabled() || input.residentContinuation.configured())))
             return reject(std::move(diagnostics), MetalArticulatedOperatorHostStatus::invalidDimensions,
                 "root translation requires canonical floating-root records; read-only paired evaluation "
                 "requires point-Jacobian-only mode without Millard or resident continuation");
@@ -3930,6 +4023,9 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             }
         }
         (void)environmentBodyDofs;
+    }
+    if (input.captureSupportGeometryOnly) {
+        layout.standContactElements = input.stand.contacts.size();
     }
     if (!input.stand.enabled() && input.mujoco.enabled()) {
         layout.standVelocityElements = layout.generalizedElements;
@@ -6231,7 +6327,13 @@ void uploadBatch(
         );
     }
 
-    if (input.stand.enabled()) {
+    if (input.captureSupportGeometryOnly) {
+        copyToBuffer(
+            context.standBuffers[kStandContactsBuffer],
+            input.stand.contacts.data(),
+            requirements.standEntries[kStandContactsBuffer]
+        );
+    } else if (input.stand.enabled()) {
         copyToBuffer(
             context.standBuffers[kStandContactsBuffer],
             input.stand.contacts.empty()
@@ -10358,6 +10460,53 @@ MetalArticulatedOperatorSubmission::wait(
                 copyOutput(staged.pointWorld, buffers[9]);
                 copyOutput(staged.diagnosticMassMatrix, buffers[10]);
                 copyOutput(staged.pointJacobians, buffers[11]);
+                if (pending->captureSupportGeometryOnly) {
+                    staged.supportGeometryContacts.resize(
+                        layout.standContactElements);
+                    copyOutput(
+                        staged.supportGeometryContacts,
+                        pending->context->standBuffers[kStandContactsBuffer]);
+                    if (staged.supportGeometryContacts.size() !=
+                            pending->supportGeometryContactBaseline.size()) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::internalFailure,
+                            "support geometry capture contact count changed");
+                    }
+                    for (std::size_t index = 0u;
+                         index < staged.supportGeometryContacts.size(); ++index) {
+                        const auto& value = staged.supportGeometryContacts[index];
+                        const auto& source =
+                            pending->supportGeometryContactBaseline[index];
+                        const float normalLength = std::sqrt(
+                            value.planeNormal.x * value.planeNormal.x +
+                            value.planeNormal.y * value.planeNormal.y +
+                            value.planeNormal.z * value.planeNormal.z);
+                        if (value.bodyIndex != source.bodyIndex ||
+                            value.pointQueryIndex != source.pointQueryIndex ||
+                            value.sourceGeometryIndex != source.sourceGeometryIndex ||
+                            value.boundaryNormalVelocity != source.boundaryNormalVelocity ||
+                            std::memcmp(&value.frictionSlopAndStabilization,
+                                        &source.frictionSlopAndStabilization,
+                                        sizeof(mr_float4)) != 0 ||
+                            (!pending->standUsePerContactSupportPlanes &&
+                             (std::memcmp(&value.planePoint, &source.planePoint,
+                                          sizeof(mr_float4)) != 0 ||
+                              std::memcmp(&value.planeNormal, &source.planeNormal,
+                                          sizeof(mr_float4)) != 0)) ||
+                            !finite(value.planePoint) ||
+                            !finite(value.planeNormal) ||
+                            value.planePoint.w != 0.0f ||
+                            value.planeNormal.w != 0.0f ||
+                            !std::isfinite(normalLength) ||
+                            std::abs(normalLength - 1.0f) > 1.0e-4f) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::internalFailure,
+                                "support geometry callback changed contact identity or returned an invalid plane");
+                        }
+                    }
+                }
                 copyOutput(staged.generalizedImpulse, buffers[12]);
                 copyOutput(staged.deltaVelocity, buffers[13]);
                 copyOutput(staged.millardResults,
@@ -11494,6 +11643,17 @@ MetalArticulatedOperatorContext::submit(
         }
         const bool reusePublishedResidentState =
             state_->publishedResident.active;
+        if (input.captureSupportGeometryOnly &&
+            (reusePublishedResidentState ||
+             state_->splitStandHorizon.active ||
+             state_->humanMatterPrepared.active ||
+             state_->standContactWarmStartInitializedEnvironmentCount != 0u)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::contextBusy,
+                "current-pose support capture requires a quiescent context without accepted resident state, a split horizon, or contact warm-start history"
+            );
+        }
         const bool hasExplicitAuthoritativeHorizon =
             input.stand.enabled() &&
             input.stand.authoritativeStepCount != 0u;
@@ -16263,6 +16423,12 @@ MetalArticulatedOperatorContext::submit(
             pending->articulationIndex =
                 input.articulationIndex;
             pending->pointCount = input.pointCount;
+            pending->captureSupportGeometryOnly =
+                input.captureSupportGeometryOnly;
+            if (input.captureSupportGeometryOnly) {
+                pending->supportGeometryContactBaseline.assign(
+                    input.stand.contacts.begin(), input.stand.contacts.end());
+            }
             pending->hasMillardReference = input.millard.enabled();
             pending->millardMuscleCount = input.millard.muscles.size();
             pending->hasMujocoReference = input.mujoco.enabled();

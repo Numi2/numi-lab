@@ -1,6 +1,7 @@
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
+#include "metalrobo/MetalWorld.hpp"
 
 #ifndef ACCELERATE_NEW_LAPACK
 #define ACCELERATE_NEW_LAPACK
@@ -234,10 +235,30 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
 ) {
     const std::size_t nv = model.articulations[articulationIndex].nv;
     const std::vector<double> zeroVelocity(nv, 0.0);
+    const std::uint64_t currentModelFingerprint =
+        numiHumanStaticSupportModelFingerprint(model, articulationIndex);
     std::vector<ArticulatedPointQuery> queries;
+    std::vector<std::size_t> querySupportIndices;
     queries.reserve(supports.size());
+    querySupportIndices.reserve(supports.size());
+    generalizedColumns.assign(
+        supports.size(), std::vector<double>(nv, 0.0));
+    planeGaps.assign(supports.size(), 0.0);
     for (std::size_t index = 0u; index < supports.size(); ++index) {
         const auto& support = supports[index];
+        if (support.weightedWitness) {
+            for (std::size_t prior = 0u; prior < index; ++prior) {
+                if (supports[prior].weightedWitness &&
+                    (supports[prior].weightedWitness->sourceContactIndex ==
+                         support.weightedWitness->sourceContactIndex ||
+                     supports[prior].weightedWitness->pointQueryIndex ==
+                         support.weightedWitness->pointQueryIndex)) {
+                    return failure(
+                        NumiHumanMuscleEquilibriumStatus::invalidDimensions,
+                        static_cast<std::uint32_t>(index));
+                }
+            }
+        }
         const double normalLength = std::sqrt(
             square(support.normal[0]) + square(support.normal[1]) +
             square(support.normal[2]));
@@ -253,13 +274,69 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
                 NumiHumanMuscleEquilibriumStatus::invalidDimensions,
                 static_cast<std::uint32_t>(index));
         }
-        queries.push_back({support.bodyIndex, support.localPoint, support.supportRadius, support.normal, support.supportRadii, support.supportOrientation});
+        if (support.weightedWitness) {
+            const auto& witness = *support.weightedWitness;
+            if (!finiteSpan(witness.worldPoint) ||
+                witness.pointJacobian.size() != 3u * nv ||
+                !finiteSpan(witness.pointJacobian) ||
+                witness.modelFingerprint == 0u ||
+                witness.modelFingerprint != currentModelFingerprint ||
+                witness.sourceGeometryIndex == MR_INVALID_INDEX ||
+                witness.referenceQ.size() != q.size() ||
+                !finiteSpan(witness.referenceQ) ||
+                !std::equal(
+                    witness.referenceQ.begin(), witness.referenceQ.end(),
+                    q.begin(), [](const double captured, const double current) {
+                        // The source operator consumes Float32 q. Bind the
+                        // witness to those exact source coordinates while
+                        // allowing the static owner's FP64 equality projection
+                        // to retain sub-Float32 roundoff.
+                        return std::isfinite(current) &&
+                            static_cast<float>(captured) ==
+                                static_cast<float>(current);
+                    }) ||
+                witness.sourceContactIndex == MR_INVALID_INDEX ||
+                witness.pointQueryIndex == MR_INVALID_INDEX) {
+                return failure(
+                    NumiHumanMuscleEquilibriumStatus::invalidDimensions,
+                    static_cast<std::uint32_t>(index));
+            }
+            double gap = 0.0;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                gap += (witness.worldPoint[axis] -
+                        support.planePoint[axis]) *
+                    support.normal[axis];
+            }
+            if (!std::isfinite(gap)) {
+                return failure(
+                    NumiHumanMuscleEquilibriumStatus::nonfiniteResult,
+                    static_cast<std::uint32_t>(index));
+            }
+            if (requireAdmissiblePose && gap < -gapTolerance) {
+                return failure(
+                    NumiHumanMuscleEquilibriumStatus::supportPenetration,
+                    static_cast<std::uint32_t>(index));
+            }
+            planeGaps[index] = gap;
+            const double staticGapTolerance =
+                std::min(gapTolerance, activationDistance);
+            if (!requireAdmissiblePose || gap <= staticGapTolerance) {
+                for (std::size_t dof = 0u; dof < nv; ++dof) {
+                    generalizedColumns[index][dof] =
+                        support.normal[0] * witness.pointJacobian[dof] +
+                        support.normal[1] * witness.pointJacobian[nv + dof] +
+                        support.normal[2] *
+                            witness.pointJacobian[2u * nv + dof];
+                }
+            }
+            continue;
+        }
+        queries.push_back({
+            support.bodyIndex, support.localPoint, support.supportRadius,
+            support.normal, support.supportRadii, support.supportOrientation});
+        querySupportIndices.push_back(index);
     }
-    if (queries.empty()) {
-        generalizedColumns.clear();
-        planeGaps.clear();
-        return {};
-    }
+    if (queries.empty()) return {};
     std::vector<ArticulatedPointKinematics> points(queries.size());
     std::vector<double> jacobians(queries.size() * 3u * nv, 0.0);
     const auto diagnostics = computeArticulatedPointJacobians(
@@ -271,37 +348,38 @@ NumiHumanMuscleEquilibriumDiagnostics resolveStaticSupports(
         failed.dynamicsStatus = diagnostics.status;
         return failed;
     }
-    generalizedColumns.assign(
-        supports.size(), std::vector<double>(nv, 0.0));
-    planeGaps.assign(supports.size(), 0.0);
-    for (std::size_t support = 0u; support < supports.size(); ++support) {
+    for (std::size_t query = 0u; query < queries.size(); ++query) {
+        const std::size_t supportIndex = querySupportIndices[query];
+        const auto& support = supports[supportIndex];
         double gap = 0.0;
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
-            gap += (points[support].position[axis] -
-                    supports[support].planePoint[axis]) *
-                supports[support].normal[axis];
+            gap += (points[query].position[axis] -
+                    support.planePoint[axis]) *
+                support.normal[axis];
         }
         if (!std::isfinite(gap)) {
-            return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult,
-                           static_cast<std::uint32_t>(support));
+            return failure(
+                NumiHumanMuscleEquilibriumStatus::nonfiniteResult,
+                static_cast<std::uint32_t>(supportIndex));
         }
         if (requireAdmissiblePose && gap < -gapTolerance) {
-            return failure(NumiHumanMuscleEquilibriumStatus::supportPenetration,
-                           static_cast<std::uint32_t>(support));
+            return failure(
+                NumiHumanMuscleEquilibriumStatus::supportPenetration,
+                static_cast<std::uint32_t>(supportIndex));
         }
-        planeGaps[support] = gap;
+        planeGaps[supportIndex] = gap;
         // Zero columns keep source indexing stable while removing the force
         // variable for a separated witness from every recruitment objective.
         // A speculative runtime band only schedules a possible collision.
         // Static positive load requires geometrically closed support.
         const double staticGapTolerance = std::min(gapTolerance, activationDistance);
         if (requireAdmissiblePose && gap > staticGapTolerance) continue;
-        const std::size_t base = support * 3u * nv;
+        const std::size_t base = query * 3u * nv;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
-            generalizedColumns[support][dof] =
-                supports[support].normal[0] * jacobians[base + dof] +
-                supports[support].normal[1] * jacobians[base + nv + dof] +
-                supports[support].normal[2] *
+            generalizedColumns[supportIndex][dof] =
+                support.normal[0] * jacobians[base + dof] +
+                support.normal[1] * jacobians[base + nv + dof] +
+                support.normal[2] *
                     jacobians[base + 2u * nv + dof];
         }
     }
@@ -2044,6 +2122,44 @@ double minimumNormalizedLimitMargin(
 
 } // namespace
 
+std::uint64_t numiHumanStaticSupportModelFingerprint(
+    const EngineModel& model, const std::uint32_t articulationIndex
+) noexcept {
+    if (articulationIndex >= model.articulations.size()) return 0u;
+    const std::uint64_t canonical = engineModelFingerprint(model);
+    // Bind witnesses to both the model and the articulated coordinate chart;
+    // equal-sized articulations in one model must not exchange Jacobians.
+    std::uint64_t hash = 14695981039346656037ull;
+    const auto append = [&hash](const void* data, const std::size_t size) {
+        const auto* bytes = static_cast<const std::uint8_t*>(data);
+        for (std::size_t index = 0u; index < size; ++index) {
+            hash ^= bytes[index];
+            hash *= 1099511628211ull;
+        }
+    };
+    if (canonical != 0u) {
+        append(&canonical, sizeof(canonical));
+        append(&articulationIndex, sizeof(articulationIndex));
+        return hash == 0u ? 1u : hash;
+    }
+    // CPU fixtures may intentionally omit production capacities, so retain a
+    // deterministic mechanics identity for the source rows they do provide.
+    const auto appendVector = [&append](const auto& values) {
+        const std::uint64_t count = values.size();
+        append(&count, sizeof(count));
+        if (!values.empty()) append(values.data(), values.size() * sizeof(values[0]));
+    };
+    append(&model.world, sizeof(model.world));
+    append(&articulationIndex, sizeof(articulationIndex));
+    appendVector(model.articulations);
+    appendVector(model.joints);
+    appendVector(model.dofs);
+    appendVector(model.bodies);
+    appendVector(model.defaultQ);
+    appendVector(model.defaultV);
+    return hash == 0u ? 1u : hash;
+}
+
 NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
@@ -2370,6 +2486,12 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     if (!supportContacts.empty() &&
         articulation.rootType != MR_ROOT_FLOATING) {
         return failure(NumiHumanMuscleEquilibriumStatus::invalidDimensions);
+    }
+    const bool hasWeightedWitness = std::any_of(
+        supportContacts.begin(), supportContacts.end(),
+        [](const auto& support) { return support.weightedWitness.has_value(); });
+    if (hasWeightedWitness && config.poseSweeps != 0u) {
+        return failure(NumiHumanMuscleEquilibriumStatus::invalidConfiguration);
     }
     if (!finiteSpan(initialQ)) {
         return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteInput);
@@ -2903,6 +3025,17 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     candidate.generalizedJointEqualityForce = current.equalityForce;
     candidate.supportNormalForce = current.supportNormalForce;
     candidate.supportPlaneGapMeters = current.supportPlaneGapMeters;
+    candidate.supportWitnessIdentity.reserve(supportContacts.size());
+    for (const auto& support : supportContacts) {
+        if (support.weightedWitness) {
+            const auto& witness = *support.weightedWitness;
+            candidate.supportWitnessIdentity.push_back({
+                witness.sourceContactIndex, witness.pointQueryIndex,
+                witness.sourceGeometryIndex});
+        } else {
+            candidate.supportWitnessIdentity.push_back({});
+        }
+    }
     candidate.generalizedSupportForce = current.supportForce;
     candidate.generalizedPassiveCoordinateForce =
         current.passiveCoordinateForce;

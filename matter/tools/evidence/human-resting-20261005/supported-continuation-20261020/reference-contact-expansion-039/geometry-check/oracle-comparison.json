@@ -1,0 +1,63 @@
+{
+  "source_sha256": "f79c74fa867b65017975bc018baf621c8236812b69a6a4f90ff8f300785423e0",
+  "runs": [
+    {
+      "id": "original-flags",
+      "command": [
+        "/usr/bin/clang++",
+        "-DNUMI_CARDBOARD_GEOMETRY_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\"",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-iquote",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-original-flags"
+      ],
+      "binary_sha256": "da17dbde87853dae8771e000d1e81959dd55cff301f5f2545b0a6e41be9ecb25",
+      "exit": 0
+    },
+    {
+      "id": "strict-flags",
+      "command": [
+        "/usr/bin/clang++",
+        "-DNUMI_CARDBOARD_GEOMETRY_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\"",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-iquote",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-strict-flags"
+      ],
+      "binary_sha256": "e68173d9f790e0b09cb217d0d7aa0590f8a61b4436427bcb4b221e5150f6fdc5",
+      "exit": 0
+    }
+  ]
+}

@@ -1,0 +1,456 @@
+{
+  "schema": 1,
+  "repository": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "tested_base_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "039f_preparation_provenance_sha256": "7676596d2c36f250f590d523e8a23a5b8d55a0704216db592a0948b5cbba31cb",
+  "frozen_039f_source_count": 33,
+  "frozen_039f_sources": [
+    {
+      "path": "CMakeLists.txt",
+      "base_sha256": "b4e83ea9fcf467373b9408629203c0da0e379f57f86bd481b2e6dc9b208a2f3b",
+      "tested_039f_sha256": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "current_sha256": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "included_in_patch": true
+    },
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "base_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "tested_039f_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "current_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "included_in_patch": false
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "base_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "tested_039f_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "current_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "included_in_patch": false
+    },
+    {
+      "path": "apps/NumiHumanRegisteredLigaments.hpp",
+      "base_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "tested_039f_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "current_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "included_in_patch": false
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "base_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "tested_039f_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "current_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "included_in_patch": false
+    },
+    {
+      "path": "apps/numi_human_tendon_fem_load_probe.mm",
+      "base_sha256": "906d4a318464da84e826330b295361fd0c29f6ec6903f31c6746ca61bc814c3a",
+      "tested_039f_sha256": "906d4a318464da84e826330b295361fd0c29f6ec6903f31c6746ca61bc814c3a",
+      "current_sha256": "906d4a318464da84e826330b295361fd0c29f6ec6903f31c6746ca61bc814c3a",
+      "included_in_patch": false
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "base_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+      "tested_039f_sha256": "e7f525e5c9ec83826b9b94288cb83fc7e477ee76f6f10b817d7331808baee076",
+      "current_sha256": "e7f525e5c9ec83826b9b94288cb83fc7e477ee76f6f10b817d7331808baee076",
+      "included_in_patch": true
+    },
+    {
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "base_sha256": "1c8b8b2eb0b1b2dc40511d26ddb8e7a5b85076e862beb6bacd44bd440751f343",
+      "tested_039f_sha256": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+      "current_sha256": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+      "included_in_patch": true
+    },
+    {
+      "path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+      "base_sha256": "3b5d3c234db76c9db7fba2e8044b38f1de4c25b51db6d8b7bf25518b055346f3",
+      "tested_039f_sha256": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+      "current_sha256": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_sha256": "fb7bb55903969e7e214f295d020df6b7c75454b9d18f92b94daa168edd05b44e",
+      "tested_039f_sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "current_sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "base_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "tested_039f_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "current_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "base_sha256": "ec2af7918e23470a8386d81c1aa59a13aa9ab9d5bf352fdf6afd8fbee39e948c",
+      "tested_039f_sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "current_sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "base_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "tested_039f_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "current_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "base_sha256": "584591407eb76d3ff2907e6c956f9b4ff510a8119f9b188e554a8df45ef4c50d",
+      "tested_039f_sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "current_sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "base_sha256": "972b64eb072adf0110531e6b1e5eb5cc334c313633be58ac08a2f8eed0c596c9",
+      "tested_039f_sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "current_sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "tested_039f_sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "current_sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "base_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "tested_039f_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "current_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "base_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "tested_039f_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "current_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "base_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "tested_039f_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "current_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "0dfaf96fbd59b658910f5af8e11e6c646adab218f81668cd296e1a6ecb0b3017",
+      "tested_039f_sha256": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "current_sha256": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/tools/cardboard_contact_geometry_check.metal",
+      "base_sha256": "680a2b27431cfff3141cb79feea89a3f35cdcb79456d329d1fbec5548c089115",
+      "tested_039f_sha256": "98c26db7ae93da82774aa4d7ef4430654918975dcee385b46aefc98a991c0d60",
+      "current_sha256": "98c26db7ae93da82774aa4d7ef4430654918975dcee385b46aefc98a991c0d60",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/tools/cardboard_contact_geometry_check.mm",
+      "base_sha256": "029f85e592358987b861d036d94a0a8a2c65983a8b24e6cc08e8f60eb57bf34b",
+      "tested_039f_sha256": "94fded1890ce7cf731f31eabdc477b24362300e69b63e5e6f8baf9af65b6d1cf",
+      "current_sha256": "94fded1890ce7cf731f31eabdc477b24362300e69b63e5e6f8baf9af65b6d1cf",
+      "included_in_patch": true
+    },
+    {
+      "path": "matter/tools/fem_reference_check.mm",
+      "base_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+      "tested_039f_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+      "current_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+      "included_in_patch": false
+    },
+    {
+      "path": "matter/tools/vascular_cavity_check.mm",
+      "base_sha256": "01a8ae7854d4748be91d9b92a4e3186612fab922093bfd58839d05504f759e3f",
+      "tested_039f_sha256": "01a8ae7854d4748be91d9b92a4e3186612fab922093bfd58839d05504f759e3f",
+      "current_sha256": "01a8ae7854d4748be91d9b92a4e3186612fab922093bfd58839d05504f759e3f",
+      "included_in_patch": false
+    },
+    {
+      "path": "src/core/NumiHumanMuscleEquilibrium.cpp",
+      "base_sha256": "734f0efb483e38605bdb3c1d0540dd24eccff36af1c0c3f9b05c4d9500c7d383",
+      "tested_039f_sha256": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+      "current_sha256": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+      "included_in_patch": true
+    },
+    {
+      "path": "src/metal/MetalArticulatedOperator.mm",
+      "base_sha256": "f0ac35e1b8887ab693302efb102e42fca07dbb2963ef6177eadfcf67c8da4b43",
+      "tested_039f_sha256": "695582ae1c600bef3c797098093fa682e0236c8b97291bb0ab1991c893c1cf39",
+      "current_sha256": "695582ae1c600bef3c797098093fa682e0236c8b97291bb0ab1991c893c1cf39",
+      "included_in_patch": true
+    },
+    {
+      "path": "tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+      "base_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "tested_039f_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "current_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "included_in_patch": false
+    },
+    {
+      "path": "tests/human_skin_fat_from_layers_precomputed.cpp",
+      "base_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "tested_039f_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "current_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "included_in_patch": false
+    },
+    {
+      "path": "tests/human_wholebody_skin_layers.cpp",
+      "base_sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "tested_039f_sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "current_sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "included_in_patch": false
+    },
+    {
+      "path": "tests/numi_human_per_contact_plane_metal_test.mm",
+      "base_sha256": "e10cf7f8fed6124d46f6700421e809407f3b2c34b84de17731e6ae0c3e05f86f",
+      "tested_039f_sha256": "d2e4b216089ba24ba8f531a3e20c90caf5367f8a3c81ed9dceac042849396aca",
+      "current_sha256": "d2e4b216089ba24ba8f531a3e20c90caf5367f8a3c81ed9dceac042849396aca",
+      "included_in_patch": true
+    },
+    {
+      "path": "tests/numi_human_registered_ligaments_test.cpp",
+      "base_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "tested_039f_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "current_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "included_in_patch": false
+    },
+    {
+      "path": "tests/numi_human_static_support_test.cpp",
+      "base_sha256": "9367409baea241c21b22dbe2aeebd5c40601d5e338e0d42c0b43e9dfff8fc514",
+      "tested_039f_sha256": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0",
+      "current_sha256": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0",
+      "included_in_patch": true
+    },
+    {
+      "path": "tools/verify_human_supported_tissue.sh",
+      "base_sha256": "c1c1d19b800e4f5a6ea5cf522310c842731fcdfad677b386b5543d5338d01b03",
+      "tested_039f_sha256": "8d2b4b935aa19fbc078ea5b2435af035375fca8cae445d295111be607e76ab89",
+      "current_sha256": "8d2b4b935aa19fbc078ea5b2435af035375fca8cae445d295111be607e76ab89",
+      "included_in_patch": true
+    }
+  ],
+  "additional_tracked_tool_files": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py",
+      "base_sha256": "4fb3e83f608226d438dd0d696aa067b77509e711e9bbbf2f256df447538311e1",
+      "captured_current_sha256": "adf730b63e034d5ebf84e1e20c60c3ec37fc4f4686995129eb20f1bf92ccbf34",
+      "tested_in_039f_preparation_source_set": false,
+      "included_in_patch": true
+    }
+  ],
+  "excluded_evidence_document_changes": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/TRIAL.md",
+      "base_sha256": "206ad53f0ee3b468abda4230beded150dfd7033ab39e89c5e48ec55845662731",
+      "current_sha256": "9dd77cc26945e7960eca268b0c1af5dc12e911065836e5585211cbc603ffb53d",
+      "reason": "evidence document excluded from source patch"
+    }
+  ],
+  "patch_paths": [
+    "CMakeLists.txt",
+    "apps/numilab_human_myosim_visual_probe.mm",
+    "include/metalrobo/MetalArticulatedOperator.hpp",
+    "include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fem.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_contact_geometry_check.metal",
+    "matter/tools/cardboard_contact_geometry_check.mm",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py",
+    "src/core/NumiHumanMuscleEquilibrium.cpp",
+    "src/metal/MetalArticulatedOperator.mm",
+    "tests/numi_human_per_contact_plane_metal_test.mm",
+    "tests/numi_human_static_support_test.cpp",
+    "tools/verify_human_supported_tissue.sh"
+  ],
+  "patch_sha256": "73a3f128df11b8498199b5b024ffa1d00b21c0fc708ecfad2f1215ca3839baf4",
+  "status": "captured",
+  "039f_native_runtime_sources": [
+    {
+      "path": "CMakeLists.txt",
+      "native_tested_sha256": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "preparation_sha256": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "base_sha256": "b4e83ea9fcf467373b9408629203c0da0e379f57f86bd481b2e6dc9b208a2f3b",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "native_tested_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "preparation_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "base_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "native_tested_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "preparation_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "base_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "apps/NumiHumanRegisteredLigaments.hpp",
+      "native_tested_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "preparation_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "base_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "native_tested_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "preparation_sha256": null,
+      "base_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "relation": "not-in-preparation; unchanged from base"
+    },
+    {
+      "path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "native_tested_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "preparation_sha256": null,
+      "base_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "relation": "not-in-preparation; unchanged from base"
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "native_tested_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "preparation_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "base_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "native_tested_sha256": "e7f525e5c9ec83826b9b94288cb83fc7e477ee76f6f10b817d7331808baee076",
+      "preparation_sha256": "e7f525e5c9ec83826b9b94288cb83fc7e477ee76f6f10b817d7331808baee076",
+      "base_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "native_tested_sha256": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+      "preparation_sha256": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+      "base_sha256": "1c8b8b2eb0b1b2dc40511d26ddb8e7a5b85076e862beb6bacd44bd440751f343",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+      "native_tested_sha256": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+      "preparation_sha256": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+      "base_sha256": "3b5d3c234db76c9db7fba2e8044b38f1de4c25b51db6d8b7bf25518b055346f3",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "native_tested_sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "preparation_sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "base_sha256": "fb7bb55903969e7e214f295d020df6b7c75454b9d18f92b94daa168edd05b44e",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "native_tested_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "preparation_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "base_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "native_tested_sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "preparation_sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "base_sha256": "ec2af7918e23470a8386d81c1aa59a13aa9ab9d5bf352fdf6afd8fbee39e948c",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "native_tested_sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "preparation_sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "base_sha256": "584591407eb76d3ff2907e6c956f9b4ff510a8119f9b188e554a8df45ef4c50d",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "native_tested_sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "preparation_sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "base_sha256": "972b64eb072adf0110531e6b1e5eb5cc334c313633be58ac08a2f8eed0c596c9",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "native_tested_sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "preparation_sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "base_sha256": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "native_tested_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "preparation_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "base_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "native_tested_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "preparation_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "base_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "native_tested_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "preparation_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "base_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "native_tested_sha256": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "preparation_sha256": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "base_sha256": "0dfaf96fbd59b658910f5af8e11e6c646adab218f81668cd296e1a6ecb0b3017",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "src/core/NumiHumanMuscleEquilibrium.cpp",
+      "native_tested_sha256": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+      "preparation_sha256": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+      "base_sha256": "734f0efb483e38605bdb3c1d0540dd24eccff36af1c0c3f9b05c4d9500c7d383",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "src/metal/MetalArticulatedOperator.mm",
+      "native_tested_sha256": "695582ae1c600bef3c797098093fa682e0236c8b97291bb0ab1991c893c1cf39",
+      "preparation_sha256": "695582ae1c600bef3c797098093fa682e0236c8b97291bb0ab1991c893c1cf39",
+      "base_sha256": "f0ac35e1b8887ab693302efb102e42fca07dbb2963ef6177eadfcf67c8da4b43",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "tests/numi_human_per_contact_plane_metal_test.mm",
+      "native_tested_sha256": "d2e4b216089ba24ba8f531a3e20c90caf5367f8a3c81ed9dceac042849396aca",
+      "preparation_sha256": "d2e4b216089ba24ba8f531a3e20c90caf5367f8a3c81ed9dceac042849396aca",
+      "base_sha256": "e10cf7f8fed6124d46f6700421e809407f3b2c34b84de17731e6ae0c3e05f86f",
+      "relation": "same-hash-as-preparation"
+    },
+    {
+      "path": "tests/numi_human_static_support_test.cpp",
+      "native_tested_sha256": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0",
+      "preparation_sha256": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0",
+      "base_sha256": "9367409baea241c21b22dbe2aeebd5c40601d5e338e0d42c0b43e9dfff8fc514",
+      "relation": "same-hash-as-preparation"
+    }
+  ],
+  "039f_native_source_set_reconciliation": {
+    "count": 24,
+    "preparation_overlap_count": 22,
+    "extra_native_only_paths": [],
+    "hash_mismatches": [],
+    "status": "pass"
+  }
+}

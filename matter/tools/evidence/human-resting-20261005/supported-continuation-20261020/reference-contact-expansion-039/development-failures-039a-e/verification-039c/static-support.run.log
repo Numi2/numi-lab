@@ -1,0 +1,5 @@
+stop_policy_probe weight=1e-05 residual=8.93098e-06 reaction=2.74998 baseline=2.75
+stop_policy_probe weight=0.001 residual=0.0008924 reaction=2.74783 baseline=2.75
+stop_policy_probe weight=1 residual=0.05 reaction=2.62834 baseline=2.75
+stop_policy_probe weight=1000 residual=0.0499999 reaction=2.62834 baseline=2.75
+numi_human_static_support_test=passed source_compliant_preparation=passed compliant_recruitment=passed coupled_recruitment=passed recruitment_bounds=passed coupled_posture=passed analytic_body_spatial_reference=passed coupled_limit_reactions=passed dependent_acceleration=passed balance_preserving_stop_refinement=passed redundant_stop_unloading=passed analytic_weight_n=24.525 replay=exact penetration=rejected airborne_force_n=0

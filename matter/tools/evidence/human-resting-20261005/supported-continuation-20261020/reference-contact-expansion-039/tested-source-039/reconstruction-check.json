@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "base_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "patch_sha256": "73a3f128df11b8498199b5b024ffa1d00b21c0fc708ecfad2f1215ca3839baf4",
+  "patch_paths": [
+    "CMakeLists.txt",
+    "apps/numilab_human_myosim_visual_probe.mm",
+    "include/metalrobo/MetalArticulatedOperator.hpp",
+    "include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/shared.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fem.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_contact_geometry_check.metal",
+    "matter/tools/cardboard_contact_geometry_check.mm",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py",
+    "src/core/NumiHumanMuscleEquilibrium.cpp",
+    "src/metal/MetalArticulatedOperator.mm",
+    "tests/numi_human_per_contact_plane_metal_test.mm",
+    "tests/numi_human_static_support_test.cpp",
+    "tools/verify_human_supported_tissue.sh"
+  ],
+  "worktree_created": true,
+  "worktree_add_output": "HEAD is now at 4642668b Retain reference contact precision controls and exact failed continuation",
+  "git_apply_check_exit": 0,
+  "git_apply_exit": 0,
+  "reconstructed_source_count": 34,
+  "reconstructed_hash_mismatches": [],
+  "status": "pass",
+  "worktree_removed": true,
+  "039f_native_runtime_source_count": 24,
+  "039f_native_source_set_reconciliation": {
+    "count": 24,
+    "preparation_overlap_count": 22,
+    "extra_native_only_paths": [],
+    "hash_mismatches": [],
+    "status": "pass"
+  }
+}

@@ -4439,6 +4439,144 @@ std::vector<float> packMetalConfiguration(
     return result;
 }
 
+struct CapturedWeightedSupportWitnesses {
+    MetalMujocoVisualQueries queries;
+    std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
+    std::vector<double> frozenSourceQ;
+};
+
+CapturedWeightedSupportWitnesses captureWeightedSupportWitnesses(
+    const metalrobo::EngineModel& model,
+    MetalMujocoVisualQueries queries,
+    const std::span<const double> frozenSourceQ,
+    const MRCompensatedRootTranslationGPU& root,
+    const metalrobo::MetalNumiHumanSupportGeometryProgram& geometryProgram,
+    const mr_float4 groundPoint,
+    const mr_float4 groundNormal
+) {
+    require(geometryProgram.valid() &&
+                !queries.points.empty() && !queries.supportContacts.empty(),
+            "weighted skin support capture needs the registered full-contact geometry owner");
+    if (!geometryProgram.usePerContactSupportPlanes) {
+        require(std::isfinite(groundPoint.x) && std::isfinite(groundPoint.y) &&
+                    std::isfinite(groundPoint.z) && groundPoint.w == 0.0f &&
+                    std::isfinite(groundNormal.x) &&
+                    std::isfinite(groundNormal.y) &&
+                    std::isfinite(groundNormal.z) && groundNormal.w == 0.0f &&
+                    groundNormal.x == 0.0f && groundNormal.y == 0.0f &&
+                    groundNormal.z == 1.0f,
+                "global-plane skin support capture requires the registered upward-Z selector plane");
+    }
+    std::vector<float> sourceQ = packMetalConfiguration(frozenSourceQ);
+    std::vector<double> floatFrozenQ;
+    floatFrozenQ.reserve(sourceQ.size());
+    for (const float coordinate : sourceQ)
+        floatFrozenQ.push_back(static_cast<double>(coordinate));
+    for (auto& contact : queries.supportContacts) {
+        contact.planePoint = groundPoint;
+        contact.planeNormal = groundNormal;
+        contact.frictionSlopAndStabilization.w = 0.0f;
+    }
+
+    metalrobo::MetalArticulatedOperatorConfig config;
+    config.pointJacobiansOnly = true;
+    metalrobo::MetalArticulatedOperatorContext context(config);
+    const std::array<MRCompensatedRootTranslationGPU, 1u> roots{{root}};
+    metalrobo::MetalArticulatedOperatorInput input{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = queries.points.size(),
+        .q = sourceQ,
+        .rootTranslations = roots,
+        .points = queries.points,
+        .mujoco = {
+            .bodyJacobianPointOffset = queries.bodyJacobianPointOffset,
+        },
+        .stand = {
+            .contacts = queries.supportContacts,
+            .usePerContactSupportPlanes =
+                geometryProgram.usePerContactSupportPlanes,
+            .supportGeometryProgram = geometryProgram,
+            .enableContact = true,
+            .groundPoint = groundPoint,
+            .groundNormal = groundNormal,
+        },
+        .captureSupportGeometryOnly = true,
+        .collectFullResultToHost = true,
+    };
+    metalrobo::MetalArticulatedOperatorResult result;
+    const auto diagnostics = context.run(model, input, result);
+    require(diagnostics.succeeded(),
+            "current-pose weighted support capture failed: " + diagnostics.message);
+    const auto& articulation = model.articulations.front();
+    const std::size_t nv = articulation.nv;
+    require(diagnostics.completedStandSteps == 0u && diagnostics.published &&
+                diagnostics.residentStateTransactionFingerprint == 0u &&
+                diagnostics.residentStateGeneration == 0u &&
+                result.standQ.empty() && result.standV.empty() &&
+                result.standStatuses.empty() && result.standContactImpulses.empty() &&
+                result.generalizedImpulse.size() == nv &&
+                result.deltaVelocity.size() == nv &&
+                std::all_of(result.generalizedImpulse.begin(),
+                    result.generalizedImpulse.end(),
+                    [](float value) { return value == 0.0f; }) &&
+                std::all_of(result.deltaVelocity.begin(),
+                    result.deltaVelocity.end(),
+                    [](float value) { return value == 0.0f; }),
+            "current-pose support capture advanced or published physical state");
+    require(result.pointWorld.size() == queries.points.size() &&
+                result.pointPositionLow.size() == queries.points.size() &&
+                result.pointJacobians.size() == queries.points.size() * 3u * nv &&
+                result.supportGeometryContacts.size() ==
+                    queries.supportContacts.size(),
+            "current-pose support capture lost its point/J/contact rows");
+
+    CapturedWeightedSupportWitnesses captured;
+    captured.queries = std::move(queries);
+    captured.frozenSourceQ = std::move(floatFrozenQ);
+    captured.queries.supportContacts = result.supportGeometryContacts;
+    captured.staticSupports.reserve(result.supportGeometryContacts.size());
+    for (std::size_t row = 0u; row < result.supportGeometryContacts.size(); ++row) {
+        const auto& contact = result.supportGeometryContacts[row];
+        require(contact.pointQueryIndex < captured.queries.points.size() &&
+                    captured.queries.points[contact.pointQueryIndex].bodyIndex ==
+                        contact.bodyIndex,
+                "captured support row lost its exact point-query owner");
+        const std::size_t queryIndex = contact.pointQueryIndex;
+        const auto& point = result.pointWorld[queryIndex].position;
+        const auto& low = result.pointPositionLow[queryIndex];
+        metalrobo::NumiHumanStaticSupportContact support;
+        support.bodyIndex = contact.bodyIndex;
+        support.normal = {contact.planeNormal.x, contact.planeNormal.y,
+                          contact.planeNormal.z};
+        support.planePoint = {contact.planePoint.x, contact.planePoint.y,
+                              contact.planePoint.z};
+        const auto& sourceQuery = captured.queries.points[queryIndex];
+        support.localPoint = {sourceQuery.localPoint.x,
+                              sourceQuery.localPoint.y,
+                              sourceQuery.localPoint.z};
+        metalrobo::NumiHumanStaticSupportContact::WeightedWitness witness;
+        witness.sourceContactIndex = static_cast<std::uint32_t>(row);
+        witness.pointQueryIndex = contact.pointQueryIndex;
+        witness.sourceGeometryIndex = contact.sourceGeometryIndex;
+        witness.modelFingerprint =
+            metalrobo::numiHumanStaticSupportModelFingerprint(model, 0u);
+        witness.worldPoint = {
+            static_cast<double>(point.x) + low.x,
+            static_cast<double>(point.y) + low.y,
+            static_cast<double>(point.z) + low.z,
+        };
+        witness.pointJacobian.resize(3u * nv);
+        const std::size_t base = queryIndex * 3u * nv;
+        for (std::size_t element = 0u; element < 3u * nv; ++element)
+            witness.pointJacobian[element] = result.pointJacobians[base + element];
+        witness.referenceQ = captured.frozenSourceQ;
+        support.weightedWitness = std::move(witness);
+        captured.staticSupports.push_back(std::move(support));
+    }
+    return captured;
+}
+
 struct MetalMujocoForceStep {
     std::vector<float> generalizedForce;
     std::vector<float> muscleGeneralizedForces;
@@ -4855,6 +4993,9 @@ struct CompiledStandActivation {
     std::vector<double> muscleTendonForce;
     std::vector<double> passiveMuscleTendonForce;
     std::vector<double> supportNormalForce;
+    std::vector<double> supportPlaneGapMeters;
+    std::vector<metalrobo::NumiHumanStaticSupportWitnessIdentity>
+        supportWitnessIdentity;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
     std::uint32_t globalActivationPolishIterations = 0u;
@@ -5158,7 +5299,9 @@ CompiledStandActivation compileStaticStandActivation(
     const bool allowPoseSearch = true,
     const std::optional<std::uint32_t> poseSweeps = std::nullopt,
     const double solverTimestepSeconds = 1.0e-4,
-    const bool allowDynamicRelease = false
+    const bool allowDynamicRelease = false,
+    const std::span<const metalrobo::NumiHumanStaticSupportContact>
+        explicitStaticSupports = {}
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -5196,6 +5339,10 @@ CompiledStandActivation compileStaticStandActivation(
     if (poseSweeps.has_value()) config.poseSweeps = *poseSweeps;
     if (!allowPoseSearch) config.poseSweeps = 0u;
     std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
+    require(supportContacts == nullptr || explicitStaticSupports.empty(),
+            "static activation cannot combine rigid source supports with a weighted witness set");
+    staticSupports.assign(explicitStaticSupports.begin(),
+                          explicitStaticSupports.end());
     if (supportContacts != nullptr) {
         const std::array<double, 3u> normal = normalizedVector({
             supportContacts->header.groundNormalX,
@@ -5378,6 +5525,9 @@ CompiledStandActivation compileStaticStandActivation(
     result.passiveMuscleTendonForce =
         std::move(compiled.passiveMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
+    result.supportPlaneGapMeters = std::move(compiled.supportPlaneGapMeters);
+    result.supportWitnessIdentity =
+        std::move(compiled.supportWitnessIdentity);
     result.searchTrace = std::move(compiled.searchTrace);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
     result.activationSweeps = diagnostics.activationSweeps;
@@ -6149,6 +6299,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 (restingProgram != nullptr && restingReleaseInitialization &&
                  supportGeometryProgram != nullptr && seedPoseQ.size() == model.world.nq),
             "an authored resting posture requires released full-skin GPU contact");
+    const char* weightedSupportSetting =
+        std::getenv("NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT");
+    require(weightedSupportSetting == nullptr ||
+                std::strcmp(weightedSupportSetting, "0") == 0 ||
+                std::strcmp(weightedSupportSetting, "1") == 0,
+            "NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT must be 0 or 1");
+    const bool useWeightedSkinSupport = weightedSupportSetting != nullptr &&
+        std::strcmp(weightedSupportSetting, "1") == 0;
+    require(!useWeightedSkinSupport ||
+                (preserveRestingInitialPosture && restingReleaseInitialization &&
+                 supportGeometryProgram != nullptr &&
+                 supportGeometryProgram->valid() &&
+                 !applySelectedActivationIncrement),
+            "weighted skin support is limited to fresh released authored-pose initialization");
     const char* ropeAnchorSetting=std::getenv("NUMI_HUMAN_ROPE_ANCHOR");
     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
@@ -6157,6 +6321,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 supportGeometryProgram!=nullptr&&supportGeometryProgram->valid()&&
                 supportGeometryProgram->usePerContactSupportPlanes),
             "rope mode requires an authored upright posture and the pinned released support callback");
+    require(!useWeightedSkinSupport ||
+                (!ropeModeRequested &&
+                 std::getenv("NUMI_HUMAN_SEPARATION_STEP") == nullptr),
+            "weighted skin support cannot be combined with rope or row-filtered separation contacts");
     require(separationForceProgram == nullptr ||
                 (separationForceProgram->valid() && restingProgram != nullptr &&
                  acceptedObserver != nullptr && preserveRestingInitialPosture &&
@@ -6317,7 +6485,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         staticCachePathSetting[0] != '\0';
     require(useStaticCache == (staticCacheKeySetting != nullptr &&
                 staticCacheKeySetting[0] != '\0') &&
-                (!useStaticCache || !applySelectedActivationIncrement),
+                (!useStaticCache || !applySelectedActivationIncrement) &&
+                (!useWeightedSkinSupport || !useStaticCache),
             "static Human activation cache needs an exact key and ordinary standing initialization");
     const std::filesystem::path staticCachePath = useStaticCache
         ? std::filesystem::path(staticCachePathSetting)
@@ -6329,6 +6498,69 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "nonzero shared MTP stiffness cannot reuse an unbound standing activation cache");
     const bool staticCacheExists = useStaticCache &&
         std::filesystem::is_regular_file(staticCachePath);
+    const char* footManifoldSetting = std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
+    require(footManifoldSetting == nullptr || std::strcmp(footManifoldSetting, "0") == 0 ||
+                std::strcmp(footManifoldSetting, "1") == 0,
+            "NUMI_HUMAN_FOOT_MANIFOLD must be 0 or 1");
+    const bool deriveFootManifold =
+        (footManifoldSetting != nullptr && std::strcmp(footManifoldSetting, "1") == 0) ||
+        ropeModeRequested || std::getenv("NUMI_HUMAN_SEPARATION_STEP") != nullptr;
+    require(!deriveFootManifold || (supportGeometryProgram != nullptr &&
+                supportGeometryProgram->valid() &&
+                supportGeometryProgram->usePerContactSupportPlanes),
+            "four-point foot manifold requires the full per-contact skin geometry owner");
+    const bool deriveOrganManifold =
+        metalrobo::organ_release::activeRuntimeSupportWitness.active;
+    std::optional<CapturedWeightedSupportWitnesses> weightedCapture;
+    std::vector<double> weightedCompileQ;
+    if (useWeightedSkinSupport) {
+        require(!staticCacheExists,
+                "weighted skin support requires a fresh uncached static solve");
+        std::vector<double> projectedPoseQ = aligned.q;
+        double maximumProjection = 0.0;
+        const auto projection = metalrobo::projectNumiHumanJointEqualities(
+            jointEqualities.payload.records, projectedPoseQ,
+            &maximumProjection);
+        require(projection.succeeded() && std::isfinite(maximumProjection),
+                "weighted skin support pose equality projection failed");
+        const std::vector<float> projectedSourceQ =
+            packMetalConfiguration(projectedPoseQ);
+        weightedCompileQ.reserve(projectedSourceQ.size());
+        for (const float coordinate : projectedSourceQ)
+            weightedCompileQ.push_back(static_cast<double>(coordinate));
+        std::vector<double> floatProjectedQ = weightedCompileQ;
+        const auto floatProjection = metalrobo::projectNumiHumanJointEqualities(
+            jointEqualities.payload.records, floatProjectedQ);
+        require(floatProjection.succeeded() &&
+                    packMetalConfiguration(floatProjectedQ) == projectedSourceQ,
+                "weighted skin support equality projection changes the frozen source Float32 pose");
+        MRCompensatedRootTranslationGPU captureRoot{};
+        std::string captureRootError;
+        require(weightedCompileQ.size() >= 3u &&
+                    metalrobo::makeNumiHumanInitialRootTranslation(
+                        {weightedCompileQ[0], weightedCompileQ[1],
+                         weightedCompileQ[2]},
+                        captureRoot, captureRootError),
+                "weighted skin support root placement failed: " + captureRootError);
+        MetalMujocoVisualQueries captureQueries = makeMetalMujocoVisualQueries(
+            model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
+        weightedCapture.emplace(captureWeightedSupportWitnesses(
+            model, std::move(captureQueries), weightedCompileQ, captureRoot,
+            *supportGeometryProgram,
+            {supportContacts.header.groundPointX,
+             supportContacts.header.groundPointY,
+             supportContacts.header.groundPointZ, 0.0f},
+            {supportContacts.header.groundNormalX,
+             supportContacts.header.groundNormalY,
+             supportContacts.header.groundNormalZ, 0.0f}));
+        std::cout << "static_support_witness_source=registered_skin_callback"
+                  << " capture_mode=current_q_point_jacobian_only"
+                  << " contact_rows=" << weightedCapture->staticSupports.size()
+                  << " capture_physical_steps=0"
+                  << " capture_physical_publication=0"
+                  << " capture_host_result_published=1"
+                  << " reference_q=float32_frozen\n";
+    }
     double sourceDynamicForceParityMaximumNewtons = 0.0;
     double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
     double sourceDynamicForceParityMaximumAcceleration = 0.0;
@@ -6380,26 +6612,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             model,
             muscles,
             jointEqualities,
-            aligned.q,
+            useWeightedSkinSupport
+                ? std::span<const double>(weightedCompileQ)
+                : std::span<const double>(aligned.q),
             activation,
             selectedSourceMuscleIndices,
             preserveRestingInitialPosture ? nullptr : &supportContacts,
             persistentPassiveCouplings,
             1024u,
             !initialCoordinate.has_value() && restingProgram == nullptr,
-            std::optional<std::uint32_t>{24u},
+            useWeightedSkinSupport
+                ? std::optional<std::uint32_t>{0u}
+                : std::optional<std::uint32_t>{24u},
             timestepSeconds,
-            restingReleaseInitialization
+            restingReleaseInitialization,
+            useWeightedSkinSupport
+                ? std::span<const metalrobo::NumiHumanStaticSupportContact>(
+                      weightedCapture->staticSupports)
+                : std::span<const metalrobo::NumiHumanStaticSupportContact>{}
         );
     }
-    if (preserveRestingInitialPosture) {
-        // The authored world pose belongs to the fixed-bed contact owner.
-        // Fresh release recruitment has no legacy ground-plane support load.
+    if (preserveRestingInitialPosture && !useWeightedSkinSupport) {
+        // Default construction release has no static skin-bed witness. Keep
+        // its existing no-seed behavior unchanged unless the opt-in capture
+        // supplied the same live callback rows to recruitment.
         compiledActivation.supportNormalForce.assign(supportContacts.records.size(), 0.0);
         require(std::all_of(compiledActivation.generalizedSupportForce.begin(),
                     compiledActivation.generalizedSupportForce.end(),
                     [](double force) { return force == 0.0; }),
                 "resting construction recruitment acquired a legacy support force");
+    }
+    if (useWeightedSkinSupport) {
+        require(weightedCapture.has_value() &&
+                    compiledActivation.supportNormalForce.size() ==
+                        weightedCapture->staticSupports.size() &&
+                    compiledActivation.supportWitnessIdentity.size() ==
+                        weightedCapture->staticSupports.size(),
+                "weighted skin support solve lost its source rows");
+        for (std::size_t index = 0u;
+             index < weightedCapture->staticSupports.size(); ++index) {
+            const auto& expected = *weightedCapture->staticSupports[index].weightedWitness;
+            require(compiledActivation.supportWitnessIdentity[index] ==
+                        metalrobo::NumiHumanStaticSupportWitnessIdentity{
+                            expected.sourceContactIndex, expected.pointQueryIndex,
+                            expected.sourceGeometryIndex},
+                    "weighted skin support solve changed callback row identity");
+            require(std::isfinite(compiledActivation.supportNormalForce[index]) &&
+                        compiledActivation.supportNormalForce[index] >= 0.0 &&
+                        (compiledActivation.supportPlaneGapMeters[index] <= 1.0e-6 ||
+                         compiledActivation.supportNormalForce[index] == 0.0),
+                    "weighted skin support assigned load to a separated witness");
+        }
     }
     if (useStaticCache && !staticCacheExists) {
         writeStandActivationCache(
@@ -6474,25 +6737,30 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human stand default velocity is non-finite");
         v.push_back(static_cast<float>(velocity));
     }
-    const char* footManifoldSetting = std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
-    require(footManifoldSetting == nullptr || std::strcmp(footManifoldSetting, "0") == 0 ||
-                std::strcmp(footManifoldSetting, "1") == 0,
-            "NUMI_HUMAN_FOOT_MANIFOLD must be 0 or 1");
-    const bool deriveFootManifold =
-        (footManifoldSetting != nullptr && std::strcmp(footManifoldSetting, "1") == 0) ||
-        ropeModeRequested || std::getenv("NUMI_HUMAN_SEPARATION_STEP") != nullptr;
-    require(!deriveFootManifold || (supportGeometryProgram != nullptr &&
-                supportGeometryProgram->valid() &&
-                supportGeometryProgram->usePerContactSupportPlanes),
-        "four-point foot manifold requires the full per-contact skin geometry owner");
-    MetalMujocoVisualQueries queries =
-        makeMetalMujocoVisualQueries(
+    MetalMujocoVisualQueries queries;
+    if (useWeightedSkinSupport) {
+        require(weightedCapture.has_value() &&
+                    weightedCapture->queries.supportContacts.size() ==
+                        compiledActivation.supportNormalForce.size(),
+                "weighted skin support runtime rows differ from the frozen capture");
+        queries = std::move(weightedCapture->queries);
+        for (std::size_t index = 0u; index < queries.supportContacts.size(); ++index) {
+            const double force = compiledActivation.supportNormalForce[index];
+            require(std::isfinite(force) && force >= 0.0 &&
+                        force <= static_cast<double>(std::numeric_limits<float>::max()),
+                    "weighted skin support seed is invalid for the native contact owner");
+            queries.supportContacts[index].frictionSlopAndStabilization.w =
+                static_cast<float>(force);
+        }
+    } else {
+        queries = makeMetalMujocoVisualQueries(
             model,
             &supportContacts,
             compiledActivation.supportNormalForce,
             deriveFootManifold,
-            metalrobo::organ_release::activeRuntimeSupportWitness.active
+            deriveOrganManifold
         );
+    }
     if(ropeModeRequested) {
         require(queries.supportContacts.size()>=32u&&queries.supportContacts.size()<=MR_NUMI_HUMAN_STAND_MAX_CONTACTS,
                 "rope mode requires authored support rows and bounded derived contacts");
@@ -6525,7 +6793,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             if(queries.supportContacts[i].bodyIndex==mappedTorsoBodyIndex){protectedRow=i;break;}
         NumiHumanSeparationSupport::selectRows(queries.supportContacts,protectedRow);
     }
-    if (supportGeometryProgram && supportGeometryProgram->usePerContactSupportPlanes) {
+    if (!useWeightedSkinSupport && supportGeometryProgram &&
+        supportGeometryProgram->usePerContactSupportPlanes) {
         for (auto& contact : queries.supportContacts) {
             contact.planePoint={supportContacts.header.groundPointX,
                 supportContacts.header.groundPointY,supportContacts.header.groundPointZ,0};
@@ -6536,6 +6805,51 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             <<" accepted_contact_owner=gpu_fixed_bed_facets"
             <<" initial_equilibrium_claim=0\n";
     }
+    // Audit the force/Jacobian rows supplied to the same native contact owner.
+    // The ordinary path retains its independent FP64 rigid-contact audit.
+    if (useWeightedSkinSupport) {
+        require(weightedCapture.has_value() &&
+                    queries.supportContacts.size() ==
+                        weightedCapture->staticSupports.size(),
+                "weighted skin support parity rows are incomplete");
+        std::vector<double> runtimeSupportForce(model.world.nv, 0.0);
+        for (std::size_t row = 0u; row < queries.supportContacts.size(); ++row) {
+            const auto& runtime = queries.supportContacts[row];
+            const auto& support = weightedCapture->staticSupports[row];
+            require(support.weightedWitness.has_value() &&
+                        runtime.bodyIndex == support.bodyIndex &&
+                        runtime.pointQueryIndex ==
+                            support.weightedWitness->pointQueryIndex &&
+                        runtime.sourceGeometryIndex ==
+                            support.weightedWitness->sourceGeometryIndex &&
+                        static_cast<double>(runtime.frictionSlopAndStabilization.w) ==
+                            static_cast<double>(static_cast<float>(
+                                compiledActivation.supportNormalForce[row])),
+                    "weighted skin support seed changed callback row identity or load");
+            const auto& witness = *support.weightedWitness;
+            const double lambda = compiledActivation.supportNormalForce[row];
+            const std::size_t nv = model.world.nv;
+            for (std::size_t dof = 0u; dof < nv; ++dof) {
+                double generalized = 0.0;
+                for (std::size_t axis = 0u; axis < 3u; ++axis)
+                    generalized += support.normal[axis] *
+                        witness.pointJacobian[axis * nv + dof];
+                runtimeSupportForce[dof] += lambda * generalized;
+            }
+        }
+        require(runtimeSupportForce.size() ==
+                    compiledActivation.generalizedSupportForce.size(),
+                "weighted skin support parity dimensions disagree");
+        for (std::size_t dof = 0u; dof < runtimeSupportForce.size(); ++dof) {
+            const double delta = std::abs(runtimeSupportForce[dof] -
+                compiledActivation.generalizedSupportForce[dof]);
+            if (delta > sourceSupportForceParityMaximumNewtons) {
+                sourceSupportForceParityMaximumNewtons = delta;
+                sourceSupportForceParityMaximumDof =
+                    static_cast<std::uint32_t>(dof);
+            }
+        }
+    } else {
     // Audit the generalized support wrench through the same articulated
     // point-Jacobian owner used by the runtime contact query. This catches a
     // source/static versus runtime support-force ownership mismatch before the
@@ -6601,6 +6915,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     static_cast<std::uint32_t>(dof);
             }
         }
+    }
     }
     require(compiledActivation.referenceFiberLength.size() ==
                 muscles.gpuMuscles.size(),

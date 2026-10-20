@@ -1,0 +1,81 @@
+{
+  "exception": {
+    "codes": "0x0000000000000001, 0x0000000000000000",
+    "rawCodes": [
+      1,
+      0
+    ],
+    "signal": "SIGSEGV",
+    "subtype": "KERN_INVALID_ADDRESS at 0x0000000000000000",
+    "type": "EXC_BAD_ACCESS"
+  },
+  "header": {
+    "app_name": "metalrobo_numi_human_per_contact_plane_metal_test",
+    "bug_type": "309",
+    "incident_id": "D3CD5F5C-A9AD-4215-BD3F-42D06A85BA52",
+    "os_version": "macOS 27.0 (26A425)",
+    "timestamp": "2026-10-19 23:59:18.00 -0700"
+  },
+  "omitted": [
+    "thread register state",
+    "other threads",
+    "used image maps",
+    "VM summaries",
+    "process memory"
+  ],
+  "source_path": "/Users/numi/Library/Logs/DiagnosticReports/metalrobo_numi_human_per_contact_plane_metal_test-2026-10-19-235918.ips",
+  "source_sha256": "c8d77ece033ed4057c111fa05472648f33b3b701514793bba7a4f98470e3fcf1",
+  "source_size_bytes": 11651,
+  "termination": {
+    "byPid": 10569,
+    "byProc": "exc handler",
+    "code": 11,
+    "flags": 0,
+    "indicator": "Segmentation fault: 11",
+    "namespace": "SIGNAL"
+  },
+  "triggered_thread": {
+    "frames": [
+      {
+        "imageIndex": 2,
+        "imageOffset": 15736,
+        "symbol": "_platform_memmove",
+        "symbolLocation": 168
+      },
+      {
+        "imageIndex": 1,
+        "imageOffset": 4625152,
+        "symbol": "metalrobo::(anonymous namespace)::uploadBatch(metalrobo::detail::MetalArticulatedOperatorContextState&, metalrobo::EngineModel const&, metalrobo::MetalArticulatedOperatorInput const&, metalrobo::MetalArticulatedOperatorLayout const&, metalrobo::(anonymous namespace)::RequiredBuffers const&, bool, bool, mr_uint4)",
+        "symbolLocation": 4196
+      },
+      {
+        "imageIndex": 1,
+        "imageOffset": 4476220,
+        "symbol": "metalrobo::MetalArticulatedOperatorContext::submit(metalrobo::EngineModel const&, metalrobo::MetalArticulatedOperatorInput const&, metalrobo::MetalArticulatedOperatorSubmission&)",
+        "symbolLocation": 9048
+      },
+      {
+        "imageIndex": 1,
+        "imageOffset": 4689336,
+        "symbol": "metalrobo::MetalArticulatedOperatorContext::run(metalrobo::EngineModel const&, metalrobo::MetalArticulatedOperatorInput const&, metalrobo::MetalArticulatedOperatorResult&)",
+        "symbolLocation": 200
+      },
+      {
+        "imageIndex": 0,
+        "imageOffset": 11992,
+        "symbol": "main",
+        "symbolLocation": 2424
+      },
+      {
+        "imageIndex": 3,
+        "imageOffset": 196952,
+        "symbol": "start",
+        "symbolLocation": 6688
+      }
+    ],
+    "index": 0,
+    "queue": "com.apple.main-thread",
+    "thread_id": 10309047,
+    "triggered": true
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "scope": "default 32-step native mechanics-only continuation",
+  "status": "failed",
+  "exit_code": 1,
+  "wall_s": 540.1856350840535,
+  "requested_steps": 32,
+  "step_seconds": 0.000125,
+  "requested_horizon_s": 0.004,
+  "accepted_steps": 25,
+  "accepted_horizon_s": 0.003125,
+  "failure": {
+    "root": 25,
+    "tick": 3,
+    "slot": 1990,
+    "object_index": 9,
+    "matter_code": 6,
+    "failing_index": 1990,
+    "diagnostics": [
+      2.6538464759084945e-09,
+      -4.4924564068793416e-10,
+      1,
+      0
+    ],
+    "owner": "passive_tissue_runtime"
+  },
+  "failure_log_lines": [
+    "resting_common_failure segment_start=25 accepted_before_segment=25 stand_code=0 stand_completed_steps=0 stand_failing_index=0 matter_code=6 matter_environment=0 matter_object=9 matter_failing_index=1990 common_status=0 common_iterations=1 common_box=0 common_residual=2.6226043701171875e-06 respiratory_candidate_status=[25,0,1,0] respiratory_accepted_status=[25,0,1,0] chamber_targets_m3=[3.2164269214263186e-05,0.00013870940892957151,4.7645778977312148e-05,0.00011910485773114488] respiratory_candidate_control=[0.00081681110896170139,0.00051050691399723291,12.000003814697266,6.000004768371582] candidate_common_coordinates=[-0.0013258500257506967,0.0016438561724498868,-0.0012108148075640202,0.001889673643745482,0.00087886553956195712,-0.00080136850010603666,0.0017046879511326551] accepted_common_coordinates=[-0.0013258500257506967,0.0016438561724498868,-0.0012108148075640202,0.001889673643745482,0.00087886553956195712,-0.00080136850010603666,0.0017046879511326551] matter_diagnostics=[2.6538464759084945e-09,-4.4924564068793416e-10,1,0] terminal_world_code=0 terminal_world_environment=0 terminal_world_control_step=0 terminal_world_successful_substeps=0 terminal_world_aba_code=0 terminal_world_failing_substep=0 terminal_world_failing_index=0 terminal_world_flags=0 terminal_world_diagnostics=[0,0,0,0] box_match=1 excitation_buffer=[0.00081681110896170139,0.00051050691399723291,12.000003814697266,6.000004768371582] brain_input_flags=1 brain_input_validity=3 brain_input_source_step_us=3125 brain_input_target_step_us=3250 brain_input_source_root=3138521773973425111 brain_input_target_root=5280183759173668857 brain_accepted_flags=1 brain_candidate_flags=1 brain_candidate_root=5280183759173668857 brain_output_flags=1 brain_output_target_root=5280183759173668857 brain_output_source_root=3138521773973425111 brain_excitation=[0.00081681110896170139,0.00051050691399723291]",
+    "human_joint_failure completed_steps=25 matter_status=6 matter_failing_index=1990 matter_object_index=9 matter_diagnostics=[2.6538464759084945e-09,-4.4924564068793416e-10,1,0] failure_owner=passive_tissue_runtime",
+    "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 25 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=25 failing_index=9\""
+  ],
+  "interpretation": "Retained as a failed run. This package records the failure site and diagnostics without assigning a physical cause.",
+  "source_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "binary_sha256": "1520584bf3f534aafc17684817a91277f587587bca45af26cf780b4a6e8b0b16",
+  "metallib_sha256": "ccb3da2f4c0f806de944916e809e3f1043eebb17d2e842c425e7189fb79662fc",
+  "suite_library_sha256": "4e4f76cbc6555cbc16a931c10cbede734991a62994f29a68fa894bc5f04e08f8",
+  "invocation_sha256": "4a5d9388af3135f726b75f1acd1ef0dfff0a5436cd036d10e183a931aced2720",
+  "provenance_sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+  "csv_rows": 25,
+  "large_outputs_omitted": [
+    "output/resting-human.mrvpack",
+    "output/resting-ocular-sclera-window.json",
+    "output/resting-airway-anchor-map.json"
+  ],
+  "source_hash_audit": "../source-hash-audit-039f.json"
+}

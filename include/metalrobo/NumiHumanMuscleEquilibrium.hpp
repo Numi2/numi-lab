@@ -5,10 +5,13 @@
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <vector>
 
 namespace metalrobo {
+
+struct EngineModel;
 
 // Offline compiler for a source-faithful, muscle-supported Human state. This
 // is deliberately outside the dynamics hot loop: it resolves one bounded
@@ -116,6 +119,31 @@ struct NumiHumanStaticSupportContact {
     double supportRadius = 0.0; // Sphere centre in localPoint when positive.
     std::array<double, 3> supportRadii{};
     std::array<double, 4> supportOrientation{};
+    struct WeightedWitness {
+        // Identity comes from one callback-updated runtime contact row.
+        std::uint32_t sourceContactIndex = MR_INVALID_INDEX;
+        std::uint32_t pointQueryIndex = MR_INVALID_INDEX;
+        std::uint32_t sourceGeometryIndex = MR_INVALID_INDEX;
+        std::uint64_t modelFingerprint = 0u;
+        std::array<double, 3> worldPoint{};
+        // Axis-major [3][nv], captured at referenceQ.
+        std::vector<double> pointJacobian;
+        std::vector<double> referenceQ;
+    };
+    std::optional<WeightedWitness> weightedWitness;
+};
+
+// Stable identity for binding callback-captured support geometry/Jacobians to
+// the exact articulated source model used by the static compiler.
+[[nodiscard]] std::uint64_t numiHumanStaticSupportModelFingerprint(
+    const EngineModel& model, std::uint32_t articulationIndex
+) noexcept;
+
+struct NumiHumanStaticSupportWitnessIdentity {
+    std::uint32_t sourceContactIndex = MR_INVALID_INDEX;
+    std::uint32_t pointQueryIndex = MR_INVALID_INDEX;
+    std::uint32_t sourceGeometryIndex = MR_INVALID_INDEX;
+    bool operator==(const NumiHumanStaticSupportWitnessIdentity&) const = default;
 };
 
 // Explicit offline placement variables. Root translations and bounded scalar
@@ -250,6 +278,8 @@ struct NumiHumanMuscleEquilibriumResult {
     std::vector<double> supportNormalForce;
     // Signed world-plane gaps, in the same order as supportNormalForce.
     std::vector<double> supportPlaneGapMeters;
+    // Per-row callback identity; invalid sentinels identify legacy rigid contacts.
+    std::vector<NumiHumanStaticSupportWitnessIdentity> supportWitnessIdentity;
     std::vector<double> generalizedSupportForce;
     std::vector<double> generalizedPassiveCoordinateForce;
     std::vector<double> gravityTarget;

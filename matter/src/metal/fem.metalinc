@@ -26,6 +26,62 @@ inline bool femHumanAttachmentConstraint(const float marker) {
     return marker == 2.0f;
 }
 
+// Return a reference-mode FEM point as a two-term pair-local expansion.
+// The caller must have verified referenceDisplacementAndMode.w == 1.0f.
+// Keeping rest-origin subtraction and displacement addition compensated
+// preserves the local coordinate residual for contact witnesses.
+inline MRCompensatedPositionGPU femContactPositionRelativeExpansion(
+    const NMFEMNodeStateGPU state,
+    const float3 referenceOrigin
+) {
+    const MRCompensatedScalar x = mrCompensatedPositionScalar(
+        state.restAndFixed.x, state.referenceDisplacementAndMode.x,
+        0.0f, -referenceOrigin.x);
+    const MRCompensatedScalar y = mrCompensatedPositionScalar(
+        state.restAndFixed.y, state.referenceDisplacementAndMode.y,
+        0.0f, -referenceOrigin.y);
+    const MRCompensatedScalar z = mrCompensatedPositionScalar(
+        state.restAndFixed.z, state.referenceDisplacementAndMode.z,
+        0.0f, -referenceOrigin.z);
+    return {
+        float4(x.high, y.high, z.high, 0.0f),
+        float4(x.low, y.low, z.low, 0.0f)
+    };
+}
+
+inline float3 femContactPositionRelativeProjection(
+    const MRCompensatedPositionGPU position
+) {
+    return float3(
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.x, position.low.x),
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.y, position.low.y),
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.z, position.low.z));
+}
+
+inline float3 femContactPositionRelativeTo(
+    const NMFEMNodeStateGPU state,
+    const float3 referenceOrigin
+) {
+    return femContactPositionRelativeProjection(
+        femContactPositionRelativeExpansion(state, referenceOrigin));
+}
+
+inline MRCompensatedPositionGPU femContactBarycentricPoint(
+    const float3 barycentric,
+    const MRCompensatedPositionGPU p0,
+    const MRCompensatedPositionGPU p1,
+    const MRCompensatedPositionGPU p2
+) {
+    return mrCompensatedVectorAdd(
+        mrCompensatedVectorAdd(
+            mrCompensatedVectorScale(p0, {barycentric.x, 0.0f}),
+            mrCompensatedVectorScale(p1, {barycentric.y, 0.0f})),
+        mrCompensatedVectorScale(p2, {barycentric.z, 0.0f}));
+}
+
 struct NMPrimalContactArguments {
     device const NMContactPairGPU* pairs [[id(0)]];
     device const NMContactSampleGPU* samples [[id(1)]];

@@ -1,0 +1,3 @@
+# Tested source snapshot 040
+
+`040-tested-source.patch` reconstructs the 040 source state from base revision `4642668b37f385ee7dde3d9fdde097fc0f5d9ab2`. The patch excludes evidence-only edits. Its source hashes match the completed verification/native provenance and were checked in a disposable detached worktree. The earlier 039 patch is preserved unchanged at `../reference-contact-expansion-039/tested-source-039/tested-candidate.patch`; it remains the separate 039 snapshot. The native binary, metallib, suite-library, and invocation hashes are pinned in source-hashes.json. No commit was created.

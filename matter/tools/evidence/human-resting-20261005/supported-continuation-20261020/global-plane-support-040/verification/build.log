@@ -1,0 +1,16 @@
+[0/2] Re-checking globbed directories...
+[1/9] Building OBJCXX object CMakeFiles/metalrobo_numi_human_per_contact_plane_metal_test.dir/tests/numi_human_per_contact_plane_metal_test.mm.o
+[2/9] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:4875:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4875 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[3/9] Linking CXX shared library lib/libmetalrobo.dylib
+[4/9] Linking OBJCXX executable metalrobo_numi_human_per_contact_plane_metal_test
+[5/9] Linking CXX executable bin/metalrobo_numi_human_static_support_test
+[6/9] Linking OBJCXX executable bin/metalrobo_numilab_human_tendon_fem_load_probe
+[7/9] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[8/9] Linking OBJCXX executable bin/numi-human-native

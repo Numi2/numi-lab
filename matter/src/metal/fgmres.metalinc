@@ -1,5 +1,16 @@
 namespace numi_matter_metal {
 
+inline bool contactCompensatedVertexTriangleWitness(
+    const MRCompensatedPositionGPU point,
+    const MRCompensatedPositionGPU a,
+    const MRCompensatedPositionGPU b,
+    const MRCompensatedPositionGPU c,
+    thread float3& barycentric,
+    thread float3& closestPoint,
+    thread MRCompensatedPositionGPU& relative,
+    thread float& separation
+);
+
 inline uint fgmresRigidBase(const NMMatterDispatchGPU dispatch);
 inline uint fgmresRigidIndex(
     const NMMatterDispatchGPU dispatch,
@@ -795,6 +806,7 @@ inline bool deformableExactVertexTriangleDirectionalForce(
 
     constexpr float epsilon = 1.192092896e-7f;
     float3 position[4];
+    MRCompensatedPositionGPU positionExpansion[4];
     float3 velocity[4];
     float3 velocityDirection[4];
     float inverseMass[4];
@@ -802,6 +814,8 @@ inline bool deformableExactVertexTriangleDirectionalForce(
     float weight[4];
     float3 nodesDirection[4];
     uint support[4];
+    bool referenceModeContact = true;
+    float3 referenceOrigin = float3(0.0f);
     for (uint local = 0u; local < 4u; ++local) {
         support[local] = deformableContactNode(contact, local);
         if (support[local] < dispatch.gridNodeCount ||
@@ -812,7 +826,12 @@ inline bool deformableExactVertexTriangleDirectionalForce(
         const uint localNode = support[local] - dispatch.gridNodeCount;
         const uint index = environment * dispatch.femNodeCount + localNode;
         const NMFEMNodeStateGPU state = candidate[index];
+        if (state.referenceDisplacementAndMode.w != 1.0f)
+            referenceModeContact = false;
+        if (local == 0u) referenceOrigin = state.restAndFixed.xyz;
         position[local] = state.positionAndMass.xyz;
+        positionExpansion[local] = mrCompensatedVector(
+            float4(position[local], 0.0f));
         velocity[local] = state.velocityAndInverseMass.xyz;
         inverseMass[local] = state.velocityAndInverseMass.w;
         timestepScale[local] = deformableContactTimeScale(contact, local);
@@ -827,23 +846,138 @@ inline bool deformableExactVertexTriangleDirectionalForce(
             !isfinite(timestepScale[local]) || timestepScale[local] < 0.0f ||
             !isfinite(weight[local])) return false;
     }
+    if (referenceModeContact) {
+        for (uint local = 0u; local < 4u; ++local) {
+            const uint localNode = support[local] - dispatch.gridNodeCount;
+            const NMFEMNodeStateGPU state = candidate[
+                environment * dispatch.femNodeCount + localNode];
+            positionExpansion[local] = femContactPositionRelativeExpansion(
+                state, referenceOrigin);
+            position[local] = femContactPositionRelativeProjection(
+                positionExpansion[local]);
+        }
+    }
 
-    const float3 e1 = position[2] - position[1];
-    const float3 e2 = position[3] - position[1];
-    const float3 e3 = position[3] - position[2];
+    const float3 e1 = referenceModeContact
+        ? femContactPositionRelativeProjection(mrCompensatedVectorAdd(
+            positionExpansion[2], mrCompensatedVectorNegate(positionExpansion[1])))
+        : position[2] - position[1];
+    const float3 e2 = referenceModeContact
+        ? femContactPositionRelativeProjection(mrCompensatedVectorAdd(
+            positionExpansion[3], mrCompensatedVectorNegate(positionExpansion[1])))
+        : position[3] - position[1];
+    const float3 e3 = referenceModeContact
+        ? femContactPositionRelativeProjection(mrCompensatedVectorAdd(
+            positionExpansion[3], mrCompensatedVectorNegate(positionExpansion[2])))
+        : position[3] - position[2];
     const float edgeScale2 = max(max(dot(e1, e1), dot(e2, e2)), dot(e3, e3));
     if (!(edgeScale2 > 1.0e-24f) || !isfinite(edgeScale2)) return false;
     const float dotGuard = 64.0f * epsilon * edgeScale2;
     const float determinantGuard = 64.0f * epsilon * edgeScale2 * edgeScale2;
-    // The feature-margin guard and the geometric conditioning guard have
-    // different meanings. Keep the latter for every vertex/edge/face branch;
-    // admitting a finite active-feature margin must not admit a collapsed
-    // triangle or an unresolved Gram-system denominator.
     const float triangleGram = dot(e1, e1) * dot(e2, e2) -
         dot(e1, e2) * dot(e1, e2);
     if (!(triangleGram > determinantGuard) || !isfinite(triangleGram))
         return false;
 
+    float3 bary = float3(0.0f);
+    float3 baryDirection = float3(0.0f);
+    float3 closest = float3(0.0f);
+    float3 closestDirection = float3(0.0f);
+    float3 delta = float3(0.0f);
+    float referenceSeparation = NAN;
+    bool smoothFeature = false;
+    const float3 capturedBary = float3(-weight[1], -weight[2], -weight[3]);
+    MRCompensatedPositionGPU relativeExpansion = mrCompensatedVector(
+        float4(0.0f));
+    const float3 ab = e1;
+    const float3 ac = e2;
+    if (referenceModeContact) {
+        if (!contactCompensatedVertexTriangleWitness(
+                positionExpansion[0], positionExpansion[1],
+                positionExpansion[2], positionExpansion[3], bary, closest,
+                relativeExpansion, referenceSeparation))
+            return false;
+        if (!all(isfinite(bary)) || any(bary < float3(-64.0f * epsilon)) ||
+            abs(bary.x + bary.y + bary.z - 1.0f) > 2.0e-4f)
+            return false;
+        delta = relativeExpansion.high.xyz + relativeExpansion.low.xyz;
+        const float margin = 64.0f * epsilon;
+        const float3 baryDirectionBasis = bary;
+        const float3 abDirection = nodesDirection[2] - nodesDirection[1];
+        const float3 acDirection = nodesDirection[3] - nodesDirection[1];
+        if (bary.y == 0.0f && bary.z == 0.0f) {
+            closestDirection = nodesDirection[1];
+            smoothFeature = false;
+        } else if (bary.x == 0.0f && bary.z == 0.0f) {
+            closestDirection = nodesDirection[2];
+            smoothFeature = false;
+        } else if (bary.x == 0.0f && bary.y == 0.0f) {
+            closestDirection = nodesDirection[3];
+            smoothFeature = false;
+        } else if (bary.z == 0.0f) {
+            const float t = baryDirectionBasis.y;
+            const float denominator = dot(ab, ab);
+            if (!(denominator > dotGuard)) return false;
+            const float3 edgeDirection = abDirection;
+            const float3 r = delta + t * ab;
+            const float3 rDirection = nodesDirection[0] - nodesDirection[1];
+            const float dt = (dot(rDirection, ab) + dot(r, edgeDirection) -
+                2.0f * t * dot(ab, edgeDirection)) / denominator;
+            baryDirection = float3(-dt, dt, 0.0f);
+            closestDirection = nodesDirection[1] + dt * ab + t * edgeDirection;
+            smoothFeature = baryDirectionBasis.x > margin &&
+                baryDirectionBasis.y > margin;
+        } else if (bary.y == 0.0f) {
+            const float t = baryDirectionBasis.z;
+            const float denominator = dot(ac, ac);
+            if (!(denominator > dotGuard)) return false;
+            const float3 edgeDirection = acDirection;
+            const float3 r = delta + t * ac;
+            const float3 rDirection = nodesDirection[0] - nodesDirection[1];
+            const float dt = (dot(rDirection, ac) + dot(r, edgeDirection) -
+                2.0f * t * dot(ac, edgeDirection)) / denominator;
+            baryDirection = float3(-dt, 0.0f, dt);
+            closestDirection = nodesDirection[1] + dt * ac + t * edgeDirection;
+            smoothFeature = baryDirectionBasis.x > margin &&
+                baryDirectionBasis.z > margin;
+        } else if (bary.x == 0.0f) {
+            const float t = baryDirectionBasis.z;
+            const float3 edge = e3;
+            const float3 edgeDirection = nodesDirection[3] - nodesDirection[2];
+            const float3 r = delta + t * edge;
+            const float3 rDirection = nodesDirection[0] - nodesDirection[2];
+            const float denominator = dot(edge, edge);
+            if (!(denominator > dotGuard)) return false;
+            const float dt = (dot(rDirection, edge) + dot(r, edgeDirection) -
+                2.0f * t * dot(edge, edgeDirection)) / denominator;
+            baryDirection = float3(0.0f, -dt, dt);
+            closestDirection = nodesDirection[2] + dt * edge + t * edgeDirection;
+            smoothFeature = baryDirectionBasis.y > margin &&
+                baryDirectionBasis.z > margin;
+        } else {
+            const float v = baryDirectionBasis.y;
+            const float w = baryDirectionBasis.z;
+            const float gram11 = dot(ab, ab);
+            const float gram12 = dot(ab, ac);
+            const float gram22 = dot(ac, ac);
+            const float gramDeterminant = gram11 * gram22 - gram12 * gram12;
+            if (!(gramDeterminant > determinantGuard)) return false;
+            const float3 fixedDirection = nodesDirection[0] - nodesDirection[1] -
+                v * abDirection - w * acDirection;
+            const float rhs0 = dot(ab, fixedDirection) +
+                dot(abDirection, delta);
+            const float rhs1 = dot(ac, fixedDirection) +
+                dot(acDirection, delta);
+            const float dv = (rhs0 * gram22 - rhs1 * gram12) /
+                gramDeterminant;
+            const float dw = (rhs1 * gram11 - rhs0 * gram12) /
+                gramDeterminant;
+            baryDirection = float3(-dv - dw, dv, dw);
+            closestDirection = nodesDirection[1] + dv * ab + v * abDirection +
+                dw * ac + w * acDirection;
+            smoothFeature = min(min(bary.x, bary.y), bary.z) > margin;
+        }
+    } else {
     const float3 a = position[1];
     const float3 b = position[2];
     const float3 c = position[3];
@@ -862,11 +996,6 @@ inline bool deformableExactVertexTriangleDirectionalForce(
     const float vb = d5 * d2 - d1 * d6;
     const float va = d3 * d6 - d5 * d4;
 
-    float3 bary = float3(0.0f);
-    float3 baryDirection = float3(0.0f);
-    float3 closest = float3(0.0f);
-    float3 closestDirection = float3(0.0f);
-    bool smoothFeature = false;
     if (d1 <= 0.0f && d2 <= 0.0f) {
         bary = float3(1.0f, 0.0f, 0.0f);
         closest = a;
@@ -964,15 +1093,18 @@ inline bool deformableExactVertexTriangleDirectionalForce(
             vc > determinantGuard &&
             min(min(bary.x, bary.y), bary.z) > 64.0f * epsilon;
     }
+
+        delta = position[0] - closest;
+        relativeExpansion = mrCompensatedVector(float4(delta, 0.0f));
+    }
     if (requireSmoothFeature && !smoothFeature) return false;
 
-    const float3 capturedBary = float3(-weight[1], -weight[2], -weight[3]);
     if (max(max(abs(bary.x - capturedBary.x),
                 abs(bary.y - capturedBary.y)),
             abs(bary.z - capturedBary.z)) > 2.0e-4f)
         return false;
-    const float3 delta = position[0] - closest;
-    const float separation = length(delta);
+    const float separation = referenceModeContact
+        ? referenceSeparation : length(delta);
     if (!(separation > 1.0e-4f * contact.barrier.z &&
           separation < contact.barrier.z) || !isfinite(separation) ||
         abs(separation - contact.pointAndSeparation.w) >
@@ -981,8 +1113,8 @@ inline bool deformableExactVertexTriangleDirectionalForce(
     const float3 normal = delta / separation;
     if (length(normal - contact.normalAndTOI.xyz) > 2.0e-4f) return false;
 
-    const float3 mollifierFirst = position[2] - position[1];
-    const float3 mollifierSecond = position[3] - position[1];
+    const float3 mollifierFirst = e1;
+    const float3 mollifierSecond = e2;
     const float mollifierScale = dot(mollifierFirst, mollifierFirst) *
         dot(mollifierSecond, mollifierSecond);
     const float mollifierMeasure = max(

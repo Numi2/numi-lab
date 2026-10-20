@@ -1,0 +1,86 @@
+{
+  "build_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039",
+  "capture_limit": "The first run command line was not retained in its run directory; build log and later exact comparison commands are preserved.",
+  "cmake_cache_selected": {
+    "CMAKE_BUILD_TYPE:STRING": "Release",
+    "CMAKE_CXX_COMPILER:FILEPATH": "/usr/bin/c++",
+    "CMAKE_GENERATOR:INTERNAL": "Ninja",
+    "CMAKE_OSX_ARCHITECTURES:STRING": "",
+    "CMAKE_OSX_DEPLOYMENT_TARGET:STRING": ""
+  },
+  "comparison_original_and_strict_flags_commands": [
+    {
+      "binary_sha256": "da17dbde87853dae8771e000d1e81959dd55cff301f5f2545b0a6e41be9ecb25",
+      "command": [
+        "/usr/bin/clang++",
+        "-DNUMI_CARDBOARD_GEOMETRY_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\"",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-iquote",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-original-flags"
+      ],
+      "exit": 0,
+      "id": "original-flags"
+    },
+    {
+      "binary_sha256": "e68173d9f790e0b09cb217d0d7aa0590f8a61b4436427bcb4b221e5150f6fdc5",
+      "command": [
+        "/usr/bin/clang++",
+        "-DNUMI_CARDBOARD_GEOMETRY_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\"",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-iquote",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-strict-flags"
+      ],
+      "exit": 0,
+      "id": "strict-flags"
+    }
+  ],
+  "initial_build_log": "initial-build.log",
+  "ninja_target_commands": [
+    "cd /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter && /opt/homebrew/bin/cmake -E make_directory /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -MMD -MF /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.d -MT /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.air && xcrun -sdk macosx metallib /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.air -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib && /opt/homebrew/bin/cmake -E cmake_transform_depfile Ninja gccdepfile /Users/numi/numi-human-aortic-contact-opt-20261019 /Users/numi/numi-human-aortic-contact-opt-20261019/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.d /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/CMakeFiles/d/2e44237792f5f5f6d94a840c1ee1abdfc89f9f8d4dc5b57595515e40d008d820.d",
+    "/usr/bin/clang++ -DNUMI_CARDBOARD_GEOMETRY_METALLIB=\\\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\\\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off -MD -MT matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -MF matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o.d -o matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm",
+    ": && /usr/bin/clang++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -o matter/numi-matter-cardboard-contact-geometry-check  -framework Foundation  -framework Metal && :"
+  ],
+  "target": "numi-matter-cardboard-contact-geometry-check",
+  "target_compile_commands_entries": [
+    {
+      "command": "/usr/bin/clang++ -DNUMI_CARDBOARD_GEOMETRY_METALLIB=\\\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib\\\" -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off -o matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm",
+      "directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039",
+      "file": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm",
+      "output": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o"
+    }
+  ]
+}

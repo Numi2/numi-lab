@@ -1,0 +1,28 @@
+{
+  "source_base_revision": "9e0ba9f8aaa336d0c81a029058700431ccf6e47a",
+  "patch_sha256": "be9042c1a7c834e61c6ab144d7d020e94231492f5954bccdc4ff200828d6c402",
+  "provenance_sha256": "f1694e98d021c6dbbc6013a12e1042581661afa87deaa61362d24ecf45143ef5",
+  "checked_sources": {
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": true,
+    "apps/NumiHumanCoarseTissuePreparation.hpp": true,
+    "apps/NumiHumanWholeBodySkinReduction.hpp": true,
+    "apps/NumiHumanRegisteredLigaments.hpp": true,
+    "apps/NumiHumanSkinRigidPlacement.hpp": true,
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": true,
+    "apps/numilab_human_myosim_visual_probe.mm": true,
+    "matter/src/metal/fgmres.metalinc": true,
+    "matter/src/metal/numi_human.metalinc": true,
+    "matter/src/metal/vascular.metalinc": true,
+    "matter/src/runtime.mm": true,
+    "matter/src/metal/fem.metalinc": true,
+    "matter/src/metal/contact.metalinc": true,
+    "matter/src/numi_human.mm": true,
+    "matter/include/numi/matter/numi_human_shared.h": true,
+    "matter/include/numi/matter/shared.h": true
+  },
+  "patch_check_passed": true,
+  "reconstructed_source_hashes_match": true,
+  "source_file_modes_preserved": true,
+  "temporary_source_tree_removed_on_exit": true,
+  "scope": "Reconstruct exact tested038 source from committed base and patch; no build or physical execution"
+}

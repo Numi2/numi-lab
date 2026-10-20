@@ -17379,6 +17379,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedTraceSlots = deformableLimitTraceSlots;
                 const std::string capturedStage(stage);
                 const auto capturedAppendFloat = appendTraceFloat;
+                const auto capturedAppendFeatureArray = [capturedAppendFloat](std::ostringstream& line,
+                        const nm_float4* values) {
+                    line << '[';
+                    for (std::size_t feature = 0u; feature < 4u; ++feature) {
+                        if (feature != 0u) line << ',';
+                        const auto value = values[feature];
+                        line << '['; capturedAppendFloat(line, value.x); line << ',';
+                        capturedAppendFloat(line, value.y); line << ',';
+                        capturedAppendFloat(line, value.z); line << ']';
+                    }
+                    line << ']';
+                };
                 const auto capturedContactCapture =
                     femDeformableContactCaptureSelected;
                 const auto capturedExactActionCapture =
@@ -17523,6 +17535,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 capturedAppendFloat(line, by); line << ',';
                                 capturedAppendFloat(line, bz); line << ']';
                             }
+                            line << "],\"geometry_coordinate_frame\":\""
+                                 << (record.referenceOriginAndMode.w == 1.0f
+                                         ? "reference_local" : "world")
+                                 << "\",\"reference_origin_m\":[";
+                            capturedAppendFloat(line, record.referenceOriginAndMode.x); line << ',';
+                            capturedAppendFloat(line, record.referenceOriginAndMode.y); line << ',';
+                            capturedAppendFloat(line, record.referenceOriginAndMode.z);
                             line << "],\"feature_start\":[";
                             for (std::size_t feature = 0u; feature < 4u; ++feature) {
                                 if (feature != 0u) line << ',';
@@ -17539,7 +17558,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 capturedAppendFloat(line, value.y); line << ',';
                                 capturedAppendFloat(line, value.z); line << ']';
                             }
-                            line << "],\"collision_thickness_m\":";
+                            line << "],\"feature_endpoint_role\":\"ccd_projected\""
+                                 << ",\"potential_feature_start_high\":";
+                            capturedAppendFeatureArray(line, record.potentialFeatureStartHigh);
+                            line << ",\"potential_feature_start_low\":";
+                            capturedAppendFeatureArray(line, record.potentialFeatureStartLow);
+                            line << ",\"potential_feature_end_high\":";
+                            capturedAppendFeatureArray(line, record.potentialFeatureEndHigh);
+                            line << ",\"potential_feature_end_low\":";
+                            capturedAppendFeatureArray(line, record.potentialFeatureEndLow);
+                            line << ",\"collision_thickness_m\":";
                             capturedAppendFloat(line, record.metrics.x);
                             line << ",\"ccd_toi\":";
                             capturedAppendFloat(line, record.metrics.y);
@@ -17665,7 +17693,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         line << "null";
                                     line << ",\"accepted_by_feature_gate\":"
                                          << (trial.guards.w != 0u ? "true" : "false")
-                                         << ",\"base\":[";
+                                         << ",\"geometry_coordinate_frame\":\""
+                                         << (trial.referenceOriginAndMode.w == 1.0f
+                                                 ? "reference_local" : "world")
+                                         << "\",\"reference_origin_m\":[";
+                                    capturedAppendFloat(line, trial.referenceOriginAndMode.x); line << ',';
+                                    capturedAppendFloat(line, trial.referenceOriginAndMode.y); line << ',';
+                                    capturedAppendFloat(line, trial.referenceOriginAndMode.z);
+                                    line << "],\"base\":[";
                                     capturedAppendFloat(line, trial.base.x); line << ',';
                                     capturedAppendFloat(line, trial.base.y); line << ',';
                                     capturedAppendFloat(line, trial.base.z); line << ',';
@@ -17707,7 +17742,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         capturedAppendFloat(line, endpoint.y); line << ',';
                                         capturedAppendFloat(line, endpoint.z); line << ']';
                                     }
-                                    line << "]}";
+                                    line << "],\"feature_endpoint_role\":\"ccd_projected\""
+                                         << ",\"potential_feature_endpoint_high\":";
+                                    capturedAppendFeatureArray(line, trial.potentialFeatureEndpointHigh);
+                                    line << ",\"potential_feature_endpoint_low\":";
+                                    capturedAppendFeatureArray(line, trial.potentialFeatureEndpointLow);
+                                    line << '}';
                                 }
                                 line << "]}";
                             }

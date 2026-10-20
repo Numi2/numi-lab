@@ -1,0 +1,422 @@
+{
+  "copied_payloads": {
+    "verification-039/build.log": {
+      "destination": "verification-039/build.log",
+      "sha256": "4a5c112489693d4466ca5ea5576c8288368c710d9ded64bfeb175df58a7a79a8",
+      "size_bytes": 5643,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039/build.log"
+    },
+    "verification-039/configure.log": {
+      "destination": "verification-039/configure.log",
+      "sha256": "f6559ec5486fd43168c58c8dd52c896809045682bdde4f2922636b047f7d5d9a",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039/configure.log"
+    },
+    "verification-039/input-identities.json": {
+      "destination": "verification-039/input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039/input-identities.json"
+    },
+    "verification-039b/build.log": {
+      "destination": "verification-039b/build.log",
+      "sha256": "d129c642815ee0a1134d5e02d5ef0801238e505c1c2fc3e3b57b889d3e06ac24",
+      "size_bytes": 6803,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039b/build.log"
+    },
+    "verification-039b/configure.log": {
+      "destination": "verification-039b/configure.log",
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039b/configure.log"
+    },
+    "verification-039b/input-identities.json": {
+      "destination": "verification-039b/input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039b/input-identities.json"
+    },
+    "verification-039c/build.log": {
+      "destination": "verification-039c/build.log",
+      "sha256": "83b2fe0e7ff76d6e42f858c43b690ce7af4bf0e5a8321cbdbe98d113ff8dcf47",
+      "size_bytes": 2969,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/build.log"
+    },
+    "verification-039c/compact-boundary.compile.log": {
+      "destination": "verification-039c/compact-boundary.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/compact-boundary.compile.log"
+    },
+    "verification-039c/compact-boundary.run.log": {
+      "destination": "verification-039c/compact-boundary.run.log",
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "size_bytes": 123,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/compact-boundary.run.log"
+    },
+    "verification-039c/compact-boundary/boundary-edge-errors.csv": {
+      "destination": "verification-039c/compact-boundary/boundary-edge-errors.csv",
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "size_bytes": 36,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/compact-boundary/boundary-edge-errors.csv"
+    },
+    "verification-039c/compact-boundary/boundary-self-crossings.csv": {
+      "destination": "verification-039c/compact-boundary/boundary-self-crossings.csv",
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "size_bytes": 42,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/compact-boundary/boundary-self-crossings.csv"
+    },
+    "verification-039c/compact-boundary/result.json": {
+      "destination": "verification-039c/compact-boundary/result.json",
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "size_bytes": 1438,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/compact-boundary/result.json"
+    },
+    "verification-039c/configure.log": {
+      "destination": "verification-039c/configure.log",
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/configure.log"
+    },
+    "verification-039c/fat-self-crossings.csv": {
+      "destination": "verification-039c/fat-self-crossings.csv",
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "size_bytes": 78,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/fat-self-crossings.csv"
+    },
+    "verification-039c/fem-body-interface.run.log": {
+      "destination": "verification-039c/fem-body-interface.run.log",
+      "sha256": "a9af4c82d2a1bc56dfcb805b964a904d16fc92688d4fd05adbac13b61cd022e3",
+      "size_bytes": 3854,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/fem-body-interface.run.log"
+    },
+    "verification-039c/float32-audit.compile.log": {
+      "destination": "verification-039c/float32-audit.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/float32-audit.compile.log"
+    },
+    "verification-039c/float32-audit.run.log": {
+      "destination": "verification-039c/float32-audit.run.log",
+      "sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "size_bytes": 101,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/float32-audit.run.log"
+    },
+    "verification-039c/float32-geometry.json": {
+      "destination": "verification-039c/float32-geometry.json",
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "size_bytes": 1284,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/float32-geometry.json"
+    },
+    "verification-039c/human_accepted_fem_skin_transfer_mixed_donor.compile.log": {
+      "destination": "verification-039c/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_accepted_fem_skin_transfer_mixed_donor.compile.log"
+    },
+    "verification-039c/human_accepted_fem_skin_transfer_mixed_donor.run.log": {
+      "destination": "verification-039c/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "size_bytes": 124,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_accepted_fem_skin_transfer_mixed_donor.run.log"
+    },
+    "verification-039c/human_skin_fat_from_layers_precomputed.compile.log": {
+      "destination": "verification-039c/human_skin_fat_from_layers_precomputed.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_skin_fat_from_layers_precomputed.compile.log"
+    },
+    "verification-039c/human_skin_fat_from_layers_precomputed.run.log": {
+      "destination": "verification-039c/human_skin_fat_from_layers_precomputed.run.log",
+      "sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "size_bytes": 702,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_skin_fat_from_layers_precomputed.run.log"
+    },
+    "verification-039c/human_wholebody_skin_layers.compile.log": {
+      "destination": "verification-039c/human_wholebody_skin_layers.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_wholebody_skin_layers.compile.log"
+    },
+    "verification-039c/human_wholebody_skin_layers.run.log": {
+      "destination": "verification-039c/human_wholebody_skin_layers.run.log",
+      "sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "size_bytes": 473,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/human_wholebody_skin_layers.run.log"
+    },
+    "verification-039c/input-identities.json": {
+      "destination": "verification-039c/input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/input-identities.json"
+    },
+    "verification-039c/numi_human_registered_ligaments_test.compile.log": {
+      "destination": "verification-039c/numi_human_registered_ligaments_test.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/numi_human_registered_ligaments_test.compile.log"
+    },
+    "verification-039c/numi_human_registered_ligaments_test.run.log": {
+      "destination": "verification-039c/numi_human_registered_ligaments_test.run.log",
+      "sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "size_bytes": 89,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/numi_human_registered_ligaments_test.run.log"
+    },
+    "verification-039c/static-support.run.log": {
+      "destination": "verification-039c/static-support.run.log",
+      "sha256": "35108b557698c044b413edf8879536d44bfe70cde34c10825e948044aa2876e7",
+      "size_bytes": 747,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/static-support.run.log"
+    },
+    "verification-039c/support-capture-metal.run.log": {
+      "destination": "verification-039c/support-capture-metal.run.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c/support-capture-metal.run.log"
+    },
+    "verification-039d/build.log": {
+      "destination": "verification-039d/build.log",
+      "sha256": "e56bf7ad2c5685aefc3cd97cbc618589543df3a4d0e70b2735eb7123bf25c759",
+      "size_bytes": 1198,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/build.log"
+    },
+    "verification-039d/compact-boundary.compile.log": {
+      "destination": "verification-039d/compact-boundary.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/compact-boundary.compile.log"
+    },
+    "verification-039d/compact-boundary.run.log": {
+      "destination": "verification-039d/compact-boundary.run.log",
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "size_bytes": 123,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/compact-boundary.run.log"
+    },
+    "verification-039d/compact-boundary/boundary-edge-errors.csv": {
+      "destination": "verification-039d/compact-boundary/boundary-edge-errors.csv",
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "size_bytes": 36,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/compact-boundary/boundary-edge-errors.csv"
+    },
+    "verification-039d/compact-boundary/boundary-self-crossings.csv": {
+      "destination": "verification-039d/compact-boundary/boundary-self-crossings.csv",
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "size_bytes": 42,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/compact-boundary/boundary-self-crossings.csv"
+    },
+    "verification-039d/compact-boundary/result.json": {
+      "destination": "verification-039d/compact-boundary/result.json",
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "size_bytes": 1438,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/compact-boundary/result.json"
+    },
+    "verification-039d/configure.log": {
+      "destination": "verification-039d/configure.log",
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/configure.log"
+    },
+    "verification-039d/fat-self-crossings.csv": {
+      "destination": "verification-039d/fat-self-crossings.csv",
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "size_bytes": 78,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/fat-self-crossings.csv"
+    },
+    "verification-039d/fem-body-interface.run.log": {
+      "destination": "verification-039d/fem-body-interface.run.log",
+      "sha256": "a9af4c82d2a1bc56dfcb805b964a904d16fc92688d4fd05adbac13b61cd022e3",
+      "size_bytes": 3854,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/fem-body-interface.run.log"
+    },
+    "verification-039d/float32-audit.compile.log": {
+      "destination": "verification-039d/float32-audit.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/float32-audit.compile.log"
+    },
+    "verification-039d/float32-audit.run.log": {
+      "destination": "verification-039d/float32-audit.run.log",
+      "sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "size_bytes": 101,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/float32-audit.run.log"
+    },
+    "verification-039d/float32-geometry.json": {
+      "destination": "verification-039d/float32-geometry.json",
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "size_bytes": 1284,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/float32-geometry.json"
+    },
+    "verification-039d/human_accepted_fem_skin_transfer_mixed_donor.compile.log": {
+      "destination": "verification-039d/human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_accepted_fem_skin_transfer_mixed_donor.compile.log"
+    },
+    "verification-039d/human_accepted_fem_skin_transfer_mixed_donor.run.log": {
+      "destination": "verification-039d/human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "size_bytes": 124,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_accepted_fem_skin_transfer_mixed_donor.run.log"
+    },
+    "verification-039d/human_skin_fat_from_layers_precomputed.compile.log": {
+      "destination": "verification-039d/human_skin_fat_from_layers_precomputed.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_skin_fat_from_layers_precomputed.compile.log"
+    },
+    "verification-039d/human_skin_fat_from_layers_precomputed.run.log": {
+      "destination": "verification-039d/human_skin_fat_from_layers_precomputed.run.log",
+      "sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "size_bytes": 702,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_skin_fat_from_layers_precomputed.run.log"
+    },
+    "verification-039d/human_wholebody_skin_layers.compile.log": {
+      "destination": "verification-039d/human_wholebody_skin_layers.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_wholebody_skin_layers.compile.log"
+    },
+    "verification-039d/human_wholebody_skin_layers.run.log": {
+      "destination": "verification-039d/human_wholebody_skin_layers.run.log",
+      "sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "size_bytes": 473,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/human_wholebody_skin_layers.run.log"
+    },
+    "verification-039d/input-identities.json": {
+      "destination": "verification-039d/input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/input-identities.json"
+    },
+    "verification-039d/numi_human_registered_ligaments_test.compile.log": {
+      "destination": "verification-039d/numi_human_registered_ligaments_test.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/numi_human_registered_ligaments_test.compile.log"
+    },
+    "verification-039d/numi_human_registered_ligaments_test.run.log": {
+      "destination": "verification-039d/numi_human_registered_ligaments_test.run.log",
+      "sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "size_bytes": 89,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/numi_human_registered_ligaments_test.run.log"
+    },
+    "verification-039d/static-support.run.log": {
+      "destination": "verification-039d/static-support.run.log",
+      "sha256": "35108b557698c044b413edf8879536d44bfe70cde34c10825e948044aa2876e7",
+      "size_bytes": 747,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/static-support.run.log"
+    },
+    "verification-039d/support-capture-metal.run.log": {
+      "destination": "verification-039d/support-capture-metal.run.log",
+      "sha256": "9543764bc18d171f0e308258a7fe6b20d3fbc1315b2ddf5dc402fbfa3e1317b9",
+      "size_bytes": 54,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d/support-capture-metal.run.log"
+    },
+    "verification-039e/build.log": {
+      "destination": "verification-039e/build.log",
+      "sha256": "43054bf8af3eb3dc7c9245001257ad9daa7f78dbeb81a41976e5b4aed976cd03",
+      "size_bytes": 3807,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039e/build.log"
+    },
+    "verification-039e/configure.log": {
+      "destination": "verification-039e/configure.log",
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039e/configure.log"
+    },
+    "verification-039e/input-identities.json": {
+      "destination": "verification-039e/input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039e/input-identities.json"
+    }
+  },
+  "crash_stack": "Compact exception and triggered-thread frames from the DiagnosticReports file; original full .ips remains at source path and was not copied.",
+  "iterations": [
+    {
+      "build_contains_failure_marker": true,
+      "build_log_present": true,
+      "copied_log_count": 3,
+      "diagnostic_lines": [
+        "FAILED: [code=1] CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:11635:17: error: no member named 'invalidConfiguration' in 'metalrobo::MetalArticulatedOperatorHostStatus'; did you mean 'invalidDuration'?",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:11633:20: error: no matching function for call to 'reject'",
+        "ninja: build stopped: subcommand failed."
+      ],
+      "iteration": "a",
+      "run_logs": [],
+      "source_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039"
+    },
+    {
+      "build_contains_failure_marker": true,
+      "build_log_present": true,
+      "copied_log_count": 3,
+      "diagnostic_lines": [
+        "FAILED: [code=1] matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17388:38: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17389:25: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17390:25: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'",
+        "ninja: build stopped: subcommand failed."
+      ],
+      "iteration": "b",
+      "run_logs": [],
+      "source_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039b"
+    },
+    {
+      "build_contains_failure_marker": false,
+      "build_log_present": true,
+      "copied_log_count": 23,
+      "diagnostic_lines": [],
+      "iteration": "c",
+      "run_logs": [
+        "compact-boundary.run.log",
+        "fem-body-interface.run.log",
+        "float32-audit.run.log",
+        "human_accepted_fem_skin_transfer_mixed_donor.run.log",
+        "human_skin_fat_from_layers_precomputed.run.log",
+        "human_wholebody_skin_layers.run.log",
+        "numi_human_registered_ligaments_test.run.log",
+        "static-support.run.log",
+        "support-capture-metal.run.log"
+      ],
+      "source_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039c"
+    },
+    {
+      "build_contains_failure_marker": false,
+      "build_log_present": true,
+      "copied_log_count": 23,
+      "diagnostic_lines": [],
+      "iteration": "d",
+      "run_logs": [
+        "compact-boundary.run.log",
+        "fem-body-interface.run.log",
+        "float32-audit.run.log",
+        "human_accepted_fem_skin_transfer_mixed_donor.run.log",
+        "human_skin_fat_from_layers_precomputed.run.log",
+        "human_wholebody_skin_layers.run.log",
+        "numi_human_registered_ligaments_test.run.log",
+        "static-support.run.log",
+        "support-capture-metal.run.log"
+      ],
+      "source_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039d"
+    },
+    {
+      "build_contains_failure_marker": true,
+      "build_log_present": true,
+      "copied_log_count": 3,
+      "diagnostic_lines": [
+        "FAILED: [code=1] CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/numilab_human_myosim_visual_probe.mm:6552:59: error: use of undeclared identifier 'diagnostics'",
+        "ninja: build stopped: subcommand failed."
+      ],
+      "iteration": "e",
+      "run_logs": [],
+      "source_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039e"
+    }
+  ],
+  "limits": [
+    "Some individual subtests in intermediate attempts passed; these folders are retained as development history and not summarized as current qualification.",
+    "No binaries or large geometry CSVs were copied."
+  ],
+  "scope": "Preserved development logs for iterations 039a-039e; not current qualification."
+}

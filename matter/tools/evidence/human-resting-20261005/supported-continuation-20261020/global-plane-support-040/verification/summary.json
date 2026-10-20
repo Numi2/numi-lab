@@ -1,0 +1,28 @@
+{
+  "scope": "verification-040 CPU/geometry/native-interface checks and two-step rollback/retry check",
+  "verification_exit_code": 0,
+  "verification_wall_s": 34.733026666915976,
+  "native_retry": {
+    "exit_code": 0,
+    "requested_steps": 2,
+    "timestep_s": 0.000125,
+    "accepted_csv_rows": 2,
+    "late_reject_retry": "passed"
+  },
+  "capture_checks": {
+    "count": 13,
+    "named_predicates": [
+      "per_contact_normal_tangent_response",
+      "global_plane_parity",
+      "invalid_plane_atomic_reject",
+      "mode_count_reject",
+      "noncommitting_callback_capture",
+      "same_context_fk_j_parity",
+      "global_plane_capture_passthrough",
+      "global_plane_mismatch_reject",
+      "capture_mode_mismatch_reject",
+      "global_callback_plane_mutation_reject"
+    ]
+  },
+  "limit": "No physical capture advancement or sustained-support claim."
+}

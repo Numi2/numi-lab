@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "scope": "weighted-support two-step mechanics-only initialization attempt",
+  "status": "failed before physical step advancement",
+  "exit_code": 1,
+  "wall_s": 10.590182250016369,
+  "requested_steps": 2,
+  "step_seconds": 0.000125,
+  "requested_horizon_s": 0.00025,
+  "accepted_csv_rows": 0,
+  "physical_steps_advanced": 0,
+  "failure": {
+    "stderr_line": "myosim_articulated_visual=failed error=\"weighted skin support is limited to fresh released authored-pose initialization\"",
+    "message": "weighted skin support is limited to fresh released authored-pose initialization"
+  },
+  "diagnosed_configuration_mismatch": "The root-side review identified a guard requiring per-contact bed facets while this retained support payload uses a flat global plane; this is an initialization/configuration rejection, not a mechanical response result.",
+  "source_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "executable_sha256": "1520584bf3f534aafc17684817a91277f587587bca45af26cf780b4a6e8b0b16",
+  "metallib_sha256": "ccb3da2f4c0f806de944916e809e3f1043eebb17d2e842c425e7189fb79662fc",
+  "suite_library_sha256": "4e4f76cbc6555cbc16a931c10cbede734991a62994f29a68fa894bc5f04e08f8",
+  "source_file_count": 24,
+  "invocation_sha256": "6a2f1c93f459641431213730e6cc7c7b2405ba2e17fa9c6dcb1bda7580e86d30",
+  "provenance_sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+  "source_provenance_sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+  "storage_dedup_sidecar": "storage-dedup.json",
+  "large_outputs_omitted": [
+    "output/resting-human.mrvpack",
+    "output/resting-ocular-sclera-window.json",
+    "output/resting-airway-anchor-map.json"
+  ],
+  "qualification_limit": "No accepted physics rows; this attempt does not qualify weighted support, mechanics, or physiology."
+}

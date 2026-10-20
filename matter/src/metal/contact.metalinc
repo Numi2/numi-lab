@@ -684,6 +684,18 @@ inline MRCompensatedPositionGPU contactCompensatedVectorDifference(
             mrCompensatedVector(float4(b, 0.0f))));
 }
 
+inline float3 contactCompensatedPositionProjection(
+    const MRCompensatedPositionGPU position
+) {
+    return float3(
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.x, position.low.x),
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.y, position.low.y),
+        mrCompensatedProjectionScalar(
+            0.0f, position.high.z, position.low.z));
+}
+
 // Keep the closest-point parameters produced by the established segment
 // solver, but form the relative witness before rounding either world-space
 // point. Subtracting the two separately rounded points loses the small gap
@@ -691,8 +703,10 @@ inline MRCompensatedPositionGPU contactCompensatedVectorDifference(
 // feeds generated normals and barrier energy so the line-search derivative
 // and objective use one geometric quantity.
 inline bool contactCompensatedSegmentWitness(
-    const float3 p0, const float3 p1,
-    const float3 q0, const float3 q1,
+    const MRCompensatedPositionGPU p0,
+    const MRCompensatedPositionGPU p1,
+    const MRCompensatedPositionGPU q0,
+    const MRCompensatedPositionGPU q1,
     thread float& firstParameter,
     thread float& secondParameter,
     thread float3& firstPoint,
@@ -700,7 +714,11 @@ inline bool contactCompensatedSegmentWitness(
     thread MRCompensatedPositionGPU& relative,
     thread float& separation
 ) {
-    closestPointsOnSegments(p0, p1, q0, q1,
+    const float3 p0Projected = contactCompensatedPositionProjection(p0);
+    const float3 p1Projected = contactCompensatedPositionProjection(p1);
+    const float3 q0Projected = contactCompensatedPositionProjection(q0);
+    const float3 q1Projected = contactCompensatedPositionProjection(q1);
+    closestPointsOnSegments(p0Projected, p1Projected, q0Projected, q1Projected,
         firstParameter, secondParameter, firstPoint, secondPoint);
     if (!isfinite(firstParameter) || !isfinite(secondParameter) ||
         !finite3(firstPoint) || !finite3(secondPoint)) {
@@ -709,9 +727,12 @@ inline bool contactCompensatedSegmentWitness(
         return false;
     }
 
-    const auto initial = contactCompensatedVectorDifference(p0, q0);
-    const auto firstDirection = contactCompensatedVectorDifference(p1, p0);
-    const auto secondDirection = contactCompensatedVectorDifference(q1, q0);
+    const auto initial = mrCompensatedVectorAdd(
+        p0, mrCompensatedVectorNegate(q0));
+    const auto firstDirection = mrCompensatedVectorAdd(
+        p1, mrCompensatedVectorNegate(p0));
+    const auto secondDirection = mrCompensatedVectorAdd(
+        q1, mrCompensatedVectorNegate(q0));
     relative = mrCompensatedVectorAdd(
         mrCompensatedVectorAdd(initial,
             mrCompensatedVectorScale(firstDirection,
@@ -734,21 +755,67 @@ inline bool contactCompensatedSegmentWitness(
         isfinite(separation) && separation >= 0.0f;
 }
 
+inline bool contactCompensatedSegmentWitness(
+    const float3 p0, const float3 p1,
+    const float3 q0, const float3 q1,
+    thread float& firstParameter,
+    thread float& secondParameter,
+    thread float3& firstPoint,
+    thread float3& secondPoint,
+    thread MRCompensatedPositionGPU& relative,
+    thread float& separation
+) {
+    closestPointsOnSegments(p0, p1, q0, q1,
+        firstParameter, secondParameter, firstPoint, secondPoint);
+    if (!isfinite(firstParameter) || !isfinite(secondParameter) ||
+        !finite3(firstPoint) || !finite3(secondPoint)) {
+        separation = NAN;
+        return false;
+    }
+    const auto initial = contactCompensatedVectorDifference(p0, q0);
+    const auto firstDirection = contactCompensatedVectorDifference(p1, p0);
+    const auto secondDirection = contactCompensatedVectorDifference(q1, q0);
+    relative = mrCompensatedVectorAdd(
+        mrCompensatedVectorAdd(initial,
+            mrCompensatedVectorScale(firstDirection,
+                {firstParameter, 0.0f})),
+        mrCompensatedVectorNegate(
+            mrCompensatedVectorScale(secondDirection,
+                {secondParameter, 0.0f})));
+    const auto squared = mrCompensatedVectorDot(relative, relative);
+    if (contactCompensatedSign(squared) < 0 ||
+        !isfinite(squared.high) || !isfinite(squared.low)) {
+        separation = NAN;
+        return false;
+    }
+    if (squared.high == 0.0f && squared.low == 0.0f) {
+        separation = 0.0f;
+        return true;
+    }
+    const auto distance = mrCompensatedSqrt(squared);
+    separation = distance.high + distance.low;
+    return isfinite(distance.high) && isfinite(distance.low) &&
+        isfinite(separation) && separation >= 0.0f;
+}
+
 // Preserve the paired nearest point through subtraction. Barrier energy,
 // generated normal and barycentric force distribution must share this same
 // Voronoi-region decision; a separately rounded world point changes a micron
 // gap and can reverse an otherwise tiny directional derivative.
 inline bool contactCompensatedVertexTriangleWitness(
-    const float3 point, const float3 a, const float3 b, const float3 c,
+    const MRCompensatedPositionGPU point,
+    const MRCompensatedPositionGPU a,
+    const MRCompensatedPositionGPU b,
+    const MRCompensatedPositionGPU c,
     thread float3& barycentric,
     thread float3& closestPoint,
     thread MRCompensatedPositionGPU& relative,
     thread float& separation
 ) {
-    const auto p = mrCompensatedVector(float4(point, 0.0f));
-    const auto aPair = mrCompensatedVector(float4(a, 0.0f));
-    const auto bPair = mrCompensatedVector(float4(b, 0.0f));
-    const auto cPair = mrCompensatedVector(float4(c, 0.0f));
+    const auto p = point;
+    const auto aPair = a;
+    const auto bPair = b;
+    const auto cPair = c;
     const auto ab = mrCompensatedVectorAdd(bPair,
         mrCompensatedVectorNegate(aPair));
     const auto ac = mrCompensatedVectorAdd(cPair,
@@ -866,7 +933,11 @@ inline bool contactCompensatedVertexTriangleWitness(
         }
     }
     if (usedFallback) {
-        closestPointOnTriangle(point, a, b, c, barycentric);
+        closestPointOnTriangle(
+            contactCompensatedPositionProjection(point),
+            contactCompensatedPositionProjection(a),
+            contactCompensatedPositionProjection(b),
+            contactCompensatedPositionProjection(c), barycentric);
         closest = mrCompensatedVectorAdd(
             mrCompensatedVectorAdd(aPair,
                 mrCompensatedVectorScale(ab, {barycentric.y, 0.0f})),
@@ -892,6 +963,21 @@ inline bool contactCompensatedVertexTriangleWitness(
         finite3(closestPoint) && finite3(barycentric);
 }
 
+inline bool contactCompensatedVertexTriangleWitness(
+    const float3 point, const float3 a, const float3 b, const float3 c,
+    thread float3& barycentric,
+    thread float3& closestPoint,
+    thread MRCompensatedPositionGPU& relative,
+    thread float& separation
+) {
+    return contactCompensatedVertexTriangleWitness(
+        mrCompensatedVector(float4(point, 0.0f)),
+        mrCompensatedVector(float4(a, 0.0f)),
+        mrCompensatedVector(float4(b, 0.0f)),
+        mrCompensatedVector(float4(c, 0.0f)),
+        barycentric, closestPoint, relative, separation);
+}
+
 // Energy, normal and support weights must use the same nearest feature.
 // Keep the old separation-only entrypoint for existing barrier callers.
 inline bool contactCompensatedVertexTriangleSeparation(
@@ -902,6 +988,99 @@ inline bool contactCompensatedVertexTriangleSeparation(
     MRCompensatedPositionGPU relative;
     return contactCompensatedVertexTriangleWitness(
         point, a, b, c, barycentric, closestPoint, relative, separation);
+}
+
+inline MRCompensatedPositionGPU contactCompensatedBarycentricPoint(
+    const float3 barycentric,
+    const MRCompensatedPositionGPU p0,
+    const MRCompensatedPositionGPU p1,
+    const MRCompensatedPositionGPU p2
+) {
+    return femContactBarycentricPoint(barycentric, p0, p1, p2);
+}
+
+inline bool contactCompensatedVectorLength(
+    const MRCompensatedPositionGPU vector,
+    thread float& lengthValue
+) {
+    const MRCompensatedScalar squared = mrCompensatedVectorDot(vector, vector);
+    if (contactCompensatedSign(squared) < 0 ||
+        !isfinite(squared.high) || !isfinite(squared.low)) {
+        lengthValue = NAN;
+        return false;
+    }
+    const MRCompensatedScalar distance = mrCompensatedSqrt(squared);
+    lengthValue = distance.high + distance.low;
+    return isfinite(distance.high) && isfinite(distance.low) &&
+        isfinite(lengthValue) && lengthValue >= 0.0f;
+}
+
+inline bool deformableBarrierEnergyAt(
+    const NMDeformableContactGPU contact,
+    thread const MRCompensatedPositionGPU* position,
+    thread float& energy,
+    thread float& separation
+) {
+    float featureMollifier = 1.0f;
+    if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        const auto relative = mrCompensatedVectorAdd(position[0],
+            mrCompensatedVectorNegate(position[1]));
+        const auto squared = mrCompensatedVectorDot(relative, relative);
+        if (contactCompensatedSign(squared) < 0 ||
+            !isfinite(squared.high) || !isfinite(squared.low)) {
+            energy = INFINITY;
+            separation = NAN;
+            return false;
+        }
+        const auto distance = mrCompensatedSqrt(squared);
+        separation = distance.high + distance.low;
+    } else if (contact.identity.z ==
+               NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+        float3 barycentric, closestPoint;
+        MRCompensatedPositionGPU relative;
+        if (!contactCompensatedVertexTriangleWitness(
+                position[0], position[1], position[2], position[3],
+                barycentric, closestPoint, relative, separation)) {
+            energy = INFINITY;
+            return false;
+        }
+        const float3 ab = contactCompensatedPositionProjection(
+            mrCompensatedVectorAdd(position[2],
+                mrCompensatedVectorNegate(position[1])));
+        const float3 ac = contactCompensatedPositionProjection(
+            mrCompensatedVectorAdd(position[3],
+                mrCompensatedVectorNegate(position[1])));
+        float3 firstGradient, secondGradient;
+        featureMollifier = ipcFeatureMollifierDifferential(
+            ab, ac, firstGradient, secondGradient);
+    } else if (contact.identity.z == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        float firstParameter, secondParameter;
+        float3 firstPoint, secondPoint;
+        MRCompensatedPositionGPU relative;
+        if (!contactCompensatedSegmentWitness(
+                position[0], position[1], position[2], position[3],
+                firstParameter, secondParameter, firstPoint, secondPoint,
+                relative, separation)) {
+            energy = INFINITY;
+            return false;
+        }
+        const float3 firstEdge = contactCompensatedPositionProjection(
+            mrCompensatedVectorAdd(position[1],
+                mrCompensatedVectorNegate(position[0])));
+        const float3 secondEdge = contactCompensatedPositionProjection(
+            mrCompensatedVectorAdd(position[3],
+                mrCompensatedVectorNegate(position[2])));
+        float3 firstGradient, secondGradient;
+        featureMollifier = ipcFeatureMollifierDifferential(
+            firstEdge, secondEdge, firstGradient, secondGradient);
+    } else {
+        energy = INFINITY;
+        separation = -INFINITY;
+        return false;
+    }
+    energy = featureMollifier * ipcBarrierEnergy(
+        separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
+    return isfinite(separation) && isfinite(energy);
 }
 
 inline bool deformableBarrierEnergyAt(
@@ -950,6 +1129,27 @@ inline bool deformableBarrierEnergyAt(
     energy = featureMollifier * ipcBarrierEnergy(
         separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
     return isfinite(separation) && isfinite(energy);
+}
+
+// Derivative of the current IPC potential along the Newton path, before
+// endpoint rounding. The actual rounded endpoints still own CCD and energy
+// acceptance. A rounded alpha=1 chord is not this path's derivative.
+inline float contactBarrierDirectionalDerivative(
+    const NMDeformableContactGPU contact,
+    const float3 displacement[6],
+    const float dt
+) {
+    float impulseDotDisplacement = 0.0f;
+    for (uint local = 0u; local < 6u; ++local) {
+        const uint supportNode = deformableContactNode(contact, local);
+        if (supportNode == NM_INVALID_INDEX) continue;
+        const float3 barrierImpulse =
+            deformableContactWeight(contact, local) * contact.barrier.x *
+                contact.normalAndTOI.xyz -
+            contact.mollifier.y * deformableMollifierGradient(contact, local);
+        impulseDotDisplacement += dot(barrierImpulse, displacement[local]);
+    }
+    return -impulseDotDisplacement / max(dt, 1.0e-20f);
 }
 
 inline uint3 sortedSurfaceNodes(uint3 nodes) {
@@ -2166,7 +2366,7 @@ struct NMMortarContactData {
 // triangles. Parent ordering never changes the normal's physical orientation.
 inline bool contactMortarVertexTriangleWitness(
     thread const NMMortarContactData& mapping,
-    thread const float3* featurePosition,
+    thread const MRCompensatedPositionGPU* featurePosition,
     thread float3& normal,
     thread float3& point,
     thread float& separation,
@@ -2194,6 +2394,22 @@ inline bool contactMortarVertexTriangleWitness(
         }
     }
     return finite3(normal) && all(isfinite(triangleBarycentric));
+}
+
+inline bool contactMortarVertexTriangleWitness(
+    thread const NMMortarContactData& mapping,
+    thread const float3* featurePosition,
+    thread float3& normal,
+    thread float3& point,
+    thread float& separation,
+    thread float* supportWeights
+) {
+    MRCompensatedPositionGPU expanded[4];
+    for (uint feature = 0u; feature < 4u; ++feature)
+        expanded[feature] = mrCompensatedVector(
+            float4(featurePosition[feature], 0.0f));
+    return contactMortarVertexTriangleWitness(
+        mapping, expanded, normal, point, separation, supportWeights);
 }
 
 inline float3 mortarBaryPoint(
@@ -5364,11 +5580,16 @@ kernel void nm_contact_narrowphase_deformable(
 
     float3 start[6];
     float3 finish[6];
+    MRCompensatedPositionGPU finishExpansion[6];
     float3 velocity[6];
     float inverseMass[6];
     bool nodeValid[6];
+    bool referenceModePair = true;
+    bool referenceOriginValid = false;
+    float3 referenceOrigin = float3(0.0f);
     for (uint local = 0u; local < 6u; ++local) {
         start[local] = finish[local] = velocity[local] = float3(0.0f);
+        finishExpansion[local] = mrCompensatedVector(float4(0.0f));
         inverseMass[local] = 0.0f;
         const bool leftSide = local < 3u;
         const NMContinuumSurfacePrimitiveGPU primitive =
@@ -5382,6 +5603,7 @@ kernel void nm_contact_narrowphase_deformable(
             schedulers[environment * dispatch.objectCount + objectIndex];
         const float dt = objectTimestep(dispatch, scheduler);
         if (node < dispatch.gridNodeCount) {
+            referenceModePair = false;
             const NMMatterDispatchGPU localDispatch = dispatch;
             const NMGridNodeStateGPU state =
                 gridNodes[environment * localDispatch.gridNodeCount + node];
@@ -5395,11 +5617,19 @@ kernel void nm_contact_narrowphase_deformable(
             if (femNode >= dispatch.femNodeCount) return;
             const NMFEMNodeStateGPU state =
                 femNodes[environment * dispatch.femNodeCount + femNode];
+            if (!referenceOriginValid) {
+                referenceOrigin = state.restAndFixed.xyz;
+                referenceOriginValid = true;
+            }
+            if (state.referenceDisplacementAndMode.w != 1.0f)
+                referenceModePair = false;
             finish[local] = state.positionAndMass.xyz;
             velocity[local] = state.velocityAndInverseMass.xyz;
             start[local] = finish[local] - dt * velocity[local];
             inverseMass[local] = state.velocityAndInverseMass.w;
         }
+        finishExpansion[local] = mrCompensatedVector(
+            float4(finish[local], 0.0f));
         if (!finite3(start[local]) || !finite3(finish[local]) ||
             !finite3(velocity[local]) || !isfinite(inverseMass[local]))
             return;
@@ -5411,6 +5641,27 @@ kernel void nm_contact_narrowphase_deformable(
          (!nodeValid[4] || !nodeValid[5]))) return;
 
     const float thickness = dispatch.numericalLimits.x;
+    if (referenceModePair && referenceOriginValid) {
+        for (uint local = 0u; local < 6u; ++local) {
+            if (!nodeValid[local]) continue;
+            const bool leftSide = local < 3u;
+            const NMContinuumSurfacePrimitiveGPU primitive =
+                leftSide ? left : right;
+            const uint corner = leftSide ? local : local - 3u;
+            const uint node = primitive.nodesAndObject[corner];
+            const uint femNode = node - dispatch.gridNodeCount;
+            const NMFEMNodeStateGPU state =
+                femNodes[environment * dispatch.femNodeCount + femNode];
+            finishExpansion[local] = femContactPositionRelativeExpansion(
+                state, referenceOrigin);
+            finish[local] = femContactPositionRelativeProjection(
+                finishExpansion[local]);
+            const float dt = objectTimestep(
+                dispatch, schedulers[environment * dispatch.objectCount +
+                                     primitive.nodesAndObject.w]);
+            start[local] = finish[local] - dt * velocity[local];
+        }
+    }
     float bestTOI = INFINITY;
     float3 bestNormal = float3(0.0f);
     float3 bestPoint = float3(0.0f);
@@ -5782,6 +6033,57 @@ kernel void nm_contact_narrowphase_deformable(
         }
     }
 
+    bool referenceModeContact = true;
+    bool contactReferenceOriginValid = false;
+    float3 contactReferenceOrigin = float3(0.0f);
+    const uint selectedSupportCount = bestUsesMortar ? 6u : 4u;
+    for (uint local = 0u; local < selectedSupportCount; ++local) {
+        const uint supportNode = local < 4u
+            ? bestNodes[local]
+            : (local == 4u ? bestExtraNodesX : bestExtraNodesY);
+        if (supportNode == NM_INVALID_INDEX) continue;
+        if (supportNode < dispatch.gridNodeCount) {
+            referenceModeContact = false;
+            continue;
+        }
+        const uint supportFEMNode = supportNode - dispatch.gridNodeCount;
+        if (supportFEMNode >= dispatch.femNodeCount) {
+            referenceModeContact = false;
+            continue;
+        }
+        const NMFEMNodeStateGPU state = femNodes[
+            environment * dispatch.femNodeCount + supportFEMNode];
+        if (state.referenceDisplacementAndMode.w != 1.0f)
+            referenceModeContact = false;
+        if (!contactReferenceOriginValid) {
+            contactReferenceOrigin = state.restAndFixed.xyz;
+            contactReferenceOriginValid = true;
+        }
+    }
+    referenceModeContact = referenceModeContact &&
+        contactReferenceOriginValid;
+    if (referenceModeContact) {
+        referenceOrigin = contactReferenceOrigin;
+        for (uint local = 0u; local < 6u; ++local) {
+            const uint source = bestSources[local];
+            if (source >= 6u || !nodeValid[source]) continue;
+            const bool leftSide = source < 3u;
+            const NMContinuumSurfacePrimitiveGPU primitive =
+                leftSide ? left : right;
+            const uint corner = leftSide ? source : source - 3u;
+            const uint sourceNode =
+                primitive.nodesAndObject[corner] - dispatch.gridNodeCount;
+            if (sourceNode >= dispatch.femNodeCount) return;
+            const NMFEMNodeStateGPU state = femNodes[
+                environment * dispatch.femNodeCount + sourceNode];
+            if (state.referenceDisplacementAndMode.w != 1.0f) return;
+            finishExpansion[source] = femContactPositionRelativeExpansion(
+                state, referenceOrigin);
+            finish[source] = femContactPositionRelativeProjection(
+                finishExpansion[source]);
+        }
+    }
+
     // CCD selects the swept feature and a conservative feasible-time bound.
     // The primal IPC potential itself must be evaluated at the current Newton
     // candidate (the finish configuration), not at first impact where the
@@ -5792,6 +6094,7 @@ kernel void nm_contact_narrowphase_deformable(
         // the accepted candidate endpoint, then distribute the signed
         // contact Jacobian back to the six original parent nodes.
         float3 featurePosition[4];
+        MRCompensatedPositionGPU featurePotentialPosition[4];
         const float3 leftFinish[3] = {finish[0], finish[1], finish[2]};
         const float3 rightFinish[3] = {finish[3], finish[4], finish[5]};
         for (uint feature = 0u; feature < 4u; ++feature) {
@@ -5799,14 +6102,25 @@ kernel void nm_contact_narrowphase_deformable(
                 bestMortar.featureBarycentric[feature],
                 bestMortar.featureSide[feature] == 0u
                     ? leftFinish : rightFinish);
+            const uint base = bestMortar.featureSide[feature] == 0u ? 0u : 3u;
+            featurePotentialPosition[feature] =
+                contactCompensatedBarycentricPoint(
+                    bestMortar.featureBarycentric[feature],
+                    finishExpansion[base], finishExpansion[base + 1u],
+                    finishExpansion[base + 2u]);
         }
         float supportWeights[6] = {
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
         if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
-            if (!contactMortarVertexTriangleWitness(
+            const bool witnessValid = referenceModeContact
+                ? contactMortarVertexTriangleWitness(
+                    bestMortar, featurePotentialPosition, bestNormal,
+                    bestPoint, bestSeparation, supportWeights)
+                : contactMortarVertexTriangleWitness(
                     bestMortar, featurePosition, bestNormal, bestPoint,
-                    bestSeparation, supportWeights)) {
+                    bestSeparation, supportWeights);
+            if (!witnessValid) {
                 recordDeformableNarrowphaseFailure(
                     deterministicStatusSelection, statuses, candidateStatuses,
                     environment, candidateGlobal,
@@ -5819,11 +6133,18 @@ kernel void nm_contact_narrowphase_deformable(
             float3 firstPoint, secondPoint;
             MRCompensatedPositionGPU relative;
             float distance;
-            if (!contactCompensatedSegmentWitness(
-                featurePosition[0], featurePosition[1],
-                featurePosition[2], featurePosition[3],
-                firstParameter, secondParameter, firstPoint, secondPoint,
-                relative, distance)) {
+            const bool witnessValid = referenceModeContact
+                ? contactCompensatedSegmentWitness(
+                    featurePotentialPosition[0], featurePotentialPosition[1],
+                    featurePotentialPosition[2], featurePotentialPosition[3],
+                    firstParameter, secondParameter, firstPoint, secondPoint,
+                    relative, distance)
+                : contactCompensatedSegmentWitness(
+                    featurePosition[0], featurePosition[1],
+                    featurePosition[2], featurePosition[3],
+                    firstParameter, secondParameter, firstPoint, secondPoint,
+                    relative, distance);
+            if (!witnessValid) {
                 recordDeformableNarrowphaseFailure(
                     deterministicStatusSelection, statuses, candidateStatuses,
                     environment, candidateGlobal,
@@ -5858,8 +6179,17 @@ kernel void nm_contact_narrowphase_deformable(
     } else if (bestKind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
         const float3 positive = finish[bestSources[0]];
         const float3 negative = finish[bestSources[1]];
-        const float3 delta = positive - negative;
-        const float distance = length(delta);
+        MRCompensatedPositionGPU relative = referenceModeContact
+            ? mrCompensatedVectorAdd(finishExpansion[bestSources[0]],
+                mrCompensatedVectorNegate(finishExpansion[bestSources[1]]))
+            : mrCompensatedVector(float4(positive - negative, 0.0f));
+        const float3 delta = referenceModeContact
+            ? contactCompensatedPositionProjection(relative)
+            : positive - negative;
+        float distance = length(delta);
+        if (referenceModeContact &&
+            !contactCompensatedVectorLength(relative, distance))
+            distance = NAN;
         bestNormal = distance > kGeometryFloor
             ? delta / distance : bestNormal;
         bestPoint = 0.5f * (positive + negative);
@@ -5871,9 +6201,17 @@ kernel void nm_contact_narrowphase_deformable(
         float3 negative;
         MRCompensatedPositionGPU relative;
         float distance;
-        if (!contactCompensatedVertexTriangleWitness(
+        const bool witnessValid = referenceModeContact
+            ? contactCompensatedVertexTriangleWitness(
+                finishExpansion[bestSources[0]],
+                finishExpansion[bestSources[1]],
+                finishExpansion[bestSources[2]],
+                finishExpansion[bestSources[3]], barycentric, negative,
+                relative, distance)
+            : contactCompensatedVertexTriangleWitness(
                 positive, finish[bestSources[1]], finish[bestSources[2]],
-                finish[bestSources[3]], barycentric, negative, relative, distance)) {
+                finish[bestSources[3]], barycentric, negative, relative, distance);
+        if (!witnessValid) {
             recordDeformableNarrowphaseFailure(
                 deterministicStatusSelection, statuses, candidateStatuses,
                 environment, candidateGlobal,
@@ -5892,11 +6230,18 @@ kernel void nm_contact_narrowphase_deformable(
         float3 firstPoint, secondPoint;
         MRCompensatedPositionGPU relative;
         float distance;
-        if (!contactCompensatedSegmentWitness(
-            finish[bestSources[0]], finish[bestSources[1]],
-            finish[bestSources[2]], finish[bestSources[3]],
-            firstParameter, secondParameter, firstPoint, secondPoint,
-            relative, distance)) {
+        const bool witnessValid = referenceModeContact
+            ? contactCompensatedSegmentWitness(
+                finishExpansion[bestSources[0]], finishExpansion[bestSources[1]],
+                finishExpansion[bestSources[2]], finishExpansion[bestSources[3]],
+                firstParameter, secondParameter, firstPoint, secondPoint,
+                relative, distance)
+            : contactCompensatedSegmentWitness(
+                finish[bestSources[0]], finish[bestSources[1]],
+                finish[bestSources[2]], finish[bestSources[3]],
+                firstParameter, secondParameter, firstPoint, secondPoint,
+                relative, distance);
+        if (!witnessValid) {
             recordDeformableNarrowphaseFailure(
                 deterministicStatusSelection, statuses, candidateStatuses,
                 environment, candidateGlobal,
@@ -6038,7 +6383,17 @@ kernel void nm_contact_narrowphase_deformable(
             bestMortar.featureBarycentric[3].z);
     }
     contact.normalAndTOI = float4(bestNormal, bestTOI);
-    contact.pointAndSeparation = float4(bestPoint, bestSeparation);
+    float3 presentationPoint = bestPoint;
+    if (referenceModeContact) {
+        presentationPoint = float3(
+            mrCompensatedProjectionScalar(
+                referenceOrigin.x, bestPoint.x, 0.0f),
+            mrCompensatedProjectionScalar(
+                referenceOrigin.y, bestPoint.y, 0.0f),
+            mrCompensatedProjectionScalar(
+                referenceOrigin.z, bestPoint.z, 0.0f));
+    }
+    contact.pointAndSeparation = float4(presentationPoint, bestSeparation);
     contact.velocityAndResponse = float4(relativeVelocity, inverseResponse);
     contact.source = {
         candidate.identity.x, candidate.identity.y, candidate.identity.z,
@@ -6091,32 +6446,56 @@ kernel void nm_contact_narrowphase_deformable(
         float3(0.0f), float3(0.0f), float3(0.0f)};
     if (bestUsesMortar) {
         float3 featurePosition[4];
+        MRCompensatedPositionGPU featurePotentialPosition[4];
         const float3 leftFinish[3] = {finish[0], finish[1], finish[2]};
         const float3 rightFinish[3] = {finish[3], finish[4], finish[5]};
-        for (uint local = 0u; local < 4u; ++local)
+        for (uint local = 0u; local < 4u; ++local) {
+            const uint base = bestMortar.featureSide[local] == 0u ? 0u : 3u;
             featurePosition[local] = mortarBaryPoint(
                 bestMortar.featureBarycentric[local],
                 bestMortar.featureSide[local] == 0u
                     ? leftFinish : rightFinish);
+            featurePotentialPosition[local] =
+                contactCompensatedBarycentricPoint(
+                    bestMortar.featureBarycentric[local],
+                    finishExpansion[base], finishExpansion[base + 1u],
+                    finishExpansion[base + 2u]);
+        }
         float3 featureGradient[4] = {
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f)};
         if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
             float3 firstGradient, secondGradient;
+            const float3 firstEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[1],
+                        mrCompensatedVectorNegate(featurePotentialPosition[0])))
+                : featurePosition[1] - featurePosition[0];
+            const float3 secondEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+                        mrCompensatedVectorNegate(featurePotentialPosition[2])))
+                : featurePosition[3] - featurePosition[2];
             featureMollifier = ipcFeatureMollifierDifferential(
-                featurePosition[1] - featurePosition[0],
-                featurePosition[3] - featurePosition[2],
-                firstGradient, secondGradient);
+                firstEdge, secondEdge, firstGradient, secondGradient);
             featureGradient[0] = -firstGradient;
             featureGradient[1] = firstGradient;
             featureGradient[2] = -secondGradient;
             featureGradient[3] = secondGradient;
         } else {
             float3 firstGradient, secondGradient;
+            const float3 firstEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[2],
+                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+                : featurePosition[2] - featurePosition[1];
+            const float3 secondEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+                : featurePosition[3] - featurePosition[1];
             featureMollifier = ipcFeatureMollifierDifferential(
-                featurePosition[2] - featurePosition[1],
-                featurePosition[3] - featurePosition[1],
-                firstGradient, secondGradient);
+                firstEdge, secondEdge, firstGradient, secondGradient);
             featureGradient[1] = -firstGradient - secondGradient;
             featureGradient[2] = firstGradient;
             featureGradient[3] = secondGradient;
@@ -6134,6 +6513,7 @@ kernel void nm_contact_narrowphase_deformable(
     } else if (bestKind != NM_DEFORMABLE_CONTACT_POINT_POINT) {
         float3 featurePosition[4] = {
             float3(0.0f), float3(0.0f), float3(0.0f), float3(0.0f)};
+        MRCompensatedPositionGPU featurePotentialPosition[4];
         bool completeFeature = true;
         for (uint local = 0u; local < 4u; ++local) {
             if (bestNodes[local] == NM_INVALID_INDEX) continue;
@@ -6145,6 +6525,7 @@ kernel void nm_contact_narrowphase_deformable(
                     : right.nodesAndObject[node - 3u];
                 if (globalNode == bestNodes[local]) {
                     featurePosition[local] = finish[node];
+                    featurePotentialPosition[local] = finishExpansion[node];
                     foundNode = true;
                     break;
                 }
@@ -6155,19 +6536,35 @@ kernel void nm_contact_narrowphase_deformable(
         float3 firstGradient;
         float3 secondGradient;
         if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            const float3 firstEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[1],
+                        mrCompensatedVectorNegate(featurePotentialPosition[0])))
+                : featurePosition[1] - featurePosition[0];
+            const float3 secondEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+                        mrCompensatedVectorNegate(featurePotentialPosition[2])))
+                : featurePosition[3] - featurePosition[2];
             featureMollifier = ipcFeatureMollifierDifferential(
-                featurePosition[1] - featurePosition[0],
-                featurePosition[3] - featurePosition[2],
-                firstGradient, secondGradient);
+                firstEdge, secondEdge, firstGradient, secondGradient);
             mollifierGradient[0] = -firstGradient;
             mollifierGradient[1] = firstGradient;
             mollifierGradient[2] = -secondGradient;
             mollifierGradient[3] = secondGradient;
         } else {
+            const float3 firstEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[2],
+                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+                : featurePosition[2] - featurePosition[1];
+            const float3 secondEdge = referenceModeContact
+                ? contactCompensatedPositionProjection(
+                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+                : featurePosition[3] - featurePosition[1];
             featureMollifier = ipcFeatureMollifierDifferential(
-                featurePosition[2] - featurePosition[1],
-                featurePosition[3] - featurePosition[1],
-                firstGradient, secondGradient);
+                firstEdge, secondEdge, firstGradient, secondGradient);
             mollifierGradient[1] = -firstGradient - secondGradient;
             mollifierGradient[2] = firstGradient;
             mollifierGradient[3] = secondGradient;
@@ -10456,8 +10853,53 @@ kernel void nm_contact_limit_deformable_line_search(
                     environment, microstep.solverIteration, activeSlot, slot);
             }
         }
+        bool referenceModeContact = true;
+        bool contactReferenceOriginValid = false;
+        float3 contactReferenceOrigin = float3(0.0f);
+        for (uint local = 0u; local < 6u; ++local) {
+            const uint node = deformableContactNode(contact, local);
+            if (node == NM_INVALID_INDEX) continue;
+            if (node < dispatch.gridNodeCount) {
+                referenceModeContact = false;
+                continue;
+            }
+            const uint femNode = node - dispatch.gridNodeCount;
+            if (femNode >= dispatch.femNodeCount) {
+                referenceModeContact = false;
+                continue;
+            }
+            const NMFEMNodeStateGPU state = candidate[nodeBase + femNode];
+            if (state.referenceDisplacementAndMode.w != 1.0f)
+                referenceModeContact = false;
+            if (!contactReferenceOriginValid) {
+                contactReferenceOrigin = state.restAndFixed.xyz;
+                contactReferenceOriginValid = true;
+            }
+        }
+        referenceModeContact = referenceModeContact &&
+            contactReferenceOriginValid;
+        const float4 referenceOriginAndMode = referenceModeContact
+            ? float4(contactReferenceOrigin, 1.0f) : float4(0.0f);
+        if (captureTrace)
+            traceRecord.referenceOriginAndMode = referenceOriginAndMode;
+        if (selectedTrialTraceContact) {
+            for (uint traceTrial = 0u; traceTrial < 32u; ++traceTrial) {
+                trialTraceRecords[environment * 32u + traceTrial]
+                    .referenceOriginAndMode = referenceOriginAndMode;
+            }
+        }
         float3 weightedPosition = float3(0.0f);
         float3 weightedDirection = float3(0.0f);
+        float3 worldPosition[6] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
+        float3 worldDisplacement[6] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
         float3 position[6] = {
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f),
@@ -10478,6 +10920,12 @@ kernel void nm_contact_limit_deformable_line_search(
             float3(0.0f), float3(0.0f),
             float3(0.0f), float3(0.0f)
         };
+        MRCompensatedPositionGPU positionExpansion[6];
+        MRCompensatedPositionGPU endpointExpansion[6];
+        for (uint local = 0u; local < 6u; ++local) {
+            positionExpansion[local] = mrCompensatedVector(float4(0.0f));
+            endpointExpansion[local] = mrCompensatedVector(float4(0.0f));
+        }
         bool geometryValid = true;
         unsigned int supportMask = 0u;
         for (uint local = 0u; local < 6u; ++local) {
@@ -10521,6 +10969,12 @@ kernel void nm_contact_limit_deformable_line_search(
                     dispatch, environment, activeSlot)].xyz;
                 analyticDisplacement[local] = displacement[local];
                 endpoint[local] = position[local] + displacement[local];
+                positionExpansion[local] = mrCompensatedVector(
+                    float4(position[local], 0.0f));
+                endpointExpansion[local] = mrCompensatedVector(
+                    float4(endpoint[local], 0.0f));
+                worldPosition[local] = position[local];
+                worldDisplacement[local] = displacement[local];
                 weightedPosition += contactWeight * position[local];
                 weightedDirection +=
                     contactWeight * displacement[local];
@@ -10551,15 +11005,32 @@ kernel void nm_contact_limit_deformable_line_search(
             const float dt = objectTimestep(dispatch, scheduler);
             const bool updateEligible = objectDue(
                 objects[objectIndex], scheduler, adaptiveState, microstep);
-            position[local] = candidate[nodeGlobal].positionAndMass.xyz;
+            const NMFEMNodeStateGPU current = candidate[nodeGlobal];
+            const float3 worldCurrent = current.positionAndMass.xyz;
+            positionExpansion[local] = referenceModeContact
+                ? femContactPositionRelativeExpansion(
+                    current, contactReferenceOrigin)
+                : mrCompensatedVector(float4(worldCurrent, 0.0f));
+            position[local] = referenceModeContact
+                ? femContactPositionRelativeProjection(positionExpansion[local])
+                : worldCurrent;
             analyticDisplacement[local] =
                 (updateEligible && candidate[nodeGlobal].restAndFixed.w <= 0.5f)
                     ? dt * correction[nodeGlobal].xyz : float3(0.0f);
             const NMFEMNodeStateGPU applied = femTrialNodeAtAlpha(
                 accepted[nodeGlobal], candidate[nodeGlobal],
                 correction[nodeGlobal].xyz, 1.0f, dt, updateEligible);
-            endpoint[local] = applied.positionAndMass.xyz;
+            const float3 worldEndpoint = applied.positionAndMass.xyz;
+            endpointExpansion[local] = referenceModeContact
+                ? femContactPositionRelativeExpansion(
+                    applied, contactReferenceOrigin)
+                : mrCompensatedVector(float4(worldEndpoint, 0.0f));
+            endpoint[local] = referenceModeContact
+                ? femContactPositionRelativeProjection(endpointExpansion[local])
+                : worldEndpoint;
             displacement[local] = endpoint[local] - position[local];
+            worldPosition[local] = worldCurrent;
+            worldDisplacement[local] = worldEndpoint - worldCurrent;
             weightedPosition += contactWeight * position[local];
             weightedDirection +=
                 contactWeight * displacement[local];
@@ -10579,6 +11050,8 @@ kernel void nm_contact_limit_deformable_line_search(
         float3 featurePosition[4];
         float3 featureEndpoint[4];
         float3 featureDirection[4];
+        MRCompensatedPositionGPU featurePotentialPosition[4];
+        MRCompensatedPositionGPU featurePotentialEndpoint[4];
         if ((contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u) {
             for (uint feature = 0u; feature < 4u; ++feature) {
                 const uint side = contact.featureSideByVertex[feature];
@@ -10592,6 +11065,16 @@ kernel void nm_contact_limit_deformable_line_search(
                     contact.featureBarycentricY[feature],
                     contact.featureBarycentricZ[feature]);
                 const uint base = side == 0u ? 0u : 3u;
+                featurePotentialPosition[feature] =
+                    contactCompensatedBarycentricPoint(
+                        barycentric, positionExpansion[base],
+                        positionExpansion[base + 1u],
+                        positionExpansion[base + 2u]);
+                featurePotentialEndpoint[feature] =
+                    contactCompensatedBarycentricPoint(
+                        barycentric, endpointExpansion[base],
+                        endpointExpansion[base + 1u],
+                        endpointExpansion[base + 2u]);
                 featurePosition[feature] =
                     barycentric.x * position[base] +
                     barycentric.y * position[base + 1u] +
@@ -10607,6 +11090,8 @@ kernel void nm_contact_limit_deformable_line_search(
             for (uint feature = 0u; feature < 4u; ++feature) {
                 featurePosition[feature] = position[feature];
                 featureEndpoint[feature] = endpoint[feature];
+                featurePotentialPosition[feature] = positionExpansion[feature];
+                featurePotentialEndpoint[feature] = endpointExpansion[feature];
                 featureDirection[feature] =
                     featureEndpoint[feature] - featurePosition[feature];
             }
@@ -10626,8 +11111,16 @@ kernel void nm_contact_limit_deformable_line_search(
             for (uint feature = 0u; feature < 4u; ++feature) {
                 traceRecord.featureStart[feature] =
                     float4(featurePosition[feature], 1.0f);
-                traceRecord.featureEnd[feature] = float4(
-                    featureEndpoint[feature], 1.0f);
+                traceRecord.featureEnd[feature] =
+                    float4(featureEndpoint[feature], 1.0f);
+                traceRecord.potentialFeatureStartHigh[feature] =
+                    featurePotentialPosition[feature].high;
+                traceRecord.potentialFeatureStartLow[feature] =
+                    featurePotentialPosition[feature].low;
+                traceRecord.potentialFeatureEndHigh[feature] =
+                    featurePotentialEndpoint[feature].high;
+                traceRecord.potentialFeatureEndLow[feature] =
+                    featurePotentialEndpoint[feature].low;
             }
         }
 
@@ -10639,11 +11132,11 @@ kernel void nm_contact_limit_deformable_line_search(
         for (uint local = 0u; local < 6u; ++local) {
             if (deformableContactNode(contact, local) == NM_INVALID_INDEX)
                 continue;
-            coordinateScale = max(
-                coordinateScale, maximumAbsoluteCoordinate(position[local]));
+            coordinateScale = max(coordinateScale,
+                maximumAbsoluteCoordinate(worldPosition[local]));
             coordinateScale = max(coordinateScale,
                 maximumAbsoluteCoordinate(
-                position[local] + displacement[local]));
+                    worldPosition[local] + worldDisplacement[local]));
         }
         const float collisionThickness = max(
             solver.contactAcceptance.x * dispatch.numericalLimits.x,
@@ -10731,8 +11224,12 @@ kernel void nm_contact_limit_deformable_line_search(
 
         float currentEnergy;
         float currentSeparation;
-        if (!deformableBarrierEnergyAt(
-                contact, featurePosition, currentEnergy, currentSeparation)) {
+        const bool currentEnergyValid = referenceModeContact
+            ? deformableBarrierEnergyAt(contact, featurePotentialPosition,
+                currentEnergy, currentSeparation)
+            : deformableBarrierEnergyAt(contact, featurePosition,
+                currentEnergy, currentSeparation);
+        if (!currentEnergyValid) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 contact.identity.x, slot,
@@ -10767,22 +11264,9 @@ kernel void nm_contact_limit_deformable_line_search(
                 dispatch,
                 schedulers[environment * dispatch.objectCount +
                            contact.identity.x]);
-            float impulseDotDisplacement = 0.0f;
-            for (uint local = 0u; local < 6u; ++local) {
-                const uint supportNode =
-                    deformableContactNode(contact, local);
-                if (supportNode == NM_INVALID_INDEX) continue;
-                const float3 barrierImpulse =
-                    deformableContactWeight(contact, local) *
-                        contact.barrier.x *
-                        contact.normalAndTOI.xyz -
-                    contact.mollifier.y *
-                        deformableMollifierGradient(contact, local);
-                impulseDotDisplacement += dot(
-                    barrierImpulse, displacement[local]);
-            }
             const float directionalDerivative =
-                -impulseDotDisplacement / max(dt, 1.0e-20f);
+                contactBarrierDirectionalDerivative(
+                    contact, analyticDisplacement, dt);
             if (!isfinite(directionalDerivative)) {
                 recordFailure(
                     statuses[environment], NM_STATUS_CONTACT_FAILURE,
@@ -10804,7 +11288,10 @@ kernel void nm_contact_limit_deformable_line_search(
                 for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
                     const float alpha = startAlpha * exp2(-float(trial));
                     float3 trialNodePosition[6];
+                    MRCompensatedPositionGPU trialNodeExpansion[6];
                     for (uint local = 0u; local < 6u; ++local) {
+                        trialNodeExpansion[local] =
+                            mrCompensatedVector(float4(0.0f));
                         const uint supportNode =
                             deformableContactNode(contact, local);
                         if (supportNode == NM_INVALID_INDEX) {
@@ -10814,6 +11301,8 @@ kernel void nm_contact_limit_deformable_line_search(
                         if (supportNode < dispatch.gridNodeCount) {
                             trialNodePosition[local] = position[local] +
                                 alpha * displacement[local];
+                            trialNodeExpansion[local] = mrCompensatedVector(
+                                float4(trialNodePosition[local], 0.0f));
                             continue;
                         }
                         const uint femNode = supportNode - dispatch.gridNodeCount;
@@ -10845,8 +11334,15 @@ kernel void nm_contact_limit_deformable_line_search(
                             femTrialNodeAtAlpha(accepted[globalNode],
                                 candidate[globalNode], correction[globalNode].xyz,
                                 alpha, trialDt, trialEligible);
-                        trialNodePosition[local] =
-                            applied.positionAndMass.xyz;
+                        trialNodeExpansion[local] = referenceModeContact
+                            ? femContactPositionRelativeExpansion(
+                                applied, contactReferenceOrigin)
+                            : mrCompensatedVector(float4(
+                                applied.positionAndMass.xyz, 0.0f));
+                        trialNodePosition[local] = referenceModeContact
+                            ? femContactPositionRelativeProjection(
+                                trialNodeExpansion[local])
+                            : applied.positionAndMass.xyz;
                     }
                     float3 trialWeightedDirection = float3(0.0f);
                     for (uint local = 0u; local < 6u; ++local) {
@@ -10857,6 +11353,7 @@ kernel void nm_contact_limit_deformable_line_search(
                             (trialNodePosition[local] - position[local]);
                     }
                     float3 trialPosition[4];
+                    MRCompensatedPositionGPU trialPotentialPosition[4];
                     if ((contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u) {
                         for (uint feature = 0u; feature < 4u; ++feature) {
                             const uint base =
@@ -10866,29 +11363,46 @@ kernel void nm_contact_limit_deformable_line_search(
                                 contact.featureBarycentricX[feature],
                                 contact.featureBarycentricY[feature],
                                 contact.featureBarycentricZ[feature]);
+                            trialPotentialPosition[feature] =
+                                contactCompensatedBarycentricPoint(
+                                    barycentric, trialNodeExpansion[base],
+                                    trialNodeExpansion[base + 1u],
+                                    trialNodeExpansion[base + 2u]);
                             trialPosition[feature] =
                                 barycentric.x * trialNodePosition[base] +
                                 barycentric.y * trialNodePosition[base + 1u] +
                                 barycentric.z * trialNodePosition[base + 2u];
                         }
                     } else {
-                        for (uint feature = 0u; feature < 4u; ++feature)
+                        for (uint feature = 0u; feature < 4u; ++feature) {
                             trialPosition[feature] = trialNodePosition[feature];
+                            trialPotentialPosition[feature] =
+                                trialNodeExpansion[feature];
+                        }
                     }
                     const uint trialTraceIndex = environment * 32u + trial;
                     const bool captureThisTrial =
                         selectedTrialTraceContact && trial < 32u;
                     if (captureThisTrial) {
                         trialTraceRecords[trialTraceIndex] = {};
+                        trialTraceRecords[trialTraceIndex].referenceOriginAndMode =
+                            referenceOriginAndMode;
                         trialTraceRecords[trialTraceIndex].identity = uint4(
                             environment, microstep.solverIteration, activeSlot, slot);
                         trialTraceRecords[trialTraceIndex].outcome = uint4(1u, 0u, 0u, 0u);
                         trialTraceRecords[trialTraceIndex].base = float4(
                             currentEnergy, directionalDerivative, startAlpha,
                             currentSeparation);
-                        for (uint feature = 0u; feature < 4u; ++feature)
+                        for (uint feature = 0u; feature < 4u; ++feature) {
                             trialTraceRecords[trialTraceIndex].featureEndpoint[feature] =
                                 float4(trialPosition[feature], 1.0f);
+                            trialTraceRecords[trialTraceIndex]
+                                .potentialFeatureEndpointHigh[feature] =
+                                    trialPotentialPosition[feature].high;
+                            trialTraceRecords[trialTraceIndex]
+                                .potentialFeatureEndpointLow[feature] =
+                                    trialPotentialPosition[feature].low;
+                        }
                         trialTraceRecords[trialTraceIndex].weightedDirection =
                             float4(trialWeightedDirection,
                                 dot(contact.normalAndTOI.xyz, trialWeightedDirection));
@@ -10965,8 +11479,11 @@ kernel void nm_contact_limit_deformable_line_search(
                     }
                     float trialEnergy;
                     float trialSeparation;
-                    const bool finiteTrial = deformableBarrierEnergyAt(
-                        contact, trialPosition, trialEnergy, trialSeparation);
+                    const bool finiteTrial = referenceModeContact
+                        ? deformableBarrierEnergyAt(contact,
+                            trialPotentialPosition, trialEnergy, trialSeparation)
+                        : deformableBarrierEnergyAt(contact,
+                            trialPosition, trialEnergy, trialSeparation);
                     const float armijoRight = currentEnergy +
                         1.0e-4f * alpha * directionalDerivative;
                     const bool trialArmijoAccepted = finiteTrial &&

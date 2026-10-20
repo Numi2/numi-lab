@@ -1,0 +1,247 @@
+{
+  "schema": "human-reference-contact-topology-neighborhood.v1",
+  "conclusion": "The active VF point is a source vertex on a boundary face immediately adjacent to the triangle edge it contacts. This is local 1-ring/2-ring self-contact, not an anatomically separated surface-patch pair.",
+  "capture": {
+    "run": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038",
+    "source_base_revision": "9e0ba9f8aaa336d0c81a029058700431ccf6e47a",
+    "executable_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+    "metallib_sha256": "8a1eb248976cd23043667b6cc26452932b0f743059beea642f66ba73a5aa2b84",
+    "stderr_sha256": "0618216d1ffc139222e247a77129b3a2c5c95d659d102913540a752ea9501446",
+    "stdout_sha256": "14334db0109267b796dbeeece0597a8e867ba22986fc48cfba87972fbd84e304",
+    "failure_receipt_sha256": "1f81e47769fae9257a182d9ad90452c5937ea67a833f7368ab2e18c80808a7d1",
+    "trace": {
+      "root": 4,
+      "microtick": 2,
+      "iteration": 0,
+      "stage": "after_deformable_limit",
+      "active_count": 8,
+      "active_slot": 0,
+      "contact_slot": 2624,
+      "identity": [
+        19,
+        19,
+        0,
+        1
+      ],
+      "source": [
+        15478,
+        16093,
+        2624,
+        1
+      ],
+      "nodes_global": [
+        10165,
+        10162,
+        10167,
+        9917
+      ],
+      "weights": [
+        1,
+        -0.461936772,
+        -0.538063228,
+        0
+      ],
+      "interpreted_vf": {
+        "point_global_node": 10165,
+        "point_local_node": 284,
+        "triangle_global_nodes": [
+          10162,
+          10167,
+          9917
+        ],
+        "triangle_local_nodes": [
+          281,
+          286,
+          36
+        ],
+        "barycentric_on_triangle": [
+          0.461936772,
+          0.538063228,
+          0
+        ]
+      },
+      "coordinate_frame": "reference_local",
+      "reference_origin_m": [
+        0.0370209105,
+        -0.579743266,
+        0.114348516
+      ],
+      "feature_start": [
+        [
+          -4.53941851e-07,
+          -6.28351529e-07,
+          -1.51737311e-06
+        ],
+        [
+          0.000795925327,
+          -0.000445935089,
+          -0.000381455815
+        ],
+        [
+          -0.000686181942,
+          0.000389132008,
+          0.000311352371
+        ],
+        [
+          0.0043470338,
+          -0.000838990032,
+          -0.00779009052
+        ]
+      ]
+    }
+  },
+  "source_asset": {
+    "file": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRegisteredOrganBatchAssets.hpp",
+    "sha256": "3e66d192aec356849a46e878976cc838cfb333c70ee161e03797f9369e108c49",
+    "matches_source_base_revision": true,
+    "source_base_revision": "9e0ba9f8aaa336d0c81a029058700431ccf6e47a",
+    "lines": {
+      "spleen_nodes_start": 5770,
+      "spleen_boundary_start": 10681,
+      "spleen_asset": 12113
+    },
+    "asset_identity": {
+      "member": "spleen-FJ2561",
+      "stable_id": 13,
+      "concept": "FMA7196",
+      "nodes": 992,
+      "tetrahedra": 3915,
+      "boundary_faces": 1428
+    },
+    "global_node_offset": {
+      "value": 9881,
+      "status": "uniquely inferred from exact source topology plus captured coordinates; no direct builder field was emitted",
+      "admissible_offset_search": [
+        9176,
+        9917
+      ],
+      "only_offset_with_matching_boundary_triangle": 9881,
+      "six_pair_distance_signature_rms_error_m": 3.01756e-07,
+      "stdout_confirms_asset_node_count": 992,
+      "stdout_prints_first_global_node": false
+    }
+  },
+  "mapped_nodes": [
+    {
+      "global": 10165,
+      "local": 284,
+      "source_vertex": 156,
+      "reference_local_position_m": [
+        0.02151930690652771,
+        -0.13667608075048332,
+        -0.06202091478811685
+      ]
+    },
+    {
+      "global": 10162,
+      "local": 281,
+      "source_vertex": 153,
+      "reference_local_position_m": [
+        0.02114744498484688,
+        -0.13712874777410622,
+        -0.06281666628016051
+      ]
+    },
+    {
+      "global": 10167,
+      "local": 286,
+      "source_vertex": 160,
+      "reference_local_position_m": [
+        0.021825896716647912,
+        -0.1362822873124897,
+        -0.061334820305238326
+      ]
+    },
+    {
+      "global": 9917,
+      "local": 36,
+      "source_vertex": 100,
+      "reference_local_position_m": [
+        0.0137470012074049,
+        -0.1376507354507267,
+        -0.06636792591703948
+      ]
+    }
+  ],
+  "trace_pairwise_distances_m": {
+    "284-281": 0.0009883679729324095,
+    "284-286": 0.000848541987663533,
+    "281-286": 0.0018368348308716428,
+    "284-36": 0.008959094353632116,
+    "281-36": 0.00822512806996703,
+    "286-36": 0.009616388166395156
+  },
+  "fixed_asset_pairwise_distances_m": {
+    "284-281": 0.00098813418125348,
+    "284-286": 0.0008484080521262916,
+    "281-286": 0.0018364802092200596,
+    "284-36": 0.008958526297349391,
+    "281-36": 0.008224991443530448,
+    "286-36": 0.009616306726381781
+  },
+  "boundary_faces": [
+    {
+      "zero_based_ordinal": 412,
+      "nodes": [
+        286,
+        281,
+        284
+      ],
+      "source_face_ancestry": 192
+    },
+    {
+      "zero_based_ordinal": 414,
+      "nodes": [
+        281,
+        286,
+        36
+      ],
+      "source_face_ancestry": 194
+    }
+  ],
+  "topology": {
+    "shared_edge_local_nodes": [
+      281,
+      286
+    ],
+    "point_node_graph_distance_to_triangle_vertices": {
+      "284-281": 1,
+      "284-286": 1,
+      "284-36": 2
+    },
+    "note": "The point is the third vertex of boundary face 412; the active VF triangle is boundary face 414. Those source faces share the exact edge carrying the active barycentric point."
+  },
+  "ancestry_limit": {
+    "trace_source_primitive_pair": [
+      15478,
+      16093
+    ],
+    "status": "unresolved",
+    "note": "These runtime source primitive IDs are not the boundary-array ordinals. Static asset tet-face indexing does not yield an independently verified one-to-one ancestry for both IDs; no claim is made that 15478/16093 equal rows 412/414."
+  },
+  "interpretation_limit": "This establishes immediate mesh-geodesic adjacency for the matched spleen source geometry. It does not establish that the contact should be removed or filtered; no contact exclusion is proposed.",
+  "tetrahedra": {
+    "same_tet_contains_point_and_all_triangle_nodes": false,
+    "face_412_parent_local_tet": {
+      "index": 3610,
+      "opposite_corner": 2,
+      "nodes": [
+        286,
+        281,
+        736,
+        284
+      ]
+    },
+    "face_414_parent_local_tet": {
+      "index": 1443,
+      "opposite_corner": 2,
+      "nodes": [
+        281,
+        286,
+        29,
+        36
+      ]
+    },
+    "interpretation": "The active point/triangle support spans two distinct tets sharing a boundary edge; per-tet positive-J alone does not justify excluding this pair."
+  }
+}

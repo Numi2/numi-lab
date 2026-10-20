@@ -776,6 +776,17 @@ typedef struct NM_ALIGN16 NMDeformableContactLimitTraceGPU {
     // Actual per-object timestep passed to the production helper. This can
     // differ from the owner microstep for multirate objects.
     nm_float4 productionExactActionMetadata;
+    // Diagnostic coordinate frame only: xyz is the immutable world reference
+    // origin; w=1 means feature/CCD positions are relative to it, w=0 world.
+    // This scratch metadata never participates in physical or replay state.
+    nm_float4 referenceOriginAndMode;
+    // Potential geometry before FP32 endpoint projection. Each actual point
+    // is high+low in referenceOriginAndMode's frame. featureStart/End above
+    // are the separate float3 endpoints passed to CCD.
+    nm_float4 potentialFeatureStartHigh[4];
+    nm_float4 potentialFeatureStartLow[4];
+    nm_float4 potentialFeatureEndHigh[4];
+    nm_float4 potentialFeatureEndLow[4];
 } NMDeformableContactLimitTraceGPU;
 
 // Optional bounded trace of every alpha tested for one selected deformable
@@ -800,8 +811,16 @@ typedef struct NM_ALIGN16 NMDeformableContactLimitTrialTraceGPU {
     nm_float4 energy;
     // trial weighted direction xyz and its dot with the oriented normal
     nm_float4 weightedDirection;
-    // Exact four feature endpoints tested by production CCD/barrier logic
+    // Four projected feature endpoints tested by production CCD
     nm_float4 featureEndpoint[4];
+    // Diagnostic coordinate frame only: xyz is the immutable world reference
+    // origin; w=1 means feature/CCD positions are relative to it, w=0 world.
+    // This scratch metadata never participates in physical or replay state.
+    nm_float4 referenceOriginAndMode;
+    // Potential geometry before FP32 endpoint projection; separate from
+    // featureEndpoint, which records the endpoints passed to CCD.
+    nm_float4 potentialFeatureEndpointHigh[4];
+    nm_float4 potentialFeatureEndpointLow[4];
 } NMDeformableContactLimitTrialTraceGPU;
 
 // Compact transaction-owned deformable-contact history. The

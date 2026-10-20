@@ -1,0 +1,37 @@
+{
+  "all_preparation_source_hashes_match": true,
+  "all_receipt_checked_flags_true": true,
+  "base_commit_present": true,
+  "checked_source_modes_preserved": true,
+  "checked_sources_without_preparation_hash": {
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": {
+      "changed_by_patch": false,
+      "reconstructed_matches_base": true
+    },
+    "apps/NumiHumanSkinRigidPlacement.hpp": {
+      "changed_by_patch": false,
+      "reconstructed_matches_base": true
+    }
+  },
+  "conclusion": "Receipt is supported by a fresh patch/base reconstruction: patch and sidecar hashes match, referenced provenance hash resolves, all 25 source hashes in verification-038 preparation provenance match reconstructed files, all 16 receipt checks are true, and source modes are preserved. Two checked paths absent from preparation hash list were unchanged by patch and match base.",
+  "hash_mismatches": [],
+  "limitations": [
+    "The original source-restore-check.json remains untracked in the repository; this audit does not stage or commit it.",
+    "This verifies source reconstruction only; no build or physical execution was performed."
+  ],
+  "patch_sha256_actual": "be9042c1a7c834e61c6ab144d7d020e94231492f5954bccdc4ff200828d6c402",
+  "patch_sha256_matches": true,
+  "patch_sha256_receipt": "be9042c1a7c834e61c6ab144d7d020e94231492f5954bccdc4ff200828d6c402",
+  "patch_sidecar_matches": true,
+  "preparation_source_hash_records": 25,
+  "provenance_files_matching_receipt": [
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/native-integrated/provenance.json",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/verification-038/native/provenance.json"
+  ],
+  "provenance_sha256_receipt": "f1694e98d021c6dbbc6013a12e1042581661afa87deaa61362d24ecf45143ef5",
+  "receipt_checked_source_count": 16,
+  "receipt_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/source-restore-check.json",
+  "receipt_sha256": "925437bdd1e29c54afd3b329534930446478a406e0ca5662264b36b31377b587",
+  "source_mode_mismatches": [],
+  "temporary_reconstruction": "git apply --check and git apply passed in auto-removed temporary source tree"
+}

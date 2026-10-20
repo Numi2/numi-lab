@@ -1,0 +1,35 @@
+[0/2] Re-checking globbed directories...
+[1/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[2/20] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[3/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[4/20] Generating shaders/HumanRespiration.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/human_respiration.metal:3:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[5/20] Building OBJCXX object CMakeFiles/metalrobo_numi_human_per_contact_plane_metal_test.dir/tests/numi_human_per_contact_plane_metal_test.mm.o
+[6/20] Building CXX object CMakeFiles/metalrobo_numi_human_static_support_test.dir/tests/numi_human_static_support_test.cpp.o
+[7/20] Building OBJCXX object CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o
+[8/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:12744:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12744 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16886:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16886 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[9/20] Linking CXX shared library lib/libmetalrobo.dylib
+[10/20] Linking CXX static library matter/libnumi_matter_runtime.a
+[11/20] Building OBJCXX object matter/CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o
+[12/20] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[13/20] Linking OBJCXX executable metalrobo_numi_human_per_contact_plane_metal_test
+[14/20] Linking CXX executable bin/metalrobo_numi_human_static_support_test
+[15/20] Linking OBJCXX executable bin/metalrobo_numilab_human_tendon_fem_load_probe
+[16/20] Linking CXX executable matter/numi-matter-vascular-cavity-check
+[17/20] Linking CXX executable matter/numi-matter-fem-reference-check
+[18/20] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[19/20] Linking OBJCXX executable bin/numi-human-native

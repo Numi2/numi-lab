@@ -1,0 +1,1 @@
+gpu_available=true device="Apple M6" kernel=mr_numi_human_stand_step checks=5 per_contact_normal_tangent_response=passed global_plane_parity=passed invalid_plane_atomic_reject=passed mode_count_reject=passed noncommitting_callback_capture=passed same_context_fk_j_parity=passed

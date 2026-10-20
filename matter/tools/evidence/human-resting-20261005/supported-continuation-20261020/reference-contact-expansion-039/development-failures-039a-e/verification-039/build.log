@@ -1,0 +1,46 @@
+[0/2] Re-checking globbed directories...
+[1/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[4/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[5/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[6/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[7/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[8/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[9/47] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[10/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[11/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[12/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[13/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[14/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[15/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[16/47] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[17/47] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[18/47] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+FAILED: [code=1] CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o 
+/usr/bin/clang++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/shaders/MetalRobo.metallib\" -DMETALROBO_NEURON_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/shaders/NumiNeuron.metallib\" -Dmetalrobo_EXPORTS -I/Users/numi/numi-human-aortic-contact-opt-20261019/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/src -I/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/generated -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2 -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -MD -MT CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o -MF CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o.d -o CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:4863:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4863 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:11635:17: error: no member named 'invalidConfiguration' in 'metalrobo::MetalArticulatedOperatorHostStatus'; did you mean 'invalidDuration'?
+ 11635 |                 MetalArticulatedOperatorHostStatus::invalidConfiguration,
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       |                 invalidDuration
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/MacErrors.h:781:3: note: 'invalidDuration' declared here
+  781 |   invalidDuration               = -2014,
+      |   ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:11633:20: error: no matching function for call to 'reject'
+ 11633 |             return reject(
+       |                    ^~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:1616:37: note: candidate function not viable: no known conversion from '(unnamed enum at /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/MacErrors.h:766:1)' to 'const MetalArticulatedOperatorHostStatus' for 2nd argument
+ 1616 | MetalArticulatedOperatorDiagnostics reject(
+      |                                     ^
+ 1617 |     MetalArticulatedOperatorDiagnostics diagnostics,
+ 1618 |     const MetalArticulatedOperatorHostStatus status,
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning and 2 errors generated.
+[19/47] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o
+ninja: build stopped: subcommand failed.

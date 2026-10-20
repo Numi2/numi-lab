@@ -1952,6 +1952,10 @@ struct MetalArticulatedOperatorInput {
     MetalMillardReferenceInput millard{};
     MetalMujocoMuscleReferenceInput mujoco{};
     MetalNumiHumanStandInput stand{};
+    // Evaluate the registered supportGeometryProgram on the current q using
+    // the point-Jacobian-only paired-FK path, then return its derived contact
+    // planes and matching point buffers without running a Stand step.
+    bool captureSupportGeometryOnly = false;
     MetalArticulatedOperatorResidentStateContinuation residentContinuation{};
     // Opt in to an accepted legacy Stand root without a NumanX Human/Matter
     // ACK owner. The context fingerprints the immutable source/program
@@ -2218,6 +2222,10 @@ struct MetalArticulatedOperatorResult {
     std::vector<mr_float4> pointPositionLow;
     std::vector<float> diagnosticMassMatrix;
     std::vector<float> pointJacobians;
+    // Non-committing current-pose support-geometry capture. These are the
+    // callback-updated contact rows; pointWorld/pointPositionLow/pointJacobians
+    // above contain the matching point-query rows. Empty for ordinary runs.
+    std::vector<MRNumiHumanStandContactGPU> supportGeometryContacts;
     std::vector<float> generalizedImpulse;
     std::vector<float> deltaVelocity;
     std::vector<MRArticulatedOperatorStatusGPU> statuses;

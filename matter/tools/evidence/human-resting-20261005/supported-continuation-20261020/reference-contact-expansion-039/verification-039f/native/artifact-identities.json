@@ -1,0 +1,308 @@
+{
+  "copied_payloads": {
+    "build.log": {
+      "destination": "build.log",
+      "sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9",
+      "size_bytes": 201,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/build.log"
+    },
+    "compact-boundary.compile.log": {
+      "destination": "compact-boundary.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/compact-boundary.compile.log"
+    },
+    "compact-boundary.run.log": {
+      "destination": "compact-boundary.run.log",
+      "sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "size_bytes": 123,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/compact-boundary.run.log"
+    },
+    "compact-boundary/boundary-edge-errors.csv": {
+      "destination": "compact-boundary/boundary-edge-errors.csv",
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "size_bytes": 36,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/compact-boundary/boundary-edge-errors.csv"
+    },
+    "compact-boundary/boundary-self-crossings.csv": {
+      "destination": "compact-boundary/boundary-self-crossings.csv",
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "size_bytes": 42,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/compact-boundary/boundary-self-crossings.csv"
+    },
+    "compact-boundary/result.json": {
+      "destination": "compact-boundary/result.json",
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "size_bytes": 1438,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/compact-boundary/result.json"
+    },
+    "configure.log": {
+      "destination": "configure.log",
+      "sha256": "7ebd6c3664e715371baf625e5a3dae154f0bcf151d40b7e786f7f4f223a83fbf",
+      "size_bytes": 268,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/configure.log"
+    },
+    "contact-geometry.run.log": {
+      "destination": "contact-geometry.run.log",
+      "sha256": "64453c21924d126258e9fe4017e5f3fba2612e500540f8d9969a35aaf43adff5",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/contact-geometry.run.log"
+    },
+    "contact-surface-sort.run.log": {
+      "destination": "contact-surface-sort.run.log",
+      "sha256": "489eec4da8f21befa2ad8370aed787d64155c89038c996e2deb7113b92ac65fd",
+      "size_bytes": 959,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/contact-surface-sort.run.log"
+    },
+    "fat-self-crossings.csv": {
+      "destination": "fat-self-crossings.csv",
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "size_bytes": 78,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/fat-self-crossings.csv"
+    },
+    "fem-backtracking.run.log": {
+      "destination": "fem-backtracking.run.log",
+      "sha256": "3bb59b3b658eaadfee680c192d6de468100ae14b7d2e3be5f86eb791d7af2758",
+      "size_bytes": 354,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/fem-backtracking.run.log"
+    },
+    "fem-body-interface.run.log": {
+      "destination": "fem-body-interface.run.log",
+      "sha256": "a9af4c82d2a1bc56dfcb805b964a904d16fc92688d4fd05adbac13b61cd022e3",
+      "size_bytes": 3854,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/fem-body-interface.run.log"
+    },
+    "float32-audit.compile.log": {
+      "destination": "float32-audit.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/float32-audit.compile.log"
+    },
+    "float32-audit.run.log": {
+      "destination": "float32-audit.run.log",
+      "sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "size_bytes": 101,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/float32-audit.run.log"
+    },
+    "float32-geometry.json": {
+      "destination": "float32-geometry.json",
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "size_bytes": 1284,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/float32-geometry.json"
+    },
+    "human_accepted_fem_skin_transfer_mixed_donor.compile.log": {
+      "destination": "human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_accepted_fem_skin_transfer_mixed_donor.compile.log"
+    },
+    "human_accepted_fem_skin_transfer_mixed_donor.run.log": {
+      "destination": "human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "size_bytes": 124,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_accepted_fem_skin_transfer_mixed_donor.run.log"
+    },
+    "human_skin_fat_from_layers_precomputed.compile.log": {
+      "destination": "human_skin_fat_from_layers_precomputed.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_skin_fat_from_layers_precomputed.compile.log"
+    },
+    "human_skin_fat_from_layers_precomputed.run.log": {
+      "destination": "human_skin_fat_from_layers_precomputed.run.log",
+      "sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "size_bytes": 702,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_skin_fat_from_layers_precomputed.run.log"
+    },
+    "human_wholebody_skin_layers.compile.log": {
+      "destination": "human_wholebody_skin_layers.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_wholebody_skin_layers.compile.log"
+    },
+    "human_wholebody_skin_layers.run.log": {
+      "destination": "human_wholebody_skin_layers.run.log",
+      "sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "size_bytes": 473,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/human_wholebody_skin_layers.run.log"
+    },
+    "input-identities.json": {
+      "destination": "input-identities.json",
+      "sha256": "4ad3e7ffb252248faa2b0c2922bd59541bb95a42ec72f78005785ee6cf7da383",
+      "size_bytes": 182,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/input-identities.json"
+    },
+    "native/execution.json": {
+      "destination": "native/execution.json",
+      "sha256": "27df9f504531a75e35f7e1f7b30cfac1f7a19f0f22d0d6bd31962fca9d774dfc",
+      "size_bytes": 52,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/execution.json"
+    },
+    "native/invocation.json": {
+      "destination": "native/invocation.json",
+      "sha256": "beb72dffc2296c1a984d82711a43ffa9945a8cd769065beba654571ef5e2f680",
+      "size_bytes": 7569,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/invocation.json"
+    },
+    "native/output/resting-coupled.csv": {
+      "destination": "native/output/resting-coupled.csv",
+      "sha256": "6c3ee22d7ab792085efd23f7ca68457e2724c326c41fa70009d8bfd198b88513",
+      "size_bytes": 3298,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/output/resting-coupled.csv"
+    },
+    "native/output/resting-surface-audit.csv": {
+      "destination": "native/output/resting-surface-audit.csv",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "size_bytes": 894,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/output/resting-surface-audit.csv"
+    },
+    "native/provenance.json": {
+      "destination": "native/provenance.json",
+      "sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+      "size_bytes": 3192,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/provenance.json"
+    },
+    "native/stderr.log": {
+      "destination": "native/stderr.log",
+      "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+      "size_bytes": 2497,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/stderr.log"
+    },
+    "numi_human_registered_ligaments_test.compile.log": {
+      "destination": "numi_human_registered_ligaments_test.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/numi_human_registered_ligaments_test.compile.log"
+    },
+    "numi_human_registered_ligaments_test.run.log": {
+      "destination": "numi_human_registered_ligaments_test.run.log",
+      "sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "size_bytes": 89,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/numi_human_registered_ligaments_test.run.log"
+    },
+    "preparation-provenance.json": {
+      "destination": "preparation-provenance.json",
+      "sha256": "7676596d2c36f250f590d523e8a23a5b8d55a0704216db592a0948b5cbba31cb",
+      "size_bytes": 9195,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/preparation-provenance.json"
+    },
+    "static-support.run.log": {
+      "destination": "static-support.run.log",
+      "sha256": "35108b557698c044b413edf8879536d44bfe70cde34c10825e948044aa2876e7",
+      "size_bytes": 747,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/static-support.run.log"
+    },
+    "support-capture-metal.run.log": {
+      "destination": "support-capture-metal.run.log",
+      "sha256": "0a170e63a95874e34b51013c676b6ff0d9cfaaf1cd902566da389d6e3455aebd",
+      "size_bytes": 278,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/support-capture-metal.run.log"
+    },
+    "vascular-block.run.log": {
+      "destination": "vascular-block.run.log",
+      "sha256": "0ec167f1881c19e687258ddcd89fa8df7bb16f23c02f8aa9a57519f430acec90",
+      "size_bytes": 361,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/vascular-block.run.log"
+    }
+  },
+  "native_files": [
+    {
+      "copied": true,
+      "path": "execution.json",
+      "sha256": "27df9f504531a75e35f7e1f7b30cfac1f7a19f0f22d0d6bd31962fca9d774dfc",
+      "size_bytes": 52
+    },
+    {
+      "copied": true,
+      "path": "invocation.json",
+      "sha256": "beb72dffc2296c1a984d82711a43ffa9945a8cd769065beba654571ef5e2f680",
+      "size_bytes": 7569
+    },
+    {
+      "copied": false,
+      "path": "output/resting-airway-anchor-map.json",
+      "reason": "large native output omitted from compact package",
+      "sha256": "f516b94a8be793b9ed3601899a508942375e2ffffc44c77c93616f12f03944fa",
+      "size_bytes": 82553
+    },
+    {
+      "copied": true,
+      "path": "output/resting-coupled.csv",
+      "sha256": "6c3ee22d7ab792085efd23f7ca68457e2724c326c41fa70009d8bfd198b88513",
+      "size_bytes": 3298
+    },
+    {
+      "copied": false,
+      "path": "output/resting-human.mrvpack",
+      "reason": "large native output omitted from compact package",
+      "sha256": null,
+      "size_bytes": 297078784
+    },
+    {
+      "copied": false,
+      "path": "output/resting-ocular-sclera-window.json",
+      "reason": "large native output omitted from compact package",
+      "sha256": "e71dadccd1ccba086f4a4bdccdafd4a709dcf288f31d242a010fde688ef1f3e3",
+      "size_bytes": 1210039
+    },
+    {
+      "copied": true,
+      "path": "output/resting-surface-audit.csv",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "size_bytes": 894
+    },
+    {
+      "copied": true,
+      "path": "provenance.json",
+      "sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+      "size_bytes": 3192
+    },
+    {
+      "copied": true,
+      "path": "stderr.log",
+      "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+      "size_bytes": 2497
+    },
+    {
+      "copied": false,
+      "path": "stdout.log",
+      "reason": "large native output omitted from compact package",
+      "sha256": "9bd94d62112fc6d56f38ba3a4eccb4596ac196189a4f01e51fa61a50832030e6",
+      "size_bytes": 13687684
+    }
+  ],
+  "provenance": {
+    "actual_pose_geometry_audit_sha256": "1e346c4202051a1578de3cf16e9f77deda1a7cfd5f91b617ba09887d1635a037",
+    "executable_sha256": "1520584bf3f534aafc17684817a91277f587587bca45af26cf780b4a6e8b0b16",
+    "host": "numi.local",
+    "metallib_sha256": "ccb3da2f4c0f806de944916e809e3f1043eebb17d2e842c425e7189fb79662fc",
+    "source_base_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+    "source_sha256": {
+      "CMakeLists.txt": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "apps/numilab_human_myosim_visual_probe.mm": "e7f525e5c9ec83826b9b94288cb83fc7e477ee76f6f10b817d7331808baee076",
+      "include/metalrobo/MetalArticulatedOperator.hpp": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+      "include/metalrobo/NumiHumanMuscleEquilibrium.hpp": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+      "matter/CMakeLists.txt": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "matter/include/numi/matter/shared.h": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "matter/src/metal/contact.metalinc": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "matter/src/metal/fem.metalinc": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "matter/src/metal/fgmres.metalinc": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "matter/src/metal/vascular.metalinc": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "matter/src/runtime.mm": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "src/core/NumiHumanMuscleEquilibrium.cpp": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+      "src/metal/MetalArticulatedOperator.mm": "695582ae1c600bef3c797098093fa682e0236c8b97291bb0ab1991c893c1cf39",
+      "tests/numi_human_per_contact_plane_metal_test.mm": "d2e4b216089ba24ba8f531a3e20c90caf5367f8a3c81ed9dceac042849396aca",
+      "tests/numi_human_static_support_test.cpp": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0"
+    },
+    "suite_library_sha256": "4e4f76cbc6555cbc16a931c10cbede734991a62994f29a68fa894bc5f04e08f8"
+  }
+}

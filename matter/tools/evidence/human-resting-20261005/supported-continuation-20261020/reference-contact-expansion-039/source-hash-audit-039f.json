@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "repository": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "head": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "tested_039f_base_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "default_run_source_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "preparation_provenance_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/preparation-provenance.json",
+  "preparation_provenance_sha256": "7676596d2c36f250f590d523e8a23a5b8d55a0704216db592a0948b5cbba31cb",
+  "native_run_provenance_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-expansion-039/provenance.json",
+  "native_run_provenance_sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+  "source_hash_comparisons": {
+    "039f_preparation": {
+      "expected_count": 33,
+      "matched_count": 33,
+      "missing": [],
+      "mismatches": []
+    },
+    "default32_native_run": {
+      "expected_count": 24,
+      "matched_count": 24,
+      "missing": [],
+      "mismatches": []
+    }
+  },
+  "evidence_document_files_are_outside_these_source_hash_sets": true,
+  "status": "pass",
+  "captured_snapshot_note": "Point-in-time audit captured before the subsequent global-plane correction; it does not describe later working-tree state.",
+  "039f_native_provenance_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/provenance.json",
+  "039f_native_provenance_sha256": "76b1d02d216ad96b47cd3d646dea43a365cc51fe37526f80166fbd39ba90fff9",
+  "039f_native_manifest_consistency": {
+    "native_source_count": 24,
+    "preparation_overlap_count": 22,
+    "native_only_paths_match_base": [
+      "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "apps/NumiHumanSkinRigidPlacement.hpp"
+    ],
+    "hash_mismatches": [],
+    "status": "pass"
+  }
+}

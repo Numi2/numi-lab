@@ -1,0 +1,48 @@
+{
+  "copied_stderr": {
+    "exists": true,
+    "mode_octal": "0o644",
+    "mtime_ns": 1792480096792596312,
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/verification-039f/native/stderr.log",
+    "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+    "size_bytes": 2497
+  },
+  "full_mrvpack": {
+    "copied": false,
+    "sha256_recorded_in_provenance": false,
+    "size_bytes": 297078784,
+    "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/output/resting-human.mrvpack"
+  },
+  "selected_stdout": {
+    "exists": true,
+    "mode_octal": "0o644",
+    "mtime_ns": 1792480399778422638,
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/verification-039f/native/selected_stdout.log",
+    "sha256": "fd3c1af24d172b439c041d2763951210b1d47f706c7b88d26133556e12c885b1",
+    "size_bytes": 2198
+  },
+  "selection_lines": [
+    2,
+    77,
+    245,
+    268,
+    269,
+    69166
+  ],
+  "source_stderr": {
+    "exists": true,
+    "mode_octal": "0o644",
+    "mtime_ns": 1792480096792596312,
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/stderr.log",
+    "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+    "size_bytes": 2497
+  },
+  "source_stdout": {
+    "exists": true,
+    "mode_octal": "0o644",
+    "mtime_ns": 1792480097127571165,
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-039f/native/stdout.log",
+    "sha256": "9bd94d62112fc6d56f38ba3a4eccb4596ac196189a4f01e51fa61a50832030e6",
+    "size_bytes": 13687684
+  }
+}

@@ -1,0 +1,56 @@
+[0/2] Re-checking globbed directories...
+[1/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o
+[2/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o
+[3/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalArticulatedOperator.mm:4863:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4863 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[4/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[5/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o
+[6/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4505:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4505 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4507:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4507 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[7/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o
+[8/29] Linking CXX static library matter/libnumi_matter_compiler.a
+[9/29] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+FAILED: [code=1] matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o 
+/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib\" -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -MF matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o.d -o matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:12744:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12744 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16886:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16886 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17388:38: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'
+ 17388 |                         line << '['; capturedAppendFloat(line, value.x); line << ',';
+       |                                      ^~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: candidate function not viable: cannot bind base class object of type 'std::ostream' (aka 'basic_ostream<char>') to derived class reference 'std::ostringstream &' (aka 'basic_ostringstream<char> &') for 1st argument
+ 14886 |             const auto appendTraceFloat = [](std::ostringstream& output,
+       |                                           ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: conversion candidate of type 'void (*)(std::ostringstream &, float)' (aka 'void (*)(basic_ostringstream<char> &, float)')
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17389:25: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'
+ 17389 |                         capturedAppendFloat(line, value.y); line << ',';
+       |                         ^~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: candidate function not viable: cannot bind base class object of type 'std::ostream' (aka 'basic_ostream<char>') to derived class reference 'std::ostringstream &' (aka 'basic_ostringstream<char> &') for 1st argument
+ 14886 |             const auto appendTraceFloat = [](std::ostringstream& output,
+       |                                           ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: conversion candidate of type 'void (*)(std::ostringstream &, float)' (aka 'void (*)(basic_ostringstream<char> &, float)')
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17390:25: error: no matching function for call to object of type 'const (lambda at /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43)'
+ 17390 |                         capturedAppendFloat(line, value.z); line << ']';
+       |                         ^~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: candidate function not viable: cannot bind base class object of type 'std::ostream' (aka 'basic_ostream<char>') to derived class reference 'std::ostringstream &' (aka 'basic_ostringstream<char> &') for 1st argument
+ 14886 |             const auto appendTraceFloat = [](std::ostringstream& output,
+       |                                           ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14886:43: note: conversion candidate of type 'void (*)(std::ostringstream &, float)' (aka 'void (*)(basic_ostringstream<char> &, float)')
+2 warnings and 3 errors generated.
+[10/29] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+ninja: build stopped: subcommand failed.

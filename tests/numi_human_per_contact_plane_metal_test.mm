@@ -1,14 +1,18 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/EngineModel.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
 #include "metalrobo/numi_human_joint_equality_gpu.h"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 namespace {
 constexpr unsigned nv = 6u;
@@ -155,6 +159,453 @@ void run(id<MTLComputePipelineState> pipeline,
     require(command.status == MTLCommandBufferStatusCompleted,
         "per-contact support-plane Metal command failed");
 }
+
+template <typename T>
+bool exactBytes(const std::vector<T>& a, const std::vector<T>& b) {
+    return a.size() == b.size() &&
+        (a.empty() || std::memcmp(a.data(), b.data(), a.size() * sizeof(T)) == 0);
+}
+
+struct GeometryCaptureProbe {
+    unsigned encodeCalls = 0u;
+    unsigned abortCalls = 0u;
+};
+
+bool encodeCapturePlane(void* context,
+                        const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
+    auto* probe = static_cast<GeometryCaptureProbe*>(context);
+    if (probe == nullptr || pass.phase !=
+            metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose ||
+        pass.commandBuffer == nullptr || pass.bodyPoses == nullptr ||
+        pass.pointWorld == nullptr || pass.pointPositionLow == nullptr ||
+        pass.pointJacobians == nullptr || pass.standContacts == nullptr ||
+        pass.environmentCount != 1u ||
+        pass.pointCount != 1u || pass.standContactCount != 1u ||
+        pass.dofCount != 6u) {
+        return false;
+    }
+    id<MTLBuffer> contactBuffer = (__bridge id<MTLBuffer>)pass.standContacts;
+    if (contactBuffer.length < sizeof(MRNumiHumanStandContactGPU)) return false;
+    auto* contact = static_cast<MRNumiHumanStandContactGPU*>(
+        contactBuffer.contents);
+    contact->planePoint = {0.0f, 0.0f, -0.25f, 0.0f};
+    contact->planeNormal = {0.0f, 0.0f, 1.0f, 0.0f};
+    ++probe->encodeCalls;
+    return true;
+}
+
+bool encodeCaptureGlobalPlane(
+    void* context, const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
+    auto* probe = static_cast<GeometryCaptureProbe*>(context);
+    if (probe == nullptr || pass.phase !=
+            metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose ||
+        pass.commandBuffer == nullptr || pass.bodyPoses == nullptr ||
+        pass.pointWorld == nullptr || pass.pointPositionLow == nullptr ||
+        pass.pointJacobians == nullptr || pass.standContacts == nullptr ||
+        pass.environmentCount != 1u || pass.pointCount != 1u ||
+        pass.standContactCount != 1u || pass.dofCount != 6u ||
+        pass.groundPoint.x != 0.0f || pass.groundPoint.y != 0.0f ||
+        pass.groundPoint.z != -0.25f || pass.groundPoint.w != 0.0f ||
+        pass.groundNormal.x != 0.0f || pass.groundNormal.y != 0.0f ||
+        pass.groundNormal.z != 1.0f || pass.groundNormal.w != 0.0f) {
+        return false;
+    }
+    id<MTLBuffer> contactBuffer = (__bridge id<MTLBuffer>)pass.standContacts;
+    if (contactBuffer.length < sizeof(MRNumiHumanStandContactGPU)) return false;
+    const auto* contact = static_cast<const MRNumiHumanStandContactGPU*>(
+        contactBuffer.contents);
+    if (std::memcmp(&contact->planePoint, &pass.groundPoint,
+                    sizeof(mr_float4)) != 0 ||
+        std::memcmp(&contact->planeNormal, &pass.groundNormal,
+                    sizeof(mr_float4)) != 0) {
+        return false;
+    }
+    ++probe->encodeCalls;
+    return true;
+}
+
+bool encodeCaptureMutatingGlobalPlane(
+    void* context, const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
+    if (!encodeCaptureGlobalPlane(context, pass)) return false;
+    id<MTLBuffer> contactBuffer = (__bridge id<MTLBuffer>)pass.standContacts;
+    auto* contact = static_cast<MRNumiHumanStandContactGPU*>(
+        contactBuffer.contents);
+    contact->planePoint.z += 0.001f;
+    return true;
+}
+
+void abortCapturePlane(void* context, void*) {
+    auto* probe = static_cast<GeometryCaptureProbe*>(context);
+    if (probe != nullptr) ++probe->abortCalls;
+}
+
+void testNoncommittingSupportCapture(const char* metallibPath) {
+    using namespace metalrobo;
+    const EngineModel model = makeFreeSphereEngineModel();
+    MetalArticulatedOperatorConfig config;
+    config.pointJacobiansOnly = true;
+    config.metallibPath = metallibPath;
+    MetalArticulatedOperatorContext context(config);
+
+    std::array<MRArticulatedPointImpulseGPU, 1u> points{};
+    points[0].bodyIndex = model.articulations[0].rootBody;
+    points[0].localPoint = {0.125f, -0.25f, 0.375f, 0.0f};
+    std::array<MRCompensatedRootTranslationGPU, 1u> roots{};
+    roots[0].reference = {model.defaultQ[0], model.defaultQ[1],
+                          model.defaultQ[2], 0.0f};
+    const auto baselineInput = [&]() {
+        MetalArticulatedOperatorInput input;
+        input.articulationIndex = 0u;
+        input.environmentCount = 1u;
+        input.pointCount = points.size();
+        input.q = model.defaultQ;
+        input.rootTranslations = roots;
+        input.points = points;
+        input.mujoco.bodyJacobianPointOffset = 0u;
+        input.collectFullResultToHost = true;
+        return input;
+    };
+    MetalArticulatedOperatorResult before;
+    const auto beforeDiagnostics = context.run(model, baselineInput(), before);
+    require(beforeDiagnostics.succeeded(),
+            "baseline paired FK/J query failed before capture");
+
+    GeometryCaptureProbe probe;
+    std::array<MRNumiHumanStandContactGPU, 1u> contacts{};
+    contacts[0].bodyIndex = points[0].bodyIndex;
+    contacts[0].pointQueryIndex = 0u;
+    contacts[0].sourceGeometryIndex = 7u;
+    contacts[0].frictionSlopAndStabilization = {0.5f, 0.001f, 0.0f, 0.0f};
+    contacts[0].planeNormal = {0.0f, 0.0f, 1.0f, 0.0f};
+    const MetalNumiHumanSupportGeometryProgram geometryProgram{
+        .context = &probe,
+        .encodePreDynamics = encodeCapturePlane,
+        .abort = abortCapturePlane,
+        .fingerprint = 0x5343415054555245ull,
+        .usePerContactSupportPlanes = true,
+    };
+    auto captureInput = baselineInput();
+    captureInput.stand.contacts = contacts;
+    captureInput.stand.usePerContactSupportPlanes = true;
+    captureInput.stand.supportGeometryProgram = geometryProgram;
+    captureInput.stand.enableContact = true;
+    captureInput.stand.groundNormal = {0.0f, 0.0f, 1.0f, 0.0f};
+    captureInput.captureSupportGeometryOnly = true;
+    MetalArticulatedOperatorResult captured;
+    const auto captureDiagnostics = context.run(model, captureInput, captured);
+    require(captureDiagnostics.succeeded() && probe.encodeCalls == 1u &&
+                probe.abortCalls == 0u,
+            "registered support callback was not run exactly once");
+    const bool captureStateWasNoncommitting =
+        captureDiagnostics.completedStandSteps == 0u &&
+        captureDiagnostics.published &&
+        captureDiagnostics.residentStateTransactionFingerprint == 0u &&
+        captureDiagnostics.residentStateGeneration == 0u &&
+        captured.standQ.empty() && captured.standV.empty() &&
+        captured.standStatuses.empty() &&
+        captured.standContactImpulses.empty() &&
+        std::all_of(captured.generalizedImpulse.begin(),
+            captured.generalizedImpulse.end(),
+            [](float value) { return value == 0.0f; }) &&
+        std::all_of(captured.deltaVelocity.begin(),
+            captured.deltaVelocity.end(),
+            [](float value) { return value == 0.0f; });
+    if (!captureStateWasNoncommitting) {
+        const auto printFloatSummary = [](
+            const char* label, const std::vector<float>& values) {
+            std::cerr << " " << label << "Count=" << values.size();
+            if (values.empty()) {
+                std::cerr << " min=NA max=NA";
+                return;
+            }
+            const auto [minimum, maximum] = std::minmax_element(
+                values.begin(), values.end());
+            std::cerr << " min=" << *minimum << " max=" << *maximum;
+        };
+        std::cerr << "support-capture noncommit failure: completedStandSteps="
+                  << captureDiagnostics.completedStandSteps
+                  << " hostResultPublished=" << captureDiagnostics.published
+                  << " residentTransactionFingerprint="
+                  << captureDiagnostics.residentStateTransactionFingerprint
+                  << " residentStateGeneration="
+                  << captureDiagnostics.residentStateGeneration
+                  << " standQCount=" << captured.standQ.size()
+                  << " standVCount=" << captured.standV.size()
+                  << " standStatusCount=" << captured.standStatuses.size()
+                  << " contactImpulseCount=" << captured.standContactImpulses.size()
+                  << " equalityImpulseCount=" << captured.standJointEqualityImpulses.size()
+                  << " sourceLimitImpulseCount=" << captured.standSourceLimitImpulses.size()
+                  << " generalizedImpulseCount=" << captured.generalizedImpulse.size()
+                  << " deltaVelocityCount=" << captured.deltaVelocity.size();
+        for (std::size_t index = 0u;
+             index < std::min<std::size_t>(captured.standStatuses.size(), 2u);
+             ++index) {
+            const auto& status = captured.standStatuses[index];
+            std::cerr << " status[" << index << "].code=" << status.code
+                      << ".completedSteps=" << status.completedSteps
+                      << ".failingIndex=" << status.failingIndex;
+        }
+        printFloatSummary("standQ", captured.standQ);
+        printFloatSummary("standV", captured.standV);
+        printFloatSummary("generalizedImpulse", captured.generalizedImpulse);
+        printFloatSummary("deltaVelocity", captured.deltaVelocity);
+        std::cerr << '\n';
+    }
+    require(captureStateWasNoncommitting,
+            "support capture advanced or published physical state");
+    const bool supportContactCountMatches =
+        captured.supportGeometryContacts.size() == contacts.size();
+    const bool supportBodyIdentityMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].bodyIndex == contacts[0].bodyIndex;
+    const bool supportPointIdentityMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].pointQueryIndex == 0u;
+    const bool supportGeometryIdentityMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].sourceGeometryIndex == 7u;
+    const bool supportPlanePointMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].planePoint.z == -0.25f;
+    const bool supportPlaneNormalMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].planeNormal.z == 1.0f;
+    const bool supportFrictionMatches = supportContactCountMatches &&
+        captured.supportGeometryContacts[0].frictionSlopAndStabilization.w == 0.0f;
+    const bool pointWorldMatches = exactBytes(captured.pointWorld, before.pointWorld);
+    const bool pointPositionLowMatches =
+        exactBytes(captured.pointPositionLow, before.pointPositionLow);
+    const bool pointJacobiansMatch =
+        exactBytes(captured.pointJacobians, before.pointJacobians);
+    const bool bodyPosesMatch = exactBytes(captured.bodyPoses, before.bodyPoses);
+    const bool rootTranslationsMatch =
+        exactBytes(captured.rootTranslations, before.rootTranslations);
+    const bool captureRowsAndGeometryValid =
+        supportContactCountMatches && supportBodyIdentityMatches &&
+        supportPointIdentityMatches && supportGeometryIdentityMatches &&
+        supportPlanePointMatches && supportPlaneNormalMatches &&
+        supportFrictionMatches && captured.pointWorld.size() == 1u &&
+        captured.pointPositionLow.size() == 1u &&
+        captured.pointJacobians.size() == 18u &&
+        captured.bodyPoses.size() == model.articulations[0].bodyCount &&
+        captured.bodyPoses.size() == before.bodyPoses.size() &&
+        captured.generalizedImpulse.size() == model.world.nv &&
+        captured.deltaVelocity.size() == model.world.nv && pointWorldMatches &&
+        pointPositionLowMatches && pointJacobiansMatch && bodyPosesMatch &&
+        rootTranslationsMatch;
+    if (!captureRowsAndGeometryValid) {
+        const auto maxFloat4Difference = [](const mr_float4& a, const mr_float4& b) {
+            return std::max({
+                std::abs(static_cast<double>(a.x) - b.x),
+                std::abs(static_cast<double>(a.y) - b.y),
+                std::abs(static_cast<double>(a.z) - b.z),
+                std::abs(static_cast<double>(a.w) - b.w)});
+        };
+        const auto maxFloatArrayDifference = [](
+            const std::vector<float>& a, const std::vector<float>& b) {
+            double maximum = 0.0;
+            for (std::size_t index = 0u; index < std::min(a.size(), b.size()); ++index) {
+                maximum = std::max(maximum,
+                    std::abs(static_cast<double>(a[index]) - b[index]));
+            }
+            return maximum;
+        };
+        double pointWorldMaximumDifference = 0.0;
+        for (std::size_t index = 0u;
+             index < std::min(captured.pointWorld.size(), before.pointWorld.size());
+             ++index) {
+            pointWorldMaximumDifference = std::max(pointWorldMaximumDifference,
+                maxFloat4Difference(captured.pointWorld[index].position,
+                                    before.pointWorld[index].position));
+        }
+        double bodyPoseMaximumDifference = 0.0;
+        for (std::size_t index = 0u;
+             index < std::min(captured.bodyPoses.size(), before.bodyPoses.size());
+             ++index) {
+            bodyPoseMaximumDifference = std::max(bodyPoseMaximumDifference,
+                maxFloat4Difference(captured.bodyPoses[index].position,
+                                    before.bodyPoses[index].position));
+            bodyPoseMaximumDifference = std::max(bodyPoseMaximumDifference,
+                maxFloat4Difference(captured.bodyPoses[index].orientation,
+                                    before.bodyPoses[index].orientation));
+        }
+        double pointPositionLowMaximumDifference = 0.0;
+        for (std::size_t index = 0u;
+             index < std::min(captured.pointPositionLow.size(), before.pointPositionLow.size());
+             ++index) {
+            pointPositionLowMaximumDifference = std::max(pointPositionLowMaximumDifference,
+                maxFloat4Difference(captured.pointPositionLow[index],
+                                    before.pointPositionLow[index]));
+        }
+        double rootTranslationMaximumDifference = 0.0;
+        for (std::size_t index = 0u;
+             index < std::min(captured.rootTranslations.size(), before.rootTranslations.size());
+             ++index) {
+            rootTranslationMaximumDifference = std::max(rootTranslationMaximumDifference,
+                maxFloat4Difference(captured.rootTranslations[index].reference,
+                                    before.rootTranslations[index].reference));
+            rootTranslationMaximumDifference = std::max(rootTranslationMaximumDifference,
+                maxFloat4Difference(captured.rootTranslations[index].displacement,
+                                    before.rootTranslations[index].displacement));
+            rootTranslationMaximumDifference = std::max(rootTranslationMaximumDifference,
+                maxFloat4Difference(captured.rootTranslations[index].correction,
+                                    before.rootTranslations[index].correction));
+        }
+        std::cerr << "support-capture geometry failure: contactCount="
+                  << captured.supportGeometryContacts.size() << "/" << contacts.size()
+                  << " bodyIdentity=" << supportBodyIdentityMatches
+                  << " pointIdentity=" << supportPointIdentityMatches
+                  << " sourceGeometryIdentity=" << supportGeometryIdentityMatches
+                  << " planePoint=" << supportPlanePointMatches
+                  << " planeNormal=" << supportPlaneNormalMatches
+                  << " frictionRow=" << supportFrictionMatches
+                  << " pointWorldCount=" << captured.pointWorld.size()
+                  << "/" << before.pointWorld.size()
+                  << " pointLowCount=" << captured.pointPositionLow.size()
+                  << "/" << before.pointPositionLow.size()
+                  << " pointJCount=" << captured.pointJacobians.size()
+                  << "/" << before.pointJacobians.size()
+                  << " bodyPoseCount=" << captured.bodyPoses.size()
+                  << "/" << before.bodyPoses.size()
+                  << " expected=" << model.articulations[0].bodyCount
+                  << " rootCount=" << captured.rootTranslations.size()
+                  << "/" << before.rootTranslations.size()
+                  << " generalizedImpulseCount=" << captured.generalizedImpulse.size()
+                  << " deltaVelocityCount=" << captured.deltaVelocity.size()
+                  << " pointWorldEqual=" << pointWorldMatches
+                  << " pointLowEqual=" << pointPositionLowMatches
+                  << " pointJEqual=" << pointJacobiansMatch
+                  << " bodyPoseEqual=" << bodyPosesMatch
+                  << " rootEqual=" << rootTranslationsMatch
+                  << " maxPointDiff=" << pointWorldMaximumDifference
+                  << " maxPointLowDiff=" << pointPositionLowMaximumDifference
+                  << " maxPointJDiff="
+                  << maxFloatArrayDifference(captured.pointJacobians, before.pointJacobians)
+                  << " maxBodyDiff=" << bodyPoseMaximumDifference
+                  << " maxRootDiff=" << rootTranslationMaximumDifference
+                  << std::endl;
+    }
+    require(captureRowsAndGeometryValid,
+            "capture lost callback rows or changed paired FK/J geometry");
+
+    MetalArticulatedOperatorResult after;
+    const auto afterDiagnostics = context.run(model, baselineInput(), after);
+    require(afterDiagnostics.succeeded() &&
+                exactBytes(after.pointWorld, before.pointWorld) &&
+                exactBytes(after.pointPositionLow, before.pointPositionLow) &&
+                exactBytes(after.pointJacobians, before.pointJacobians) &&
+                exactBytes(after.bodyPoses, before.bodyPoses) &&
+                exactBytes(after.rootTranslations, before.rootTranslations),
+            "same-context geometry capture changed subsequent physical query results");
+
+    GeometryCaptureProbe globalProbe;
+    const MetalNumiHumanSupportGeometryProgram globalGeometryProgram{
+        .context = &globalProbe,
+        .encodePreDynamics = encodeCaptureGlobalPlane,
+        .abort = abortCapturePlane,
+        .fingerprint = 0x474c4f42414c504cull,
+        .usePerContactSupportPlanes = false,
+    };
+    auto globalInput = baselineInput();
+    contacts[0].planePoint = {0.0f, 0.0f, -0.25f, 0.0f};
+    contacts[0].planeNormal = {0.0f, 0.0f, 1.0f, 0.0f};
+    globalInput.stand.contacts = contacts;
+    globalInput.stand.usePerContactSupportPlanes = false;
+    globalInput.stand.supportGeometryProgram = globalGeometryProgram;
+    globalInput.stand.enableContact = true;
+    globalInput.stand.groundPoint = {0.0f, 0.0f, -0.25f, 0.0f};
+    globalInput.stand.groundNormal = {0.0f, 0.0f, 1.0f, 0.0f};
+    globalInput.captureSupportGeometryOnly = true;
+    MetalArticulatedOperatorResult globalCaptured;
+    const auto globalDiagnostics = context.run(
+        model, globalInput, globalCaptured);
+    const bool globalPlaneRowsPreserved =
+        globalCaptured.supportGeometryContacts.size() == 1u &&
+        globalCaptured.supportGeometryContacts[0].bodyIndex == contacts[0].bodyIndex &&
+        globalCaptured.supportGeometryContacts[0].pointQueryIndex ==
+            contacts[0].pointQueryIndex &&
+        globalCaptured.supportGeometryContacts[0].sourceGeometryIndex ==
+            contacts[0].sourceGeometryIndex &&
+        globalCaptured.supportGeometryContacts[0].boundaryNormalVelocity ==
+            contacts[0].boundaryNormalVelocity &&
+        std::memcmp(
+            &globalCaptured.supportGeometryContacts[0].frictionSlopAndStabilization,
+            &contacts[0].frictionSlopAndStabilization, sizeof(mr_float4)) == 0 &&
+        std::memcmp(&globalCaptured.supportGeometryContacts[0].planePoint,
+                    &contacts[0].planePoint, sizeof(mr_float4)) == 0 &&
+        std::memcmp(&globalCaptured.supportGeometryContacts[0].planeNormal,
+                    &contacts[0].planeNormal, sizeof(mr_float4)) == 0;
+    require(globalDiagnostics.succeeded() && globalProbe.encodeCalls == 1u &&
+                globalProbe.abortCalls == 0u && globalPlaneRowsPreserved &&
+                globalDiagnostics.completedStandSteps == 0u &&
+                globalDiagnostics.residentStateTransactionFingerprint == 0u &&
+                globalDiagnostics.residentStateGeneration == 0u &&
+                globalCaptured.standQ.empty() && globalCaptured.standV.empty() &&
+                globalCaptured.standStatuses.empty() &&
+                globalCaptured.standContactImpulses.empty() &&
+                exactBytes(globalCaptured.pointWorld, before.pointWorld) &&
+                exactBytes(globalCaptured.pointPositionLow, before.pointPositionLow) &&
+                exactBytes(globalCaptured.pointJacobians, before.pointJacobians) &&
+                exactBytes(globalCaptured.bodyPoses, before.bodyPoses) &&
+                exactBytes(globalCaptured.rootTranslations, before.rootTranslations) &&
+                std::all_of(globalCaptured.generalizedImpulse.begin(),
+                    globalCaptured.generalizedImpulse.end(),
+                    [](float value) { return value == 0.0f; }) &&
+                std::all_of(globalCaptured.deltaVelocity.begin(),
+                    globalCaptured.deltaVelocity.end(),
+                    [](float value) { return value == 0.0f; }),
+            "global-plane callback capture must preserve the common plane and remain noncommitting");
+
+    GeometryCaptureProbe mismatchProbe;
+    const MetalNumiHumanSupportGeometryProgram mismatchGeometryProgram{
+        .context = &mismatchProbe,
+        .encodePreDynamics = encodeCaptureGlobalPlane,
+        .abort = abortCapturePlane,
+        .fingerprint = 0x474c4f42414c4d49ull,
+        .usePerContactSupportPlanes = false,
+    };
+    auto mismatchedPlaneInput = globalInput;
+    contacts[0].planePoint.z = -0.24f;
+    mismatchedPlaneInput.stand.contacts = contacts;
+    mismatchedPlaneInput.stand.supportGeometryProgram = mismatchGeometryProgram;
+    MetalArticulatedOperatorResult mismatchedPlaneResult;
+    const auto mismatchedPlaneDiagnostics = context.run(
+        model, mismatchedPlaneInput, mismatchedPlaneResult);
+    require(!mismatchedPlaneDiagnostics.succeeded() &&
+                mismatchProbe.encodeCalls == 0u && mismatchProbe.abortCalls == 0u,
+            "global-plane capture must reject a row off the registered plane before callback execution");
+
+    contacts[0].planePoint.z = -0.25f;
+    GeometryCaptureProbe modeProbe;
+    const MetalNumiHumanSupportGeometryProgram modeGeometryProgram{
+        .context = &modeProbe,
+        .encodePreDynamics = encodeCaptureGlobalPlane,
+        .abort = abortCapturePlane,
+        .fingerprint = 0x474c4f42414c4d4full,
+        .usePerContactSupportPlanes = false,
+    };
+    auto mismatchedModeInput = globalInput;
+    mismatchedModeInput.stand.usePerContactSupportPlanes = true;
+    mismatchedModeInput.stand.supportGeometryProgram = modeGeometryProgram;
+    MetalArticulatedOperatorResult mismatchedModeResult;
+    const auto mismatchedModeDiagnostics = context.run(
+        model, mismatchedModeInput, mismatchedModeResult);
+    require(!mismatchedModeDiagnostics.succeeded() &&
+                modeProbe.encodeCalls == 0u && modeProbe.abortCalls == 0u,
+            "support capture must reject input/provider plane-mode mismatch before callback execution");
+
+    GeometryCaptureProbe mutationProbe;
+    const MetalNumiHumanSupportGeometryProgram mutationGeometryProgram{
+        .context = &mutationProbe,
+        .encodePreDynamics = encodeCaptureMutatingGlobalPlane,
+        .abort = abortCapturePlane,
+        .fingerprint = 0x474c4f42414c4d55ull,
+        .usePerContactSupportPlanes = false,
+    };
+    auto mutatedPlaneInput = globalInput;
+    mutatedPlaneInput.stand.supportGeometryProgram = mutationGeometryProgram;
+    MetalArticulatedOperatorResult mutatedPlaneResult;
+    const auto mutatedPlaneDiagnostics = context.run(
+        model, mutatedPlaneInput, mutatedPlaneResult);
+    require(!mutatedPlaneDiagnostics.succeeded() &&
+                mutationProbe.encodeCalls == 1u,
+            "global-plane capture must reject callback mutation during result collection");
+}
 }
 
 int main(int argc, char** argv) {
@@ -244,10 +695,15 @@ int main(int argc, char** argv) {
                     mismatchStatus[0].completedSteps == 0u,
                     "per-contact mode accepted a mismatched plane count");
 
+            testNoncommittingSupportCapture(argv[1]);
+
             std::cout << "gpu_available=true device=\"" << device.name.UTF8String
-                << "\" kernel=mr_numi_human_stand_step checks=4"
+                << "\" kernel=mr_numi_human_stand_step checks=13"
                 << " per_contact_normal_tangent_response=passed global_plane_parity=passed"
-                << " invalid_plane_atomic_reject=passed mode_count_reject=passed\n";
+                << " invalid_plane_atomic_reject=passed mode_count_reject=passed"
+                << " noncommitting_callback_capture=passed same_context_fk_j_parity=passed"
+                << " global_plane_capture_passthrough=passed global_plane_mismatch_reject=passed"
+                << " capture_mode_mismatch_reject=passed global_callback_plane_mutation_reject=passed\n";
             return 0;
         } catch (const std::exception& error) {
             std::cerr << error.what() << '\n';

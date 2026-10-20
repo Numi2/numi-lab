@@ -1,0 +1,9 @@
+{
+  "base_revision": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+  "patch_sha256": "2540e045af1e50618542ea34b19ecaae6606411722759dd3e9a1c6e3a9b35834",
+  "git_apply_check": "passed",
+  "git_apply": "passed",
+  "all_native_provenance_source_hashes_reconstructed": true,
+  "file_count": 24,
+  "temporary_detached_worktree_removed": true
+}

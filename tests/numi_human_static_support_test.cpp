@@ -903,6 +903,84 @@ int main() {
     require(near(accepted.generalizedSupportForce[2], fixture.weight()),
             "support generalized force disagrees with analytic weight");
 
+    auto weightedContact = touching;
+    NumiHumanStaticSupportContact::WeightedWitness weightedWitness;
+    weightedWitness.sourceContactIndex = 17u;
+    weightedWitness.pointQueryIndex = 23u;
+    weightedWitness.sourceGeometryIndex = 42u;
+    weightedWitness.modelFingerprint =
+        numiHumanStaticSupportModelFingerprint(fixture.model, 0u);
+    weightedWitness.pointJacobian.assign(18u, 0.0);
+    weightedWitness.pointJacobian[2u * 6u + 2u] = 1.0;
+    weightedWitness.referenceQ = fixture.q;
+    weightedContact.weightedWitness = weightedWitness;
+    NumiHumanMuscleEquilibriumResult weightedAccepted;
+    require(fixture.compile({weightedContact}, weightedAccepted).succeeded() &&
+                weightedAccepted.supportNormalForce.size() == 1u &&
+                near(weightedAccepted.supportNormalForce[0], fixture.weight()) &&
+                near(weightedAccepted.supportPlaneGapMeters[0], 0.0) &&
+                near(weightedAccepted.generalizedSupportForce[2],
+                     fixture.weight()) &&
+                weightedAccepted.supportWitnessIdentity.size() == 1u &&
+                weightedAccepted.supportWitnessIdentity[0] ==
+                    NumiHumanStaticSupportWitnessIdentity{17u, 23u, 42u},
+            "captured weighted witness lost its force, Jacobian, or identity");
+
+    auto separatedWeightedContact = weightedContact;
+    separatedWeightedContact.weightedWitness->worldPoint[2] = 15.0e-6;
+    NumiHumanMuscleEquilibriumResult separatedWeighted;
+    require(fixture.compile({separatedWeightedContact}, separatedWeighted)
+                    .succeeded() &&
+                !separatedWeighted.diagnostics.balanced &&
+                separatedWeighted.supportNormalForce.size() == 1u &&
+                separatedWeighted.supportNormalForce[0] == 0.0 &&
+                near(separatedWeighted.supportPlaneGapMeters[0], 15.0e-6,
+                     1.0e-12) &&
+                std::all_of(
+                    separatedWeighted.generalizedSupportForce.begin(),
+                    separatedWeighted.generalizedSupportForce.end(),
+                    [](const double force) { return force == 0.0; }),
+            "15 micrometre weighted separation acquired support force");
+
+    auto mismatchedModelContact = weightedContact;
+    mismatchedModelContact.weightedWitness->modelFingerprint ^= 0x10u;
+    const auto mismatchedModelDiagnostics =
+        fixture.compile({mismatchedModelContact}, weightedAccepted);
+    require(mismatchedModelDiagnostics.status ==
+                    NumiHumanMuscleEquilibriumStatus::invalidDimensions &&
+                weightedAccepted.supportNormalForce.size() == 1u &&
+                near(weightedAccepted.supportNormalForce[0], fixture.weight()),
+            "weighted witness from a different model identity was accepted");
+
+    auto missingSourceGeometryContact = weightedContact;
+    missingSourceGeometryContact.weightedWitness->sourceGeometryIndex =
+        MR_INVALID_INDEX;
+    const auto missingSourceGeometryDiagnostics =
+        fixture.compile({missingSourceGeometryContact}, weightedAccepted);
+    require(missingSourceGeometryDiagnostics.status ==
+                    NumiHumanMuscleEquilibriumStatus::invalidDimensions &&
+                near(weightedAccepted.supportNormalForce[0], fixture.weight()),
+            "weighted witness without a source geometry identity was accepted");
+
+    const auto duplicateWitnessDiagnostics =
+        fixture.compile({weightedContact, weightedContact}, weightedAccepted);
+    require(duplicateWitnessDiagnostics.status ==
+                    NumiHumanMuscleEquilibriumStatus::invalidDimensions &&
+                weightedAccepted.supportNormalForce.size() == 1u &&
+                near(weightedAccepted.supportNormalForce[0], fixture.weight()),
+            "duplicate weighted support rows were accepted");
+
+    auto staleWitnessContact = weightedContact;
+    staleWitnessContact.weightedWitness->referenceQ[0] += 1.0e-4;
+    const auto staleWitnessDiagnostics =
+        fixture.compile({staleWitnessContact}, weightedAccepted);
+    require(staleWitnessDiagnostics.status ==
+                    NumiHumanMuscleEquilibriumStatus::invalidDimensions &&
+                weightedAccepted.supportNormalForce.size() == 1u &&
+                near(weightedAccepted.supportNormalForce[0],
+                     fixture.weight()),
+            "stale weighted witness q was accepted or mutated output");
+
     NumiHumanMuscleEquilibriumResult replay;
     require(fixture.compile({touching, separated}, replay).succeeded() &&
                 replay.q == accepted.q && replay.activation == accepted.activation &&

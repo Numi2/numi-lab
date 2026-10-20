@@ -1750,7 +1750,7 @@ if(BUILD_TESTING)
     target_compile_options(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     target_link_libraries(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
-        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     add_dependencies(metalrobo_numi_human_per_contact_plane_metal_test metalrobo_shaders)
     add_test(NAME numi_human_per_contact_plane_metal
         COMMAND metalrobo_numi_human_per_contact_plane_metal_test

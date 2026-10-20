@@ -1,0 +1,776 @@
+{
+  "capture_note": "Current hashes bind this package. Parent reports no source edits after latest explicit-flags run. The exact source and binary of the first failing run were not retained.",
+  "comparison_source_hash_matches": true,
+  "copied_payloads": {
+    "comparison-source-without-diagnostic.mm": {
+      "sha256": "f79c74fa867b65017975bc018baf621c8236812b69a6a4f90ff8f300785423e0",
+      "size_bytes": 88305,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm"
+    },
+    "diagnostic-build.log": {
+      "sha256": "31225be15428235eee6fd30a924ee2f0052c3a1883fbd05ee62612deff253b17",
+      "size_bytes": 265,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-build.log"
+    },
+    "diagnostic-repeat.log": {
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-repeat.log"
+    },
+    "diagnostic-rows.bin": {
+      "sha256": "2b07daba8b3ed156d9d684956102ba6c9ef8603f3965cfd819285b85fca91535",
+      "size_bytes": 37440,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-rows.bin"
+    },
+    "diagnostic-run.log": {
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-run.log"
+    },
+    "initial-build.log": {
+      "sha256": "77ed147bd9bed4bcb13596caf5834b2903fde067031b0b06acfba3e4b7b87a07",
+      "size_bytes": 3627,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/build.log"
+    },
+    "initial-raw-run.log": {
+      "sha256": "9f9222e96d6f4770bc26cb7473bc7a73a3ceddecd1efb27619e783b60c4362b5",
+      "size_bytes": 135,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/raw-run.log"
+    },
+    "initial-rows.bin": {
+      "sha256": "2b07daba8b3ed156d9d684956102ba6c9ef8603f3965cfd819285b85fca91535",
+      "size_bytes": 37440,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/rows.bin"
+    },
+    "initial-run.log": {
+      "sha256": "9f9222e96d6f4770bc26cb7473bc7a73a3ceddecd1efb27619e783b60c4362b5",
+      "size_bytes": 135,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/run.log"
+    },
+    "oracle-comparison.json": {
+      "sha256": "d2e8efb6568ecef81752bd6df8e112eaecd2ab47a47d4c106e02603ebe1aea94",
+      "size_bytes": 2521,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-comparison.json"
+    },
+    "oracle-flags-build.log": {
+      "sha256": "c77cf807bf6f838107d569ead34a2460daf15011cdfbc4d9891728ee99174c56",
+      "size_bytes": 528,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-flags-build.log"
+    },
+    "oracle-flags-run.log": {
+      "sha256": "64453c21924d126258e9fe4017e5f3fba2612e500540f8d9969a35aaf43adff5",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-flags-run.log"
+    },
+    "recreated-original-flags.compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/original-flags.compile.log"
+    },
+    "recreated-original-flags.run.log": {
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/original-flags.run.log"
+    },
+    "recreated-strict-flags.compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/strict-flags.compile.log"
+    },
+    "recreated-strict-flags.run.log": {
+      "sha256": "64453c21924d126258e9fe4017e5f3fba2612e500540f8d9969a35aaf43adff5",
+      "size_bytes": 2954,
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/strict-flags.run.log"
+    }
+  },
+  "explicit_required_source_bindings": {
+    "current_checker2_host": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479183741804926,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm",
+      "sha256": "94fded1890ce7cf731f31eabdc477b24362300e69b63e5e6f8baf9af65b6d1cf",
+      "size_bytes": 89908
+    },
+    "current_checker2_metal": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478943962743295,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal",
+      "sha256": "98c26db7ae93da82774aa4d7ef4430654918975dcee385b46aefc98a991c0d60",
+      "size_bytes": 37647
+    },
+    "human_shared_types": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792466673229350493,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/numi_human_shared.h",
+      "sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "size_bytes": 14149
+    },
+    "matter_cmake": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479257959990788,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/CMakeLists.txt",
+      "sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "size_bytes": 136343
+    },
+    "production_contact": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478236541884178,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/contact.metalinc",
+      "sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "size_bytes": 584947
+    },
+    "production_fem": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478014054295962,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc",
+      "sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "size_bytes": 270835
+    },
+    "production_fgmres": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478386284375017,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc",
+      "sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "size_bytes": 432938
+    },
+    "shared_types": {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792477747183528404,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h",
+      "sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "size_bytes": 62725
+    }
+  },
+  "generated_build_and_comparison_artifacts": [
+    {
+      "exists": true,
+      "mode_octal": "0o755",
+      "mtime_ns": 1792479279629355188,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "d6ef1b1bcc152c582ec943ac65d06aa0e96fc72ccb7a9f279a75a47c0d2ec2bf",
+      "size_bytes": 125184
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479060928093671,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "37dcf285264ef378db815b0f71ac80b10592320ac4f6b6294b0e9408a5326dde",
+      "size_bytes": 7853945
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479060505468775,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.air",
+      "sha256": "2ad3923c7a5f08f84caad29234ac92fc8d65073c93d3cc553d1da80814472546",
+      "size_bytes": 1837136
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479060505607026,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.d",
+      "sha256": "66f393b653d020bb0dbdb25e3bed25b6e8ce20f6feb90fd7fb30ec72cc693f70",
+      "size_bytes": 4568
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479279584103805,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o",
+      "sha256": "e7c404278220b87c12af91b7671eaf223ba6de503cd62a5d4813c12db43759ca",
+      "size_bytes": 99040
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479414899210641,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/CMakeCache.txt",
+      "sha256": "b06fcbbe84f969a079421f628598da37de7ac847b83224ea28c0c1af6e6b35b3",
+      "size_bytes": 26326
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479497808357991,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/build.ninja",
+      "sha256": "d3353c7b48e8eaaaa6ca9784c9d7fea3c24b9fad70158e6e24610a1036e59f77",
+      "size_bytes": 1202153
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479497807952698,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/compile_commands.json",
+      "sha256": "ae5e43dd7f0abc4efdae0449923cdc9a30e0cce7da245da0cc8fbbefa2f89418",
+      "size_bytes": 518219
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o755",
+      "mtime_ns": 1792479362398335253,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-original-flags",
+      "sha256": "da17dbde87853dae8771e000d1e81959dd55cff301f5f2545b0a6e41be9ecb25",
+      "size_bytes": 125160
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o755",
+      "mtime_ns": 1792479363433432756,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-strict-flags",
+      "sha256": "e68173d9f790e0b09cb217d0d7aa0590f8a61b4436427bcb4b221e5150f6fdc5",
+      "size_bytes": 125152
+    }
+  ],
+  "original_run_directory_files": [
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479061805881951,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/build.log",
+      "sha256": "77ed147bd9bed4bcb13596caf5834b2903fde067031b0b06acfba3e4b7b87a07",
+      "size_bytes": 3627
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479196735368302,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-build.log",
+      "sha256": "31225be15428235eee6fd30a924ee2f0052c3a1883fbd05ee62612deff253b17",
+      "size_bytes": 265
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479228037758761,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-repeat.log",
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o600",
+      "mtime_ns": 1792479228035542542,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-rows.bin",
+      "sha256": "2b07daba8b3ed156d9d684956102ba6c9ef8603f3965cfd819285b85fca91535",
+      "size_bytes": 37440
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479197045049825,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/diagnostic-run.log",
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479363640273002,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-comparison.json",
+      "sha256": "d2e8efb6568ecef81752bd6df8e112eaecd2ab47a47d4c106e02603ebe1aea94",
+      "size_bytes": 2521
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479279631260780,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-flags-build.log",
+      "sha256": "c77cf807bf6f838107d569ead34a2460daf15011cdfbc4d9891728ee99174c56",
+      "size_bytes": 528
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479279914194633,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-flags-run.log",
+      "sha256": "64453c21924d126258e9fe4017e5f3fba2612e500540f8d9969a35aaf43adff5",
+      "size_bytes": 2954
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o755",
+      "mtime_ns": 1792479362398335253,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-original-flags",
+      "sha256": "da17dbde87853dae8771e000d1e81959dd55cff301f5f2545b0a6e41be9ecb25",
+      "size_bytes": 125160
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o755",
+      "mtime_ns": 1792479363433432756,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-strict-flags",
+      "sha256": "e68173d9f790e0b09cb217d0d7aa0590f8a61b4436427bcb4b221e5150f6fdc5",
+      "size_bytes": 125152
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479361702966152,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/oracle-without-diagnostic.mm",
+      "sha256": "f79c74fa867b65017975bc018baf621c8236812b69a6a4f90ff8f300785423e0",
+      "size_bytes": 88305
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479362400032957,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/original-flags.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479362722740868,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/original-flags.run.log",
+      "sha256": "dc630671e4bcde31ee599413f9c0af2aceec2ac9ac0a010506096a82e0ca1f60",
+      "size_bytes": 2954
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479161048626714,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/raw-run.log",
+      "sha256": "9f9222e96d6f4770bc26cb7473bc7a73a3ceddecd1efb27619e783b60c4362b5",
+      "size_bytes": 135
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o600",
+      "mtime_ns": 1792479161046615496,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/rows.bin",
+      "sha256": "2b07daba8b3ed156d9d684956102ba6c9ef8603f3965cfd819285b85fca91535",
+      "size_bytes": 37440
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479094100860531,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/run.log",
+      "sha256": "9f9222e96d6f4770bc26cb7473bc7a73a3ceddecd1efb27619e783b60c4362b5",
+      "size_bytes": 135
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479363435073753,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/strict-flags.compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479363639992336,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/geometry-reference-expansion-039/strict-flags.run.log",
+      "sha256": "64453c21924d126258e9fe4017e5f3fba2612e500540f8d9969a35aaf43adff5",
+      "size_bytes": 2954
+    }
+  ],
+  "raw_rows_identical": true,
+  "repository": {
+    "head_at_capture": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+    "working_tree_status_short": [
+      " M CMakeLists.txt",
+      " M apps/numilab_human_myosim_visual_probe.mm",
+      " M include/metalrobo/MetalArticulatedOperator.hpp",
+      " M include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+      " M matter/CMakeLists.txt",
+      " M matter/include/numi/matter/shared.h",
+      " M matter/src/metal/contact.metalinc",
+      " M matter/src/metal/fem.metalinc",
+      " M matter/src/metal/fgmres.metalinc",
+      " M matter/src/runtime.mm",
+      " M matter/tools/cardboard_contact_geometry_check.metal",
+      " M matter/tools/cardboard_contact_geometry_check.mm",
+      " M matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/TRIAL.md",
+      " M matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py",
+      " M src/core/NumiHumanMuscleEquilibrium.cpp",
+      " M src/metal/MetalArticulatedOperator.mm",
+      " M tests/numi_human_per_contact_plane_metal_test.mm",
+      " M tests/numi_human_static_support_test.cpp",
+      " M tools/verify_human_supported_tissue.sh",
+      "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/NumiMatterSource.metal",
+      "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/libnumi_matter_compiler.a",
+      "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/libnumi_matter_runtime.a",
+      "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/vascular-cavity-schur-native-check",
+      "?? matter/tools/evidence/human-resting-20261005/aortic-cavity-schur-native-20261019/vascular_cavity_check_test_source.mm",
+      "?? matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/source-restore-check.json",
+      "?? matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/geometry-check/",
+      "?? matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/weighted-support-template.json"
+    ]
+  },
+  "source_and_local_dependency_files": [
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479231322830260,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/CMakeLists.txt",
+      "sha256": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+      "size_bytes": 250270
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912805707015,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/compensated_geometry_gpu.h",
+      "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+      "size_bytes": 6421
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912805750765,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/compensated_translation_gpu.h",
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "size_bytes": 7828
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912805800599,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/constraint_ir_shared.h",
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f",
+      "size_bytes": 10182
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912805898349,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/engine_types.h",
+      "sha256": "2eacf034dcce6b4cafb56b1db90a24e3bbc1a8d75b324722daed34a95d21dcb2",
+      "size_bytes": 63651
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912805990725,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h",
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+      "size_bytes": 3809
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912807721275,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_stand_gpu.h",
+      "sha256": "22fc84a4ccf8762635d0278adf017e178d78329fc5e4d40a21ba81d7947e70e7",
+      "size_bytes": 16570
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912807964610,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_tendon_gpu.h",
+      "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058",
+      "size_bytes": 2594
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912807999277,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_timed_root_force.h",
+      "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef",
+      "size_bytes": 2419
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912808236570,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/rod_gpu_shared.h",
+      "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+      "size_bytes": 9612
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479257959990788,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/CMakeLists.txt",
+      "sha256": "6921c18e0ab76199500141e79486cfae13bac273e78cdecb2698376b24a6bea2",
+      "size_bytes": 136343
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912809445659,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/accepted_state_apply_gpu.h",
+      "sha256": "4f369f557838368895c6a62375866863b0681bc230085c263babf9aa58a50ba7",
+      "size_bytes": 12505
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912809493784,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e",
+      "size_bytes": 5313
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912809567743,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/deformable_contact_trial_policy.h",
+      "sha256": "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd",
+      "size_bytes": 770
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810158663,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/fem_compensated_deformation.h",
+      "sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+      "size_bytes": 1702
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810206205,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/fiber_exp_linear.h",
+      "sha256": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+      "size_bytes": 3404
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810246955,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/fixed_convex_contact_step.h",
+      "sha256": "52b888b21082fae2570d69c270e70d365e95ff8bebebdc922c8a7f224745805c",
+      "size_bytes": 1318
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810433498,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/hill_scalar_initializer.h",
+      "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+      "size_bytes": 13511
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810476290,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_equality_gpu.h",
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519",
+      "size_bytes": 1084
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810512290,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_limits_gpu.h",
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9",
+      "size_bytes": 899
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912810768083,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_support_precision_gpu.h",
+      "sha256": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1",
+      "size_bytes": 643
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912811478170,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "sha256": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa",
+      "size_bytes": 37885
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792466673229350493,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/numi_human_shared.h",
+      "sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "size_bytes": 14149
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792433912811894464,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/paper_compensated_bytecode.h",
+      "sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "size_bytes": 14539
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792477747183528404,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h",
+      "sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+      "size_bytes": 62725
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434085997961343,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+      "size_bytes": 561
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434085998259469,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/accepted_state_proof.metalinc",
+      "sha256": "ccd73d2977f3f00df13bc7422e8acfc11e72934ebf739d72abfdd6528b315917",
+      "size_bytes": 58781
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434085998454429,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/adaptive.metalinc",
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332",
+      "size_bytes": 26326
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086000031395,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/base_cgls.metalinc",
+      "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+      "size_bytes": 40315
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086000975358,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/base_cgls_runtime.metalinc",
+      "sha256": "7e1ca5687cabcb0c37d882bc78dc208e272652a915e06f9727fb82b1e0957fa1",
+      "size_bytes": 29871
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792442690440364789,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/common.metalinc",
+      "sha256": "0f4bfa111074859974bddd8c72122a1bb06f3d5ee1d8f1e2773ae10180c2ec26",
+      "size_bytes": 105450
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478236541884178,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/contact.metalinc",
+      "sha256": "ccd146d3b8eb14d9b1ff8bdc0ecda34bc881772c13facb04c0e475c48659ab56",
+      "size_bytes": 584947
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478014054295962,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc",
+      "sha256": "8ba7f4dcdf95a6afdcb18257ba1ff382640f03b8c82655d63d2afdca6abcb9fa",
+      "size_bytes": 270835
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478386284375017,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc",
+      "sha256": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+      "size_bytes": 432938
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086005342215,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/human_equality.metalinc",
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927",
+      "size_bytes": 14923
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086005627133,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/human_limits.metalinc",
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e",
+      "size_bytes": 7795
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086005864301,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/identification_scheduler.metalinc",
+      "sha256": "da05927181bc0a2cdcc6acd551d80def77fecd57bd1a91671fb0dff1ceebf4ce",
+      "size_bytes": 40306
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086006057052,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/mixed_fem.metalinc",
+      "sha256": "b996ea95cd3bbf29d0aa7474628ebe3bcb47dffcad381e5d6394f4ad3a4c4c56",
+      "size_bytes": 48341
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086006290928,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/mpm.metalinc",
+      "sha256": "87be026086c9b547d302eb9be46e6865c0a10d24ee1439219dc62bee9e8259ff",
+      "size_bytes": 46641
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792466690652291119,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/numi_human.metalinc",
+      "sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "size_bytes": 92300
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792434086007876144,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/topology_mutation.metalinc",
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726",
+      "size_bytes": 156284
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792473330291868659,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc",
+      "sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "size_bytes": 116353
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479490078307496,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm",
+      "sha256": "1f82350208f79e3085ca93b58cde89482eb10543943136e1946d52c412fe798f",
+      "size_bytes": 2158104
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792478943962743295,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal",
+      "sha256": "98c26db7ae93da82774aa4d7ef4430654918975dcee385b46aefc98a991c0d60",
+      "size_bytes": 37647
+    },
+    {
+      "exists": true,
+      "mode_octal": "0o644",
+      "mtime_ns": 1792479183741804926,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.mm",
+      "sha256": "94fded1890ce7cf731f31eabdc477b24362300e69b63e5e6f8baf9af65b6d1cf",
+      "size_bytes": 89908
+    }
+  ]
+}
