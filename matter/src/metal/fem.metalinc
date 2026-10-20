@@ -3870,20 +3870,11 @@ kernel void nm_fem_select_backtracking(
             float3 u[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
-                const float3 velocity =
-                    candidate[index].velocityAndInverseMass.xyz +
-                    alpha * correction[index].xyz;
-                if ((tetrahedron.identity.w &
-                        NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
-                    u[slot] =
-                        accepted[index].referenceDisplacementAndMode.xyz +
-                        dt * velocity;
-                    x[slot] = accepted[index].restAndFixed.xyz + u[slot];
-                } else {
-                    x[slot] =
-                        accepted[index].positionAndMass.xyz + dt * velocity;
-                    u[slot] = float3(0.0f);
-                }
+                const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
+                    accepted[index], candidate[index], correction[index].xyz,
+                    alpha, dt, true);
+                x[slot] = trialNode.positionAndMass.xyz;
+                u[slot] = trialNode.referenceDisplacementAndMode.xyz;
             }
             const float3x3 inverseRest = matrixFromRows(
                 tetrahedron.inverseRestRow0,
@@ -3947,16 +3938,21 @@ kernel void nm_fem_select_backtracking(
             }
         }
 
+        // SIMD collectives include only active lanes. Evaluate them before
+        // electing the writer, so every tetrahedron participates in the
+        // admissibility and volume-merit certificate.
+        const float groupMinimumJ = simd_min(minimumJ);
+        const float groupCurrentVolumeMerit2 = simd_sum(currentVolumeMerit2);
+        const float groupTrialVolumeMerit2 = simd_sum(trialVolumeMerit2);
+        const float groupVolumeElementCount = simd_sum(float(volumeElementCount));
+        const bool groupValid = simd_all(valid);
         const uint simdgroup = lane / 32u;
         if ((lane & 31u) == 0u) {
-            simdMinimumJ[simdgroup] = simd_min(minimumJ);
-            simdCurrentVolumeMerit2[simdgroup] =
-                simd_sum(currentVolumeMerit2);
-            simdTrialVolumeMerit2[simdgroup] =
-                simd_sum(trialVolumeMerit2);
-            simdVolumeElementCount[simdgroup] =
-                simd_sum(float(volumeElementCount));
-            simdValidity[simdgroup] = simd_all(valid) ? 1u : 0u;
+            simdMinimumJ[simdgroup] = groupMinimumJ;
+            simdCurrentVolumeMerit2[simdgroup] = groupCurrentVolumeMerit2;
+            simdTrialVolumeMerit2[simdgroup] = groupTrialVolumeMerit2;
+            simdVolumeElementCount[simdgroup] = groupVolumeElementCount;
+            simdValidity[simdgroup] = groupValid ? 1u : 0u;
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
 

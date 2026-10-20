@@ -76,14 +76,101 @@ WorldSource thinSkewSource(const WorldSource& regionalReference,bool displacemen
 CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExponent=0,.emitSpecializedMetal=false});need(c.succeeded(),"reference fixture compile: "+diagnostic(c.diagnostics));return std::move(c.world);}
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
-    id<MTLComputePipelineState> forcePipeline,operatorPipeline;
+    id<MTLComputePipelineState> forcePipeline,operatorPipeline,backtrackingPipeline;
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
         library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];need(library!=nil,"production Matter metallib unavailable");
-        forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");}
+        forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
+        backtrackingPipeline=make(@"numi_matter_metal::nm_fem_select_backtracking");}
     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
+struct BacktrackingResult { float alpha;float minimumJ;float trials;std::uint32_t status; };
+BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixedNode,bool displacementGradient=false){
+    constexpr unsigned elementCount=58u;
+    constexpr unsigned nodesPerElement=4u;
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=1u;dispatch.objectCount=1u;
+    dispatch.femNodeCount=elementCount*nodesPerElement;dispatch.tetrahedronCount=elementCount;
+    dispatch.gravityAndTimestep.w=1.0f;dispatch.numericalLimits.z=0.35f;
+    NMMicrostepGPU microstep{};microstep.time.y=1.0f;
+    NMMixedSolverGPU solver{};solver.nonlinearIterations.w=2u;
+    solver.residualTolerances.y=1.0e-8f;
+    NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+    object.flags=NM_OBJECT_ACTIVE;object.elementCount=elementCount;object.solver.y=0u;
+    NMMaterialGPU material{};material.validity={0.35f,2.0f,1.0e30f,1.0e30f};
+    NMSchedulerStateGPU scheduler{};scheduler.numerical.w=1.0f;
+    NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
+    std::vector<NMFEMNodeStateGPU> accepted(dispatch.femNodeCount),candidate(dispatch.femNodeCount);
+    std::vector<nm_float4> correction(dispatch.femNodeCount,nm_float4{});
+    std::vector<NMTetrahedronGPU> tetrahedra(elementCount);
+    for(unsigned element=0;element<elementCount;++element){
+        const unsigned base=nodesPerElement*element;
+        const nm_float4 positions[4]={{0,0,0,1},{1,0,0,1},{0,1,0,1},{0,0,1,1}};
+        for(unsigned slot=0;slot<nodesPerElement;++slot){
+            auto& node=accepted[base+slot];node.positionAndMass=positions[slot];
+            node.restAndFixed=positions[slot];node.restAndFixed.w=0.0f;node.velocityAndInverseMass.w=1.0f;
+            node.referenceDisplacementAndMode.w=displacementGradient?1.0f:0.0f;
+            candidate[base+slot]=node;
+        }
+        auto& tet=tetrahedra[element];tet.nodes={base,base+1u,base+2u,base+3u};
+        tet.inverseRestRow0={1,0,0,1.0f/6.0f};tet.inverseRestRow1={0,1,0,0};tet.inverseRestRow2={0,0,1,0};
+        tet.identity={0u,0u,0u,NM_OBJECT_ACTIVE};
+        if(displacementGradient)tet.identity.w|=NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT;
+    }
+    if(invalidNonLeader){
+        // Only the tet on SIMD lane 57 becomes inadmissible at alpha=1:
+        // J=0.3139282, while alpha=0.5 gives J=0.6569641.
+        correction[nodesPerElement*57u+1u].x=-0.6860718f;
+    }
+    if(fixedNode){
+        // A threatening correction must not move an authored fixed node.
+        accepted[1].restAndFixed.w=1.0f;candidate[1]=accepted[1];correction[1].x=-0.9f;
+    }
+    std::vector<NMMatterStatusGPU> status(1);
+    std::vector<nm_float4> lineSearch(1);
+    const auto objects=buffer(d.device,std::vector<NMContinuumObjectGPU>{object});
+    const auto materials=buffer(d.device,std::vector<NMMaterialGPU>{material});
+    const auto acceptedBuffer=buffer(d.device,accepted),candidateBuffer=buffer(d.device,candidate);
+    const auto correctionBuffer=buffer(d.device,correction),tetrahedronBuffer=buffer(d.device,tetrahedra);
+    const auto schedulerBuffer=buffer(d.device,std::vector<NMSchedulerStateGPU>{scheduler});
+    const auto adaptiveBuffer=buffer(d.device,std::vector<NMAdaptiveStateGPU>{adaptive});
+    const auto lineSearchBuffer=buffer(d.device,lineSearch),statusBuffer=buffer(d.device,status);
+    const auto mixedBuffer=buffer(d.device,std::vector<NMMixedMaterialGPU>(1));
+    const auto fieldBuffer=buffer(d.device,std::vector<NMFEMFieldStateGPU>(dispatch.femNodeCount));
+    auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:d.backtrackingPipeline];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+    [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+    [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+    [encoder setBuffer:objects offset:0 atIndex:3];[encoder setBuffer:materials offset:0 atIndex:4];
+    [encoder setBuffer:acceptedBuffer offset:0 atIndex:5];[encoder setBuffer:candidateBuffer offset:0 atIndex:6];
+    [encoder setBuffer:correctionBuffer offset:0 atIndex:7];[encoder setBuffer:tetrahedronBuffer offset:0 atIndex:8];
+    [encoder setBuffer:schedulerBuffer offset:0 atIndex:9];[encoder setBuffer:adaptiveBuffer offset:0 atIndex:10];
+    [encoder setBuffer:lineSearchBuffer offset:0 atIndex:11];[encoder setBuffer:statusBuffer offset:0 atIndex:12];
+    [encoder setBuffer:mixedBuffer offset:0 atIndex:13];[encoder setBuffer:fieldBuffer offset:0 atIndex:14];
+    [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
+    const auto result=*static_cast<const nm_float4*>(lineSearchBuffer.contents);
+    const auto matterStatus=*static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+    return {result.x,result.y,result.z,matterStatus.code};
+}
+void backtrackingLaneReductionChecks(Device& d){
+    for(const bool displacementGradient:{false,true}){
+    const auto laneWitness=selectBacktracking(d,true,false,displacementGradient);
+    need(laneWitness.status==NM_STATUS_SUCCESS,"nonleader invalid tet rejected status="+std::to_string(laneWitness.status));
+    need(std::abs(laneWitness.alpha-0.5f)<1.0e-6f&&laneWitness.minimumJ>0.65f&&laneWitness.minimumJ<0.67f,
+        "nonleader invalid tet was omitted from FEM backtracking reduction alpha="+number(laneWitness.alpha)+" minJ="+number(laneWitness.minimumJ));
+    const auto fixed=selectBacktracking(d,false,true,displacementGradient);
+    need(fixed.status==NM_STATUS_SUCCESS&&std::abs(fixed.alpha-1.0f)<1.0e-6f&&std::abs(fixed.minimumJ-1.0f)<1.0e-6f,
+        "fixed-node backtracking control changed alpha or J");
+    const auto valid=selectBacktracking(d,false,false,displacementGradient);
+    need(valid.status==NM_STATUS_SUCCESS&&std::abs(valid.alpha-1.0f)<1.0e-6f&&std::abs(valid.minimumJ-1.0f)<1.0e-6f,
+        "fully admissible FEM backtracking control changed alpha or J");
+    std::cout<<"fem_backtracking_lane_reduction=pass lane=57 rejected_J=0.3139282 accepted_alpha=0.5 accepted_min_J="
+        <<laneWitness.minimumJ<<" fixed_node_control=pass valid_control=pass reference_displacement="<<displacementGradient<<std::endl;
+    }
+}
 struct Inputs {
     std::vector<NMFEMNodeStateGPU> nodes;
     std::vector<NMFEMFieldStateGPU> fields;
@@ -576,7 +663,8 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
 }
 } // namespace
 int main(int argc,char** argv){@autoreleasepool{try{
-    need(argc==3||(argc==4&&std::string(argv[3])=="--cpu-only"),"usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]");
+    need((argc==2&&std::string(argv[1])=="--backtracking-only")||argc==3||(argc==4&&std::string(argv[3])=="--cpu-only"),"usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only] | --backtracking-only");
+    if(argc==2){Device device;backtrackingLaneReductionChecks(device);return 0;}
     auto a=parseMatterFile(argv[1]),b=parseMatterFile(argv[2]);need(a.succeeded()&&b.succeeded(),diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
     set(a.material,"density",900);set(b.material,"density",1200); // synthetic fixture only
     const auto simple=source(a.material,b.material),combined=source(a.material,b.material,true);
@@ -584,6 +672,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(simple);cpuChecks(combined);referenceDisplacementChecks(combined);thinSkewArithmeticChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
     if(argc==4){std::cout<<"fem_reference_compiler_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false\n";return 0;}
     Device device;std::cout<<"reference_device="<<[device.device name].UTF8String<<'\n';
+    backtrackingLaneReductionChecks(device);
     boundaryRestoreChecks(device,simple);directChecks(device,simple,"reference_only");directChecks(device,combined,"reference_regional_frames");
     directChecks(device,displacement,"reference_displacement_regional_frames");rigidRotationChecks(device,combined);thinSkewMetalRestCheck(device,combined);
     integratedChecks(device,simple,16,"reference_only");integratedChecks(device,combined,16,"reference_regional_frames");
