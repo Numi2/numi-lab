@@ -1,0 +1,1757 @@
+{
+  "audit": "final_registered_ligament_catalog_source_geometry_v1",
+  "classification": "reference-pose admission audit of inferred regional anchors; no subject-specific enthesis validation",
+  "source": {
+    "headerPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRegisteredLigaments.hpp",
+    "headerSha256": "97eb263d79a3b811da1817e4d44a11ca002dcb13fea1b9a37e5a128904eb1595",
+    "invocationPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-003/invocation.json",
+    "invocationFileSha256": "4ab146241d3e6c4a9673e21231830119416b3eedd260b6a4ba96e94729d805bb",
+    "sourceInvocationSha256": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+    "rigidPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "rigidSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "bonesPath": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bonesSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "boneAbi": 3,
+    "boneCount": 185,
+    "vertexCount": 268228,
+    "indexCount": 1407408,
+    "boneRecordsWithSourcePose": 185,
+    "recordsMissingSourcePose": []
+  },
+  "criteria": {
+    "catalog": "per-side seed triples parsed directly from the hashed header, no candidate patch target substitution",
+    "endpoint": "project seed to registered stableId mesh; reproduce body-local float32 GPU anchor then back-transform at reference pose",
+    "normal": "transformed source vertex normals barycentrically interpolated at the projected point, matching NumiHumanInferredACL.hpp; outward cosine >=-1e-4 numerical non-inward guard required",
+    "segment": "scale-relative Moller-Trumbore with AABB culling against every registered bone source mesh; interior t in (1e-5,1-1e-5)",
+    "topology": "surface meshes may be open; triangle-clearance does not prove closed-volume containment"
+  },
+  "rows": [
+    {
+      "name": "anterior_talofibular_inferior",
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "endpointBodies": [
+        150,
+        151
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        0.0017184370663,
+        0.0012525668135,
+        -0.0233985316008
+      ],
+      "headerSeed1FrameM": [
+        0.0074792266823,
+        -0.0056220921688,
+        -0.0168760288507
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        994,
+        881
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.0036142372991889715,
+        0.017605561763048172,
+        -0.22402547299861908
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.006601128727197647,
+        -0.01840820536017418,
+        5.876025898032822e-05
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        1.718438,
+        1.252573,
+        -23.398531
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        7.479227,
+        -5.622091,
+        -16.876028
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        3e-06,
+        1e-06
+      ],
+      "lengthMm": 11.0901,
+      "outwardNormalCos": [
+        0.43932,
+        0.02829
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "anterior_talofibular_inferior",
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "endpointBodies": [
+        136,
+        137
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        0.004054185003,
+        0.002894166857,
+        0.0245388466865
+      ],
+      "headerSeed1FrameM": [
+        0.0134015027434,
+        -0.0014928911114,
+        0.0152084706351
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        881,
+        148
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.004856849554926157,
+        -0.01901238225400448,
+        -0.22233431041240692
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.0031343577429652214,
+        0.017107492312788963,
+        0.006477018818259239
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        4.054186,
+        2.894162,
+        24.538849
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        13.401505,
+        -1.492891,
+        15.208474
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        5e-06
+      ],
+      "lengthMm": 13.9167,
+      "outwardNormalCos": [
+        0.41882,
+        0.14692
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "anterior_talofibular_superior",
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "endpointBodies": [
+        150,
+        151
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        0.003912,
+        0.003813,
+        -0.022334
+      ],
+      "headerSeed1FrameM": [
+        0.009882,
+        -0.000752,
+        -0.015468
+      ],
+      "seedProjectionResidualMm": [
+        0.000154,
+        0.000551
+      ],
+      "sourceProjectionTriangles": [
+        1000,
+        1044
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.005703457165509462,
+        0.01651841402053833,
+        -0.22138844430446625
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.0020022632088512182,
+        -0.017250647768378258,
+        0.0030560740269720554
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        3.911876,
+        3.813069,
+        -22.333946
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        9.881705,
+        -0.752015,
+        -15.467534
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        2e-06,
+        0.0
+      ],
+      "lengthMm": 10.1797,
+      "outwardNormalCos": [
+        0.45752,
+        0.16244
+      ],
+      "aabbNearbyStableIds": [
+        21,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "anterior_talofibular_superior",
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "endpointBodies": [
+        136,
+        137
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        0.004979,
+        0.003812,
+        0.023618
+      ],
+      "headerSeed1FrameM": [
+        0.014512,
+        0.001264,
+        0.014345
+      ],
+      "seedProjectionResidualMm": [
+        0.00037,
+        6.6e-05
+      ],
+      "sourceProjectionTriangles": [
+        877,
+        150
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.005780313163995743,
+        -0.01813100278377533,
+        -0.22137722373008728
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.0005006238352507353,
+        0.01637635938823223,
+        0.007928949780762196
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        4.978696,
+        3.812165,
+        23.61788
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        14.512035,
+        1.264001,
+        14.34506
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        4e-06
+      ],
+      "lengthMm": 13.5412,
+      "outwardNormalCos": [
+        0.46038,
+        0.18087
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "anterior_tibiotalar",
+      "side": "L",
+      "stableIds": [
+        5,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "endpointBodies": [
+        150,
+        151
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        0.012921,
+        0.014373,
+        0.021524
+      ],
+      "headerSeed1FrameM": [
+        0.014191,
+        0.001188,
+        0.016064
+      ],
+      "seedProjectionResidualMm": [
+        0.000144,
+        0.000132
+      ],
+      "sourceProjectionTriangles": [
+        1188,
+        557
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.013155637308955193,
+        -0.027411475777626038,
+        -0.2099504917860031
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.00028041176847182214,
+        0.014008660800755024,
+        0.008904836140573025
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        12.920906,
+        14.37291,
+        21.524051
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        14.19097,
+        1.188006,
+        16.06387
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        1e-06
+      ],
+      "lengthMm": 14.3272,
+      "outwardNormalCos": [
+        0.55307,
+        0.2524
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "anterior_tibiotalar",
+      "side": "R",
+      "stableIds": [
+        4,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "endpointBodies": [
+        136,
+        137
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        0.014198,
+        0.013982,
+        -0.022502
+      ],
+      "headerSeed1FrameM": [
+        0.010697,
+        -0.000925,
+        -0.017029
+      ],
+      "seedProjectionResidualMm": [
+        3.9e-05,
+        9.4e-05
+      ],
+      "sourceProjectionTriangles": [
+        209,
+        1079
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.016014572232961655,
+        0.027561580762267113,
+        -0.21029070019721985
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.0013914941810071468,
+        -0.015177578665316105,
+        0.0052384245209395885
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        14.198017,
+        13.982024,
+        -22.50198
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        10.697013,
+        -0.925005,
+        -17.029095
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        3e-06,
+        2e-06
+      ],
+      "lengthMm": 16.2613,
+      "outwardNormalCos": [
+        0.69549,
+        0.38708
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "calcaneofibular",
+      "side": "L",
+      "stableIds": [
+        21,
+        7
+      ],
+      "sourceRecords": [
+        98,
+        100
+      ],
+      "endpointBodies": [
+        150,
+        152
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        -0.00813,
+        -0.006293,
+        -0.023612
+      ],
+      "headerSeed1FrameM": [
+        -0.01505,
+        -0.022054,
+        -0.01726
+      ],
+      "seedProjectionResidualMm": [
+        0.0003,
+        1.3e-05
+      ],
+      "sourceProjectionTriangles": [
+        445,
+        720
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.006007749121636152,
+        0.017982296645641327,
+        -0.23185177147388458
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.004595716018229723,
+        -0.006657368969172239,
+        -0.04967186972498894
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -8.129908,
+        -6.293286,
+        -23.612047
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -15.049997,
+        -22.05401,
+        -17.259991
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        0.0
+      ],
+      "lengthMm": 18.3477,
+      "outwardNormalCos": [
+        0.57819,
+        0.70575
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 184,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "calcaneofibular",
+      "side": "R",
+      "stableIds": [
+        20,
+        6
+      ],
+      "sourceRecords": [
+        92,
+        94
+      ],
+      "endpointBodies": [
+        136,
+        138
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        -0.008661,
+        -0.007684,
+        0.024949
+      ],
+      "headerSeed1FrameM": [
+        -0.015271,
+        -0.023844,
+        0.018228
+      ],
+      "seedProjectionResidualMm": [
+        0.000114,
+        0.000101
+      ],
+      "sourceProjectionTriangles": [
+        391,
+        236
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.007553270552307367,
+        -0.018911821767687798,
+        -0.23327593505382538
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.002792907413095236,
+        0.007618568371981382,
+        -0.049797944724559784
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -8.661038,
+        -7.683893,
+        24.948977
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -15.270973,
+        -23.844051,
+        18.227915
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        3e-06,
+        1e-06
+      ],
+      "lengthMm": 18.7087,
+      "outwardNormalCos": [
+        0.60991,
+        0.6745
+      ],
+      "aabbNearbyStableIds": [
+        6,
+        20,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 260,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "iliofemoral_lateral",
+      "side": "L",
+      "stableIds": [
+        19,
+        3
+      ],
+      "sourceRecords": [
+        90,
+        97
+      ],
+      "endpointBodies": [
+        128,
+        145
+      ],
+      "frameJointPair": [
+        144,
+        145
+      ],
+      "headerSeed0FrameM": [
+        0.014512955211102962,
+        0.03726789727807045,
+        -0.016731154173612595
+      ],
+      "headerSeed1FrameM": [
+        0.006924922578036785,
+        -0.01169358566403389,
+        -0.025930127128958702
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        1114,
+        2712
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.028236959129571915,
+        -0.011222082190215588,
+        -0.09399116039276123
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.006924922578036785,
+        0.025960048660635948,
+        0.1833735704421997
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        14.512955,
+        37.267899,
+        -16.73116
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        6.924922,
+        -11.693585,
+        -25.930127
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        2e-06,
+        0.0
+      ],
+      "lengthMm": 50.3927,
+      "outwardNormalCos": [
+        0.29963,
+        0.16697
+      ],
+      "aabbNearbyStableIds": [
+        3,
+        19
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 264,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 60,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "iliofemoral_lateral",
+      "side": "R",
+      "stableIds": [
+        18,
+        2
+      ],
+      "sourceRecords": [
+        90,
+        91
+      ],
+      "endpointBodies": [
+        128,
+        131
+      ],
+      "frameJointPair": [
+        130,
+        131
+      ],
+      "headerSeed0FrameM": [
+        0.014972856268286705,
+        0.036702800542116165,
+        0.014917828142642975
+      ],
+      "headerSeed1FrameM": [
+        0.007530724164098501,
+        -0.006709011271595955,
+        0.02496389113366604
+      ],
+      "seedProjectionResidualMm": [
+        1e-06,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        1077,
+        1711
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.02869686298072338,
+        -0.011787153780460358,
+        0.09217783063650131
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.007530723698437214,
+        -0.02498103491961956,
+        0.18835565447807312
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        14.97286,
+        36.702798,
+        14.91783
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        7.530724,
+        -6.709008,
+        24.96389
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        1e-06
+      ],
+      "lengthMm": 45.1763,
+      "outwardNormalCos": [
+        0.15619,
+        0.16805
+      ],
+      "aabbNearbyStableIds": [
+        2,
+        18
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 266,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "ischiofemoral",
+      "side": "L",
+      "stableIds": [
+        19,
+        3
+      ],
+      "sourceRecords": [
+        90,
+        97
+      ],
+      "endpointBodies": [
+        128,
+        145
+      ],
+      "frameJointPair": [
+        144,
+        145
+      ],
+      "headerSeed0FrameM": [
+        -0.024657,
+        0.039298,
+        -0.009126
+      ],
+      "headerSeed1FrameM": [
+        -0.018644,
+        -0.023469,
+        -0.027584
+      ],
+      "seedProjectionResidualMm": [
+        0.000208,
+        2e-06
+      ],
+      "sourceProjectionTriangles": [
+        1082,
+        2699
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.010933108627796173,
+        -0.009191809222102165,
+        -0.08638596534729004
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.018643999472260475,
+        0.02764410711824894,
+        0.17160244286060333
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -24.657114,
+        39.298172,
+        -9.125966
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -18.643999,
+        -23.468992,
+        -27.583999
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        1e-06,
+        3e-06
+      ],
+      "lengthMm": 65.7006,
+      "outwardNormalCos": [
+        0.83722,
+        0.58386
+      ],
+      "aabbNearbyStableIds": [
+        3,
+        19
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 264,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 60,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "ischiofemoral",
+      "side": "R",
+      "stableIds": [
+        18,
+        2
+      ],
+      "sourceRecords": [
+        90,
+        91
+      ],
+      "endpointBodies": [
+        128,
+        131
+      ],
+      "frameJointPair": [
+        130,
+        131
+      ],
+      "headerSeed0FrameM": [
+        -0.02469,
+        0.039468,
+        0.009012
+      ],
+      "headerSeed1FrameM": [
+        -0.018456,
+        -0.02371,
+        0.027856
+      ],
+      "seedProjectionResidualMm": [
+        0.000245,
+        0.000333
+      ],
+      "sourceProjectionTriangles": [
+        1185,
+        1112
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.010965852998197079,
+        -0.009022150188684464,
+        0.08627204596996307
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.018456270918250084,
+        -0.027916638180613518,
+        0.17136231064796448
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -24.689857,
+        39.467803,
+        9.012045
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -18.45627,
+        -23.709822,
+        27.855913
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        2e-06,
+        2e-06
+      ],
+      "lengthMm": 66.2221,
+      "outwardNormalCos": [
+        0.84271,
+        0.64439
+      ],
+      "aabbNearbyStableIds": [
+        2,
+        18
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 266,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "posterior_talofibular",
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "endpointBodies": [
+        150,
+        151
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        -0.011375,
+        -0.007257,
+        -0.021888
+      ],
+      "headerSeed1FrameM": [
+        -0.010239,
+        -0.005716,
+        -0.01119
+      ],
+      "seedProjectionResidualMm": [
+        0.000298,
+        0.000113
+      ],
+      "sourceProjectionTriangles": [
+        441,
+        536
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.009272304363548756,
+        0.01633581519126892,
+        -0.23288331925868988
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.004510606173425913,
+        -0.012026647105813026,
+        -0.01729586347937584
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -11.374963,
+        -7.257275,
+        -21.887908
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -10.239078,
+        -5.715936,
+        -11.190047
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        6e-06,
+        2e-06
+      ],
+      "lengthMm": 10.8679,
+      "outwardNormalCos": [
+        0.21504,
+        0.41366
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "posterior_talofibular",
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "endpointBodies": [
+        136,
+        137
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        -0.010201,
+        -0.003836,
+        0.020461
+      ],
+      "headerSeed1FrameM": [
+        -0.010693,
+        -0.004244,
+        0.011173
+      ],
+      "seedProjectionResidualMm": [
+        5.1e-05,
+        0.000552
+      ],
+      "sourceProjectionTriangles": [
+        403,
+        182
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.009075230918824673,
+        -0.014433355070650578,
+        -0.22940988838672638
+      ],
+      "gpuLocalAnchor1Float32M": [
+        -0.002996552735567093,
+        0.012038737535476685,
+        -0.017579134553670883
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -10.201015,
+        -3.835993,
+        20.46105
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -10.693288,
+        -4.244147,
+        11.17345
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        1e-06,
+        2e-06
+      ],
+      "lengthMm": 9.3096,
+      "outwardNormalCos": [
+        0.93189,
+        0.69762
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "posterior_tibiotalar",
+      "side": "L",
+      "stableIds": [
+        5,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "endpointBodies": [
+        150,
+        151
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        -0.002293,
+        0.020198,
+        0.018242
+      ],
+      "headerSeed1FrameM": [
+        -0.010004,
+        0.002604,
+        0.013728
+      ],
+      "seedProjectionResidualMm": [
+        8.4e-05,
+        3.2e-05
+      ],
+      "sourceProjectionTriangles": [
+        1440,
+        411
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.002116296673193574,
+        -0.023615138605237007,
+        -0.2046097368001938
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.004396252799779177,
+        0.012586685828864574,
+        -0.015051312744617462
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -2.293065,
+        20.19796,
+        18.242026
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -10.004026,
+        2.604016,
+        13.728007
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        1e-06
+      ],
+      "lengthMm": 19.7328,
+      "outwardNormalCos": [
+        0.64357,
+        0.17964
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "posterior_tibiotalar",
+      "side": "R",
+      "stableIds": [
+        4,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "endpointBodies": [
+        136,
+        137
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        -0.003675,
+        0.020437,
+        -0.014791
+      ],
+      "headerSeed1FrameM": [
+        -0.011908,
+        0.003734,
+        -0.009455
+      ],
+      "seedProjectionResidualMm": [
+        0.000324,
+        7.1e-05
+      ],
+      "sourceProjectionTriangles": [
+        360,
+        1031
+      ],
+      "gpuLocalAnchor0Float32M": [
+        -0.002250555669888854,
+        0.020285122096538544,
+        -0.2044592946767807
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.005621335469186306,
+        -0.008358580060303211,
+        -0.016996197402477264
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        -3.674778,
+        20.437223,
+        -14.790906
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        -11.907945,
+        3.733959,
+        -9.454999
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        4e-06,
+        2e-06
+      ],
+      "lengthMm": 19.3715,
+      "outwardNormalCos": [
+        0.64443,
+        0.15178
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "superior_glenohumeral_capsuloligament",
+      "side": "L",
+      "stableIds": [
+        11,
+        13
+      ],
+      "sourceRecords": [
+        55,
+        59
+      ],
+      "endpointBodies": [
+        84,
+        91
+      ],
+      "frameJointPair": [
+        90,
+        91
+      ],
+      "headerSeed0FrameM": [
+        0.008180554956197739,
+        -0.001989502226933837,
+        0.005723494105041027
+      ],
+      "headerSeed1FrameM": [
+        0.024076873436570168,
+        -0.005616296548396349,
+        0.001631717779673636
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        1136,
+        645
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.060926467180252075,
+        0.022297019138932228,
+        -0.02907268889248371
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.023648200556635857,
+        -0.013262839056551456,
+        0.13236857950687408
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        8.180554,
+        -1.989503,
+        5.723494
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        24.076872,
+        -5.616292,
+        1.631717
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        0.0,
+        3e-06
+      ],
+      "lengthMm": 16.8104,
+      "outwardNormalCos": [
+        0.60503,
+        0.01706
+      ],
+      "aabbNearbyStableIds": [
+        11,
+        13
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 292,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "superior_glenohumeral_capsuloligament",
+      "side": "R",
+      "stableIds": [
+        10,
+        12
+      ],
+      "sourceRecords": [
+        18,
+        22
+      ],
+      "endpointBodies": [
+        34,
+        41
+      ],
+      "frameJointPair": [
+        40,
+        41
+      ],
+      "headerSeed0FrameM": [
+        0.01203032024204731,
+        -0.0012908296193927526,
+        -0.008087437599897385
+      ],
+      "headerSeed1FrameM": [
+        0.023436492308974266,
+        -0.004536971915513277,
+        -0.0021927966736257076
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        24503,
+        2641
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.06227034330368042,
+        0.019031915813684464,
+        0.03197617083787918
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.023553328588604927,
+        -0.012467602267861366,
+        -0.13348591327667236
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        12.03032,
+        -1.29083,
+        -8.087436
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        23.436491,
+        -4.536968,
+        -2.192797
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        0.0,
+        2e-06
+      ],
+      "lengthMm": 13.2433,
+      "outwardNormalCos": [
+        0.67233,
+        0.01177
+      ],
+      "aabbNearbyStableIds": [
+        10,
+        12
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 80,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 564,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "tibiocalcaneal",
+      "side": "L",
+      "stableIds": [
+        5,
+        7
+      ],
+      "sourceRecords": [
+        98,
+        100
+      ],
+      "endpointBodies": [
+        150,
+        152
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "headerSeed0FrameM": [
+        0.0027626773808151484,
+        0.01667203940451145,
+        0.023803692311048508
+      ],
+      "headerSeed1FrameM": [
+        0.00022980802168603987,
+        -0.0142558254301548,
+        0.019495569169521332
+      ],
+      "seedProjectionResidualMm": [
+        0.0,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        1426,
+        560
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.0028757776599377394,
+        -0.02936941757798195,
+        -0.20791007578372955
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.013769158162176609,
+        0.02893495187163353,
+        -0.03251698613166809
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        2.762677,
+        16.672036,
+        23.803689
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        0.229808,
+        -14.255826,
+        19.495568
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        2e-06,
+        0.0
+      ],
+      "lengthMm": 31.329,
+      "outwardNormalCos": [
+        0.7676,
+        0.27691
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        7,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 184,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    },
+    {
+      "name": "tibiocalcaneal",
+      "side": "R",
+      "stableIds": [
+        4,
+        6
+      ],
+      "sourceRecords": [
+        92,
+        94
+      ],
+      "endpointBodies": [
+        136,
+        138
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "headerSeed0FrameM": [
+        0.001981951529160142,
+        0.015796242281794548,
+        -0.02046188712120056
+      ],
+      "headerSeed1FrameM": [
+        6.23340965830721e-05,
+        -0.014136694371700287,
+        -0.02014334686100483
+      ],
+      "seedProjectionResidualMm": [
+        1e-06,
+        0.0
+      ],
+      "sourceProjectionTriangles": [
+        233,
+        1239
+      ],
+      "gpuLocalAnchor0Float32M": [
+        0.003697822568938136,
+        0.02585185132920742,
+        -0.20885539054870605
+      ],
+      "gpuLocalAnchor1Float32M": [
+        0.013872388750314713,
+        -0.029594020918011665,
+        -0.03264670819044113
+      ],
+      "float32ReconstructedFrameAnchor0Mm": [
+        1.981951,
+        15.796243,
+        -20.46189
+      ],
+      "float32ReconstructedFrameAnchor1Mm": [
+        0.062337,
+        -14.136696,
+        -20.143345
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        0.0,
+        2e-06
+      ],
+      "lengthMm": 29.9961,
+      "outwardNormalCos": [
+        0.88974,
+        0.33221
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        6,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "endpointMeshTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 260,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "admittedByAudit": true
+    }
+  ],
+  "sha256": "8629c054a5e68e96e372c28e7d8dd4016884ac4167957b7d9bc142c6625ec387"
+}

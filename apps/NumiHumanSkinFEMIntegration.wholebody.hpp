@@ -4,6 +4,7 @@
 // the original LoadedSkin stays the authority for all binding weights.
 #include "NumiHumanCoarseTissuePreparation.hpp"
 #include "NumiHumanWholeBodySkinReduction.hpp"
+#include "NumiHumanSkinRigidPlacement.hpp"
 #include "numi/matter/numi_human_shared.h"
 #include <string_view>
 #include <fstream>
@@ -105,7 +106,8 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         std::string_view provider,std::string_view sourceMember,std::string_view sourcePayloadSHA256,
         PositionFn&& positionAt,NormalFn&& normalAt,DonorLocalFn&& donorLocalAt,
         OwnerFn&& bodyOwnerAt,WorldToDonorFn&& worldToDonorAt,
-        std::uint32_t seedFace,std::uint32_t maxFaces,RegisteredSurface& region,std::string& error){
+        std::uint32_t seedFace,std::uint32_t maxFaces,RegisteredSurface& region,std::string& error,
+        RegisteredSkinRigidPlacement* placementOut=nullptr){
     auto fail=[&](const char* message){error=message;return false;};
     if(provider.empty()||sourceMember.empty()||skin.vertices.empty()||
        skin.indices.empty()||skin.indices.size()%3!=0||skin.bindings.empty()||sourcePayloadSHA256.size()!=64)
@@ -176,6 +178,7 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
     std::sort(sortedSourceVertices.begin(),sortedSourceVertices.end());
     if(std::adjacent_find(sortedSourceVertices.begin(),sortedSourceVertices.end())!=sortedSourceVertices.end())
         return fail("whole-body reduced source vertex ancestry contains duplicates");
+    RegisteredSkinRigidPlacement placement;
     for(std::size_t i=0;i<kWholeBodySkinSourceVertices.size();++i){
         const auto v=kWholeBodySkinSourceVertices[i];const auto& expected=kWholeBodySkinDonorFrames[i];
         if(v>=source.worldPoints.size()||expected.donorBodyIndex!=source.donorBodyIndices[v])
@@ -190,17 +193,41 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             return fail("whole-body reduced vertex full-body skin weights do not normalize");
         const auto& world=source.worldPoints[v];const auto& local=source.donorLocalPoints[v];
         const auto& normal=source.outwardWorldNormals[v];const auto& frame=source.worldToDonorLocalLinear[v];
-        for(unsigned c=0;c<3;c++){
-            if(!close(world[c],expected.registeredWorldPoint[c],2.0e-5)||
-               !close(local[c],expected.donorLocalPoint[c],2.0e-5)||
-               !close(normal[c],expected.registeredWorldNormal[c],2.0e-4))
-                return fail("whole-body reduced renderer point differs from its pinned registered donor frame");
+        if(placementOut) {
+            const auto asDouble=[]<class T,std::size_t N>(const std::array<T,N>& a){
+                std::array<double,N> out{};std::copy(a.begin(),a.end(),out.begin());return out;
+            };
+            const auto referencePoint=asDouble(expected.registeredWorldPoint);
+            const auto referenceLocal=asDouble(expected.donorLocalPoint);
+            const auto referenceNormal=asDouble(expected.registeredWorldNormal);
+            const auto referenceFrame=asDouble(expected.worldToDonorLocalLinear);
+            if(i==0u && !deriveRegisteredSkinRigidPlacement(
+                referencePoint,referenceFrame,
+                world,frame,placement,error)) return false;
+            if(!validateRegisteredSkinPlacementVertex(
+                referencePoint,referenceLocal,
+                referenceNormal,referenceFrame,
+                world,local,normal,frame,placement,error)) return false;
+            // Keep exact admitted reference coordinates while applying frozen repairs
+            // and constructing layers. The caller places all layers together afterward.
+            region.worldPoints.push_back(referencePoint);
+            region.donorLocalPoints.push_back(referenceLocal);
+            region.outwardWorldNormals.push_back(referenceNormal);
+            region.worldToDonorLocalLinear.push_back(referenceFrame);
+        } else {
+            for(unsigned c=0;c<3;c++){
+                if(!close(world[c],expected.registeredWorldPoint[c],2.0e-5)||
+                   !close(local[c],expected.donorLocalPoint[c],2.0e-5)||
+                   !close(normal[c],expected.registeredWorldNormal[c],2.0e-4))
+                    return fail("whole-body reduced renderer point differs from its pinned registered donor frame");
+            }
+            for(unsigned c=0;c<9;c++)if(!close(frame[c],expected.worldToDonorLocalLinear[c],2.0e-5))
+                return fail("whole-body reduced normal frame differs from its pinned registered donor frame");
+            region.worldPoints.push_back(world);region.donorLocalPoints.push_back(local);
+            region.outwardWorldNormals.push_back(normal);
+            region.worldToDonorLocalLinear.push_back(frame);
         }
-        for(unsigned c=0;c<9;c++)if(!close(frame[c],expected.worldToDonorLocalLinear[c],2.0e-5))
-            return fail("whole-body reduced normal frame differs from its pinned registered donor frame");
-        region.worldPoints.push_back(world);region.donorLocalPoints.push_back(local);
-        region.outwardWorldNormals.push_back(normal);region.donorBodyIndices.push_back(source.donorBodyIndices[v]);
-        region.worldToDonorLocalLinear.push_back(frame);
+        region.donorBodyIndices.push_back(source.donorBodyIndices[v]);
     }
     region.faces.assign(kWholeBodySkinFaces.begin(),kWholeBodySkinFaces.end());
     region.sourceVertexIndices.assign(kWholeBodySkinSourceVertices.begin(),kWholeBodySkinSourceVertices.end());
@@ -209,6 +236,7 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         const auto f=region.faces[i];for(auto v:f)if(v>=region.worldPoints.size())return fail("whole-body reduced face index is out of range");
         if(region.sourceFaceIndices[i]>=source.faces.size())return fail("whole-body reduced face parent is outside the source payload");
     }
+    if(placementOut) *placementOut=placement;
     // The caller validates the exact original frames, applies the pinned repair,
     // then audits the repaired surface before any volume or runtime assembly.
     return true;

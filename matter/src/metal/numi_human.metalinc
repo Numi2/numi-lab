@@ -319,6 +319,15 @@ inline bool validBody(
         bodyIndex - dispatch.articulationFirstBody < dispatch.bodyPoseStride;
 }
 
+// Metal has no expm1 intrinsic. This sixth-order branch avoids cancellation
+// near slack; its truncation error at |x|=1/8 is below Float32 rounding.
+inline float humanLigamentExpm1(const float x) {
+    if(abs(x)<0.125f)
+        return x*(1.0f+x*(0.5f+x*(1.0f/6.0f+x*(1.0f/24.0f+
+            x*(1.0f/120.0f+x*(1.0f/720.0f))))));
+    return exp(x)-1.0f;
+}
+
 inline bool passiveLigamentState(
     const uint environment,
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
@@ -367,13 +376,12 @@ inline bool passiveLigamentState(
     if (effectiveStretch > 1.0f &&
         effectiveStretch < ligament.material.w) {
         stress = ligament.material.x *
-            (exp(ligament.material.y * (effectiveStretch - 1.0f)) - 1.0f);
+            humanLigamentExpm1(ligament.material.y * (effectiveStretch - 1.0f));
     } else if (effectiveStretch >= ligament.material.w) {
-        const float c6 = ligament.material.x *
-                (exp(ligament.material.y *
-                    (ligament.material.w - 1.0f)) - 1.0f) -
-            ligament.material.z * ligament.material.w;
-        stress = ligament.material.z * effectiveStretch + c6;
+        const float transitionStress = ligament.material.x *
+            humanLigamentExpm1(ligament.material.y * (ligament.material.w - 1.0f));
+        stress = transitionStress +
+            ligament.material.z * (effectiveStretch - ligament.material.w);
     }
     tension = stress * ligament.reference.y;
     if (!isfinite(effectiveStretch) || effectiveStretch <= 0.0f ||

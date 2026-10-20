@@ -87,6 +87,23 @@ inline void fgmresCompensatedAdd(
     sum = next;
 }
 
+// Keep the inner linear residual below the same normalized absolute bound
+// used by the outer vascular equation certificate. The relative forcing term
+// remains authoritative for nonvascular systems and whenever it is stricter.
+inline float fgmresResidualTarget(
+    const uint vascularUnknownCount,
+    const float vascularResidualTolerance,
+    const float forcing,
+    const float forcingFloor,
+    const float initialNorm
+) {
+    const float relativeTarget =
+        clamp(forcing, forcingFloor, 0.5f) * initialNorm;
+    return vascularUnknownCount == 0u
+        ? relativeTarget
+        : min(relativeTarget, vascularResidualTolerance);
+}
+
 inline uint fgmresMatrixIndex(
     const uint object,
     const uint row,
@@ -1315,6 +1332,8 @@ kernel void nm_fgmres_begin(
         leastSquares[fgmresVectorIndex(environment, index)] = 0.0f;
     threadgroup_barrier(mem_flags::mem_device);
     const float norm = sqrt(max(norm2, 0.0f));
+    const float initialNorm = restartCycle == 0u
+        ? norm : previousDiagnostics.y;
     const float firstNewtonNorm = nonlinearIteration == 0u &&
         restartCycle == 0u ? norm : previousNonlinear.x;
     const bool hasActiveContact =
@@ -1366,16 +1385,16 @@ kernel void nm_fgmres_begin(
         (restartCycle > 0u && completed &&
          previousNonlinear.w > 0.5f);
     if (lane == 0u) {
-        const float initialNorm = restartCycle == 0u
-            ? norm : previousDiagnostics.y;
         // regularization.x is the matrix diagonal floor, not a residual
-        // unit. An absolute stop here makes a mass-scaled gravity row vanish
-        // as a FEM mesh is refined. FGMRES itself therefore stops only on its
-        // relative forcing target (or an exactly zero residual); the final
-        // assembled nonlinear certificate remains publication authority.
-        const float target =
-            clamp(forcing, solver.residualTolerances.x, 0.5f) *
-            initialNorm;
+        // unit. Keep the relative forcing rule for mechanical systems, and
+        // also require vascular-coupled solves to reach their authored
+        // normalized absolute residual bound before accepting the inner solve.
+        const float target = fgmresResidualTarget(
+            layout.vascularUnknownCount,
+            layout.vascularResidualTolerance,
+            forcing,
+            solver.residualTolerances.x,
+            initialNorm);
         const bool converged = completed || nonlinearConverged ||
             norm <= target;
         leastSquares[fgmresVectorIndex(environment, 0u)] =
@@ -1397,8 +1416,12 @@ kernel void nm_fgmres_begin(
         );
     }
     if (!active || nonlinearConverged || norm == 0.0f ||
-        norm <= clamp(forcing, solver.residualTolerances.x, 0.5f) *
-            (restartCycle == 0u ? norm : previousDiagnostics.y)) return;
+        norm <= fgmresResidualTarget(
+            layout.vascularUnknownCount,
+            layout.vascularResidualTolerance,
+            forcing,
+            solver.residualTolerances.x,
+            initialNorm)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
@@ -5692,13 +5715,21 @@ kernel void nm_fgmres_measure_true_residual(
         const float trueNorm = sqrt(max(norm2, 0.0f));
         const float arnoldiEstimate = state.diagnostics.x;
         const float initialNorm = state.diagnostics.y;
-        const float target = clamp(
-            forcing, solver.residualTolerances.x, 0.5f) * initialNorm;
+        const float target = fgmresResidualTarget(
+            layout.vascularUnknownCount,
+            layout.vascularResidualTolerance,
+            forcing,
+            solver.residualTolerances.x,
+            initialNorm);
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
-            const float nonlinearThreshold = max(
+            const float mechanicalNonlinearThreshold = max(
                 solver.regularization.x,
                 solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+            const float nonlinearThreshold = layout.vascularUnknownCount == 0u
+                ? mechanicalNonlinearThreshold
+                : min(mechanicalNonlinearThreshold,
+                      layout.vascularResidualTolerance);
             // Experimental stricter inexact-Newton solve. A small linear
             // residual is not an outer equilibrium certificate. Keep a
             // still-active RHS on its forcing target rather than stopping
@@ -6113,9 +6144,12 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         state.diagnostics.x = residual;
         state.diagnostics.w = float(column + 1u);
         state.diagnostics.z =
-            residual == 0.0f || residual <=
-                clamp(forcing, solver.residualTolerances.x, 0.5f) *
-                    state.diagnostics.y
+            residual == 0.0f || residual <= fgmresResidualTarget(
+                layout.vascularUnknownCount,
+                layout.vascularResidualTolerance,
+                forcing,
+                solver.residualTolerances.x,
+                state.diagnostics.y)
             ? 1.0f : 0.0f;
     }
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
@@ -6146,6 +6180,7 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
 
 kernel void nm_fgmres_finalize_cycle(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device float* hessenberg [[buffer(2)]],
     device float* leastSquares [[buffer(3)]],
@@ -6212,22 +6247,30 @@ kernel void nm_fgmres_finalize_cycle(
         leastSquares[fgmresVectorIndex(environment, uint(row))] =
             abs(diagonal) > solver.regularization.x ? value / diagonal : 0.0f;
     }
-    const float relativeResidual = state.diagnostics.y > 0.0f
-        ? state.diagnostics.x / state.diagnostics.y
-        : state.diagnostics.x;
+    const float target = fgmresResidualTarget(
+        layout.vascularUnknownCount,
+        layout.vascularResidualTolerance,
+        forcing,
+        solver.residualTolerances.x,
+        state.diagnostics.y);
     const bool converged = state.diagnostics.z > 0.5f;
     // The inner solve may reach the authored outer equilibrium tolerance
     // before satisfying the next Eisenstat-Walker forcing term. Let the next
     // Newton assembly certify that full KKT residual instead of latching a
     // linear failure at an already acceptable absolute residual.
-    const float nonlinearThreshold = max(
+    const float mechanicalNonlinearThreshold = max(
         solver.regularization.x,
         solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+    const float nonlinearThreshold = layout.vascularUnknownCount == 0u
+        ? mechanicalNonlinearThreshold
+        : min(mechanicalNonlinearThreshold,
+              layout.vascularResidualTolerance);
     const bool reachedNonlinearTarget = used > 0u && state.nonlinear.w > 0.5f &&
         state.diagnostics.x <= nonlinearThreshold;
+    // diagnostics.x is the Arnoldi estimate until the optional true-residual
+    // pass runs; it is never published as a measured residual certificate.
     const bool cycleAccepted = converged || reachedNonlinearTarget ||
-        (used > 0u && relativeResidual <= clamp(
-            forcing, solver.residualTolerances.x, 0.5f));
+        (used > 0u && state.diagnostics.x <= target);
     // Completion belongs to the accepted cycle, not to the configured upper
     // bound on restart cycles. Latch it here so increasing that upper bound
     // preserves the already accepted Krylov prefix; the statically encoded

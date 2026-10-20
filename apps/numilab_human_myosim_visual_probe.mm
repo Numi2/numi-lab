@@ -4,6 +4,7 @@
 #include "NumiHumanSeparationModel.hpp"
 #include "NumiHumanOrganRelease.hpp"
 #include "NumiHumanInferredACL.hpp"
+#include "NumiHumanRegisteredLigaments.hpp"
 #include "NumiHumanReducedPassiveFascia.hpp"
 #include "NumiHumanSkinFEMIntegration.wholebody.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
@@ -3994,6 +3995,9 @@ struct RestingFEMAuditRange {
 
 struct HumanTendonContinuumTransaction {
     bool restingSharedPassiveOwner = false;
+    std::uint32_t expectedPassiveLigamentCount = 0u;
+    std::uint32_t expectedRegisteredLigamentCount = 0u;
+    std::uint32_t expectedLegacyFasciaLigamentCount = 0u;
     bool restingCouplingOwnsScheduling = false;
     std::vector<std::array<std::uint32_t,4>> restingAuditTetrahedra;
     std::vector<RestingFEMAuditRange> restingFEMAuditRanges;
@@ -6433,13 +6437,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             <<" max_abs_delta_from_seed="<<maxAbsDeltaFromSeed
             <<" max_abs_delta_from_packed_seed="<<maxAbsDeltaFromPackedSeed
             <<" changed_q_indices="<<changedQ.str()<<std::endl;
+        // Equality projection is repeated during recruitment. Permit only two
+        // Float32 ULPs of its round trip, never a posture-search displacement.
+        const auto sameFloat32Pose=[](float actual,float seed) {
+            if(!std::isfinite(actual)||!std::isfinite(seed))return false;
+            float lo=seed,hi=seed;
+            for(unsigned i=0;i<2u;++i) {
+                lo=std::nextafter(lo,-std::numeric_limits<float>::infinity());
+                hi=std::nextafter(hi,std::numeric_limits<float>::infinity());
+            }
+            return actual>=lo&&actual<=hi;
+        };
         require(q.size() == seedPoseQ.size() &&
-                    std::equal(q.begin(), q.end(), seedPoseQ.begin()),
-                "resting initialization changed the authored posture");
+                    std::equal(q.begin(), q.end(), seedPoseQ.begin(),sameFloat32Pose),
+                "resting initialization changed the authored posture beyond Float32 projection roundoff");
         require(std::all_of(model.defaultV.begin(), model.defaultV.end(),
                     [](double value) { return value == 0.0; }),
                 "fresh resting posture requires zero source initial velocity");
-        std::cout << "resting_initial_posture=preserved world_translation_applied_m=0"
+        std::cout << "resting_initial_posture=preserved_to_float32_projection_roundoff world_translation_applied_m=0"
                   << " initial_velocity=zero muscles=fresh_source_recruitment"
                   << " physiology=fresh_reference controller=fresh_reference"
                   << " qualification=construction_posture_not_restart\n";
@@ -10715,8 +10730,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 fasciaTetCount+=range.tetrahedronCount;
             }
             require(adapterDiagnostics.initialized &&
-                        adapterDiagnostics.passiveLigamentCount == 0u,
-                    "resting fascia FEM retained legacy passive ligament force rows");
+                        adapterDiagnostics.passiveLigamentCount ==
+                            continuumTransaction->expectedPassiveLigamentCount,
+                    "resting shared FEM passive ligament row count changed");
+            const std::uint32_t registeredLigamentRows =
+                continuumTransaction->expectedRegisteredLigamentCount;
+            const std::uint32_t legacyFasciaLigamentRows =
+                continuumTransaction->expectedLegacyFasciaLigamentCount;
             require(fasciaObjectCount==12u && fasciaNodeCount==1202u &&
                         fasciaTetCount==2127u,
                     "resting 26-region fascia terminal FEM identity or topology is invalid");
@@ -10725,6 +10745,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 << " objects=" << fasciaObjectCount
                 << " nodes=" << fasciaNodeCount
                 << " tetrahedra=" << fasciaTetCount
+                << " registered_ligament_force_rows=" << registeredLigamentRows
+                << " legacy_fascia_reduced_ligament_rows=" << legacyFasciaLigamentRows
+                << " passive_ligament_latest_transaction_accepted="
+                << adapterDiagnostics.passiveLigamentLatestTransactionAccepted
+                << " passive_ligament_max_tension_N="
+                << adapterDiagnostics.passiveLigamentMaximumTensionNewtons
+                << " passive_ligament_min_effective_stretch="
+                << adapterDiagnostics.passiveLigamentMinimumEffectiveStretch
+                << " passive_ligament_max_effective_stretch="
+                << adapterDiagnostics.passiveLigamentMaximumEffectiveStretch
+                << " passive_ligament_force_residual_N="
+                << adapterDiagnostics.passiveLigamentForceResidualNewtons
+                << " passive_ligament_moment_residual_Nm="
+                << adapterDiagnostics.passiveLigamentMomentResidualNewtonMeters
                 << " body_contact_samples="
                 << adapterDiagnostics.femBodyContactSampleCount
                 << " body_contact_audited_steps="
@@ -10737,8 +10771,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 << adapterDiagnostics.femBodyContactForceResidualNewtons
                 << " body_contact_moment_residual_Nm="
                 << adapterDiagnostics.femBodyContactMomentResidualNewtonMeters
-                << " legacy_passive_force_rows="
+                << " total_passive_ligament_force_rows="
                 << adapterDiagnostics.passiveLigamentCount
+                << " legacy_passive_force_rows="
+                << legacyFasciaLigamentRows
                 << " accepted_steps=" << stepCount
                 << " capture=terminal_only" << std::endl;
         }
@@ -18209,6 +18245,8 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<metalrobo::NumiHumanTissueMassPartition> massPartitions;
     std::vector<metalrobo::inferred_acl::Provenance> aclProvenance;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+    std::uint32_t registeredLigamentRowCount = 0u;
+    std::vector<metalrobo::registered_ligaments::Provenance> registeredLigamentProvenance;
     std::vector<std::array<std::uint32_t,4u>> fasciaStripAnchorIdentity;
     std::vector<std::array<std::uint32_t,4>> auditTetrahedra;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
@@ -18248,7 +18286,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     LoadedTorsoAnatomy* anatomy,
     const std::filesystem::path* anatomyPayloadPath,
     std::span<const std::uint32_t> sourceBodyMap,
-    bool includeInferredACL, bool includeProstate, bool includeOrganBatch, bool enableAorticWall, bool enableAorticWallOuterContact, bool enableWholeBodySkinFat, const char* restingNetwork,
+    bool includeInferredACL, bool includeProstate, bool includeOrganBatch, bool enableAorticWall, bool enableAorticWallOuterContact, bool enableWholeBodySkinFat, bool enableRegisteredLigaments, bool hipCapsuleAggregateOwner, const char* restingNetwork,
     std::span<const float> q, double dt,
     const std::filesystem::path& matterMetallib,
     bool preparationOnly = false
@@ -18259,6 +18297,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     const bool includeOpticNerves = humanRestingOpticNerveFEMEnabledForApp();
     require(!enableWholeBodySkinFat || skin != nullptr,
             "whole-body skin-fat FEM requires the retained registered skin payload");
+    require(!enableRegisteredLigaments || bones != nullptr,
+            "registered ligament rows require the retained registered bone payload");
 
     constexpr std::uint32_t kRestingFasciaObjectCount = 12u;
     constexpr std::array<std::uint32_t, kRestingFasciaObjectCount>
@@ -19050,6 +19090,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
               << " myosim_manifest_sha256="
               << loadedKneeSHA256Hex(fascia.header.myosimManifestSha256) << "\n";
     std::vector<metalrobo::inferred_acl::BuiltObject> aclObjects;
+    std::vector<metalrobo::registered_ligaments::Built> registeredLigaments;
     if(includeInferredACL) {
         require(bones&&bones->sourceOwnerBindingsVerified&&
                     bones->sourceRecordIndices.size()==bones->records.size(),
@@ -19128,6 +19169,137 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             source.objects.push_back(built.object);
             aclObjects.push_back(std::move(built));
         }
+    }
+    if(enableRegisteredLigaments) {
+        require(bones&&bones->sourceOwnerBindingsVerified&&
+                    bones->sourceRecordIndices.size()==bones->records.size(),
+                "registered ligament catalog requires source-bound bone records");
+        const auto runtimeBody=[&](std::uint32_t sourceBody) {
+            require(sourceBodyMap.empty()||sourceBody<sourceBodyMap.size(),
+                    "registered ligament source body outside runtime map");
+            const auto body=sourceBodyMap.empty()?sourceBody:sourceBodyMap[sourceBody];
+            require(body<model.bodies.size()&&body<bodies.size(),
+                    "registered ligament source body maps outside rigid model");
+            return body;
+        };
+        const auto catalog=metalrobo::registered_ligaments::referenceCatalog();
+        std::vector<metalrobo::inferred_acl::BoneSurfaceStorage> storage;
+        storage.reserve(bones->records.size());
+        const auto ensureRuntimeSurface=[&](std::uint32_t body,std::uint32_t stableID) {
+            require(body<bodies.size(),
+                    "registered ligament source mesh runtime body is absent");
+            if(std::find_if(storage.begin(),storage.end(),[&](const auto& item) {
+                    return item.body==body&&item.stableId==stableID;
+                })!=storage.end()) return;
+            std::uint32_t record=MR_INVALID_INDEX;
+            for(std::uint32_t i=0;i<bones->records.size();++i)
+                if(bones->records[i].bodyIndex==body&&
+                   bones->records[i].stableId==stableID) {
+                    require(record==MR_INVALID_INDEX,
+                        "registered ligament stable bone identity is ambiguous");
+                    record=i;
+                }
+            require(record!=MR_INVALID_INDEX&&
+                        bones->sourceRecordIndices[record]!=MR_INVALID_INDEX,
+                    "registered ligament stable bone surface is absent");
+            storage.push_back(metalrobo::inferred_acl::bakeRegisteredBoneSurface(
+                bones->records[record],bones->sourceRecordIndices[record],
+                std::span<const BoneVertex>(bones->vertices),
+                std::span<const std::uint32_t>(bones->indices),bodies.at(body),
+                bones->payloadSha256));
+        };
+        const auto ensureSurface=[&](std::uint32_t sourceBody,std::uint32_t stableID) {
+            ensureRuntimeSurface(runtimeBody(sourceBody),stableID);
+        };
+        for(const auto& spec:catalog) {
+            ensureSurface(spec.body0,spec.stable0);
+            ensureSurface(spec.body1,spec.stable1);
+        }
+        for(const auto& record:bones->records)
+            ensureRuntimeSurface(record.bodyIndex,record.stableId);
+        std::vector<metalrobo::inferred_acl::BoneSurface> surfaces;
+        surfaces.reserve(storage.size());
+        for(const auto& item:storage) surfaces.push_back(item.view());
+        require(surfaces.size()==bones->records.size(),
+                "registered ligament all-source path guard surface count differs from bone payload");
+        const metalrobo::registered_ligaments::OwnershipPolicy ownership{
+            false,includeInferredACL,hipCapsuleAggregateOwner,false};
+        registeredLigaments.reserve(catalog.size());
+        std::string cookFailureSummary;
+        std::uint32_t cookFailureCount=0;
+        for(const auto& spec:catalog) {
+            try {
+                registeredLigaments.push_back(
+                    metalrobo::registered_ligaments::cookReference(
+                        spec,model,bodies,surfaces,sourceBodyMap,ownership));
+            } catch(const std::exception& error) {
+                std::string rowFailure="registered ligament build failed name="+
+                    std::string(spec.name)+" side="+std::to_string(spec.side)+
+                    " bodies="+std::to_string(spec.body0)+","+
+                    std::to_string(spec.body1)+" stable_ids="+
+                    std::to_string(spec.stable0)+","+std::to_string(spec.stable1)+
+                    " cause="+error.what();
+                std::cerr << rowFailure << '\n';
+                if(!cookFailureSummary.empty())cookFailureSummary+=" || ";
+                cookFailureSummary+=rowFailure;
+                ++cookFailureCount;
+            }
+        }
+        if(cookFailureCount!=0u) {
+            std::cerr << std::setprecision(9)
+                << "registered_ligament_actual_pose_json={\"schema\":\"registered_ligament_actual_pose_v1\",\"bonePayloadSha256\":\""
+                << loadedKneeSHA256Hex(bones->payloadSha256) << "\",\"poseQ\":[";
+            for(std::size_t i=0;i<q.size();++i) {
+                if(i)std::cerr << ',';
+                std::cerr << q[i];
+            }
+            std::cerr << "],\"bodyPoses\":[";
+            for(std::size_t i=0;i<bodies.size();++i) {
+                if(i)std::cerr << ',';
+                const auto& body=bodies[i];
+                std::cerr << '[' << body.position.x << ',' << body.position.y << ','
+                    << body.position.z << ',' << body.orientation.x << ','
+                    << body.orientation.y << ',' << body.orientation.z << ','
+                    << body.orientation.w << ']';
+            }
+            std::cerr << "],\"sourceBodyMap\":[";
+            for(std::size_t i=0;i<sourceBodyMap.size();++i) {
+                if(i)std::cerr << ',';
+                std::cerr << sourceBodyMap[i];
+            }
+            std::cerr << "],\"frames\":[";
+            std::vector<std::uint32_t> emittedFrameIndices;
+            bool firstFrame=true;
+            for(const auto& spec:catalog) {
+                try {
+                    const auto frame=metalrobo::registered_ligaments::detail::frame(
+                        spec,model,bodies,sourceBodyMap);
+                    if(std::find(emittedFrameIndices.begin(),emittedFrameIndices.end(),
+                                 frame.index)!=emittedFrameIndices.end())continue;
+                    emittedFrameIndices.push_back(frame.index);
+                    if(!firstFrame)std::cerr << ',';
+                    firstFrame=false;
+                    std::cerr << '[' << frame.index << ',' << frame.parent << ','
+                        << frame.child << ',' << frame.p[0] << ',' << frame.p[1] << ','
+                        << frame.p[2] << ',' << frame.q.x << ',' << frame.q.y << ','
+                        << frame.q.z << ',' << frame.q.w << ']';
+                } catch(const std::exception&) {
+                }
+            }
+            std::cerr << "]}\n";
+        }
+        require(cookFailureCount==0u&&registeredLigaments.size()==catalog.size()&&
+                    !catalog.empty(),
+                "registered ligament catalog cook failed rows="+
+                    std::to_string(cookFailureCount)+" details="+cookFailureSummary);
+        std::cerr << "registered_ligament_source_geometry=admitted"
+                  << " rows=" << registeredLigaments.size()
+                  << " retained_source_bone_meshes=" << surfaces.size()
+                  << " source_bone_records=" << bones->records.size()
+                  << " bone_payload_sha256="
+                  << loadedKneeSHA256Hex(bones->payloadSha256)
+                  << " path_guard=all_current_pose_registered_meshes"
+                  << " endpoint_projection=bounded_current_registered_surface\n";
     }
     // Keep bilateral ACL objects as the compiled source prefix because their
     // existing anchor/load maps are packed from node zero. All regional
@@ -19227,6 +19399,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(skinSourceMember.size()>0u&&skinSourcePayloadSHA256.size()==64u,
                 "registered skin FEM requires its exact retained payload path and SHA-256");
         RegisteredSurface region;std::string tissueError;
+        RegisteredSkinRigidPlacement skinPlacement;
         const auto pose=std::span<const MRBodyStateGPU>(bodies);
         metalrobo::MetalArticulatedOperatorInput skinRestInput;
         skinRestInput.articulationIndex=0u;skinRestInput.environmentCount=1u;skinRestInput.q=model.defaultQ;
@@ -19253,7 +19426,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             static_cast<std::uint32_t>(skin->indices.size()/3u-1u));
         require(makeRegisteredSkinMechanicalRegion(*skin,"BodyParts3D",skinSourceMember,skinSourcePayloadSHA256,
                     positionAt,normalAt,localAt,ownerAt,frameAt,skinSeedFace,
-                    enableWholeBodySkinFat?0u:64u,region,tissueError),
+                    enableWholeBodySkinFat?0u:64u,region,tissueError,
+                    enableWholeBodySkinFat?&skinPlacement:nullptr),
                 "registered BodyParts3D mechanical skin surface rejected: "+tissueError);
         RegisteredSkinMechanicalDeltaAudit wholeBodyMechanicalAudit{};
         if(enableWholeBodySkinFat) {
@@ -19370,6 +19544,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         skinThicknessProvenance,fatThicknessProvenance,skinLayer,fatLayer,tissueError),
                     "registered skin/fat reference layers rejected: "+tissueError);
         }
+        if(enableWholeBodySkinFat) {
+            // One initialization placement for the entire bonded material reference.
+            // Local anchors, topology, thickness, source repairs and mass are invariant.
+            for(auto& p:region.worldPoints)p=skinPlacement.point(p);
+            for(auto& n:region.outwardWorldNormals)n=skinPlacement.vector(n);
+            for(auto& m:region.worldToDonorLocalLinear)m=skinPlacement.donorFrame(m);
+            skinLayer.outerWorld=region.worldPoints;
+            for(auto& p:skinLayer.innerWorld)p=skinPlacement.point(p);
+            fatLayer.outerWorld=skinLayer.innerWorld;
+            for(auto& p:fatLayer.innerWorld)p=skinPlacement.point(p);
+            std::cout<<"whole_body_skin_rigid_placement validated_vertices="<<skinPlacement.validatedVertices
+                <<" max_point_residual_m="<<skinPlacement.maximumPointResidualM
+                <<" max_local_residual_m="<<skinPlacement.maximumLocalResidualM
+                <<" max_normal_residual="<<skinPlacement.maximumNormalResidual
+                <<" max_frame_residual="<<skinPlacement.maximumFrameResidual<<"\n";
+        }
         const double skinDebit=skinLayer.volumeM3*1000.0,fatDebit=fatLayer.volumeM3*900.0;
         if(enableWholeBodySkinFat) {
             require(skinLayer.innerWorld.size()==region.worldPoints.size()&&
@@ -19393,6 +19583,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             loadedKneeSHA256Hex(loadedKneeFileSHA256(skinMaterialPath))+"|"+
             loadedKneeSHA256Hex(loadedKneeFileSHA256(fatMaterialPath));
         if(enableWholeBodySkinFat){
+            identityText+="|common-rigid-placement-v1|";
+            identityText.append(reinterpret_cast<const char*>(skinPlacement.rotation.data()),skinPlacement.rotation.size()*sizeof(double));
+            identityText.append(reinterpret_cast<const char*>(skinPlacement.translation.data()),skinPlacement.translation.size()*sizeof(double));
             identityText+="|whole-body-reduction-v2|reduction_sha256=";
             identityText.append(kWholeBodySkinReductionSHA256.data(),kWholeBodySkinReductionSHA256.size());
             identityText+="|source_csv_sha256=";
@@ -20800,6 +20993,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         auto o=offset(b);p.x=float(double(p.x)-o[0]);
         p.y=float(double(p.y)-o[1]);p.z=float(double(p.z)-o[2]);
     };
+    for(auto& built:registeredLigaments) {
+        shift(built.row.firstLocalPoint,built.row.firstBodyIndex);
+        shift(built.row.secondLocalPoint,built.row.secondBodyIndex);
+    }
     const auto shiftArray=[&](auto& p,std::uint32_t b) {
         auto o=offset(b);for(unsigned a=0;a<3;++a)p[a]-=o[a];
     };
@@ -20885,6 +21082,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->preparationOnly=preparationOnly;
     for(const auto& tet:compiled.world.fem.tetrahedra)owner->auditTetrahedra.push_back({tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w});
     for(const auto& acl:aclObjects) owner->aclProvenance.push_back(acl.provenance);
+    for(auto& built:registeredLigaments) {
+        owner->passiveLigaments.push_back(built.row);
+        owner->registeredLigamentProvenance.push_back(std::move(built.provenance));
+    }
+    owner->transaction.expectedPassiveLigamentCount=
+        static_cast<std::uint32_t>(owner->passiveLigaments.size());
+    owner->registeredLigamentRowCount=
+        static_cast<std::uint32_t>(registeredLigaments.size());
+    owner->transaction.expectedRegisteredLigamentCount=
+        owner->registeredLigamentRowCount;
+    owner->transaction.expectedLegacyFasciaLigamentCount=
+        owner->transaction.expectedPassiveLigamentCount-
+        owner->transaction.expectedRegisteredLigamentCount;
+    require(owner->registeredLigamentProvenance.size()==
+                owner->registeredLigamentRowCount,
+            "registered ligament rows lost aligned source provenance");
 
     if(!preparationOnly) {
         const auto init=owner->runtime.initialize(compiled.world,{
@@ -20907,6 +21120,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(initialAdapter.available&&initialAdapter.encodedPassCount==0u&&
                 initialAdapter.abortCount==0u,"resting fascia adapter initial state unavailable");
         owner->transaction.restingSharedPassiveOwner=true;
+        owner->transaction.expectedPassiveLigamentCount=
+            static_cast<std::uint32_t>(owner->passiveLigaments.size());
+        owner->transaction.expectedRegisteredLigamentCount=
+            owner->registeredLigamentRowCount;
+        owner->transaction.expectedLegacyFasciaLigamentCount=
+            owner->transaction.expectedPassiveLigamentCount-
+            owner->transaction.expectedRegisteredLigamentCount;
         owner->transaction.restingAuditTetrahedra=owner->auditTetrahedra;
         owner->transaction.restingFEMAuditRanges=std::move(auditRanges);
         owner->transaction.restingFEMAuditAnchorBodies.resize(owner->nodeAnchors.size(),NM_INVALID_INDEX);
@@ -25828,6 +26048,7 @@ int main(int argc, char** argv) {
             std::optional<double> restingReferenceMassKg;
             std::optional<std::array<double,3>> restingDriveIntervention;
             bool restingHipCapsuleReference = false;
+            bool restingRegisteredLigaments = false;
             std::optional<double> restingHipCapsuleScale;
 #endif
             for (int index = 1; index < argc; ++index) {
@@ -25867,6 +26088,12 @@ int main(int argc, char** argv) {
                     require(!restingHipCapsuleReference,
                             "--resting-hip-capsule-reference may be given only once");
                     restingHipCapsuleReference = true;
+                    continue;
+                }
+                if(argument=="--resting-registered-ligaments") {
+                    require(!restingRegisteredLigaments,
+                            "--resting-registered-ligaments may be given only once");
+                    restingRegisteredLigaments=true;
                     continue;
                 }
                 if(argument=="--resting-hip-capsule-scale") {
@@ -26303,7 +26530,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--resting-release-initialization] [--resting-initial-posture <completed-native-log>] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--source-mtp-passive-stiffness-nm-per-rad <finite-nonnegative>] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--resting-release-initialization] [--resting-initial-posture <completed-native-log>] [--resting-hip-capsule-reference] [--resting-registered-ligaments] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--source-mtp-passive-stiffness-nm-per-rad <finite-nonnegative>] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
                           << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
                           << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
@@ -27051,6 +27278,12 @@ int main(int argc, char** argv) {
             require(!restingHipCapsuleScale.has_value() ||
                         restingHipCapsuleReference,
                     "--resting-hip-capsule-scale requires --resting-hip-capsule-reference");
+            require(!restingRegisteredLigaments ||
+                        (restingScene.has_value() && persistentMetalStand &&
+                         !persistentRuntimeWithoutPassiveJointTissue),
+                    "--resting-registered-ligaments requires a persistent resting source-passive owner");
+            require(!(restingRegisteredLigaments&&restingHipCapsuleReference),
+                    "registered hip capsule rows and --resting-hip-capsule-reference are mutually exclusive");
 #endif
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
@@ -28506,6 +28739,9 @@ int main(int argc, char** argv) {
                 const auto appendTextSource=[&](std::string_view domain,std::string_view value) {
                     appendSource(domain,std::as_bytes(std::span(value.data(),value.size())));
                 };
+                if(restingRegisteredLigaments) appendTextSource(
+                    "resting_registered_ligament_catalog_schema_v1",
+                    metalrobo::registered_ligaments::kReferenceCatalogSchema);
                 appendSource("NHEQ",payloadBytes(*jointEqualityPayloadPath));
                 if(restingRigidHands)appendSource("resting_rigid_hand_reference_reduction_v1",
                     std::as_bytes(std::span(jointEqualityPayload->payload.records)));
@@ -29348,7 +29584,8 @@ int main(int argc, char** argv) {
                             bonePayload->sourceOwnerBindingsVerified,
                         restingProstateFEMEnabled,restingOrganBatchFEMEnabled,
                         restingAorticWallEnabled,restingAorticWallOuterContactEnabled,
-                        restingWholeBodySkinFatFEMEnabled,restingScene->first.c_str(),
+                        restingWholeBodySkinFatFEMEnabled,restingRegisteredLigaments,
+                        restingHipCapsuleReference,restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
                         passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),true);
                     if(restingPassiveFasciaOwner->aorticWall) {
@@ -29454,11 +29691,75 @@ int main(int argc, char** argv) {
                         std::as_bytes(std::span(rigid.model.joints)));
                     appendSource("resting_fascia_executed_sites_v1",
                         std::as_bytes(std::span(musclePayload.gpuSites)));
-                    if(!restingPassiveFasciaOwner->fasciaStripAnchorIdentity.empty()) {
+                    const auto& ligamentOwner=*restingPassiveFasciaOwner;
+                    require(ligamentOwner.passiveLigaments.size()>=
+                                ligamentOwner.registeredLigamentRowCount &&
+                                ligamentOwner.registeredLigamentProvenance.size()==
+                                    ligamentOwner.registeredLigamentRowCount,
+                            "registered ligament row/provenance partition exceeds shared adapter rows");
+                    const auto legacyFasciaCount=ligamentOwner.passiveLigaments.size()-
+                        ligamentOwner.registeredLigamentRowCount;
+                    if(!ligamentOwner.fasciaStripAnchorIdentity.empty()) {
+                        require(ligamentOwner.fasciaStripAnchorIdentity.size()==legacyFasciaCount,
+                                "legacy fascia strip identity/row count mismatch");
                         appendSource("resting_fascia_reduced_strip_anchor_ids_v1",
-                            std::as_bytes(std::span(restingPassiveFasciaOwner->fasciaStripAnchorIdentity)));
+                            std::as_bytes(std::span(ligamentOwner.fasciaStripAnchorIdentity)));
                         appendSource("resting_fascia_reduced_strip_rows_v1",
-                            std::as_bytes(std::span(restingPassiveFasciaOwner->passiveLigaments)));
+                            std::as_bytes(std::span(ligamentOwner.passiveLigaments.data(),
+                                                   legacyFasciaCount)));
+                    }
+                    if(ligamentOwner.registeredLigamentRowCount!=0u) {
+                        appendSource("resting_registered_ligament_gpu_rows_v1",
+                            std::as_bytes(std::span(
+                                ligamentOwner.passiveLigaments.data()+legacyFasciaCount,
+                                ligamentOwner.registeredLigamentRowCount)));
+                        for(std::size_t row=0;row<ligamentOwner.registeredLigamentRowCount;++row) {
+                            const auto& provenance=ligamentOwner.registeredLigamentProvenance[row];
+                            const std::string suffix=std::to_string(row)+"_"+provenance.name+
+                                "_side_"+std::to_string(provenance.side);
+                            const std::array<std::uint32_t,15u> ids{
+                                static_cast<std::uint32_t>(row),provenance.side,provenance.group,
+                                provenance.body0,provenance.body1,provenance.stable0,provenance.stable1,
+                                provenance.record0,provenance.record1,provenance.frameJoint,
+                                provenance.frameParent,provenance.frameChild,
+                                provenance.areaMeasured?1u:0u,
+                                provenance.areaIsAssumedSplit?1u:0u,
+                                provenance.seedLateralityMirrored?1u:0u};
+                            appendSource("resting_registered_ligament_ids_"+suffix,
+                                std::as_bytes(std::span(ids)));
+                            const std::array<double,37u> values{
+                                provenance.residual0M,provenance.residual1M,
+                                provenance.stiffnessNPerM,provenance.areaM2,
+                                provenance.c3Pa,provenance.c4,provenance.c5Pa,
+                                provenance.lambdaMax,provenance.referenceLengthM,
+                                provenance.inSituStretch,
+                                provenance.seedOffset0FrameM[0],provenance.seedOffset0FrameM[1],
+                                provenance.seedOffset0FrameM[2],provenance.seedOffset1FrameM[0],
+                                provenance.seedOffset1FrameM[1],provenance.seedOffset1FrameM[2],
+                                provenance.referenceBody0Pose[0],provenance.referenceBody0Pose[1],
+                                provenance.referenceBody0Pose[2],provenance.referenceBody0Pose[3],
+                                provenance.referenceBody0Pose[4],provenance.referenceBody0Pose[5],
+                                provenance.referenceBody0Pose[6],provenance.referenceBody1Pose[0],
+                                provenance.referenceBody1Pose[1],provenance.referenceBody1Pose[2],
+                                provenance.referenceBody1Pose[3],provenance.referenceBody1Pose[4],
+                                provenance.referenceBody1Pose[5],provenance.referenceBody1Pose[6],
+                                provenance.referenceFramePose[0],provenance.referenceFramePose[1],
+                                provenance.referenceFramePose[2],provenance.referenceFramePose[3],
+                                provenance.referenceFramePose[4],provenance.referenceFramePose[5],
+                                provenance.referenceFramePose[6]};
+                            appendSource("resting_registered_ligament_parameters_"+suffix,
+                                std::as_bytes(std::span(values)));
+                            appendSource("resting_registered_ligament_surface0_hash_"+suffix,
+                                std::as_bytes(std::span(provenance.payloadSha0)));
+                            appendSource("resting_registered_ligament_surface1_hash_"+suffix,
+                                std::as_bytes(std::span(provenance.payloadSha1)));
+                            appendTextSource("resting_registered_ligament_source_"+suffix,
+                                provenance.stiffnessSource);
+                            appendTextSource("resting_registered_ligament_geometry_"+suffix,
+                                provenance.geometrySource);
+                            appendTextSource("resting_registered_ligament_limits_"+suffix,
+                                provenance.limitations);
+                        }
                     }
                     for(const auto& partition:restingPassiveFasciaOwner->massPartitions) {
                         appendSource("resting_fascia_COM_offset_v1",
@@ -29649,6 +29950,9 @@ int main(int argc, char** argv) {
                              <<owner.regionalFasciaBodyContactRegionCoverage
                              <<" ligament_FEM_objects="<<owner.aclProvenance.size()
                              <<" passive_ligament_force_rows="<<owner.passiveLigaments.size()
+                             <<" registered_ligament_force_rows="<<owner.registeredLigamentRowCount
+                             <<" legacy_fascia_reduced_ligament_rows="
+                             <<(owner.passiveLigaments.size()-owner.registeredLigamentRowCount)
                              <<" FEM_mass_kg="<<cookedMass
                              <<" duplicate_runtime=0 duplicate_load_schedule=0\n";
                 }
@@ -31244,6 +31548,7 @@ int main(int argc, char** argv) {
                     restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow,
                     sourceMtpPassiveStiffnessNmPerRad,
                     (!restingInitialPosture.empty()||
+                     (requestedRootPose.has_value()&&restingReleaseInitialization)||
                      (std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
                       std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)),
                     activeSeparationBodyMap,

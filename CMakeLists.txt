@@ -6702,3 +6702,49 @@ if(APPLE AND BUILD_TESTING)
     set_tests_properties(numi_human_separation_force PROPERTIES
         LABELS "numi-human;separation;forces;gpu" TIMEOUT 30)
 endif()
+
+
+if(BUILD_TESTING)
+    add_executable(numi-human-skin-rigid-placement-check EXCLUDE_FROM_ALL
+        tests/human_skin_rigid_placement.cpp)
+    target_include_directories(numi-human-skin-rigid-placement-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_features(numi-human-skin-rigid-placement-check PRIVATE cxx_std_20)
+    add_test(NAME human.skin_supported_rigid_placement
+        COMMAND numi-human-skin-rigid-placement-check)
+    set_tests_properties(human.skin_supported_rigid_placement PROPERTIES
+        LABELS "human;skin;reference" TIMEOUT 30)
+endif()
+
+if(APPLE AND BUILD_TESTING AND TARGET numi_matter_shaders)
+    add_executable(numi-human-passive-ligament-precision-check EXCLUDE_FROM_ALL
+        tests/human_passive_ligament_precision.mm)
+    target_include_directories(numi-human-passive-ligament-precision-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(numi-human-passive-ligament-precision-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-passive-ligament-precision-check PRIVATE -fobjc-arc)
+    target_link_libraries(numi-human-passive-ligament-precision-check PRIVATE
+        "-framework Foundation" "-framework Metal")
+    add_dependencies(numi-human-passive-ligament-precision-check numi_matter_shaders)
+    add_test(NAME human.passive_ligament_gpu_precision
+        COMMAND numi-human-passive-ligament-precision-check
+        "${CMAKE_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    set_tests_properties(human.passive_ligament_gpu_precision PROPERTIES
+        LABELS "human;ligament;gpu" TIMEOUT 30 RUN_SERIAL TRUE)
+endif()
+
+if(BUILD_TESTING)
+    add_executable(numi-human-registered-ligaments-check
+        tests/numi_human_registered_ligaments_test.cpp)
+    target_include_directories(numi-human-registered-ligaments-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_features(numi-human-registered-ligaments-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-registered-ligaments-check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -fno-fast-math)
+    add_test(NAME human.registered_ligament_reference_catalog
+        COMMAND numi-human-registered-ligaments-check)
+    set_tests_properties(human.registered_ligament_reference_catalog PROPERTIES
+        LABELS "human;ligament;reference;cpu" TIMEOUT 30)
+endif()

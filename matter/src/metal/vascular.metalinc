@@ -1656,8 +1656,10 @@ kernel void nm_vascular_limit_line_search(
         initialMerit = simd_sum(initialMerit);
         bool acceptedTrial = false;
         float trialMerit = INFINITY;
+        float testedAlpha = alpha;
         const uint trials = max(solver.nonlinearIterations.w, 1u);
         for (uint attempt = 0u; attempt < trials; ++attempt) {
+            testedAlpha = alpha;
             for (uint local = lane; local < graph.ranges.z; local += 32u) {
                 const uint row = base + local;
                 const bool directional = local >= graph.offsets.y && local < graph.offsets.z &&
@@ -1693,8 +1695,35 @@ kernel void nm_vascular_limit_line_search(
             alpha *= 0.5f;
         }
         if (!acceptedTrial) {
+            // Keep the ordinary merit diagnostics, but name the row whose
+            // trial residual is furthest beyond its authored certificate.
+            // This extra pass runs only on rejection and does not change the
+            // acceptance test or any physical state. The row index and ratio
+            // distinguish a poor Newton direction from a residual precision
+            // floor in a specific equation.
+            float localWorstRatio = -1.0f;
+            uint localWorstRow = NM_INVALID_INDEX;
+            for (uint local = lane; local < graph.ranges.z; local += 32u) {
+                const float value = vascularEquation(graph, microstep.time.x, local, base,
+                    directionBase, false, unknowns, compartments, connections, tissues,
+                    exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                    bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
+                    accepted, trial, solution, elastance, workingSet, false, cavities, cavityFaces,
+                    compartmentCavity, femCandidate, femAccepted,
+                    environment * dispatch.femNodeCount, testedAlpha).x;
+                const float tolerance = unknowns[local].initialAndScaling.w;
+                const float ratio = isfinite(value) ? abs(value) / tolerance : INFINITY;
+                if (ratio > localWorstRatio) {
+                    localWorstRatio = ratio;
+                    localWorstRow = local;
+                }
+            }
+            const float worstRatio = simd_max(localWorstRatio);
+            const uint witnessRow = simd_min(
+                localWorstRatio == worstRatio ? localWorstRow : NM_INVALID_INDEX);
             if (lane == 0u) recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, initialMerit, trialMerit, float(trials)));
+                NM_INVALID_INDEX, witnessRow,
+                float4(testedAlpha, initialMerit, trialMerit, worstRatio));
             alpha = 0.0f;
         }
     }

@@ -305,7 +305,7 @@ int main(int argc, const char* argv[]) {
             const float forcing = 0.1f;
             const std::uint32_t defer = 1u;
             dispatch(device, queue, finalize, {
-                {0u, dispatchBuffer}, {1u, solverBuffer},
+                {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
                 {2u, hessenbergBuffer}, {3u, leastSquaresBuffer},
                 {4u, stateBuffer}, {5u, statusBuffer},
                 {6u, makeBuffer(device, std::vector<std::uint32_t>{offset})},
@@ -445,6 +445,58 @@ int main(int argc, const char* argv[]) {
                         "strict forcing rejected zero residual");
             std::memcpy([solverBuffer contents], &solver, sizeof(solver));
             std::memcpy([replaceBuffer contents], &replace, sizeof(replace));
+
+            // A vascular-coupled Arnoldi estimate must meet the authored
+            // normalized absolute row tolerance before cycle finalization.
+            // This checks the estimated Krylov stopping gate, not a measured
+            // true residual; the optional true-residual fixture above remains
+            // limited to its supported FEM-only operator scope.
+            NMFGMRESLayoutGPU vascularLayout = layout;
+            vascularLayout.unknownCount = 3u;
+            vascularLayout.vascularUnknownCount = 1u;
+            vascularLayout.vascularBase = 2u;
+            vascularLayout.vascularResidualTolerance = 1.0e-5f;
+            auto vascularLayoutBuffer = makeBuffer(device,
+                std::vector<NMFGMRESLayoutGPU>{vascularLayout});
+            auto checkVascularCycleTarget = [&](const float arnoldiEstimate,
+                                                const bool expectedConverged) {
+                std::fill(hessenberg.begin(), hessenberg.end(), 0.0f);
+                hessenberg[0] = 1.0f;
+                std::fill(leastSquares.begin(), leastSquares.end(), 0.0f);
+                leastSquares[0] = 0.5f;
+                std::memcpy([hessenbergBuffer contents], hessenberg.data(),
+                    hessenberg.size()*sizeof(float));
+                std::memcpy([leastSquaresBuffer contents], leastSquares.data(),
+                    leastSquares.size()*sizeof(float));
+                NMFGMRESStateGPU vascularState{};
+                vascularState.diagnostics = {
+                    arnoldiEstimate, 1.0e-3f, 0.0f, 1.0f};
+                vascularState.nonlinear = {1.0e-3f, 1.0e-3f, 0.0f, 0.0f};
+                std::memcpy([stateBuffer contents], &vascularState,
+                    sizeof(vascularState));
+                resetStatuses(diagnosticBuffer, statusBuffer, healthy, healthy);
+                const std::uint32_t doNotDefer = 0u;
+                const float vascularForcing = 0.25f;
+                dispatch(device, queue, finalize, {
+                    {0u, dispatchBuffer}, {30u, vascularLayoutBuffer},
+                    {1u, solverBuffer}, {2u, hessenbergBuffer},
+                    {3u, leastSquaresBuffer}, {4u, stateBuffer},
+                    {5u, statusBuffer},
+                    {6u, makeBuffer(device,std::vector<std::uint32_t>{offset})},
+                    {7u, makeBuffer(device,std::vector<std::uint32_t>{finalCycle})},
+                    {8u, makeBuffer(device,std::vector<float>{vascularForcing})},
+                    {9u, rotationsBuffer}, {10u, restartCoefficientsBuffer},
+                    {11u, makeBuffer(device,std::vector<std::uint32_t>{doNotDefer})}},
+                    1u, 32u);
+                const auto measured = readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
+                require((measured.diagnostics.z == 1.0f) == expectedConverged,
+                    "vascular Arnoldi estimate bypassed normalized absolute tolerance: estimate=" +
+                    std::to_string(arnoldiEstimate) + " converged=" +
+                    std::to_string(measured.diagnostics.z));
+            };
+            checkVascularCycleTarget(5.0e-5f, false);
+            checkVascularCycleTarget(5.0e-6f, true);
+            std::cout << "vascular_arnoldi_absolute_target=true estimates=5e-5,5e-6 result=PASS\n";
 
             // Nonfinite action is reported and must not publish a partial
             // residual replacement.

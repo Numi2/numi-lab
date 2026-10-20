@@ -1,0 +1,193 @@
+{
+  "audit": "inferior_atfl_reference_region_proxy_search_v1",
+  "classification": "inferred lower-fascicle regional witnesses; not validated anatomical entheses",
+  "source": {
+    "invocationSha256": "4ab146241d3e6c4a9673e21231830119416b3eedd260b6a4ba96e94729d805bb",
+    "invocationSourceSha256": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+    "rigidSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "bonesSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "headerSha256": "76c5a5db6257acc1ee65a8747d3cfbb10fdf742b82d1311901675b3c27179998",
+    "boneCount": 185,
+    "vertexCount": 268228,
+    "indexCount": 1407408
+  },
+  "criteria": {
+    "regionBoundsMm": "fibula x=[0,22], y=[-12,5], |z|=[18,32]; talus x=[6,25], y=[-14,2], |z|=[6,20]",
+    "inferior": "both projected endpoint frame-y values at least 0.5 mm below current superior ATFL witnesses",
+    "distinct": "each endpoint at least 0.5 mm separated and on a different source triangle from superior witness",
+    "normals": "source normals barycentrically interpolated at projection; reject inward cosine below -1e-4 only",
+    "clearance": "scale-relative triangle intersections against all 185 source bone meshes with AABB culling; open-surface caveat retained"
+  },
+  "rows": [
+    {
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "triangleIds": [
+        994,
+        881
+      ],
+      "seedFrameM0": [
+        0.0017184370663017035,
+        0.0012525668134912848,
+        -0.02339853160083294
+      ],
+      "seedFrameM1": [
+        0.007479226682335138,
+        -0.005622092168778181,
+        -0.01687602885067463
+      ],
+      "gpuLocalAnchorFloat32M0": [
+        0.0036142372991889715,
+        0.017605561763048172,
+        -0.22402547299861908
+      ],
+      "gpuLocalAnchorFloat32M1": [
+        -0.006601128727197647,
+        -0.01840820536017418,
+        5.876025898032822e-05
+      ],
+      "anchorFrameMm0": [
+        1.718438,
+        1.252573,
+        -23.398531
+      ],
+      "anchorFrameMm1": [
+        7.479227,
+        -5.622091,
+        -16.876028
+      ],
+      "superiorWitnessFrameMm0": [
+        3.911876,
+        3.813075,
+        -22.333947
+      ],
+      "superiorWitnessFrameMm1": [
+        9.881704,
+        -0.752016,
+        -15.467535
+      ],
+      "inferiorMinusSuperiorYmm": [
+        -2.5605,
+        -4.8701
+      ],
+      "separationFromSuperiorMm": [
+        3.5356,
+        5.6101
+      ],
+      "float32AnchorToSourceResidualMm": [
+        3e-06,
+        1e-06
+      ],
+      "lengthMm": 11.0901,
+      "outwardNormalCos": [
+        0.439323,
+        0.028291
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "testedPairs": 3,
+      "accepted": true
+    },
+    {
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "triangleIds": [
+        881,
+        148
+      ],
+      "seedFrameM0": [
+        0.004054185003042221,
+        0.0028941668570041656,
+        0.02453884668648243
+      ],
+      "seedFrameM1": [
+        0.01340150274336338,
+        -0.0014928911114111543,
+        0.0152084706351161
+      ],
+      "gpuLocalAnchorFloat32M0": [
+        0.004856849554926157,
+        -0.01901238225400448,
+        -0.22233431041240692
+      ],
+      "gpuLocalAnchorFloat32M1": [
+        -0.0031343577429652214,
+        0.017107492312788963,
+        0.006477018818259239
+      ],
+      "anchorFrameMm0": [
+        4.054186,
+        2.894162,
+        24.538849
+      ],
+      "anchorFrameMm1": [
+        13.401505,
+        -1.492891,
+        15.208474
+      ],
+      "superiorWitnessFrameMm0": [
+        4.978695,
+        3.812169,
+        23.617878
+      ],
+      "superiorWitnessFrameMm1": [
+        14.512033,
+        1.264001,
+        14.345057
+      ],
+      "inferiorMinusSuperiorYmm": [
+        -0.918,
+        -2.7569
+      ],
+      "separationFromSuperiorMm": [
+        1.5955,
+        3.095
+      ],
+      "float32AnchorToSourceResidualMm": [
+        4e-06,
+        5e-06
+      ],
+      "lengthMm": 13.9167,
+      "outwardNormalCos": [
+        0.418822,
+        0.146924
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "allRegisteredBoneMeshesTested": 185,
+      "segmentTriangleHits": [],
+      "testedPairs": 1,
+      "accepted": true
+    }
+  ],
+  "sha256": "3b71b9fea65aa997fb4fc484ceb94a64dd7de5d11d391ad9e2243848a7b2e64d"
+}

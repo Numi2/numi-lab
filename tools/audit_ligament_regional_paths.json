@@ -1,0 +1,958 @@
+{
+  "audit": "source_bound_regional_path_audit_v1",
+  "classification": "inferred regional proxy paths; no subject enthesis validation or ligament coverage claim",
+  "source": {
+    "boneRecordsWithSourcePose": 185,
+    "recordsMissingSourcePose": [],
+    "invocationPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-003/invocation.json",
+    "invocationSha256": "4ab146241d3e6c4a9673e21231830119416b3eedd260b6a4ba96e94729d805bb",
+    "sourceInvocationSha256": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+    "rigidPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "rigidSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "bonesPath": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bonesSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "boneCount": 185,
+    "vertexCount": 268228,
+    "indexCount": 1407408,
+    "catalogHeaderSha256": "04e5bdcaaaad3506628cb2cd2fbbc2dcda6bf2543492f791525b38fb68070923"
+  },
+  "criteria": {
+    "patches": "explicit local-frame boxes and proxy centers in mm",
+    "candidate": "source triangle centroid rounded only when serialized to float32 anchors",
+    "outwardNormalCosMinimum": 0.15,
+    "segmentIntersection": "scale-relative Moller-Trumbore; interior t in (1e-5,1-1e-5); triangle AABB cull",
+    "meshes": "all 185 registered source records, with endpoint meshes separated in result; open meshes prevent closed-volume proof"
+  },
+  "paths": [
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "ATFL_fibula_to_talus",
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        17,
+        20
+      ],
+      "testedPairs": 39,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.003912054002285004,
+        0.003813481656834483,
+        -0.022334104403853416
+      ],
+      "anchor1LocalFloat32M": [
+        0.009881618432700634,
+        -0.0007521648076362908,
+        -0.015467594377696514
+      ],
+      "anchor0LocalMm": [
+        3.912,
+        3.813,
+        -22.334
+      ],
+      "anchor1LocalMm": [
+        9.882,
+        -0.752,
+        -15.468
+      ],
+      "sourceTriangleIds": [
+        1000,
+        1044
+      ],
+      "centerResidualMm": [
+        9.518,
+        7.383
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 10.18,
+      "outwardNormalCos": [
+        0.4575,
+        0.1625
+      ],
+      "aabbNearbyStableIds": [
+        21,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "ATFL_fibula_to_talus",
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        16,
+        26
+      ],
+      "testedPairs": 55,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.004978668410331011,
+        0.003812488168478012,
+        0.023618387058377266
+      ],
+      "anchor1LocalFloat32M": [
+        0.01451190747320652,
+        0.0012644699309021235,
+        0.014345124363899231
+      ],
+      "anchor0LocalMm": [
+        4.979,
+        3.812,
+        23.618
+      ],
+      "anchor1LocalMm": [
+        14.512,
+        1.264,
+        14.345
+      ],
+      "sourceTriangleIds": [
+        877,
+        150
+      ],
+      "centerResidualMm": [
+        8.575,
+        5.089
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 13.541,
+      "outwardNormalCos": [
+        0.4603,
+        0.1809
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "CFL_fibula_to_calcaneus",
+      "side": "L",
+      "stableIds": [
+        21,
+        7
+      ],
+      "sourceRecords": [
+        98,
+        100
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 1,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 184,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.008130124770104885,
+        -0.0062933145090937614,
+        -0.023612266406416893
+      ],
+      "anchor1LocalFloat32M": [
+        -0.015049811452627182,
+        -0.022054234519600868,
+        -0.017260359600186348
+      ],
+      "anchor0LocalMm": [
+        -8.13,
+        -6.293,
+        -23.612
+      ],
+      "anchor1LocalMm": [
+        -15.05,
+        -22.054,
+        -17.26
+      ],
+      "sourceTriangleIds": [
+        445,
+        720
+      ],
+      "centerResidualMm": [
+        2.684,
+        2.958
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 18.348,
+      "outwardNormalCos": [
+        0.5782,
+        0.7057
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "CFL_fibula_to_calcaneus",
+      "side": "R",
+      "stableIds": [
+        20,
+        6
+      ],
+      "sourceRecords": [
+        92,
+        94
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 1,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 260,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.008661451749503613,
+        -0.007684049662202597,
+        0.0249489676207304
+      ],
+      "anchor1LocalFloat32M": [
+        -0.01527146715670824,
+        -0.023844048380851746,
+        0.018227778375148773
+      ],
+      "anchor0LocalMm": [
+        -8.661,
+        -7.684,
+        24.949
+      ],
+      "anchor1LocalMm": [
+        -15.271,
+        -23.844,
+        18.228
+      ],
+      "sourceTriangleIds": [
+        391,
+        236
+      ],
+      "centerResidualMm": [
+        3.743,
+        1.708
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        1e-06
+      ],
+      "lengthMm": 18.709,
+      "outwardNormalCos": [
+        0.6099,
+        0.6745
+      ],
+      "aabbNearbyStableIds": [
+        6,
+        20,
+        22
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "PTFL_fibula_to_talus",
+      "side": "L",
+      "stableIds": [
+        21,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 57,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 40,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.011374793946743011,
+        -0.007257145829498768,
+        -0.021887551993131638
+      ],
+      "anchor1LocalFloat32M": [
+        -0.010239195078611374,
+        -0.005716206971555948,
+        -0.01119021326303482
+      ],
+      "anchor0LocalMm": [
+        -11.375,
+        -7.257,
+        -21.888
+      ],
+      "anchor1LocalMm": [
+        -10.239,
+        -5.716,
+        -11.19
+      ],
+      "sourceTriangleIds": [
+        441,
+        536
+      ],
+      "centerResidualMm": [
+        4.548,
+        2.589
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 10.867,
+      "outwardNormalCos": [
+        0.2152,
+        0.4138
+      ],
+      "aabbNearbyStableIds": [
+        7,
+        21,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "PTFL_fibula_to_talus",
+      "side": "R",
+      "stableIds": [
+        20,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 1,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 62,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.010201040655374527,
+        -0.0038355037104338408,
+        0.02046102099120617
+      ],
+      "anchor1LocalFloat32M": [
+        -0.010693439282476902,
+        -0.004243897274136543,
+        0.011173431761562824
+      ],
+      "anchor0LocalMm": [
+        -10.201,
+        -3.836,
+        20.461
+      ],
+      "anchor1LocalMm": [
+        -10.693,
+        -4.244,
+        11.173
+      ],
+      "sourceTriangleIds": [
+        403,
+        182
+      ],
+      "centerResidualMm": [
+        4.885,
+        1.565
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        1e-06,
+        0.0
+      ],
+      "lengthMm": 9.31,
+      "outwardNormalCos": [
+        0.9319,
+        0.6976
+      ],
+      "aabbNearbyStableIds": [
+        20,
+        22
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_anterior_tibiotalar",
+      "side": "L",
+      "stableIds": [
+        5,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 7,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.012921083718538284,
+        0.014372731558978558,
+        0.021524053066968918
+      ],
+      "anchor1LocalFloat32M": [
+        0.014190653339028358,
+        0.001188450027257204,
+        0.016063963994383812
+      ],
+      "anchor0LocalMm": [
+        12.921,
+        14.373,
+        21.524
+      ],
+      "anchor1LocalMm": [
+        14.191,
+        1.188,
+        16.064
+      ],
+      "sourceTriangleIds": [
+        1188,
+        557
+      ],
+      "centerResidualMm": [
+        2.248,
+        4.767
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 14.327,
+      "outwardNormalCos": [
+        0.5531,
+        0.2524
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_anterior_tibiotalar",
+      "side": "R",
+      "stableIds": [
+        4,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 97,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.014198308810591698,
+        0.013981757685542107,
+        -0.022501861676573753
+      ],
+      "anchor1LocalFloat32M": [
+        0.010697368532419205,
+        -0.0009251986048184335,
+        -0.017029035836458206
+      ],
+      "anchor0LocalMm": [
+        14.198,
+        13.982,
+        -22.502
+      ],
+      "anchor1LocalMm": [
+        10.697,
+        -0.925,
+        -17.029
+      ],
+      "sourceTriangleIds": [
+        209,
+        1079
+      ],
+      "centerResidualMm": [
+        3.472,
+        5.277
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        1e-06
+      ],
+      "lengthMm": 16.261,
+      "outwardNormalCos": [
+        0.6955,
+        0.3871
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        22
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_tibiocalcaneal",
+      "side": "L",
+      "stableIds": [
+        5,
+        7
+      ],
+      "sourceRecords": [
+        98,
+        100
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 324,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 184,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.0027626773808151484,
+        0.01667203940451145,
+        0.023803692311048508
+      ],
+      "anchor1LocalFloat32M": [
+        0.00022980802168603987,
+        -0.0142558254301548,
+        0.019495569169521332
+      ],
+      "anchor0LocalMm": [
+        2.763,
+        16.672,
+        23.804
+      ],
+      "anchor1LocalMm": [
+        0.23,
+        -14.256,
+        19.496
+      ],
+      "sourceTriangleIds": [
+        1426,
+        560
+      ],
+      "centerResidualMm": [
+        6.628,
+        7.298
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 31.329,
+      "outwardNormalCos": [
+        0.7676,
+        0.2769
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        7,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_tibiocalcaneal",
+      "side": "R",
+      "stableIds": [
+        4,
+        6
+      ],
+      "sourceRecords": [
+        92,
+        94
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 93,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 260,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        0.001981951529160142,
+        0.015796242281794548,
+        -0.02046188712120056
+      ],
+      "anchor1LocalFloat32M": [
+        6.23340965830721e-05,
+        -0.014136694371700287,
+        -0.02014334686100483
+      ],
+      "anchor0LocalMm": [
+        1.982,
+        15.796,
+        -20.462
+      ],
+      "anchor1LocalMm": [
+        0.062,
+        -14.137,
+        -20.143
+      ],
+      "sourceTriangleIds": [
+        233,
+        1239
+      ],
+      "centerResidualMm": [
+        4.307,
+        7.8
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        1e-06,
+        0.0
+      ],
+      "lengthMm": 29.996,
+      "outwardNormalCos": [
+        0.8897,
+        0.3322
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        6,
+        22
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_posterior_tibiotalar",
+      "side": "L",
+      "stableIds": [
+        5,
+        23
+      ],
+      "sourceRecords": [
+        98,
+        99
+      ],
+      "frameJointPair": [
+        150,
+        151
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 24,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 92,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 238,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.0022930626291781664,
+        0.020197993144392967,
+        0.018242094665765762
+      ],
+      "anchor1LocalFloat32M": [
+        -0.010003904812037945,
+        0.0026041839737445116,
+        0.013728070072829723
+      ],
+      "anchor0LocalMm": [
+        -2.293,
+        20.198,
+        18.242
+      ],
+      "anchor1LocalMm": [
+        -10.004,
+        2.604,
+        13.728
+      ],
+      "sourceTriangleIds": [
+        1440,
+        411
+      ],
+      "centerResidualMm": [
+        3.905,
+        6.195
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        1e-06,
+        0.0
+      ],
+      "lengthMm": 19.733,
+      "outwardNormalCos": [
+        0.6436,
+        0.1797
+      ],
+      "aabbNearbyStableIds": [
+        5,
+        23
+      ],
+      "segmentTriangleHits": []
+    },
+    {
+      "allRegisteredBoneMeshesTested": 185,
+      "group": "deltoid_posterior_tibiotalar",
+      "side": "R",
+      "stableIds": [
+        4,
+        22
+      ],
+      "sourceRecords": [
+        92,
+        93
+      ],
+      "frameJointPair": [
+        136,
+        137
+      ],
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "testedPairs": 410,
+      "endpointMeshesTopology": {
+        "surface0": {
+          "boundaryEdges": 66,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "surface1": {
+          "boundaryEdges": 290,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "anchor0LocalFloat32M": [
+        -0.0036746568512171507,
+        0.02043725736439228,
+        -0.014791273511946201
+      ],
+      "anchor1LocalFloat32M": [
+        -0.011908144690096378,
+        0.0037336768582463264,
+        -0.009455046616494656
+      ],
+      "anchor0LocalMm": [
+        -3.675,
+        20.437,
+        -14.791
+      ],
+      "anchor1LocalMm": [
+        -11.908,
+        3.734,
+        -9.455
+      ],
+      "sourceTriangleIds": [
+        360,
+        1031
+      ],
+      "centerResidualMm": [
+        5.901,
+        7.199
+      ],
+      "float32AnchorToWitnessTriangleResidualMm": [
+        0.0,
+        0.0
+      ],
+      "lengthMm": 19.372,
+      "outwardNormalCos": [
+        0.6443,
+        0.1518
+      ],
+      "aabbNearbyStableIds": [
+        4,
+        22
+      ],
+      "segmentTriangleHits": []
+    }
+  ],
+  "sha256": "796c27288e36249d4a39463c4b493fd13bf7aa04dcf878df2dedaa25c7de1a0a"
+}
