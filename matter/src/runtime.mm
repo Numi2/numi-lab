@@ -1792,7 +1792,8 @@ struct RegionalGraphSchwarzHostLayout {
 };
 
 [[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
-    const CompiledWorld& world, const bool extendedPureFEM
+    const CompiledWorld& world, const bool extendedPureFEM,
+    const bool allowTaggedFixedNodes
 ) {
     RegionalGraphSchwarzHostLayout result;
     const std::uint32_t nodes = world.dispatch.femNodeCount;
@@ -1811,8 +1812,11 @@ struct RegionalGraphSchwarzHostLayout {
     result.potentialMask.assign(nodes, 1u);
     for (std::uint32_t node = 0u; node < nodes; ++node) {
         const float fixed = world.fem.nodes[node].restAndFixed.w;
-        if (!std::isfinite(fixed) || (fixed != 0.0f && fixed != 1.0f)) {
-            result.layout.error = "graph Schwarz requires a binary immutable FEM fixed mask";
+        if (!std::isfinite(fixed) ||
+            (fixed != 0.0f && fixed != 1.0f &&
+             !(allowTaggedFixedNodes && fixed == 3.0f))) {
+            result.layout.error =
+                "graph Schwarz requires an immutable supported FEM fixed mask";
             return result;
         }
         result.sourceFreeMask[node] = fixed == 0.0f ? 1u : 0u;
@@ -2379,6 +2383,7 @@ struct Runtime::State {
     bool emptyMpmKrylovDomain = false;
     bool femNewtonTailDispatchRequested = false;
     bool femNewtonTailICBRequested = false;
+    bool femNewtonTailICBCacheEnabled = false;
     bool femBaseCauchyScratchEnabled = false;
     bool femBaseCGLSScratchEnabled = false;
     bool femPureFEMArmijoArenaAdmitted = false;
@@ -3008,6 +3013,8 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoCohesiveFaceForces = nil;
     id<MTLBuffer> femArmijoMetrics = nil;
     bool femDistributedGlobalMeasurementsEnabled = false;
+    bool femDomainNonlinearLatchEnabled = false;
+    id<MTLBuffer> fgmresDomainNormPartials = nil;
     id<MTLBuffer> femArmijoNormPartials = nil;
     id<MTLBuffer> femArmijoGeometryTiles = nil;
     id<MTLBuffer> femArmijoGeometryRanges = nil;
@@ -3135,6 +3142,16 @@ struct Runtime::State {
     // zero/dependent. An independent correction from the preceding accepted
     // Newton line search replaces that one effective-basis slot only.
     id<MTLBuffer> femRegionalAcceptedCorrection = nil;
+    // Accepted-step flexible-GMRES Z0 direction and transaction scratch.
+    id<MTLBuffer> femAcceptedZ0 = nil;
+    id<MTLBuffer> femAcceptedZ0Candidate = nil;
+    id<MTLBuffer> femAcceptedZ0Valid = nil;
+    id<MTLBuffer> femAcceptedZ0UseCounts = nil;
+    id<MTLBuffer> femAcceptedZ0CandidateFlags = nil;
+    id<MTLBuffer> femAcceptedZ0CandidateTimestepBits = nil;
+    id<MTLBuffer> femAcceptedZ0TimestepBits = nil;
+    id<MTLBuffer> femAcceptedZ0ConstraintMask = nil;
+    id<MTLBuffer> femAcceptedZ0ContactKeys = nil;
     // Per-environment two-pass MGS scratch for the dynamically masked source
     // modes. The authored/effective P buffers remain unchanged for RAP.
     id<MTLBuffer> femRegionalRecycleOrthogonalBasis = nil;
@@ -3173,6 +3190,12 @@ struct Runtime::State {
     // FGMRES operator, residual, pressure coordinates, contacts, and anchors
     // remain on the existing fine path; these buffers are preconditioner-only.
     bool femHumanPartitionedPreconditionerEnabled = false;
+    // Strict opt-in additive local FEM graph preconditioner layered on
+    // selector 6's regional Human coarse correction. It leaves the coupled
+    // operator and all residual/final acceptance paths unchanged.
+    bool femHuman6GraphSchwarzEnabled = false;
+    // Explicitly approximate graph-factor lag within a physical microstep.
+    bool femHuman6GraphFactorLagEnabled = false;
     std::uint32_t femHumanPartitionedObjectIndex = NM_INVALID_INDEX;
     std::uint32_t femHumanPartitionedBasisNodeCount = 0u;
     std::uint32_t femHumanPartitionedRegionCount = 0u;
@@ -3238,6 +3261,7 @@ struct Runtime::State {
     std::uint32_t femRegionalModeCount = 0u;
     std::uint32_t femRegionalRecycleBaseModeCount = 0u;
     bool femRegionalAcceptedCorrectionRecycleEnabled = false;
+    bool femAcceptedZ0RecycleEnabled = false;
     std::uint32_t femRegionalGraphPatchCount = 0u;
     std::uint32_t femRegionalGraphParallelSearch = 0u;
     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
@@ -3867,6 +3891,19 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femRegionalAcceptedCorrectionRecycleEnabled = true;
         }
+        const char* acceptedZ0Recycle = std::getenv(
+            "NM_FEM_REGIONAL_SELECTOR6_ACCEPTED_Z0_RECYCLE");
+        if (acceptedZ0Recycle != nullptr) {
+            if (std::strcmp(acceptedZ0Recycle, "1") != 0 ||
+                world.mixedSolver.executionBudgets.z != 6u ||
+                world.dispatch.femNodeCount == 0u ||
+                world.dispatch.tetrahedronCount == 0u) {
+                diagnostics.message =
+                    "accepted Z0 recycle requires exact value 1, selector 6, and a nonempty FEM domain";
+                return diagnostics;
+            }
+            candidate->femAcceptedZ0RecycleEnabled = true;
+        }
         const char* sameNewtonRestartAugmentation = std::getenv(
             "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION");
         if (sameNewtonRestartAugmentation != nullptr) {
@@ -4444,6 +4481,25 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "distributed global measurements require explicit value 1";
             return diagnostics;
         }
+        const char* domainNonlinearLatch =
+            std::getenv("NM_FEM_DOMAIN_NONLINEAR_LATCH");
+        if (domainNonlinearLatch != nullptr &&
+            std::strcmp(domainNonlinearLatch, "0") != 0 &&
+            std::strcmp(domainNonlinearLatch, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_DOMAIN_NONLINEAR_LATCH must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool domainNonlinearLatchEnabled =
+            domainNonlinearLatch != nullptr &&
+            std::strcmp(domainNonlinearLatch, "1") == 0;
+        if (domainNonlinearLatchEnabled &&
+            (distributedGlobals == nullptr ||
+             world.vascular.layout.ranges.z == 0u)) {
+            diagnostics.message =
+                "domain nonlinear latch requires distributed global measurements and active vascular unknowns";
+            return diagnostics;
+        }
         const char* inexactNewtonForcing =
             std::getenv("NM_FGMRES_INEXACT_NEWTON_FORCING");
         if (inexactNewtonForcing != nullptr &&
@@ -4479,6 +4535,8 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
+        candidate->femDomainNonlinearLatchEnabled =
+            domainNonlinearLatchEnabled;
         candidate->fgmresInexactNewtonForcingEnabled =
             inexactNewtonForcing != nullptr;
         candidate->fgmresRelativeInnerForcingEnabled =
@@ -4628,6 +4686,45 @@ RuntimeDiagnostics Runtime::initialize(
         const bool humanFEMTangentRequested =
             humanFEMTangentSetting != nullptr &&
             std::strcmp(humanFEMTangentSetting, "1") == 0;
+        const char* human6GraphSetting =
+            std::getenv("NM_FEM_HUMAN6_GRAPH_SCHWARZ");
+        if (human6GraphSetting != nullptr &&
+            std::strcmp(human6GraphSetting, "0") != 0 &&
+            std::strcmp(human6GraphSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HUMAN6_GRAPH_SCHWARZ must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool human6GraphRequested =
+            human6GraphSetting != nullptr &&
+            std::strcmp(human6GraphSetting, "1") == 0;
+        const char* human6GraphFactorLagSetting = std::getenv(
+            "NM_FEM_HUMAN6_GRAPH_FACTOR_LAG");
+        if (human6GraphFactorLagSetting != nullptr &&
+            std::strcmp(human6GraphFactorLagSetting, "0") != 0 &&
+            std::strcmp(human6GraphFactorLagSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HUMAN6_GRAPH_FACTOR_LAG must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool human6GraphFactorLagRequested =
+            human6GraphFactorLagSetting != nullptr &&
+            std::strcmp(human6GraphFactorLagSetting, "1") == 0;
+        if (human6GraphFactorLagRequested &&
+            (!human6GraphRequested ||
+             !world.humanPartitionedPreconditioner.enabled ||
+             world.mixedSolver.executionBudgets.z != 6u)) {
+            diagnostics.message =
+                "Human selector-6 graph factor lag requires the enabled selector-6 graph Schwarz preconditioner";
+            return diagnostics;
+        }
+        if (human6GraphRequested &&
+            (!world.humanPartitionedPreconditioner.enabled ||
+             world.mixedSolver.executionBudgets.z != 6u)) {
+            diagnostics.message =
+                "Human selector-6 graph Schwarz requires an enabled selector-6 Human basis";
+            return diagnostics;
+        }
         if (humanFEMTangentRequested &&
             world.humanPartitionedPreconditioner.enabled &&
             (world.mixedSolver.executionBudgets.z != 6u ||
@@ -4639,6 +4736,12 @@ RuntimeDiagnostics Runtime::initialize(
         if (world.humanPartitionedPreconditioner.enabled) {
             const auto& source = world.humanPartitionedPreconditioner;
             candidate->femHumanPartitionedPreconditionerEnabled = true;
+            candidate->femHuman6GraphSchwarzEnabled =
+                human6GraphRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6GraphFactorLagEnabled =
+                human6GraphFactorLagRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHumanPartitionedFEMTangentEnabled =
                 humanFEMTangentRequested;
             candidate->femHumanPartitionedObjectIndex = source.objectIndex;
@@ -5541,6 +5644,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_prepare_newton_tail_icb",
             "nm_matter_gpu_timing_marker",
             "nm_fgmres_retain_newton_tail_node_rhs",
+            "nm_fgmres_telemetry_domains_partial",
+            "nm_fgmres_telemetry_domains_finish",
             "nm_fgmres_telemetry_begin",
             "nm_fgmres_telemetry_finalize",
             "nm_fgmres_telemetry_exhaustion",
@@ -5588,6 +5693,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_project_basis",
             "nm_fgmres_reset_regional_recycle",
             "nm_fgmres_capture_regional_recycle",
+            "nm_fgmres_accepted_z0_reset_candidate",
+            "nm_fgmres_accepted_z0_reset_candidate_for_capture",
+            "nm_fgmres_accepted_z0_capture_candidate",
+            "nm_fgmres_accepted_z0_validate_contact_keys",
+            "nm_fgmres_accepted_z0_validate_constraint_mask",
+            "nm_fgmres_accepted_z0_add_to_preconditioned_basis",
+            "nm_fgmres_accepted_z0_promote_owner_candidate",
+            "nm_fgmres_accepted_z0_snapshot_owner_contact_keys",
             "nm_fgmres_regional_select_recycle_mode",
             "nm_fgmres_regional_capture_linearization",
             "nm_fgmres_regional_capture_constitutive_linearization",
@@ -5937,6 +6050,13 @@ RuntimeDiagnostics Runtime::initialize(
             }
         }
         candidate->femMaterialPipelinesEnabled = materialPipelinesRequested;
+        candidate->femNewtonTailICBCacheEnabled =
+            candidate->femNewtonTailICBRequested &&
+            world.mixedSolver.executionBudgets.w == 1u &&
+            candidate->femTangentBundleMode <= 1u &&
+            !candidate->femMaterialPipelinesEnabled &&
+            !candidate->femCacheProjectionReuseEnabled &&
+            !candidate->forceCompletedTangentCacheRebuild;
         std::vector<std::uint32_t> materialPipelineTetIndices;
         if (materialPipelinesRequested) {
             if (!allNativeEnabled || !allNativeEligible ||
@@ -6304,6 +6424,7 @@ RuntimeDiagnostics Runtime::initialize(
             // Avoid compiling these five pipelines for the default and other
             // preconditioners, while preserving the complete selector-5 set.
             if (world.mixedSolver.executionBudgets.z != 5u &&
+                !candidate->femHuman6GraphSchwarzEnabled &&
                 isGraphSchwarzKernel(name)) continue;
             if (!(candidate->deformableContactNodeIncidenceSortEnabled ||
                   candidate->deformableContactNodeIncidenceRadixEnabled) &&
@@ -6340,9 +6461,17 @@ RuntimeDiagnostics Runtime::initialize(
             }
             const bool tracePipeline = std::getenv("NUMI_MATTER_PIPELINE_TRACE") != nullptr;
             if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_begin=%s\n", name);
-            const bool newtonTailICBPipeline = candidate->femNewtonTailICBRequested &&
-                (std::strcmp(name, "nm_fem_internal_forces") == 0 ||
-                 std::strcmp(name, "nm_fem_build_mechanical_residual") == 0);
+            const bool newtonTailICBCachePipeline =
+                candidate->femNewtonTailICBCacheEnabled &&
+                (std::strcmp(name,
+                    "nm_fem_prepare_algorithmic_tangent_columns") == 0 ||
+                 std::strcmp(name,
+                    "nm_fem_build_algorithmic_tangent_cache_columns") == 0);
+            const bool newtonTailICBPipeline =
+                (candidate->femNewtonTailICBRequested &&
+                 (std::strcmp(name, "nm_fem_internal_forces") == 0 ||
+                  std::strcmp(name, "nm_fem_build_mechanical_residual") == 0)) ||
+                newtonTailICBCachePipeline;
             if(asyncPipelines) {
                 enqueuePipeline(name,function,
                     (candidate->fgmresCGS2ICBEnabled &&
@@ -6641,9 +6770,14 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->dispatch.mpmGridCount == 0u &&
             candidate->dispatch.mpmBlockCount == 0u;
         RegionalGraphSchwarzHostLayout graphSchwarz;
-        if (world.mixedSolver.executionBudgets.z == 5u) {
+        if (world.mixedSolver.executionBudgets.z == 5u ||
+            candidate->femHuman6GraphSchwarzEnabled) {
+            const bool human6Graph =
+                candidate->femHuman6GraphSchwarzEnabled;
             graphSchwarz = buildRegionalGraphSchwarz(
-                world, candidate->femExtendedPureTrueResidualLayout);
+                world,
+                human6Graph ? true : candidate->femExtendedPureTrueResidualLayout,
+                human6Graph);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
@@ -6745,6 +6879,14 @@ RuntimeDiagnostics Runtime::initialize(
                 std::span<const std::uint32_t>(
                     graphSchwarz.layout.nodeCoverage), valid,
                 candidate->residentBytes);
+            if (human6Graph) {
+                std::fprintf(stderr,
+                    "matter_human6_graph_schwarz={\"schema\":1,\"enabled\":true,\"kind\":\"additive_local_fem_approximation\",\"patches\":%u,\"patch_nodes\":%u,\"dofs\":%u,\"layout_checksum\":%u,\"full_coupled_operator_unchanged\":true}\n",
+                    candidate->femRegionalGraphPatchCount,
+                    candidate->femRegionalGraphPatchNodeCount,
+                    candidate->femRegionalGraphDofCount,
+                    candidate->femRegionalGraphLayoutChecksum);
+            }
         }
         candidate->dispatchBuffer = uploads.one(
             std::span<const NMMatterDispatchGPU>(&candidate->dispatch, 1u),
@@ -8184,7 +8326,7 @@ RuntimeDiagnostics Runtime::initialize(
                 valid, candidate->residentBytes);
             if (candidate->femNewtonTailICBRequested) {
                 candidate->femNewtonTailICBExecutionRanges =
-                    privateScratch<std::uint32_t>(candidate->device, 4u,
+                    privateScratch<std::uint32_t>(candidate->device, 6u,
                         valid, candidate->residentBytes);
                 candidate->femNewtonTailICBPreparedMicrostep =
                     privateScratch<NMMicrostepGPU>(candidate->device, 1u,
@@ -8224,6 +8366,41 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->contactSampleConfiguration.contents);
             words[0] = candidate->contactSampleStorageMode;
             words[1] = candidate->contactSampleCapacity;
+        }
+        if (candidate->femAcceptedZ0RecycleEnabled) {
+            const std::size_t femValues = multiplied(world.dispatch.femNodeCount);
+            const std::size_t contactValues = multiplied(
+                world.dispatch.contactPairCount);
+            candidate->femAcceptedZ0 = privateScratch<nm_float4>(
+                candidate->device, femValues, valid, candidate->residentBytes);
+            candidate->femAcceptedZ0Candidate = privateScratch<nm_float4>(
+                candidate->device, femValues, valid, candidate->residentBytes);
+            candidate->femAcceptedZ0Valid = sharedScratch<std::uint32_t>(
+                candidate->device, environments, valid, candidate->residentBytes);
+            candidate->femAcceptedZ0UseCounts = sharedScratch<std::uint32_t>(
+                candidate->device, environments, valid, candidate->residentBytes);
+            if (candidate->femAcceptedZ0UseCounts != nil)
+                std::fill_n(static_cast<std::uint32_t*>(
+                    candidate->femAcceptedZ0UseCounts.contents), environments, 0u);
+            candidate->femAcceptedZ0CandidateFlags = privateScratch<std::uint32_t>(
+                candidate->device, environments, valid, candidate->residentBytes);
+            candidate->femAcceptedZ0CandidateTimestepBits =
+                privateScratch<std::uint32_t>(
+                    candidate->device, environments, valid,
+                    candidate->residentBytes);
+            candidate->femAcceptedZ0TimestepBits =
+                privateScratch<std::uint32_t>(
+                    candidate->device, environments, valid,
+                    candidate->residentBytes);
+            candidate->femAcceptedZ0ConstraintMask = privateScratch<std::uint32_t>(
+                candidate->device, femValues, valid, candidate->residentBytes);
+            candidate->femAcceptedZ0ContactKeys = privateScratch<nm_uint4>(
+                candidate->device, contactValues, valid, candidate->residentBytes);
+            if (candidate->femAcceptedZ0Valid != nil) {
+                auto* words = static_cast<std::uint32_t*>(
+                    candidate->femAcceptedZ0Valid.contents);
+                std::fill_n(words, environments, 0u);
+            }
         }
         candidate->contactActivePairs = privateScratch<std::uint32_t>(
             candidate->device, multiplied(candidate->contactActiveCapacity),
@@ -8480,6 +8657,11 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->fgmresDistributedCGS2Enabled &&
             !candidate->mixedFieldSmoothingEnabled)
             candidate->fgmresLayout.reserved |= 1u;
+        // Bit 0 skips inactive transport rows. Bit 1 selects independent
+        // mechanical/vascular nonlinear residual gates in the distributed
+        // begin measurement; legacy full-norm accumulation remains untouched.
+        if (candidate->femDomainNonlinearLatchEnabled)
+            candidate->fgmresLayout.reserved |= 2u;
         if (candidate->femRegionalRestartAugmentationEnabled &&
             (candidate->humanSupportDispatch.contactCount != 0u ||
              candidate->humanEqualityDispatch.count != 0u ||
@@ -9491,6 +9673,28 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->fgmresMeasurementPartials = privateScratch<nm_float4>(
                 candidate->device, static_cast<std::size_t>(tiles * environments),
                 valid, candidate->residentBytes);
+            if (candidate->femDomainNonlinearLatchEnabled) {
+                const std::uint64_t domainPartialCount = tiles * environments;
+                if (domainPartialCount >
+                        std::numeric_limits<std::size_t>::max() /
+                            sizeof(std::array<float, 2>) ||
+                    domainPartialCount >
+                        candidate->device.maxBufferLength /
+                            sizeof(std::array<float, 2>)) {
+                    diagnostics.message =
+                        "domain nonlinear latch scratch exceeds checked GPU addressing";
+                    return diagnostics;
+                }
+                candidate->fgmresDomainNormPartials =
+                    privateScratch<std::array<float, 2>>(candidate->device,
+                        static_cast<std::size_t>(domainPartialCount),
+                        valid, candidate->residentBytes);
+                if (candidate->fgmresDomainNormPartials == nil) {
+                    diagnostics.message =
+                        "failed to allocate domain nonlinear latch scratch";
+                    return diagnostics;
+                }
+            }
             if (candidate->fgmresInexactNewtonForcingEnabled) {
                 candidate->fgmresInexactNewtonHistory =
                     privateScratch<nm_float4>(candidate->device,
@@ -10674,6 +10878,194 @@ RuntimeDiagnostics Runtime::encodeAcceptedControlCursorPublication(
     diagnostics.device = nsString(state.device.name);
     diagnostics.message =
         "accepted Matter control cursor publication encoded behind all owner gates";
+    return diagnostics;
+}
+
+RuntimeDiagnostics Runtime::encodeAcceptedFEMSolverZ0Promotion(
+    void* const commandBufferRaw,
+    const std::uint32_t controlStep,
+    const std::uint32_t physicsSubstep,
+    const AcceptedStepFinalizationGate& gate
+) {
+    RuntimeDiagnostics diagnostics;
+    if (!state_ || commandBufferRaw == nullptr) {
+        diagnostics.message =
+            "accepted FEM solver recycle promotion requires an initialized Runtime and borrowed command buffer";
+        return diagnostics;
+    }
+    State& state = *state_;
+    // Called by the Human mechanical adapter only after its final stand/audit
+    // gate. Keep the ordinary path a no-op and never publish physical state.
+    if (!state.femAcceptedZ0RecycleEnabled) {
+        diagnostics.encoded = true;
+        diagnostics.residentBytes = state.residentBytes;
+        diagnostics.device = nsString(state.device.name);
+        diagnostics.message = "accepted FEM solver recycle promotion is disabled";
+        return diagnostics;
+    }
+    const auto& d = state.dispatch;
+    if (d.environmentCount == 0u || d.femNodeCount == 0u ||
+        gate.statusRecords == nullptr || gate.recordCount != d.environmentCount ||
+        gate.recordStrideBytes < sizeof(std::uint32_t) ||
+        (gate.recordStrideBytes % sizeof(std::uint32_t)) != 0u ||
+        (gate.completedCountOffsetBytes != NM_INVALID_INDEX &&
+         ((gate.completedCountOffsetBytes % sizeof(std::uint32_t)) != 0u ||
+          gate.completedCountOffsetBytes >
+              gate.recordStrideBytes - sizeof(std::uint32_t))) ||
+        (gate.environmentIndexOffsetBytes != NM_INVALID_INDEX &&
+         ((gate.environmentIndexOffsetBytes % sizeof(std::uint32_t)) != 0u ||
+          gate.environmentIndexOffsetBytes >
+              gate.recordStrideBytes - sizeof(std::uint32_t)))) {
+        diagnostics.message =
+            "accepted FEM solver recycle owner gate has invalid count, stride, or offsets";
+        return diagnostics;
+    }
+    const std::uint64_t recordBytes =
+        static_cast<std::uint64_t>(gate.recordCount - 1u) *
+            gate.recordStrideBytes +
+        std::max(
+            gate.completedCountOffsetBytes == NM_INVALID_INDEX
+                ? sizeof(std::uint32_t)
+                : static_cast<std::uint64_t>(gate.completedCountOffsetBytes) +
+                      sizeof(std::uint32_t),
+            gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+                ? sizeof(std::uint32_t)
+                : static_cast<std::uint64_t>(gate.environmentIndexOffsetBytes) +
+                      sizeof(std::uint32_t));
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)commandBufferRaw;
+    __unsafe_unretained id<MTLBuffer> externalStatuses =
+        (__bridge id<MTLBuffer>)gate.statusRecords;
+    if (commandBuffer == nil || commandBuffer.commandQueue == nil ||
+        commandBuffer.commandQueue.device.registryID != state.device.registryID ||
+        commandBuffer.status != MTLCommandBufferStatusNotEnqueued ||
+        externalStatuses == nil || externalStatuses.device == nil ||
+        externalStatuses.device.registryID != state.device.registryID ||
+        externalStatuses.gpuAddress == 0u ||
+        externalStatuses.length < recordBytes) {
+        diagnostics.message =
+            "accepted FEM solver recycle gate has invalid Metal provenance or bounds";
+        return diagnostics;
+    }
+    const auto ownership = state.commandOwnership;
+    std::unique_lock ownershipLock(ownership->mutex);
+    if (ownership->activeCommandBuffer != commandBufferRaw ||
+        ownership->preDynamicsOpen ||
+        !ownership->acceptedControlCursorDeferred ||
+        !ownership->deferredAcceptedStepExtensionRequested ||
+        ownership->controlStep != controlStep ||
+        ownership->physicsSubstep != physicsSubstep ||
+        ownership->preparedStateOpen || ownership->restoreRequired) {
+        diagnostics.message =
+            "accepted FEM solver recycle promotion is outside its deferred same-command-buffer owner transaction";
+        return diagnostics;
+    }
+    if (!state.femAcceptedZ0 || !state.femAcceptedZ0Candidate ||
+        !state.femAcceptedZ0Valid || !state.femAcceptedZ0CandidateFlags ||
+        !state.femAcceptedZ0CandidateTimestepBits ||
+        !state.femAcceptedZ0TimestepBits ||
+        !state.femAcceptedZ0ConstraintMask || !state.femCandidate ||
+        (d.contactPairCount != 0u &&
+         (!state.femAcceptedZ0ContactKeys || !state.primalContactArguments))) {
+        diagnostics.message =
+            "accepted FEM solver recycle arena or contact identity input is unavailable";
+        return diagnostics;
+    }
+    const auto promote = state.pipelines.find(
+        "nm_fgmres_accepted_z0_promote_owner_candidate");
+    const auto snapshot = state.pipelines.find(
+        "nm_fgmres_accepted_z0_snapshot_owner_contact_keys");
+    if (promote == state.pipelines.end() || promote->second == nil ||
+        (d.contactPairCount != 0u &&
+         (snapshot == state.pipelines.end() || snapshot->second == nil))) {
+        diagnostics.message =
+            "accepted FEM solver recycle owner-gate pipeline is unavailable";
+        return diagnostics;
+    }
+    const std::uint64_t strideWords64 =
+        gate.recordStrideBytes / sizeof(std::uint32_t);
+    if (strideWords64 > std::numeric_limits<std::uint32_t>::max()) {
+        diagnostics.message =
+            "accepted FEM solver recycle status stride exceeds shader addressability";
+        return diagnostics;
+    }
+    const NMAcceptedStepFinalizationParams ownerGate{
+        .environmentCount = d.environmentCount,
+        .externalStatusStrideWords = static_cast<std::uint32_t>(strideWords64),
+        .acceptedStatusCode = gate.acceptedStatusCode,
+        .environmentIndexOffsetWords = gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+            ? NM_INVALID_INDEX : static_cast<std::uint32_t>(gate.environmentIndexOffsetBytes / sizeof(std::uint32_t)),
+        .expectedEnvironmentBase = gate.expectedEnvironmentBase,
+        .completedCountOffsetWords = gate.completedCountOffsetBytes == NM_INVALID_INDEX
+            ? NM_INVALID_INDEX : static_cast<std::uint32_t>(gate.completedCountOffsetBytes / sizeof(std::uint32_t)),
+        .expectedCompletedCount = gate.expectedCompletedCount,
+        .reserved0 = 0u,
+    };
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        diagnostics.message =
+            "failed to create accepted FEM solver recycle owner-gate encoder";
+        return diagnostics;
+    }
+    [encoder setLabel:@"Numi accepted FEM solver Z0 recycle publication"];
+    const NSUInteger femTotal =
+        static_cast<NSUInteger>(d.environmentCount) * d.femNodeCount;
+    [encoder setComputePipelineState:promote->second];
+    [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+    [encoder setBuffer:externalStatuses offset:0u atIndex:2u];
+    [encoder setBytes:&ownerGate length:sizeof(ownerGate) atIndex:3u];
+    [encoder setBuffer:state.femAcceptedZ0Candidate offset:0u atIndex:4u];
+    [encoder setBuffer:state.femAcceptedZ0 offset:0u atIndex:5u];
+    [encoder setBuffer:state.femAcceptedZ0CandidateFlags offset:0u atIndex:6u];
+    [encoder setBuffer:state.femAcceptedZ0Valid offset:0u atIndex:7u];
+    [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+    [encoder setBuffer:state.femAcceptedZ0ConstraintMask offset:0u atIndex:9u];
+    [encoder setBuffer:state.femAcceptedZ0CandidateTimestepBits
+                 offset:0u atIndex:10u];
+    [encoder setBuffer:state.femAcceptedZ0TimestepBits
+                 offset:0u atIndex:11u];
+    [encoder dispatchThreads:MTLSizeMake(femTotal, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(promote->second.threadExecutionWidth, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    if (d.contactPairCount != 0u) {
+        const NSUInteger contactTotal =
+            static_cast<NSUInteger>(d.environmentCount) * d.contactPairCount;
+        [encoder setComputePipelineState:snapshot->second];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+        [encoder setBuffer:externalStatuses offset:0u atIndex:2u];
+        [encoder setBytes:&ownerGate length:sizeof(ownerGate) atIndex:3u];
+        [encoder setBuffer:state.primalContactArguments offset:0u atIndex:4u];
+        [encoder setBuffer:state.femAcceptedZ0CandidateFlags offset:0u atIndex:5u];
+        [encoder setBuffer:state.femAcceptedZ0Valid offset:0u atIndex:6u];
+        [encoder setBuffer:state.femAcceptedZ0ContactKeys offset:0u atIndex:7u];
+        [encoder dispatchThreads:MTLSizeMake(contactTotal, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(snapshot->second.threadExecutionWidth, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+    [encoder endEncoding];
+    diagnostics.encoded = true;
+    diagnostics.residentBytes = state.residentBytes;
+    diagnostics.device = nsString(state.device.name);
+    const char* counters = std::getenv("NUMI_MATTER_WORK_COUNTERS");
+    if (counters != nullptr && std::strcmp(counters, "1") == 0) {
+        id<MTLBuffer> counts = state.femAcceptedZ0UseCounts;
+        id<MTLBuffer> validFlags = state.femAcceptedZ0Valid;
+        const auto count = d.environmentCount;
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+            if (completed.status != MTLCommandBufferStatusCompleted) return;
+            const auto* uses = static_cast<const std::uint32_t*>(counts.contents);
+            const auto* flags = static_cast<const std::uint32_t*>(validFlags.contents);
+            for (std::uint32_t e = 0u; e < count; ++e)
+                std::fprintf(stderr,
+                    "matter_accepted_z0_use={\"root\":%u,\"environment\":%u,\"cumulative_injections\":%u,\"accepted_valid\":%u}\n",
+                    controlStep, e, uses[e], flags[e]);
+        }];
+    }
+    diagnostics.message =
+        "accepted FEM solver direction promotion encoded behind Matter and Human owner gates";
     return diagnostics;
 }
 
@@ -12132,9 +12524,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.pipeline("nm_fem_internal_forces");
             id<MTLComputePipelineState> residualPipeline =
                 state.pipeline("nm_fem_build_mechanical_residual");
+            id<MTLComputePipelineState> tangentPreparePipeline =
+                state.femNewtonTailICBCacheEnabled
+                    ? state.pipeline("nm_fem_prepare_algorithmic_tangent_columns")
+                    : nil;
+            id<MTLComputePipelineState> tangentCachePipeline =
+                state.femNewtonTailICBCacheEnabled
+                    ? state.pipeline("nm_fem_build_algorithmic_tangent_cache_columns")
+                    : nil;
             if (forcePipeline == nil || residualPipeline == nil ||
                 forcePipeline.maxTotalThreadsPerThreadgroup < 256u ||
-                residualPipeline.maxTotalThreadsPerThreadgroup < 256u) {
+                residualPipeline.maxTotalThreadsPerThreadgroup < 256u ||
+                (state.femNewtonTailICBCacheEnabled &&
+                 (tangentPreparePipeline == nil || tangentCachePipeline == nil ||
+                  tangentPreparePipeline.maxTotalThreadsPerThreadgroup < 256u ||
+                  tangentCachePipeline.maxTotalThreadsPerThreadgroup < 256u))) {
                 diagnostics.message =
                     "Newton-tail ICB pipelines are unavailable or do not support 256-thread groups";
                 return diagnostics;
@@ -12143,10 +12547,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 NMFGMRESLayoutGPU layout;
                 std::uint32_t preserveSolution;
                 std::uint32_t hasExternalForces;
+                std::uint32_t forceCompletedCacheRebuild;
+                std::uint32_t fullSourceTetrahedronSelection;
+                std::uint32_t selectedTetrahedronBase;
             };
             static_assert(std::is_trivially_copyable_v<NewtonTailICBConstants>);
             const NewtonTailICBConstants constants{
-                state.fgmresLayout, 0u, hasFEMMechanicalForces};
+                state.fgmresLayout, 0u, hasFEMMechanicalForces, 0u, 0u, 0u};
             femNewtonTailICBConstants = [state.device
                 newBufferWithBytes:&constants length:sizeof(constants)
                 options:MTLResourceStorageModeShared];
@@ -12158,7 +12565,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             descriptor.maxKernelBufferBindCount = 31u;
             femNewtonTailICB = [state.device
                 newIndirectCommandBufferWithDescriptor:descriptor
-                maxCommandCount:2u options:MTLResourceStorageModePrivate];
+                maxCommandCount:state.femNewtonTailICBCacheEnabled ? 4u : 2u
+                options:MTLResourceStorageModePrivate];
             if (femNewtonTailICBConstants == nil || femNewtonTailICB == nil) {
                 diagnostics.message =
                     "failed to allocate the requested Newton-tail ICB graph";
@@ -12241,6 +12649,69 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [residualCommand concurrentDispatchThreadgroups:MTLSizeMake(
                 residualGroups, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
             [residualCommand setBarrier];
+            if (state.femNewtonTailICBCacheEnabled) {
+                id<MTLIndirectComputeCommand> prepareCacheCommand =
+                    makeCommand("nm_fem_prepare_algorithmic_tangent_columns");
+                bindCommandBuffer(prepareCacheCommand, 13u,
+                    state.femAlgorithmicTangentCacheValid);
+                bindCommandBuffer(prepareCacheCommand, 15u,
+                    state.fgmresStates);
+                bindCommandBuffer(prepareCacheCommand, 16u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants,
+                             forceCompletedCacheRebuild));
+                const NSUInteger prepareGroups = std::max<NSUInteger>(1u,
+                    (static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                     state.dispatch.tetrahedronCount + 255u) / 256u);
+                [prepareCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
+                    prepareGroups, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+                [prepareCacheCommand setBarrier];
+
+                id<MTLIndirectComputeCommand> buildCacheCommand =
+                    makeCommand("nm_fem_build_algorithmic_tangent_cache_columns");
+                bindCommandBuffer(buildCacheCommand, 2u, state.objects);
+                bindCommandBuffer(buildCacheCommand, 3u, state.materials);
+                bindCommandBuffer(buildCacheCommand, 4u, state.scalarPrograms);
+                bindCommandBuffer(buildCacheCommand, 5u, state.instructions);
+                bindCommandBuffer(buildCacheCommand, 6u, state.environmentParameters);
+                bindCommandBuffer(buildCacheCommand, 7u, state.femCandidate);
+                bindCommandBuffer(buildCacheCommand, 8u,
+                    state.femTetrahedraCandidate);
+                bindCommandBuffer(buildCacheCommand, 9u,
+                    state.femMaterialStateAccepted);
+                bindCommandBuffer(buildCacheCommand, 10u, state.schedulers);
+                bindCommandBuffer(buildCacheCommand, 11u, state.adaptive);
+                bindCommandBuffer(buildCacheCommand, 12u,
+                    state.femAlgorithmicTangentCache);
+                bindCommandBuffer(buildCacheCommand, 13u,
+                    state.femAlgorithmicTangentCacheValid);
+                bindCommandBuffer(buildCacheCommand, 14u, state.statuses);
+                bindCommandBuffer(buildCacheCommand, 15u, state.fgmresStates);
+                bindCommandBuffer(buildCacheCommand, 16u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants,
+                             forceCompletedCacheRebuild));
+                bindCommandBuffer(buildCacheCommand, 17u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants,
+                             fullSourceTetrahedronSelection));
+                bindCommandBuffer(buildCacheCommand, 18u,
+                    state.femMaterialPipelineTetrahedronIndices != nil
+                        ? state.femMaterialPipelineTetrahedronIndices
+                        : state.dummy);
+                bindCommandBuffer(buildCacheCommand, 19u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants,
+                             selectedTetrahedronBase));
+                const NSUInteger buildGroups = std::max<NSUInteger>(1u,
+                    (static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                     state.dispatch.tetrahedronCount * 9u + 255u) / 256u);
+                [buildCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
+                    buildGroups, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+                [buildCacheCommand setBarrier];
+            }
             id<MTLIndirectCommandBuffer> retainedNewtonTailICB = femNewtonTailICB;
             id<MTLBuffer> retainedNewtonTailConstants = femNewtonTailICBConstants;
             id<MTLBuffer> retainedNewtonTailMechanicalForces = femMechanicalForces;
@@ -12656,11 +13127,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             row16DirectionTraceSetting != nullptr &&
             std::strcmp(row16DirectionTraceSetting, "1") == 0;
         if (captureVascularRow16Direction &&
-            (!state.captureDiagnostics || !collectFGMRESWork ||
+            (!collectFGMRESWork ||
              state.vascularValue.layout.offsets.y <= 16u ||
              state.vascularValue.layout.ranges.z <= 18u)) {
             diagnostics.message =
-                "vascular row16 direction trace requires diagnostics, work counters, and rows 16-18";
+                "vascular row16 direction trace requires work counters and rows 16-18";
             return diagnostics;
         }
         if (collectFGMRESWork) {
@@ -12973,6 +13444,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         bool fgmresColumnDispatch = false;
         bool femNewtonTailDispatchEnabledForCurrentRoot = false;
         bool femNewtonTailICBEnabledForCurrentRoot = false;
+        bool femNewtonTailICBCacheEnabledForCurrentRoot = false;
         enum class WorkDomain {
             generic, femNodes, tetrahedra, mpmObjects,
             newtonAssemblyFemNodes, newtonAssemblyTetrahedra
@@ -13456,7 +13928,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femPreconditioned, state.femDirection,
                     state.femOperatorValue, state.mixedSolver,
                     femMechanicalForces, state.femConstraintReactions,
-                    state.fgmresStates, state.femNewtonTailNodeDispatch,
+                    state.fgmresStates, state.femAlgorithmicTangentCache,
+                    state.femAlgorithmicTangentCacheValid,
+                    state.femNewtonTailNodeDispatch,
                     state.femNewtonTailTetrahedronDispatch,
                     state.femNewtonTailICBPreparedMicrostep,
                     state.femNewtonTailICBPreparedDispatch,
@@ -13477,6 +13951,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                            const std::uint32_t nonlinearIteration) {
             if (!collectFGMRESWork) return;
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (restartCycle == 0u && state.femDistributedGlobalMeasurementsEnabled) {
+                const NSUInteger activeItems = state.dispatch.femNodeCount +
+                    ((state.fgmresLayout.reserved & 1u) == 0u ? state.dispatch.femNodeCount : 0u) +
+                    state.dispatch.mpmActiveNodeCapacity + state.dispatch.rigidGeneralizedCapacity +
+                    state.fgmresLayout.supportContactCount + state.fgmresLayout.vascularUnknownCount;
+                const NSUInteger tiles = std::max<NSUInteger>(1u, (activeItems + 255u) / 256u);
+                dispatchGroups256("nm_fgmres_telemetry_domains_partial",
+                    state.dispatch.environmentCount * tiles, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_fgmres_telemetry_domains_finish",
+                    state.dispatch.environmentCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads("nm_fgmres_telemetry_begin", state.dispatch.environmentCount, [&] {
                 setDispatch();
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
@@ -13998,16 +14496,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 bind();
                 [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:24u];
             };
+            const auto domainPartialsBuffer = state.femDomainNonlinearLatchEnabled
+                ? state.fgmresDomainNormPartials : state.dummy;
+            const auto bindBeginPartials = [&] {
+                bindPartials();
+                [encoder setBuffer:domainPartialsBuffer offset:0u atIndex:25u];
+            };
             const auto bindForcingConsumer = [&] {
                 bindPartials();
                 if (begin && state.fgmresInexactNewtonForcingEnabled)
                     [encoder setBuffer:state.fgmresInexactNewtonEta
                         offset:0u atIndex:15u];
             };
-            dispatchGroups256(begin ? "nm_fgmres_begin_distributed_partial" :
-                (correction ? "nm_fgmres_correction_distributed_partial" :
-                    "nm_fgmres_true_residual_distributed_partial"),
-                environments * tiles, bindPartials);
+            const auto bindBeginFinish = [&] {
+                bindForcingConsumer();
+                [encoder setBuffer:domainPartialsBuffer offset:0u atIndex:25u];
+            };
+            const char* partialKernel = begin
+                ? "nm_fgmres_begin_distributed_partial"
+                : (correction ? "nm_fgmres_correction_distributed_partial"
+                              : "nm_fgmres_true_residual_distributed_partial");
+            if (begin)
+                dispatchGroups256(partialKernel, environments * tiles,
+                    bindBeginPartials);
+            else
+                dispatchGroups256(partialKernel, environments * tiles,
+                    bindPartials);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (begin && state.fgmresInexactNewtonForcingEnabled) {
                 dispatchGroups32("nm_fgmres_prepare_inexact_newton_forcing",
@@ -14020,13 +14534,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
-            if (begin && state.fgmresInexactNewtonForcingEnabled)
+            if (begin)
                 dispatchGroups32("nm_fgmres_begin_distributed_finish",
-                    environments, bindForcingConsumer);
+                    environments, bindBeginFinish);
             else
-                dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
-                    (correction ? "nm_fgmres_correction_distributed_finish" :
-                        "nm_fgmres_true_residual_distributed_finish"),
+                dispatchGroups32(correction
+                    ? "nm_fgmres_correction_distributed_finish"
+                    : "nm_fgmres_true_residual_distributed_finish",
                     environments, bindPartials);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (begin) {
@@ -22977,6 +23491,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femNewtonTailICB != nil &&
                 state.femNewtonTailICBExecutionRanges != nil &&
                 state.pipeline("nm_fgmres_prepare_newton_tail_icb") != nil;
+            femNewtonTailICBCacheEnabledForCurrentRoot =
+                femNewtonTailICBEnabledForCurrentRoot &&
+                state.femNewtonTailICBCacheEnabled;
             if (state.femNewtonTailICBRequested &&
                 !femNewtonTailICBEnabledForCurrentRoot) {
                 diagnostics.message =
@@ -22985,11 +23502,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             if (state.femNewtonTailDispatchRequested) {
                 std::fprintf(stderr,
-                    "newton_tail_dispatch_root={\"schema\":1,\"root\":%u,\"enabled\":%s,\"unknowns\":%u,\"fem_nodes\":%u}\n",
+                    "newton_tail_dispatch_root={\"schema\":1,\"root\":%u,\"enabled\":%s,\"unknowns\":%u,\"fem_nodes\":%u,\"icb_graph_commands\":%u,\"icb_tangent_cache_commands\":%u}\n",
                     request.controlStep,
                     femNewtonTailDispatchEnabledForCurrentRoot ? "true" : "false",
                     state.fgmresLayout.unknownCount,
-                    state.dispatch.femNodeCount);
+                    state.dispatch.femNodeCount,
+                    femNewtonTailICBEnabledForCurrentRoot
+                        ? (femNewtonTailICBCacheEnabledForCurrentRoot ? 4u : 2u)
+                        : 0u,
+                    femNewtonTailICBCacheEnabledForCurrentRoot ? 2u : 0u);
             }
             if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
                 dispatchThreads("nm_fgmres_reset_regional_recycle",
@@ -23000,6 +23521,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femRegionalRecycleModeState
                                  offset:0u atIndex:2u];
                 }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            const bool useAcceptedZ0ForCurrentRoot =
+                state.femAcceptedZ0RecycleEnabled &&
+                request.deferAcceptedStepExtensionFinalization;
+            if (useAcceptedZ0ForCurrentRoot) {
+                dispatchThreads("nm_fgmres_accepted_z0_reset_candidate",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedZ0CandidateFlags
+                                 offset:0u atIndex:1u];
+                });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
@@ -23933,7 +24466,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 appendBuffer("regional_node_block_inverse", "float32x4",
                     sizeof(nm_float4), state.femRegionalNodeBlockInverse, false);
                 const bool graphSchwarzSelected =
-                    state.mixedSolverValue.executionBudgets.z == 5u;
+                    state.mixedSolverValue.executionBudgets.z == 5u ||
+                    state.femHuman6GraphSchwarzEnabled;
                 appendBuffer("regional_graph_patches", "uint32x4",
                     sizeof(nm_uint4), state.femRegionalGraphPatches,
                     graphSchwarzSelected);
@@ -26248,6 +26782,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:7u];
                         [encoder setBuffer:state.femNewtonTailICBPreparedDispatch
                                      offset:0u atIndex:8u];
+                        const std::uint32_t includeTangentCache =
+                            state.femNewtonTailICBCacheEnabled ? 1u : 0u;
+                        [encoder setBytes:&includeTangentCache
+                                   length:sizeof(includeTangentCache)
+                                  atIndex:9u];
                     });
                 } else {
                     dispatchThreads("nm_fgmres_prepare_newton_tail_dispatch",
@@ -26914,9 +27453,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(fullSourceTetrahedronSelection)
                               atIndex:19u];
                 };
-                if (!state.femCacheProjectionReuseEnabled) {
+                if (femNewtonTailICBCacheEnabledForCurrentRoot) {
+                    executeNewtonTailICB(2u,
+                        "nm_fem_prepare_algorithmic_tangent_columns");
+                } else if (!state.femCacheProjectionReuseEnabled) {
+                    const WorkDomain tangentPrepareDomain =
+                        femNewtonTailDispatchEnabledForCurrentRoot &&
+                        forceCompletedCacheRebuild == 0u
+                            ? WorkDomain::newtonAssemblyTetrahedra
+                            : WorkDomain::tetrahedra;
                     dispatchThreads("nm_fem_prepare_algorithmic_tangent_columns",
-                        tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
+                        tetrahedronTotal, bindTangentCache, tangentPrepareDomain);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if(state.femTangentBundleMode==2u) {
@@ -26957,11 +27504,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             (tetrahedronTotal+7u)/8u,bindTangentCache,
                             WorkDomain::generic,nil,96u);
                     }
-                } else {
+                } else if (!femNewtonTailICBCacheEnabledForCurrentRoot) {
+                    const WorkDomain tangentCacheBuildDomain =
+                        state.femCacheProjectionReuseEnabled &&
+                        femNewtonTailDispatchEnabledForCurrentRoot &&
+                        forceCompletedCacheRebuild == 0u
+                            ? WorkDomain::newtonAssemblyTetrahedra
+                            : WorkDomain::generic;
                     dispatchThreads(tangentCacheBuilder,
                         state.femCacheProjectionReuseEnabled
                             ? tetrahedronTotal : tetrahedronTotal * 9u,
-                        bindTangentCache);
+                        bindTangentCache, tangentCacheBuildDomain);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.femNativeTangentVerifyRequested) {
@@ -27483,6 +28036,135 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.femHumanPartitionedFactorValid
                                  offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            if (state.femHuman6GraphSchwarzEnabled) {
+                dispatchThreads("nm_fgmres_graph_validate_mask",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femCandidate
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femRegionalGraphNodeCoverage
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:3u];
+                }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t graphRows =
+                    state.femRegionalGraphDofCount;
+                const std::uint32_t graphPatches =
+                    state.femRegionalGraphPatchCount;
+                const std::uint32_t graphMatrixFloats =
+                    state.femRegionalGraphMatrixFloatCount;
+                const std::uint32_t graphPivots =
+                    state.femRegionalGraphPivotCount;
+                const bool selectedGraphCapturePending =
+                    detail::regionalGraphCapturePendingForIteration(
+                        femOperatorFDTraceEnabled,
+                        femOperatorFDTraceCaptured,
+                        femOperatorFDTraceRoot,
+                        request.controlStep,
+                        femOperatorFDTraceIteration,
+                        operatorMicro.solverIteration);
+                const std::uint32_t reuseCompletedGraphTail =
+                    detail::regionalHumanGraphFactorReuseMode(
+                        state.femHuman6GraphFactorLagEnabled,
+                        operatorMicro.solverIteration,
+                        state.forceCompletedTangentCacheRebuild,
+                        selectedGraphCapturePending);
+                const std::uint32_t useCache =
+                    numi::matter::detail::femPrimaryOperatorCacheMode(
+                        state.mixedSolverValue.executionBudgets.w);
+                dispatchThreads("nm_fgmres_graph_build_patch_matrices",
+                    environments * graphRows, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femNodeIncidence
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femNodeRanges
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.schedulers
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.materials
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.scalarPrograms
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.instructions
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                        ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                        ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:13u];
+                    [encoder setBytes:&useCache length:sizeof(useCache)
+                              atIndex:14u];
+                    [encoder setBuffer:state.femRegionalGraphPatches
+                                 offset:0u atIndex:15u];
+                    [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                 offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femRegionalGraphRows
+                                 offset:0u atIndex:17u];
+                    [encoder setBuffer:state.femRegionalGraphNodeCoverage
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.femRegionalGraphFactors
+                                 offset:0u atIndex:19u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:20u];
+                    [encoder setBytes:&graphRows length:sizeof(graphRows)
+                              atIndex:21u];
+                    [encoder setBytes:&graphPatches
+                              length:sizeof(graphPatches) atIndex:22u];
+                    [encoder setBytes:&graphMatrixFloats
+                              length:sizeof(graphMatrixFloats) atIndex:23u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:24u];
+                    [encoder setBytes:&reuseCompletedGraphTail
+                              length:sizeof(reuseCompletedGraphTail) atIndex:25u];
+                    [encoder setBuffer:state.femRegionalGraphFactorValid
+                                 offset:0u atIndex:26u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t parallelGraphPivotSearch =
+                    state.femRegionalGraphParallelSearch;
+                dispatchGroups256("nm_fgmres_graph_factor_patches",
+                    environments * graphPatches, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femRegionalGraphPatches
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femRegionalGraphFactors
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femRegionalGraphPivots
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femRegionalGraphFactorValid
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&graphPatches length:sizeof(graphPatches)
+                              atIndex:6u];
+                    [encoder setBytes:&graphMatrixFloats
+                              length:sizeof(graphMatrixFloats) atIndex:7u];
+                    [encoder setBytes:&graphPivots length:sizeof(graphPivots)
+                              atIndex:8u];
+                    [encoder setBuffer:state.femRegionalGraphOriginalMatrices
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:10u];
+                    [encoder setBytes:&reuseCompletedGraphTail
+                              length:sizeof(reuseCompletedGraphTail) atIndex:11u];
+                    [encoder setBuffer:state.femRegionalGraphFactorValid
+                                 offset:0u atIndex:12u];
+                    [encoder setBytes:&parallelGraphPivotSearch
+                              length:sizeof(parallelGraphPivotSearch) atIndex:13u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -28203,7 +28885,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 metadata.modeCount = captureRegionalModes;
                                 metadata.preconditionerSelector =
                                     state.mixedSolverValue.executionBudgets.z;
-                                if (metadata.preconditionerSelector == 5u) {
+                                if (metadata.preconditionerSelector == 5u ||
+                                    state.femHuman6GraphSchwarzEnabled) {
                                     metadata.graphEnvironment = 0u;
                                     metadata.graphPatchCount =
                                         state.femRegionalGraphPatchCount;
@@ -29672,6 +30355,150 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:8u];
                         }
                     });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (state.femHuman6GraphSchwarzEnabled) {
+                    const std::uint32_t graphPatches =
+                        state.femRegionalGraphPatchCount;
+                    const std::uint32_t graphPatchNodes =
+                        state.femRegionalGraphPatchNodeCount;
+                    const std::uint32_t graphMatrixFloats =
+                        state.femRegionalGraphMatrixFloatCount;
+                    const std::uint32_t graphPivots =
+                        state.femRegionalGraphPivotCount;
+                    const std::uint32_t graphModeCount = 0u;
+                    const std::uint32_t graphModeStride = 0u;
+                    const std::uint32_t refinementMode = 1u;
+                    dispatchGroups256("nm_fgmres_graph_solve_patches",
+                        environments * graphPatches, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femRegionalGraphPatches
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femHumanPartitionedProjectedRHS
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femRegionalGraphFactors
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femRegionalGraphPivots
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femRegionalGraphFactorValid
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphPatchCorrections
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:11u];
+                        [encoder setBytes:&graphPatches
+                                   length:sizeof(graphPatches) atIndex:12u];
+                        [encoder setBytes:&graphPatchNodes
+                                   length:sizeof(graphPatchNodes) atIndex:13u];
+                        [encoder setBytes:&graphMatrixFloats
+                                   length:sizeof(graphMatrixFloats) atIndex:14u];
+                        [encoder setBytes:&graphPivots
+                                   length:sizeof(graphPivots) atIndex:15u];
+                        [encoder setBytes:&graphModeCount
+                                   length:sizeof(graphModeCount) atIndex:16u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:17u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphOriginalMatrices
+                                     offset:0u atIndex:18u];
+                        [encoder setBytes:&refinementMode
+                                   length:sizeof(refinementMode) atIndex:19u];
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:20u];
+                        [encoder setBytes:&graphModeStride
+                                   length:sizeof(graphModeStride) atIndex:21u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fgmres_graph_apply_patches",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphNodePatchOffsets
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphNodePatchValues
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphNodeCoverage
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedCoefficients
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:
+                            state.femRegionalGraphPatchCorrections
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:8u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:9u];
+                        [encoder setBytes:&graphPatchNodes
+                                   length:sizeof(graphPatchNodes) atIndex:10u];
+                        [encoder setBytes:&graphModeCount
+                                   length:sizeof(graphModeCount) atIndex:11u];
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:12u];
+                        [encoder setBytes:&graphModeStride
+                                   length:sizeof(graphModeStride) atIndex:13u];
+                    }, WorkDomain::femNodes);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (useAcceptedZ0ForCurrentRoot &&
+                    restartCycle == 0u && column == 0u) {
+                    if (state.dispatch.contactPairCount != 0u) {
+                        dispatchThreads(
+                            "nm_fgmres_accepted_z0_validate_contact_keys",
+                            environments * state.dispatch.contactPairCount,
+                            [&] {
+                            setDispatch();
+                            bindPrimalContactArguments(1u);
+                            [encoder setBuffer:state.femAcceptedZ0ContactKeys
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femAcceptedZ0Valid
+                                         offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    dispatchThreads(
+                        "nm_fgmres_accepted_z0_validate_constraint_mask",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femAcceptedZ0ConstraintMask
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femAcceptedZ0Valid
+                                     offset:0u atIndex:3u];
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:4u];
+                        [encoder setBuffer:state.femAcceptedZ0TimestepBits
+                                     offset:0u atIndex:5u];
+                    }, WorkDomain::femNodes);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fgmres_accepted_z0_add_to_preconditioned_basis",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femAcceptedZ0
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femAcceptedZ0Valid
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:state.femAcceptedZ0UseCounts
+                                     offset:0u atIndex:4u];
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
@@ -34113,6 +34940,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
             }, WorkDomain::newtonAssemblyFemNodes);
+            if (state.femAcceptedZ0RecycleEnabled &&
+                request.deferAcceptedStepExtensionFinalization) {
+                dispatchThreads(
+                    "nm_fgmres_accepted_z0_reset_candidate_for_capture",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedZ0CandidateFlags
+                                 offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads(
+                    "nm_fgmres_accepted_z0_capture_candidate",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedZ0Candidate
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedZ0CandidateFlags
+                                 offset:0u atIndex:4u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:5u];
+                    [encoder setBuffer:state.femAcceptedZ0CandidateTimestepBits
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:8u];
+                }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
                 dispatchThreads("nm_fgmres_capture_regional_recycle",
                     femNodeTotal, [&] {
@@ -35293,6 +36156,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             telemetryRoot, env, contactCounts[env],
                             contactCounts[telemetryEnvironments + env],
                             contactCounts[2u * telemetryEnvironments + env]);
+                        std::fprintf(stderr,
+                            "matter_solver_domain_norms={\"root\":%u,\"environment\":%u,\"nonvascular_norm\":%.9g,\"vascular_norm\":%.9g,\"mechanical_threshold\":%.9g,\"vascular_threshold\":%.9g}\n",
+                            telemetryRoot, env, telemetry.domains.x, telemetry.domains.y,
+                            telemetry.domains.z, telemetry.domains.w);
                         if (row16Directions != nullptr) {
                             const nm_float4 row16 = row16Directions[3u * env];
                             const nm_float4 marker = row16Directions[3u * env + 1u];
@@ -35307,7 +36174,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     std::bit_cast<std::uint32_t>(status.diagnostics.x);
                             if (witnessMatchesStatus) {
                                 std::fprintf(stderr,
-                                    "matter_vascular_row16_direction={\"root\":%u,\"environment\":%u,"
+                                    "matter_vascular_line_search_direction={\"root\":%u,\"environment\":%u,"
                                     "\"microtick\":%u,\"newton_iteration\":%u,\"dt\":%.9g,\"alpha\":%.9g,"
                                     "\"status_code\":%u,\"status_failing_index\":%u,"
                                     "\"residual\":%.9g,\"jvp\":%.9g,"

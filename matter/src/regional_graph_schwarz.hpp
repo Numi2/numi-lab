@@ -38,6 +38,17 @@ namespace numi::matter::detail {
         !selectedCapturePending;
 }
 
+[[nodiscard]] inline std::uint32_t regionalHumanGraphFactorReuseMode(
+    const bool factorLagEnabled,
+    const std::uint32_t solverIteration,
+    const bool forceRebuild,
+    const bool selectedCapturePending
+) noexcept {
+    if (solverIteration == 0u || forceRebuild || selectedCapturePending)
+        return 0u;
+    return factorLagEnabled ? 2u : 1u;
+}
+
 [[nodiscard]] inline bool regionalGraphMaySkipPatchFactorization(
     const bool completedTailReuseAllowed,
     const bool nonlinearCompletionLatch,

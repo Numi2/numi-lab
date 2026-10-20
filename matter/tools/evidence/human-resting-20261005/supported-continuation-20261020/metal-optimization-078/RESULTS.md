@@ -21,7 +21,7 @@ Build15 material-specific pipelines pass independent tangent checks, but one war
 - Explicit initialization gravity continuation and supported-pose experiment controls; these have not established a settled checkpoint.
 - Opt-in residual-adaptive forcing, vascular principal/cavity options, startup archives and asynchronous pipeline creation remain independently measurable experiments.
 
-No physics tolerances, contact laws, material laws, state precision, rollback or physical acceptance gates are relaxed.
+The qualified paths preserve physics tolerances, contact laws, material laws, state precision, rollback and physical acceptance gates. Default-off stopping and timestep experiments are reported separately below and are not promoted when their numerical comparison fails.
 
 ## Rejections and blockers
 
@@ -55,3 +55,40 @@ See build14-matched-results.json and each run's invocation/process/summary recor
 The rebuilt standalone FGMRES fixture, Armijo fixture and production transaction rollback all pass (3/3). The two-command Newton-tail ICB path passes terminal physical checks and the existing 1% numerical comparison against a same-build four-root control. Body wall time is 17.148825 versus 17.183202375 seconds (1.0020x); this difference is within noise and is not claimed as a performance improvement. It suppresses two proven inactive commands, not the complete nonlinear graph. Exhaustion telemetry is now measured after terminal true-residual processing using the configured total budget.
 
 The build17 attempt to raise a single timestamp buffer to 65536 samples is unavailable on M6: the driver limits its byte length to 32768 (4096 timestamps). This trial does not provide usable operator timings and remains retained. Source work for build18 shards the bounded capture across resources; it is not included in build17's measured claims.
+
+## Builds18–19 follow-up
+
+Timestamp captures now use bounded shards of at most 4096 samples per resource on M6. Build18's full root3 operator capture has no invalid or dropped samples: assembly 0.600294 s, linear solve 2.979085 s, globalization 0.862148 s. FEM element application / node gathering / vascular application / cavity application total 0.416326 / 0.419280 / 0.213099 / 0.036886 s over 6144 spans each. This is observed instrumentation, not scaled sampling. Four-root body timing is 18.102456 s instrumented versus 17.136294 s uninstrumented (5.64% perturbation); do not combine these into an uninstrumented cost prediction.
+
+The actual Human selector6 additive local FEM graph path builds 949 patches. Combined with principal vascular and cavity-Schur options it passes one accepted root and the existing 1% comparison, but takes 22.114833 s versus 4.034879 s for the same-build ordinary control. This is a slower experiment, not an optimization gain or exact coupled Schur condensation. The synthetic retained-topology graph fixture independently passes zero RHS, completed tails, additive correction, invalid and singular factors, and bitwise serial/parallel factor parity. Its spring operator is explicitly synthetic.
+
+Build19 tests domain-separated nonlinear stopping, using the independently authored mechanical and vascular thresholds while retaining final certificates. It passes four-root physical checks in 9.917686 s versus 17.007002 s (1.7148x), but fails the existing 1% equivalence gate: maximum J differs by 1.4% and peak attachment reaction by 6.9%. It stays default-off and is not a qualified gain.
+
+Existing admitted passive-FEM rate caps are also tested. Cap0 completes four roots in 8.405019 s versus 17.007002 s, but fails determinant, displacement, attachment and body-contact comparisons. This is not a qualified timestep change. Cap1 results and witnesses are retained separately. Reducing scheduling work without numerical agreement is insufficient.
+
+The 0.5 ms root-step trial with explicit gravity continuation accepts 14 roots (7 ms), then rejects geometry at object19/element4214. The prior four-root invocation was invalid because its horizon was shorter than the declared ramp; it is retained as preparation failure, not a simulation failure. No supported checkpoint or larger timestep is qualified by these trials.
+
+
+## Build20 recycling integration
+
+The accepted-step FEM Z0 direction is staged per active Newton update and promoted only after the Human owner status, environment, completion count and same-command-buffer lease pass. Completed tails preserve the last active correction. Constraint/contact/timestep changes invalidate reuse; only a direction is stored and its action is recomputed by the current full operator. Owner rejection changes solver scratch only, never published physical state.
+
+The first build failed checked C++ narrowing of gate offsets; the repair uses explicit checked uint32 casts. Review also caught that the nonzero flags value 5 was incorrectly classified as malformed, which would have prevented all reuse. Both failures are retained. A repaired native fixture passes owner rejection, completed tails, zero fallback, contact/dt invalidation, basis injection and changed-current-operator tests; its first PSO attempt failed because the new FEM operator fixture lacked explicit function constants. That fixture specialization was repaired before testing, without altering production equations.
+
+Two initial Human invocations fail their existing selector admission at initialization. The admitted coupled selector6/coarse/principal/cavity configuration completes one root in 9.629004 body seconds, but uses all 6144 encoded columns and all 96 Newton attempts. It is not a measured recycling gain: a prior accepted direction does not exist during the first root. Actual Human use telemetry and multi-root comparison remain necessary.
+
+During integration a stale whole-file agent patch removed the then-unbuilt graph-lag and cache-ICB edits. Those edits are being restored from isolated narrow patches; build20 cannot establish their behavior. No stale source snapshot is substituted into the retained build20 evidence.
+
+## Build21 combined validation
+
+Eight focused tests pass: production rollback, regional graph completed-tail policy, cohesive Armijo tiles, CGLS arena planning, native FGMRES true-residual/recycling, capsule Armijo, full-contact Armijo and distributed Armijo measurements. The repaired recycling fixture verifies actual injection count as well as the current-operator action; no stale operator result is accepted.
+
+The expanded Newton-tail ICB conditionally includes force assembly, tangent-cache preparation/build and residual gathering for the eligible ordinary cache path. Unsupported cooperative/specialized/projection/forced-rebuild paths retain direct scheduling. Mandatory residual/final/physical processing remains outside. A matched four-root pair passes all 17 numerical metrics and physical terminal checks, but has no measured gain: 17.096627 versus 17.098094 body seconds (0.999914x). This is working conditional scheduling, not a performance claim.
+
+Actual accepted-step recycling executes in the Human selector6 path: its counter reaches 126 injections before a geometry rejection at root2 (object20/index15687). The matched configuration without recycling also rejects, at root1 on a mixed residual of 1.02259e-5 versus 1e-5. These different failures do not establish that either path is equivalent or qualified, and no recycling speedup is reported. The previous first-root run could not exercise accepted-step reuse.
+
+Lagged local graph factors complete one root in 11.920384 body seconds versus 19.296113 without lag (1.61875x). However maximum attachment reaction differs by 1.40%, exceeding the existing 1% gate. It remains default-off. The graph configuration is slower than the ordinary solver; this result is not a global Human gain.
+
+The repository comparison entrypoint is matter/tools/human_performance_compare.py. It consumes the retained summary files, enforces finite values, exact scalar/vector shapes, required metric coverage, successful terminal checks and matched simulated durations before reporting a mechanics speedup. Inline checks cover omitted metrics, truncated vectors, NaN, booleans, owner failure and mismatched durations. This avoids silently passing zip-truncated vectors or failed runs.
+
+Build21 does not complete exact Schur condensation, actual hybrid Bq runtime integration, a full operator ICB, a supported checkpoint, or the 0.1x end-to-end target. Those remain implementation work. All measurements here are short release-transient mechanics checks with presentation qualification pending.

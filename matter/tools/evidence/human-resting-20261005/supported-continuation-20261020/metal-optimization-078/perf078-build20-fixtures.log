@@ -1,0 +1,139 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 172: matter.compiler.regional_graph_completed_tail
+1/7 Test #172: matter.compiler.regional_graph_completed_tail .......   Passed    0.26 sec
+    Start 176: matter.compiler.cardboard_cohesive_armijo_tiles
+Could not find executable /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+Looked in the following places:
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-cohesive-armijo-tiles-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-cohesive-armijo-tiles-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-cohesive-armijo-tiles-check
+Unable to find executable: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-cohesive-armijo-tiles-check
+2/7 Test #176: matter.compiler.cardboard_cohesive_armijo_tiles .....***Not Run   0.00 sec
+    Start 180: matter.analysis.pure_fem_armijo_cgls_arena_plan
+Could not find executable /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Looked in the following places:
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+Unable to find executable: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-pure-fem-armijo-cgls-arena-plan-check
+3/7 Test #180: matter.analysis.pure_fem_armijo_cgls_arena_plan .....***Not Run   0.00 sec
+    Start 251: matter.metal.fgmres_true_residual_kernel_contract
+4/7 Test #251: matter.metal.fgmres_true_residual_kernel_contract ...Subprocess aborted***Exception:   0.27 sec
+validateWithDevice:1623: failed assertion `Compute Pipeline Descriptor Validation
+function numi_matter_metal::nm_fem_apply_operator_elements cannot be used to build a pipeline state. Use newFunctionWithName:constantValues:... to get the specialized function
+'
+
+    Start 255: matter.metal.cardboard_capsule_armijo
+Could not find executable /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+Looked in the following places:
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-capsule-armijo-check
+/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Release/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Debug/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/MinSizeRel/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/RelWithDebInfo/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Deployment/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-capsule-armijo-check
+Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/Development/numi-matter-cardboard-capsule-armijo-check
+Unable to find executable: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-capsule-armijo-check
+5/7 Test #255: matter.metal.cardboard_capsule_armijo ...............***Not Run   0.00 sec
+    Start 261: matter.compiler.cardboard_full_contact_armijo
+6/7 Test #261: matter.compiler.cardboard_full_contact_armijo .......   Passed    0.25 sec
+    Start 262: matter.metal.fem_armijo_global_measurements
+7/7 Test #262: matter.metal.fem_armijo_global_measurements .........   Passed    0.05 sec
+
+43% tests passed, 4 tests failed out of 7
+
+Label Time Summary:
+admission        =   0.00 sec*proc (1 test)
+armijo           =   0.30 sec*proc (4 tests)
+cardboard        =   0.51 sec*proc (4 tests)
+cgls             =   0.00 sec*proc (1 test)
+cohesive         =   0.00 sec*proc (1 test)
+contact          =   0.25 sec*proc (2 tests)
+cpu              =   0.26 sec*proc (3 tests)
+fgmres           =   0.27 sec*proc (2 tests)
+matter           =   0.83 sec*proc (7 tests)
+metal            =   0.32 sec*proc (2 tests)
+reduction        =   0.05 sec*proc (1 test)
+solver           =   0.26 sec*proc (1 test)
+synthetic        =   0.83 sec*proc (5 tests)
+true-residual    =   0.27 sec*proc (1 test)
+
+Total Test time (real) =   0.83 sec
+
+The following tests FAILED:
+	176 - matter.compiler.cardboard_cohesive_armijo_tiles (Not Run) cardboard cohesive cpu matter synthetic
+	180 - matter.analysis.pure_fem_armijo_cgls_arena_plan (Not Run) admission armijo cgls cpu fgmres matter
+	251 - matter.metal.fgmres_true_residual_kernel_contract (Subprocess aborted) fgmres matter metal synthetic true-residual
+	255 - matter.metal.cardboard_capsule_armijo (Not Run)   armijo cardboard contact matter
+Errors while running CTest

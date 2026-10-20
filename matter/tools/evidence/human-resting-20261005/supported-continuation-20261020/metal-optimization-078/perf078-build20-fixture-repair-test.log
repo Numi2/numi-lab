@@ -1,0 +1,14 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 251: matter.metal.fgmres_true_residual_kernel_contract
+1/1 Test #251: matter.metal.fgmres_true_residual_kernel_contract ...   Passed   12.54 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+fgmres           =  12.54 sec*proc (1 test)
+matter           =  12.54 sec*proc (1 test)
+metal            =  12.54 sec*proc (1 test)
+synthetic        =  12.54 sec*proc (1 test)
+true-residual    =  12.54 sec*proc (1 test)
+
+Total Test time (real) =  12.54 sec

@@ -2107,6 +2107,15 @@ public:
     // contact, topology-mutation, reset, identification, learned-update, and
     // parameter-update paths remain excluded. Objectless vascular-only worlds
     // have no logical per-object certificate entries to publish or invalidate.
+    // Internal Human adapter hook: promote solver-only FEM recycle scratch
+    // after the exact external owner status gate. It never publishes physical
+    // state or alters Matter acceptance.
+    [[nodiscard]] RuntimeDiagnostics encodeAcceptedFEMSolverZ0Promotion(
+        void* commandBuffer,
+        std::uint32_t controlStep,
+        std::uint32_t physicsSubstep,
+        const AcceptedStepFinalizationGate& gate
+    );
     [[nodiscard]] RuntimeDiagnostics finalizeAcceptedStepExtension(
         void* commandBuffer,
         std::uint32_t controlStep,

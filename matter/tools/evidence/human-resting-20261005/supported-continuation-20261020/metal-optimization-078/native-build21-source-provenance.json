@@ -1,0 +1,74 @@
+{
+  "artifact_manifest_sha256": "71f64d696b6d6b10c7f4612ef48ff47fa9d24d86fa152a4cab879a84af84e538",
+  "artifacts": {
+    "NumiMatter.metallib": "55d734cff31674234994f2339141b2795f18771e0cb6e3eeb760a8a85f6a79e6",
+    "libmetalrobo.dylib": "77233d40b515f1da3f8d758468350f3f72b5784f3918e83002773044b7f0c5cf",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "8d953b79b27c729cb279eeb26e8c43ffb4e7ae9373f3de284c3749d9cc01b160",
+    "source-manifest.json": "f7a24d6c4da49e4f6f89a21a96107a92a11ddfd86eba7d6382ba31dfd3532363",
+    "source.patch": "91137381d72035aa2a7974fe05b9cb4b0e45443cc373189dbf437b860e9e08df"
+  },
+  "base_revision": "71ceed80b80972a9ab6ec100daf8e288ed3c2c2b",
+  "build": "perf078-build21",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build21-frozen",
+  "schema": 1,
+  "source_archive_sha256": "8d953b79b27c729cb279eeb26e8c43ffb4e7ae9373f3de284c3749d9cc01b160",
+  "source_files": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "1cc22c16de034527b48c2cacdd65b0fd528569df09d71e85f21e2ea042abab0f",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "5401291eb28a2be82c6e1631d52166b3c5c613c1cce1914596878ed75a22ba75",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "8415e5a2578d4dd4dfbfe9669b2874a1b8e8339d5453c149935e09ecd4f387df",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "sha256": "f4ac25dd20fce3b0d9f2b264c0dfcaecc3e66068e9b21e338742d5076a78c5e5",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal_encoder_timing.hpp",
+      "sha256": "75204eec79bc772783900105f367b665c67c4284ddf9a91f2ab20e0690d0f048",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "sha256": "f79e4d2d0a5c774b9bef889e0accb3f02ab5aee1c8f3b2ab615cfd93ff1a1c24",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "4d8a259cf4636ce21ded3b5c8bb0d1414cec346e8513dc04f323669dbf7afbac",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "0819c4fefd78987af2cc4ca69f8005112563bab8d36c7f7cf40cff97bbb1701a",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "sha256": "67d95fcf35c410c1e7fc8ffc75338bc73c22eac3d63d5ee96265481d457da7c8",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "834669f1f0211c8899cffd8006bf1533952eecf7cb3158488e833effe6f355ae",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_graph_completed_tail_check.cpp",
+      "sha256": "5db70da8d7c4c77b21b6275206256d1e71a7c9a59da48e214862a8e5225671cb",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "91137381d72035aa2a7974fe05b9cb4b0e45443cc373189dbf437b860e9e08df"
+}

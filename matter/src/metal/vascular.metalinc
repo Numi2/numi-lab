@@ -2075,17 +2075,17 @@ kernel void nm_vascular_limit_line_search(
             const uint witnessRow = simd_min(
                 localWorstRatio == worstRatio ? localWorstRow : NM_INVALID_INDEX);
             if (lane == 0u && !predictorMode) {
-                // Local row 16 is a storage-balance (compartment) equation.
-                // Record its current residual, exact JVP, linear prediction,
+                // Record the deterministic failing equation's current
+                // residual, exact JVP, linear prediction,
                 // and evaluated trial residual in line-search scratch only.
                 // Keep the witness local until the unchanged failure status is
                 // recorded, then publish it into scratch rows 16-18.
                 float4 row16Witness = float4(0.0f);
                 const bool row16WitnessValid = row16DirectionTrace &&
-                    graph.offsets.y > 16u && graph.ranges.z > 18u &&
+                    witnessRow < graph.ranges.z && graph.ranges.z > 18u &&
                     environmentHealthy(statuses, environment);
                 if (row16WitnessValid) {
-                    const uint row = 16u;
+                    const uint row = witnessRow;
                     const float rowResidual = vascularEquation(graph, microstep.time.x, row, base,
                         directionBase, false, unknowns, compartments, connections, tissues, exchanges,
                         connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges,

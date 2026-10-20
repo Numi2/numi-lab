@@ -1,0 +1,38 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  58: matter.runtime.production_transaction_rollback
+1/8 Test  #58: matter.runtime.production_transaction_rollback ......   Passed    1.07 sec
+    Start 172: matter.compiler.regional_graph_completed_tail
+2/8 Test #172: matter.compiler.regional_graph_completed_tail .......   Passed    0.00 sec
+    Start 176: matter.compiler.cardboard_cohesive_armijo_tiles
+3/8 Test #176: matter.compiler.cardboard_cohesive_armijo_tiles .....   Passed    0.16 sec
+    Start 180: matter.analysis.pure_fem_armijo_cgls_arena_plan
+4/8 Test #180: matter.analysis.pure_fem_armijo_cgls_arena_plan .....   Passed    0.16 sec
+    Start 251: matter.metal.fgmres_true_residual_kernel_contract
+5/8 Test #251: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.32 sec
+    Start 255: matter.metal.cardboard_capsule_armijo
+6/8 Test #255: matter.metal.cardboard_capsule_armijo ...............   Passed    3.59 sec
+    Start 261: matter.compiler.cardboard_full_contact_armijo
+7/8 Test #261: matter.compiler.cardboard_full_contact_armijo .......   Passed    0.02 sec
+    Start 262: matter.metal.fem_armijo_global_measurements
+8/8 Test #262: matter.metal.fem_armijo_global_measurements .........   Passed    0.05 sec
+
+100% tests passed out of 8
+
+Label Time Summary:
+admission        =   0.16 sec*proc (1 test)
+armijo           =   3.82 sec*proc (4 tests)
+cardboard        =   3.77 sec*proc (4 tests)
+cgls             =   0.16 sec*proc (1 test)
+cohesive         =   0.16 sec*proc (1 test)
+contact          =   3.61 sec*proc (2 tests)
+cpu              =   0.32 sec*proc (3 tests)
+fgmres           =   0.47 sec*proc (2 tests)
+matter           =   5.36 sec*proc (8 tests)
+metal            =   1.43 sec*proc (3 tests)
+physics          =   1.07 sec*proc (1 test)
+reduction        =   0.05 sec*proc (1 test)
+solver           =   0.00 sec*proc (1 test)
+synthetic        =   0.54 sec*proc (5 tests)
+true-residual    =   0.32 sec*proc (1 test)
+
+Total Test time (real) =   5.37 sec

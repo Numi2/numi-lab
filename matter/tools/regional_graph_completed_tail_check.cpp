@@ -7,6 +7,7 @@
 using numi::matter::detail::regionalGraphCapturePendingForIteration;
 using numi::matter::detail::regionalGraphCompletedTailReuseAllowed;
 using numi::matter::detail::regionalGraphMaySkipPatchFactorization;
+using numi::matter::detail::regionalHumanGraphFactorReuseMode;
 
 namespace {
 
@@ -33,6 +34,20 @@ int main() {
     std::uint32_t checks = 0u;
     bool ok = true;
 
+    ok &= require(regionalHumanGraphFactorReuseMode(
+                      false, 4u, false, false) == 1u,
+        "default Human path reuses only an exact completion-latched tail", checks);
+    ok &= require(regionalHumanGraphFactorReuseMode(
+                      true, 4u, false, false) == 2u,
+        "explicit Human factor lag selects the approximate reuse policy", checks);
+    ok &= require(regionalHumanGraphFactorReuseMode(
+                      true, 0u, false, false) == 0u,
+        "each physical microstep rebuilds at Newton iteration zero", checks);
+    ok &= require(regionalHumanGraphFactorReuseMode(
+                      true, 4u, true, false) == 0u &&
+                  regionalHumanGraphFactorReuseMode(
+                      true, 4u, false, true) == 0u,
+        "forced rebuild and selected capture veto both reuse modes", checks);
     ok &= require(!regionalGraphCompletedTailReuseAllowed(0u, false, false),
         "iteration zero must rebuild even with no forced capture", checks);
     ok &= require(regionalGraphCompletedTailReuseAllowed(1u, false, false),

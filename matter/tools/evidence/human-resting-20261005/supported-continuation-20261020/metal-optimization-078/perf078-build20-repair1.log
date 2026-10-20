@@ -1,0 +1,88 @@
+[0/2] Re-checking globbed directories...
+[1/9] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:2:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6104:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:6:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3527:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3536:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3527:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3517:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3974:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3991:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3974:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3854:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:9:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1557:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1516:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+7 warnings generated.
+[2/9] Linking CXX executable matter/numi-matter-fgmres-true-residual-native-check
+[3/9] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16539:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 16539 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:20682:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 20682 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[4/9] Linking CXX static library matter/libnumi_matter_runtime.a
+[5/9] Linking CXX executable matter/numi-matter-cardboard-graph-lu-search-native-check
+[6/9] Linking CXX shared library lib/libmetalrobo.dylib
+[7/9] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[8/9] Linking OBJCXX executable bin/numi-human-native

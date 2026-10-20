@@ -1,0 +1,13 @@
+{
+  "matter/include/numi/matter/matter.hpp": "1cc22c16de034527b48c2cacdd65b0fd528569df09d71e85f21e2ea042abab0f",
+  "matter/include/numi/matter/shared.h": "5401291eb28a2be82c6e1631d52166b3c5c613c1cce1914596878ed75a22ba75",
+  "matter/src/metal/fgmres.metalinc": "b7827fa9bb2610f22e09d4889b0fd7cbbfedd38dd5273b79bda5ee8e9b23a8c2",
+  "matter/src/metal/vascular.metalinc": "f4ac25dd20fce3b0d9f2b264c0dfcaecc3e66068e9b21e338742d5076a78c5e5",
+  "matter/src/metal_encoder_timing.hpp": "75204eec79bc772783900105f367b665c67c4284ddf9a91f2ab20e0690d0f048",
+  "matter/src/numi_human.mm": "f79e4d2d0a5c774b9bef889e0accb3f02ab5aee1c8f3b2ab615cfd93ff1a1c24",
+  "matter/src/regional_graph_schwarz.hpp": "4d8a259cf4636ce21ded3b5c8bb0d1414cec346e8513dc04f323669dbf7afbac",
+  "matter/src/runtime.mm": "c091093f9ddc8ab033f5cec35478d5d7fee040ab94705e9b0548527e0cfd2b44",
+  "matter/tools/cardboard_graph_lu_search_native_check.mm": "67d95fcf35c410c1e7fc8ffc75338bc73c22eac3d63d5ee96265481d457da7c8",
+  "matter/tools/fgmres_true_residual_native_check.mm": "2f8b7f6fb96079f931e4ebc6377f447bdaa5c43e0c5f6a02a95c9c68df0c1675",
+  "matter/tools/regional_graph_completed_tail_check.cpp": "5db70da8d7c4c77b21b6275206256d1e71a7c9a59da48e214862a8e5225671cb"
+}

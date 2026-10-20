@@ -3215,17 +3215,19 @@ inline float3x3 fgmresApplyCachedTangent(
     return componentsMatrix(responseComponents);
 }
 
-// Match the FEM tangent-cache reuse contract: a prior accepted nonlinear
-// convergence latch proves that the candidate is unchanged through the
-// statically encoded tail. Iteration zero, forced rebuilds, and selected
-// diagnostic captures always reconstruct the graph matrix and factor.
+// Reuse mode 1 is exact completed-tail reuse; mode 2 is the explicit
+// conditioning-only lag option within one physical microstep. Iteration zero,
+// forced rebuilds, and selected diagnostic captures pass mode 0. Every mode
+// still requires a factor built successfully in this transaction.
 inline bool fgmresGraphMayReuseCompletedFactor(
-    const uint reuseCompletedTailAllowed,
+    const uint reuseMode,
     const NMFGMRESStateGPU state,
     const uint priorFactorValid
 ) {
-    return reuseCompletedTailAllowed != 0u && state.nonlinear.w > 0.5f &&
-        priorFactorValid != 0u;
+    const bool exactCompletedTail = reuseMode == 1u &&
+        state.nonlinear.w > 0.5f;
+    const bool explicitLag = reuseMode == 2u;
+    return (exactCompletedTail || explicitLag) && priorFactorValid != 0u;
 }
 
 // Assemble each dense graph-patch principal submatrix from the same local
@@ -3328,12 +3330,17 @@ kernel void nm_fgmres_graph_build_patch_matrices(
         return;
     }
     const NMIncidenceRangeGPU range = nodeRanges[globalNode];
-    if (range.objectIndex != 0u || range.objectIndex >= dispatch.objectCount) {
+    if (range.objectIndex >= dispatch.objectCount ||
+        objects[range.objectIndex].representation != NM_REPRESENTATION_FEM) {
         recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
             range.objectIndex, NM_INVALID_INDEX,
             float4(float(globalNode), float(range.objectIndex), 0.0f, 3.0f));
         return;
     }
+    // Selector 6 can include multiple Human FEM objects. This graph is only
+    // an additive local FEM preconditioner; non-FEM/coupled terms remain on
+    // the unchanged full operator and are deliberately absent from these
+    // patch matrices.
     const NMContinuumObjectGPU object = objects[range.objectIndex];
     const NMSchedulerStateGPU scheduler = schedulers[
         environment * dispatch.objectCount + range.objectIndex];
@@ -3820,8 +3827,9 @@ kernel void nm_fgmres_graph_solve_patches(
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
-    if (group >= totalGroups || patchCount == 0u || modeCount == 0u ||
-        modeCount > 32u || modeStride < modeCount || modeStride > 32u) return;
+    if (group >= totalGroups || patchCount == 0u || modeCount > 32u ||
+        (modeCount == 0u ? modeStride != 0u :
+         (modeStride < modeCount || modeStride > 32u))) return;
     const uint environment = group / patchCount;
     const uint patchIndex = group - environment * patchCount;
     const uint4 patch = patches[patchIndex];
@@ -4114,8 +4122,9 @@ kernel void nm_fgmres_graph_apply_patches(
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u ||
-        modeCount == 0u || modeCount > 32u ||
-        modeStride < modeCount || modeStride > 32u) return;
+        modeCount > 32u ||
+        (modeCount == 0u ? modeStride != 0u :
+         (modeStride < modeCount || modeStride > 32u))) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     if (states[environment].diagnostics.z > 0.5f) {
@@ -4123,10 +4132,14 @@ kernel void nm_fgmres_graph_apply_patches(
         return;
     }
     if (candidate[global].restAndFixed.w != 0.0f) {
-        preconditioned[global] = float4(0.0f);
+        if (modeCount != 0u) preconditioned[global] = float4(0.0f);
         return;
     }
-    float3 coarseCorrection = float3(0.0f);
+    // modeCount==0 is the Human selector-6 additive FEM graph path: it
+    // retains the already-computed regional correction and adds only this
+    // local graph solve. Selector 5 keeps its original overwrite semantics.
+    float3 coarseCorrection = modeCount == 0u
+        ? preconditioned[global].xyz : float3(0.0f);
     const uint coefficientBase = environment * modeCount;
     for (uint mode = 0u; mode < modeCount; ++mode) {
         const float coefficient = coefficients[coefficientBase + mode];
@@ -4147,8 +4160,10 @@ kernel void nm_fgmres_graph_apply_patches(
         }
         graphCorrection /= float(coverage);
     }
+    const float preservedW = modeCount == 0u
+        ? preconditioned[global].w : 0.0f;
     preconditioned[global] = float4(
-        coarseCorrection + graphCorrection, 0.0f);
+        coarseCorrection + graphCorrection, preservedW);
 }
 
 kernel void nm_fgmres_build_tangent_fem_preconditioner(
@@ -7120,6 +7135,7 @@ kernel void nm_fgmres_begin_distributed_partial(
     device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(22)]],
     device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
     device float4* partials [[buffer(24)]],
+    device float2* domainPartials [[buffer(25)]],
     uint lane [[thread_index_in_threadgroup]],
     uint simdLane [[thread_index_in_simdgroup]],
     uint simdGroup [[simdgroup_index_in_threadgroup]],
@@ -7137,6 +7153,8 @@ kernel void nm_fgmres_begin_distributed_partial(
     const uint item = tile * kFGMRESMeasurementTileItems + lane;
     const uint unknownItemCount = fgmresOrthogonalItemCount(dispatch, layout);
     float normContribution = 0.0f;
+    float mechanicalNormContribution = 0.0f;
+    float vascularNormContribution = 0.0f;
     float speedSquared = 0.0f;
     bool supportAdmissible = true;
     if (item < unknownItemCount) {
@@ -7146,6 +7164,14 @@ kernel void nm_fgmres_begin_distributed_partial(
             const float4 value = fgmresOrthogonalLoad(
                 dispatch, layout, environment, item, residual);
             normContribution = dot(value, value);
+            if ((layout.reserved & 2u) != 0u) {
+                const bool vascularItem = layout.vascularUnknownCount > 0u &&
+                    item >= unknownItemCount - layout.vascularUnknownCount;
+                if (vascularItem)
+                    vascularNormContribution = normContribution;
+                else
+                    mechanicalNormContribution = normContribution;
+            }
             const uint transportCount = fgmresTransportUnknownsActive(layout)
                 ? dispatch.femNodeCount : 0u;
             const uint rigidStart = dispatch.femNodeCount + transportCount +
@@ -7187,11 +7213,37 @@ kernel void nm_fgmres_begin_distributed_partial(
     threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
     threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
     threadgroup uint validGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup float mechanicalGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup float vascularGroups[kFGMRESMeasurementSIMDGroups + 1u];
     const float4 tileValue = fgmresMeasurementReduceTile(
         normContribution, speedSquared, supportAdmissible,
         sumGroups, maxGroups, validGroups, lane, simdLane, simdGroup);
     if (lane == 0u)
         partials[environment * tilesPerEnvironment + tile] = tileValue;
+    if ((layout.reserved & 2u) != 0u) {
+        const float mechanicalSIMDSum = simd_sum(mechanicalNormContribution);
+        const float vascularSIMDSum = simd_sum(vascularNormContribution);
+        if (simdLane == 0u) {
+            mechanicalGroups[simdGroup] = mechanicalSIMDSum;
+            vascularGroups[simdGroup] = vascularSIMDSum;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            float mechanicalSum = 0.0f;
+            float mechanicalCorrection = 0.0f;
+            float vascularSum = 0.0f;
+            float vascularCorrection = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < kFGMRESMeasurementSIMDGroups; ++groupIndex) {
+                fgmresCompensatedAdd(mechanicalSum, mechanicalCorrection,
+                    mechanicalGroups[groupIndex]);
+                fgmresCompensatedAdd(vascularSum, vascularCorrection,
+                    vascularGroups[groupIndex]);
+            }
+            domainPartials[environment * tilesPerEnvironment + tile] =
+                float2(mechanicalSum, vascularSum);
+        }
+    }
 }
 
 // Opt-in Eisenstat-Walker forcing preparation. The partials are the full
@@ -7345,6 +7397,7 @@ kernel void nm_fgmres_begin_distributed_finish(
     device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(22)]],
     device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
     device float4* partials [[buffer(24)]],
+    device const float2* domainPartials [[buffer(25)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -7354,15 +7407,29 @@ kernel void nm_fgmres_begin_distributed_finish(
         fgmresBeginMeasurementItemCount(dispatch, layout));
     float localNorm2 = 0.0f;
     float normCorrection = 0.0f;
+    float localMechanicalNorm2 = 0.0f;
+    float mechanicalNormCorrection = 0.0f;
+    float localVascularNorm2 = 0.0f;
+    float vascularNormCorrection = 0.0f;
     float localMaximumSpeedSquared = 0.0f;
     bool localSupportAdmissible = true;
     for (uint tile = lane; tile < tilesPerEnvironment; tile += 32u) {
         const float4 value = partials[environment * tilesPerEnvironment + tile];
         fgmresCompensatedAdd(localNorm2, normCorrection, value.x);
+        if ((layout.reserved & 2u) != 0u) {
+            const float2 domain = domainPartials[
+                environment * tilesPerEnvironment + tile];
+            fgmresCompensatedAdd(localMechanicalNorm2,
+                mechanicalNormCorrection, domain.x);
+            fgmresCompensatedAdd(localVascularNorm2,
+                vascularNormCorrection, domain.y);
+        }
         localMaximumSpeedSquared = max(localMaximumSpeedSquared, value.y);
         localSupportAdmissible = localSupportAdmissible && value.z > 0.5f;
     }
     const float norm2 = simd_sum(localNorm2);
+    const float mechanicalNorm2 = simd_sum(localMechanicalNorm2);
+    const float vascularNorm2 = simd_sum(localVascularNorm2);
     const float maximumCandidateSpeedSquared = simd_max(localMaximumSpeedSquared);
     const bool supportAdmissible = simd_all(localSupportAdmissible);
     // Lane zero reuses the first tile as the collapsed scalar record below.
@@ -7397,12 +7464,23 @@ kernel void nm_fgmres_begin_distributed_finish(
     const float nonlinearThreshold = layout.vascularUnknownCount == 0u
         ? mechanicalNonlinearThreshold
         : min(mechanicalNonlinearThreshold, layout.vascularResidualTolerance);
+    const bool domainSeparatedLatch = (layout.reserved & 2u) != 0u;
+    const float mechanicalDomainNorm = sqrt(max(mechanicalNorm2, 0.0f));
+    const float vascularDomainNorm = sqrt(max(vascularNorm2, 0.0f));
+    const bool domainResidualPass = isfinite(norm2) && norm2 >= 0.0f &&
+        isfinite(mechanicalNorm2) && mechanicalNorm2 >= 0.0f &&
+        isfinite(vascularNorm2) && vascularNorm2 >= 0.0f &&
+        isfinite(mechanicalDomainNorm) && isfinite(vascularDomainNorm) &&
+        mechanicalDomainNorm <= mechanicalNonlinearThreshold &&
+        vascularDomainNorm <= layout.vascularResidualTolerance;
+    const bool nonlinearResidualPass = domainSeparatedLatch
+        ? domainResidualPass : norm <= nonlinearThreshold;
     const bool contactFreeStaticRest = nonlinearIteration == 0u &&
         !hasActiveContact && maximumCandidateSpeedSquared == 0.0f &&
         all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
     const bool nonlinearConverged = restartCycle == 0u &&
         (correctionFinite || contactFreeStaticRest) &&
-        norm <= nonlinearThreshold && supportAdmissible;
+        nonlinearResidualPass && supportAdmissible;
     const bool completedNonlinearLatch = nonlinearConverged ||
         (restartCycle > 0u && completed && previousNonlinear.w > 0.5f);
     if (lane == 0u) {
@@ -7845,6 +7923,80 @@ kernel void nm_fgmres_true_residual_distributed_replace(
     const float value = rightHandSide[row].x - operatorValue[row].x;
     residual[row] = float4(value, 0.0f, 0.0f, 0.0f);
     (void)layout;
+}
+
+
+// Diagnostic-only domain norms. Keep the production residual and its reduction
+// unchanged: these tiled sums explain which block prevents the outer latch.
+kernel void nm_fgmres_telemetry_domains_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* partials [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint count = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint tiles = fgmresMeasurementTileCount(count);
+    if (group >= dispatch.environmentCount * tiles || lane >= 256u) return;
+    const uint environment = group / tiles;
+    const uint item = (group % tiles) * 256u + lane;
+    float2 contribution = float2(0.0f);
+    if (item < count) {
+        const uint index = fgmresOrthogonalVectorIndex(dispatch, layout, environment, item);
+        if (index != NM_INVALID_INDEX) {
+            const float4 value = fgmresOrthogonalLoad(dispatch, layout, environment, item, residual);
+            const float square = dot(value, value);
+            const uint vascularBase = layout.vascularBase +
+                environment * layout.vascularUnknownCount;
+            const bool vascular = index >= vascularBase &&
+                index - vascularBase < layout.vascularUnknownCount;
+            contribution = vascular ? float2(0.0f, square) : float2(square, 0.0f);
+        }
+    }
+    threadgroup float2 sums[8];
+    const float2 sum = float2(simd_sum(contribution.x), simd_sum(contribution.y));
+    if (simdLane == 0u) sums[simdGroup] = sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        float mechanical = 0.0f, mechanicalCorrection = 0.0f;
+        float vascular = 0.0f, vascularCorrection = 0.0f;
+        for (uint i = 0u; i < 8u; ++i) {
+            fgmresCompensatedAdd(mechanical, mechanicalCorrection, sums[i].x);
+            fgmresCompensatedAdd(vascular, vascularCorrection, sums[i].y);
+        }
+        partials[environment * tiles + group % tiles] = float4(mechanical, vascular, 0.0f, 0.0f);
+    }
+}
+kernel void nm_fgmres_telemetry_domains_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* partials [[buffer(1)]],
+    device NMFGMRESTelemetryGPU* telemetry [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    constant NMMixedSolverGPU& solver [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u ||
+        !environmentHealthy(statuses, group)) return;
+    const uint tiles = fgmresMeasurementTileCount(fgmresOrthogonalItemCount(dispatch, layout));
+    float mechanical = 0.0f, mechanicalCorrection = 0.0f;
+    float vascular = 0.0f, vascularCorrection = 0.0f;
+    for (uint tile = lane; tile < tiles; tile += 32u) {
+        const float2 value = partials[group * tiles + tile].xy;
+        fgmresCompensatedAdd(mechanical, mechanicalCorrection, value.x);
+        fgmresCompensatedAdd(vascular, vascularCorrection, value.y);
+    }
+    const float2 norm = sqrt(max(float2(simd_sum(mechanical), simd_sum(vascular)), float2(0.0f)));
+    if (lane != 0u) return;
+    const NMFGMRESStateGPU state = states[group];
+    const float threshold = max(solver.regularization.x,
+        solver.residualTolerances.x * max(min(state.nonlinear.x, state.nonlinear.y), 1.0f));
+    telemetry[group].domains = float4(norm, threshold, layout.vascularResidualTolerance);
 }
 
 // Root-local telemetry is kept outside the established solver-kernel ABIs.
@@ -10706,6 +10858,7 @@ kernel void nm_fgmres_prepare_newton_tail_icb(
     device uint2* commandRanges [[buffer(6)]],
     device NMMicrostepGPU* preparedMicrostep [[buffer(7)]],
     device NMMatterDispatchGPU* preparedDispatch [[buffer(8)]],
+    constant uint& includeTangentCache [[buffer(9)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global != 0u) return;
@@ -10729,8 +10882,284 @@ kernel void nm_fgmres_prepare_newton_tail_icb(
     };
     commandRanges[0] = uint2(0u, active);
     commandRanges[1] = uint2(1u, active);
+    commandRanges[2] = uint2(2u,
+        active * (includeTangentCache != 0u ? 2u : 0u));
     preparedMicrostep[0] = microstep;
     preparedDispatch[0] = dispatch;
+}
+
+
+// Accepted-step flexible-GMRES Z0 recycle. This stores only a previous
+// accepted FEM correction; every use still enters the ordinary full operator
+// chain, so current contact/coupling actions and all true-residual gates run.
+kernel void nm_fgmres_accepted_z0_reset_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint* candidateFlags [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment < dispatch.environmentCount)
+        candidateFlags[environment] = 0u;
+}
+
+kernel void nm_fgmres_accepted_z0_reset_candidate_for_capture(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device uint* candidateFlags [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment < dispatch.environmentCount &&
+        environmentHealthy(statuses, environment) &&
+        states[environment].nonlinear.w <= 0.5f)
+        candidateFlags[environment] = 0u;
+}
+
+kernel void nm_fgmres_accepted_z0_capture_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* solution [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(2)]],
+    device float4* candidateZ [[buffer(3)]],
+    device uint* candidateFlags [[buffer(4)]],
+    constant NMMicrostepGPU& microstep [[buffer(5)]],
+    device uint* candidateTimestepBits [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    device const NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    // Once nonlinear.w latches a completed Newton tail, later graph replay
+    // may carry a zero/stale solution. Do not reset or overwrite the last
+    // active Newton correction.
+    if (!environmentHealthy(statuses, environment) ||
+        states[environment].nonlinear.w > 0.5f) return;
+    const float3 value = solution[global].xyz;
+    const float mask = candidateNodes[global].restAndFixed.w;
+    const bool constrained = mask == 1.0f || mask == 3.0f;
+    const bool finite = all(isfinite(value)) && isfinite(mask);
+    candidateZ[global] = finite && !constrained
+        ? float4(value, 0.0f) : float4(0.0f);
+    if (!finite) {
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(candidateFlags) + environment,
+            2u, memory_order_relaxed);
+    } else if (!constrained && any(value != float3(0.0f))) {
+        // Bit 2 marks a finite, nonzero correction. A converged Newton tail
+        // can capture a zero solution; that must never replace a useful Z0.
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(candidateFlags) + environment,
+            4u, memory_order_relaxed);
+    }
+    if (global % dispatch.femNodeCount == 0u) {
+        candidateTimestepBits[environment] = as_type<uint>(microstep.time.x);
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(candidateFlags) + environment,
+            1u, memory_order_relaxed);
+    }
+}
+
+kernel void nm_fgmres_accepted_z0_promote_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const float4* candidateZ [[buffer(2)]],
+    device float4* acceptedZ [[buffer(3)]],
+    device const uint* candidateFlags [[buffer(4)]],
+    device uint* acceptedValid [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(6)]],
+    device uint* acceptedConstraintMask [[buffer(7)]],
+    device const uint* candidateTimestepBits [[buffer(8)]],
+    device uint* acceptedTimestepBits [[buffer(9)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const bool healthy = environmentHealthy(statuses, environment);
+    const uint flags = candidateFlags[environment];
+    if (healthy && flags == 5u) {
+        acceptedZ[global] = candidateZ[global];
+        acceptedConstraintMask[global] = as_type<uint>(
+            candidateNodes[global].restAndFixed.w);
+    } else if (!healthy || (flags & 2u) != 0u || (flags != 0u && flags != 1u && flags != 5u)) {
+        acceptedZ[global] = float4(0.0f);
+        acceptedConstraintMask[global] = 0u;
+    }
+    if (global % dispatch.femNodeCount == 0u) {
+        if (!healthy || (flags & 2u) != 0u || (flags != 0u && flags != 1u && flags != 5u))
+            acceptedValid[environment] = 0u;
+        else if (flags == 5u) {
+            acceptedValid[environment] = 1u;
+            acceptedTimestepBits[environment] = candidateTimestepBits[environment];
+        }
+    }
+}
+
+kernel void nm_fgmres_accepted_z0_snapshot_contact_keys(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    constant NMPrimalContactArguments& contact [[buffer(2)]],
+    device uint4* acceptedContactKeys [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pair = global - environment * dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    acceptedContactKeys[global] = primalContactSample(
+        dispatch, contact, environment, pair).identity;
+}
+
+kernel void nm_fgmres_accepted_z0_validate_contact_keys(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPrimalContactArguments& contact [[buffer(1)]],
+    device const uint4* acceptedContactKeys [[buffer(2)]],
+    device uint* acceptedValid [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pair = global - environment * dispatch.contactPairCount;
+    const uint4 current = primalContactSample(
+        dispatch, contact, environment, pair).identity;
+    if (!all(current == acceptedContactKeys[global]))
+        atomic_store_explicit(
+            reinterpret_cast<device atomic_uint*>(acceptedValid) + environment,
+            0u, memory_order_relaxed);
+}
+
+kernel void nm_fgmres_accepted_z0_validate_constraint_mask(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(1)]],
+    device const uint* acceptedConstraintMask [[buffer(2)]],
+    device uint* acceptedValid [[buffer(3)]],
+    constant NMMicrostepGPU& microstep [[buffer(4)]],
+    device const uint* acceptedTimestepBits [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (as_type<uint>(candidateNodes[global].restAndFixed.w) !=
+        acceptedConstraintMask[global] ||
+        (global % dispatch.femNodeCount == 0u &&
+         as_type<uint>(microstep.time.x) != acceptedTimestepBits[environment]))
+        atomic_store_explicit(
+            reinterpret_cast<device atomic_uint*>(acceptedValid) + environment,
+            0u, memory_order_relaxed);
+}
+
+kernel void nm_fgmres_accepted_z0_add_to_preconditioned_basis(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* acceptedZ [[buffer(1)]],
+    device const uint* acceptedValid [[buffer(2)]],
+    device float4* preconditionedBasis [[buffer(3)]],
+    device atomic_uint* useCounts [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (acceptedValid[environment] != 1u) return;
+    preconditionedBasis[global] += acceptedZ[global];
+    if (global % dispatch.femNodeCount == 0u)
+        atomic_fetch_add_explicit(useCounts + environment, 1u, memory_order_relaxed);
+}
+
+
+struct NMFGMRESAcceptedZ0OwnerGateGPU {
+    uint environmentCount;
+    uint externalStatusStrideWords;
+    uint acceptedStatusCode;
+    uint environmentIndexOffsetWords;
+    uint expectedEnvironmentBase;
+    uint completedCountOffsetWords;
+    uint expectedCompletedCount;
+    uint reserved0;
+};
+
+inline bool nm_fgmres_accepted_z0_owner_gate(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESAcceptedZ0OwnerGateGPU gate,
+    device const uint* externalStatusRecords,
+    const uint environment) {
+    if (environment >= dispatch.environmentCount ||
+        gate.environmentCount != dispatch.environmentCount ||
+        gate.externalStatusStrideWords == 0u ||
+        gate.reserved0 != 0u) return false;
+    device const uint* record = externalStatusRecords +
+        ulong(environment) * gate.externalStatusStrideWords;
+    bool accepted = record[0] == gate.acceptedStatusCode;
+    if (gate.environmentIndexOffsetWords != NM_INVALID_INDEX)
+        accepted = accepted && record[gate.environmentIndexOffsetWords] ==
+            gate.expectedEnvironmentBase + environment;
+    if (gate.completedCountOffsetWords != NM_INVALID_INDEX)
+        accepted = accepted && record[gate.completedCountOffsetWords] ==
+            gate.expectedCompletedCount;
+    return accepted;
+}
+
+kernel void nm_fgmres_accepted_z0_promote_owner_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const uint* externalStatusRecords [[buffer(2)]],
+    constant NMFGMRESAcceptedZ0OwnerGateGPU& gate [[buffer(3)]],
+    device const float4* candidateZ [[buffer(4)]],
+    device float4* acceptedZ [[buffer(5)]],
+    device const uint* candidateFlags [[buffer(6)]],
+    device uint* acceptedValid [[buffer(7)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(8)]],
+    device uint* acceptedConstraintMask [[buffer(9)]],
+    device const uint* candidateTimestepBits [[buffer(10)]],
+    device uint* acceptedTimestepBits [[buffer(11)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const bool accepted = environmentHealthy(statuses, environment) &&
+        nm_fgmres_accepted_z0_owner_gate(
+            dispatch, gate, externalStatusRecords, environment);
+    const uint flags = candidateFlags[environment];
+    if (accepted && flags == 5u) {
+        acceptedZ[global] = candidateZ[global];
+        acceptedConstraintMask[global] = as_type<uint>(
+            candidateNodes[global].restAndFixed.w);
+    } else if (!accepted || (flags & 2u) != 0u || (flags != 0u && flags != 1u && flags != 5u)) {
+        acceptedZ[global] = float4(0.0f);
+        acceptedConstraintMask[global] = 0u;
+    }
+    if (global % dispatch.femNodeCount == 0u) {
+        if (!accepted || (flags & 2u) != 0u || (flags != 0u && flags != 1u && flags != 5u))
+            acceptedValid[environment] = 0u;
+        else if (flags == 5u) {
+            acceptedValid[environment] = 1u;
+            acceptedTimestepBits[environment] = candidateTimestepBits[environment];
+        }
+    }
+}
+
+kernel void nm_fgmres_accepted_z0_snapshot_owner_contact_keys(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const uint* externalStatusRecords [[buffer(2)]],
+    constant NMFGMRESAcceptedZ0OwnerGateGPU& gate [[buffer(3)]],
+    constant NMPrimalContactArguments& contact [[buffer(4)]],
+    device const uint* candidateFlags [[buffer(5)]],
+    device uint* acceptedValid [[buffer(6)]],
+    device uint4* acceptedContactKeys [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pair = global - environment * dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment) ||
+        !nm_fgmres_accepted_z0_owner_gate(
+            dispatch, gate, externalStatusRecords, environment)) return;
+    const uint4 current = primalContactSample(
+        dispatch, contact, environment, pair).identity;
+    // A changed contact set invalidates an old vector if this transaction did
+    // not capture a fresh correction under the current set.
+    if (candidateFlags[environment] != 5u &&
+        !all(current == acceptedContactKeys[global])) {
+        atomic_store_explicit(
+            reinterpret_cast<device atomic_uint*>(acceptedValid) + environment,
+            0u, memory_order_relaxed);
+    }
+    acceptedContactKeys[global] = current;
 }
 
 } // namespace numi_matter_metal

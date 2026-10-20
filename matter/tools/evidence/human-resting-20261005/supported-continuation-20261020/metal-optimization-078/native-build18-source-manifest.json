@@ -1,0 +1,8 @@
+{
+  "matter/include/numi/matter/shared.h": "5401291eb28a2be82c6e1631d52166b3c5c613c1cce1914596878ed75a22ba75",
+  "matter/src/metal/fgmres.metalinc": "5b25ef6d56df2a54d06f4c448cb4a78f851a495bd3ca3423697d9330969a6044",
+  "matter/src/metal_encoder_timing.hpp": "75204eec79bc772783900105f367b665c67c4284ddf9a91f2ab20e0690d0f048",
+  "matter/src/runtime.mm": "18f96437923cf54905ba3a796588932d5af09b5ec559fb82f298e042bd520b7f",
+  "matter/tools/cardboard_graph_lu_search_native_check.mm": "ed1a318812bb5287c91460663d5233a5bcbdff8201112118b31b8e83ebe63078",
+  "matter/tools/fgmres_true_residual_native_check.mm": "1f0edb8b2fbd084964b18ea7cf66e27962d0b12de32dbb5126fad572ecb601fc"
+}

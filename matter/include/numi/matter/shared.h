@@ -1295,6 +1295,9 @@ typedef struct NM_ALIGN16 NMFGMRESTelemetryGPU {
     // Last outer residual norm bits, its convergence threshold bits, minimum
     // observed outer norm bits, packed last iteration/latch/initialized flags.
     nm_uint4 outer;
+    // Diagnostic-only partitioned RHS norms: nonvascular, vascular, mechanical
+    // nonlinear threshold, vascular threshold. Zero means no distributed sample.
+    nm_float4 domains;
 } NMFGMRESTelemetryGPU;
 
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {

@@ -1,0 +1,54 @@
+{
+  "artifact_manifest_sha256": "57510fc907fb909462aa5978b216478df1f974f67c35deecf719f8e325b8ff55",
+  "artifacts": {
+    "NumiMatter.metallib": "3b23af7d0ca53325fe541d1536f4e64efee09706f62ba85e8a62344f701495b7",
+    "libmetalrobo.dylib": "c7fabbc8facb7871336ed60848bcb96d95da572673c840374ae6237b8a65b05d",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "294619744128b47964eb123ebb6b74901878173769100c439941d44a7b4f59cb",
+    "source-manifest.json": "8087bfca5a95e4b310c92299a5c113f37495c8f0040568e7780941bf0cbd9ef3",
+    "source.patch": "974b58ad0db3006e972c33da6a0c8fd153a95aa692456cd88718b56857fc9894"
+  },
+  "base_revision": "71ceed80b80972a9ab6ec100daf8e288ed3c2c2b",
+  "build": "perf078-build19",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build19-frozen",
+  "schema": 1,
+  "source_archive_sha256": "294619744128b47964eb123ebb6b74901878173769100c439941d44a7b4f59cb",
+  "source_files": [
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "5401291eb28a2be82c6e1631d52166b3c5c613c1cce1914596878ed75a22ba75",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "b95aa568cdeea8a1f32eab3fec399c0bf6b1f3ea30c6afc107ca0e7260653c71",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "sha256": "f4ac25dd20fce3b0d9f2b264c0dfcaecc3e66068e9b21e338742d5076a78c5e5",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal_encoder_timing.hpp",
+      "sha256": "75204eec79bc772783900105f367b665c67c4284ddf9a91f2ab20e0690d0f048",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "94c0c74ce49d7ae098bb6436861e9c9d5aeec894234d08ce18100d619e8a661f",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "sha256": "67d95fcf35c410c1e7fc8ffc75338bc73c22eac3d63d5ee96265481d457da7c8",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "fb3f18d3f9337f3d14c73fb86ea2e9f319177df1440ed0accbcc39a7c60256c0",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "974b58ad0db3006e972c33da6a0c8fd153a95aa692456cd88718b56857fc9894"
+}

@@ -1,0 +1,49 @@
+{
+  "artifact_manifest_sha256": "6ddeb605dfd9699843329518fb7e7ea8db14b1bc1de8ef103489656b380a9f48",
+  "artifacts": {
+    "NumiMatter.metallib": "6c87d0d32e50989828016dcf5e1bc871350d74300f8b009a5d05b4fa3808167c",
+    "libmetalrobo.dylib": "dd07025fed4835b32a6a20796059a5d5e3ea46c2a516131a893f98c66e44e2ae",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "939699613293cf03b1a866cd237661bd8b5159da06b7ab3a4b071b728265f911",
+    "source-manifest.json": "741b1364e54192fd612b29050ccff7e75b02f2fbdb98383d2219dda812631b45",
+    "source.patch": "b3d502f4f5a154be366884b1acec0db8ce5b4bc39c6461cbb9c84d64cf7e4a67"
+  },
+  "base_revision": "71ceed80b80972a9ab6ec100daf8e288ed3c2c2b",
+  "build": "perf078-build18",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build18-frozen",
+  "schema": 1,
+  "source_archive_sha256": "939699613293cf03b1a866cd237661bd8b5159da06b7ab3a4b071b728265f911",
+  "source_files": [
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "5401291eb28a2be82c6e1631d52166b3c5c613c1cce1914596878ed75a22ba75",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "5b25ef6d56df2a54d06f4c448cb4a78f851a495bd3ca3423697d9330969a6044",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal_encoder_timing.hpp",
+      "sha256": "75204eec79bc772783900105f367b665c67c4284ddf9a91f2ab20e0690d0f048",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "18f96437923cf54905ba3a796588932d5af09b5ec559fb82f298e042bd520b7f",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "sha256": "ed1a318812bb5287c91460663d5233a5bcbdff8201112118b31b8e83ebe63078",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "1f0edb8b2fbd084964b18ea7cf66e27962d0b12de32dbb5126fad572ecb601fc",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "b3d502f4f5a154be366884b1acec0db8ce5b4bc39c6461cbb9c84d64cf7e4a67"
+}

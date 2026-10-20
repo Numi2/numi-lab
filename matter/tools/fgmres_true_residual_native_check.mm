@@ -5,9 +5,11 @@
 
 #include <cmath>
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -239,6 +241,214 @@ void resetStatuses(
 bool close(float a, float b, float tolerance = 1.0e-6f) {
     return std::isfinite(a) && std::isfinite(b) &&
         std::abs(a - b) <= tolerance;
+}
+
+void checkTelemetryDomainPartitions(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> partialPipeline,
+    id<MTLComputePipelineState> finishPipeline
+) {
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t nodes = 300u;
+    constexpr std::uint32_t mpmCapacity = 3u;
+    constexpr std::uint32_t rigidCapacity = 8u;
+    constexpr std::uint32_t supportCount = 5u;
+
+    auto run = [&](const std::uint32_t vascularCount) {
+        NMMatterDispatchGPU dispatchData{};
+        dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+        dispatchData.environmentCount = environments;
+        dispatchData.femNodeCount = nodes;
+        dispatchData.mpmActiveNodeCapacity = mpmCapacity;
+        dispatchData.rigidGeneralizedCapacity = rigidCapacity;
+
+        NMFGMRESLayoutGPU layout{};
+        layout.reserved = 1u;
+        layout.supportContactCount = supportCount;
+        const std::uint32_t mpmBase = 2u * environments * nodes;
+        const std::uint32_t rigidBase = mpmBase + environments * mpmCapacity;
+        layout.supportBase = rigidBase + environments * rigidCapacity;
+        layout.vascularUnknownCount = vascularCount;
+        layout.vascularBase = layout.supportBase + environments * supportCount;
+        layout.unknownCount = layout.vascularBase + environments * vascularCount;
+        layout.vascularResidualTolerance =
+            vascularCount == 0u ? 0.75f : 0.125f;
+
+        const std::size_t physicalTransportBase =
+            std::size_t(environments) * nodes;
+        const std::size_t totalRows =
+            std::size_t(layout.vascularBase) +
+            std::size_t(environments) * vascularCount;
+        require(totalRows > physicalTransportBase + std::size_t(environments) * nodes,
+            "domain partition fixture does not retain the inactive transport span");
+
+        std::vector<nm_float4> residual(totalRows, nm_float4{});
+        std::array<double, environments> expectedMechanical{};
+        std::array<double, environments> expectedVascular{};
+        auto addSquares = [](double& sum, const nm_float4& value) {
+            sum += double(value.x) * value.x;
+            sum += double(value.y) * value.y;
+            sum += double(value.z) * value.z;
+            sum += double(value.w) * value.w;
+        };
+        auto valueFor = [](const std::uint32_t environment,
+                           const std::uint32_t item,
+                           const float scale) {
+            const float e = float(environment + 1u);
+            const float i = float(item % 37u);
+            return nm_float4{
+                scale * (0.2f + 0.013f * e + 0.001f * i),
+                scale * (-0.04f + 0.0007f * i),
+                scale * (0.03f - 0.0003f * i),
+                scale * (0.01f + 0.0002f * i)};
+        };
+
+        for (std::uint32_t environment = 0u;
+             environment < environments; ++environment) {
+            for (std::uint32_t node = 0u; node < nodes; ++node) {
+                const nm_float4 value = valueFor(environment, node, 1.0f);
+                const std::size_t row = std::size_t(environment) * nodes + node;
+                residual[row] = value;
+                addSquares(expectedMechanical[environment], value);
+            }
+            for (std::uint32_t node = 0u; node < nodes; ++node) {
+                const std::size_t row = physicalTransportBase +
+                    std::size_t(environment) * nodes + node;
+                residual[row] = nm_float4{
+                    1.0e10f, -2.0e10f, 3.0e10f, -4.0e10f};
+            }
+            for (std::uint32_t item = 0u; item < mpmCapacity; ++item) {
+                const nm_float4 value = valueFor(environment, item + 401u, 0.4f);
+                const std::size_t row = std::size_t(mpmBase) +
+                    std::size_t(environment) * mpmCapacity + item;
+                residual[row] = value;
+                addSquares(expectedMechanical[environment], value);
+            }
+            for (std::uint32_t dof = 0u; dof < rigidCapacity; ++dof) {
+                const std::size_t row = std::size_t(rigidBase) +
+                    std::size_t(environment) * rigidCapacity + dof;
+                const nm_float4 value{
+                    0.05f * float(environment + 1u) + 0.002f * float(dof),
+                    8.0e9f, -9.0e9f, 1.0e10f};
+                residual[row] = value;
+                expectedMechanical[environment] += double(value.x) * value.x;
+            }
+            for (std::uint32_t item = 0u; item < supportCount; ++item) {
+                const nm_float4 value = valueFor(environment, item + 701u, 0.2f);
+                const std::size_t row = std::size_t(layout.supportBase) +
+                    std::size_t(environment) * supportCount + item;
+                residual[row] = value;
+                addSquares(expectedMechanical[environment], value);
+            }
+            for (std::uint32_t item = 0u; item < vascularCount; ++item) {
+                const float value = 0.3f * float(environment + 1u) +
+                    0.01f * float(item);
+                const std::size_t row = std::size_t(layout.vascularBase) +
+                    std::size_t(environment) * vascularCount + item;
+                residual[row] = nm_float4{value, 0.0f, 0.0f, 0.0f};
+                expectedVascular[environment] += double(value) * value;
+            }
+        }
+
+        NMMixedSolverGPU solver{};
+        solver.residualTolerances.x = 0.01f;
+        solver.regularization.x = 0.02f;
+        std::vector<NMFGMRESStateGPU> states(environments);
+        states[0].nonlinear = {2.0f, 1.5f, 0.0f, 0.0f};
+        states[1].nonlinear = {4.0f, 3.0f, 0.0f, 0.0f};
+        std::vector<NMFGMRESTelemetryGPU> telemetry(environments);
+        const std::uint32_t itemCount = nodes + mpmCapacity + rigidCapacity +
+            supportCount + vascularCount;
+        const std::uint32_t tiles = (itemCount + 255u) / 256u;
+        require(tiles > 1u,
+            "domain partition fixture must exercise more than one 256-item tile");
+
+        auto dispatchBuffer = makeBuffer(device,
+            std::vector<NMMatterDispatchGPU>{dispatchData});
+        auto layoutBuffer = makeBuffer(device,
+            std::vector<NMFGMRESLayoutGPU>{layout});
+        auto residualBuffer = makeBuffer(device, residual);
+        auto partialBuffer = makeBuffer(device,
+            std::vector<nm_float4>(std::size_t(environments) * tiles,
+                nm_float4{-17.0f, -19.0f, -23.0f, -29.0f}));
+        auto telemetryBuffer = makeBuffer(device, telemetry);
+        auto stateBuffer = makeBuffer(device, states);
+        auto solverBuffer = makeBuffer(device,
+            std::vector<NMMixedSolverGPU>{solver});
+        std::vector<NMMatterStatusGPU> statuses(environments);
+        for (auto& status : statuses) status.code = NM_STATUS_SUCCESS;
+        auto statusBuffer = makeBuffer(device, statuses);
+        const std::vector<std::pair<NSUInteger, id<MTLBuffer>>> finishBindings{
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, partialBuffer}, {2u, telemetryBuffer},
+            {3u, stateBuffer}, {4u, solverBuffer}, {5u, statusBuffer}};
+
+        dispatch(device, queue, partialPipeline, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, residualBuffer}, {2u, partialBuffer}},
+            std::size_t(environments) * tiles, 256u);
+        dispatch(device, queue, finishPipeline, finishBindings,
+            environments, 32u);
+
+        const auto actual = readBuffer<NMFGMRESTelemetryGPU>(
+            telemetryBuffer, environments);
+        for (std::uint32_t environment = 0u;
+             environment < environments; ++environment) {
+            const float expectedNonvascular =
+                static_cast<float>(std::sqrt(expectedMechanical[environment]));
+            const float expectedVascularNorm =
+                static_cast<float>(std::sqrt(expectedVascular[environment]));
+            const float nonvascularTolerance =
+                std::max(1.0e-5f, expectedNonvascular * 3.0e-5f);
+            const float vascularNormTolerance =
+                std::max(1.0e-5f, expectedVascularNorm * 3.0e-5f);
+            require(close(actual[environment].domains.x, expectedNonvascular,
+                          nonvascularTolerance),
+                "domain telemetry nonvascular norm differs from exact FGMRES row mask");
+            require(close(actual[environment].domains.y, expectedVascularNorm,
+                          vascularNormTolerance),
+                "domain telemetry vascular norm differs from vascular row mask");
+            const float expectedThreshold = std::max(
+                solver.regularization.x,
+                solver.residualTolerances.x *
+                    std::max(std::min(states[environment].nonlinear.x,
+                                      states[environment].nonlinear.y), 1.0f));
+            require(close(actual[environment].domains.z, expectedThreshold),
+                "domain telemetry mechanical threshold mismatch");
+            require(actual[environment].domains.w ==
+                    layout.vascularResidualTolerance,
+                "domain telemetry vascular threshold mismatch");
+        }
+
+        if (vascularCount != 0u) {
+            auto* statusValues =
+                static_cast<NMMatterStatusGPU*>([statusBuffer contents]);
+            statusValues[1].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+            auto* telemetryValues =
+                static_cast<NMFGMRESTelemetryGPU*>([telemetryBuffer contents]);
+            const nm_float4 sentinel{91.25f, -13.5f, 7.75f, 3.125f};
+            telemetryValues[1].domains = sentinel;
+            dispatch(device, queue, finishPipeline, finishBindings,
+                environments, 32u);
+            const auto guarded = readBuffer<NMFGMRESTelemetryGPU>(
+                telemetryBuffer, environments);
+            require(guarded[1].domains.x == sentinel.x &&
+                    guarded[1].domains.y == sentinel.y &&
+                    guarded[1].domains.z == sentinel.z &&
+                    guarded[1].domains.w == sentinel.w,
+                "failed environment overwrote previously published domain telemetry");
+        }
+
+        std::cout << "telemetry_domain_case vascular_rows=" << vascularCount
+                  << " environments=" << environments
+                  << " fem_nodes=" << nodes << " tiles_per_environment=" << tiles
+                  << " inactive_transport_sentinels=true rigid_scalar_mask=true"
+                  << " result=PASS" << '\n';
+    };
+
+    run(4u);
+    run(0u);
 }
 
 void checkLargeNodeResidualMeasurement(
@@ -540,7 +750,10 @@ void checkDistributedBeginAndCorrection(
     const std::uint32_t beginTiles=(nodes+255u)/256u;
     auto beginPartials=makeBuffer(device,std::vector<nm_float4>(beginTiles));
     auto tiledBeginBindings=beginBindings;
+    auto unusedDomainPartials=makeBuffer(device,
+        std::vector<NativeFloat2>(beginTiles));
     tiledBeginBindings.emplace_back(24u,beginPartials);
+    tiledBeginBindings.emplace_back(25u,unusedDomainPartials);
     dispatch(device,queue,beginPartial,tiledBeginBindings,beginTiles,256u);
     dispatch(device,queue,beginFinish,tiledBeginBindings,1u,32u);
     dispatch(device,queue,beginBasis0,tiledBeginBindings,beginTiles,256u);
@@ -558,6 +771,105 @@ void checkDistributedBeginAndCorrection(
         require(field.x==0.0f&&field.y==0.0f&&field.z==0.0f&&field.w==0.0f,
             "distributed begin retained an inactive transport basis row");
     }
+
+    // The private domain latch keeps the full b24 norm untouched while
+    // gating mechanical/pressure and vascular rows independently. A large
+    // inactive transport sentinel must remain masked by reserved bit zero.
+    std::vector<nm_float4> domainResidual(2u*nodes+2u,
+        nm_float4{1.0e20f,1.0e20f,1.0e20f,1.0e20f});
+    auto domainResidualBuffer=makeBuffer(device,domainResidual);
+    auto domainPartialsBuffer=makeBuffer(device,
+        std::vector<NativeFloat2>(beginTiles));
+    auto domainBindings=beginBindings;
+    for (auto& binding:domainBindings)
+        if (binding.first==3u) binding.second=domainResidualBuffer;
+    domainBindings.emplace_back(24u,beginPartials);
+    domainBindings.emplace_back(25u,domainPartialsBuffer);
+    auto runDomainLatch=[&](const float mechanicalNorm,
+                            const float vascularNorm,
+                            const bool pressureFailure,
+                            const bool supportFailure,
+                            const bool vascularNaN,
+                            const std::uint32_t reserved) {
+        const std::uint32_t supportCount=supportFailure?1u:0u;
+        NMFGMRESLayoutGPU domainLayout{};
+        domainLayout.supportContactCount=supportCount;
+        domainLayout.supportBase=2u*nodes;
+        domainLayout.unknownCount=2u*nodes+supportCount+1u;
+        domainLayout.vascularUnknownCount=1u;
+        domainLayout.vascularBase=2u*nodes+supportCount;
+        domainLayout.vascularResidualTolerance=1.0e-5f;
+        domainLayout.reserved=reserved;
+        NMMixedSolverGPU domainSolver{};
+        domainSolver.residualTolerances.x=1.0e-4f;
+        domainSolver.regularization.x=1.0e-12f;
+        NMMatterDispatchGPU domainDispatch=dispatchData;
+        domainDispatch.abiVersion=NM_MATTER_ABI_VERSION;
+        domainDispatch.environmentCount=1u;
+        domainDispatch.femNodeCount=nodes;
+        std::vector<nm_float4> rows(
+            2u*nodes+supportCount+1u,nm_float4{});
+        const float perNode=mechanicalNorm/std::sqrt(float(nodes));
+        for (std::uint32_t node=0u;node<nodes;++node) {
+            rows[node]=nm_float4{perNode,0.0f,0.0f,0.0f};
+            rows[nodes+node]=nm_float4{1.0e20f,-1.0e20f,1.0e20f,-1.0e20f};
+        }
+        if (pressureFailure)
+            rows[0].w=1.1e-4f;
+        rows[domainLayout.vascularBase]=nm_float4{
+            vascularNaN?std::numeric_limits<float>::quiet_NaN():vascularNorm,
+            0.0f,0.0f,0.0f};
+        std::memcpy([dispatchBuffer contents],&domainDispatch,sizeof(domainDispatch));
+        std::memcpy([layoutBuffer contents],&domainLayout,sizeof(domainLayout));
+        std::memcpy([solverBuffer contents],&domainSolver,sizeof(domainSolver));
+        std::memcpy([domainResidualBuffer contents],rows.data(),
+            rows.size()*sizeof(nm_float4));
+        NMFGMRESStateGPU domainState{};
+        domainState.nonlinear=nm_float4{1.0f,0.0f,0.0f,0.0f};
+        std::memcpy([stateBuffer contents],&domainState,sizeof(domainState));
+        const std::uint32_t domainIteration=2u;
+        std::memcpy([iterationBuffer contents],&domainIteration,
+            sizeof(domainIteration));
+        NMHumanSupportDispatchGPU domainSupport{};
+        domainSupport.contactCount=supportCount;
+        domainSupport.groundNormal=nm_float4{0.0f,1.0f,0.0f,0.0f};
+        std::memcpy([supportBuffer contents],&domainSupport,sizeof(domainSupport));
+        NMHumanSupportContactGPU domainContact{};
+        domainContact.frictionSlopAndStabilization.x=0.5f;
+        std::memcpy([supportContactBuffer contents],&domainContact,
+            sizeof(domainContact));
+        const nm_float4 history=supportFailure
+            ? nm_float4{0.0f,0.0f,0.0f,-1.0f} : nm_float4{};
+        std::memcpy([supportHistoryBuffer contents],&history,sizeof(history));
+        dispatch(device,queue,beginPartial,domainBindings,beginTiles,256u);
+        dispatch(device,queue,beginFinish,domainBindings,1u,32u);
+        const auto result=readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
+        return std::pair<float,float>{result.nonlinear.w,result.diagnostics.x};
+    };
+    const auto acceptedDomains=runDomainLatch(
+        5.0e-5f,0.5e-5f,false,false,false,3u);
+    require(acceptedDomains.first>0.5f,
+        "domain latch rejected separately passing mechanical and vascular norms");
+    require(acceptedDomains.second>1.0e-5f,
+        "domain-latch fixture does not exceed the legacy vascular cap");
+    require(close(acceptedDomains.second,
+        std::sqrt(5.0e-5f*5.0e-5f+0.5e-5f*0.5e-5f),2.0e-8f),
+        "domain latch changed the full FGMRES residual norm");
+    require(runDomainLatch(5.0e-5f,0.5e-5f,false,false,false,1u).first<0.5f,
+        "default legacy full-norm latch changed without the feature bit");
+    require(runDomainLatch(1.1e-4f,0.5e-5f,false,false,false,3u).first<0.5f,
+        "domain latch accepted a failed mechanical block");
+    require(runDomainLatch(5.0e-5f,1.1e-5f,false,false,false,3u).first<0.5f,
+        "domain latch accepted a failed vascular block");
+    require(runDomainLatch(5.0e-5f,0.0f,false,false,true,3u).first<0.5f,
+        "domain latch accepted a nonfinite vascular residual");
+    require(runDomainLatch(5.0e-5f,0.5e-5f,true,false,false,3u).first<0.5f,
+        "domain latch excluded mixed pressure from the mechanical block");
+    require(runDomainLatch(5.0e-5f,0.5e-5f,false,true,false,3u).first<0.5f,
+        "domain latch bypassed support-history admissibility");
+    std::cout<<"domain_nonlinear_latch=true separate_mechanical_vascular=true "
+                "legacy_full_norm=true pressure_and_support_gates=true "
+                "nonfinite_rejected=true result=PASS\n";
 
     dispatchData={};
     dispatchData.abiVersion=NM_MATTER_ABI_VERSION;
@@ -1480,6 +1792,370 @@ void checkCGS2IndirectRange(
 
 } // namespace
 
+
+struct NativeZ0OwnerGate {
+    std::uint32_t environmentCount;
+    std::uint32_t externalStatusStrideWords;
+    std::uint32_t acceptedStatusCode;
+    std::uint32_t environmentIndexOffsetWords;
+    std::uint32_t expectedEnvironmentBase;
+    std::uint32_t completedCountOffsetWords;
+    std::uint32_t expectedCompletedCount;
+    std::uint32_t reserved0;
+};
+
+void checkAcceptedZ0Recycle(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto reset = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_reset_candidate");
+    auto resetCapture = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_reset_candidate_for_capture");
+    auto capture = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_capture_candidate");
+    auto promote = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_promote_owner_candidate");
+    auto snapshot = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_snapshot_owner_contact_keys");
+    auto validate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_validate_constraint_mask");
+    auto add = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_z0_add_to_preconditioned_basis");
+    MTLFunctionConstantValues* femConstants = [MTLFunctionConstantValues new];
+    const BOOL disabled = NO;
+    const std::uint32_t noMaterial = NM_INVALID_INDEX;
+    for (NSUInteger index = 30u; index <= 34u; ++index)
+        [femConstants setConstantValue:&disabled type:MTLDataTypeBool atIndex:index];
+    for (NSUInteger index : {35u, 36u})
+        [femConstants setConstantValue:&noMaterial type:MTLDataTypeUInt atIndex:index];
+    NSError* femError = nil;
+    id<MTLFunction> femFunction = [library newFunctionWithName:
+        @"numi_matter_metal::nm_fem_apply_operator_elements"
+        constantValues:femConstants error:&femError];
+    require(femFunction != nil, "recycle fixture cannot specialize current FEM operator");
+    id<MTLComputePipelineState> femApply =
+        [device newComputePipelineStateWithFunction:femFunction error:&femError];
+    require(femApply != nil, "recycle fixture cannot create current FEM operator");
+
+    NMMatterDispatchGPU d{};
+    d.abiVersion = NM_MATTER_ABI_VERSION;
+    d.environmentCount = 1u;
+    d.objectCount = 1u;
+    d.femNodeCount = 4u;
+    d.tetrahedronCount = 1u;
+    d.contactPairCount = 1u;
+    d.parameterCount = 1u;
+    d.materialStateStride = 1u;
+    d.gravityAndTimestep.w = 0.25f;
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    healthy.environment = 0u;
+    NMMicrostepGPU micro{};
+    micro.flags = NM_MICROSTEP_FGMRES_OPERATOR;
+    micro.time = {0.25f, 4.0f, 0.0f, 0.25f};
+    NMFGMRESStateGPU state{};
+    state.nonlinear = {1.0f, 1.0f, 0.0f, 0.0f};
+
+    auto dispatchBuffer = makeBuffer(device, std::vector<NMMatterDispatchGPU>{d});
+    auto statusBuffer = makeBuffer(device, std::vector<NMMatterStatusGPU>{healthy});
+    auto stateBuffer = makeBuffer(device, std::vector<NMFGMRESStateGPU>{state});
+    auto flagsBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto validBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto candidateDtBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto acceptedDtBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    std::vector<nm_float4> candidateValues(4u, nm_float4{});
+    candidateValues[1].x = 0.25f;
+    candidateValues[2].y = -0.125f;
+    candidateValues[3].z = 0.0625f;
+    auto solutionBuffer = makeBuffer(device, candidateValues);
+    std::vector<NMFEMNodeStateGPU> nodes(4u);
+    for (auto& node : nodes) node.restAndFixed.w = 0.0f;
+    auto nodeBuffer = makeBuffer(device, nodes);
+    auto candidateZBuffer = makeBuffer(device, std::vector<nm_float4>(4u, nm_float4{}));
+    auto acceptedZBuffer = makeBuffer(device, std::vector<nm_float4>(4u, nm_float4{}));
+    auto acceptedMaskBuffer = makeBuffer(device, std::vector<std::uint32_t>(4u, 0u));
+
+    NMContactSampleGPU sample{};
+    sample.identity = {11u, 12u, 13u, 14u};
+    auto sampleBuffer = makeBuffer(device, std::vector<NMContactSampleGPU>{sample});
+    auto zeroBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto oneBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    id<MTLFunction> contactLayout = [library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    require(contactLayout != nil, "recycle fixture contact layout missing");
+    id<MTLArgumentEncoder> contactEncoder =
+        [contactLayout newArgumentEncoderWithBufferIndex:0u];
+    require(contactEncoder != nil, "recycle fixture contact encoder missing");
+    id<MTLBuffer> contactArguments = [device newBufferWithLength:
+        contactEncoder.encodedLength options:MTLResourceStorageModeShared];
+    require(contactArguments != nil, "recycle fixture contact buffer allocation failed");
+    [contactEncoder setArgumentBuffer:contactArguments offset:0u];
+    for (NSUInteger i = 0u; i < 20u; ++i)
+        [contactEncoder setBuffer:zeroBuffer offset:0u atIndex:i];
+    [contactEncoder setBuffer:sampleBuffer offset:0u atIndex:1u];
+    [contactEncoder setBuffer:zeroBuffer offset:0u atIndex:15u];
+    [contactEncoder setBuffer:oneBuffer offset:0u atIndex:16u];
+
+    NativeZ0OwnerGate owner{1u, 4u, 0x51u, 1u, 0u, 2u, 7u, 0u};
+    // Metal receives this owner record separately as constant buffer(3).
+    std::vector<std::uint32_t> externalWords{0x50u, 0u, 7u, 0u};
+    auto externalBuffer = makeBuffer(device, externalWords);
+    auto contactKeysBuffer = makeBuffer(device, std::vector<nm_uint4>{
+        nm_uint4{0u, 0u, 0u, 0u}});
+
+    auto runCapture = [&] {
+        dispatch(device, queue, resetCapture, {
+            {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, statusBuffer},
+            {3u, flagsBuffer}}, 1u, 1u);
+        dispatch(device, queue, capture, {
+            {0u, dispatchBuffer}, {1u, solutionBuffer}, {2u, nodeBuffer},
+            {3u, candidateZBuffer}, {4u, flagsBuffer},
+            {5u, makeBuffer(device, std::vector<NMMicrostepGPU>{micro})},
+            {6u, candidateDtBuffer}, {7u, stateBuffer}, {8u, statusBuffer}},
+            1u, 256u);
+    };
+    auto runOwnerPromotion = [&] {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            command != nil ? [command computeCommandEncoder] : nil;
+        require(command != nil && encoder != nil,
+            "recycle fixture cannot allocate owner encoder");
+        [encoder setComputePipelineState:promote];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:externalBuffer offset:0u atIndex:2u];
+        [encoder setBytes:&owner length:sizeof(owner) atIndex:3u];
+        [encoder setBuffer:candidateZBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:acceptedZBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:flagsBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:validBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:nodeBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:acceptedMaskBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:candidateDtBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:acceptedDtBuffer offset:0u atIndex:11u];
+        [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            "recycle fixture owner promotion failed");
+    };
+    auto runSnapshot = [&] {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            command != nil ? [command computeCommandEncoder] : nil;
+        require(command != nil && encoder != nil,
+            "recycle fixture cannot allocate contact snapshot encoder");
+        [encoder setComputePipelineState:snapshot];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:externalBuffer offset:0u atIndex:2u];
+        [encoder setBytes:&owner length:sizeof(owner) atIndex:3u];
+        [encoder setBuffer:contactArguments offset:0u atIndex:4u];
+        [encoder setBuffer:flagsBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:validBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:contactKeysBuffer offset:0u atIndex:7u];
+        [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            "recycle fixture contact-key snapshot failed");
+    };
+
+    dispatch(device, queue, reset,
+        {{0u, dispatchBuffer}, {1u, flagsBuffer}}, 1u, 1u);
+    runCapture();
+    auto capturedFlags = readBuffer<std::uint32_t>(flagsBuffer, 1u)[0];
+    require(capturedFlags == 5u,
+        "nonzero finite Newton correction was not captured as a fresh candidate");
+
+    // A completed nonlinear tail may replay the capture graph after the
+    // solution scratch has become zero. Neither the per-capture reset nor the
+    // capture kernel may erase the last active Newton correction.
+    NMFGMRESStateGPU completedTail = state;
+    completedTail.nonlinear.w = 1.0f;
+    std::memcpy([stateBuffer contents], &completedTail, sizeof(completedTail));
+    std::fill(candidateValues.begin(), candidateValues.end(), nm_float4{});
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    runCapture();
+    require(readBuffer<std::uint32_t>(flagsBuffer, 1u)[0] == 5u,
+        "completed Newton tail reset a fresh correction candidate");
+    const auto tailPreserved = readBuffer<nm_float4>(candidateZBuffer, 4u);
+    require(tailPreserved[1].x == 0.25f && tailPreserved[2].y == -0.125f &&
+            tailPreserved[3].z == 0.0625f,
+        "completed Newton tail overwrote the last active correction");
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    candidateValues[1].x = 0.25f;
+    candidateValues[2].y = -0.125f;
+    candidateValues[3].z = 0.0625f;
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+
+    // Rejected/failing owner status must never promote the candidate.
+    runOwnerPromotion();
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
+        "rejected owner transaction promoted a solver direction");
+    for (const auto& v : readBuffer<nm_float4>(acceptedZBuffer, 4u))
+        require(v.x == 0.0f && v.y == 0.0f && v.z == 0.0f,
+            "rejected owner transaction left a promoted direction component");
+
+    externalWords[0] = owner.acceptedStatusCode;
+    std::memcpy([externalBuffer contents], externalWords.data(),
+        externalWords.size() * sizeof(std::uint32_t));
+    runOwnerPromotion();
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u,
+        "successful owner transaction did not promote a nonzero candidate");
+    const auto promoted = readBuffer<nm_float4>(acceptedZBuffer, 4u);
+    require(promoted[1].x == 0.25f && promoted[2].y == -0.125f &&
+            promoted[3].z == 0.0625f,
+        "owner promotion changed the accepted correction vector");
+    std::uint32_t expectedDtBits = 0u;
+    std::memcpy(&expectedDtBits, &micro.time.x, sizeof(expectedDtBits));
+    require(readBuffer<std::uint32_t>(acceptedDtBuffer, 1u)[0] ==
+            expectedDtBits,
+        "owner promotion did not store the candidate timestep");
+
+    // The accepted direction is injected as a preconditioned basis vector,
+    // then the current FEM operator is applied to it. Changing the current
+    // tangent cache changes A z, proving only z is recycled.
+    auto basisBuffer = makeBuffer(device, std::vector<nm_float4>(4u, nm_float4{}));
+    auto useCountsBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, add, {
+        {0u, dispatchBuffer}, {1u, acceptedZBuffer}, {2u, validBuffer},
+        {3u, basisBuffer}, {4u, useCountsBuffer}}, 1u, 256u);
+    require(readBuffer<std::uint32_t>(useCountsBuffer, 1u)[0] == 1u,
+        "accepted Z0 actual injection counter was not incremented");
+    require(readBuffer<nm_float4>(basisBuffer, 4u)[1].x == 0.25f,
+        "valid accepted direction was not added to the first preconditioned basis");
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE;
+    object.solver.y = 0u;
+    NMSchedulerStateGPU scheduler{};
+    scheduler.numerical.w = 1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    NMTetrahedronGPU tet{};
+    tet.nodes = {0u, 1u, 2u, 3u};
+    tet.inverseRestRow0 = {1.0f, 0.0f, 0.0f, 1.0f};
+    tet.inverseRestRow1 = {0.0f, 1.0f, 0.0f, 0.0f};
+    tet.inverseRestRow2 = {0.0f, 0.0f, 1.0f, 0.0f};
+    tet.identity = {0u, 0u, 0u, NM_OBJECT_ACTIVE};
+    auto microBuffer = makeBuffer(device, std::vector<NMMicrostepGPU>{micro});
+    auto objectBuffer = makeBuffer(device, std::vector<NMContinuumObjectGPU>{object});
+    auto materialBuffer = makeBuffer(device, std::vector<NMMaterialGPU>{NMMaterialGPU{}});
+    auto programBuffer = makeBuffer(device, std::vector<NMScalarProgramGPU>{NMScalarProgramGPU{}});
+    auto instructionBuffer = makeBuffer(device, std::vector<NMExpressionInstructionGPU>{NMExpressionInstructionGPU{}});
+    auto parameterBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    auto tetrahedronBuffer = makeBuffer(device, std::vector<NMTetrahedronGPU>{tet});
+    auto acceptedMaterialStateBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    auto schedulerBuffer = makeBuffer(device, std::vector<NMSchedulerStateGPU>{scheduler});
+    auto adaptiveBuffer = makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive});
+    auto elementBuffer = makeBuffer(device, std::vector<NMFEMElementVectorGPU>{NMFEMElementVectorGPU{}});
+    auto mixedBuffer = makeBuffer(device, std::vector<NMMixedMaterialGPU>{NMMixedMaterialGPU{}});
+    auto fieldBuffer = makeBuffer(device, std::vector<NMFEMFieldStateGPU>(4u));
+    auto learnedMaterialBuffer = makeBuffer(device, std::vector<NMLearnedMaterialGPU>{NMLearnedMaterialGPU{}});
+    auto learnedLayerBuffer = makeBuffer(device, std::vector<NMLearnedLayerGPU>{NMLearnedLayerGPU{}});
+    auto learnedWeightBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    auto solverBuffer = makeBuffer(device, std::vector<NMMixedSolverGPU>{NMMixedSolverGPU{}});
+    auto tangentValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto cacheModeBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto fallbackMetricsBuffer = makeBuffer(device, std::vector<nm_float4>{nm_float4{}});
+    std::vector<float> tangentCache(81u, 0.0f);
+    for (std::uint32_t i = 0u; i < 9u; ++i) tangentCache[i * 9u + i] = 1.0f;
+    auto tangentCacheBuffer = makeBuffer(device, tangentCache);
+    auto runCurrentOperator = [&] {
+        dispatch(device, queue, femApply, {
+            {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectBuffer},
+            {3u, materialBuffer}, {4u, programBuffer}, {5u, instructionBuffer},
+            {6u, parameterBuffer}, {7u, nodeBuffer}, {8u, tetrahedronBuffer},
+            {9u, acceptedMaterialStateBuffer}, {10u, basisBuffer},
+            {11u, schedulerBuffer}, {12u, adaptiveBuffer}, {13u, elementBuffer},
+            {14u, statusBuffer}, {16u, mixedBuffer}, {17u, fieldBuffer},
+            {18u, learnedMaterialBuffer}, {19u, learnedLayerBuffer},
+            {20u, learnedWeightBuffer}, {21u, solverBuffer}, {22u, stateBuffer},
+            {23u, tangentCacheBuffer}, {24u, tangentValidBuffer},
+            {25u, cacheModeBuffer}, {26u, fallbackMetricsBuffer}}, 1u, 256u);
+        const auto result = readBuffer<NMFEMElementVectorGPU>(elementBuffer, 1u)[0];
+        return std::abs(result.node0.x) + std::abs(result.node1.x) +
+            std::abs(result.node2.x) + std::abs(result.node3.x) +
+            std::abs(result.node0.y) + std::abs(result.node0.z);
+    };
+    const float action1 = runCurrentOperator();
+    require(std::isfinite(action1) && action1 > 0.0f,
+        "current FEM operator did not act on the recycled direction");
+    for (std::uint32_t i = 0u; i < 9u; ++i) tangentCache[i * 9u + i] = 2.0f;
+    std::memcpy([tangentCacheBuffer contents], tangentCache.data(),
+        tangentCache.size() * sizeof(float));
+    const float action2 = runCurrentOperator();
+    require(std::isfinite(action2) && std::abs(action2 - 2.0f * action1) <=
+            2.0e-6f * std::max(1.0f, action2),
+        "recycled z reused stale A z instead of applying the current operator");
+
+    // A zero correction is a fallback, not a replacement. It must preserve
+    // the last useful vector while still allowing physical owner promotion.
+    std::fill(candidateValues.begin(), candidateValues.end(), nm_float4{});
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    runCapture();
+    require(readBuffer<std::uint32_t>(flagsBuffer, 1u)[0] == 1u,
+        "zero correction did not remain a nonreplacement candidate");
+    runOwnerPromotion();
+    const auto afterZero = readBuffer<nm_float4>(acceptedZBuffer, 4u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u &&
+            afterZero[1].x == promoted[1].x &&
+            afterZero[2].y == promoted[2].y &&
+            afterZero[3].z == promoted[3].z,
+        "zero correction replaced the useful accepted direction");
+
+    // Refresh the key snapshot with the unchanged contact identity. A changed
+    // identity on the following zero-correction step must invalidate Z0.
+    std::fill(candidateValues.begin(), candidateValues.end(), nm_float4{});
+    candidateValues[1].x = 0.25f;
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    runCapture();
+    runOwnerPromotion();
+    runSnapshot();
+    sample.identity.x = 99u;
+    std::memcpy([sampleBuffer contents], &sample, sizeof(sample));
+    std::fill(candidateValues.begin(), candidateValues.end(), nm_float4{});
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    runCapture();
+    runOwnerPromotion();
+    runSnapshot();
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
+        "contact identity change did not invalidate accepted Z0");
+
+    // Re-establish a valid direction, then bitwise-change dt and ensure the
+    // pre-use validator rejects it without altering any physical state.
+    std::fill(candidateValues.begin(), candidateValues.end(), nm_float4{});
+    candidateValues[1].x = 0.25f;
+    std::memcpy([solutionBuffer contents], candidateValues.data(),
+        candidateValues.size() * sizeof(nm_float4));
+    runCapture();
+    runOwnerPromotion();
+    micro.time.x = 0.5f;
+    micro.time.y = 2.0f;
+    auto changedMicroBuffer = makeBuffer(device, std::vector<NMMicrostepGPU>{micro});
+    dispatch(device, queue, validate, {
+        {0u, dispatchBuffer}, {1u, nodeBuffer}, {2u, acceptedMaskBuffer},
+        {3u, validBuffer}, {4u, changedMicroBuffer}, {5u, acceptedDtBuffer}},
+        1u, 256u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
+        "timestep change did not invalidate accepted Z0");
+
+    std::cout << "accepted_z0_owner_gate=true zero_fallback=true "
+                 "contact_invalidation=true dt_invalidation=true "
+                 "current_A_applied=true result=PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -1497,6 +2173,7 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            checkAcceptedZ0Recycle(device, queue, library);
 
             auto finalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_finalize_cycle");
@@ -1505,6 +2182,14 @@ int main(int argc, const char* argv[]) {
             auto telemetryExhaustion = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_telemetry_exhaustion");
             checkTelemetryExhaustion(device, queue, telemetryExhaustion);
+            auto telemetryDomainsPartial =
+                pipelineWithRelativeInnerForcingDisabled(device, library,
+                    "numi_matter_metal::nm_fgmres_telemetry_domains_partial");
+            auto telemetryDomainsFinish =
+                pipelineWithRelativeInnerForcingDisabled(device, library,
+                    "numi_matter_metal::nm_fgmres_telemetry_domains_finish");
+            checkTelemetryDomainPartitions(device, queue,
+                telemetryDomainsPartial, telemetryDomainsFinish);
             auto accumulate = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_accumulate");
             auto accumulateFields = pipeline(device, library,

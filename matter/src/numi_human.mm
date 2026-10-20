@@ -2555,6 +2555,24 @@ bool NumiHumanTendonFEMLoadAdapter::finalizeAcceptedAudits(
         return false;
     }
     if (!encodeAcceptedAuditCommit(pass)) return false;
+    AcceptedStepFinalizationGate solverGate;
+    solverGate.statusRecords = pass.standStatuses;
+    solverGate.recordCount = pass.environmentCount;
+    solverGate.recordStrideBytes = sizeof(MRNumiHumanStandStatusGPU);
+    solverGate.acceptedStatusCode = MR_NUMI_HUMAN_STAND_SUCCESS;
+    solverGate.completedCountOffsetBytes =
+        offsetof(MRNumiHumanStandStatusGPU, completedSteps);
+    solverGate.expectedCompletedCount = pass.stepIndex + 1u;
+    solverGate.environmentIndexOffsetBytes =
+        offsetof(MRNumiHumanStandStatusGPU, environment);
+    solverGate.expectedEnvironmentBase = 0u;
+    const auto recycle = state_->runtime->encodeAcceptedFEMSolverZ0Promotion(
+        pass.commandBuffer, pass.stepIndex, 0u, solverGate);
+    if (!recycle.encoded) {
+        state_->message = "accepted FEM solver recycle publication failed: " +
+            recycle.message;
+        return false;
+    }
     state_->acceptedAuditPendingCommandBufferIdentity = 0u;
     state_->acceptedAuditPendingStandStatuses = nullptr;
     state_->acceptedAuditPendingStepIndex = 0u;

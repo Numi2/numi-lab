@@ -1,0 +1,145 @@
+[0/2] Re-checking globbed directories...
+[1/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/constitutive_impl.cpp:1220:16: warning: unused variable 'isBinary' [-Wunused-variable]
+ 1220 |     const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
+      |                ^~~~~~~~
+1 warning generated.
+[4/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[5/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[6/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[7/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[8/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[9/33] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[10/33] Linking CXX static library matter/libnumi_matter_compiler.a
+[11/33] Building CXX object matter/CMakeFiles/numi-matter-regional-graph-completed-tail-check.dir/tools/regional_graph_completed_tail_check.cpp.o
+[12/33] Linking CXX executable matter/numi-matter-regional-graph-completed-tail-check
+[13/33] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:2:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6104:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:6:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3527:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3536:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3527:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3517:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3974:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3991:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3974:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3854:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:9:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1557:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1516:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+7 warnings generated.
+[14/33] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[15/33] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[16/33] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[17/33] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[18/33] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4551:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4551 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4553:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4553 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[19/33] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[20/33] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[21/33] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[22/33] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[23/33] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[24/33] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[25/33] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+FAILED: [code=1] matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o 
+/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib\" -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -MF matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o.d -o matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:10949:40: error: non-constant-expression cannot be narrowed from type 'unsigned long' to 'std::uint32_t' (aka 'unsigned int') in initializer list [-Wc++11-narrowing]
+ 10949 |         .environmentIndexOffsetWords = gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+       |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 10950 |             ? NM_INVALID_INDEX : gate.environmentIndexOffsetBytes / sizeof(std::uint32_t),
+       |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:10949:40: note: insert an explicit cast to silence this issue
+ 10949 |         .environmentIndexOffsetWords = gate.environmentIndexOffsetBytes == NM_INVALID_INDEX
+       |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       |                                        static_cast<uint32_t>(
+ 10950 |             ? NM_INVALID_INDEX : gate.environmentIndexOffsetBytes / sizeof(std::uint32_t),
+       |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       |                                                                                          )
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:10952:38: error: non-constant-expression cannot be narrowed from type 'unsigned long' to 'std::uint32_t' (aka 'unsigned int') in initializer list [-Wc++11-narrowing]
+ 10952 |         .completedCountOffsetWords = gate.completedCountOffsetBytes == NM_INVALID_INDEX
+       |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 10953 |             ? NM_INVALID_INDEX : gate.completedCountOffsetBytes / sizeof(std::uint32_t),
+       |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:10952:38: note: insert an explicit cast to silence this issue
+ 10952 |         .completedCountOffsetWords = gate.completedCountOffsetBytes == NM_INVALID_INDEX
+       |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       |                                      static_cast<uint32_t>(
+ 10953 |             ? NM_INVALID_INDEX : gate.completedCountOffsetBytes / sizeof(std::uint32_t),
+       |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       |                                                                                        )
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16539:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 16539 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:20682:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 20682 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings and 2 errors generated.
+[26/33] Building OBJCXX object matter/CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o
+[27/33] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+ninja: build stopped: subcommand failed.

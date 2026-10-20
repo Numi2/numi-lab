@@ -4,6 +4,7 @@
 
 #include "numi/matter/shared.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -240,7 +241,13 @@ void encodeSolve(id<MTLComputeCommandEncoder> encoder,
                  id<MTLBuffer> corrections, id<MTLBuffer> status,
                  id<MTLBuffer> states, id<MTLBuffer> originalMatrices,
                  id<MTLBuffer> candidate, std::uint32_t refinementMode,
-                 const InputHeader& header) {
+                 const InputHeader& header,
+                 const std::uint32_t requestedModeCount = UINT32_MAX,
+                 const std::uint32_t requestedModeStride = UINT32_MAX) {
+    const std::uint32_t modeCount = requestedModeCount == UINT32_MAX
+        ? header.modeCount : requestedModeCount;
+    const std::uint32_t modeStride = requestedModeStride == UINT32_MAX
+        ? modeCount : requestedModeStride;
     [encoder setComputePipelineState:pipeline];
     setBuffer(encoder, dispatch, 0u);
     setBuffer(encoder, patches, 1u);
@@ -258,12 +265,12 @@ void encodeSolve(id<MTLComputeCommandEncoder> encoder,
     setCount(encoder, header.patchNodeCount, 13u);
     setCount(encoder, header.matrixFloatCount, 14u);
     setCount(encoder, header.pivotCount, 15u);
-    setCount(encoder, header.modeCount, 16u);
+    setCount(encoder, modeCount, 16u);
     setBuffer(encoder, states, 17u);
     setBuffer(encoder, originalMatrices, 18u);
     setCount(encoder, refinementMode, 19u);
     setBuffer(encoder, candidate, 20u);
-    setCount(encoder, header.modeCount, 21u);
+    setCount(encoder, modeStride, 21u);
     [encoder dispatchThreadgroups:MTLSizeMake(header.patchCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -451,14 +458,37 @@ int main(int argc, char** argv) {
 
             id<MTLBuffer> dispatchBuffer = outputBuffer(device,
                 sizeof(NMMatterDispatchGPU), "dispatch");
+            // Match the retained production-helper source mask: every node
+            // covered by the free-only graph is free, while uncovered nodes
+            // remain authored fixed rows with zero inverse mass. This keeps
+            // the fixture's graph layout and candidate mask coherent.
             std::vector<NMFEMNodeStateGPU> graphCandidate(header.nodeCount);
-            for (NMFEMNodeStateGPU& node : graphCandidate) {
+            std::uint32_t graphFreeNodeCount = 0u;
+            std::uint32_t graphFixedNodeCount = 0u;
+            for (std::uint32_t nodeIndex = 0u;
+                 nodeIndex < header.nodeCount; ++nodeIndex) {
+                std::uint32_t coverage = 0u;
+                std::memcpy(&coverage, nodeCoverageView.data +
+                    static_cast<std::size_t>(nodeIndex) * sizeof(coverage),
+                    sizeof(coverage));
+                NMFEMNodeStateGPU& node = graphCandidate[nodeIndex];
                 node.positionAndMass.w = 1.0f;
-                node.velocityAndInverseMass.w = 1.0f;
+                if (coverage != 0u) {
+                    ++graphFreeNodeCount;
+                    node.velocityAndInverseMass.w = 1.0f;
+                    node.restAndFixed.w = 0.0f;
+                } else {
+                    ++graphFixedNodeCount;
+                    node.velocityAndInverseMass.w = 0.0f;
+                    node.restAndFixed.w = 1.0f;
+                }
             }
+            need(graphFreeNodeCount > 0u && graphFreeNodeCount +
+                 graphFixedNodeCount == header.nodeCount,
+                 "candidate mask derived from graph coverage is invalid");
             id<MTLBuffer> candidateBuffer = outputBuffer(device,
                 graphCandidate.size() * sizeof(NMFEMNodeStateGPU),
-                "all-free graph candidate nodes");
+                "source-mask graph candidate nodes");
             std::memcpy(candidateBuffer.contents, graphCandidate.data(),
                         candidateBuffer.length);
             NMMatterDispatchGPU dispatch{};
@@ -576,6 +606,22 @@ int main(int argc, char** argv) {
             id<MTLBuffer> completedPreconditioned = outputBuffer(device,
                 sizeof(nm_float4) * header.nodeCount, "completed_tail_preconditioned");
 
+            std::vector<nm_float4> additiveSeeds(header.nodeCount);
+            for (std::uint32_t node = 0u; node < header.nodeCount; ++node) {
+                additiveSeeds[node] = nm_float4{
+                    0.125f * static_cast<float>(node + 1u),
+                    -0.25f + 0.01f * static_cast<float>(node),
+                    0.375f, 7.25f};
+            }
+            id<MTLBuffer> additivePreconditioned = bytesBuffer(
+                device, additiveSeeds.data(),
+                additiveSeeds.size() * sizeof(nm_float4),
+                "additive_mode0_seed_preconditioned");
+            id<MTLBuffer> additiveCorrections = outputBuffer(device,
+                sizeof(nm_float4) * header.patchNodeCount,
+                "additive_mode0_graph_corrections");
+            id<MTLBuffer> additiveMode0Status = newStatus();
+
             id<MTLBuffer> activeState = outputBuffer(device,
                 sizeof(NMFGMRESStateGPU), "active_state");
             id<MTLBuffer> completedState = outputBuffer(device,
@@ -641,6 +687,20 @@ int main(int argc, char** argv) {
                         coefficients, corrections1, preconditioned1, activeState, candidateBuffer,
                         header.patchNodeCount, header.modeCount, header.nodeCount);
 
+            // Human selector 6 already has a regional coarse contribution.
+            // A zero-mode graph solve adds its local FEM correction while
+            // preserving the seeded coarse xyz complement and mixed-vector w.
+            encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
+                        basis, regionalBasis, regionalAP, coefficients, patchMatrices,
+                        pivots, factorValid, additiveCorrections, additiveMode0Status,
+                        activeState, originalMatrices, candidateBuffer, 1u, header,
+                        0u, 0u);
+            encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
+                        nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
+                        coefficients, additiveCorrections, additivePreconditioned,
+                        activeState, candidateBuffer, header.patchNodeCount, 0u,
+                        header.nodeCount);
+
             // Exact zero RHS exercises the no-op refinement branch end to end.
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         zeroBasis, regionalBasis, zeroAP, zeroCoefficients, patchMatrices,
@@ -699,6 +759,68 @@ int main(int argc, char** argv) {
             need(command.status == MTLCommandBufferStatusCompleted,
                  std::string("Metal refinement checker command failed: ") +
                  localizedCommandError);
+            need(statusCode(additiveMode0Status) == NM_STATUS_SUCCESS,
+                 "additive zero-mode graph solve reported a solver status");
+            const NumericZeroSummary additiveCorrectionSummary =
+                summarizeNumericZero(additiveCorrections);
+            need(additiveCorrectionSummary.nonfiniteCount == 0u &&
+                 additiveCorrectionSummary.nonzeroCount != 0u,
+                 "additive zero-mode solve did not produce a finite nonzero FEM correction");
+            const auto* additiveValues =
+                static_cast<const nm_float4*>(additivePreconditioned.contents);
+            const auto* additivePatchCorrections =
+                static_cast<const nm_float4*>(additiveCorrections.contents);
+            float maximumAdditiveError = 0.0f;
+            for (std::uint32_t node = 0u; node < header.nodeCount; ++node) {
+                std::uint32_t begin = 0u;
+                std::uint32_t end = 0u;
+                std::uint32_t coverage = 0u;
+                std::memcpy(&begin, nodePatchOffsetsView.data +
+                    static_cast<std::size_t>(node) * sizeof(begin), sizeof(begin));
+                std::memcpy(&end, nodePatchOffsetsView.data +
+                    static_cast<std::size_t>(node + 1u) * sizeof(end), sizeof(end));
+                std::memcpy(&coverage, nodeCoverageView.data +
+                    static_cast<std::size_t>(node) * sizeof(coverage),
+                    sizeof(coverage));
+                need(end >= begin && end - begin == coverage &&
+                     end <= header.patchNodeCount,
+                     "node-to-patch coverage map is inconsistent");
+                nm_float4 expected = additiveSeeds[node];
+                nm_float4 graphCorrection{};
+                if (coverage != 0u) {
+                    for (std::uint32_t item = begin; item < end; ++item) {
+                        std::uint32_t patchNode = 0u;
+                        std::memcpy(&patchNode, nodePatchValuesView.data +
+                            static_cast<std::size_t>(item) * sizeof(patchNode),
+                            sizeof(patchNode));
+                        need(patchNode < header.patchNodeCount,
+                             "node-to-patch map references an invalid patch node");
+                        graphCorrection.x += additivePatchCorrections[patchNode].x;
+                        graphCorrection.y += additivePatchCorrections[patchNode].y;
+                        graphCorrection.z += additivePatchCorrections[patchNode].z;
+                    }
+                    expected.x += graphCorrection.x / static_cast<float>(coverage);
+                    expected.y += graphCorrection.y / static_cast<float>(coverage);
+                    expected.z += graphCorrection.z / static_cast<float>(coverage);
+                }
+                const nm_float4 actual = additiveValues[node];
+                const float scale = std::max(1.0f,
+                    std::abs(expected.x) + std::abs(expected.y) +
+                    std::abs(expected.z));
+                const float errors[] = {
+                    std::abs(actual.x - expected.x),
+                    std::abs(actual.y - expected.y),
+                    std::abs(actual.z - expected.z)};
+                for (const float error : errors) {
+                    need(std::isfinite(error),
+                         "additive graph output is nonfinite");
+                    maximumAdditiveError = std::max(maximumAdditiveError, error);
+                    need(error <= 2.0e-4f * scale,
+                         "zero-mode graph apply did not add the expected patch correction");
+                }
+                need(actual.w == additiveSeeds[node].w,
+                     "zero-mode graph apply changed the mixed-vector w lane");
+            }
 
             // Save exact source-derived factor outputs before the parity gate.
             // The sidecar retains both modes even if an equality check fails.
@@ -870,6 +992,8 @@ int main(int argc, char** argv) {
                       << " patches=" << header.patchCount
                       << " patch_nodes=" << header.patchNodeCount
                       << " active_modes=0,1 zero_rhs=pass completed_tail=pass"
+                      << " additive_zero_mode=pass max_additive_error="
+                      << maximumAdditiveError
                       << " factor_search_parity=pass legacy_vs_parallel=bitwise"
                       << " matrix=" << (matrixParity ? "equal" : "different")
                       << " pivots=" << (pivotParity ? "equal" : "different")

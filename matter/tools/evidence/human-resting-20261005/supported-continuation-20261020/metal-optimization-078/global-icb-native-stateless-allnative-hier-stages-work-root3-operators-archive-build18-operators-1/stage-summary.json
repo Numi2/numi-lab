@@ -1,0 +1,93 @@
+{
+  "stages": {
+    "matter_pre": {
+      "spans": 1,
+      "sum_s": 0.000785167,
+      "max_s": 0.000785167
+    },
+    "brain_advance": {
+      "spans": 1,
+      "sum_s": 1.5417e-05,
+      "max_s": 1.5417e-05
+    },
+    "respiratory_mechanics": {
+      "spans": 1,
+      "sum_s": 0.004509542,
+      "max_s": 0.004509542
+    },
+    "matter_after_frame_begin": {
+      "spans": 1,
+      "sum_s": 6.4709e-05,
+      "max_s": 6.4709e-05
+    },
+    "matter_newton_assembly": {
+      "spans": 96,
+      "sum_s": 0.6002935850000001,
+      "max_s": 0.006865834
+    },
+    "nm_fem_apply_operator_elements": {
+      "spans": 6144,
+      "sum_s": 0.41632612900000004,
+      "max_s": 0.00023675
+    },
+    "nm_fgmres_gather_nodes": {
+      "spans": 6144,
+      "sum_s": 0.41927954,
+      "max_s": 0.00021395800000000001
+    },
+    "nm_vascular_cavity_operator": {
+      "spans": 6144,
+      "sum_s": 0.036885641000000004,
+      "max_s": 2.0041e-05
+    },
+    "nm_vascular_operator": {
+      "spans": 6144,
+      "sum_s": 0.21309934100000003,
+      "max_s": 0.000116583
+    },
+    "matter_newton_linear": {
+      "spans": 96,
+      "sum_s": 2.9790852510000003,
+      "max_s": 0.072445334
+    },
+    "matter_newton_globalization": {
+      "spans": 96,
+      "sum_s": 0.8621477900000001,
+      "max_s": 0.009259333
+    },
+    "matter_after_candidate_ready": {
+      "spans": 4,
+      "sum_s": 0.12748408300000003,
+      "max_s": 0.031947
+    },
+    "matter_after_microstep": {
+      "spans": 4,
+      "sum_s": 0.000229749,
+      "max_s": 0.000124292
+    },
+    "respiratory_gas_exchange": {
+      "spans": 1,
+      "sum_s": 0.001716791,
+      "max_s": 0.001716791
+    },
+    "matter_post": {
+      "spans": 1,
+      "sum_s": 2.4333000000000002e-05,
+      "max_s": 2.4333000000000002e-05
+    },
+    "brain_resolve": {
+      "spans": 1,
+      "sum_s": 1.25e-06,
+      "max_s": 1.25e-06
+    },
+    "respiratory_resolve": {
+      "spans": 1,
+      "sum_s": 0.0007047920000000001,
+      "max_s": 0.0007047920000000001
+    }
+  },
+  "invalid_record_reports": [],
+  "dropped_reports": [],
+  "unavailable_lines": [],
+  "note": "Exact observed spans; no scaled estimate or end-to-end speedup inferred."
+}

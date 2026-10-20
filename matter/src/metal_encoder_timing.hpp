@@ -1,5 +1,6 @@
 #pragma once
 #import <Metal/Metal.h>
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -19,7 +20,10 @@ struct CounterTimingRecord {
 };
 
 struct CounterTimingSession {
-    __strong id<MTLCounterSampleBuffer> buffer = nil;
+    // M6 limits each timestamp resource to 4096 samples. Global indices
+    // map into bounded shards; a stage span may cross a shard boundary.
+    static constexpr NSUInteger shardCapacity = 4096u;
+    std::vector<id<MTLCounterSampleBuffer>> buffers;
     NSUInteger capacity = 0u;
     NSUInteger nextSample = 0u;
     std::size_t dropped = 0u;
@@ -73,8 +77,8 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
     }
     if (timestampSet == nil) return {};
 
-    // One shared sample buffer avoids allocating one Metal counter resource
-    // per kernel, which previously stopped capture before iterative solves.
+    // Reuse bounded shared timestamp shards, rather than allocating one
+    // counter resource per kernel or exceeding the per-resource device limit.
     NSUInteger sampleCapacity = 4096u;
     if (const char* setting = std::getenv("NUMI_MATTER_GPU_TIMING_CAPACITY")) {
         char* end = nullptr;
@@ -87,25 +91,29 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
         }
         sampleCapacity = static_cast<NSUInteger>(parsed);
     }
-    auto* descriptor = [MTLCounterSampleBufferDescriptor new];
-    descriptor.counterSet = timestampSet;
-    descriptor.storageMode = MTLStorageModeShared;
-    descriptor.sampleCount = sampleCapacity;
-    NSError* error = nil;
-    id<MTLCounterSampleBuffer> buffer =
-        [device newCounterSampleBufferWithDescriptor:descriptor error:&error];
-    if (buffer == nil) {
-        std::fprintf(stderr,
-            "matter_gpu_timing_buffer_unavailable capacity=%lu error=%s\n",
-            static_cast<unsigned long>(sampleCapacity),
-            (error.localizedDescription.UTF8String != nullptr)
-                ? error.localizedDescription.UTF8String : "unknown");
-        return {};
-    }
-
     auto session = std::make_shared<CounterTimingSession>();
-    session->buffer = buffer;
     session->capacity = sampleCapacity;
+    for (NSUInteger offset = 0u; offset < sampleCapacity;
+         offset += CounterTimingSession::shardCapacity) {
+        auto* descriptor = [MTLCounterSampleBufferDescriptor new];
+        descriptor.counterSet = timestampSet;
+        descriptor.storageMode = MTLStorageModeShared;
+        descriptor.sampleCount = std::min(CounterTimingSession::shardCapacity,
+            sampleCapacity - offset);
+        NSError* error = nil;
+        id<MTLCounterSampleBuffer> buffer =
+            [device newCounterSampleBufferWithDescriptor:descriptor error:&error];
+        if (buffer == nil) {
+            std::fprintf(stderr,
+                "matter_gpu_timing_buffer_unavailable capacity=%lu shard=%lu error=%s\n",
+                static_cast<unsigned long>(sampleCapacity),
+                static_cast<unsigned long>(session->buffers.size()),
+                (error.localizedDescription.UTF8String != nullptr)
+                    ? error.localizedDescription.UTF8String : "unknown");
+            return {};
+        }
+        session->buffers.push_back(buffer);
+    }
     sessions.emplace(commandKey, session);
     [command addCompletedHandler:^(id<MTLCommandBuffer> completed) {
         std::vector<CounterTimingRecord> records;
@@ -118,10 +126,21 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
             dropped = session->dropped;
         }
         if (completed.status == MTLCommandBufferStatusCompleted && sampleCount > 0u) {
-            NSData* data = [session->buffer resolveCounterRange:NSMakeRange(0u, sampleCount)];
-            if (data.length == sampleCount * sizeof(MTLCounterResultTimestamp)) {
-                const auto* samples =
-                    static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+            std::vector<MTLCounterResultTimestamp> resolved(sampleCount);
+            NSUInteger resolvedBytes = 0u;
+            for (NSUInteger offset = 0u; offset < sampleCount;
+                 offset += CounterTimingSession::shardCapacity) {
+                const NSUInteger count = std::min(
+                    CounterTimingSession::shardCapacity, sampleCount - offset);
+                NSData* data = [session->buffers[
+                    offset / CounterTimingSession::shardCapacity]
+                    resolveCounterRange:NSMakeRange(0u, count)];
+                if (data.length != count * sizeof(MTLCounterResultTimestamp)) break;
+                std::memcpy(resolved.data() + offset, data.bytes, data.length);
+                resolvedBytes += data.length;
+            }
+            if (resolvedBytes == sampleCount * sizeof(MTLCounterResultTimestamp)) {
+                const auto* samples = resolved.data();
                 std::size_t invalidRecords = 0u;
                 for (const auto& record : records) {
                     const auto begin = samples[record.begin].timestamp;
@@ -149,7 +168,7 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
                 std::fprintf(stderr,
                     "matter_gpu_timing_resolution_failed samples=%lu bytes=%lu\n",
                     static_cast<unsigned long>(sampleCount),
-                    static_cast<unsigned long>(data.length));
+                    static_cast<unsigned long>(resolvedBytes));
             }
         } else if (completed.status != MTLCommandBufferStatusCompleted) {
             std::fprintf(stderr,
@@ -201,6 +220,11 @@ inline id<MTLComputeCommandEncoder> timedEncoder(
     NSUInteger end = 0u;
     {
         std::lock_guard<std::mutex> lock(session->mutex);
+        // An encoder's start/end attachment names one resource. Leave a
+        // final odd slot unused rather than crossing resources within it.
+        if (session->nextSample % CounterTimingSession::shardCapacity ==
+            CounterTimingSession::shardCapacity - 1u)
+            ++session->nextSample;
         if (session->nextSample + 2u > session->capacity) {
             ++session->dropped;
             return [command computeCommandEncoder];
@@ -210,9 +234,12 @@ inline id<MTLComputeCommandEncoder> timedEncoder(
         session->records.push_back(CounterTimingRecord{stage, root, begin, end});
     }
     auto* pass = [MTLComputePassDescriptor computePassDescriptor];
-    pass.sampleBufferAttachments[0].sampleBuffer = session->buffer;
-    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = begin;
-    pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = end;
+    pass.sampleBufferAttachments[0].sampleBuffer =
+        session->buffers[begin / CounterTimingSession::shardCapacity];
+    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex =
+        begin % CounterTimingSession::shardCapacity;
+    pass.sampleBufferAttachments[0].endOfEncoderSampleIndex =
+        end % CounterTimingSession::shardCapacity;
     return [command computeCommandEncoderWithDescriptor:pass];
 }
 
@@ -348,8 +375,10 @@ inline id<MTLComputeCommandEncoder> timingSpanBoundary(
     }
 
     auto* pass = [MTLComputePassDescriptor computePassDescriptor];
-    pass.sampleBufferAttachments[0].sampleBuffer = session->buffer;
-    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = boundarySample;
+    pass.sampleBufferAttachments[0].sampleBuffer =
+        session->buffers[boundarySample / CounterTimingSession::shardCapacity];
+    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex =
+        boundarySample % CounterTimingSession::shardCapacity;
     pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = MTLCounterDontSample;
     return [command computeCommandEncoderWithDescriptor:pass];
 }

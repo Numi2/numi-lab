@@ -1,0 +1,15 @@
+{
+  "artifact_hashes": {
+    "NumiMatter.metallib": "55d734cff31674234994f2339141b2795f18771e0cb6e3eeb760a8a85f6a79e6",
+    "libmetalrobo.dylib": "77233d40b515f1da3f8d758468350f3f72b5784f3918e83002773044b7f0c5cf",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "8d953b79b27c729cb279eeb26e8c43ffb4e7ae9373f3de284c3749d9cc01b160",
+    "source-manifest.json": "f7a24d6c4da49e4f6f89a21a96107a92a11ddfd86eba7d6382ba31dfd3532363",
+    "source.patch": "91137381d72035aa2a7974fe05b9cb4b0e45443cc373189dbf437b860e9e08df"
+  },
+  "base_revision": "71ceed80b80972a9ab6ec100daf8e288ed3c2c2b",
+  "frozen_dir": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build21-frozen",
+  "provenance_manifest": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build21-source-provenance.json",
+  "source_count": 11,
+  "source_manifest": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build21-source-manifest.json"
+}
