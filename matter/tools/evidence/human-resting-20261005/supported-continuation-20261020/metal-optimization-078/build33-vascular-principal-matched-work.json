@@ -1,0 +1,22 @@
+[
+  {
+    "run": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-row16-supported-dt125us-archive-build32-strict-fullcert-gravity-33",
+    "matched_roots": "0..27",
+    "root_records": 28,
+    "used_columns_sum": 56803,
+    "budget_exhausted_solves": 372,
+    "active_newton_begins": 1597,
+    "cycles_with_work": 4063,
+    "note": "Counters of matched roots only; not timing or sustained throughput."
+  },
+  {
+    "run": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-principal-row16-supported-dt125us-archive-build33-strict-principal-gravity-33",
+    "matched_roots": "0..27",
+    "root_records": 28,
+    "used_columns_sum": 40853,
+    "budget_exhausted_solves": 358,
+    "active_newton_begins": 1414,
+    "cycles_with_work": 2917,
+    "note": "Counters of matched roots only; not timing or sustained throughput."
+  }
+]
