@@ -867,6 +867,15 @@ void checkDistributedBeginAndCorrection(
         "domain latch excluded mixed pressure from the mechanical block");
     require(runDomainLatch(5.0e-5f,0.5e-5f,false,true,false,3u).first<0.5f,
         "domain latch bypassed support-history admissibility");
+    require(runDomainLatch(3.0e-5f,0.5e-5f,false,false,false,
+        3u | (2u << 16u)).first<0.5f,
+        "tightened domain gate accepted a mechanical norm above its bound");
+    require(runDomainLatch(2.0e-5f,0.5e-5f,false,false,false,
+        3u | (2u << 16u)).first>0.5f,
+        "tightened domain gate rejected independently passing blocks");
+    require(runDomainLatch(3.0e-5f,0.5e-5f,false,false,false,
+        1u | (2u << 16u)).first<0.5f,
+        "tightening metadata bypassed the legacy full-norm gate");
     std::cout<<"domain_nonlinear_latch=true separate_mechanical_vascular=true "
                 "legacy_full_norm=true pressure_and_support_gates=true "
                 "nonfinite_rejected=true result=PASS\n";

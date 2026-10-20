@@ -3014,6 +3014,7 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoMetrics = nil;
     bool femDistributedGlobalMeasurementsEnabled = false;
     bool femDomainNonlinearLatchEnabled = false;
+    std::uint32_t femDomainMechanicalTightening = 0u;
     id<MTLBuffer> fgmresDomainNormPartials = nil;
     id<MTLBuffer> femArmijoNormPartials = nil;
     id<MTLBuffer> femArmijoGeometryTiles = nil;
@@ -4500,6 +4501,21 @@ RuntimeDiagnostics Runtime::initialize(
                 "domain nonlinear latch requires distributed global measurements and active vascular unknowns";
             return diagnostics;
         }
+        const char* domainMechanicalTightening =
+            std::getenv("NM_FEM_DOMAIN_MECHANICAL_TIGHTENING");
+        std::uint32_t domainMechanicalTighteningValue = 0u;
+        if (domainMechanicalTightening != nullptr) {
+            if (!domainNonlinearLatchEnabled ||
+                std::strlen(domainMechanicalTightening) != 1u ||
+                domainMechanicalTightening[0] < '0' ||
+                domainMechanicalTightening[0] > '4') {
+                diagnostics.message =
+                    "domain mechanical tightening requires the domain latch and integer exponent 0..4";
+                return diagnostics;
+            }
+            domainMechanicalTighteningValue =
+                std::uint32_t(domainMechanicalTightening[0] - '0');
+        }
         const char* inexactNewtonForcing =
             std::getenv("NM_FGMRES_INEXACT_NEWTON_FORCING");
         if (inexactNewtonForcing != nullptr &&
@@ -4537,6 +4553,8 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
         candidate->femDomainNonlinearLatchEnabled =
             domainNonlinearLatchEnabled;
+        candidate->femDomainMechanicalTightening =
+            domainMechanicalTighteningValue;
         candidate->fgmresInexactNewtonForcingEnabled =
             inexactNewtonForcing != nullptr;
         candidate->fgmresRelativeInnerForcingEnabled =
@@ -8662,6 +8680,10 @@ RuntimeDiagnostics Runtime::initialize(
         // begin measurement; legacy full-norm accumulation remains untouched.
         if (candidate->femDomainNonlinearLatchEnabled)
             candidate->fgmresLayout.reserved |= 2u;
+        // Internal bits16..18 tighten (never relax) only the opt-in mechanical
+        // domain gate by 2^-exponent; all final physical tolerances are unchanged.
+        candidate->fgmresLayout.reserved |=
+            candidate->femDomainMechanicalTightening << 16u;
         if (candidate->femRegionalRestartAugmentationEnabled &&
             (candidate->humanSupportDispatch.contactCount != 0u ||
              candidate->humanEqualityDispatch.count != 0u ||

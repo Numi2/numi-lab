@@ -7465,13 +7465,16 @@ kernel void nm_fgmres_begin_distributed_finish(
         ? mechanicalNonlinearThreshold
         : min(mechanicalNonlinearThreshold, layout.vascularResidualTolerance);
     const bool domainSeparatedLatch = (layout.reserved & 2u) != 0u;
+    const uint mechanicalTightening = (layout.reserved >> 16u) & 7u;
+    const float mechanicalDomainThreshold = mechanicalNonlinearThreshold *
+        exp2(-float(mechanicalTightening));
     const float mechanicalDomainNorm = sqrt(max(mechanicalNorm2, 0.0f));
     const float vascularDomainNorm = sqrt(max(vascularNorm2, 0.0f));
     const bool domainResidualPass = isfinite(norm2) && norm2 >= 0.0f &&
         isfinite(mechanicalNorm2) && mechanicalNorm2 >= 0.0f &&
         isfinite(vascularNorm2) && vascularNorm2 >= 0.0f &&
         isfinite(mechanicalDomainNorm) && isfinite(vascularDomainNorm) &&
-        mechanicalDomainNorm <= mechanicalNonlinearThreshold &&
+        mechanicalDomainNorm <= mechanicalDomainThreshold &&
         vascularDomainNorm <= layout.vascularResidualTolerance;
     const bool nonlinearResidualPass = domainSeparatedLatch
         ? domainResidualPass : norm <= nonlinearThreshold;

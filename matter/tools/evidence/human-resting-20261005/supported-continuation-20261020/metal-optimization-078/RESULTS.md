@@ -92,3 +92,13 @@ Lagged local graph factors complete one root in 11.920384 body seconds versus 19
 The repository comparison entrypoint is matter/tools/human_performance_compare.py. It consumes the retained summary files, enforces finite values, exact scalar/vector shapes, required metric coverage, successful terminal checks and matched simulated durations before reporting a mechanics speedup. Inline checks cover omitted metrics, truncated vectors, NaN, booleans, owner failure and mismatched durations. This avoids silently passing zip-truncated vectors or failed runs.
 
 Build21 does not complete exact Schur condensation, actual hybrid Bq runtime integration, a full operator ICB, a supported checkpoint, or the 0.1x end-to-end target. Those remain implementation work. All measurements here are short release-transient mechanics checks with presentation qualification pending.
+
+## Build22 conservative domain-stopping qualification
+
+A new opt-in internal exponent tightens only the mechanical domain convergence gate: NM_FEM_DOMAIN_MECHANICAL_TIGHTENING=3 applies 2^-3 to the authored mechanical threshold (1.25e-5 when the authored absolute threshold is 1e-4). The vascular bound, true-residual processing and all final physical tolerances remain unchanged. The legacy path is unchanged when the domain latch is off. Native tests cover passing/failing tightened domains and unchanged legacy full-norm behavior; three focused checks pass.
+
+Three four-root matched pairs all pass the 17-metric 1% comparison and terminal FEM/fascia checks. Control/candidate body seconds are 17.083606833/11.647453834, 17.288182834/11.655798959, and 16.977690083/11.711979084. Median speedup is 1.46672458x. Candidate RTF is 0.00004269–0.00004293x for 0.5 ms simulated per trial. This is a new short-mechanics improvement against a same-build native control, not an integrated 0.1x result, a supported checkpoint, or a multiplied forecast from prior gains.
+
+The weaker exponent2 trial takes 9.938724 s but repeats the determinant/attachment-force comparison failures; it is not qualified. Combining accepted exponent3 with Eisenstat-Walker takes less time but fails attachment-force parity (3.26% relative to the same-build control). Keep that combination experimental.
+
+An exhaustive operator/stage capture of the qualified exponent3 path has no invalid/dropped records. At root3 it observes assembly 0.562198 s, linear solve 1.822354 s and globalization 0.860927 s, including 6144 spans of each profiled operator. Body time is 12.674065 s versus median uninstrumented 11.655799 s (8.74% perturbation). These are exact observed spans, not scaled phase samples. Inactive graph scheduling remains substantial; further complete operator/Newton subgraphs are still unfinished.
