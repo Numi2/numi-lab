@@ -1,0 +1,17 @@
+{
+  "base_revision": "5c83a94632ad5c7061e8d465cc2271f96f53429d",
+  "patch_path": "tested-candidate-041b.patch",
+  "patch_sha256": "baf519eedf284db531dffc99c9ad460924880843d98ed174432203f822964625",
+  "changed_paths": [
+    "apps/numilab_human_myosim_visual_probe.mm"
+  ],
+  "git_apply_check": "passed",
+  "git_apply": "passed in temporary minimal archive",
+  "provenance_source_file_count": 24,
+  "exact_provenance_source_hash_map_reconstructed": true,
+  "mismatches": [],
+  "temporary_archive_removed": true,
+  "executable_sha256": "f7bb4095acb5a853b4765d70226bda9137bc390de0d5c1a1b4ff7bf5755d5dee",
+  "metallib_sha256": "ccb3da2f4c0f806de944916e809e3f1043eebb17d2e842c425e7189fb79662fc",
+  "suite_library_sha256": "ac517a4cb5e075e8b0d8c9f5816029efca4c754b836dae332ae504fd9275d7e0"
+}

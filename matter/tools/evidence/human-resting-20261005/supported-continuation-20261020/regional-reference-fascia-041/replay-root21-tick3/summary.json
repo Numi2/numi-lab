@@ -1,0 +1,32 @@
+{
+  "attempt": "diagnostic replay of the 041b root21/tick3 failure; same failure reproduced",
+  "exit_code": 1,
+  "wall_s": 356.1760310420068,
+  "requested_steps": 22,
+  "dt_s": 0.000125,
+  "requested_horizon_s": 0.00275,
+  "accepted_roots": 21,
+  "accepted_horizon_s": 0.002625,
+  "failure": {
+    "root": 21,
+    "tick": 3,
+    "matter_status": 6,
+    "object": 19,
+    "local_failing_index": 2623,
+    "microsteps": 3,
+    "diagnostics": [
+      3.712967000524259e-08,
+      -4.6978958707412106e-15,
+      1,
+      0
+    ]
+  },
+  "parity": "Full accepted coupled CSV, common failure receipt, and surface audit are byte-identical to native-integrated-041b; source map, executable, metallib, and suite library hashes match.",
+  "source_patch": {
+    "path": "../tested-candidate-041b.patch",
+    "sha256": "baf519eedf284db531dffc99c9ad460924880843d98ed174432203f822964625"
+  },
+  "interpretation": "Replay confirms the exact prior failure witness and does not extend the horizon. The preregistered 32-step prediction remains refuted; no stability improvement is supported.",
+  "independent_prior_checks": "The separate verification-041b package retains the passed 26-region geometry/mass checks, 12-object compiled reference ownership/offsets, and injected late-reject/retry check.",
+  "qualification_limit": "Diagnostic replay only; not sustained support or physiology."
+}

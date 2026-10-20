@@ -1,0 +1,299 @@
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index 600d81f0..d4ec97ef 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -18968,6 +18968,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     auto parsed = numi::matter::parseMatterFile(
+         NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL);
+     require(parsed.succeeded(), "resting fascia material parse failed");
++    const std::string fasciaMaterialSourceSHA256 = loadedKneeSHA256Hex(
++        loadedKneeFileSHA256(
++            std::filesystem::path(NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL)));
+     std::vector<numi::matter::ObjectSource> fasciaObjects(
+         kRestingFasciaObjectCount);
+     std::array<std::vector<std::uint8_t>, kRestingFasciaObjectCount>
+@@ -19419,6 +19422,109 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+             if (object.femReferenceSourceIdentity[word] == 0u)
+                 object.femReferenceSourceIdentity[word] = word + 1u;
+         }
++        // Keep the existing initial registered geometry as the stress-free
++        // reference. Explicit per-tet indices make the already-uniform
++        // object material selection auditable by the reference-gradient
++        // compiler path without changing material or mass ownership.
++        object.femMaterialIndices.assign(
++            object.tetrahedra.size(), object.materialIndex);
++        require(!object.femMaterialIndices.empty() &&
++                    object.femMaterialIndices.size() ==
++                        fasciaObjectTetRegions[objectIndex].size(),
++                "regional fascia reference material map is incomplete");
++        const auto& regionalMaterial = source.materials[object.materialIndex];
++        std::vector<std::byte> materialIdentityBytes;
++        const auto appendIdentityBytes = [&](const void* bytes,
++                                             const std::size_t count) {
++            require(bytes != nullptr || count == 0u,
++                    "regional fascia material identity has an invalid byte range");
++            if (count == 0u) return;
++            const auto* first = static_cast<const std::byte*>(bytes);
++            materialIdentityBytes.insert(materialIdentityBytes.end(), first,
++                                         first + count);
++        };
++        const auto appendIdentityValue = [&](const auto& value) {
++            const auto bytes = std::as_bytes(std::span(&value, 1u));
++            appendIdentityBytes(bytes.data(), bytes.size());
++        };
++        const auto appendIdentityText = [&](const std::string_view value) {
++            const auto length = static_cast<std::uint64_t>(value.size());
++            appendIdentityValue(length);
++            appendIdentityBytes(value.data(), value.size());
++        };
++        appendIdentityText("numi.human.regional-myofascia.reference-material.v1");
++        appendIdentityText(fasciaMaterialSourceSHA256);
++        appendIdentityText(loadedKneeSHA256Hex(
++            fascia.header.bodypartsArchiveSha256));
++        appendIdentityText(loadedKneeSHA256Hex(
++            fascia.header.myosimManifestSha256));
++        appendIdentityValue(objectIndex);
++        appendIdentityValue(kFasciaObjectRegionBegin[objectIndex]);
++        appendIdentityValue(kFasciaObjectRegionEnd[objectIndex]);
++        appendIdentityText(object.name);
++        appendIdentityText(regionalMaterial.name);
++        const auto materialParameterCount =
++            static_cast<std::uint64_t>(regionalMaterial.parameters.size());
++        appendIdentityValue(materialParameterCount);
++        for (const auto& parameter : regionalMaterial.parameters) {
++            appendIdentityText(parameter.name);
++            appendIdentityValue(parameter.dimension);
++            appendIdentityValue(parameter.defaultValue);
++            appendIdentityValue(parameter.lower);
++            appendIdentityValue(parameter.upper);
++            appendIdentityValue(parameter.logarithmic);
++            appendIdentityValue(parameter.identifiable);
++        }
++        appendIdentityBytes(fasciaObjectTetRegions[objectIndex].data(),
++            fasciaObjectTetRegions[objectIndex].size() *
++                sizeof(fasciaObjectTetRegions[objectIndex].front()));
++        appendIdentityBytes(object.femMaterialIndices.data(),
++            object.femMaterialIndices.size() *
++                sizeof(object.femMaterialIndices.front()));
++        const auto materialDigest = loadedKneeSHA256(
++            materialIdentityBytes.data(), materialIdentityBytes.size());
++        for (unsigned word = 0u; word < 4u; ++word) {
++            for (unsigned byte = 0u; byte < 8u; ++byte)
++                object.femMaterialSourceIdentity[word] =
++                    (object.femMaterialSourceIdentity[word] << 8u) |
++                    materialDigest[8u * word + byte];
++            if (object.femMaterialSourceIdentity[word] == 0u)
++                object.femMaterialSourceIdentity[word] = word + 1u;
++        }
++
++        const std::array<std::uint64_t, 4u> zeroIdentity{};
++        require(object.representation == numi::matter::Representation::fem &&
++                    !object.automaticRepresentation && !object.mixedFEM &&
++                    !object.multiphysics.enabled && !object.identifiable &&
++                    !object.adaptive && !object.mutationPolicy.enabled &&
++                    object.mutationCommands.empty() &&
++                    object.fieldBoundaries.empty() &&
++                    object.femHumanAttachments.empty() &&
++                    !object.femNodes.empty() &&
++                    object.femReferenceNodes == object.femNodes &&
++                    object.femReferenceSourceIdentity != zeroIdentity &&
++                    object.femMaterialSourceIdentity != zeroIdentity &&
++                    object.femMaterialIndices.size() ==
++                        object.tetrahedra.size() &&
++                    std::ranges::all_of(object.femMaterialIndices,
++                        [&](const std::uint32_t materialIndex) {
++                            return materialIndex == object.materialIndex &&
++                                materialIndex < source.materials.size();
++                        }) &&
++                    std::ranges::all_of(fasciaObjectTetRegions[objectIndex],
++                        [&](const std::uint32_t regionIndex) {
++                            return regionIndex >=
++                                    kFasciaObjectRegionBegin[objectIndex] &&
++                                regionIndex <
++                                    kFasciaObjectRegionEnd[objectIndex] &&
++                                fasciaObjectForRegion(regionIndex) == objectIndex;
++                        }) &&
++                    std::ranges::none_of(regionalMaterial.parameters,
++                        [](const auto& parameter) {
++                            return parameter.identifiable;
++                        }),
++                "regional fascia does not satisfy immutable reference-gradient compiler requirements");
++        object.femReferenceDisplacementGradient = true;
+         object.femCapacity.tetrahedra =
+             static_cast<std::uint32_t>(object.tetrahedra.size());
+         std::cout << "resting_fascia_object=source_prepared"
+@@ -19442,6 +19548,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+                   << fasciaRetainedCoincidentFaceCounts[objectIndex]
+                   << " contact_nodes=" << object.femContactNodes.size()
+                   << " attachment_nodes=" << object.femFixedNodes.size()
++                  << " reference_displacement_gradient=enabled"
++                  << " reference_identity_sha256="
++                  << loadedKneeSHA256Hex(digest)
++                  << " regional_material_identity_sha256="
++                  << loadedKneeSHA256Hex(materialDigest)
++                  << " material_file_sha256="
++                  << fasciaMaterialSourceSHA256
++                  << " per_tet_materials="
++                  << object.femMaterialIndices.size()
++                  << " tet_region_map="
++                  << fasciaObjectTetRegions[objectIndex].size()
+                   << " material=" << object.name << "\n";
+     }
+     require(std::isfinite(totalSourceVolume) && totalSourceVolume > 0.0,
+@@ -19451,6 +19568,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+               << " active_source_regions=" << fascia.regions.size()
+               << " unused_source_regions=0"
+               << " material_objects=" << kRestingFasciaObjectCount
++              << " reference_displacement_objects="
++              << kRestingFasciaObjectCount
++              << " regional_material_objects="
++              << kRestingFasciaObjectCount
+               << " nodes=" << fascia.nodes.size()
+               << " tetrahedra=" << fascia.tetrahedra.size()
+               << " source_volume_m3=" << totalSourceVolume
+@@ -21200,6 +21321,145 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+                 authoredTetCount==compiled.world.fem.tetrahedra.size(),
+             "resting FEM audit ranges do not cover the authored object stack");
+ 
++    std::uint32_t fasciaReferenceModeObjects = 0u;
++    std::uint64_t fasciaReferenceModeNodes = 0u;
++    for (std::uint32_t objectIndex = 0u;
++         objectIndex < kRestingFasciaObjectCount; ++objectIndex) {
++        const auto& sourceObject =
++            source.objects[fasciaObjectFirstIndex + objectIndex];
++        const auto& descriptor =
++            compiled.world.objects[fasciaObjectFirstIndex + objectIndex];
++        constexpr std::uint32_t kRequiredFasciaReferenceFlags =
++            NM_OBJECT_FEM_REFERENCE_CONFIGURATION |
++            NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT |
++            NM_OBJECT_FEM_REGIONAL_MATERIAL;
++        const bool referenceGeometryMatches =
++            sourceObject.femReferenceNodes == sourceObject.femNodes;
++        const bool sourceMaterialMapMatches =
++            sourceObject.femMaterialIndices.size() ==
++                sourceObject.tetrahedra.size();
++        const bool stateRangeMatches =
++            descriptor.stateCount == sourceObject.femNodes.size() &&
++            std::uint64_t(descriptor.stateOffset) +
++                    descriptor.stateCount <= compiled.world.fem.nodes.size();
++        const bool elementRangeMatches =
++            descriptor.elementCount == sourceObject.tetrahedra.size() &&
++            std::uint64_t(descriptor.elementOffset) +
++                    descriptor.elementCount <=
++                compiled.world.fem.tetrahedra.size();
++        const bool referenceIdentityMatches =
++            sourceObject.femReferenceSourceIdentity !=
++                std::array<std::uint64_t, 4u>{} &&
++            std::equal(sourceObject.femReferenceSourceIdentity.begin(),
++                sourceObject.femReferenceSourceIdentity.end(),
++                descriptor.referenceSourceIdentity);
++        const bool materialIdentityMatches =
++            sourceObject.femMaterialSourceIdentity !=
++                std::array<std::uint64_t, 4u>{} &&
++            std::equal(sourceObject.femMaterialSourceIdentity.begin(),
++                sourceObject.femMaterialSourceIdentity.end(),
++                descriptor.materialSourceIdentity);
++        const bool descriptorReferenceFlagsMatch =
++            (descriptor.flags & kRequiredFasciaReferenceFlags) ==
++                kRequiredFasciaReferenceFlags;
++        if (!sourceObject.femReferenceDisplacementGradient ||
++            !referenceGeometryMatches || !sourceMaterialMapMatches ||
++            descriptor.materialIndex != sourceObject.materialIndex ||
++            !stateRangeMatches || !elementRangeMatches ||
++            !descriptorReferenceFlagsMatch || !referenceIdentityMatches ||
++            !materialIdentityMatches) {
++            std::ostringstream diagnostic;
++            diagnostic << "compiled regional fascia reference-mode owner mismatch"
++                       << " object=" << objectIndex
++                       << " source_name=" << sourceObject.name
++                       << " reference_mode="
++                       << sourceObject.femReferenceDisplacementGradient
++                       << " source_nodes=" << sourceObject.femNodes.size()
++                       << " reference_nodes="
++                       << sourceObject.femReferenceNodes.size()
++                       << " source_tets=" << sourceObject.tetrahedra.size()
++                       << " material_map="
++                       << sourceObject.femMaterialIndices.size()
++                       << " source_material=" << sourceObject.materialIndex
++                       << " compiled_material=" << descriptor.materialIndex
++                       << " state_offset=" << descriptor.stateOffset
++                       << " state_count=" << descriptor.stateCount
++                       << " state_range_match=" << stateRangeMatches
++                       << " element_offset=" << descriptor.elementOffset
++                       << " element_count=" << descriptor.elementCount
++                       << " element_range_match=" << elementRangeMatches
++                       << " compiled_flags=" << descriptor.flags
++                       << " required_flags=" << kRequiredFasciaReferenceFlags
++                       << " flags_match=" << descriptorReferenceFlagsMatch
++                       << " reference_identity_match="
++                       << referenceIdentityMatches
++                       << " material_identity_match="
++                       << materialIdentityMatches;
++            require(false, diagnostic.str());
++        }
++        const std::uint32_t compiledObjectIndex =
++            fasciaObjectFirstIndex + objectIndex;
++        for (std::uint32_t localTet = 0u;
++             localTet < descriptor.elementCount; ++localTet) {
++            const auto& compiledTet = compiled.world.fem.tetrahedra[
++                descriptor.elementOffset + localTet];
++            require(compiledTet.identity.x ==
++                            sourceObject.femMaterialIndices[localTet] &&
++                        compiledTet.identity.y == compiledObjectIndex &&
++                        (compiledTet.identity.w &
++                            NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) !=
++                            0u,
++                    "compiled regional fascia tetrahedron lost reference-gradient mode");
++        }
++        for (std::uint32_t localNode = 0u;
++             localNode < descriptor.stateCount; ++localNode) {
++            const auto& compiledNode =
++                compiled.world.fem.nodes[descriptor.stateOffset + localNode];
++            const auto& current = sourceObject.femNodes[localNode];
++            const auto& reference = sourceObject.femReferenceNodes[localNode];
++            require(compiledNode.referenceDisplacementAndMode.w == 1.0f &&
++                        compiledNode.positionAndMass.x ==
++                            static_cast<float>(current[0]) &&
++                        compiledNode.positionAndMass.y ==
++                            static_cast<float>(current[1]) &&
++                        compiledNode.positionAndMass.z ==
++                            static_cast<float>(current[2]) &&
++                        compiledNode.restAndFixed.x ==
++                            static_cast<float>(reference[0]) &&
++                        compiledNode.restAndFixed.y ==
++                            static_cast<float>(reference[1]) &&
++                        compiledNode.restAndFixed.z ==
++                            static_cast<float>(reference[2]),
++                    "compiled regional fascia node lost its reference mode or initial source position");
++        }
++        ++fasciaReferenceModeObjects;
++        fasciaReferenceModeNodes += descriptor.stateCount;
++        std::cout << "resting_fascia_object=compiled_reference_mode"
++                  << " object=" << objectIndex
++                  << " state_offset=" << descriptor.stateOffset
++                  << " state_count=" << descriptor.stateCount
++                  << " element_offset=" << descriptor.elementOffset
++                  << " element_count=" << descriptor.elementCount
++                  << " descriptor_flags=" << descriptor.flags
++                  << " region_begin=" << kFasciaObjectRegionBegin[objectIndex]
++                  << " region_end=" << kFasciaObjectRegionEnd[objectIndex]
++                  << " reference_geometry=unchanged_initial_registered_pose"
++                  << " reference_mass_basis=unchanged_source_volume_density"
++                  << " node_mode=1\n";
++    }
++    require(fasciaReferenceModeObjects == kRestingFasciaObjectCount &&
++                fasciaReferenceModeNodes > 0u,
++            "compiled regional fascia reference-mode coverage is incomplete");
++    std::cout << "resting_fascia_reference_mode=verified"
++              << " objects=" << fasciaReferenceModeObjects
++              << " nodes=" << fasciaReferenceModeNodes
++              << " source_archive_sha256="
++              << loadedKneeSHA256Hex(fascia.header.bodypartsArchiveSha256)
++              << " myosim_manifest_sha256="
++              << loadedKneeSHA256Hex(fascia.header.myosimManifestSha256)
++              << " material_source_sha256=" << fasciaMaterialSourceSHA256
++              << "\n";
++
+     std::vector<NMNumiHumanTendonFEMNodeLoadGPU> loads(totalNodeCount);
+     for(auto& l:loads){std::fill_n(l.endpointIndex,4u,NM_INVALID_INDEX);l.scale={0,0,0,0};}
+     std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> anchors(totalNodeCount);

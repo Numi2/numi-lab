@@ -1,0 +1,16 @@
+{
+  "verification_package": "verification-041",
+  "preserved_root_files": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/regional-reference-fascia-041/tested-candidate.patch",
+      "size_bytes": 15760,
+      "sha256": "ab48fd2b54d3af9cce0e550b187acd93ea6a85b006ce264f62658748d7908743"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/regional-reference-fascia-041/prerun-sha256.txt",
+      "size_bytes": 378,
+      "sha256": "5b4dbbc5619903d4430ed58a566a93d1b0229c1ceb72cde0ad859e10c087b914"
+    }
+  ],
+  "note": "Root-level pre-existing patch and prerun checksum receipt are preserved unchanged."
+}

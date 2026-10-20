@@ -1,0 +1,9 @@
+{
+  "raw_stdout": {
+    "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-041/native/stdout.log",
+    "size_bytes": 40970,
+    "sha256": "f97bf71b329f3995cc513641346cb2cfdf50d06da56f50415b54c91127bbe3ba",
+    "copied": false
+  },
+  "note": "Raw stdout is retained at the original runtime path; only bounded selected preparation lines are copied."
+}

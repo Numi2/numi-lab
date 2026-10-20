@@ -1,0 +1,4 @@
+{
+  "excluded_subtree": "analysis/",
+  "reason": "owned by the concurrent independent analysis worker; excluded from this package manifest until that work settles; not modified by this package step"
+}

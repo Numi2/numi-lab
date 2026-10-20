@@ -1,0 +1,2 @@
+frozen_source_donor_attachments=PASS sites=20 donors=7
+wholebody_FromLayers=PASS admitted_flag=1 vertices=2332 faces=4619 nodes=6996 tets=27714 skin_volume_m3=0.00345257 fat_volume_m3=0.0116523 skin_debit_kg=3.45257 fat_debit_kg=10.4871 skin_field_m=0.000500206,0.00249981 fat_field_m=0.00050508,0.00993377 reduction_sha256=909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526 coordinates_sha256=8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e
