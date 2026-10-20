@@ -1,0 +1,6 @@
+{
+  "does_not_claim": "The focused regression plus two-step rollback is not a completed supported-contact horizon.",
+  "negative_control_package": "supported-continuation-20261020/fem-backtracking-030",
+  "old_shader_negative_control": "old reduction missed the nonleader invalid tetrahedron and accepted alpha=1/minJ=1",
+  "patched_fixture": "fem_backtracking_lane_reduction=pass lane=57 rejected_J=0.3139282 accepted_alpha=0.5 accepted_min_J=0.656964 fixed_node_control=pass valid_control=pass"
+}

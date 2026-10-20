@@ -1,0 +1,63 @@
+[0/2] Re-checking globbed directories...
+[1/6] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3337:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3346:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3337:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3327:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3783:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3800:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3783:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3663:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+[2/6] Generating shaders/cardboard_contact_geometry_check.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3337:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3346:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3337:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3327:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3783:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3800:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3783:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3663:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+[3/6] Linking CXX static library matter/libnumi_matter_runtime.a
+[4/6] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[5/6] Linking CXX executable matter/numi-matter-fem-reference-check

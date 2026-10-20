@@ -1,0 +1,31 @@
+{
+  "control": "old shader/metallib negative control for FEM backtracking reduction",
+  "copied_binaries": false,
+  "host_compile_and_link_stdio_bytes": 0,
+  "host_compile_exit_code": 0,
+  "host_link_exit_code": 0,
+  "interpretation": "The old-shader run failed its negative-control expectation because a nonleader invalid tetrahedron was omitted from reduction and alpha=1 was accepted with minJ=1. Preserve this as a negative control. It does not substitute for the patched regression.",
+  "old_negative_control_exit_code": 1,
+  "recorded_assertion": "fem reference check failed: nonleader invalid tet was omitted from FEM backtracking reduction alpha=1 minJ=1",
+  "recovery_source_revision": "567b527fe7d21cc7234d42d04aa7e75398ce162b",
+  "referenced_objects": [
+    {
+      "bytes": 66715,
+      "copied": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/fem_reference_check.mm",
+      "sha256": "2684cfc4a10ab75ca2e021adcfa9d080f4f306a6dd19edecbcb3e769457e4b44"
+    },
+    {
+      "bytes": 7675239,
+      "copied": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/backtracking-030-controls/old-NumiMatter.metallib",
+      "sha256": "22a481fddb76c9609ec6ce86a090e45475436fcbddb9fc075ee1de619ed6d8df"
+    },
+    {
+      "bytes": 2524224,
+      "copied": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/backtracking-030-controls/fem-reference-check-old-metallib",
+      "sha256": "7c6a93c1e311a08fbab792565d9ae158ed8cf20125f4bd46be6f81117f183f7d"
+    }
+  ]
+}
