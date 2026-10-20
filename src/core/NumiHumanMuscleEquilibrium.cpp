@@ -1247,6 +1247,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const MRArticulationGPU& articulation =
         model.articulations[articulationIndex];
     const std::size_t nv = articulation.nv;
+    const double initialResidualRms = state.residualRms;
     const std::uint32_t acceptedActivationSweeps = state.activationSweeps;
     if (initializeFromAcceptedState &&
         state.activation.size() != muscles.size()) {
@@ -1908,11 +1909,17 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             }
             const double improvementFloor = 1.0e-14 *
                 std::max(1.0, std::abs(state.objective));
-            // Stop-load refinement is secondary to physical balance. A
-            // smaller weighted cost cannot waive the existing residual gate.
+            // Stop-load refinement is secondary to physical balance. Legacy
+            // callers retain the balanceTolerance budget; strict callers bound
+            // every accepted exact iterate relative to the seeded equilibrium.
+            const double residualLimit =
+                config.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0
+                    ? initialResidualRms +
+                        config.finiteRangePositionLimitResidualIncreaseTolerance
+                    : config.balanceTolerance;
             const bool preservesBalance =
                 config.finiteRangePositionLimitReactionRegularization == 0.0 ||
-                candidate.residualRms <= config.balanceTolerance;
+                candidate.residualRms <= residualLimit;
             if (preservesBalance &&
                 candidate.objective + improvementFloor < state.objective) {
                 candidate.activationSweeps = state.activationSweeps;
@@ -2449,6 +2456,10 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         std::isfinite(
             config.finiteRangePositionLimitReactionRegularization) &&
         config.finiteRangePositionLimitReactionRegularization >= 0.0 &&
+        std::isfinite(
+            config.finiteRangePositionLimitResidualIncreaseTolerance) &&
+        (config.finiteRangePositionLimitResidualIncreaseTolerance == -1.0 ||
+         config.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0) &&
         std::isfinite(config.positionLimitTolerance) &&
         config.positionLimitTolerance >= 0.0 &&
         std::isfinite(config.supportGapToleranceMeters) &&
@@ -2984,14 +2995,20 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
                 muscles, architectures, jointEqualities, supportContacts,
                 passiveCouplings, recruited, true, true, stopConfig,
                 dynamicsConfig, rejectedConstraintCandidates, refined);
+            const double residualLimit =
+                requestedConfig.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0
+                    ? seed.residualRms +
+                        requestedConfig.finiteRangePositionLimitResidualIncreaseTolerance
+                    : config.balanceTolerance;
             if (stopDiagnostics.succeeded() &&
                 refined.q == current.q &&
-                refined.residualRms <= config.balanceTolerance &&
+                refined.residualRms <= residualLimit &&
                 refined.objective < seed.objective &&
                 refined.finiteRangeLimitPenalty < seed.finiteRangeLimitPenalty) {
                 // Search-history objective remains the PHYSICAL recruitment
-                // objective used by earlier records. Kind 3 explicitly marks
-                // a secondary trade within the unchanged balance tolerance.
+                // objective used by earlier records. Kind 3 marks secondary
+                // stop-load refinement accepted under the configured residual
+                // increase policy.
                 refined.objective -=
                     stopConfig.finiteRangePositionLimitReactionRegularization *
                     refined.finiteRangeLimitPenalty;

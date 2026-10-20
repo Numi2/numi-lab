@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[2/5] Linking CXX shared library lib/libmetalrobo.dylib
+[3/5] Building OBJCXX object CMakeFiles/metalrobo_matter_physics_probe.dir/apps/matter_physics_probe.mm.o
+[4/5] Linking OBJCXX executable bin/metalrobo_matter_physics_probe

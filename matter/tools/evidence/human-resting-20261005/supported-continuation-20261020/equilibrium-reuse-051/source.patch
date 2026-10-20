@@ -1,0 +1,372 @@
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index e354fe70..e01a609e 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -5397,6 +5397,11 @@ CompiledStandActivation compileStaticStandActivation(
+     // so a small cost can reduce reliance on anatomical/mechanical stops
+     // without relaxing the equilibrium or complementarity certificates.
+     config.finiteRangePositionLimitReactionRegularization = 1.0e-5;
++    // The source-registered supported pose is already frozen. Optional stop
++    // unloading must preserve its recruited force balance; the standing
++    // posture search retains its existing balance-bounded policy.
++    config.finiteRangePositionLimitResidualIncreaseTolerance =
++        explicitStaticSupports.empty() ? -1.0 : 1.0e-12;
+     config.globalActivationPolishIterations = 64u;
+     if (!passiveCouplings.empty()) {
+         // The passive-coupled whole-body solve had accepted every prior
+diff --git a/include/metalrobo/NumiHumanMuscleEquilibrium.hpp b/include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+index 2eeb243b..7e7c2445 100644
+--- a/include/metalrobo/NumiHumanMuscleEquilibrium.hpp
++++ b/include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+@@ -80,11 +80,13 @@ struct NumiHumanMuscleEquilibriumConfig {
+     double poseRegularization = 2.5e-3;
+     double poseImprovementTolerance = 1.0e-8;
+     // Optional fixed-pose load-sharing refinement AFTER physical balance.
+-    // Every accepted iterate retains balanceTolerance; failed or infeasible
+-    // refinements preserve the balanced baseline. The reaction cost uses the
+-    // same normalized acceleration metric and a fixed authored coordinate
+-    // count. Structural locks are excluded. Zero preserves legacy callers.
++    // Its reaction cost uses the same normalized acceleration metric and a
++    // fixed authored coordinate count. Structural locks are excluded. The
++    // residual increase bound defaults to -1 for legacy balanceTolerance
++    // behavior; callers that require lexicographic preservation set a
++    // nonnegative maximum increase over the pre-refinement residual.
+     double finiteRangePositionLimitReactionRegularization = 0.0;
++    double finiteRangePositionLimitResidualIncreaseTolerance = -1.0;
+     // A static unilateral reaction exists only at the stop, within this
+     // numerical tolerance. The broader runtime activation distance belongs
+     // to the velocity-level complementarity solve, not this equilibrium
+@@ -245,7 +247,8 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
+ };
+ 
+ // Accepted offline search history. kind: 0 initialization, 1 posture update,
+-// 2 final state, 3 secondary stop-load recruitment within balanceTolerance.
++// 2 final state, 3 secondary stop-load recruitment within the configured
++// residual-increase bound (or the legacy balanceTolerance budget).
+ // The objective is always the physical recruitment objective, without the
+ // optional stop cost; kind 3 need not decrease it. No record is a time step.
+ struct NumiHumanEquilibriumSearchRecord {
+diff --git a/matter/src/metal/fem.metalinc b/matter/src/metal/fem.metalinc
+index 15d9a01a..4355d2d9 100644
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3360,23 +3360,48 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+         bool valid = true;
+         float3x3 analytic;
+         float3x3 materialTangent;
+-        evaluateAlgorithmicStressTangent(
+-            material,
+-            programs,
+-            instructions,
+-            environmentParameters + parameterBase,
+-            internalState,
+-            preciseLocalF,
+-            localDirection,
+-            localRate,
+-            localRateDirection,
+-            dt,
+-            material.bulk.y,
+-            analytic,
+-            materialTangent,
+-            valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+-            deformationLow
+-        );
++        if (material.stateCount == 0u &&
++            material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++            column > 0u) {
++            // Stateless stress is independent of the tangent basis column.
++            // Column zero still runs the full evaluator, so stress validity
++            // gates publication while the other columns avoid recomputing it.
++            materialTangent = evaluateTangentVectorWithCandidate(
++                material,
++                programs,
++                instructions,
++                environmentParameters + parameterBase,
++                internalState,
++                internalState,
++                preciseLocalF,
++                localDirection,
++                localRate,
++                localRateDirection,
++                dt,
++                material.bulk.y,
++                valid,
++                nullptr,
++                deformationLow
++            );
++        } else {
++            evaluateAlgorithmicStressTangent(
++                material,
++                programs,
++                instructions,
++                environmentParameters + parameterBase,
++                internalState,
++                preciseLocalF,
++                localDirection,
++                localRate,
++                localRateDirection,
++                dt,
++                material.bulk.y,
++                analytic,
++                materialTangent,
++                valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
++                deformationLow
++            );
++        }
+         if (!valid) return;
+         float responseComponents[9];
+         matrixComponents(materialTangent, responseComponents);
+@@ -3610,18 +3635,13 @@ kernel void nm_fem_apply_operator_elements(
+         tetrahedron.inverseRestRow2
+     );
+     const float3x3 deformationDirection = dp * inverseRest;
+-    const float3x3 deformation = tetrahedronDeformation(
+-        tetrahedron, candidate, nodeBase
+-    );
+-    const float3x3 deformationRate = tetrahedronVelocityGradient(
+-        tetrahedron, candidate, nodeBase
+-    );
+     const float dt = objectTimestep(dispatch, scheduler);
+     const float3x3 rateDirection = deformationDirection / max(dt, 1.0e-12f);
+     const NMMaterialGPU material = materials[tetrahedron.identity.x];
++    float3x3 deformation;
++    float3x3 deformationRate;
++    float3x3 preciseLocalF;
+     float deformationLow[9];
+-    const float3x3 preciseLocalF = femMaterialDeformationWords(
+-        object,tetrahedron,material,candidate,nodeBase,deformation,deformationLow);
+     device const float* internalState = material.stateCount == 0u
+         ? nullptr
+         : acceptedMaterialState + global * dispatch.materialStateStride;
+@@ -3637,6 +3657,25 @@ kernel void nm_fem_apply_operator_elements(
+     const bool requestStrictCache = useTangentCache == 1u ||
+         requestTransposeCache || useTangentCache == 4u;
+     const bool requestFallbackCache = useTangentCache == 2u;
++    // A valid ordinary FEM cache hit consumes only deformationDirection and
++    // the cached 9x9 tangent. Defer the base-state deformation/material work
++    // until a cache miss or direct fallback needs it. Mixed FEM still needs
++    // deformation below for its coupled pressure/fibre terms, so retain the
++    // original path there.
++    const bool deferBaseGeometry = cacheEntryValid &&
++        (requestStrictCache || requestFallbackCache) &&
++        (object.flags & NM_OBJECT_MIXED_FEM) == 0u;
++    if (!deferBaseGeometry) {
++        deformation = tetrahedronDeformation(
++            tetrahedron, candidate, nodeBase
++        );
++        deformationRate = tetrahedronVelocityGradient(
++            tetrahedron, candidate, nodeBase
++        );
++        preciseLocalF = femMaterialDeformationWords(
++            object,tetrahedron,material,candidate,nodeBase,deformation,
++            deformationLow);
++    }
+     if (requestStrictCache ||
+         (requestFallbackCache && cacheEntryValid)) {
+         if (!cacheEntryValid) {
+diff --git a/matter/src/metal/mixed_fem.metalinc b/matter/src/metal/mixed_fem.metalinc
+index e23b776d..da8dfa79 100644
+--- a/matter/src/metal/mixed_fem.metalinc
++++ b/matter/src/metal/mixed_fem.metalinc
+@@ -283,6 +283,10 @@ kernel void nm_mixed_apply_operator_elements(
+     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+     if (global >= total || dispatch.tetrahedronCount == 0u) return;
+     elementOperator[global] = {};
++    // No authored transport material means every object fails the material
++    // range check below. Publish the same zero element action without loading
++    // tetrahedra or candidate fields on every mechanical Krylov application.
++    if (dispatch.mixedMaterialCount == 0u) return;
+     const uint environment = global / dispatch.tetrahedronCount;
+     const uint local = global - environment * dispatch.tetrahedronCount;
+     const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+@@ -401,6 +405,7 @@ kernel void nm_mixed_apply_operator_nodes(
+     device const NMFieldBoundaryGPU* boundaries [[buffer(5)]],
+     device const float4* direction [[buffer(6)]],
+     device float4* operatorValue [[buffer(7)]],
++    device const NMContinuumObjectGPU* objects [[buffer(8)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+@@ -410,15 +415,27 @@ kernel void nm_mixed_apply_operator_nodes(
+     const NMIncidenceRangeGPU range = nodeRanges[global];
+     float4 value = float4(0.0f);
+     const uint elementBase = environment * dispatch.tetrahedronCount;
+-    for (uint local = 0u; local < range.count; ++local) {
+-        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+-        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+-        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+-            dispatch, tetrahedra, environment, tetrahedronIndex
+-        );
+-        value += mixedElementNodeValue(
+-            elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
+-        );
++    // A node belongs to one compiled object. Non-transport objects have
++    // exact-zero element field actions, even in a scene with other transport
++    // objects. Skip gathering those zeros while retaining boundary rows.
++    // An invalid owner takes the original gather path for diagnostics.
++    bool gatherField = dispatch.mixedMaterialCount != 0u;
++    if (gatherField && range.objectIndex < dispatch.objectCount) {
++        const NMContinuumObjectGPU object = objects[range.objectIndex];
++        gatherField = (object.flags & NM_OBJECT_MULTIPHYSICS) != 0u &&
++            object.materialIndex < dispatch.mixedMaterialCount;
++    }
++    if (gatherField) {
++        for (uint local = 0u; local < range.count; ++local) {
++            const uint tetrahedronIndex = nodeIncidence[range.first + local];
++            if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
++            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++                dispatch, tetrahedra, environment, tetrahedronIndex
++            );
++            value += mixedElementNodeValue(
++                elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
++            );
++        }
+     }
+     const NMFieldBoundaryGPU boundary = mixedBoundaryForNode(
+         dispatch, boundaries, node
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index ffa14f05..adc9134e 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -22851,6 +22851,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             });
+             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                 setDispatch();
++                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -24643,6 +24644,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     });
+                     dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                         setDispatch();
++                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -25738,6 +25740,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 });
+                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                     setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -26661,6 +26664,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 });
+                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                     setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -29874,6 +29878,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             });
+             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                 setDispatch();
++                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+diff --git a/src/core/NumiHumanMuscleEquilibrium.cpp b/src/core/NumiHumanMuscleEquilibrium.cpp
+index cdecc972..03fe4076 100644
+--- a/src/core/NumiHumanMuscleEquilibrium.cpp
++++ b/src/core/NumiHumanMuscleEquilibrium.cpp
+@@ -1247,6 +1247,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
+     const MRArticulationGPU& articulation =
+         model.articulations[articulationIndex];
+     const std::size_t nv = articulation.nv;
++    const double initialResidualRms = state.residualRms;
+     const std::uint32_t acceptedActivationSweeps = state.activationSweeps;
+     if (initializeFromAcceptedState &&
+         state.activation.size() != muscles.size()) {
+@@ -1908,11 +1909,17 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
+             }
+             const double improvementFloor = 1.0e-14 *
+                 std::max(1.0, std::abs(state.objective));
+-            // Stop-load refinement is secondary to physical balance. A
+-            // smaller weighted cost cannot waive the existing residual gate.
++            // Stop-load refinement is secondary to physical balance. Legacy
++            // callers retain the balanceTolerance budget; strict callers bound
++            // every accepted exact iterate relative to the seeded equilibrium.
++            const double residualLimit =
++                config.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0
++                    ? initialResidualRms +
++                        config.finiteRangePositionLimitResidualIncreaseTolerance
++                    : config.balanceTolerance;
+             const bool preservesBalance =
+                 config.finiteRangePositionLimitReactionRegularization == 0.0 ||
+-                candidate.residualRms <= config.balanceTolerance;
++                candidate.residualRms <= residualLimit;
+             if (preservesBalance &&
+                 candidate.objective + improvementFloor < state.objective) {
+                 candidate.activationSweeps = state.activationSweeps;
+@@ -2449,6 +2456,10 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
+         std::isfinite(
+             config.finiteRangePositionLimitReactionRegularization) &&
+         config.finiteRangePositionLimitReactionRegularization >= 0.0 &&
++        std::isfinite(
++            config.finiteRangePositionLimitResidualIncreaseTolerance) &&
++        (config.finiteRangePositionLimitResidualIncreaseTolerance == -1.0 ||
++         config.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0) &&
+         std::isfinite(config.positionLimitTolerance) &&
+         config.positionLimitTolerance >= 0.0 &&
+         std::isfinite(config.supportGapToleranceMeters) &&
+@@ -2984,14 +2995,20 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
+                 muscles, architectures, jointEqualities, supportContacts,
+                 passiveCouplings, recruited, true, true, stopConfig,
+                 dynamicsConfig, rejectedConstraintCandidates, refined);
++            const double residualLimit =
++                requestedConfig.finiteRangePositionLimitResidualIncreaseTolerance >= 0.0
++                    ? seed.residualRms +
++                        requestedConfig.finiteRangePositionLimitResidualIncreaseTolerance
++                    : config.balanceTolerance;
+             if (stopDiagnostics.succeeded() &&
+                 refined.q == current.q &&
+-                refined.residualRms <= config.balanceTolerance &&
++                refined.residualRms <= residualLimit &&
+                 refined.objective < seed.objective &&
+                 refined.finiteRangeLimitPenalty < seed.finiteRangeLimitPenalty) {
+                 // Search-history objective remains the PHYSICAL recruitment
+-                // objective used by earlier records. Kind 3 explicitly marks
+-                // a secondary trade within the unchanged balance tolerance.
++                // objective used by earlier records. Kind 3 marks secondary
++                // stop-load refinement accepted under the configured residual
++                // increase policy.
+                 refined.objective -=
+                     stopConfig.finiteRangePositionLimitReactionRegularization *
+                     refined.finiteRangeLimitPenalty;
+diff --git a/tests/numi_human_static_support_test.cpp b/tests/numi_human_static_support_test.cpp
+index ca580557..a78bfc70 100644
+--- a/tests/numi_human_static_support_test.cpp
++++ b/tests/numi_human_static_support_test.cpp
+@@ -1342,6 +1342,7 @@ int main() {
+     auto stopConfig = reactions.config;
+     stopConfig.activationRegularization = 0.0;
+     stopConfig.globalActivationPolishIterations = 12u;
++    stopConfig.finiteRangePositionLimitResidualIncreaseTolerance = 1.0e-12;
+     const auto compileStopPolicy = [&](const auto& model, const auto& config) {
+         NumiHumanMuscleEquilibriumResult output;
+         const auto status = compileNumiHumanMuscleEquilibrium(
+@@ -1362,8 +1363,11 @@ int main() {
+                   << " reaction=" << output.generalizedPositionLimitForce[0]
+                   << " baseline=" << balancedStopBaseline.generalizedPositionLimitForce[0] << '\n';
+         require(output.diagnostics.balanced &&
+-                output.diagnostics.normalizedResidualRms <= stopConfig.balanceTolerance,
+-                "optional stop-load penalty traded away static balance");
++                output.diagnostics.normalizedResidualRms <= stopConfig.balanceTolerance &&
++                output.diagnostics.normalizedResidualRms <=
++                    balancedStopBaseline.diagnostics.normalizedResidualRms +
++                        stopConfig.finiteRangePositionLimitResidualIncreaseTolerance,
++                "optional stop-load penalty worsened the primary physical residual");
+         require(output.q == balancedStopBaseline.q &&
+                 output.diagnostics.positionLimitKktResidual <= 1e-8 &&
+                 output.activation[0] >= 0.0 && output.activation[0] <= stopConfig.activationLimit,
+@@ -1404,6 +1408,7 @@ int main() {
+     auto unloadConfig = reactions.config;
+     unloadConfig.activationRegularization = 0.0;
+     unloadConfig.globalActivationPolishIterations = 24u;
++    unloadConfig.finiteRangePositionLimitResidualIncreaseTolerance = -1.0;
+     unloadConfig.finiteRangePositionLimitReactionRegularization = 1.0;
+     NumiHumanMuscleEquilibriumResult unloaded;
+     require(compileNumiHumanMuscleEquilibrium(redundantModel, 0u, reactions.q,

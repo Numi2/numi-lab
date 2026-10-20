@@ -1,0 +1,21 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  35: numi_human_static_support
+1/3 Test  #35: numi_human_static_support ................   Passed    0.50 sec
+    Start  51: matter.physics.monolithic_multiphysics
+2/3 Test  #51: matter.physics.monolithic_multiphysics ...   Passed   12.37 sec
+    Start 298: matter.metal.fem_material_frame
+3/3 Test #298: matter.metal.fem_material_frame ..........   Passed   29.16 sec
+
+100% tests passed out of 3
+
+Label Time Summary:
+human         =  29.16 sec*proc (1 test)
+material      =  29.16 sec*proc (1 test)
+matter        =  41.53 sec*proc (2 tests)
+mechanics     =   0.50 sec*proc (1 test)
+metal         =  12.37 sec*proc (1 test)
+numi-human    =   0.50 sec*proc (1 test)
+physics       =  12.37 sec*proc (1 test)
+support       =   0.50 sec*proc (1 test)
+
+Total Test time (real) =  42.03 sec

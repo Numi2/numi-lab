@@ -1342,6 +1342,7 @@ int main() {
     auto stopConfig = reactions.config;
     stopConfig.activationRegularization = 0.0;
     stopConfig.globalActivationPolishIterations = 12u;
+    stopConfig.finiteRangePositionLimitResidualIncreaseTolerance = 1.0e-12;
     const auto compileStopPolicy = [&](const auto& model, const auto& config) {
         NumiHumanMuscleEquilibriumResult output;
         const auto status = compileNumiHumanMuscleEquilibrium(
@@ -1362,8 +1363,11 @@ int main() {
                   << " reaction=" << output.generalizedPositionLimitForce[0]
                   << " baseline=" << balancedStopBaseline.generalizedPositionLimitForce[0] << '\n';
         require(output.diagnostics.balanced &&
-                output.diagnostics.normalizedResidualRms <= stopConfig.balanceTolerance,
-                "optional stop-load penalty traded away static balance");
+                output.diagnostics.normalizedResidualRms <= stopConfig.balanceTolerance &&
+                output.diagnostics.normalizedResidualRms <=
+                    balancedStopBaseline.diagnostics.normalizedResidualRms +
+                        stopConfig.finiteRangePositionLimitResidualIncreaseTolerance,
+                "optional stop-load penalty worsened the primary physical residual");
         require(output.q == balancedStopBaseline.q &&
                 output.diagnostics.positionLimitKktResidual <= 1e-8 &&
                 output.activation[0] >= 0.0 && output.activation[0] <= stopConfig.activationLimit,
@@ -1404,6 +1408,7 @@ int main() {
     auto unloadConfig = reactions.config;
     unloadConfig.activationRegularization = 0.0;
     unloadConfig.globalActivationPolishIterations = 24u;
+    unloadConfig.finiteRangePositionLimitResidualIncreaseTolerance = -1.0;
     unloadConfig.finiteRangePositionLimitReactionRegularization = 1.0;
     NumiHumanMuscleEquilibriumResult unloaded;
     require(compileNumiHumanMuscleEquilibrium(redundantModel, 0u, reactions.q,

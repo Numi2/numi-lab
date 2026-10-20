@@ -80,11 +80,13 @@ struct NumiHumanMuscleEquilibriumConfig {
     double poseRegularization = 2.5e-3;
     double poseImprovementTolerance = 1.0e-8;
     // Optional fixed-pose load-sharing refinement AFTER physical balance.
-    // Every accepted iterate retains balanceTolerance; failed or infeasible
-    // refinements preserve the balanced baseline. The reaction cost uses the
-    // same normalized acceleration metric and a fixed authored coordinate
-    // count. Structural locks are excluded. Zero preserves legacy callers.
+    // Its reaction cost uses the same normalized acceleration metric and a
+    // fixed authored coordinate count. Structural locks are excluded. The
+    // residual increase bound defaults to -1 for legacy balanceTolerance
+    // behavior; callers that require lexicographic preservation set a
+    // nonnegative maximum increase over the pre-refinement residual.
     double finiteRangePositionLimitReactionRegularization = 0.0;
+    double finiteRangePositionLimitResidualIncreaseTolerance = -1.0;
     // A static unilateral reaction exists only at the stop, within this
     // numerical tolerance. The broader runtime activation distance belongs
     // to the velocity-level complementarity solve, not this equilibrium
@@ -245,7 +247,8 @@ struct NumiHumanMuscleEquilibriumDiagnostics {
 };
 
 // Accepted offline search history. kind: 0 initialization, 1 posture update,
-// 2 final state, 3 secondary stop-load recruitment within balanceTolerance.
+// 2 final state, 3 secondary stop-load recruitment within the configured
+// residual-increase bound (or the legacy balanceTolerance budget).
 // The objective is always the physical recruitment objective, without the
 // optional stop cost; kind 3 need not decrease it. No record is a time step.
 struct NumiHumanEquilibriumSearchRecord {

@@ -1,0 +1,7 @@
+{
+  "baseline_rows": 8,
+  "rollback_rows": 2,
+  "exact_all_csv_fields_first_two_rows": true,
+  "baseline_csv_sha256": "017755c5728760b9aa140804a70f35c3227e7da2b0d1e8791dce17e523e59cc0",
+  "retry_csv_sha256": "39c9950ff7220e49968e875a697a38c6f17b7cad683b36229c987d7181d14ce1"
+}

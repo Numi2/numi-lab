@@ -1,0 +1,12 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 51: matter.physics.monolithic_multiphysics
+1/1 Test #51: matter.physics.monolithic_multiphysics ...   Passed    0.55 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+matter     =   0.55 sec*proc (1 test)
+metal      =   0.55 sec*proc (1 test)
+physics    =   0.55 sec*proc (1 test)
+
+Total Test time (real) =   0.56 sec
