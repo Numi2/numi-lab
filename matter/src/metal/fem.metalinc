@@ -3401,6 +3401,9 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
             // Stateless stress is independent of the tangent basis column.
             // Column zero still runs the full evaluator, so stress validity
             // gates publication while the other columns avoid recomputing it.
+            // This is the same selection helper called by the full evaluator:
+            // it includes canonical specialization and its precision fallback.
+            // Calling scalar tangent bytecode directly here would split policy.
             materialTangent = evaluateTangentVectorWithCandidate(
                 material,
                 programs,

@@ -1,0 +1,6 @@
+{
+  "bin/numi-human-native": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "lib/libmetalrobo.dylib": "3e0bec9bb8f25d23ef6d7e2f604bb22e9ee16087c8e5d26bfc3c92fe8128c22c",
+  "matter/shaders/NumiMatter.metallib": "c1aeeaf5011d1e6e788723ef6503e211edb54961cac9f4aa19c0565929cb3b6b",
+  "matter/numi-matter-fem-material-frame-check": "d4df17748bdb5267a6c122e9dd5df4030d6c48a131c68491c85d0fcf446215e3"
+}

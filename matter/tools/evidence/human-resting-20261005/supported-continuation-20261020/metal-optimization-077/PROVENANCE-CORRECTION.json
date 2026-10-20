@@ -1,0 +1,5 @@
+{
+  "execution_source_head": "245a7610ab21ed7c510bb4b8594e8f4b4b99de31",
+  "working_source_sha256_manifest": "source-sha256.json",
+  "note": "Invocation source_head was inherited from historical 073 template. Do not interpret it as the source used for these builds. Current binary/shader/source SHA256 are recorded separately; this is a provenance correction, not a rerun."
+}

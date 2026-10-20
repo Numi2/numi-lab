@@ -5954,6 +5954,195 @@ RuntimeDiagnostics Runtime::initialize(
                 "matter_canonical_tangent_eligible_materials=%zu total_materials=%zu\n",
                 static_cast<std::size_t>(eligibleCount), executionMaterials.size());
         }
+        const char* tangentCensusSetting =
+            std::getenv("NM_FEM_TANGENT_CENSUS");
+        if (tangentCensusSetting != nullptr &&
+            std::strcmp(tangentCensusSetting, "0") != 0 &&
+            std::strcmp(tangentCensusSetting, "1") != 0) {
+            diagnostics.message = "NM_FEM_TANGENT_CENSUS must be 0 or 1";
+            return diagnostics;
+        }
+        if (tangentCensusSetting != nullptr &&
+            std::strcmp(tangentCensusSetting, "1") == 0) {
+            struct CensusProgramCounts {
+                std::uint64_t instructions = 0u;
+                std::uint64_t exponentials = 0u;
+                std::uint64_t logarithms = 0u;
+                bool valid = true;
+            };
+            auto countPrograms = [&](const std::uint32_t firstProgram,
+                                     const std::uint32_t programCount) {
+                CensusProgramCounts result;
+                if (programCount == 0u) return result;
+                if (firstProgram == NM_INVALID_INDEX ||
+                    std::uint64_t(firstProgram) + programCount >
+                        world.scalarPrograms.size()) {
+                    result.valid = false;
+                    return result;
+                }
+                for (std::uint32_t offset = 0u; offset < programCount; ++offset) {
+                    const auto& program =
+                        world.scalarPrograms[firstProgram + offset];
+                    if (program.firstInstruction > world.instructions.size() ||
+                        program.instructionCount >
+                            world.instructions.size() - program.firstInstruction) {
+                        result.valid = false;
+                        continue;
+                    }
+                    result.instructions += program.instructionCount;
+                    for (std::uint32_t instructionOffset = 0u;
+                         instructionOffset < program.instructionCount;
+                         ++instructionOffset) {
+                        const auto opcode = world.instructions[
+                            program.firstInstruction + instructionOffset].opcode;
+                        if (opcode == NM_EXPR_EXP) ++result.exponentials;
+                        if (opcode == NM_EXPR_LOG) ++result.logarithms;
+                    }
+                }
+                return result;
+            };
+            auto constitutiveFamily = [](const std::uint32_t kind) {
+                switch (kind) {
+                    case NM_CONSTITUTIVE_BYTECODE: return "bytecode";
+                    case NM_CONSTITUTIVE_NEO_HOOKEAN: return "neo_hookean";
+                    case NM_CONSTITUTIVE_COROTATED: return "corotated";
+                    case NM_CONSTITUTIVE_DRUCKER_PRAGER: return "drucker_prager";
+                    case NM_CONSTITUTIVE_VON_MISES: return "von_mises";
+                    case NM_CONSTITUTIVE_VISCO_HYPERELASTIC:
+                        return "visco_hyperelastic";
+                    case NM_CONSTITUTIVE_POLYCONVEX_ICNN:
+                        return "polyconvex_icnn";
+                    default: return "unknown";
+                }
+            };
+            auto projectionFamily = [](const std::uint32_t kind) {
+                switch (kind) {
+                    case NM_MATERIAL_PROJECTION_GENERIC: return "generic";
+                    case NM_MATERIAL_PROJECTION_VON_MISES: return "von_mises";
+                    case NM_MATERIAL_PROJECTION_DRUCKER_PRAGER:
+                        return "drucker_prager";
+                    default: return "unknown";
+                }
+            };
+            auto emitJsonString = [](const std::string& value) {
+                std::fputc('"', stderr);
+                for (const unsigned char byte : value) {
+                    switch (byte) {
+                        case '"': std::fputs("\\\"", stderr); break;
+                        case '\\': std::fputs("\\\\", stderr); break;
+                        case '\n': std::fputs("\\n", stderr); break;
+                        case '\r': std::fputs("\\r", stderr); break;
+                        case '\t': std::fputs("\\t", stderr); break;
+                        default:
+                            if (byte < 0x20u)
+                                std::fprintf(stderr, "\\u%04x",
+                                    static_cast<unsigned int>(byte));
+                            else
+                                std::fputc(static_cast<int>(byte), stderr);
+                            break;
+                    }
+                }
+                std::fputc('"', stderr);
+            };
+            std::vector<std::uint64_t> activeFemTetrahedra(
+                executionMaterials.size(), 0u);
+            std::uint64_t totalActiveFemTetrahedra = 0u;
+            std::uint64_t invalidActiveTetrahedronMaterials = 0u;
+            for (std::size_t objectIndex = 0u;
+                 objectIndex < world.objects.size(); ++objectIndex) {
+                const auto& object = world.objects[objectIndex];
+                if (object.representation != NM_REPRESENTATION_FEM ||
+                    (object.flags & NM_OBJECT_ACTIVE) == 0u)
+                    continue;
+                const std::uint64_t end =
+                    std::uint64_t(object.elementOffset) + object.elementCount;
+                if (end > world.fem.tetrahedra.size()) {
+                    ++invalidActiveTetrahedronMaterials;
+                    continue;
+                }
+                for (std::uint64_t tetrahedronIndex = object.elementOffset;
+                     tetrahedronIndex < end; ++tetrahedronIndex) {
+                    const auto& tetrahedron =
+                        world.fem.tetrahedra[static_cast<std::size_t>(
+                            tetrahedronIndex)];
+                    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                        continue;
+                    if (tetrahedron.identity.y != objectIndex ||
+                        tetrahedron.identity.x >= activeFemTetrahedra.size()) {
+                        ++invalidActiveTetrahedronMaterials;
+                        continue;
+                    }
+                    ++activeFemTetrahedra[tetrahedron.identity.x];
+                    ++totalActiveFemTetrahedra;
+                }
+            }
+            std::fprintf(stderr,
+                "matter_fem_tangent_census_summary={\"schema\":1,"
+                "\"source_work_only\":true,\"material_count\":%zu,"
+                "\"stored_tetrahedra\":%zu,\"active_fem_tetrahedra\":%llu,"
+                "\"invalid_active_tetrahedron_records\":%llu}\n",
+                executionMaterials.size(), world.fem.tetrahedra.size(),
+                static_cast<unsigned long long>(totalActiveFemTetrahedra),
+                static_cast<unsigned long long>(
+                    invalidActiveTetrahedronMaterials));
+            for (std::size_t materialIndex = 0u;
+                 materialIndex < executionMaterials.size(); ++materialIndex) {
+                const auto& sourceMaterial = world.materials[materialIndex];
+                const auto& executionMaterial =
+                    executionMaterials[materialIndex];
+                const auto stress = countPrograms(
+                    sourceMaterial.stressProgramOffset, 9u);
+                const auto tangent = countPrograms(
+                    sourceMaterial.tangentProgramOffset, 9u);
+                const bool hasImplicitState =
+                    (sourceMaterial.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u;
+                const std::string materialName =
+                    materialIndex < world.constitutive.size()
+                        ? world.constitutive[materialIndex].material.name
+                        : std::string("unknown");
+                std::fprintf(stderr,
+                    "matter_fem_tangent_census={\"schema\":1,"
+                    "\"material_index\":%zu,\"name\":",
+                    materialIndex);
+                emitJsonString(materialName);
+                std::fprintf(stderr,
+                    ",\"family\":\"%s\",\"projection\":\"%s\","
+                    "\"active_fem_tetrahedra\":%llu,\"state_count\":%u,"
+                    "\"implicit_state\":%s,\"shared15_candidate\":%s,"
+                    "\"shared15_enabled\":%s,\"canonical_tangent_candidate\":%s,"
+                    "\"canonical_tangent_enabled\":%s,"
+                    "\"stress_instruction_count\":%llu,"
+                    "\"stress_exp_count\":%llu,\"stress_log_count\":%llu,"
+                    "\"tangent_instruction_count\":%llu,"
+                    "\"tangent_exp_count\":%llu,\"tangent_log_count\":%llu,"
+                    "\"program_ranges_valid\":%s}\n",
+                    constitutiveFamily(sourceMaterial.constitutiveKind),
+                    projectionFamily(sourceMaterial.projectionKind),
+                    static_cast<unsigned long long>(
+                        activeFemTetrahedra[materialIndex]),
+                    sourceMaterial.stateCount,
+                    hasImplicitState ? "true" : "false",
+                    (sourceMaterial.flags &
+                        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION)
+                        ? "true" : "false",
+                    (executionMaterial.flags &
+                        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION)
+                        ? "true" : "false",
+                    (sourceMaterial.flags &
+                        NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT)
+                        ? "true" : "false",
+                    (executionMaterial.flags &
+                        NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT)
+                        ? "true" : "false",
+                    static_cast<unsigned long long>(stress.instructions),
+                    static_cast<unsigned long long>(stress.exponentials),
+                    static_cast<unsigned long long>(stress.logarithms),
+                    static_cast<unsigned long long>(tangent.instructions),
+                    static_cast<unsigned long long>(tangent.exponentials),
+                    static_cast<unsigned long long>(tangent.logarithms),
+                    stress.valid && tangent.valid ? "true" : "false");
+            }
+        }
         candidate->materials = uploads.one(
             std::span<const NMMaterialGPU>(executionMaterials),
             valid, candidate->residentBytes);

@@ -1,0 +1,357 @@
+shared_15_state_factor_proof=passed A_DF=rejected B_DF=rejected RATE=allowed ineligible=legacy
+frame_device=Apple M6 abi=46
+parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset
+compensated_factor_rhs=9 pivoted_matrix=passed near_singular_rejected=passed maximum_solution_parity=0 maximum_local_residual=1.07843334263e-09
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_skin_dermis_frequency_specific_effective.nmatter:canonical-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":7.623279483e-07,"maximum_absolute_element_force_error_N":2.86102294922e-06,"maximum_direct_element_force_N":12.3191747665,"absolute_bound_N":0.0123201747665,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_skin_dermis_frequency_specific_effective.nmatter:bytecode-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":7.90109478256e-07,"maximum_absolute_element_force_error_N":1.90734863281e-06,"maximum_direct_element_force_N":12.3191747665,"absolute_bound_N":0.0123201747665,"pass":true}
+canonical_tangent_material=human_skin_dermis_frequency_specific_effective.nmatter direct_oracle=3.60738431884e-07 cached_oracle=5.91122066796e-07 fallback=7.01070977057e-07 fd=0.00209838756737
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_subcutaneous_adipose_low_strain_effective.nmatter:canonical-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":5.4960309235e-07,"maximum_absolute_element_force_error_N":2.23517417908e-08,"maximum_direct_element_force_N":0.110142946243,"absolute_bound_N":0.000111142946243,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_subcutaneous_adipose_low_strain_effective.nmatter:bytecode-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":4.29270735129e-07,"maximum_absolute_element_force_error_N":2.23517417908e-08,"maximum_direct_element_force_N":0.110142946243,"absolute_bound_N":0.000111142946243,"pass":true}
+canonical_tangent_material=human_subcutaneous_adipose_low_strain_effective.nmatter direct_oracle=3.59758751668e-07 cached_oracle=3.75684972398e-07 fallback=7.03802409819e-07 fd=0.00235512897893
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter:canonical-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":7.36857104929e-07,"maximum_absolute_element_force_error_N":0.0001220703125,"maximum_direct_element_force_N":1060.38464355,"absolute_bound_N":1.06038564355,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter:bytecode-selected","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":8.5021983284e-07,"maximum_absolute_element_force_error_N":0.00018310546875,"maximum_direct_element_force_N":1060.38464355,"absolute_bound_N":1.06038564355,"pass":true}
+canonical_tangent_material=human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter direct_oracle=4.17003788022e-07 cached_oracle=5.22941304121e-07 fallback=6.2552022432e-07 fd=0.00212866712336
+canonical_tangent_false_positives=none state=fallback fibre=fallback unrelated_energy=fallback dissipation=fallback
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-anisotropic-elastic","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.34685416461e-06,"maximum_absolute_element_force_error_N":3.81469726562e-06,"maximum_direct_element_force_N":18.7548980713,"absolute_bound_N":0.0187558980713,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environmen[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=16 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=17 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_tangent_cache_control={"schema":1,"completed_tail_rebuild":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+ts=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-state-rate","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.35502546732e-06,"maximum_absolute_element_force_error_N":1.25169754028e-06,"maximum_direct_element_force_N":3.97597026825,"absolute_bound_N":0.00397697026825,"pass":true}
+source_frame_force_error=9.03489699739e-07 source_frame_tangent_error=2.40887136046e-07 source_frame_fd_error=0.0018985037969 identity_error=0 anisotropic_angular_consequence=0.00575156382629 synthetic_state_rate_force_error=5.48087754758e-08 synthetic_state_rate_tangent_error=2.60390166823e-06 synthetic_state_rate_fd_error=1.30266302161e-06 mixed_active_force_error=1.01155233599e-07 mixed_active_tangent_error=1.91381806332e-07 mixed_active_fd_error=0.000144475088311 mixed_source_equivalent=false
+framed_icnn_force_error=2.50563736223e-07 framed_icnn_tangent_error=4.22428674561e-08 framed_icnn_fd_error=0.00110905253132 framed_icnn_world_fibre_force_error=2.09107583203e-07 framed_icnn_world_fibre_tangent_error=5.49834345908e-08 framed_icnn_angular_consequence=0.870278241021 trained_material_qualified=false
+accepted_steps=16 environments=2 motion_m=4.39573631129e-05 replay=bitwise rollback=isolated reset=bitwise frame_snapshot_tamper=denied immutable_cell_rebinding=denied mass=unchanged
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"elastic-initial","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"nonaccurate-vs-legacy-cache-elastic","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"elastic-initial","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"accepted-plastic-load","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"nonaccurate-vs-legacy-cache-load","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"acmatter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+cepted-plastic-load","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-elastic-initial","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.57605940546e-07,"maximum_absolute_element_force_error_N":0.00390625,"maximum_direct_element_force_N":73429.1953125,"absolute_bound_N":73.4291963125,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-plastic-after-load","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":2.28740749009e-07,"maximum_absolute_element_force_error_N":0.0078125,"maximum_direct_element_force_N":73429.6015625,"absolute_bound_N":73.4296025625,"pass":true}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"accepted-unload","state_count":15,"selector":1,"position_mmatter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_shared_local_factorization_eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_tangent_cache_control={"schema":1,"completed_tail_rebuild":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_shared_local_factorization_eligible_materials=1 total_materials=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+ax_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"nonaccurate-vs-legacy-cache-unload","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"accepted-unload","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-plastic-after-unload","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.95126672333e-07,"maximum_absolute_element_force_error_N":0.00390625,"maximum_direct_element_force_N":73428.796875,"absolute_bound_N":73.428797875,"pass":true}
+{"schema":1,"record":"accepted_bilinear_paper_plastic_history","source_material":"hajali2009_liner_hill_bilinear_fit","state_count":15,"material_frames":"rotated per tetrahedron","loading_accepted":true,"unloading_accepted":true,"maximum_loaded_plastic_multiplier":3.62569608114e-07,"maximum_unloaded_plastic_multiplier":5.6520121916e-07,"maximum_load_to_unload_state_difference":0.0438816649012,"tangent_preconditioner_direct_cache_history_parity":true,"shared_factor_enabled":false,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"late-postcommit-rejection","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":true,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"elastic-initial","state_count":15,"selector":1,"position_max_m":3.46944695195e-18,"displacement_relative":9.36145228027e-24,"state_max_abs":4.4408920985e-16,"state_relative":5.07785018675e-10,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"shared-factor-vs-legacy-cache-elastic","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"elastic-initial","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"accepted-plastic-load","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"shared-factor-vs-legacy-cache-load","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"accepted-plastic-load","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-elastic-initial","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.61868506443e-07,"maximum_absolute_element_force_error_N":0.00390625,"maximum_direct_element_force_N":73429.1953125,"absolute_bound_N":73.4291963125,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scmatter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+alar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-plastic-after-load","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":2.38906810218e-07,"maximum_absolute_element_force_error_N":0.0078125,"maximum_direct_element_force_N":73430.2578125,"absolute_bound_N":73.4302588125,"pass":true}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"accepted-unload","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"paper_preconditioner_cache_parity","phase":"shared-factor-vs-legacy-cache-unload","state_count":15,"selector":1,"position_max_m":0,"displacement_relative":0,"state_max_abs":0,"state_relative":0,"certificate_max_abs":0,"certificate_scale":1,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"accepted-unload","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":false,"physical_validation":false}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"accepted-plastic-after-unload","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.95126672333e-07,"maximum_absolute_element_force_error_N":0.00390625,"maximum_direct_element_force_N":73428.7890625,"absolute_bound_N":73.4287900625,"pass":true}
+{"schema":1,"record":"accepted_bilinear_paper_plastic_history","source_material":"hajali2009_liner_hill_bilinear_fit","state_count":15,"material_frames":"rotated per tetrahedron","loading_accepted":true,"unloading_accepted":true,"maximum_loaded_plastic_multiplier":3.62569608114e-07,"maximum_unloaded_plastic_multiplier":5.6520121916e-07,"maximum_load_to_unload_state_difference":0.0438816649012,"tangent_preconditioner_direct_cache_history_parity":true,"shared_factor_enabled":true,"physical_validation":false}
+{"schema":1,"record":"completed_tangent_cache_rebuild_parity","phase":"late-postcommit-rejection","physical_history_bitwise_equal":true,"certificates_bitwise_equal":true,"late_rejection":true,"physical_validation":false}
+fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false

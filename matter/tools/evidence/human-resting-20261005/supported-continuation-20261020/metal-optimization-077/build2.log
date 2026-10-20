@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/4] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:13990:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 13990 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:18133:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 18133 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[2/4] Linking CXX shared library lib/libmetalrobo.dylib
+[3/4] Linking OBJCXX executable bin/numi-human-native

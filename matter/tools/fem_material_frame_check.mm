@@ -731,6 +731,15 @@ void canonicalTangentChecks(Device& d,const std::filesystem::path& materialsDire
             maximumFallback=std::max({maximumFallback,difference(tangent,fallbackTangent),difference(cached,fallbackCached)});
             maximumFD=std::max({maximumFD,finiteDifference(d,world,input,tangent),finiteDifference(d,world,input,cached)});
         }
+        // All nine cache columns must use the same tangent-selection policy
+        // as an arbitrary direct action, including when the canonical tag is
+        // removed. Random nodal directions exercise products beyond the
+        // coordinate columns and both rotated tetrahedral material frames.
+        const Inputs parityInput=manufactured(world,deformations[0],directions[0]);
+        checkCachedOperatorActions(d,world,parityInput,
+            (std::string(name)+":canonical-selected").c_str());
+        checkCachedOperatorActions(d,fallback,parityInput,
+            (std::string(name)+":bytecode-selected").c_str());
         need(maximumOracle<5e-4&&maximumCachedOracle<5e-4,
              "canonical tangent closed form disagrees with independent oracle material="+std::string(name)+" direct="+number(maximumOracle)+" cached="+number(maximumCachedOracle));
         need(maximumFallback<8e-4,
