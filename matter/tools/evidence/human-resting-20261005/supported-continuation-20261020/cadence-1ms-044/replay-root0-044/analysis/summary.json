@@ -1,0 +1,358 @@
+{
+  "app_source_sha256": "30e06736e0d93158f7c71c1548948592566ec39a15c616d32f89ae92cc36c49b",
+  "binary_sha256": "74bd6388906580df99180562ba4c98be6632b8c0d8ad1460fe0cc7812efa93bb",
+  "common_failure_byte_identical": true,
+  "common_failure_sha256_native": "baf82305e5f45ef8062e85a5d9c61527dbb5c7c4780d13737c54571e6b9070e7",
+  "common_failure_sha256_replay": "baf82305e5f45ef8062e85a5d9c61527dbb5c7c4780d13737c54571e6b9070e7",
+  "exact_diagnostic_replay": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/replay-cadence-1ms-044",
+  "failure_producer": {
+    "function_start_line": 562,
+    "host_dispatch": "matter/src/runtime.mm:30349",
+    "kernel": "nm_mixed_certify",
+    "source": "matter/src/metal/mixed_fem.metalinc"
+  },
+  "first_nonzero_status_snapshot": {
+    "environment_alpha": 1.0,
+    "fgmres_diagnostics": [
+      7.845012987672817e-06,
+      9.786016016732901e-05,
+      0.0,
+      16.0
+    ],
+    "iteration": 0,
+    "microtick": 1,
+    "nonlinear_state": [
+      0.011544251814484596,
+      9.786016016732901e-05,
+      0.00037423690082505345,
+      0.0
+    ],
+    "stage": "predictor_begin",
+    "status_code": 10,
+    "status_words": [
+      10,
+      0,
+      0,
+      4294967295,
+      0,
+      64,
+      0,
+      0
+    ]
+  },
+  "interpretation": "The trace shows 24 outer Newton iterations in microtick 0. The nonlinear convergence latch remains false (nonlinear.w=0); the assembled norm remains above the unchanged 1e-5 tolerance. After integration, nm_mixed_certify records the global residual/correction diagnostics. This is a solver-budget/nonconvergence failure for the 1 ms cadence, not evidence of a shared-alpha mismatch.",
+  "matter_failure": {
+    "matter_code": 10,
+    "matter_diagnostics": [
+      0.0001372531260130927,
+      0.00037423690082505345,
+      0,
+      0
+    ],
+    "matter_environment": 0,
+    "matter_failing_index": 4294967295,
+    "matter_microsteps": 0,
+    "matter_object_index": 0
+  },
+  "metallib_sha256": "5867309c673eeeaa561a841403e1f8a85e96ec60333f76a75e0ac6c00a24cbe1",
+  "microtick0_certificate": {
+    "alpha": 1.0,
+    "fgmres_diagnostics": [
+      [
+        7.845012987672817e-06,
+        9.786016016732901e-05,
+        0.0,
+        16.0
+      ]
+    ],
+    "iteration": 23,
+    "microtick": 0,
+    "nonlinear_state": [
+      0.011544251814484596,
+      9.786016016732901e-05,
+      0.00037423690082505345,
+      0.0
+    ],
+    "stage": "certificate",
+    "status_code": 0
+  },
+  "microtick0_newton_line_search": [
+    {
+      "alpha": 0.25,
+      "iteration": 0,
+      "linear_initial_norm": 0.011544251814484596,
+      "linear_true_residual": 0.0003548190579749644,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.011544251814484596,
+      "relative_correction": 7.954195976257324,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 1,
+      "linear_initial_norm": 0.00829066801816225,
+      "linear_true_residual": 0.00028907269006595016,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00829066801816225,
+      "relative_correction": 2.737161874771118,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 2,
+      "linear_initial_norm": 0.003055112436413765,
+      "linear_true_residual": 0.00014350558922160417,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.003055112436413765,
+      "relative_correction": 0.4878914952278137,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 3,
+      "linear_initial_norm": 0.00031362439040094614,
+      "linear_true_residual": 8.671350951772183e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00031362439040094614,
+      "relative_correction": 0.03630228340625763,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 4,
+      "linear_initial_norm": 8.997599798021838e-05,
+      "linear_true_residual": 5.971132850390859e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 8.997599798021838e-05,
+      "relative_correction": 0.008644609712064266,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 5,
+      "linear_initial_norm": 6.244111864361912e-05,
+      "linear_true_residual": 4.3956952140433714e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 6.244111864361912e-05,
+      "relative_correction": 0.005936166737228632,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 6,
+      "linear_initial_norm": 4.463196819415316e-05,
+      "linear_true_residual": 3.3217653253814206e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 4.463196819415316e-05,
+      "relative_correction": 0.0035079484805464745,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 7,
+      "linear_initial_norm": 5.648644219036214e-05,
+      "linear_true_residual": 2.5775601898203604e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 5.648644219036214e-05,
+      "relative_correction": 0.003074697684496641,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 8,
+      "linear_initial_norm": 7.631346670677885e-05,
+      "linear_true_residual": 2.2016665752744302e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 7.631346670677885e-05,
+      "relative_correction": 0.0006268802681006491,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 9,
+      "linear_initial_norm": 8.614569378551096e-05,
+      "linear_true_residual": 1.9453947970760055e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 8.614569378551096e-05,
+      "relative_correction": 0.0003729422460310161,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 10,
+      "linear_initial_norm": 0.00010734172974480316,
+      "linear_true_residual": 1.750386400090065e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00010734172974480316,
+      "relative_correction": 0.0005860726814717054,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 11,
+      "linear_initial_norm": 8.307026291731745e-05,
+      "linear_true_residual": 1.5990393876563758e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 8.307026291731745e-05,
+      "relative_correction": 0.0004031732678413391,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 12,
+      "linear_initial_norm": 8.24345916043967e-05,
+      "linear_true_residual": 1.4791067769692745e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 8.24345916043967e-05,
+      "relative_correction": 0.0003613784210756421,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 13,
+      "linear_initial_norm": 0.00010696811659727246,
+      "linear_true_residual": 1.37372599056107e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00010696811659727246,
+      "relative_correction": 0.00033288312260992825,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 14,
+      "linear_initial_norm": 1.6417452570749447e-05,
+      "linear_true_residual": 1.266092021978693e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 1.6417452570749447e-05,
+      "relative_correction": 0.00025650084717199206,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 15,
+      "linear_initial_norm": 9.429077908862382e-05,
+      "linear_true_residual": 1.1826400623249356e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 9.429077908862382e-05,
+      "relative_correction": 0.0003503615444060415,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 16,
+      "linear_initial_norm": 9.032577509060502e-05,
+      "linear_true_residual": 1.1187483323737979e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 9.032577509060502e-05,
+      "relative_correction": 0.00038135479553602636,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 17,
+      "linear_initial_norm": 4.614084173226729e-05,
+      "linear_true_residual": 1.0610013305267785e-05,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 4.614084173226729e-05,
+      "relative_correction": 0.0003537215234246105,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 18,
+      "linear_initial_norm": 9.755848441272974e-05,
+      "linear_true_residual": 9.925559425028041e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 9.755848441272974e-05,
+      "relative_correction": 0.0003664937394205481,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 19,
+      "linear_initial_norm": 0.00011084269499406219,
+      "linear_true_residual": 9.421554750588257e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00011084269499406219,
+      "relative_correction": 0.00034650188172236085,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 20,
+      "linear_initial_norm": 4.5312801375985146e-05,
+      "linear_true_residual": 8.976585377240553e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 4.5312801375985146e-05,
+      "relative_correction": 0.00034819552092812955,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 21,
+      "linear_initial_norm": 0.00014121553977020085,
+      "linear_true_residual": 8.554873602406587e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00014121553977020085,
+      "relative_correction": 0.00045798253268003464,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 22,
+      "linear_initial_norm": 0.00015627819811925292,
+      "linear_true_residual": 8.172889465640765e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 0.00015627819811925292,
+      "relative_correction": 0.0003797719837166369,
+      "status_code": 0
+    },
+    {
+      "alpha": 1.0,
+      "iteration": 23,
+      "linear_initial_norm": 9.786016016732901e-05,
+      "linear_true_residual": 7.845012987672817e-06,
+      "nonlinear_latch": 0.0,
+      "outer_initial_norm": 0.011544251814484596,
+      "outer_residual_norm": 9.786016016732901e-05,
+      "relative_correction": 0.00037423690082505345,
+      "status_code": 0
+    }
+  ],
+  "native_execution": {
+    "exit_code": 1,
+    "wall_s": 24.136170999961905
+  },
+  "native_run": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cadence-1ms-044",
+  "raw_replay_stderr_sha256": "e40af2acaae7c65c12047feb61ba3b5a799ee50180927852ea261128e03f2dc0",
+  "replay_execution": {
+    "exit_code": 1,
+    "wall_s": 24.130515416967683
+  },
+  "schema": 1,
+  "source_invocation_sha256": "5df11dbc5216e48d1dd4f021b0cbc6f397baded8b420840415fec3a7011a1219",
+  "trace_rows": 204
+}

@@ -1,0 +1,140 @@
+{
+  "source_base_revision": "73cb0fa01a85f6ea93cdc166104e6c3f142511f8",
+  "executable_sha256": "74bd6388906580df99180562ba4c98be6632b8c0d8ad1460fe0cc7812efa93bb",
+  "metallib_sha256": "5867309c673eeeaa561a841403e1f8a85e96ec60333f76a75e0ac6c00a24cbe1",
+  "suite_library_sha256": "e548dbfc5fafd425eb7112d09f37713f59ef968faa54243ca430079b5dad942a",
+  "device": null,
+  "source_sha256": {
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+    "apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+    "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "apps/numilab_human_myosim_visual_probe.mm": "30e06736e0d93158f7c71c1548948592566ec39a15c616d32f89ae92cc36c49b",
+    "matter/src/metal/fgmres.metalinc": "8c92ac7ced11212dbce8bdfc02b1b7fddc0f421da455c475153047c2c6ae4c09",
+    "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+    "matter/src/metal/vascular.metalinc": "9c0a95e5edaaa0d3ea05296198444d089a8d067f0d5ed6f3b9168c832fb864b1",
+    "matter/src/runtime.mm": "10269b0cf2a8d5960b34fdce727586b717d275fdf0e543e95a17fad83bbba916",
+    "matter/src/metal/fem.metalinc": "54559438333c84b9b4c1606bfb69578fa8ff74238fed5d7b30a2667ee00923fd",
+    "matter/src/metal/contact.metalinc": "04c35d8bceceedb54d1fcae9244f472a8fffe752da9aa350fd804361d9eb3bcc",
+    "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+    "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+    "matter/include/numi/matter/shared.h": "6db6b9c46539188fa7a3260aff30208a23f38c1c3d41c53160b24ad853f5d401",
+    "include/metalrobo/MetalArticulatedOperator.hpp": "5219db705a10a68c2308cafc9292c2bb650c80ce4b884e5dc913cf1308833705",
+    "src/metal/MetalArticulatedOperator.mm": "5bdbe9eb1271d0aafa82545d491ab691329d7dd8c36ed58ffb885d28ae5ca25b",
+    "include/metalrobo/NumiHumanMuscleEquilibrium.hpp": "d428d180db4e4076eb7e864996756a7cd76de34feabf5b49fa515cf58bbbddbc",
+    "src/core/NumiHumanMuscleEquilibrium.cpp": "06263923417bb877faf1730a294a66cf8f3663c6df0a45d27f9146a5e170ff70",
+    "tests/numi_human_static_support_test.cpp": "b2b8ba27760ba33ced50cfe4650085e77ae9e426cb8f6ce3eac963cee8b64fa0",
+    "tests/numi_human_per_contact_plane_metal_test.mm": "04ccbc78f976f23f8b8f8c2fdb12b289e08564b2e3fde3a7db00e39963603792",
+    "CMakeLists.txt": "57b37687c5300d8879bbd8ee7ca898c3dda3bb5c150138ff6ef2c834da9374a9",
+    "matter/CMakeLists.txt": "75e8cbe7a10d37c0fa8058e1bf46dbef2c45de097ae7868831a1de56f4a16276",
+    "matter/include/numi/matter/fem_compensated_deformation.h": "bafca18e85ebf1c644e77f3114abf4dc5050b3362b2379ca6aef46fa0df1e96f",
+    "matter/src/compiler_impl.cpp": "250c3a6df002312dfde1d6fd18b0f93957df934d1a0f5b0d9e06ca74ccbc4cc4",
+    "matter/src/validation_impl.cpp": "f37f1111a2be0287e260cae0eb2ffdf8c7eb34126823fa4deb7643389e52075a",
+    "matter/src/fem_reference_geometry.hpp": "661beb70332c510db9409639cfbc01c88d6940eaae57f90efd7faa11a30ec33c",
+    "matter/src/metal/base_cgls_runtime.metalinc": "c9e8a1b91d05c2103420ad146ae75545cb2b60e60b32f8c17aef5de3016f6a4a",
+    "matter/src/metal/common.metalinc": "612a97d5718c1914b7722eed8a5ff6a395ca3758d96f42bc30bf2151c744c91c",
+    "matter/include/numi/matter/paper_compensated_bytecode.h": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "apps/numanx_matter_attachment_runtime_probe.mm": "1acca3931775a5efa665584310c1a1e14e07bedf2a0cb9a19d5ad2dafd517cd2",
+    "matter/tools/cardboard_cached_operator_audit.py": "2cbfe778885606f453af0f40244da876ab79936b856454b3bf046eaa785fa8c0",
+    "matter/tools/cardboard_offline_conditioning_study.py": "edac5e16bb9299f07d65ebf06c4506ca5b79c030c12adf3cd37d5cedb138575f",
+    "matter/tools/cardboard_paper_exact_capture.py": "5f00c035a2c21ab480e938091ea25ab273d504619c1bbb63e74476b055b1ad29",
+    "matter/tools/cardboard_solver_capture_analysis.py": "aeed5bd60c69be0c9ebae08f4ea760f40c52555b703654932ab6e14fe45eb4c7",
+    "matter/tools/cardboard_solver_pair_analyzer.py": "d5127a21c3e260f20340e89da91379d839fa9ffaafcc91bc9a98ecfe9df87fbf",
+    "matter/tools/test_cardboard_cached_operator_audit.py": "5dceb9017602d122f56382cbf2f70cf3797cba931bec6c164ded8e31f20ef2b9",
+    "matter/tools/test_cardboard_offline_conditioning_study.py": "c7a9e61e91b4345d598e6d44b6abc50b5e48014d4ae635953c0e65f1738514ed",
+    "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725",
+    "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4",
+    "matter/tools/cardboard_source370_material_point_check.mm": "456150e54c7fbcad9d7f1befba9a92547e2d35ececf3aada40d31b51374450f5",
+    "matter/tools/fem_reference_check.mm": "3b2bfdfc874928467a500f880faef9b1b4f276f7485c21ffb2d37d8a55058b1a",
+    "matter/tools/cardboard_contact_geometry_check.mm": "fbcc1e97fc9b5a58435a8809960c67bf24abffb51e6e72f638ca5f15b4636e3c",
+    "matter/tools/cardboard_contact_geometry_check.metal": "40a09708994fa614267234cb28da6b00165dccef8ab640015df494b987956c91",
+    "tools/verify_human_supported_tissue.sh": "837a8312d74ce6333e63925c1fc26926d10c1f60b36a6753f25f5c9be048af4b",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py": "012055b1e979ef7f56867e9ddc02f5ea3f5ca343ad27001d99ba6050c30bfc33"
+  },
+  "input_identity_files": {
+    "analysis/README.md": {
+      "size_bytes": 1650,
+      "sha256": "2791a82867288917586f3375aa8405c1ca053c103092751603dbeadade42cd90",
+      "copied": true
+    },
+    "analysis/summary.json": {
+      "size_bytes": 11846,
+      "sha256": "d2628ad087387ce179dcf8511c4dfdfeb5ee6c5daf05b845b30bb43e1a8aa783",
+      "copied": true
+    },
+    "analysis/trajectory.jsonl": {
+      "size_bytes": 6863,
+      "sha256": "f72e81bb6a903f5d604ee1ea387a93780a952df707ef5c037ca9225805547cb6",
+      "copied": true
+    },
+    "common-field-failure.json": {
+      "size_bytes": 4113,
+      "sha256": "baf82305e5f45ef8062e85a5d9c61527dbb5c7c4780d13737c54571e6b9070e7",
+      "copied": true
+    },
+    "execution.json": {
+      "size_bytes": 53,
+      "sha256": "83c3fea869a9aa149f4f3ddd484501080ecfd5922817e838770831fb9a3c93dc",
+      "copied": true
+    },
+    "invocation.json": {
+      "size_bytes": 7675,
+      "sha256": "9a4acccddcc3d9490dd3d93a4dc96485cc5243621536c0c786fd666622f013d8",
+      "copied": true
+    },
+    "output/resting-coupled.csv": {
+      "size_bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "copied": true
+    },
+    "output/resting-surface-audit.csv": {
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "copied": true
+    },
+    "provenance.json": {
+      "size_bytes": 6145,
+      "sha256": "f788fc6d05aec4145e808c37df50687ce9b9cdb93f3b7273ccfb25cb59001ab0",
+      "copied": true
+    },
+    "stderr.log": {
+      "size_bytes": 1408433,
+      "sha256": "e40af2acaae7c65c12047feb61ba3b5a799ee50180927852ea261128e03f2dc0",
+      "copied": true
+    },
+    "stdout.log": {
+      "size_bytes": 125197,
+      "sha256": "cb2b8f5f9b8702d11e0a6b3fff369f58794265551bdb33d9dfab46113273eda8",
+      "copied": true
+    }
+  },
+  "patch_and_context": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/cadence-1ms-044/TRIAL.md",
+      "destination": "context/TRIAL.md",
+      "size_bytes": 1915,
+      "sha256": "719a1dc405a34703301ef730e55584cf36dd577efb56070c404da28c3b3337ee"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/cadence-1ms-044/TRIAL.sha256",
+      "destination": "context/TRIAL.sha256",
+      "size_bytes": 75,
+      "sha256": "cbf41e9ab6a8bba79d3046da2a39988f4c8d519d8960cb881435422076d3e52e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/cadence-1ms-044/template.json",
+      "destination": "context/template.json",
+      "size_bytes": 7307,
+      "sha256": "381d972688b8e2f49642aef8e246999bda3344f58950d89dff0cd89f55c808e5"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/cadence-1ms-044/native.log",
+      "destination": "context/native.log",
+      "size_bytes": 47,
+      "sha256": "9437135d252647944e8b212570297c4d0f81532babc2d49b169659b0def824f7"
+    }
+  ]
+}
