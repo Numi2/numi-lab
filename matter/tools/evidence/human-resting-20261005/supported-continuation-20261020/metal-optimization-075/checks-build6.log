@@ -1,0 +1,26 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 165: matter.compiler.partitioned_reduction_basis
+1/4 Test #165: matter.compiler.partitioned_reduction_basis .................   Passed    0.01 sec
+    Start 170: matter.compiler.cardboard_contact_node_incidence_sort
+2/4 Test #170: matter.compiler.cardboard_contact_node_incidence_sort .......   Passed    0.02 sec
+    Start 248: matter.metal.fgmres_true_residual_kernel_contract
+3/4 Test #248: matter.metal.fgmres_true_residual_kernel_contract ...........   Passed    0.45 sec
+    Start 264: matter.metal.cardboard_contact_node_incidence_sort_native
+4/4 Test #264: matter.metal.cardboard_contact_node_incidence_sort_native ...   Passed    0.29 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+cardboard         =   0.31 sec*proc (2 tests)
+contact           =   0.31 sec*proc (2 tests)
+cpu               =   0.03 sec*proc (2 tests)
+fem               =   0.01 sec*proc (1 test)
+fgmres            =   0.45 sec*proc (1 test)
+matter            =   0.77 sec*proc (4 tests)
+metal             =   0.45 sec*proc (1 test)
+native-kernel     =   0.29 sec*proc (1 test)
+preconditioner    =   0.01 sec*proc (1 test)
+synthetic         =   0.77 sec*proc (4 tests)
+true-residual     =   0.45 sec*proc (1 test)
+
+Total Test time (real) =   0.78 sec

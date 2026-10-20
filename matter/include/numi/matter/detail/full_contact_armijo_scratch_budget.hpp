@@ -100,7 +100,8 @@ inline bool estimateFullContactArmijoScratchBytes(
     const std::uint64_t deformableCapacity,
     const std::uint64_t nodeCount,
     const bool aliasesProductionSurfaceScratch,
-    FullContactArmijoScratchBytes& out
+    FullContactArmijoScratchBytes& out,
+    const bool surfaceRadixEnabled = false
 ) noexcept {
     using namespace full_contact_armijo_scratch_detail;
     out = {};
@@ -124,10 +125,27 @@ inline bool estimateFullContactArmijoScratchBytes(
             !addTyped(envPrimitives, sizeof(NMContinuumSurfacePrimitiveGPU),
                       out.surfacePrimitives, out.total) ||
             !addTyped(bvhCount, sizeof(nm_float4), out.surfaceBVHBounds,
-                      out.total) ||
-            !addRepeatedTyped(envPrimitives, sizeof(std::uint32_t), 4u,
-                              out.surfaceSortArrays, out.total) ||
-            !addTyped(environments, sizeof(std::uint32_t),
+                      out.total))
+            return false;
+        if (surfaceRadixEnabled) {
+            const std::uint64_t tileCount = surfacePrimitiveCount / 32u +
+                (surfacePrimitiveCount % 32u != 0u ? 1u : 0u);
+            if (tileCount > std::numeric_limits<std::uint64_t>::max() / 16u)
+                return false;
+            const std::uint64_t scratchStride = std::max(
+                surfacePrimitiveCount, 16u * tileCount);
+            std::uint64_t envScratchWords = 0u;
+            if (!checkedMultiply(environments, scratchStride, envScratchWords) ||
+                !addRepeatedTyped(envPrimitives, sizeof(std::uint32_t), 3u,
+                                  out.surfaceSortArrays, out.total) ||
+                !addTyped(envScratchWords, sizeof(std::uint32_t),
+                          out.surfaceSortArrays, out.total))
+                return false;
+        } else if (!addRepeatedTyped(envPrimitives, sizeof(std::uint32_t), 4u,
+                                     out.surfaceSortArrays, out.total)) {
+            return false;
+        }
+        if (!addTyped(environments, sizeof(std::uint32_t),
                       out.surfaceActiveCounts, out.total))
             return false;
     }

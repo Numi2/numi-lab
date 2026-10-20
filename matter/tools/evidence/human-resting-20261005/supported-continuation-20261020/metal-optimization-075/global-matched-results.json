@@ -1,0 +1,35 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "control_wall_s": 44.981663541,
+      "candidate_wall_s": 43.435694375,
+      "speedup": 1.0355921365652165,
+      "candidate_rtf": 1.1511270418103583e-05,
+      "endpoint_gate_failures": [],
+      "terminal_audits_passed": true
+    },
+    {
+      "pair": 2,
+      "control_wall_s": 45.029829542,
+      "candidate_wall_s": 43.428127917,
+      "speedup": 1.0368816640694525,
+      "candidate_rtf": 1.1513276020194277e-05,
+      "endpoint_gate_failures": [],
+      "terminal_audits_passed": true
+    },
+    {
+      "pair": 3,
+      "control_wall_s": 44.915246166,
+      "candidate_wall_s": 43.472013334,
+      "speedup": 1.0331991256285162,
+      "candidate_rtf": 1.1501653256939664e-05,
+      "endpoint_gate_failures": [],
+      "terminal_audits_passed": true
+    }
+  ],
+  "median_speedup": 1.0355921365652165,
+  "scope": "Four-root release transient, 0.5 ms simulated; not supported-rest or integrated qualification",
+  "absolute_floor": 1e-07,
+  "relative_tolerance": 0.01
+}

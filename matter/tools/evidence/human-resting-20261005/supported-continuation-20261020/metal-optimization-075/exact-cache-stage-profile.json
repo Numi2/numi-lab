@@ -1,0 +1,72 @@
+{
+  "matter_pre": {
+    "count": 1,
+    "total_s": 0.0006905,
+    "max_ms": 0.6905
+  },
+  "brain_advance": {
+    "count": 1,
+    "total_s": 1.4333e-05,
+    "max_ms": 0.014333
+  },
+  "respiratory_mechanics": {
+    "count": 1,
+    "total_s": 0.003277291,
+    "max_ms": 3.277291
+  },
+  "matter_after_frame_begin": {
+    "count": 1,
+    "total_s": 5.1708e-05,
+    "max_ms": 0.051708
+  },
+  "nm_fem_build_algorithmic_tangent_cache_columns": {
+    "count": 96,
+    "total_s": 8.061476998,
+    "max_ms": 108.710709
+  },
+  "matter_newton_linear": {
+    "count": 96,
+    "total_s": 11.444719589,
+    "max_ms": 236.753833
+  },
+  "matter_newton_globalization": {
+    "count": 96,
+    "total_s": 0.862930539,
+    "max_ms": 9.280209
+  },
+  "matter_newton_assembly": {
+    "count": 92,
+    "total_s": 0.018205871,
+    "max_ms": 9.128833
+  },
+  "matter_after_candidate_ready": {
+    "count": 4,
+    "total_s": 0.128590333,
+    "max_ms": 32.278167
+  },
+  "matter_after_microstep": {
+    "count": 4,
+    "total_s": 0.000180501,
+    "max_ms": 0.070875
+  },
+  "respiratory_gas_exchange": {
+    "count": 1,
+    "total_s": 0.001754042,
+    "max_ms": 1.754042
+  },
+  "matter_post": {
+    "count": 1,
+    "total_s": 2.4375e-05,
+    "max_ms": 0.024375
+  },
+  "brain_resolve": {
+    "count": 1,
+    "total_s": 1.291e-06,
+    "max_ms": 0.001291
+  },
+  "respiratory_resolve": {
+    "count": 1,
+    "total_s": 0.000703208,
+    "max_ms": 0.703208
+  }
+}

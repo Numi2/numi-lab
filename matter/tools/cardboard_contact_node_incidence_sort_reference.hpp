@@ -15,6 +15,12 @@ inline constexpr std::uint32_t kValid = 1u;
 inline constexpr std::uint32_t kInvalid = std::numeric_limits<std::uint32_t>::max();
 inline constexpr std::uint32_t kCorners = 6u;
 
+inline std::uint32_t stableRadixPassCount(const std::uint32_t nodeCount) {
+    // With fewer than 2^28 nodes, seven nibbles sort every valid ID while
+    // preserving the invalid UINT32_MAX record as a distinct final key.
+    return nodeCount < (1u << 28u) ? 7u : 8u;
+}
+
 struct Contact {
     std::array<std::uint32_t, kCorners> nodes{};
     std::uint32_t flags = 0u;
@@ -208,6 +214,85 @@ inline Result buildSortedReference(
             if (records[recordIndex].node != kInvalid)
                 throw std::logic_error(
                     "sorted reference retained an out-of-range node");
+    }
+    return result;
+}
+
+
+inline Result buildRadixReference(
+    const std::uint32_t nodeCount,
+    const std::uint32_t capacity,
+    const std::vector<Environment>& environments
+) {
+    struct Record {
+        std::uint32_t node;
+        std::uint32_t payload;
+    };
+    Result result;
+    const std::size_t envCount = environments.size();
+    result.ranges.resize(envCount * nodeCount);
+    result.incidence.resize(envCount * std::size_t(kCorners) * capacity,
+                            kInvalid);
+    for (std::size_t environment = 0u; environment < envCount; ++environment) {
+        const Environment& input = environments[environment];
+        const std::uint32_t activeCount = std::min<std::uint32_t>(
+            input.activeCount, capacity);
+        std::vector<Record> records(
+            std::size_t(activeCount) * kCorners, {kInvalid, kInvalid});
+        for (std::uint32_t activeSlot = 0u; activeSlot < activeCount;
+             ++activeSlot) {
+            if (activeSlot >= input.activeIndices.size()) continue;
+            const std::uint32_t slot = input.activeIndices[activeSlot];
+            if (slot >= capacity || slot >= input.contacts.size()) continue;
+            const Contact& contact = input.contacts[slot];
+            if ((contact.flags & kValid) == 0u) continue;
+            for (std::uint32_t local = 0u; local < kCorners; ++local) {
+                const std::uint32_t node = contact.nodes[local];
+                if (node < nodeCount)
+                    records[std::size_t(activeSlot) * kCorners + local] = {
+                        node, slot * 8u + local};
+            }
+        }
+
+        std::vector<Record> scratch(records.size());
+        for (std::uint32_t pass = 0u;
+             pass < stableRadixPassCount(nodeCount); ++pass) {
+            std::array<std::uint32_t, 16u> offsets{};
+            for (const Record& record : records)
+                ++offsets[(record.node >> (4u * pass)) & 0x0fu];
+            std::uint32_t cursor = 0u;
+            for (std::uint32_t bucket = 0u; bucket < offsets.size(); ++bucket) {
+                const std::uint32_t count = offsets[bucket];
+                offsets[bucket] = cursor;
+                cursor += count;
+            }
+            for (const Record& record : records) {
+                const std::uint32_t bucket =
+                    (record.node >> (4u * pass)) & 0x0fu;
+                scratch[offsets[bucket]++] = record;
+            }
+            records.swap(scratch);
+        }
+
+        const std::uint32_t base = static_cast<std::uint32_t>(
+            environment * std::size_t(kCorners) * capacity);
+        std::size_t recordIndex = 0u;
+        for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+            const std::uint32_t first = static_cast<std::uint32_t>(recordIndex);
+            while (recordIndex < records.size() &&
+                   records[recordIndex].node == node) {
+                result.incidence[base + recordIndex] =
+                    records[recordIndex].payload;
+                ++recordIndex;
+            }
+            result.ranges[environment * nodeCount + node] = {
+                base + first,
+                static_cast<std::uint32_t>(recordIndex - first)};
+        }
+        for (; recordIndex < records.size(); ++recordIndex)
+            if (records[recordIndex].node != kInvalid)
+                throw std::logic_error(
+                    "radix reference retained an out-of-range node");
     }
     return result;
 }

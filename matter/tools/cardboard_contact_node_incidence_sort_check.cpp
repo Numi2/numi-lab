@@ -26,8 +26,11 @@ void compare(const std::uint32_t nodes, const std::uint32_t capacity,
              const std::string& label) {
     const Result legacy = buildLegacyReference(nodes, capacity, environments);
     const Result sorted = buildSortedReference(nodes, capacity, environments);
+    const Result radix = buildRadixReference(nodes, capacity, environments);
     require(equivalentUsedIncidence(legacy, sorted),
             label + ": sorted CSR differs from the legacy activeSlot/local order");
+    require(equivalentUsedIncidence(legacy, radix),
+            label + ": radix CSR differs from the legacy activeSlot/local order");
 }
 
 void explicitControls() {
@@ -113,6 +116,12 @@ void checkedBounds() {
             "payload/index overflow must reject");
     require(!checkedWorkspaceLayout(1u, UINT32_MAX, 2u).valid,
             "multi-environment node indexing overflow must reject");
+    require(stableRadixPassCount((1u << 28u) - 1u) == 7u,
+            "seven passes must cover node IDs below the 28-bit sentinel boundary");
+    require(stableRadixPassCount(1u << 28u) == 8u,
+            "eight passes must preserve the invalid sentinel at the 28-bit boundary");
+    require(stableRadixPassCount(UINT32_MAX) == 8u,
+            "eight passes must cover the full uint32 node domain");
 }
 }
 

@@ -1,0 +1,7 @@
+# Measurement correction before matched treatment trials
+
+The first three one-root smoke comparisons and two failed four-root controls used a copied control dylib but the Human executable passed its compiled-in current Matter metallib path. They do not form compatible control measurements. Retain these trials, exclude them from gain estimates. The original 180-second ICB smoke stopped during cold pipeline compilation, not a physics timeout.
+
+Control now builds the unchanged Human app at ea2cbd84 with only its NUMI_MATTER_METALLIB path pointing at the frozen original c065a6ccda97f310b03df4bd174f68ba62762243aef8291c6c6d7c5909a1d854 image. Runtime is independently rebuilt at that revision. Record executable/dylib/metallib hashes together; do not infer shader ownership from library location. control-frozen-1 reproduces the prior accepted four-root result (44.981663541 body seconds). It is pair 1 control.
+
+Treatment includes active-count indirect contact radix dispatch, parallel surface bounds/compaction/radix, GPU-selected CGS2 ICB, inactive transport-span omission where proven empty, explicit domains and cached same-Newton diagonal/cavity factors. Frozen implementation and numerical tests precede matched trials. Counter and stage capture is a separate instrumented trial; timed pairs do not enable GPU counters. Three pairs remain C1/T1, T2/C2, C3/T3. Do not claim 0.1x or supported-rest qualification from this release-transient experiment.

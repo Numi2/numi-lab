@@ -146,7 +146,12 @@ class TrueResidualCertificationContract(unittest.TestCase):
                          r"state\.diagnostics\.z = \(deferCompletionToTrueResidual != 0u && used > 0u\)\s*\? 0\.0f")
         measure = section(FGMRES, "kernel void nm_fgmres_measure_true_residual(",
                           "// Add the six-node native cohesive-face directional force")
-        self.assertIn("const float target = clamp(", measure)
+        self.assertIn("const float target = fgmresResidualTarget(", measure)
+        target = section(FGMRES, "inline float fgmresResidualTarget(",
+                         "inline uint fgmresMatrixIndex(")
+        self.assertIn("clamp(forcing, forcingFloor, 0.5f) * initialNorm", target)
+        self.assertIn("min(relativeTarget, vascularResidualTolerance)", target)
+        self.assertIn("vascularUnknownCount == 0u", target)
         self.assertIn("solver.residualTolerances.x", measure)
         self.assertIn("state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||", measure)
         self.assertIn("trueNorm <= nonlinearThreshold", measure)

@@ -1,0 +1,25 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  50: matter.physics.mixed_mpm_fem
+1/6 Test  #50: matter.physics.mixed_mpm_fem .....................   Passed    0.38 sec
+    Start  51: matter.physics.monolithic_multiphysics
+2/6 Test  #51: matter.physics.monolithic_multiphysics ...........   Passed    0.11 sec
+    Start  56: matter.runtime.topology_rollback
+3/6 Test  #56: matter.runtime.topology_rollback .................   Passed    0.08 sec
+    Start  58: matter.runtime.production_transaction_rollback
+4/6 Test  #58: matter.runtime.production_transaction_rollback ...   Passed    0.08 sec
+    Start  67: matter.runtime.adaptive_promotion_rollback
+5/6 Test  #67: matter.runtime.adaptive_promotion_rollback .......   Passed    0.80 sec
+    Start 304: matter.metal.vascular_cavity
+6/6 Test #304: matter.metal.vascular_cavity .....................   Passed    6.69 sec
+
+100% tests passed out of 6
+
+Label Time Summary:
+cavity      =   6.69 sec*proc (1 test)
+human       =   6.69 sec*proc (1 test)
+matter      =   8.14 sec*proc (6 tests)
+metal       =   8.14 sec*proc (6 tests)
+physics     =   1.44 sec*proc (5 tests)
+vascular    =   6.69 sec*proc (1 test)
+
+Total Test time (real) =   8.14 sec

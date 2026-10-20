@@ -1,0 +1,19 @@
+{
+  "action": "verified_exact_duplicate_hardlinks",
+  "free_before_bytes": 12342935552,
+  "free_after_bytes": 12937076736,
+  "deduplicated_paths": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-075/combined-icb-smoke-2/output/resting-human.mrvpack",
+      "retained_identical_source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-075/combined-direct-smoke/output/resting-human.mrvpack",
+      "bytes": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-075/control-smoke/output/resting-human.mrvpack",
+      "retained_identical_source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-075/combined-direct-smoke/output/resting-human.mrvpack",
+      "bytes": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    }
+  ]
+}

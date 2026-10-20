@@ -98,6 +98,18 @@ inline void fgmresCompensatedAdd(
     sum = next;
 }
 
+// NMFGMRESLayoutGPU::reserved bit 0 is set only after the runtime proves
+// that no FEM transport equation, source, boundary, or coupling exists.
+// Physical vector offsets stay fixed; only the Krylov tile stream omits the
+// inactive second FEM span. Pressure remains in the mechanical vector .w lane.
+constant uint kFGMRESLayoutSkipInactiveTransport = 1u;
+
+inline bool fgmresTransportUnknownsActive(
+    const NMFGMRESLayoutGPU layout
+) {
+    return (layout.reserved & kFGMRESLayoutSkipInactiveTransport) == 0u;
+}
+
 // Keep the inner linear residual below the same normalized absolute bound
 // used by the outer vascular equation certificate. The relative forcing term
 // remains authoritative for nonvascular systems and whenever it is stricter.
@@ -1395,6 +1407,8 @@ kernel void nm_fgmres_begin(
         !completed;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint fieldBase = totalNodes;
+    const bool transportUnknownsActive =
+        fgmresTransportUnknownsActive(layout);
     const uint supportBase = layout.supportBase + environment * layout.supportContactCount;
     const uint vascularBase = layout.vascularBase + environment * layout.vascularUnknownCount;
     const uint mpmBase = fgmresMPMIndex(dispatch, environment, 0u);
@@ -1409,10 +1423,11 @@ kernel void nm_fgmres_begin(
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(residual[base + local], residual[base + local]));
-            fgmresCompensatedAdd(
-                norm2, normCorrection,
-                dot(residual[fieldBase + base + local],
-                    residual[fieldBase + base + local]));
+            if (transportUnknownsActive)
+                fgmresCompensatedAdd(
+                    norm2, normCorrection,
+                    dot(residual[fieldBase + base + local],
+                        residual[fieldBase + base + local]));
         }
         for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
              local += 32u)
@@ -1574,8 +1589,9 @@ kernel void nm_fgmres_begin(
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
         const uint node = nodeBase + local;
         basis0[node] = residual[node] * inverseNorm;
-        basis0[fieldBase + node] =
-            residual[fieldBase + node] * inverseNorm;
+        basis0[fieldBase + node] = transportUnknownsActive
+            ? residual[fieldBase + node] * inverseNorm
+            : float4(0.0f);
     }
     for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
          local += 32u)
@@ -6513,6 +6529,1237 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         nextBasis[rigidBase + local] = float4(
             work[rigidBase + local].x * inverseNorm,
             0.0f, 0.0f, 0.0f);
+}
+
+// Distributed CGS2 orthogonalization for large per-environment Krylov vectors.
+// The old one-threadgroup MGS kernel remains available as a legacy control.
+// Each 256-item tile emits eight SIMD-group partials; the compact row reduction
+// then joins those partials before the independently tiled vector update.
+constant uint kFGMRESOrthogonalTileItems = 256u;
+constant uint kFGMRESOrthogonalSIMDGroups = 8u;
+constant uint kFGMRESOrthogonalPassCount = 2u;
+
+inline uint fgmresOrthogonalItemCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    return dispatch.femNodeCount +
+        (fgmresTransportUnknownsActive(layout)
+            ? dispatch.femNodeCount : 0u) +
+        dispatch.mpmActiveNodeCapacity +
+        dispatch.rigidGeneralizedCapacity +
+        layout.supportContactCount + layout.vascularUnknownCount;
+}
+
+inline uint fgmresOrthogonalTileCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    const uint items = fgmresOrthogonalItemCount(dispatch, layout);
+    return max(1u, (items + kFGMRESOrthogonalTileItems - 1u) /
+        kFGMRESOrthogonalTileItems);
+}
+
+inline uint fgmresOrthogonalPartialCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    return fgmresOrthogonalTileCount(dispatch, layout) *
+        kFGMRESOrthogonalSIMDGroups;
+}
+
+inline uint fgmresOrthogonalPartialIndex(
+    const uint environment,
+    const uint pass,
+    const uint row,
+    const uint partialTile,
+    const uint partialCount
+) {
+    return (((environment * kFGMRESOrthogonalPassCount + pass) *
+        (NM_MIXED_FGMRES_RESTART + 1u) + row) * partialCount) + partialTile;
+}
+
+inline uint fgmresOrthogonalVectorIndex(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout,
+    const uint environment,
+    uint item
+) {
+    const uint nodes = dispatch.femNodeCount;
+    if (item < nodes) return environment * nodes + item;
+    item -= nodes;
+    if (fgmresTransportUnknownsActive(layout)) {
+        if (item < nodes)
+            return dispatch.environmentCount * nodes + environment * nodes + item;
+        item -= nodes;
+    }
+    if (item < dispatch.mpmActiveNodeCapacity)
+        return fgmresMPMIndex(dispatch, environment, item);
+    item -= dispatch.mpmActiveNodeCapacity;
+    if (item < dispatch.rigidGeneralizedCapacity)
+        return fgmresRigidIndex(dispatch, environment, item);
+    item -= dispatch.rigidGeneralizedCapacity;
+    if (item < layout.supportContactCount)
+        return layout.supportBase + environment * layout.supportContactCount + item;
+    item -= layout.supportContactCount;
+    if (item < layout.vascularUnknownCount)
+        return layout.vascularBase + environment * layout.vascularUnknownCount + item;
+    return NM_INVALID_INDEX;
+}
+
+inline bool fgmresOrthogonalItemIsRigid(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout,
+    const uint item
+) {
+    const uint transportCount = fgmresTransportUnknownsActive(layout)
+        ? dispatch.femNodeCount : 0u;
+    const uint rigidStart = dispatch.femNodeCount + transportCount +
+        dispatch.mpmActiveNodeCapacity;
+    return item >= rigidStart &&
+        item - rigidStart < dispatch.rigidGeneralizedCapacity;
+}
+
+inline float4 fgmresOrthogonalLoad(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout,
+    const uint environment,
+    const uint item,
+    device const float4* vector
+) {
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return float4(0.0f);
+    const float4 value = vector[index];
+    return fgmresOrthogonalItemIsRigid(dispatch, layout, item)
+        ? float4(value.x, 0.0f, 0.0f, 0.0f) : value;
+}
+
+inline void fgmresOrthogonalStore(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout,
+    const uint environment,
+    const uint item,
+    const float4 value,
+    device float4* vector
+) {
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    if (fgmresOrthogonalItemIsRigid(dispatch, layout, item))
+        vector[index] = float4(value.x, 0.0f, 0.0f, 0.0f);
+    else
+        vector[index] = value;
+}
+
+// One group owns a 256-float4 tile and publishes one dot partial per SIMD
+// group. Pass zero forms the first CGS pass and pass one reorthogonalizes.
+kernel void nm_fgmres_cgs2_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& column [[buffer(1)]],
+    constant uint& pass [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device const float4* work [[buffer(4)]],
+    device float* partials [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || pass >= kFGMRESOrthogonalPassCount) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint partialCount = tilesPerEnvironment *
+        kFGMRESOrthogonalSIMDGroups;
+    const uint partialTile = tile * kFGMRESOrthogonalSIMDGroups + simdGroup;
+    const bool validItem = item < itemCount;
+    const uint index = validItem ? fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item) : NM_INVALID_INDEX;
+    const float4 workValue = validItem && index != NM_INVALID_INDEX
+        ? fgmresOrthogonalLoad(dispatch, layout, environment, item, work)
+        : float4(0.0f);
+    for (uint row = 0u; row <= column; ++row) {
+        float product = 0.0f;
+        if (validItem && index != NM_INVALID_INDEX) {
+            const float4 basisValue = fgmresOrthogonalLoad(
+                dispatch, layout, environment, item,
+                basis + row * layout.unknownCount);
+            product = dot(basisValue, workValue);
+        }
+        const float sum = simd_sum(product);
+        if (simdLane == 0u)
+            partials[fgmresOrthogonalPartialIndex(
+                environment, pass, row, partialTile, partialCount)] = sum;
+    }
+    const float normContribution = dot(workValue, workValue);
+    const float normPartial = simd_sum(normContribution);
+    if (simdLane == 0u)
+        partials[fgmresOrthogonalPartialIndex(
+            environment, pass, NM_MIXED_FGMRES_RESTART,
+            partialTile, partialCount)] = normPartial;
+}
+
+// Reduce one row's tile partials. First-pass values enter H; second-pass
+// corrections occupy the already-consumed scratch row until their update.
+kernel void nm_fgmres_cgs2_reduce_row(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant uint& column [[buffer(1)]],
+    constant uint& pass [[buffer(2)]],
+    device float* hessenberg [[buffer(3)]],
+    device float* partials [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint rows = column + 1u;
+    const uint groupCount = dispatch.environmentCount * rows;
+    if (group >= groupCount || pass >= kFGMRESOrthogonalPassCount) return;
+    const uint environment = group / rows;
+    const uint row = group - environment * rows;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint partialCount = fgmresOrthogonalPartialCount(dispatch, layout);
+    float localSum = 0.0f;
+    float correction = 0.0f;
+    for (uint partialTile = lane; partialTile < partialCount;
+         partialTile += 32u) {
+        const float value = partials[fgmresOrthogonalPartialIndex(
+            environment, pass, row, partialTile, partialCount)];
+        fgmresCompensatedAdd(localSum, correction, value);
+    }
+    const float total = simd_sum(localSum);
+    if (lane == 0u) {
+        if (pass == 0u)
+            hessenberg[fgmresMatrixIndex(environment, row, column)] = total;
+        else
+            partials[fgmresOrthogonalPartialIndex(
+                environment, pass, row, 0u, partialCount)] = total;
+    }
+}
+
+// Apply all coefficients in one CGS pass over disjoint vector tiles.
+kernel void nm_fgmres_cgs2_update(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant uint& column [[buffer(1)]],
+    constant uint& pass [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* work [[buffer(4)]],
+    device const float* hessenberg [[buffer(5)]],
+    device const float* partials [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || pass >= kFGMRESOrthogonalPassCount) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+    if (item >= itemCount) return;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    float4 value = fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, work);
+    const uint partialCount = tilesPerEnvironment *
+        kFGMRESOrthogonalSIMDGroups;
+    for (uint row = 0u; row <= column; ++row) {
+        const float coefficient = pass == 0u
+            ? hessenberg[fgmresMatrixIndex(environment, row, column)]
+            : partials[fgmresOrthogonalPartialIndex(
+                environment, pass, row, 0u, partialCount)];
+        const float4 basisValue = fgmresOrthogonalLoad(
+            dispatch, layout, environment, item,
+            basis + row * layout.unknownCount);
+        value -= coefficient * basisValue;
+    }
+    fgmresOrthogonalStore(dispatch, layout, environment, item, value, work);
+}
+
+// Measure the residual norm after the second CGS update. The pass-one norm
+// partials emitted while forming correction coefficients describe the vector
+// before that update, so they must not be used as Arnoldi's subdiagonal.
+kernel void nm_fgmres_cgs2_measure_norm(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* work [[buffer(1)]],
+    device float* partials [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const float4 value = item < itemCount
+        ? fgmresOrthogonalLoad(dispatch, layout, environment, item, work)
+        : float4(0.0f);
+    const float normPartial = simd_sum(dot(value, value));
+    if (simdLane == 0u) {
+        const uint partialCount = tilesPerEnvironment *
+            kFGMRESOrthogonalSIMDGroups;
+        const uint partialTile = tile * kFGMRESOrthogonalSIMDGroups + simdGroup;
+        partials[fgmresOrthogonalPartialIndex(
+            environment, 1u, NM_MIXED_FGMRES_RESTART,
+            partialTile, partialCount)] = normPartial;
+    }
+}
+
+// One compact threadgroup per environment consumes the post-update norm and
+// correction coefficients, then publishes H, Givens state, and the immutable
+// column-count predicate consumed by the following distributed normalizer.
+kernel void nm_fgmres_cgs2_finish_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    constant uint& column [[buffer(2)]],
+    device float* hessenberg [[buffer(3)]],
+    device float2* rotations [[buffer(4)]],
+    device float* leastSquares [[buffer(5)]],
+    device NMFGMRESStateGPU* states [[buffer(6)]],
+    constant float& forcing [[buffer(7)]],
+    device float* partials [[buffer(8)]],
+    device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(9)]],
+    device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount) return;
+    const uint environment = group;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint partialCount = fgmresOrthogonalPartialCount(dispatch, layout);
+    const uint normPartialBase = fgmresOrthogonalPartialIndex(
+        environment, 1u, NM_MIXED_FGMRES_RESTART, 0u, partialCount);
+    float normLocal = 0.0f;
+    float normCorrection = 0.0f;
+    for (uint partialTile = lane; partialTile < partialCount;
+         partialTile += 32u)
+        fgmresCompensatedAdd(normLocal, normCorrection,
+            partials[normPartialBase + partialTile]);
+    const float norm2 = simd_sum(normLocal);
+    if (lane != 0u) return;
+    const float norm = sqrt(max(norm2, 0.0f));
+    // Preserve the unrotated Arnoldi subdiagonal outside H: the current
+    // Givens rotation zeros H[column+1,column], while normalize still needs
+    // the true post-CGS2 norm.
+    partials[normPartialBase] = norm;
+    for (uint row = 0u; row <= column; ++row) {
+        const uint matrixIndex = fgmresMatrixIndex(
+            environment, row, column);
+        const float correction = partials[
+            fgmresOrthogonalPartialIndex(
+                environment, 1u, row, 0u, partialCount)];
+        hessenberg[matrixIndex] += correction;
+    }
+    hessenberg[fgmresMatrixIndex(
+        environment, column + 1u, column)] = norm;
+    for (uint previous = 0u; previous < column; ++previous) {
+        const float2 rotation = rotations[
+            environment * NM_MIXED_FGMRES_RESTART + previous];
+        const uint upperIndex = fgmresMatrixIndex(
+            environment, previous, column);
+        const uint lowerIndex = fgmresMatrixIndex(
+            environment, previous + 1u, column);
+        const float upper = hessenberg[upperIndex];
+        const float lower = hessenberg[lowerIndex];
+        hessenberg[upperIndex] = rotation.x * upper + rotation.y * lower;
+        hessenberg[lowerIndex] = -rotation.y * upper + rotation.x * lower;
+    }
+    const uint diagonalIndex = fgmresMatrixIndex(
+        environment, column, column);
+    const uint subdiagonalIndex = fgmresMatrixIndex(
+        environment, column + 1u, column);
+    const float diagonal = hessenberg[diagonalIndex];
+    const float subdiagonal = hessenberg[subdiagonalIndex];
+    const float magnitude = sqrt(
+        diagonal * diagonal + subdiagonal * subdiagonal);
+    const float2 rotation = magnitude > 1.0e-30f
+        ? float2(diagonal / magnitude, subdiagonal / magnitude)
+        : float2(1.0f, 0.0f);
+    rotations[environment * NM_MIXED_FGMRES_RESTART + column] = rotation;
+    hessenberg[diagonalIndex] = magnitude;
+    hessenberg[subdiagonalIndex] = 0.0f;
+    const uint g0 = fgmresVectorIndex(environment, column);
+    const uint g1 = fgmresVectorIndex(environment, column + 1u);
+    const float upper = leastSquares[g0];
+    const float lower = leastSquares[g1];
+    leastSquares[g0] = rotation.x * upper + rotation.y * lower;
+    leastSquares[g1] = -rotation.y * upper + rotation.x * lower;
+    const float residual = abs(leastSquares[g1]);
+    device NMFGMRESStateGPU& state = states[environment];
+    state.diagnostics.x = residual;
+    state.diagnostics.w = float(column + 1u);
+    state.diagnostics.z = residual == 0.0f || residual <=
+        fgmresResidualTarget(
+            layout.vascularUnknownCount,
+            layout.vascularResidualTolerance,
+            forcing,
+            solver.residualTolerances.x,
+            state.diagnostics.y)
+        ? 1.0f : 0.0f;
+    if (dispatch.environmentCount == 1u) {
+        const bool nextColumnActive = state.diagnostics.z <= 0.5f;
+        nodeActiveDispatch[0] = {
+            nextColumnActive
+                ? (dispatch.femNodeCount + 255u) / 256u : 0u,
+            1u, 1u, 0u
+        };
+        elementActiveDispatch[0] = {
+            nextColumnActive
+                ? (dispatch.tetrahedronCount + 255u) / 256u : 0u,
+            1u, 1u, 0u
+        };
+    }
+}
+
+// This separate launch reads the immutable column-count predicate written by
+// finish_column. Convergence may change there, so using diagnostics.z as an
+// in-kernel activity guard would race across threadgroups.
+kernel void nm_fgmres_cgs2_normalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant uint& column [[buffer(1)]],
+    device const float4* work [[buffer(2)]],
+    device float4* nextBasis [[buffer(3)]],
+    device const float* partials [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (states[environment].diagnostics.w != float(column + 1u)) return;
+    const uint partialCount = fgmresOrthogonalPartialCount(dispatch, layout);
+    const float norm = partials[fgmresOrthogonalPartialIndex(
+        environment, 1u, NM_MIXED_FGMRES_RESTART, 0u, partialCount)];
+    const float inverseNorm = isfinite(norm) && norm > 1.0e-30f
+        ? 1.0f / norm : 0.0f;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+    if (!fgmresTransportUnknownsActive(layout) &&
+        item < dispatch.femNodeCount) {
+        const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+        nextBasis[totalNodes + environment * dispatch.femNodeCount + item] =
+            float4(0.0f);
+    }
+    if (item >= itemCount) return;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    const float4 value = fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, work);
+    const float4 normalized = value * inverseNorm;
+    if (fgmresOrthogonalItemIsRigid(dispatch, layout, item))
+        nextBasis[index] = float4(normalized.x, 0.0f, 0.0f, 0.0f);
+    else
+        nextBasis[index] = normalized;
+}
+
+// Distributed reductions for the global FGMRES measurements. Legacy entrypoints
+// remain unchanged; the host dispatches partials before each finish pass and
+// allocates float4 scratch for envCount * max(metricTileCounts) entries.
+constant uint kFGMRESMeasurementTileItems = 256u;
+constant uint kFGMRESMeasurementSIMDGroups = 8u;
+
+inline uint fgmresMeasurementTileCount(const uint itemCount) {
+    return max(1u, (itemCount + kFGMRESMeasurementTileItems - 1u) /
+        kFGMRESMeasurementTileItems);
+}
+
+inline float4 fgmresMeasurementReduceTile(
+    const float sumValue,
+    const float maxValue,
+    const bool allValid,
+    threadgroup float* sumGroups,
+    threadgroup float* maxGroups,
+    threadgroup uint* validGroups,
+    const uint lane,
+    const uint simdLane,
+    const uint simdGroup
+) {
+    const float simdSum = simd_sum(sumValue);
+    const float simdMaximum = simd_max(maxValue);
+    const bool simdValid = simd_all(allValid);
+    if (simdLane == 0u) {
+        sumGroups[simdGroup] = simdSum;
+        maxGroups[simdGroup] = simdMaximum;
+        validGroups[simdGroup] = simdValid ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        float sum = 0.0f;
+        float correction = 0.0f;
+        float maximum = 0.0f;
+        uint valid = 1u;
+        for (uint group = 0u; group < kFGMRESMeasurementSIMDGroups; ++group) {
+            fgmresCompensatedAdd(sum, correction, sumGroups[group]);
+            maximum = max(maximum, maxGroups[group]);
+            valid &= validGroups[group];
+        }
+        sumGroups[kFGMRESMeasurementSIMDGroups] = sum;
+        maxGroups[kFGMRESMeasurementSIMDGroups] = maximum;
+        validGroups[kFGMRESMeasurementSIMDGroups] = valid;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const float4 result = float4(
+        sumGroups[kFGMRESMeasurementSIMDGroups],
+        maxGroups[kFGMRESMeasurementSIMDGroups],
+        float(validGroups[kFGMRESMeasurementSIMDGroups]), 0.0f);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return result;
+}
+
+inline uint fgmresBeginMeasurementItemCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    return fgmresOrthogonalItemCount(dispatch, layout) +
+        dispatch.rigidProxyCount;
+}
+
+inline uint fgmresCorrectionMeasurementItemCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    return dispatch.femNodeCount + dispatch.mpmActiveNodeCapacity +
+        dispatch.rigidGeneralizedCapacity + layout.vascularUnknownCount;
+}
+
+inline uint fgmresTrueResidualMeasurementItemCount(
+    const NMMatterDispatchGPU dispatch
+) {
+    return 2u * dispatch.femNodeCount +
+        min(dispatch.rigidGeneralizedCapacity, 6u);
+}
+
+inline bool fgmresTrueResidualHasInvalidDispatch(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    const bool hasFreeRigidTail = dispatch.rigidGeneralizedCapacity != 0u;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint expectedUnknownCount = 2u * totalNodes +
+        6u * dispatch.environmentCount;
+    return hasFreeRigidTail &&
+        (dispatch.rigidGeneralizedCapacity != 6u ||
+         dispatch.rigidQCapacity != 0u ||
+         dispatch.mpmActiveNodeCapacity != 0u ||
+         layout.unknownCount != expectedUnknownCount);
+}
+
+// Each tile covers the established FGMRES vector rows followed by rigid proxy
+// speeds. Norm/speed use the existing active predicate; support admissibility
+// remains unconditional, matching nm_fgmres_begin.
+kernel void nm_fgmres_begin_distributed_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const float4* residual [[buffer(3)]],
+    device float4* basis0 [[buffer(4)]],
+    device float* hessenberg [[buffer(5)]],
+    device float2* rotations [[buffer(6)]],
+    device float* leastSquares [[buffer(7)]],
+    device NMFGMRESStateGPU* states [[buffer(8)]],
+    device const NMMatterStatusGPU* statuses [[buffer(9)]],
+    constant NMMicrostepGPU& microstep [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    constant NMPrimalContactArguments& contact [[buffer(13)]],
+    constant uint& restartCycle [[buffer(14)]],
+    constant float& forcing [[buffer(15)]],
+    constant uint& nonlinearIteration [[buffer(16)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
+    device const float* rigidCandidate [[buffer(18)]],
+    device const float4* supportHistories [[buffer(19)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(20)]],
+    device const NMHumanSupportContactGPU* supportContacts [[buffer(21)]],
+    device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(22)]],
+    device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
+    device float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint itemCount = fgmresBeginMeasurementItemCount(dispatch, layout);
+    const uint tilesPerEnvironment = fgmresMeasurementTileCount(itemCount);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    const bool completed = restartCycle > 0u &&
+        states[environment].diagnostics.z > 0.5f;
+    const bool active = environmentHealthy(statuses, environment) && !completed;
+    const uint item = tile * kFGMRESMeasurementTileItems + lane;
+    const uint unknownItemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    float normContribution = 0.0f;
+    float speedSquared = 0.0f;
+    bool supportAdmissible = true;
+    if (item < unknownItemCount) {
+        const uint index = fgmresOrthogonalVectorIndex(
+            dispatch, layout, environment, item);
+        if (active && index != NM_INVALID_INDEX) {
+            const float4 value = fgmresOrthogonalLoad(
+                dispatch, layout, environment, item, residual);
+            normContribution = dot(value, value);
+            const uint transportCount = fgmresTransportUnknownsActive(layout)
+                ? dispatch.femNodeCount : 0u;
+            const uint rigidStart = dispatch.femNodeCount + transportCount +
+                dispatch.mpmActiveNodeCapacity;
+            if (item < dispatch.femNodeCount) {
+                speedSquared = length_squared(candidateNodes[
+                    environment * dispatch.femNodeCount + item]
+                    .velocityAndInverseMass.xyz);
+            } else if (item >= rigidStart &&
+                       item - rigidStart < dispatch.rigidGeneralizedCapacity) {
+                const uint dof = item - rigidStart;
+                const float candidateValue = rigidCandidate[
+                    environment * dispatch.rigidGeneralizedCapacity + dof];
+                speedSquared = candidateValue * candidateValue;
+            }
+        }
+        const uint supportStart = dispatch.femNodeCount +
+            (fgmresTransportUnknownsActive(layout)
+                ? dispatch.femNodeCount : 0u) +
+            dispatch.mpmActiveNodeCapacity + dispatch.rigidGeneralizedCapacity;
+        if (item >= supportStart &&
+            item - supportStart < layout.supportContactCount) {
+            const uint local = item - supportStart;
+            const float4 history = supportHistories[
+                environment * layout.supportContactCount + local];
+            const float friction =
+                supportContacts[local].frictionSlopAndStabilization.x;
+            supportAdmissible = humanSupportStoredHistoryAdmissible(
+                history, support.groundNormal.xyz, friction, false);
+        }
+    } else if (item - unknownItemCount < dispatch.rigidProxyCount && active) {
+        const uint proxy = item - unknownItemCount;
+        const NMRigidStateGPU rigid = contact.rigidStates[
+            environment * dispatch.rigidProxyCount + proxy];
+        speedSquared = max(
+            length_squared(rigid.linearVelocityAndInverseMass.xyz),
+            length_squared(rigid.angularVelocity.xyz));
+    }
+    threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup uint validGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    const float4 tileValue = fgmresMeasurementReduceTile(
+        normContribution, speedSquared, supportAdmissible,
+        sumGroups, maxGroups, validGroups, lane, simdLane, simdGroup);
+    if (lane == 0u)
+        partials[environment * tilesPerEnvironment + tile] = tileValue;
+}
+
+// Compact begin finalizer preserves the nonlinear latch, support gate,
+// forcing target, history reset, and root-local indirect-dispatch state.
+kernel void nm_fgmres_begin_distributed_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const float4* residual [[buffer(3)]],
+    device float4* basis0 [[buffer(4)]],
+    device float* hessenberg [[buffer(5)]],
+    device float2* rotations [[buffer(6)]],
+    device float* leastSquares [[buffer(7)]],
+    device NMFGMRESStateGPU* states [[buffer(8)]],
+    device const NMMatterStatusGPU* statuses [[buffer(9)]],
+    constant NMMicrostepGPU& microstep [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    constant NMPrimalContactArguments& contact [[buffer(13)]],
+    constant uint& restartCycle [[buffer(14)]],
+    constant float& forcing [[buffer(15)]],
+    constant uint& nonlinearIteration [[buffer(16)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
+    device const float* rigidCandidate [[buffer(18)]],
+    device const float4* supportHistories [[buffer(19)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(20)]],
+    device const NMHumanSupportContactGPU* supportContacts [[buffer(21)]],
+    device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(22)]],
+    device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
+    device float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u) return;
+    const uint environment = group;
+    const uint tilesPerEnvironment = fgmresMeasurementTileCount(
+        fgmresBeginMeasurementItemCount(dispatch, layout));
+    float localNorm2 = 0.0f;
+    float normCorrection = 0.0f;
+    float localMaximumSpeedSquared = 0.0f;
+    bool localSupportAdmissible = true;
+    for (uint tile = lane; tile < tilesPerEnvironment; tile += 32u) {
+        const float4 value = partials[environment * tilesPerEnvironment + tile];
+        fgmresCompensatedAdd(localNorm2, normCorrection, value.x);
+        localMaximumSpeedSquared = max(localMaximumSpeedSquared, value.y);
+        localSupportAdmissible = localSupportAdmissible && value.z > 0.5f;
+    }
+    const float norm2 = simd_sum(localNorm2);
+    const float maximumCandidateSpeedSquared = simd_max(localMaximumSpeedSquared);
+    const bool supportAdmissible = simd_all(localSupportAdmissible);
+    // Lane zero reuses the first tile as the collapsed scalar record below.
+    // Wait for every SIMD group to finish reading its assigned tile first.
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const float4 previousDiagnostics = states[environment].diagnostics;
+    const float4 previousNonlinear = states[environment].nonlinear;
+    const bool completed = restartCycle > 0u && previousDiagnostics.z > 0.5f;
+    const bool active = environmentHealthy(statuses, environment) && !completed;
+    const uint matrixSize =
+        (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART;
+    for (uint index = lane; index < matrixSize; index += 32u)
+        hessenberg[environment * matrixSize + index] = 0.0f;
+    for (uint index = lane; index < NM_MIXED_FGMRES_RESTART; index += 32u)
+        rotations[environment * NM_MIXED_FGMRES_RESTART + index] =
+            float2(1.0f, 0.0f);
+    for (uint index = lane; index < NM_MIXED_FGMRES_RESTART + 1u; index += 32u)
+        leastSquares[fgmresVectorIndex(environment, index)] = 0.0f;
+    threadgroup_barrier(mem_flags::mem_device);
+    const float norm = sqrt(max(norm2, 0.0f));
+    const float initialNorm = restartCycle == 0u ? norm : previousDiagnostics.y;
+    const float firstNewtonNorm = nonlinearIteration == 0u && restartCycle == 0u
+        ? norm : previousNonlinear.x;
+    const bool hasActiveContact = layout.supportContactCount > 0u ||
+        contact.activeCounts[environment] > 0u ||
+        contact.deformableActiveCounts[environment] > 0u;
+    const bool correctionFinite = nonlinearIteration > 1u &&
+        isfinite(previousNonlinear.z);
+    const float mechanicalNonlinearThreshold = max(
+        solver.regularization.x,
+        solver.residualTolerances.x * max(min(firstNewtonNorm, norm), 1.0f));
+    const float nonlinearThreshold = layout.vascularUnknownCount == 0u
+        ? mechanicalNonlinearThreshold
+        : min(mechanicalNonlinearThreshold, layout.vascularResidualTolerance);
+    const bool contactFreeStaticRest = nonlinearIteration == 0u &&
+        !hasActiveContact && maximumCandidateSpeedSquared == 0.0f &&
+        all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
+    const bool nonlinearConverged = restartCycle == 0u &&
+        (correctionFinite || contactFreeStaticRest) &&
+        norm <= nonlinearThreshold && supportAdmissible;
+    const bool completedNonlinearLatch = nonlinearConverged ||
+        (restartCycle > 0u && completed && previousNonlinear.w > 0.5f);
+    if (lane == 0u) {
+        const float target = fgmresResidualTarget(
+            layout.vascularUnknownCount, layout.vascularResidualTolerance,
+            forcing, solver.residualTolerances.x, initialNorm);
+        const bool converged = completed || nonlinearConverged || norm <= target;
+        leastSquares[fgmresVectorIndex(environment, 0u)] =
+            completed ? 0.0f : norm;
+        states[environment].diagnostics = float4(
+            completed ? previousDiagnostics.x : norm,
+            initialNorm, converged ? 1.0f : 0.0f, 0.0f);
+        states[environment].nonlinear = float4(
+            firstNewtonNorm, restartCycle == 0u ? norm : previousNonlinear.y,
+            nonlinearConverged && contactFreeStaticRest ? 0.0f :
+                (nonlinearIteration == 0u && restartCycle == 0u
+                    ? INFINITY : previousNonlinear.z),
+            completedNonlinearLatch ? 1.0f : 0.0f);
+        if (dispatch.environmentCount == 1u) {
+            const bool columnActive = active && !converged;
+            nodeActiveDispatch[0] = {
+                columnActive ? (dispatch.femNodeCount + 255u) / 256u : 0u,
+                1u, 1u, 0u};
+            elementActiveDispatch[0] = {
+                columnActive ? (dispatch.tetrahedronCount + 255u) / 256u : 0u,
+                1u, 1u, 0u};
+        }
+        partials[environment * tilesPerEnvironment] = float4(
+            norm2, maximumCandidateSpeedSquared,
+            supportAdmissible ? 1.0f : 0.0f, 0.0f);
+    }
+}
+
+// Separately tiled basis initialization. The host dispatches this after the
+// begin finalizer; full-state projection remains unimplemented and unsupported.
+kernel void nm_fgmres_begin_distributed_basis0(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const float4* residual [[buffer(3)]],
+    device float4* basis0 [[buffer(4)]],
+    device float* hessenberg [[buffer(5)]],
+    device float2* rotations [[buffer(6)]],
+    device float* leastSquares [[buffer(7)]],
+    device NMFGMRESStateGPU* states [[buffer(8)]],
+    device const NMMatterStatusGPU* statuses [[buffer(9)]],
+    constant NMMicrostepGPU& microstep [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    constant NMPrimalContactArguments& contact [[buffer(13)]],
+    constant uint& restartCycle [[buffer(14)]],
+    constant float& forcing [[buffer(15)]],
+    constant uint& nonlinearIteration [[buffer(16)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
+    device const float* rigidCandidate [[buffer(18)]],
+    device const float4* supportHistories [[buffer(19)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(20)]],
+    device const NMHumanSupportContactGPU* supportContacts [[buffer(21)]],
+    device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(22)]],
+    device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
+    device const float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tiles = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tiles;
+    if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
+    const uint environment = group / tiles;
+    const uint tile = group - environment * tiles;
+    if (!environmentHealthy(statuses, environment) ||
+        states[environment].diagnostics.z > 0.5f) return;
+    const uint beginTiles = fgmresMeasurementTileCount(
+        fgmresBeginMeasurementItemCount(dispatch, layout));
+    const float4 measurement = partials[environment * beginTiles];
+    const float norm = sqrt(max(measurement.x, 0.0f));
+    const float target = fgmresResidualTarget(
+        layout.vascularUnknownCount, layout.vascularResidualTolerance,
+        forcing, solver.residualTolerances.x, states[environment].diagnostics.y);
+    if (norm == 0.0f || norm <= target) return;
+    const uint item = tile * kFGMRESMeasurementTileItems + lane;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (!fgmresTransportUnknownsActive(layout) &&
+        item < dispatch.femNodeCount)
+        basis0[totalNodes + environment * dispatch.femNodeCount + item] =
+            float4(0.0f);
+    if (item >= itemCount) return;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
+    basis0[index] = fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, residual) * inverseNorm;
+}
+
+// Distributed correction ratio with the legacy node/pressure/field, active-MPM,
+// rigid, and vascular masks. The finish pass writes only nonlinear.z.
+kernel void nm_fgmres_correction_distributed_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* solution [[buffer(3)]],
+    device NMFGMRESStateGPU* states [[buffer(4)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(5)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(7)]],
+    device const uint* mpmActiveIndices [[buffer(8)]],
+    device const uint* mpmActiveCounts [[buffer(9)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(11)]],
+    device const float4* vascularCandidate [[buffer(12)]],
+    device float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint itemCount = fgmresCorrectionMeasurementItemCount(dispatch, layout);
+    const uint tilesPerEnvironment = fgmresMeasurementTileCount(itemCount);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    const uint item = tile * kFGMRESMeasurementTileItems + lane;
+    float ratio = 0.0f;
+    if (item < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + item;
+        ratio = max(ratio, length(solution[node].xyz) / max(
+            length(candidate[node].velocityAndInverseMass.xyz), 1.0f));
+        const uint objectIndex = nodeRanges[node].objectIndex;
+        if (objectIndex < dispatch.objectCount) {
+            const NMContinuumObjectGPU object = objects[objectIndex];
+            if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                object.materialIndex < dispatch.mixedMaterialCount) {
+                const float pressureCorrection =
+                    mixedMaterials[object.materialIndex].mechanics.x *
+                    solution[node].w;
+                ratio = max(ratio, abs(pressureCorrection) /
+                    max(abs(fields[node].primary.x), 1.0f));
+            }
+        }
+        const float4 field = float4(
+            fields[node].primary.yzw, fields[node].secondary.x);
+        ratio = max(ratio,
+            length(solution[dispatch.environmentCount * dispatch.femNodeCount +
+                            node]) / max(length(field), 1.0f));
+    } else {
+        uint local = item - dispatch.femNodeCount;
+        if (local < dispatch.mpmActiveNodeCapacity) {
+            const uint activeMPM = min(
+                mpmActiveCounts[environment], dispatch.mpmActiveNodeCapacity);
+            if (local < activeMPM) {
+                const uint nodeIndex = mpmActiveIndices[
+                    environment * dispatch.mpmActiveNodeCapacity + local];
+                if (nodeIndex >= dispatch.gridNodeCount) {
+                    ratio = INFINITY;
+                } else {
+                    const NMGridNodeStateGPU node = mpmNodes[
+                        environment * dispatch.gridNodeCount + nodeIndex];
+                    ratio = length(solution[fgmresMPMIndex(
+                        dispatch, environment, local)].xyz) / max(
+                            length(node.candidateVelocity.xyz), 1.0f);
+                }
+            }
+        } else {
+            local -= dispatch.mpmActiveNodeCapacity;
+            if (local < dispatch.rigidGeneralizedCapacity) {
+                ratio = abs(solution[fgmresRigidIndex(
+                    dispatch, environment, local)].x);
+            } else {
+                local -= dispatch.rigidGeneralizedCapacity;
+                if (local < layout.vascularUnknownCount) {
+                    const uint row = environment * layout.vascularUnknownCount + local;
+                    ratio = abs(solution[layout.vascularBase + row].x) /
+                        max(abs(vascularCandidate[row].x), 1.0f);
+                }
+            }
+        }
+    }
+    threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup uint validGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    const float4 tileValue = fgmresMeasurementReduceTile(
+        0.0f, ratio, true, sumGroups, maxGroups, validGroups,
+        lane, simdLane, simdGroup);
+    if (lane == 0u)
+        partials[environment * tilesPerEnvironment + tile] =
+            float4(tileValue.y, 0.0f, 0.0f, 0.0f);
+}
+
+kernel void nm_fgmres_correction_distributed_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* solution [[buffer(3)]],
+    device NMFGMRESStateGPU* states [[buffer(4)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(5)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(7)]],
+    device const uint* mpmActiveIndices [[buffer(8)]],
+    device const uint* mpmActiveCounts [[buffer(9)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(11)]],
+    device const float4* vascularCandidate [[buffer(12)]],
+    device const float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u) return;
+    const uint environment = group;
+    const uint tiles = fgmresMeasurementTileCount(
+        fgmresCorrectionMeasurementItemCount(dispatch, layout));
+    float localMaximum = 0.0f;
+    for (uint tile = lane; tile < tiles; tile += 32u)
+        localMaximum = max(localMaximum,
+            partials[environment * tiles + tile].x);
+    const float maximum = simd_max(localMaximum);
+    if (lane == 0u) states[environment].nonlinear.z = maximum;
+}
+
+// Distributed true-residual measurement. The partial pass is read-only. The
+// finish pass applies the legacy dispatch/nonfinite/forcing gates and status
+// propagation. Optional replacement is a later guarded pass.
+kernel void nm_fgmres_true_residual_distributed_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* rightHandSide [[buffer(2)]],
+    device const float4* operatorValue [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* metrics [[buffer(6)]],
+    constant float& forcing [[buffer(7)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+    constant uint& replaceResidual [[buffer(9)]],
+    device NMMatterStatusGPU* productionStatuses [[buffer(10)]],
+    constant uint& propagateFailure [[buffer(11)]],
+    device float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint itemCount = fgmresTrueResidualMeasurementItemCount(dispatch);
+    const uint tilesPerEnvironment = fgmresMeasurementTileCount(itemCount);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (!environmentHealthy(diagnosticStatuses, environment) ||
+        fgmresTrueResidualHasInvalidDispatch(dispatch, layout)) return;
+    const uint item = tile * kFGMRESMeasurementTileItems + lane;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint fieldBase = totalNodes + nodeBase;
+    float sumContribution = 0.0f;
+    float maximumAbsolute = 0.0f;
+    bool finiteResidual = true;
+    if (item < itemCount) {
+    if (item < dispatch.femNodeCount) {
+        const float4 value = rightHandSide[nodeBase + item] -
+            operatorValue[nodeBase + item];
+        finiteResidual = all(isfinite(value));
+        sumContribution = dot(value, value);
+        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+                                  max(abs(value.z), abs(value.w))), 0.0f);
+    } else if (item < 2u * dispatch.femNodeCount) {
+        const uint local = item - dispatch.femNodeCount;
+        const float4 value = rightHandSide[fieldBase + local] -
+            operatorValue[fieldBase + local];
+        finiteResidual = all(isfinite(value));
+        sumContribution = dot(value, value);
+        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+                                  max(abs(value.z), abs(value.w))), 0.0f);
+    } else {
+        const uint dof = item - 2u * dispatch.femNodeCount;
+        const uint row = fgmresRigidIndex(dispatch, environment, dof);
+        const float4 value = rightHandSide[row] - operatorValue[row];
+        finiteResidual = all(isfinite(value));
+        sumContribution = value.x * value.x;
+        maximumAbsolute = abs(value.x);
+    }
+    }
+    threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    threadgroup uint validGroups[kFGMRESMeasurementSIMDGroups + 1u];
+    const float4 tileValue = fgmresMeasurementReduceTile(
+        sumContribution, maximumAbsolute, finiteResidual,
+        sumGroups, maxGroups, validGroups, lane, simdLane, simdGroup);
+    if (lane == 0u)
+        partials[environment * tilesPerEnvironment + tile] = tileValue;
+}
+
+kernel void nm_fgmres_true_residual_distributed_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* rightHandSide [[buffer(2)]],
+    device const float4* operatorValue [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* metrics [[buffer(6)]],
+    constant float& forcing [[buffer(7)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+    constant uint& replaceResidual [[buffer(9)]],
+    device NMMatterStatusGPU* productionStatuses [[buffer(10)]],
+    constant uint& propagateFailure [[buffer(11)]],
+    device const float4* partials [[buffer(24)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (!environmentHealthy(diagnosticStatuses, environment)) {
+        if (lane == 0u && propagateFailure != 0u &&
+            environmentHealthy(productionStatuses, environment))
+            productionStatuses[environment] = diagnosticStatuses[environment];
+        return;
+    }
+    if (fgmresTrueResidualHasInvalidDispatch(dispatch, layout)) {
+        if (lane == 0u) {
+            const uint expectedUnknownCount =
+                2u * dispatch.environmentCount * dispatch.femNodeCount +
+                6u * dispatch.environmentCount;
+            const float4 failureDiagnostics = float4(
+                float(layout.unknownCount), float(expectedUnknownCount),
+                float(dispatch.rigidGeneralizedCapacity),
+                float(dispatch.mpmActiveNodeCapacity));
+            recordFailure(diagnosticStatuses[environment],
+                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
+                failureDiagnostics);
+            if (propagateFailure != 0u)
+                recordFailure(productionStatuses[environment],
+                    NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
+                    failureDiagnostics);
+        }
+        return;
+    }
+    const uint tiles = fgmresMeasurementTileCount(
+        fgmresTrueResidualMeasurementItemCount(dispatch));
+    float localNorm2 = 0.0f;
+    float normCorrection = 0.0f;
+    float localMaximumAbsolute = 0.0f;
+    bool localFinite = true;
+    for (uint tile = lane; tile < tiles; tile += 32u) {
+        const float4 value = partials[environment * tiles + tile];
+        fgmresCompensatedAdd(localNorm2, normCorrection, value.x);
+        localMaximumAbsolute = max(localMaximumAbsolute, value.y);
+        localFinite = localFinite && value.z > 0.5f;
+    }
+    const float norm2 = simd_sum(localNorm2);
+    const float maximumAbsolute = simd_max(localMaximumAbsolute);
+    const bool validMetrics = simd_all(localFinite) && isfinite(norm2) &&
+        norm2 >= 0.0f && isfinite(maximumAbsolute) && isfinite(forcing) &&
+        isfinite(states[environment].diagnostics.x) &&
+        states[environment].diagnostics.x >= 0.0f &&
+        isfinite(states[environment].diagnostics.y) &&
+        states[environment].diagnostics.y >= 0.0f;
+    if (!validMetrics) {
+        if (lane == 0u) {
+            const float4 failureDiagnostics = float4(
+                norm2, maximumAbsolute, states[environment].diagnostics.x,
+                states[environment].diagnostics.y);
+            recordFailure(diagnosticStatuses[environment],
+                NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
+                NM_INVALID_INDEX, failureDiagnostics);
+            if (propagateFailure != 0u)
+                recordFailure(productionStatuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, NM_INVALID_INDEX,
+                    NM_INVALID_INDEX, failureDiagnostics);
+        }
+        return;
+    }
+    if (lane == 0u) {
+        device NMFGMRESStateGPU& state = states[environment];
+        const float trueNorm = sqrt(max(norm2, 0.0f));
+        const float arnoldiEstimate = state.diagnostics.x;
+        const float initialNorm = state.diagnostics.y;
+        const float target = fgmresResidualTarget(
+            layout.vascularUnknownCount, layout.vascularResidualTolerance,
+            forcing, solver.residualTolerances.x, initialNorm);
+        if (replaceResidual != 0u) {
+            state.diagnostics.x = trueNorm;
+            const float mechanicalNonlinearThreshold = max(
+                solver.regularization.x,
+                solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+            const float nonlinearThreshold = layout.vascularUnknownCount == 0u
+                ? mechanicalNonlinearThreshold
+                : min(mechanicalNonlinearThreshold,
+                      layout.vascularResidualTolerance);
+            const bool strictActiveRHS = (replaceResidual & 2u) != 0u &&
+                initialNorm > nonlinearThreshold;
+            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
+                (!strictActiveRHS && trueNorm <= nonlinearThreshold)
+                    ? 1.0f : 0.0f;
+        }
+        metrics[environment] = float4(
+            trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);
+    }
+}
+
+kernel void nm_fgmres_true_residual_distributed_replace(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* rightHandSide [[buffer(2)]],
+    device const float4* operatorValue [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* metrics [[buffer(6)]],
+    constant float& forcing [[buffer(7)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+    constant uint& replaceResidual [[buffer(9)]],
+    device NMMatterStatusGPU* productionStatuses [[buffer(10)]],
+    constant uint& propagateFailure [[buffer(11)]],
+    device const float4* partials [[buffer(24)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (replaceResidual == 0u) return;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < totalNodes) {
+        const uint environment = dispatch.femNodeCount == 0u ? 0u :
+            global / dispatch.femNodeCount;
+        if (environment >= dispatch.environmentCount ||
+            !environmentHealthy(diagnosticStatuses, environment)) return;
+        const uint field = totalNodes + global;
+        residual[global] = rightHandSide[global] - operatorValue[global];
+        residual[field] = rightHandSide[field] - operatorValue[field];
+        return;
+    }
+    const uint rigidItem = global - totalNodes;
+    if (dispatch.rigidGeneralizedCapacity == 0u ||
+        rigidItem >= 6u * dispatch.environmentCount) return;
+    const uint environment = rigidItem / 6u;
+    const uint dof = rigidItem - environment * 6u;
+    if (!environmentHealthy(diagnosticStatuses, environment)) return;
+    const uint row = fgmresRigidIndex(dispatch, environment, dof);
+    const float value = rightHandSide[row].x - operatorValue[row].x;
+    residual[row] = float4(value, 0.0f, 0.0f, 0.0f);
+    (void)layout;
+}
+
+// Root-local telemetry is kept outside the established solver-kernel ABIs.
+// The runtime dispatches this after nm_fgmres_begin, so it observes that
+// kernel's final convergence latch without adding a required legacy buffer.
+kernel void nm_fgmres_telemetry_begin(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& restartCycle [[buffer(3)]],
+    device NMFGMRESTelemetryGPU* telemetry [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment) ||
+        states[environment].diagnostics.z > 0.5f)
+        return;
+    if (restartCycle == 0u)
+        telemetry[environment].nonlinear.x += 1u;
+    else
+        telemetry[environment].nonlinear.y += 1u;
+}
+
+// The runtime dispatches this immediately before nm_fgmres_finalize_cycle.
+// One grid thread owns each environment's telemetry record, making the
+// observation deterministic without atomic or solver-state side effects.
+kernel void nm_fgmres_telemetry_finalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMFGMRESStateGPU* states [[buffer(2)]],
+    device NMFGMRESTelemetryGPU* telemetry [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint used = min(uint(states[environment].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
+    ));
+    telemetry[environment].linear.z += 1u;
+    if (used > 0u) {
+        telemetry[environment].linear.x += used;
+        telemetry[environment].linear.y += 1u;
+    }
+}
+
+// Conditional command-buffer range for the single-environment CGS2 graph.
+// Keep the nine statically encoded commands dormant after the scalar Arnoldi
+// finish has accepted convergence.
+kernel void nm_fgmres_cgs2_prepare_range(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    constant uint& commandCount [[buffer(2)]],
+    device uint2* range [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    const bool singleEnvironment = dispatch.environmentCount == 1u;
+    const bool active = singleEnvironment &&
+        states[0].diagnostics.z <= 0.5f;
+    range[0] = uint2(0u, active ? commandCount : 0u);
 }
 
 kernel void nm_fgmres_finalize_cycle(

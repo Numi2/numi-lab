@@ -56,6 +56,14 @@ int main() {
         require(fixture.total == sum(fixture),
                 "reported total must equal the named actual allocation inventory");
 
+        FullContactArmijoScratchBytes radixFixture;
+        require(estimateFullContactArmijoScratchBytes(
+                    1u, 1u, 1u, 1u, 1u, false, radixFixture, true),
+                "tiny radix surface estimate must succeed");
+        require(radixFixture.surfaceSortArrays == 3u * 16u + 16u * 4u &&
+                    radixFixture.total == sum(radixFixture),
+                "radix scratch stride must cover sixteen histogram words at P=1");
+
         FullContactArmijoScratchBytes empty;
         require(estimateFullContactArmijoScratchBytes(
                     1u, 0u, 0u, 0u, 0u, false, empty),

@@ -1,0 +1,14 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 259: matter.metal.fem_armijo_global_measurements
+1/1 Test #259: matter.metal.fem_armijo_global_measurements ...   Passed    0.29 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+armijo       =   0.29 sec*proc (1 test)
+matter       =   0.29 sec*proc (1 test)
+metal        =   0.29 sec*proc (1 test)
+reduction    =   0.29 sec*proc (1 test)
+synthetic    =   0.29 sec*proc (1 test)
+
+Total Test time (real) =   0.29 sec

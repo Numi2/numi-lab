@@ -1,0 +1,5 @@
+{
+  "exit_code": -15,
+  "process_wall_seconds": 180.226792249945,
+  "classification": "stopped_during_pipeline_initialization_no_accepted_root"
+}

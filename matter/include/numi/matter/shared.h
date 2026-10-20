@@ -1271,6 +1271,16 @@ typedef struct NM_ALIGN16 NMHumanSupportKKTGPU {
     nm_float4 projectionRow2;
 } NMHumanSupportKKTGPU;
 
+// Observational root-local totals. These counters never affect acceptance,
+// convergence, time or physical rollback. Unlike status.fgmresIterations,
+// linear.x is the SUM of columns used by all cycles in the encoded root.
+typedef struct NM_ALIGN16 NMFGMRESTelemetryGPU {
+    // used columns, cycles with work, encoded cycles, reserved.
+    nm_uint4 linear;
+    // active Newton starts, active restart starts, reserved, reserved.
+    nm_uint4 nonlinear;
+} NMFGMRESTelemetryGPU;
+
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // Current residual, initial residual, convergence flag, Arnoldi columns.
     nm_float4 diagnostics;

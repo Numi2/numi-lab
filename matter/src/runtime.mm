@@ -2631,6 +2631,8 @@ struct Runtime::State {
     id<MTLBuffer> deformableContactNodeCornerSortPayloads = nil;
     std::uint32_t deformableContactNodeCornerSortPaddedCapacity = 0u;
     bool deformableContactNodeIncidenceSortEnabled = false;
+    bool deformableContactNodeIncidenceRadixEnabled = false;
+    id<MTLBuffer> radixTileDispatch = nil;
     id<MTLBuffer> deformableContactActiveOffsets = nil;
     id<MTLBuffer> deformableContactGlobalActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveDispatch = nil;
@@ -2883,6 +2885,12 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoCohesiveFaces = nil;
     id<MTLBuffer> femArmijoCohesiveFaceForces = nil;
     id<MTLBuffer> femArmijoMetrics = nil;
+    bool femDistributedGlobalMeasurementsEnabled = false;
+    id<MTLBuffer> femArmijoNormPartials = nil;
+    id<MTLBuffer> femArmijoGeometryTiles = nil;
+    id<MTLBuffer> femArmijoGeometryRanges = nil;
+    id<MTLBuffer> femArmijoGeometryPartials = nil;
+    std::uint32_t femArmijoGeometryTileCount = 0u;
     id<MTLBuffer> femArmijoStatuses = nil;
     id<MTLBuffer> femArmijoContactSamples = nil;
     // Separate bounded contact samples for the larger static-BOX scoring slice.
@@ -2958,6 +2966,16 @@ struct Runtime::State {
     id<MTLBuffer> fgmresLeastSquares = nil;
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
+    id<MTLBuffer> fgmresTelemetry = nil;
+    bool fgmresDistributedCGS2Enabled = false;
+    bool fgmresCGS2ICBEnabled = false;
+    id<MTLBuffer> fgmresOrthogonalPartials = nil;
+    id<MTLBuffer> fgmresMeasurementPartials = nil;
+    id<MTLBuffer> fgmresCGS2ExecutionRange = nil;
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Commands{};
+    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Constants{};
+    std::array<float, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Forcing{};
+
     // Optional per-tetrahedron unsymmetric 9x9 material-frame dP/dF cache.
     // It is rebuilt at each Newton linearization and may feed FGMRES,
     // conditioning-only tangent preconditioners, and regional AP. Direct
@@ -3697,10 +3715,19 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->deformableContactNodeIncidenceSortEnabled =
             sortedNodeIncidence != nullptr;
+        const char* radixNodeIncidence = std::getenv("NM_CONTACT_NODE_INCIDENCE_RADIX");
+        if (radixNodeIncidence != nullptr &&
+            (std::strcmp(radixNodeIncidence, "1") != 0 || sortedNodeIncidence != nullptr)) {
+            diagnostics.message = "radix incidence requires value 1 and excludes bitonic sort";
+            return diagnostics;
+        }
+        candidate->deformableContactNodeIncidenceRadixEnabled = radixNodeIncidence != nullptr;
+        std::uint64_t sortedCornerKeyTotalCount = 0u;
         std::uint64_t sortedCornerLogicalCount = 0u;
         std::uint64_t sortedCornerPaddedCapacity = 0u;
         std::uint64_t sortedCornerTotalCount = 0u;
-        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+        if (candidate->deformableContactNodeIncidenceSortEnabled ||
+            candidate->deformableContactNodeIncidenceRadixEnabled) {
             const std::uint64_t contactCapacity =
                 world.dispatch.deformableContactCapacity;
             const std::uint64_t environments =
@@ -3740,7 +3767,20 @@ RuntimeDiagnostics Runtime::initialize(
             }
             sortedCornerTotalCount =
                 sortedCornerPaddedCapacity * environments;
-            if (sortedCornerTotalCount >
+            const std::uint64_t scanTiles = (nodeCount + 255u) / 256u;
+            const std::uint64_t histogramWords =
+                ((sortedCornerPaddedCapacity + 31u) / 32u) * 16u;
+            const std::uint64_t scratchWords =
+                candidate->deformableContactNodeIncidenceRadixEnabled
+                    ? std::max(scanTiles, histogramWords) : 0u;
+            const std::uint64_t keyStride = std::max(
+                sortedCornerPaddedCapacity, (scratchWords + 1u) / 2u);
+            if (keyStride > std::numeric_limits<std::uint64_t>::max() / environments) {
+                diagnostics.message = "radix scratch sizing overflows uint64";
+                return diagnostics;
+            }
+            sortedCornerKeyTotalCount = keyStride * environments;
+            if (sortedCornerKeyTotalCount >
                     std::numeric_limits<std::size_t>::max() /
                         sizeof(std::uint64_t) ||
                 sortedCornerTotalCount >
@@ -4073,6 +4113,22 @@ RuntimeDiagnostics Runtime::initialize(
                 "vascular principal block requires 1 through 64 vascular unknowns";
             return diagnostics;
         }
+        const char* distributedCGS2 = std::getenv("NM_FGMRES_DISTRIBUTED_CGS2");
+        const char* cgs2ICB = std::getenv("NM_FGMRES_CGS2_ICB");
+        if ((distributedCGS2 != nullptr && std::strcmp(distributedCGS2, "1") != 0) ||
+            (cgs2ICB != nullptr && (std::strcmp(cgs2ICB, "1") != 0 ||
+             distributedCGS2 == nullptr || world.dispatch.environmentCount != 1u))) {
+            diagnostics.message = "CGS2 requires explicit value 1; ICB requires CGS2 and one environment";
+            return diagnostics;
+        }
+        const char* distributedGlobals = std::getenv("NM_FEM_DISTRIBUTED_GLOBAL_MEASUREMENTS");
+        if (distributedGlobals != nullptr && std::strcmp(distributedGlobals, "1") != 0) {
+            diagnostics.message = "distributed global measurements require explicit value 1";
+            return diagnostics;
+        }
+        candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
+        candidate->fgmresDistributedCGS2Enabled = distributedCGS2 != nullptr;
+        candidate->fgmresCGS2ICBEnabled = cgs2ICB != nullptr;
         candidate->objectLayout = world.objects;
         candidate->mixedFieldObjectCount = static_cast<std::uint32_t>(
             std::count_if(world.objects.begin(), world.objects.end(),
@@ -4986,10 +5042,16 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
             "nm_fem_armijo_measure_base",
+            "nm_fem_armijo_measure_base_partial",
+            "nm_fem_armijo_measure_base_finish",
+            "nm_fem_armijo_measure_trial_partial",
+            "nm_fem_armijo_measure_trial_finish",
             "nm_fem_armijo_begin_trial",
             "nm_fem_armijo_begin_bounded_trial",
             "nm_fem_armijo_prepare_candidate",
             "nm_fem_armijo_validate_geometry",
+            "nm_fem_armijo_validate_geometry_tiles",
+            "nm_fem_armijo_validate_geometry_finish",
             "nm_fem_armijo_measure_trial",
             "nm_fem_armijo_capture_base_status",
             "nm_fem_operator_fd_initialize",
@@ -5040,6 +5102,16 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_clear_true_auxiliary",
             "nm_fgmres_measure_true_residual",
             "nm_fgmres_begin",
+            "nm_fgmres_begin_distributed_partial",
+            "nm_fgmres_begin_distributed_finish",
+            "nm_fgmres_begin_distributed_basis0",
+            "nm_fgmres_correction_distributed_partial",
+            "nm_fgmres_correction_distributed_finish",
+            "nm_fgmres_true_residual_distributed_partial",
+            "nm_fgmres_true_residual_distributed_finish",
+            "nm_fgmres_true_residual_distributed_replace",
+            "nm_fgmres_telemetry_begin",
+            "nm_fgmres_telemetry_finalize",
             "nm_fem_human_attachment_map_direction",
             "nm_fem_human_attachment_eliminate_direction",
             "nm_fem_human_attachment_capture_residual",
@@ -5174,6 +5246,13 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_add_cohesive_operator",
             "nm_fgmres_gather_nodes",
             "nm_fgmres_orthogonalize_and_finish_column",
+            "nm_fgmres_cgs2_partial",
+            "nm_fgmres_cgs2_reduce_row",
+            "nm_fgmres_cgs2_update",
+            "nm_fgmres_cgs2_measure_norm",
+            "nm_fgmres_cgs2_finish_column",
+            "nm_fgmres_cgs2_normalize",
+            "nm_fgmres_cgs2_prepare_range",
             "nm_fgmres_finalize_cycle",
             "nm_fgmres_accumulate",
             "nm_fgmres_capture_exact_deformable_actions",
@@ -5190,6 +5269,15 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_mark_armijo_surface_cache",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
+            "nm_contact_surface_morton_tile_bounds",
+            "nm_contact_surface_morton_bounds_reduce",
+            "nm_contact_surface_morton_scan_tile_counts",
+            "nm_contact_surface_morton_scan_block_offsets",
+            "nm_contact_surface_morton_scan_add_block_offsets",
+            "nm_contact_emit_surface_morton_records_parallel",
+            "nm_contact_surface_morton_radix_histogram",
+            "nm_contact_surface_morton_radix_prefix",
+            "nm_contact_surface_morton_radix_scatter",
             "nm_contact_build_surface_bvh_leaves",
             "nm_contact_build_surface_bvh_level",
             "nm_contact_count_deformable_candidates",
@@ -5206,6 +5294,15 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scan_deformable_node_incidence",
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_emit_deformable_node_corners",
+            "nm_contact_prepare_radix_tile_dispatch",
+            "nm_contact_deformable_node_radix_histogram",
+            "nm_contact_deformable_node_radix_prefix",
+            "nm_contact_deformable_node_radix_scatter",
+            "nm_contact_count_deformable_node_incidence_radix",
+            "nm_contact_copy_deformable_node_radix_result",
+            "nm_contact_scan_deformable_node_incidence_tiles",
+            "nm_contact_scan_deformable_node_incidence_tile_offsets",
+            "nm_contact_scan_deformable_node_incidence_add_tile_offsets",
             "nm_contact_bitonic_sort_deformable_node_corners",
             "nm_contact_count_deformable_node_incidence_sorted",
             "nm_contact_scatter_deformable_node_incidence_sorted",
@@ -5277,8 +5374,28 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
         };
+        const auto isRadixSurfaceKernel = [](const char* name) {
+            return std::strcmp(name, "nm_contact_surface_morton_tile_bounds") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_bounds_reduce") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_scan_tile_counts") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_scan_block_offsets") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_scan_add_block_offsets") == 0 ||
+                std::strcmp(name, "nm_contact_emit_surface_morton_records_parallel") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_radix_histogram") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_radix_prefix") == 0 ||
+                std::strcmp(name, "nm_contact_surface_morton_radix_scatter") == 0;
+        };
         const auto isSortedNodeIncidenceKernel = [](const char* name) {
-            return std::strcmp(name,
+            return std::strcmp(name, "nm_contact_prepare_radix_tile_dispatch") == 0 ||
+                std::strcmp(name, "nm_contact_deformable_node_radix_histogram") == 0 ||
+                std::strcmp(name, "nm_contact_deformable_node_radix_prefix") == 0 ||
+                std::strcmp(name, "nm_contact_deformable_node_radix_scatter") == 0 ||
+                std::strcmp(name, "nm_contact_count_deformable_node_incidence_radix") == 0 ||
+                std::strcmp(name, "nm_contact_copy_deformable_node_radix_result") == 0 ||
+                std::strcmp(name, "nm_contact_scan_deformable_node_incidence_tiles") == 0 ||
+                std::strcmp(name, "nm_contact_scan_deformable_node_incidence_tile_offsets") == 0 ||
+                std::strcmp(name, "nm_contact_scan_deformable_node_incidence_add_tile_offsets") == 0 ||
+                std::strcmp(name,
                        "nm_contact_emit_deformable_node_corners") == 0 ||
                 std::strcmp(name,
                        "nm_contact_bitonic_sort_deformable_node_corners") == 0 ||
@@ -5288,6 +5405,21 @@ RuntimeDiagnostics Runtime::initialize(
                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
         };
         for (const char* name : kernelNames) {
+            if (!candidate->femDistributedGlobalMeasurementsEnabled &&
+                (std::strncmp(name, "nm_fgmres_begin_distributed_", 27u) == 0 ||
+                 std::strncmp(name, "nm_fgmres_correction_distributed_", 32u) == 0 ||
+                 std::strncmp(name, "nm_fgmres_true_residual_distributed_", 35u) == 0))
+                continue;
+            if (!candidate->femDistributedGlobalMeasurementsEnabled &&
+                (std::strcmp(name, "nm_fem_armijo_measure_base_partial") == 0 ||
+                 std::strcmp(name, "nm_fem_armijo_measure_base_finish") == 0 ||
+                 std::strcmp(name, "nm_fem_armijo_measure_trial_partial") == 0 ||
+                 std::strcmp(name, "nm_fem_armijo_measure_trial_finish") == 0 ||
+                 std::strcmp(name, "nm_fem_armijo_validate_geometry_tiles") == 0 ||
+                 std::strcmp(name, "nm_fem_armijo_validate_geometry_finish") == 0))
+                continue;
+            if (!candidate->fgmresDistributedCGS2Enabled &&
+                std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) continue;
             if (!candidate->vascularBlockPredictorEnabled &&
                 std::strcmp(name, "nm_vascular_predictor_prepare") == 0)
                 continue;
@@ -5300,8 +5432,11 @@ RuntimeDiagnostics Runtime::initialize(
             // preconditioners, while preserving the complete selector-5 set.
             if (world.mixedSolver.executionBudgets.z != 5u &&
                 isGraphSchwarzKernel(name)) continue;
-            if (!candidate->deformableContactNodeIncidenceSortEnabled &&
+            if (!(candidate->deformableContactNodeIncidenceSortEnabled ||
+                  candidate->deformableContactNodeIncidenceRadixEnabled) &&
                 isSortedNodeIncidenceKernel(name)) continue;
+            if (!candidate->deformableContactNodeIncidenceRadixEnabled &&
+                isRadixSurfaceKernel(name)) continue;
             if (!candidate->femCacheProjectionReuseEnabled &&
                 std::strcmp(name,
                     "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic") == 0)
@@ -5311,15 +5446,27 @@ RuntimeDiagnostics Runtime::initialize(
                 diagnostics.message = std::string("missing Metal function ") + name;
                 return diagnostics;
             }
+            const bool tracePipeline = std::getenv("NUMI_MATTER_PIPELINE_TRACE") != nullptr;
+            if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_begin=%s\n", name);
             NSError* pipelineError = nil;
-            id<MTLComputePipelineState> pipeline = [candidate->device
-                newComputePipelineStateWithFunction:function
-                                               error:&pipelineError];
+            id<MTLComputePipelineState> pipeline = nil;
+            if (candidate->fgmresCGS2ICBEnabled &&
+                std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) {
+                MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
+                descriptor.computeFunction = function;
+                descriptor.supportIndirectCommandBuffers = YES;
+                pipeline = [candidate->device newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone reflection:nil error:&pipelineError];
+            } else {
+                pipeline = [candidate->device newComputePipelineStateWithFunction:function
+                    error:&pipelineError];
+            }
             if (pipeline == nil) {
                 diagnostics.message = std::string("failed to compile pipeline ") + name +
                     ": " + errorString(pipelineError);
                 return diagnostics;
             }
+            if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_end=%s\n", name);
             candidate->pipelines.emplace(name, pipeline);
         }
         for (const char* name : finalKernelNames) {
@@ -5751,6 +5898,48 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->scalarPrograms = uploads.one(
             std::span<const NMScalarProgramGPU>(world.scalarPrograms),
             valid, candidate->residentBytes);
+        if (candidate->femDistributedGlobalMeasurementsEnabled) {
+            std::vector<nm_uint4> tiles;
+            std::vector<std::array<std::uint32_t, 2>> ranges(world.objects.size());
+            for (std::size_t index = 0u; index < world.objects.size(); ++index) {
+                const auto& object = world.objects[index];
+                ranges[index] = {static_cast<std::uint32_t>(tiles.size()), 0u};
+                if (object.representation != NM_REPRESENTATION_FEM) continue;
+                if (std::uint64_t(object.elementOffset) + object.elementCount >
+                    world.dispatch.tetrahedronCount) {
+                    diagnostics.message = "distributed geometry object range exceeds tetrahedra";
+                    return diagnostics;
+                }
+                for (std::uint64_t first = object.elementOffset;
+                     first < std::uint64_t(object.elementOffset) + object.elementCount;
+                     first += 256u) {
+                    if (tiles.size() >= std::numeric_limits<std::uint32_t>::max()) {
+                        diagnostics.message = "distributed geometry tile count exceeds GPU addressing";
+                        return diagnostics;
+                    }
+                    tiles.push_back({static_cast<std::uint32_t>(index),
+                        static_cast<std::uint32_t>(first),
+                        static_cast<std::uint32_t>(std::min<std::uint64_t>(256u,
+                            std::uint64_t(object.elementOffset) + object.elementCount - first)),
+                        static_cast<std::uint32_t>(tiles.size())});
+                    ++ranges[index][1];
+                }
+            }
+            if (tiles.size() > std::numeric_limits<std::uint32_t>::max() / environments ||
+                tiles.size() > candidate->device.maxBufferLength / sizeof(nm_uint4) ||
+                tiles.size() * environments > candidate->device.maxBufferLength / 8u) {
+                diagnostics.message = "distributed geometry scratch exceeds GPU addressing";
+                return diagnostics;
+            }
+            candidate->femArmijoGeometryTileCount = static_cast<std::uint32_t>(tiles.size());
+            candidate->femArmijoGeometryTiles = uploads.one(
+                std::span<const nm_uint4>(tiles), valid, candidate->residentBytes);
+            candidate->femArmijoGeometryRanges = uploads.one(
+                std::span<const std::array<std::uint32_t, 2>>(ranges), valid, candidate->residentBytes);
+            candidate->femArmijoGeometryPartials = privateScratch<std::array<std::uint32_t, 2>>(
+                candidate->device, environments * std::max<std::size_t>(tiles.size(), 1u),
+                valid, candidate->residentBytes);
+        }
         candidate->objects = uploads.one(
             std::span<const NMContinuumObjectGPU>(world.objects),
             valid, candidate->residentBytes);
@@ -6395,9 +6584,13 @@ RuntimeDiagnostics Runtime::initialize(
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
-        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+        if (candidate->deformableContactNodeIncidenceRadixEnabled)
+            candidate->radixTileDispatch = privateScratch<NMIndirectDispatchGPU>(
+                candidate->device, 1u, valid, candidate->residentBytes);
+        if (candidate->deformableContactNodeIncidenceSortEnabled ||
+            candidate->deformableContactNodeIncidenceRadixEnabled) {
             const std::uint64_t keyBytes =
-                sortedCornerTotalCount * sizeof(std::uint64_t);
+                sortedCornerKeyTotalCount * sizeof(std::uint64_t);
             const std::uint64_t payloadBytes =
                 sortedCornerTotalCount * sizeof(std::uint32_t);
             if (keyBytes > candidate->device.maxBufferLength ||
@@ -6428,6 +6621,54 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::size_t>(surfacePrimitiveCount);
         const std::size_t surfacePrimitiveTotal =
             multiplied(perEnvironmentSurfacePrimitiveCount);
+        const bool surfaceMortonRadixEnabled =
+            candidate->deformableContactNodeIncidenceRadixEnabled;
+        const std::uint64_t surfaceMortonTileCount =
+            surfacePrimitiveCount / 32u +
+            (surfacePrimitiveCount % 32u != 0u ? 1u : 0u);
+        const std::uint64_t surfaceSortScratchStride =
+            surfaceMortonRadixEnabled
+                ? std::max(surfacePrimitiveCount,
+                    16ull * surfaceMortonTileCount)
+                : surfacePrimitiveCount;
+        if (surfaceSortScratchStride >
+                std::numeric_limits<std::uint32_t>::max() ||
+            (surfaceSortScratchStride != 0u && environments >
+                std::numeric_limits<std::uint64_t>::max() /
+                    surfaceSortScratchStride) ||
+            (surfaceMortonRadixEnabled && surfaceMortonTileCount >
+                (std::numeric_limits<std::uint64_t>::max() - 2u) / 2u)) {
+            diagnostics.message =
+                "contact surface radix scratch indexing exceeds checked runtime limits";
+            return diagnostics;
+        }
+        const std::uint64_t surfaceSortScratchTotal =
+            std::uint64_t(environments) * surfaceSortScratchStride;
+        const std::uint64_t surfaceMortonBoundsPerEnvironment =
+            surfaceMortonRadixEnabled
+                ? 2u * surfaceMortonTileCount + 2u : 0u;
+        if (surfaceMortonBoundsPerEnvironment != 0u &&
+            environments > std::numeric_limits<std::uint64_t>::max() /
+                surfaceMortonBoundsPerEnvironment) {
+            diagnostics.message =
+                "contact surface Morton bounds sidecar size overflows uint64";
+            return diagnostics;
+        }
+        const std::uint64_t surfaceMortonBoundsTotal =
+            std::uint64_t(environments) * surfaceMortonBoundsPerEnvironment;
+        if (surfaceMortonRadixEnabled &&
+            ((surfaceSortScratchTotal >
+                std::numeric_limits<std::size_t>::max() / sizeof(std::uint32_t)) ||
+             (surfaceSortScratchTotal * sizeof(std::uint32_t) >
+                candidate->device.maxBufferLength) ||
+             (surfaceMortonBoundsTotal >
+                std::numeric_limits<std::size_t>::max() / sizeof(nm_float4)) ||
+             (surfaceMortonBoundsTotal * sizeof(nm_float4) >
+                candidate->device.maxBufferLength))) {
+            diagnostics.message =
+                "contact surface radix scratch exceeds Metal buffer or host allocation limits";
+            return diagnostics;
+        }
         candidate->continuumSurfacePrimitives =
             privateScratch<NMContinuumSurfacePrimitiveGPU>(
                 candidate->device,
@@ -6445,6 +6686,12 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "surface contact hierarchy exceeds Metal element address space";
             return diagnostics;
         }
+        if (surfaceMortonRadixEnabled && surfacePrimitiveCount != 0u &&
+            surfaceMortonBoundsPerEnvironment > 4u * surfaceBVHLeafCount) {
+            diagnostics.message =
+                "contact surface BVH bounds arena cannot hold the transient Morton bounds sidecar";
+            return diagnostics;
+        }
         candidate->femSurfaceBVHLeafCount = static_cast<std::uint32_t>(surfaceBVHLeafCount);
         candidate->femSurfaceBVHBounds = privateScratch<nm_float4>(
             candidate->device, environments * 4ull * surfaceBVHLeafCount,
@@ -6453,7 +6700,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, surfacePrimitiveTotal,
             valid, candidate->residentBytes);
         candidate->femSurfaceSortKeysB = privateScratch<std::uint32_t>(
-            candidate->device, surfacePrimitiveTotal,
+            candidate->device,
+            static_cast<std::size_t>(surfaceSortScratchTotal),
             valid, candidate->residentBytes);
         candidate->femSurfaceSortIndicesA = privateScratch<std::uint32_t>(
             candidate->device, surfacePrimitiveTotal,
@@ -6514,10 +6762,11 @@ RuntimeDiagnostics Runtime::initialize(
                            world.dispatch.femNodeCount),
                 valid,
                 candidate->residentBytes);
-        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+        if (candidate->deformableContactNodeIncidenceSortEnabled ||
+            candidate->deformableContactNodeIncidenceRadixEnabled) {
             const std::uint64_t sortWorkspaceBytes =
-                sortedCornerTotalCount *
-                (sizeof(std::uint64_t) + sizeof(std::uint32_t));
+                sortedCornerKeyTotalCount * sizeof(std::uint64_t) +
+                sortedCornerTotalCount * sizeof(std::uint32_t);
             if (sortWorkspaceBytes >
                 std::numeric_limits<std::size_t>::max() -
                     candidate->residentBytes) {
@@ -6528,7 +6777,7 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->deformableContactNodeCornerSortKeys =
                 privateScratch<std::uint64_t>(
                     candidate->device,
-                    static_cast<std::size_t>(sortedCornerTotalCount),
+                    static_cast<std::size_t>(sortedCornerKeyTotalCount),
                     valid,
                     candidate->residentBytes);
             candidate->deformableContactNodeCornerSortPayloads =
@@ -6545,7 +6794,8 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             std::fprintf(stderr,
-                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"stable_corner_sort\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
+                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"%s\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
+                candidate->deformableContactNodeIncidenceRadixEnabled ? "active_corner_radix" : "stable_corner_sort",
                 world.dispatch.environmentCount,
                 world.dispatch.deformableContactCapacity,
                 static_cast<unsigned long long>(sortedCornerLogicalCount),
@@ -6900,6 +7150,11 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(mixedUnknownTotal - multiplied(
                 world.vascular.layout.ranges.z)),
             vascularTolerance, 0u};
+        // Transport equations are authored exclusively by multiphysics objects
+        // or explicit field boundaries. Pressure remains in mechanical .w.
+        if (candidate->fgmresDistributedCGS2Enabled &&
+            !candidate->mixedFieldSmoothingEnabled)
+            candidate->fgmresLayout.reserved |= 1u;
         if (candidate->femRegionalRestartAugmentationEnabled &&
             (candidate->humanSupportDispatch.contactCount != 0u ||
              candidate->humanEqualityDispatch.count != 0u ||
@@ -7220,6 +7475,13 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femArmijoMetrics = privateScratch<nm_float4>(
                 candidate->device, multiplied(1u),
                 valid, candidate->residentBytes);
+            if (candidate->femDistributedGlobalMeasurementsEnabled) {
+                const std::size_t rows = std::size_t(world.dispatch.femNodeCount) +
+                    world.dispatch.rigidGeneralizedCapacity;
+                const std::size_t tiles = std::max<std::size_t>(1u, (rows + 255u) / 256u);
+                candidate->femArmijoNormPartials = privateScratch<std::array<float, 2>>(
+                    candidate->device, multiplied(tiles), valid, candidate->residentBytes);
+            }
             candidate->femArmijoStatuses = privateScratch<NMMatterStatusGPU>(
                 candidate->device, multiplied(1u),
                 valid, candidate->residentBytes);
@@ -7565,7 +7827,8 @@ RuntimeDiagnostics Runtime::initialize(
                         environments, primitiveCount, leafCount, capacity,
                         nodeCount,
                         candidate->femArmijoAliasesProductionSurfaceScratch,
-                        scratchBytes);
+                        scratchBytes,
+                        candidate->deformableContactNodeIncidenceRadixEnabled);
                 if (scratchBytesValid && scratchBytes.total <=
                         maximumDeformableArmijoBytes) {
                     candidate->femArmijoDeformableContactScratchEnabled = true;
@@ -7600,7 +7863,7 @@ RuntimeDiagnostics Runtime::initialize(
                                 valid, candidate->residentBytes);
                         candidate->femArmijoSurfaceSortKeysB =
                             privateScratch<std::uint32_t>(candidate->device,
-                                multiplied(static_cast<std::size_t>(primitiveCount)),
+                                static_cast<std::size_t>(surfaceSortScratchTotal),
                                 valid, candidate->residentBytes);
                         candidate->femArmijoSurfaceSortIndicesA =
                             privateScratch<std::uint32_t>(candidate->device,
@@ -7778,6 +8041,45 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
+        candidate->fgmresTelemetry = privateScratch<NMFGMRESTelemetryGPU>(
+            candidate->device, fgmresSystemTotal,
+            valid, candidate->residentBytes);
+        if (candidate->femDistributedGlobalMeasurementsEnabled) {
+            const std::uint64_t beginRows = std::uint64_t(mixedUnknownWidth) +
+                world.dispatch.rigidProxyCount;
+            const std::uint64_t correctionRows = std::uint64_t(world.dispatch.femNodeCount) +
+                world.dispatch.mpmActiveNodeCapacity + world.dispatch.rigidGeneralizedCapacity +
+                candidate->fgmresLayout.vascularUnknownCount;
+            const std::uint64_t trueRows = 2u * std::uint64_t(world.dispatch.femNodeCount) +
+                std::min(world.dispatch.rigidGeneralizedCapacity, 6u);
+            const std::uint64_t tiles = std::max<std::uint64_t>(1u,
+                (std::max({beginRows, correctionRows, trueRows}) + 255u) / 256u);
+            if (tiles > std::numeric_limits<std::uint32_t>::max() / environments ||
+                tiles * environments > candidate->device.maxBufferLength / sizeof(nm_float4)) {
+                diagnostics.message = "distributed global measurement scratch exceeds GPU addressing";
+                return diagnostics;
+            }
+            candidate->fgmresMeasurementPartials = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(tiles * environments),
+                valid, candidate->residentBytes);
+        }
+        if (candidate->fgmresDistributedCGS2Enabled) {
+            const std::uint64_t tiles = (mixedUnknownWidth + 255u) / 256u;
+            const std::uint64_t partialCount = std::max<std::uint64_t>(tiles, 1u) * 8u;
+            const std::uint64_t partialFloats = environments * 2u *
+                (NM_MIXED_FGMRES_RESTART + 1u) * partialCount;
+            if (partialFloats > std::numeric_limits<std::size_t>::max() / sizeof(float) ||
+                partialFloats > std::numeric_limits<std::uint32_t>::max() ||
+                partialFloats * sizeof(float) > candidate->device.maxBufferLength) {
+                diagnostics.message = "distributed CGS2 scratch exceeds checked GPU addressing";
+                return diagnostics;
+            }
+            candidate->fgmresOrthogonalPartials = privateScratch<float>(
+                candidate->device, static_cast<std::size_t>(partialFloats),
+                valid, candidate->residentBytes);
+            candidate->fgmresCGS2ExecutionRange = privateScratch<nm_uint4>(
+                candidate->device, 1u, valid, candidate->residentBytes);
+        }
         if (world.mixedSolver.executionBudgets.w != 0u) {
             const std::uint64_t totalTetrahedra =
                 static_cast<std::uint64_t>(world.dispatch.environmentCount) *
@@ -10283,6 +10585,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
         }
 
+        // Initialize observational totals on the same borrowed timeline. No
+        // CPU solver-state readback or additional queue is introduced.
+        const bool collectFGMRESWork = [] {
+            const char* flag = std::getenv("NUMI_MATTER_WORK_COUNTERS");
+            return flag != nullptr && std::strcmp(flag, "1") == 0;
+        }();
+        if (collectFGMRESWork) {
+            id<MTLBlitCommandEncoder> telemetryBlit = [commandBuffer blitCommandEncoder];
+            if (telemetryBlit == nil) {
+                diagnostics.message = "failed to initialize requested FGMRES telemetry";
+                return diagnostics;
+            }
+            [telemetryBlit fillBuffer:state.fgmresTelemetry
+                range:NSMakeRange(0u, state.fgmresTelemetry.length) value:0u];
+            [telemetryBlit endEncoding];
+        }
+
         id<MTLComputeCommandEncoder> encoder =
             detail::timedEncoder(commandBuffer, state.device,
                 request.phase == EncodePhase::preDynamics ? "matter_pre" : "matter_post",
@@ -10580,7 +10899,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         std::uint64_t fgmresNodeIndirectDispatchCount = 0u;
         std::uint64_t fgmresElementIndirectDispatchCount = 0u;
         bool fgmresColumnDispatch = false;
-        std::uint32_t gpuTimingSampleEvery = 1u;
+        enum class WorkDomain { generic, femNodes, tetrahedra, mpmObjects };
+        std::uint32_t gpuTimingSampleEvery = 127u;
         if (const char* everySetting =
                 std::getenv("NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY")) {
             char* end = nullptr;
@@ -10588,6 +10908,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (end != everySetting && *end == '\0' && parsed > 0u &&
                 parsed <= std::numeric_limits<std::uint32_t>::max())
                 gpuTimingSampleEvery = static_cast<std::uint32_t>(parsed);
+        }
+        std::uint32_t gpuTimingPhaseOffset = 0u;
+        if (const char* setting = std::getenv("NUMI_MATTER_GPU_TIMING_PHASE")) {
+            char* end = nullptr;
+            const unsigned long value = std::strtoul(setting, &end, 10);
+            if (end != setting && *end == 0 && value <= std::numeric_limits<std::uint32_t>::max())
+                gpuTimingPhaseOffset = static_cast<std::uint32_t>(value);
         }
         const auto selectedGpuTimingKernel = [&](const char* name) {
             const char* enabled = std::getenv("NUMI_MATTER_GPU_TIMING");
@@ -10611,12 +10938,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             if (!selected) return false;
             const auto count = ++gpuTimingKernelDispatchCounts[std::string(name)];
-            return count % gpuTimingSampleEvery == 0u;
+            // A co-prime default avoids repeatedly measuring the same Arnoldi
+            // phase; root/kernel rotation also covers explicit power-of-two
+            // sample settings. Timings remain samples, never scaled totals.
+            std::uint32_t phase = request.controlStep * 17u + gpuTimingPhaseOffset;
+            for (const unsigned char* c =
+                    reinterpret_cast<const unsigned char*>(name); *c; ++c)
+                phase = (phase ^ *c) * 16777619u;
+            return (count + phase % gpuTimingSampleEvery) % gpuTimingSampleEvery == 0u;
         };
         const auto dispatchThreads = [&](
             const char* name,
             const NSUInteger count,
-            const auto& bind
+            const auto& bind,
+            const WorkDomain workDomain = WorkDomain::generic
         ) {
             if (count == 0u) {
                 return;
@@ -10642,9 +10977,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             id<MTLBuffer> fgmresActiveDispatch = nil;
             if (fgmresColumnDispatch &&
                 state.dispatch.environmentCount == 1u && width == 256u) {
-                if (count == state.dispatch.femNodeCount)
+                if (workDomain == WorkDomain::femNodes)
                     fgmresActiveDispatch = state.fgmresNodeActiveDispatch;
-                else if (count == state.dispatch.tetrahedronCount)
+                else if (workDomain == WorkDomain::tetrahedra)
                     fgmresActiveDispatch = state.fgmresElementActiveDispatch;
             }
             if (fgmresActiveDispatch != nil) {
@@ -10671,6 +11006,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
             }
+        };
+        const bool measureSolverStages = [] {
+            const char* value = std::getenv("NUMI_MATTER_GPU_TIMING_STAGES");
+            return value != nullptr && std::strcmp(value, "1") == 0;
+        }();
+        detail::TimingSpan solverTimingSpan{};
+        const auto beginSolverStage = [&](const char* stage) {
+            if (!measureSolverStages) return;
+            [encoder endEncoding];
+            encoder = detail::timingSpanBoundary(commandBuffer, state.device,
+                request.controlStep, stage, solverTimingSpan);
+            primalResourcesEncoder = nil;
         };
         const auto captureStatus5 = [&](const std::uint32_t stageID,
             const std::uint32_t domain, const std::uint32_t indexKind,
@@ -10712,9 +11059,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const auto dispatchGroups32 = [&](
             const char* name,
             const NSUInteger groupCount,
-            const auto& bind
+            const auto& bind,
+            const WorkDomain workDomain = WorkDomain::generic,
+            id<MTLBuffer> indirectDispatch = nil
         ) {
-            if (groupCount == 0u) {
+            if (groupCount == 0u ||
+                (workDomain == WorkDomain::mpmObjects &&
+                 state.dispatch.mpmGridCount == 0u &&
+                 state.dispatch.particleCount == 0u)) {
                 return;
             }
             ++diagnostics.simdgroupDispatchCount;
@@ -10733,8 +11085,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             [encoder setComputePipelineState:state.pipeline(name)];
             bind();
+            if (indirectDispatch != nil && state.dispatch.environmentCount == 1u) {
+                ++diagnostics.indirectDispatchCount;
+                [encoder dispatchThreadgroupsWithIndirectBuffer:indirectDispatch
+                    indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            } else {
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
                 [encoder endEncoding];
@@ -10884,6 +11242,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
         };
+        const auto recordFGMRESBegin = [&](const std::uint32_t restartCycle) {
+            if (!collectFGMRESWork) return;
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchThreads("nm_fgmres_telemetry_begin", state.dispatch.environmentCount, [&] {
+                setDispatch();
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:3u];
+                [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:4u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
         const auto bindContactSampleStorage = [&] (
                 id<MTLBuffer> configuration,
                 id<MTLBuffer> pageComplete,
@@ -10906,6 +11276,151 @@ RuntimeDiagnostics Runtime::encodeImpl(
             id<MTLBuffer> statuses,
             const NSUInteger totalNodes
         ) {
+            if (state.deformableContactNodeIncidenceRadixEnabled) {
+                const std::uint32_t padded =
+                    state.deformableContactNodeCornerSortPaddedCapacity;
+                const std::uint32_t logicalCapacity =
+                    6u * state.dispatch.deformableContactCapacity;
+                const std::uint32_t maxTileCount = (padded + 31u) / 32u;
+                const std::uint32_t nodeCount =
+                    state.dispatch.gridNodeCount + state.dispatch.femNodeCount;
+                const std::uint32_t radixPassCount =
+                    nodeCount < (1u << 28u) ? 7u : 8u;
+                const std::uint32_t sortedStride = (radixPassCount & 1u) != 0u
+                    ? logicalCapacity : padded;
+                const NSUInteger paddedThreads = static_cast<NSUInteger>(
+                    std::uint64_t(state.dispatch.environmentCount) * padded);
+                const NSUInteger radixGroups = static_cast<NSUInteger>(
+                    std::uint64_t(state.dispatch.environmentCount) * maxTileCount);
+                const std::uint32_t scanTileCount = (nodeCount + 255u) / 256u;
+                const NSUInteger scanGroups = static_cast<NSUInteger>(
+                    std::uint64_t(state.dispatch.environmentCount) * scanTileCount);
+
+                const std::uint32_t activeLimit = state.dispatch.deformableContactCapacity;
+                const std::uint32_t recordsPerActive = 6u;
+                dispatchGroups32("nm_contact_prepare_radix_tile_dispatch", 1u, [&] {
+                    [encoder setBuffer:activeCounts offset:0u atIndex:0u];
+                    [encoder setBuffer:state.radixTileDispatch offset:0u atIndex:1u];
+                    [encoder setBytes:&activeLimit length:sizeof(activeLimit) atIndex:2u];
+                    [encoder setBytes:&recordsPerActive length:sizeof(recordsPerActive) atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_emit_deformable_node_corners",
+                    state.dispatch.environmentCount == 1u ? (padded + 31u) / 32u : (paddedThreads + 31u) / 32u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:contacts offset:0u atIndex:1u];
+                    [encoder setBuffer:activeIndices offset:0u atIndex:2u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+                }, WorkDomain::generic, state.dispatch.environmentCount == 1u ? state.radixTileDispatch : nil);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                for (std::uint32_t pass = 0u; pass < radixPassCount; ++pass) {
+                    dispatchGroups32("nm_contact_deformable_node_radix_histogram",
+                        radixGroups, [&] {
+                        setDispatch();
+                        [encoder setBuffer:contacts offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:nodeIncidence offset:0u atIndex:3u];
+                        [encoder setBuffer:activeCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                     offset:0u atIndex:5u];
+                        [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+                        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:7u];
+                        [encoder setBytes:&pass length:sizeof(pass) atIndex:8u];
+                    }, WorkDomain::generic, state.dispatch.environmentCount == 1u ? state.radixTileDispatch : nil);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups32("nm_contact_deformable_node_radix_prefix",
+                        state.dispatch.environmentCount, [&] {
+                        setDispatch();
+                        [encoder setBuffer:activeCounts offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                     offset:0u atIndex:2u];
+                        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups32("nm_contact_deformable_node_radix_scatter",
+                        radixGroups, [&] {
+                        setDispatch();
+                        [encoder setBuffer:contacts offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:nodeIncidence offset:0u atIndex:3u];
+                        [encoder setBuffer:activeCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                     offset:0u atIndex:6u];
+                        [encoder setBytes:&padded length:sizeof(padded) atIndex:7u];
+                        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+                        [encoder setBytes:&pass length:sizeof(pass) atIndex:9u];
+                    }, WorkDomain::generic, state.dispatch.environmentCount == 1u ? state.radixTileDispatch : nil);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+
+                id<MTLBuffer> sortedPayloads =
+                    (radixPassCount & 1u) != 0u ? nodeIncidence
+                        : state.deformableContactNodeCornerSortPayloads;
+                dispatchThreads("nm_contact_count_deformable_node_incidence_radix",
+                    totalNodes, [&] {
+                    setDispatch();
+                    [encoder setBuffer:contacts offset:0u atIndex:1u];
+                    [encoder setBuffer:sortedPayloads offset:0u atIndex:2u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                    [encoder setBuffer:nodeRanges offset:0u atIndex:4u];
+                    [encoder setBytes:&sortedStride length:sizeof(sortedStride) atIndex:5u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                dispatchGroups256("nm_contact_scan_deformable_node_incidence_tiles",
+                    scanGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:2u];
+                    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_node_incidence_tile_offsets",
+                    state.dispatch.environmentCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:statuses offset:0u atIndex:2u];
+                    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads(
+                    "nm_contact_scan_deformable_node_incidence_add_tile_offsets",
+                    totalNodes, [&] {
+                    setDispatch();
+                    [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:2u];
+                    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                if ((radixPassCount & 1u) == 0u) {
+                    dispatchThreads("nm_contact_copy_deformable_node_radix_result",
+                        paddedThreads, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:activeCounts offset:0u atIndex:2u];
+                        [encoder setBuffer:nodeIncidence offset:0u atIndex:3u];
+                        [encoder setBytes:&padded length:sizeof(padded) atIndex:4u];
+                    });
+                }
+                return;
+            }
+
             if (!state.deformableContactNodeIncidenceSortEnabled) {
                 dispatchThreads(
                     "nm_contact_count_deformable_node_incidence",
@@ -11117,6 +11632,114 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return true;
         };
         const NSUInteger environments = state.dispatch.environmentCount;
+        const auto validateArmijoGeometry = [&](const auto& bind) {
+            if (!state.femDistributedGlobalMeasurementsEnabled) {
+                dispatchThreads("nm_fem_armijo_validate_geometry", environments, bind);
+                return;
+            }
+            const auto bindTiles = [&] {
+                bind();
+                [encoder setBytes:&state.femArmijoGeometryTileCount
+                    length:sizeof(state.femArmijoGeometryTileCount) atIndex:11u];
+                [encoder setBuffer:state.femArmijoGeometryTiles offset:0u atIndex:12u];
+                [encoder setBuffer:state.femArmijoGeometryRanges offset:0u atIndex:13u];
+                [encoder setBuffer:state.femArmijoGeometryPartials offset:0u atIndex:14u];
+            };
+            dispatchGroups256("nm_fem_armijo_validate_geometry_tiles",
+                environments * state.femArmijoGeometryTileCount, bindTiles);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32("nm_fem_armijo_validate_geometry_finish",
+                environments, bindTiles);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+        const auto dispatchGlobalMeasurement = [&](const char* legacyName, const auto& bind) {
+            if (!state.femDistributedGlobalMeasurementsEnabled) {
+                dispatchGroups32(legacyName, environments, bind);
+                return;
+            }
+            const bool begin = std::strcmp(legacyName, "nm_fgmres_begin") == 0;
+            const bool correction = std::strcmp(legacyName, "nm_fgmres_measure_correction") == 0;
+            const NSUInteger activeItems = state.dispatch.femNodeCount +
+                ((state.fgmresLayout.reserved & 1u) == 0u ? state.dispatch.femNodeCount : 0u) +
+                state.dispatch.mpmActiveNodeCapacity + state.dispatch.rigidGeneralizedCapacity +
+                state.fgmresLayout.supportContactCount + state.fgmresLayout.vascularUnknownCount;
+            const NSUInteger items = begin ? activeItems + state.dispatch.rigidProxyCount :
+                (correction ? NSUInteger(state.dispatch.femNodeCount) +
+                    state.dispatch.mpmActiveNodeCapacity + state.dispatch.rigidGeneralizedCapacity +
+                    state.fgmresLayout.vascularUnknownCount :
+                    2u * NSUInteger(state.dispatch.femNodeCount) +
+                    std::min(state.dispatch.rigidGeneralizedCapacity, 6u));
+            const NSUInteger tiles = std::max<NSUInteger>(1u, (items + 255u) / 256u);
+            const auto bindPartials = [&] {
+                bind();
+                [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:24u];
+            };
+            dispatchGroups256(begin ? "nm_fgmres_begin_distributed_partial" :
+                (correction ? "nm_fgmres_correction_distributed_partial" :
+                    "nm_fgmres_true_residual_distributed_partial"),
+                environments * tiles, bindPartials);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
+                (correction ? "nm_fgmres_correction_distributed_finish" :
+                    "nm_fgmres_true_residual_distributed_finish"),
+                environments, bindPartials);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (begin) {
+                const NSUInteger basisTiles = std::max<NSUInteger>(1u, (activeItems + 255u) / 256u);
+                dispatchGroups256("nm_fgmres_begin_distributed_basis0",
+                    environments * basisTiles, bindPartials);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            } else if (!correction) {
+                dispatchThreads("nm_fgmres_true_residual_distributed_replace",
+                    environments * (state.dispatch.femNodeCount +
+                        (state.dispatch.rigidGeneralizedCapacity == 0u ? 0u : 6u)),
+                    bindPartials);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+        };
+        const auto measureArmijoNorm = [&](const bool trial) {
+            if (!state.femDistributedGlobalMeasurementsEnabled) {
+                dispatchThreads(trial ? "nm_fem_armijo_measure_trial" : "nm_fem_armijo_measure_base",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:(trial ? state.femArmijoResidual : state.femResidual) offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                    if (trial) {
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
+                    } else [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                });
+                return;
+            }
+            const NSUInteger rows = NSUInteger(state.dispatch.femNodeCount) +
+                state.dispatch.rigidGeneralizedCapacity;
+            const NSUInteger tiles = std::max<NSUInteger>(1u, (rows + 255u) / 256u);
+            dispatchGroups32(trial ? "nm_fem_armijo_measure_trial_partial" : "nm_fem_armijo_measure_base_partial",
+                environments * tiles, [&] {
+                setDispatch();
+                [encoder setBuffer:(trial ? state.femArmijoResidual : state.femResidual) offset:0u atIndex:1u];
+                [encoder setBuffer:(trial ? state.femArmijoCandidate : state.femCandidate) offset:0u atIndex:2u];
+                if (trial) {
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femArmijoNormPartials offset:0u atIndex:5u];
+                } else [encoder setBuffer:state.femArmijoNormPartials offset:0u atIndex:3u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32(trial ? "nm_fem_armijo_measure_trial_finish" : "nm_fem_armijo_measure_base_finish",
+                environments, [&] {
+                setDispatch();
+                if (trial) {
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femArmijoNormPartials offset:0u atIndex:3u];
+                } else {
+                    [encoder setBuffer:state.femArmijoNormPartials offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                }
+            });
+        };
+
         const NSUInteger objects = state.dispatch.objectCount;
         const NSUInteger particleTotal =
             environments * state.dispatch.particleCount;
@@ -11152,6 +11775,206 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const NSUInteger bodyWrenchTotal =
             environments * state.reactionBodyCount;
         const NSUInteger objectTotal = environments * objects;
+        const auto sortSurfacePrimitives = [&] (
+            id<MTLBuffer> primitives,
+            id<MTLBuffer> keysA,
+            id<MTLBuffer> keysB,
+            id<MTLBuffer> indicesA,
+            id<MTLBuffer> indicesB,
+            id<MTLBuffer> activeCounts,
+            id<MTLBuffer> cacheFlags,
+            id<MTLBuffer> boundsScratch,
+            const std::uint32_t useArmijoSurfaceCache
+        ) {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (!state.deformableContactNodeIncidenceRadixEnabled) {
+                dispatchGroups32("nm_contact_sort_surface_primitives",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:primitives offset:0u atIndex:1u];
+                    [encoder setBuffer:keysA offset:0u atIndex:2u];
+                    [encoder setBuffer:keysB offset:0u atIndex:3u];
+                    [encoder setBuffer:indicesA offset:0u atIndex:4u];
+                    [encoder setBuffer:indicesB offset:0u atIndex:5u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:6u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:7u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:8u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                return;
+            }
+
+            const std::uint32_t primitiveCount = static_cast<std::uint32_t>(
+                continuumSurfacePrimitiveCount(state.dispatch));
+            const std::uint32_t tileCount = primitiveCount / 32u +
+                (primitiveCount % 32u != 0u ? 1u : 0u);
+            const std::uint32_t scanBlockCount = tileCount / 256u +
+                (tileCount % 256u != 0u ? 1u : 0u);
+            const std::uint32_t scratchStride = static_cast<std::uint32_t>(
+                std::max<std::uint64_t>(primitiveCount,
+                    16ull * tileCount));
+            const NSUInteger tileGroups = environments * tileCount;
+            const NSUInteger scanBlockGroups = environments * scanBlockCount;
+            const NSUInteger tileThreads = environments * tileCount;
+            const std::uint32_t radixPassCount = 8u;
+            if (tileCount != 0u) {
+                dispatchGroups32("nm_contact_surface_morton_tile_bounds",
+                    tileGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:primitives offset:0u atIndex:1u];
+                    [encoder setBuffer:boundsScratch offset:0u atIndex:2u];
+                    [encoder setBuffer:keysB offset:0u atIndex:3u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:4u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:5u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:6u];
+                    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:7u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256("nm_contact_surface_morton_bounds_reduce",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:boundsScratch offset:0u atIndex:1u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:2u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256(
+                    "nm_contact_surface_morton_scan_tile_counts",
+                    scanBlockGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:keysB offset:0u atIndex:1u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:2u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:4u];
+                    [encoder setBytes:&scanBlockCount
+                              length:sizeof(scanBlockCount) atIndex:5u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:6u];
+                });
+            }
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32("nm_contact_surface_morton_scan_block_offsets",
+                environments, [&] {
+                setDispatch();
+                [encoder setBuffer:keysB offset:0u atIndex:1u];
+                [encoder setBuffer:activeCounts offset:0u atIndex:2u];
+                [encoder setBuffer:cacheFlags offset:0u atIndex:3u];
+                [encoder setBytes:&useArmijoSurfaceCache
+                          length:sizeof(useArmijoSurfaceCache) atIndex:4u];
+                [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:5u];
+                [encoder setBytes:&scanBlockCount
+                          length:sizeof(scanBlockCount) atIndex:6u];
+                [encoder setBytes:&scratchStride
+                          length:sizeof(scratchStride) atIndex:7u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (tileCount != 0u) {
+                dispatchThreads("nm_contact_surface_morton_scan_add_block_offsets",
+                    tileThreads, [&] {
+                    setDispatch();
+                    [encoder setBuffer:keysB offset:0u atIndex:1u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:2u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:4u];
+                    [encoder setBytes:&scanBlockCount
+                              length:sizeof(scanBlockCount) atIndex:5u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_emit_surface_morton_records_parallel",
+                    tileGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:primitives offset:0u atIndex:1u];
+                    [encoder setBuffer:keysA offset:0u atIndex:2u];
+                    [encoder setBuffer:boundsScratch offset:0u atIndex:3u];
+                    [encoder setBuffer:keysB offset:0u atIndex:4u];
+                    [encoder setBuffer:indicesA offset:0u atIndex:5u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:6u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:8u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:9u];
+                });
+            }
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+            const std::uint32_t activeCountLimit = primitiveCount;
+            const std::uint32_t recordsPerActive = 1u;
+            dispatchGroups32("nm_contact_prepare_radix_tile_dispatch", 1u,
+                [&] {
+                [encoder setBuffer:activeCounts offset:0u atIndex:0u];
+                [encoder setBuffer:state.radixTileDispatch
+                             offset:0u atIndex:1u];
+                [encoder setBytes:&activeCountLimit
+                          length:sizeof(activeCountLimit) atIndex:2u];
+                [encoder setBytes:&recordsPerActive
+                          length:sizeof(recordsPerActive) atIndex:3u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+            const NSUInteger radixGroups = environments * tileCount;
+            for (std::uint32_t pass = 0u; pass < radixPassCount; ++pass) {
+                dispatchGroups32("nm_contact_surface_morton_radix_histogram",
+                    radixGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:keysA offset:0u atIndex:1u];
+                    [encoder setBuffer:indicesA offset:0u atIndex:2u];
+                    [encoder setBuffer:indicesB offset:0u atIndex:3u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:4u];
+                    [encoder setBuffer:keysB offset:0u atIndex:5u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:6u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:8u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:9u];
+                    [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+                }, WorkDomain::generic,
+                    state.dispatch.environmentCount == 1u
+                        ? state.radixTileDispatch : nil);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_surface_morton_radix_prefix",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:activeCounts offset:0u atIndex:1u];
+                    [encoder setBuffer:keysB offset:0u atIndex:2u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:3u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:4u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:5u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_surface_morton_radix_scatter",
+                    radixGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:keysA offset:0u atIndex:1u];
+                    [encoder setBuffer:indicesA offset:0u atIndex:2u];
+                    [encoder setBuffer:indicesB offset:0u atIndex:3u];
+                    [encoder setBuffer:keysB offset:0u atIndex:4u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:5u];
+                    [encoder setBuffer:cacheFlags offset:0u atIndex:6u];
+                    [encoder setBytes:&useArmijoSurfaceCache
+                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+                    [encoder setBytes:&tileCount length:sizeof(tileCount) atIndex:8u];
+                    [encoder setBytes:&scratchStride
+                              length:sizeof(scratchStride) atIndex:9u];
+                    [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+                }, WorkDomain::generic,
+                    state.dispatch.environmentCount == 1u
+                        ? state.radixTileDispatch : nil);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+        };
         const NSUInteger mixedTransactionalTotal = std::max(
             femNodeTotal, objectTotal
         );
@@ -11173,7 +11996,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.cohesiveForceAccumulator
                              offset:0u atIndex:1u];
-            });
+            }, WorkDomain::femNodes);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
         const auto accumulateCohesivePage = [&](
@@ -11202,7 +12025,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(pageStart) atIndex:10u];
                 [encoder setBytes:&pageCount
                            length:sizeof(pageCount) atIndex:11u];
-            });
+            }, WorkDomain::femNodes);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
         const auto encodeCohesiveFaceForces = [&](
@@ -11283,7 +12106,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femConstraintReactions
                                  offset:0u atIndex:11u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:12u];
-                });
+                }, WorkDomain::femNodes);
             } else {
                 dispatchThreads("nm_fem_add_cohesive_residual",
                     femNodeTotal, [&] {
@@ -11307,7 +12130,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femConstraintReactions
                                  offset:0u atIndex:12u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-                });
+                }, WorkDomain::femNodes);
             }
         };
         const auto encodeCohesiveFaceOperator = [&](
@@ -11390,7 +12213,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:workOutput
                                  offset:0u atIndex:8u];
                     [encoder setBuffer:operatorStatuses offset:0u atIndex:9u];
-                });
+                }, WorkDomain::femNodes);
             } else {
                 dispatchThreads("nm_fgmres_add_cohesive_operator",
                     femNodeTotal, [&] {
@@ -11410,7 +12233,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:workOutput
                                  offset:0u atIndex:9u];
                     [encoder setBuffer:operatorStatuses offset:0u atIndex:10u];
-                });
+                }, WorkDomain::femNodes);
             }
         };
 
@@ -11741,7 +12564,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_vascular_rollback", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -11875,7 +12698,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads("nm_adaptive_finish_promotion", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -12539,7 +13362,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
                     [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
                     [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
-                });
+                }, WorkDomain::femNodes);
             };
             const auto encodeTiledCohesiveTrialResidual = [&]() {
                 const std::uint32_t faceCount = state.dispatch.cohesiveFaceCount;
@@ -12590,7 +13413,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:9u];
                         [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:10u];
                         [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:11u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     pageStart += pageCount;
                 }
@@ -12609,7 +13432,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
                     [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:11u];
                     [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:12u];
-                });
+                }, WorkDomain::femNodes);
             };
             // Opt-in, bounded copies at a single requested root preserve the
             // failing Newton iterate before transactional rollback. The caller
@@ -15480,7 +16303,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femSolution offset:0u atIndex:1u];
                     [encoder setBuffer:state.femOperatorFDDirection
                                  offset:0u atIndex:2u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fem_operator_fd_begin_pair",
                     environments, [&] {
@@ -15535,7 +16358,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -15559,7 +16382,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.femOperatorFDRichCaptureEnabled) {
                     dispatchThreads("nm_fem_operator_fd_capture_nodes",
@@ -15583,7 +16406,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&side length:sizeof(side) atIndex:10u];
                         [encoder setBytes:&centerRecord
                                    length:sizeof(centerRecord) atIndex:11u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fem_operator_fd_capture_tetrahedra",
                         tetrahedronTotal, [&] {
@@ -15609,7 +16432,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:15u];
                         [encoder setBytes:&stage length:sizeof(stage) atIndex:16u];
                         [encoder setBytes:&epsilon length:sizeof(epsilon) atIndex:17u];
-                    });
+                    }, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 dispatchThreads("nm_fem_operator_fd_record_operator_status",
@@ -15656,10 +16479,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:10u];
                             [encoder setBuffer:state.femArmijoCandidate
                                          offset:0u atIndex:11u];
-                        });
+                        }, WorkDomain::femNodes);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                        dispatchThreads("nm_fem_armijo_validate_geometry",
-                            environments, [&] {
+                        validateArmijoGeometry([&] {
                             setDispatch();
                             [encoder setBytes:&diagnosticMicro
                                        length:sizeof(diagnosticMicro) atIndex:1u];
@@ -15701,7 +16523,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                             [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                             [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-                        });
+                        }, WorkDomain::tetrahedra);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         dispatchThreads("nm_fem_build_mechanical_residual",
                             femNodeTotal, [&] {
@@ -15735,7 +16557,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                        length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                             [encoder setBuffer:state.femArmijoConstraintReactions
                                          offset:0u atIndex:23u];
-                        });
+                        }, WorkDomain::femNodes);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (state.femOperatorFDRichCaptureEnabled) {
                             dispatchThreads("nm_fem_operator_fd_capture_nodes",
@@ -15759,7 +16581,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 [encoder setBytes:&sideValue length:sizeof(sideValue) atIndex:10u];
                                 [encoder setBytes:&centerRecord
                                            length:sizeof(centerRecord) atIndex:11u];
-                            });
+                            }, WorkDomain::femNodes);
                             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                             dispatchThreads("nm_fem_operator_fd_capture_tetrahedra",
                                 tetrahedronTotal, [&] {
@@ -15786,7 +16608,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                              offset:0u atIndex:15u];
                                 [encoder setBytes:&stage length:sizeof(stage) atIndex:16u];
                                 [encoder setBytes:&epsilon length:sizeof(epsilon) atIndex:17u];
-                            });
+                            }, WorkDomain::tetrahedra);
                             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         }
                         dispatchThreads("nm_fem_operator_fd_capture_side",
@@ -15811,7 +16633,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                              offset:0u atIndex:1u];
                                 [encoder setBuffer:state.femOperatorFDPositiveResidual
                                              offset:0u atIndex:2u];
-                            });
+                            }, WorkDomain::femNodes);
                             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         }
                     }
@@ -18050,7 +18872,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:4u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads("nm_topology_rebuild_count_mass", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.materials offset:0u atIndex:1u];
@@ -18058,7 +18880,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:nodes offset:0u atIndex:3u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchGroups32("nm_topology_rebuild_prefix", environments, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
@@ -18072,7 +18894,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads("nm_topology_rebuild_finalize", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:nodes offset:0u atIndex:1u];
@@ -18080,7 +18902,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
                     [encoder setBuffer:state.topologyStatesCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
             };
             const auto encodeTopologyCertificate = [&](
                 id<MTLBuffer> candidateNodes,
@@ -18184,7 +19006,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:1u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:2u];
-            });
+            }, WorkDomain::femNodes);
 
             const NSUInteger sparsePrepareCount = std::max<NSUInteger>(
                 environments * state.dispatch.mpmBlockCount,
@@ -18340,7 +19162,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             if (hasCohesiveActivationCommands && firstPrePass &&
                 microtick == 0u) {
                 dispatchThreads(
@@ -18396,7 +19218,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
                     [encoder setBuffer:femKinematicTargets offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 captureStatus5(10u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                     NM_STATUS5_INDEX_NODE, NM_INVALID_INDEX, micro,
                     state.statuses, state.femCandidate, nil);
@@ -18416,7 +19238,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:11u];
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
-            });
+            }, WorkDomain::femNodes);
             }
             const NSUInteger rigidCandidateTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
@@ -18696,23 +19518,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:17u];
                     }
                 );
-                dispatchGroups32(
-                    "nm_contact_sort_surface_primitives",
-                    environments,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femSurfaceSortKeysA offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:5u];
-                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
-                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:7u];
-                        const std::uint32_t useArmijoSurfaceCache = 0u;
-                        [encoder setBytes:&useArmijoSurfaceCache
-                                  length:sizeof(useArmijoSurfaceCache) atIndex:8u];
-                    }
-                );
+                sortSurfacePrimitives(
+                    state.continuumSurfacePrimitives,
+                    state.femSurfaceSortKeysA,
+                    state.femSurfaceSortKeysB,
+                    state.femSurfaceSortIndicesA,
+                    state.femSurfaceSortIndicesB,
+                    state.femSurfaceActiveCounts,
+                    state.femSurfaceActiveCounts,
+                    state.femSurfaceBVHBounds,
+                    0u);
                 const std::uint32_t surfaceBVHLeafCount = state.femSurfaceBVHLeafCount;
                 dispatchThreads("nm_contact_build_surface_bvh_leaves",
                     environments * surfaceBVHLeafCount, [&] {
@@ -19233,7 +20048,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.contactSampleSlotsByPair,
                         state.contactActiveCounts, 5u);
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads(
                     "nm_contact_accumulate_deformable_fem_residual",
                     femNodeTotal,
@@ -19248,7 +20063,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femResidual
                                    offset:0u atIndex:4u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 if (certify) {
                     // Publish contact as a separate support-reaction term.
                     // This is a read-only reduction of the exact primal
@@ -19277,7 +20092,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.contactSamplePageComplete,
                             state.contactSampleSlotsByPair,
                             state.contactActiveCounts, 12u);
-                    });
+                    }, WorkDomain::femNodes);
                 }
                 return true;
             };
@@ -19345,27 +20160,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               length:sizeof(useArmijoSurfaceCache) atIndex:17u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32("nm_contact_sort_surface_primitives",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femArmijoSurfacePrimitives
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femArmijoSurfaceSortKeysA
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femArmijoSurfaceSortKeysB
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femArmijoSurfaceSortIndicesA
-                                 offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femArmijoSurfaceSortIndicesB
-                                 offset:0u atIndex:5u];
-                    [encoder setBuffer:state.femArmijoSurfaceActiveCounts
-                                 offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femArmijoSurfaceCacheFlags
-                                 offset:0u atIndex:7u];
-                    const std::uint32_t useArmijoSurfaceCache = 1u;
-                    [encoder setBytes:&useArmijoSurfaceCache
-                              length:sizeof(useArmijoSurfaceCache) atIndex:8u];
-                });
+                sortSurfacePrimitives(
+                    state.femArmijoSurfacePrimitives,
+                    state.femArmijoSurfaceSortKeysA,
+                    state.femArmijoSurfaceSortKeysB,
+                    state.femArmijoSurfaceSortIndicesA,
+                    state.femArmijoSurfaceSortIndicesB,
+                    state.femArmijoSurfaceActiveCounts,
+                    state.femArmijoSurfaceCacheFlags,
+                    state.femArmijoSurfaceBVHBounds,
+                    1u);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_build_surface_bvh_leaves",
                     environments * leafCount, [&] {
@@ -19636,7 +20440,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoResidual
                                  offset:0u atIndex:4u];
                 [encoder setBuffer:trialNodes offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 return true;
             };
             const NSUInteger rigidGeneralizedTotalForResidual = environments *
@@ -19657,7 +20461,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:1u];
                     [encoder setBuffer:state.femRegionalRecycleModeState
                                  offset:0u atIndex:2u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
@@ -19905,6 +20709,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             for (std::uint32_t nonlinearIteration = 0u;
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
+            beginSolverStage("matter_newton_assembly");
+            if (encoder == nil) {
+                diagnostics.message = "failed to open Newton assembly timing stage";
+                return diagnostics;
+            }
             const auto encodeFEMCoupledNewtonCapture = [&] (
                     id<MTLBuffer> centerContactHistoryInput,
                     id<MTLBuffer> centerDeformableContactHistoryInput) -> bool {
@@ -22922,7 +23731,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
-            });
+            }, WorkDomain::femNodes);
             const std::uint32_t mixedResidualAllowConverged = 0u;
             dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                 setDispatch();
@@ -22938,7 +23747,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                 [encoder setBytes:&mixedResidualAllowConverged
                            length:sizeof(mixedResidualAllowConverged) atIndex:11u];
-            });
+            }, WorkDomain::tetrahedra);
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -22949,7 +23758,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                 [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -22966,7 +23775,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
                 [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
                 [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
-            });
+            }, WorkDomain::femNodes);
             // Mechanical pressure is a KKT unknown. Its normalized Schur
             // diagonal is applied only by nm_fgmres_precondition; there is no
             // standalone pressure correction or independently failing solve.
@@ -22990,7 +23799,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-            });
+            }, WorkDomain::tetrahedra);
             captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
@@ -23025,7 +23834,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
-            });
+            }, WorkDomain::femNodes);
                         encodeAddCohesiveResidual(micro);
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
@@ -23202,7 +24011,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:1u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
-            });
+            }, WorkDomain::femNodes);
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual);
             if (!encodeMPMNewtonRHSRowsTrace()) {
@@ -23231,18 +24040,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:1u];
                     [encoder setBuffer:state.femOperatorFDPositiveResidual
                                  offset:0u atIndex:2u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
 
             if (femResidualArmijoEnabled || femCapsuleResidualArmijoEnabled ||
                 femCapsuleBoxResidualArmijoEnabled) {
-                dispatchThreads("nm_fem_armijo_measure_base", environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                });
+                measureArmijoNorm(false);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
 
@@ -23277,6 +24081,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
 
+            beginSolverStage("matter_newton_linear");
+            if (encoder == nil) {
+                diagnostics.message = "failed to open Newton linear timing stage";
+                return diagnostics;
+            }
             if (state.enableVascularDense45) {
                 const std::uint32_t restartCycle = 0u;
                 const float nonlinearTolerance = std::max(
@@ -23287,7 +24096,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const float linearForcing = std::clamp(
                     std::max(std::sqrt(nonlinearTolerance), scheduledForcing),
                     nonlinearTolerance, 0.25f);
-                dispatchGroups32("nm_fgmres_begin", environments, [&] {
+                dispatchGlobalMeasurement("nm_fgmres_begin", [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -23323,6 +24132,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresElementActiveDispatch
                                  offset:0u atIndex:23u];
                 });
+                recordFGMRESBegin(restartCycle);
                 const std::uint32_t useWorkingSet = 1u;
                 dispatchGroups32("nm_vascular_dense_solve", environments, [&] {
                     setDispatch();
@@ -23482,7 +24292,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 };
                 if (!state.femCacheProjectionReuseEnabled) {
                     dispatchThreads("nm_fem_prepare_algorithmic_tangent_columns",
-                        tetrahedronTotal, bindTangentCache);
+                        tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 dispatchThreads(tangentCacheBuilder,
@@ -23492,7 +24302,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (!state.femCacheProjectionReuseEnabled) {
                     dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
-                        tetrahedronTotal, bindTangentCache);
+                        tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
             }
@@ -23588,7 +24398,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                         [encoder setBuffer:state.femRegionalLinearizationNodes
                                      offset:0u atIndex:2u];
-                    });
+                    }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads(
                     "nm_fgmres_regional_capture_constitutive_linearization",
@@ -23618,7 +24428,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:
                             state.femRegionalLinearizationLocalFLow
                                      offset:0u atIndex:10u];
-                    });
+                    }, WorkDomain::tetrahedra);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (state.mixedSolverValue.executionBudgets.z == 1u ||
@@ -23664,7 +24474,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 state.mixedSolverValue.executionBudgets.w);
                         [encoder setBytes:&useCache length:sizeof(useCache)
                                   atIndex:18u];
-                    });
+                    }, WorkDomain::femNodes);
             }
             if (state.mixedSolverValue.executionBudgets.z == 3u ||
                 state.mixedSolverValue.executionBudgets.z == 4u ||
@@ -23723,7 +24533,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
                         [encoder setBytes:&onlyFallbackRows
                             length:sizeof(onlyFallbackRows) atIndex:24u];
-                    });
+                    }, WorkDomain::femNodes);
                 };
                 if (splitCachedCoupledBlock) {
                     dispatchBlockPass(
@@ -23760,7 +24570,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&mode length:sizeof(mode) atIndex:4u];
                         [encoder setBytes:&regionalModeStride
                                    length:sizeof(regionalModeStride) atIndex:5u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fem_apply_operator_elements",
                         tetrahedronTotal, [&] {
@@ -23823,7 +24633,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoMetrics != nil
                             ? state.femArmijoMetrics : state.dummy
                                      offset:0u atIndex:26u];
-                    });
+                    }, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const bool includeCohesiveRAP =
                         state.mixedSolverValue.executionBudgets.z == 4u &&
@@ -23864,7 +24674,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:14u];
                         [encoder setBuffer:state.coupledPointJacobians
                                      offset:0u atIndex:15u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (includeCohesiveRAP) {
                                                 encodeAddCohesiveOperator(trueResidualOperatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
@@ -23889,7 +24699,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         const std::uint32_t preserveCompletedTail = 0u;
                         [encoder setBytes:&preserveCompletedTail
                                    length:sizeof(preserveCompletedTail) atIndex:7u];
-                    });
+                    }, WorkDomain::femNodes);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32("nm_fgmres_regional_build_rap",
@@ -23944,7 +24754,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.statuses
                                      offset:0u atIndex:3u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t graphRows =
                         state.femRegionalGraphDofCount;
@@ -24546,7 +25356,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const std::uint32_t iterationOffset = restartCycle * restart;
             const std::uint32_t columnsThisCycle = std::min(
                 restart, linearIterationBudget - iterationOffset);
-            dispatchGroups32("nm_fgmres_begin", environments, [&] {
+            dispatchGlobalMeasurement("nm_fgmres_begin", [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -24582,7 +25392,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresElementActiveDispatch
                              offset:0u atIndex:23u];
             });
-            if (state.mixedSolverValue.executionBudgets.z == 0u) {
+            recordFGMRESBegin(restartCycle);
+            const bool reuseNewtonPreconditioner = [] {
+                const char* value = std::getenv("NUMI_MATTER_NEWTON_PRECONDITIONER_REUSE");
+                return value != nullptr && std::strcmp(value, "1") == 0;
+            }();
+            if (state.mixedSolverValue.executionBudgets.z == 0u &&
+                (!reuseNewtonPreconditioner || restartCycle == 0u)) {
                 dispatchThreads(
                     "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                         setDispatch();
@@ -24599,9 +25415,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femPreconditioned
                                    offset:0u atIndex:9u];
                         bindPrimalContactArguments(10u);
-                    });
+                    }, WorkDomain::femNodes);
             }
-            if (state.vascularValue.layout.cavities.x != 0u) {
+            if (state.vascularValue.layout.cavities.x != 0u &&
+                (!reuseNewtonPreconditioner || restartCycle == 0u)) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32("nm_vascular_cavity_schur_preconditioner",
                     environments * state.vascularValue.layout.cavities.x, [&] {
@@ -24675,7 +25492,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
-                });
+                }, WorkDomain::femNodes);
                 if (state.mixedSolverValue.executionBudgets.z == 6u) {
                     dispatchThreads(
                         "nm_fgmres_apply_coupled_tangent_block",
@@ -24689,7 +25506,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:4u];
-                    });
+                    }, WorkDomain::femNodes);
                 }
                 dispatchThreads("nm_fgmres_precondition_patches", femNodeTotal, [&] {
                     setDispatch();
@@ -24707,7 +25524,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:columnOffset atIndex:6u];
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:7u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -24730,7 +25547,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:6u];
                     [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:7u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
-                });
+                }, WorkDomain::femNodes);
                 // Apply a fixed matrix-free polynomial smoother to the four
                 // packed transport blocks. The former nested field solve launched up
                 // to seven kernels per inner iteration for every Arnoldi
@@ -24775,7 +25592,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                         [encoder setBytes:&fieldSmootherAllowConverged
                                    length:sizeof(fieldSmootherAllowConverged) atIndex:11u];
-                    });
+                    }, WorkDomain::tetrahedra);
                     dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -24786,7 +25603,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
                         [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                         [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-                    });
+                    }, WorkDomain::femNodes);
                     dispatchThreads("nm_fgmres_field_smooth", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
@@ -24803,7 +25620,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         const float damping = fieldSmootherDamping[fieldPass];
                         [encoder setBytes:&damping length:sizeof(damping)
                                    atIndex:7u];
-                    });
+                    }, WorkDomain::femNodes);
                 }
                 dispatchThreads("nm_fgmres_field_smoother_export", femNodeTotal, [&] {
                     setDispatch();
@@ -24812,7 +25629,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:3u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads("nm_fgmres_precondition_cross", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
@@ -24824,7 +25641,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads(
                     "nm_fgmres_precondition_mpm", mpmActiveNodeTotal, [&] {
                     setDispatch();
@@ -24872,7 +25689,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femOperatorValue
                                      offset:0u atIndex:9u];
-                    });
+                    }, WorkDomain::mpmObjects);
                 dispatchThreads(
                     "nm_fgmres_precondition_mpm_fixed_plane_kkt",
                     mpmActiveNodeTotal,
@@ -25229,7 +26046,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&regionalModeStride
                                        length:sizeof(regionalModeStride)
                                       atIndex:13u];
-                        });
+                        }, WorkDomain::femNodes);
                         const auto& consumerSelector =
                             regionalConsumerCaptureRequest.selector;
                         const bool consumerSelectorMatches =
@@ -25746,7 +26563,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                            length:sizeof(regionalModeStride)
                                           atIndex:10u];
                             }
-                        });
+                        }, WorkDomain::femNodes);
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -25786,7 +26603,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                                 encodeCohesiveFaceOperator(operatorMicro, state.fgmresPreconditionedBasis, columnOffset, state.cohesiveFaceOperator, state.statuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -25808,7 +26625,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                                 encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, state.femOperatorValue, state.statuses);
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
@@ -25835,7 +26652,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
                         [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
                         [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
-                    });
+                    }, WorkDomain::femNodes);
                 }
                 dispatchThreads(
                     "nm_fem_human_attachment_capture_operator",
@@ -25871,7 +26688,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                     [encoder setBytes:&productionMixedAllowConverged
                                length:sizeof(productionMixedAllowConverged) atIndex:11u];
-                });
+                }, WorkDomain::tetrahedra);
                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -25884,7 +26701,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:fieldVectorOffset atIndex:6u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:fieldWorkOffset atIndex:7u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads(
                     "nm_fgmres_apply_mpm", mpmActiveNodeTotal, [&] {
                     setDispatch();
@@ -26151,6 +26968,199 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
+                if (state.fgmresDistributedCGS2Enabled) {
+                    // Match fgmresOrthogonalItemCount exactly. Allocated vector
+                    // strides retain transport storage, but inactive transport
+                    // must not create empty GPU tiles or cached ICB commands.
+                    const NSUInteger cgs2Items = state.dispatch.femNodeCount +
+                        ((state.fgmresLayout.reserved & 1u) == 0u
+                            ? state.dispatch.femNodeCount : 0u) +
+                        state.dispatch.mpmActiveNodeCapacity +
+                        state.dispatch.rigidGeneralizedCapacity +
+                        state.fgmresLayout.supportContactCount +
+                        state.fgmresLayout.vascularUnknownCount;
+                    const NSUInteger cgs2Tiles = std::max<NSUInteger>(1u,
+                        (cgs2Items + 255u) / 256u);
+                    const NSUInteger cgs2Groups = environments * cgs2Tiles;
+                    if (state.fgmresCGS2ICBEnabled) {
+                        // Stable buffers and scalar constants are encoded once
+                        // per column/forcing level. GPU convergence chooses the
+                        // execution range; no host solver-state branch is used.
+                        struct CGS2Constants {
+                            NMMatterDispatchGPU dispatch;
+                            NMFGMRESLayoutGPU layout;
+                            std::uint32_t column;
+                            std::uint32_t pass0;
+                            std::uint32_t pass1;
+                            float forcing;
+                        };
+                        const std::uint32_t cacheIndex =
+                            std::min(nonlinearIteration, 4u) * NM_MIXED_FGMRES_RESTART + column;
+                        if (state.fgmresCGS2Commands[cacheIndex] == nil ||
+                            state.fgmresCGS2Forcing[cacheIndex] != linearForcing) {
+                            const CGS2Constants constants{state.dispatch, state.fgmresLayout,
+                                column, 0u, 1u, linearForcing};
+                            id<MTLBuffer> scalars = [state.device newBufferWithBytes:&constants
+                                length:sizeof(constants) options:MTLResourceStorageModeShared];
+                            MTLIndirectCommandBufferDescriptor* descriptor =
+                                [MTLIndirectCommandBufferDescriptor new];
+                            descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+                            descriptor.inheritBuffers = NO;
+                            descriptor.inheritPipelineState = NO;
+                            descriptor.maxKernelBufferBindCount = 31u;
+                            id<MTLIndirectCommandBuffer> graph = [state.device
+                                newIndirectCommandBufferWithDescriptor:descriptor
+                                maxCommandCount:9u options:MTLResourceStorageModePrivate];
+                            if (scalars == nil || graph == nil) {
+                                diagnostics.message = "failed to allocate reusable CGS2 command graph";
+                                return diagnostics;
+                            }
+                            NSUInteger ordinal = 0u;
+                            const auto command = [&](const char* name) {
+                                id<MTLIndirectComputeCommand> cmd =
+                                    [graph indirectComputeCommandAtIndex:ordinal++];
+                                [cmd setComputePipelineState:state.pipeline(name)];
+                                [cmd setKernelBuffer:scalars offset:offsetof(CGS2Constants, dispatch) atIndex:0u];
+                                [cmd setKernelBuffer:scalars offset:offsetof(CGS2Constants, layout) atIndex:30u];
+                                return cmd;
+                            };
+                            const auto bind = [&](id<MTLIndirectComputeCommand> cmd,
+                                const NSUInteger index, id<MTLBuffer> value, const NSUInteger offset = 0u) {
+                                [cmd setKernelBuffer:value offset:offset atIndex:index];
+                            };
+                            const auto scalar = [&](id<MTLIndirectComputeCommand> cmd,
+                                const NSUInteger index, const NSUInteger offset) {
+                                bind(cmd, index, scalars, offset);
+                            };
+                            const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
+                                const NSUInteger groups, const NSUInteger width) {
+                                [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
+                                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                                [cmd setBarrier];
+                            };
+                            for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
+                                const NSUInteger passOffset = pass == 0u
+                                    ? offsetof(CGS2Constants, pass0) : offsetof(CGS2Constants, pass1);
+                                auto cmd = command("nm_fgmres_cgs2_partial");
+                                scalar(cmd, 1u, offsetof(CGS2Constants, column)); scalar(cmd, 2u, passOffset);
+                                bind(cmd, 3u, state.fgmresBasis); bind(cmd, 4u, state.femOperatorValue);
+                                bind(cmd, 5u, state.fgmresOrthogonalPartials); bind(cmd, 6u, state.fgmresStates);
+                                finish(cmd, cgs2Groups, 256u);
+                                cmd = command("nm_fgmres_cgs2_reduce_row");
+                                scalar(cmd, 1u, offsetof(CGS2Constants, column)); scalar(cmd, 2u, passOffset);
+                                bind(cmd, 3u, state.fgmresHessenberg); bind(cmd, 4u, state.fgmresOrthogonalPartials);
+                                bind(cmd, 5u, state.fgmresStates); finish(cmd, environments * (column + 1u), 32u);
+                                cmd = command("nm_fgmres_cgs2_update");
+                                scalar(cmd, 1u, offsetof(CGS2Constants, column)); scalar(cmd, 2u, passOffset);
+                                bind(cmd, 3u, state.fgmresBasis); bind(cmd, 4u, state.femOperatorValue);
+                                bind(cmd, 5u, state.fgmresHessenberg); bind(cmd, 6u, state.fgmresOrthogonalPartials);
+                                bind(cmd, 7u, state.fgmresStates); finish(cmd, cgs2Groups, 256u);
+                            }
+                            auto cmd = command("nm_fgmres_cgs2_measure_norm");
+                            bind(cmd, 1u, state.femOperatorValue); bind(cmd, 2u, state.fgmresOrthogonalPartials);
+                            bind(cmd, 3u, state.fgmresStates); finish(cmd, cgs2Groups, 256u);
+                            cmd = command("nm_fgmres_cgs2_finish_column");
+                            bind(cmd, 1u, state.mixedSolver); scalar(cmd, 2u, offsetof(CGS2Constants, column));
+                            bind(cmd, 3u, state.fgmresHessenberg); bind(cmd, 4u, state.fgmresRotations);
+                            bind(cmd, 5u, state.fgmresLeastSquares); bind(cmd, 6u, state.fgmresStates);
+                            scalar(cmd, 7u, offsetof(CGS2Constants, forcing)); bind(cmd, 8u, state.fgmresOrthogonalPartials);
+                            bind(cmd, 9u, state.fgmresNodeActiveDispatch); bind(cmd, 10u, state.fgmresElementActiveDispatch);
+                            finish(cmd, environments, 32u);
+                            cmd = command("nm_fgmres_cgs2_normalize");
+                            scalar(cmd, 1u, offsetof(CGS2Constants, column)); bind(cmd, 2u, state.femOperatorValue);
+                            bind(cmd, 3u, state.fgmresBasis, vectorBytes * (column + 1u));
+                            bind(cmd, 4u, state.fgmresOrthogonalPartials); bind(cmd, 5u, state.fgmresStates);
+                            finish(cmd, cgs2Groups, 256u);
+                            state.residentBytes -= state.fgmresCGS2Constants[cacheIndex].allocatedSize + state.fgmresCGS2Commands[cacheIndex].allocatedSize;
+                            state.residentBytes += scalars.allocatedSize + graph.allocatedSize;
+                            state.fgmresCGS2Constants[cacheIndex] = scalars;
+                            state.fgmresCGS2Commands[cacheIndex] = graph;
+                            state.fgmresCGS2Forcing[cacheIndex] = linearForcing;
+                        }
+                        const std::uint32_t commandCount = 9u;
+                        dispatchThreads("nm_fgmres_cgs2_prepare_range", environments, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                            [encoder setBytes:&commandCount length:sizeof(commandCount) atIndex:2u];
+                            [encoder setBuffer:state.fgmresCGS2ExecutionRange offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        for (id<MTLBuffer> resource : {state.fgmresBasis, state.femOperatorValue,
+                                state.fgmresOrthogonalPartials, state.fgmresStates, state.fgmresHessenberg,
+                                state.fgmresRotations, state.fgmresLeastSquares, state.fgmresNodeActiveDispatch,
+                                state.fgmresElementActiveDispatch})
+                            [encoder useResource:resource usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+                        [encoder useResource:state.mixedSolver usage:MTLResourceUsageRead];
+                        [encoder useResource:state.fgmresCGS2Constants[cacheIndex] usage:MTLResourceUsageRead];
+                        [encoder useResource:state.fgmresCGS2Commands[cacheIndex] usage:MTLResourceUsageRead];
+                        [encoder executeCommandsInBuffer:state.fgmresCGS2Commands[cacheIndex]
+                            indirectBuffer:state.fgmresCGS2ExecutionRange indirectBufferOffset:0u];
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    } else {
+                    for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
+                        dispatchGroups256("nm_fgmres_cgs2_partial", cgs2Groups, [&] {
+                            setDispatch();
+                            [encoder setBytes:&column length:sizeof(column) atIndex:1u];
+                            [encoder setBytes:&pass length:sizeof(pass) atIndex:2u];
+                            [encoder setBuffer:state.fgmresBasis offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:5u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups32("nm_fgmres_cgs2_reduce_row", environments * (column + 1u), [&] {
+                            setDispatch();
+                            [encoder setBytes:&column length:sizeof(column) atIndex:1u];
+                            [encoder setBytes:&pass length:sizeof(pass) atIndex:2u];
+                            [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:3u];
+                            [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups256("nm_fgmres_cgs2_update", cgs2Groups, [&] {
+                            setDispatch();
+                            [encoder setBytes:&column length:sizeof(column) atIndex:1u];
+                            [encoder setBytes:&pass length:sizeof(pass) atIndex:2u];
+                            [encoder setBuffer:state.fgmresBasis offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
+                            [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:6u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:7u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    dispatchGroups256("nm_fgmres_cgs2_measure_norm", cgs2Groups, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups32("nm_fgmres_cgs2_finish_column", environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                        [encoder setBytes:&column length:sizeof(column) atIndex:2u];
+                        [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresRotations offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                        [encoder setBytes:&linearForcing length:sizeof(linearForcing) atIndex:7u];
+                        [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresNodeActiveDispatch offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresElementActiveDispatch offset:0u atIndex:10u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256("nm_fgmres_cgs2_normalize", cgs2Groups, [&] {
+                        setDispatch();
+                        [encoder setBytes:&column length:sizeof(column) atIndex:1u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresBasis offset:vectorBytes * (column + 1u) atIndex:3u];
+                        [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                } else {
                 // The single-environment large-Human profile benefits from a wider
                 // reduction group; keep batched/smaller scenes on the established path.
                 const std::uint32_t orthogonalizeThreadgroupWidth =
@@ -26197,12 +27207,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(orthogonalizeThreadgroupWidth)
                                   atIndex:13u];
                     });
+                }
                 if (fgmresColumnDispatch)
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             fgmresColumnDispatch = false;
             const std::uint32_t finalRestartCycle =
                 restartCycle + 1u == restartCycleCount ? 1u : 0u;
+            if (collectFGMRESWork) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_telemetry_finalize", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads("nm_fgmres_finalize_cycle", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -26269,7 +27290,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(restartCycle) atIndex:13u];
                     [encoder setBuffer:state.femRegionalRestartTailPreserved
                                  offset:0u atIndex:14u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32(
                     "nm_fgmres_regional_restart_measure_raw", environments, [&] {
@@ -26321,7 +27342,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -26341,7 +27362,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_regional_store_ap", femNodeTotal, [&] {
                     setDispatch();
@@ -26359,7 +27380,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t preserveCompletedTail = 1u;
                     [encoder setBytes:&preserveCompletedTail
                                length:sizeof(preserveCompletedTail) atIndex:7u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32(
                     "nm_fgmres_regional_restart_cross_rhs",
@@ -26394,7 +27415,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&baseModes length:sizeof(baseModes) atIndex:4u];
                     [encoder setBuffer:state.femRegionalRestartTailPreserved
                                  offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32(
                     "nm_fgmres_regional_restart_measure", environments, [&] {
@@ -26420,7 +27441,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&baseModes length:sizeof(baseModes) atIndex:5u];
                     [encoder setBuffer:state.femRegionalRestartTailPreserved
                                  offset:0u atIndex:6u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const auto buildAndFactorRestartRAP = [&] {
                     dispatchGroups32("nm_fgmres_regional_restart_build_rap",
@@ -26478,7 +27499,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&baseModes length:sizeof(baseModes) atIndex:4u];
                     [encoder setBuffer:state.femRegionalRestartTailPreserved
                                  offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 buildAndFactorRestartRAP();
             }
@@ -26492,7 +27513,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_fgmres_accumulate_fields", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -26503,7 +27524,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads(
                 "nm_fgmres_accumulate_mpm", mpmActiveNodeTotal, [&] {
                 setDispatch();
@@ -26611,7 +27632,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                                 encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -26635,7 +27656,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                                 encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
                 if (state.dispatch.rigidGeneralizedCapacity != 0u) {
                     const std::uint32_t allowConvergedTrueResidualOperator = 1u;
@@ -26680,8 +27701,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t replaceTrueResidual =
                     femTrueResidualRestartEnabled
                         ? (femStrictInnerForcingRequested ? 3u : 1u) : 0u;
-                dispatchGroups32("nm_fgmres_measure_true_residual",
-                    environments, [&] {
+                dispatchGlobalMeasurement("nm_fgmres_measure_true_residual", [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                     [encoder setBuffer:state.femTrueResidualRightHandSide
@@ -26772,7 +27792,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                 const NSUInteger actionFieldVectorOffset =
                     femNodeTotal * sizeof(nm_float4);
                 const NSUInteger actionFieldWorkOffset =
@@ -26797,7 +27817,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                                 encodeAddCohesiveOperator(trueResidualOperatorMicro, state.femTrueResidualCohesiveOperator, state.femTrueResidualOperatorValue, state.femTrueResidualStatuses);
                 const std::uint32_t allowConvergedOperatorState = 1u;
                 dispatchThreads("nm_mixed_apply_operator_elements",
@@ -26817,7 +27837,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                     [encoder setBytes:&allowConvergedOperatorState
                                length:sizeof(allowConvergedOperatorState) atIndex:11u];
-                });
+                }, WorkDomain::tetrahedra);
                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -26830,7 +27850,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:actionFieldVectorOffset atIndex:6u];
                     [encoder setBuffer:state.femTrueResidualOperatorValue
                                  offset:actionFieldWorkOffset atIndex:7u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads("nm_fgmres_apply_free_rigid",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -26869,7 +27889,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 dispatchThreads(
                     "nm_fgmres_restart_residual_mpm",
                     mpmActiveNodeTotal, [&] {
@@ -26910,6 +27930,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             }
 
+            beginSolverStage("matter_newton_globalization");
+            if (encoder == nil) {
+                diagnostics.message = "failed to open Newton globalization timing stage";
+                return diagnostics;
+            }
             dispatchGroups32("nm_vascular_resolve_working_set", environments, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -26948,7 +27973,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.humanSupportSamples
                              offset:0u atIndex:10u];
             });
-            dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
+            dispatchGlobalMeasurement("nm_fgmres_measure_correction", [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
@@ -27626,7 +28651,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
                         [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:5u];
                         [encoder setBytes:&useGradient length:sizeof(useGradient) atIndex:6u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     // Both applications bypass the already-completed linear
                     // latch read-only; the original Newton certificate is
@@ -27675,7 +28700,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femArmijoMetrics != nil
                         ? state.femArmijoMetrics : state.dummy
                                  offset:0u atIndex:26u];
-                });
+                }, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -27699,7 +28724,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
-                });
+                }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 };
                 if (femBaseCGLSIterations != 0u) {
@@ -27790,7 +28815,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
                                 [encoder setBytes:&onlyFallbackRows
                                     length:sizeof(onlyFallbackRows) atIndex:24u];
-                            });
+                            }, WorkDomain::femNodes);
                         };
                         if (splitCachedCoupledBlock) {
                             dispatchBlockPass(
@@ -27820,7 +28845,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:4u];
                             [encoder setBuffer:state.femBaseCGLSErrors
                                          offset:0u atIndex:5u];
-                        }); barrier();
+                        }, WorkDomain::femNodes); barrier();
                     }
                     if (warmStartRefinementThisNewton) {
                         // Measure the exact current Newton operator on x0,
@@ -28237,9 +29262,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:9u];
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:10u];
                         [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:11u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads("nm_fem_armijo_validate_geometry", environments, [&] {
+                    validateArmijoGeometry([&] {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -28280,7 +29305,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-                    });
+                    }, WorkDomain::tetrahedra);
                     captureStatus5(31u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
                         NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
                         state.femArmijoStatuses, state.femArmijoCandidate,
@@ -28360,7 +29385,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
                         [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                         [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
-                    });
+                    }, WorkDomain::femNodes);
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (state.femArmijoTiledCohesiveRequested) {
@@ -28382,17 +29407,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:11u];
                             [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:12u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
-                        });
+                        }, WorkDomain::femNodes);
                         }
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads("nm_fem_armijo_measure_trial", environments, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
-                    });
+                    measureArmijoNorm(true);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fem_armijo_decide", environments, [&] {
                         setDispatch();
@@ -29048,10 +30067,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:9u];
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:10u];
                         [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:11u];
-                    });
+                    }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads(
-                        "nm_fem_armijo_validate_geometry", environments, [&] {
+                    validateArmijoGeometry([&] {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -29176,7 +30194,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-                    });
+                    }, WorkDomain::tetrahedra);
                     captureStatus5(41u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
                         NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
                         state.femArmijoStatuses, state.femArmijoCandidate,
@@ -29250,7 +30268,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
                         [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                         [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
-                    });
+                    }, WorkDomain::femNodes);
                     if (!captureTrialResidualStage(
                             "residual_after_bulk_mechanical",
                             "after_bulk_mechanical_before_cohesive", trialIndex)) {
@@ -29284,7 +30302,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:11u];
                             [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:12u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
-                        });
+                        }, WorkDomain::femNodes);
                         }
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -29574,7 +30592,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoStatuses
                                          offset:0u atIndex:7u];
                         [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:8u];
-                });
+                }, WorkDomain::femNodes);
                     } else {
                         dispatchThreads(
                             "nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
@@ -29597,7 +30615,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     : state.dummy,
                                 5u);
                         [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:10u];
-                });
+                }, WorkDomain::femNodes);
                     }
                     if (!captureTrialResidualStage(
                             "residual_after_rigid_contact",
@@ -29773,14 +30791,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         return diagnostics;
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads(
-                        "nm_fem_armijo_measure_trial", environments, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
-                    });
+                    measureArmijoNorm(true);
                     if (captureTrialSummaryStatus &&
                         !captureTrialSummaryStatus(trialIndex, 7u,
                             "measured_predecision")) {
@@ -29897,7 +30908,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
-            });
+            }, WorkDomain::femNodes);
             if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
                 dispatchThreads("nm_fgmres_capture_regional_recycle",
                     femNodeTotal, [&] {
@@ -29912,7 +30923,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.femRegionalAcceptedCorrection
                                  offset:0u atIndex:5u];
-                });
+                }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             dispatchThreads(
@@ -29934,7 +30945,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:4u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
@@ -30019,6 +31030,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femCandidate, state.femFieldsCandidate);
             }
             }
+            beginSolverStage(nullptr);
+            if (encoder == nil) {
+                diagnostics.message = "failed to close Newton timing span";
+                return diagnostics;
+            }
             if (femOperatorFDTraceEnabled && !femOperatorFDTraceCaptured) {
                 std::fprintf(stderr,
                     "fem_operator_fd_not_captured={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"selected_iteration_not_encoded\"}\n",
@@ -30038,7 +31054,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
-            });
+            }, WorkDomain::femNodes);
             const std::uint32_t mixedPostStepAllowConverged = 0u;
             dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                 setDispatch();
@@ -30054,7 +31070,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                 [encoder setBytes:&mixedPostStepAllowConverged
                            length:sizeof(mixedPostStepAllowConverged) atIndex:11u];
-            });
+            }, WorkDomain::tetrahedra);
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -30065,7 +31081,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                 [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -30082,7 +31098,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
                 [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
                 [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -30103,7 +31119,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-            });
+            }, WorkDomain::tetrahedra);
             captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
@@ -30138,7 +31154,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
-            });
+            }, WorkDomain::femNodes);
                         encodeAddCohesiveResidual(micro);
             if (!encodeCoupledPrimalContact(
                     true,
@@ -30397,7 +31413,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_fem_validate", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -30413,7 +31429,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:11u];
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-            });
+            }, WorkDomain::tetrahedra);
             captureStatus5(60u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
@@ -30697,7 +31713,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:3u];
-            });
+            }, WorkDomain::femNodes);
             dispatchThreads("nm_vascular_commit", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -30859,7 +31875,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
-        });
+        }, WorkDomain::femNodes);
             dispatchThreads("nm_vascular_rollback", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -30944,6 +31960,55 @@ RuntimeDiagnostics Runtime::encodeImpl(
         });
 
         [encoder endEncoding];
+        const char* workCounterSetting = std::getenv("NUMI_MATTER_WORK_COUNTERS");
+        if (workCounterSetting != nullptr && std::strcmp(workCounterSetting, "1") == 0) {
+            const NSUInteger telemetryBytes = state.dispatch.environmentCount *
+                sizeof(NMFGMRESTelemetryGPU);
+            id<MTLBuffer> telemetryReadback = [state.device
+                newBufferWithLength:telemetryBytes + 3u * state.dispatch.environmentCount * sizeof(std::uint32_t)
+                    options:MTLResourceStorageModeShared];
+            if (telemetryReadback != nil) {
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    diagnostics.message = "failed to copy requested FGMRES telemetry";
+                    return diagnostics;
+                }
+                [copy copyFromBuffer:state.fgmresTelemetry sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:0u size:telemetryBytes];
+                const NSUInteger countBytes = state.dispatch.environmentCount * sizeof(std::uint32_t);
+                [copy copyFromBuffer:state.deformableContactActiveCounts sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:telemetryBytes size:countBytes];
+                [copy copyFromBuffer:state.deformableContactCandidateCounts sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:telemetryBytes + countBytes size:countBytes];
+                [copy copyFromBuffer:state.femSurfaceActiveCounts sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:telemetryBytes + 2u * countBytes size:countBytes];
+                [copy endEncoding];
+                const std::uint32_t telemetryRoot = request.controlStep;
+                const std::uint32_t telemetryEnvironments = state.dispatch.environmentCount;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* totals = static_cast<const NMFGMRESTelemetryGPU*>(
+                        telemetryReadback.contents);
+                    const auto* contactCounts = reinterpret_cast<const std::uint32_t*>(
+                        static_cast<const std::byte*>(telemetryReadback.contents) + telemetryBytes);
+                    for (std::uint32_t env = 0u; env < telemetryEnvironments; ++env) {
+                        std::fprintf(stderr,
+                            "matter_contact_work={\"root\":%u,\"environment\":%u,\"last_workspace_active_contacts\":%u,\"last_workspace_candidates\":%u,\"last_workspace_surface_primitives\":%u}\n",
+                            telemetryRoot, env, contactCounts[env],
+                            contactCounts[telemetryEnvironments + env],
+                            contactCounts[2u * telemetryEnvironments + env]);
+                        std::fprintf(stderr,
+                            "matter_fgmres_active_work={\"root\":%u,\"environment\":%u,"
+                            "\"used_columns_sum\":%u,\"cycles_with_work\":%u,"
+                            "\"encoded_cycles\":%u,\"active_newton_begins\":%u,"
+                            "\"active_restart_begins\":%u}\n",
+                            telemetryRoot, env, totals[env].linear.x,
+                            totals[env].linear.y, totals[env].linear.z,
+                            totals[env].nonlinear.x, totals[env].nonlinear.y);
+                    }
+                }];
+            }
+        }
         if (status5Selected && status5CaptureBuffer != nil) {
             const auto captureBuffer = status5CaptureBuffer;
             const std::string captureStem = status5CapturePath;

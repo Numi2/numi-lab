@@ -27,6 +27,18 @@ struct CounterTimingSession {
     std::vector<CounterTimingRecord> records;
 };
 
+// A stage span starts at one encoder's start timestamp and closes at a
+// later encoder's start timestamp. Runtime may split the work into multiple
+// encoders between these boundaries; all remain inside the measured interval.
+struct TimingSpan {
+    std::shared_ptr<CounterTimingSession> session;
+    const void* commandKey = nullptr;
+    std::string stage;
+    unsigned root = 0u;
+    NSUInteger begin = 0u;
+    bool active = false;
+};
+
 inline std::mutex& counterTimingMapMutex() {
     static std::mutex mutex;
     return mutex;
@@ -178,6 +190,141 @@ inline id<MTLComputeCommandEncoder> timedEncoder(
     pass.sampleBufferAttachments[0].sampleBuffer = session->buffer;
     pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = begin;
     pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = end;
+    return [command computeCommandEncoderWithDescriptor:pass];
+}
+
+// Close the current GPU-time span at the start of the returned encoder, then
+// optionally open stage at that same timestamp. The returned encoder is the
+// next encoder in the caller's original command-buffer timeline, so it can
+// immediately receive the stage's normal work. Pass nullptr to close a span
+// at a final marker encoder. If sampling is disabled or unavailable this
+// returns a plain encoder and emits no fabricated elapsed time.
+inline id<MTLComputeCommandEncoder> timingSpanBoundary(
+    id<MTLCommandBuffer> command, id<MTLDevice> device,
+    unsigned root, const char* stage, TimingSpan& span
+) {
+    if (command == nil) return nil;
+    const void* commandKey = (__bridge const void*)command;
+    const bool sameCommand = span.active && span.commandKey == commandKey;
+    if (span.active && !sameCommand) {
+        std::fprintf(stderr,
+            "matter_gpu_stage_incomplete stage=%s step=%u reason=command_buffer_changed\n",
+            span.stage.c_str(), span.root);
+        if (span.session) {
+            std::lock_guard<std::mutex> lock(span.session->mutex);
+            ++span.session->dropped;
+        }
+        span.session.reset();
+        span.commandKey = nullptr;
+        span.stage.clear();
+        span.active = false;
+    }
+
+    const char* requested = std::getenv("NUMI_MATTER_GPU_TIMING");
+    const char* selected = std::getenv("NUMI_MATTER_GPU_TIMING_STAGE");
+    bool rootConfigValid = true;
+    unsigned sampledRoot = 100u;
+    if (const char* rootSetting =
+            std::getenv("NUMI_MATTER_GPU_TIMING_ROOT")) {
+        char* end = nullptr;
+        const unsigned long parsed = std::strtoul(rootSetting, &end, 10);
+        if (end == rootSetting || *end != 0 ||
+            parsed > static_cast<unsigned long>(~0u)) {
+            rootConfigValid = false;
+        } else {
+            sampledRoot = static_cast<unsigned>(parsed);
+        }
+    }
+    bool openRequested = requested != nullptr &&
+        std::strcmp(requested, "1") == 0 && rootConfigValid &&
+        root == sampledRoot && stage != nullptr &&
+        (selected == nullptr || std::strcmp(selected, stage) == 0);
+    if (openRequested &&
+        (device == nil || ![device supportsCounterSampling:
+            MTLCounterSamplingPointAtStageBoundary])) {
+        std::fprintf(stderr,
+            "matter_gpu_timing_span_unavailable stage=%s step=%u reason=counter_sampling_unsupported\n",
+            stage, root);
+        openRequested = false;
+    }
+
+    std::shared_ptr<CounterTimingSession> session =
+        sameCommand ? span.session : std::shared_ptr<CounterTimingSession>{};
+    if (!session && openRequested)
+        session = counterTimingSession(command, device);
+    if (!session) {
+        if (openRequested)
+            std::fprintf(stderr,
+                "matter_gpu_timing_span_unavailable stage=%s step=%u reason=counter_session_unavailable\n",
+                stage, root);
+        // An active span always owns its session; if it was lost, report and
+        // reset rather than creating a cross-command range.
+        if (span.active) {
+            span.active = false;
+            span.session.reset();
+            span.commandKey = nullptr;
+            span.stage.clear();
+        }
+        return [command computeCommandEncoder];
+    }
+
+    const bool closesActive = span.active && sameCommand;
+    const bool opensNext = openRequested;
+    if (!closesActive && !opensNext)
+        return [command computeCommandEncoder];
+
+    NSUInteger boundarySample = 0u;
+    bool sampleAvailable = false;
+    {
+        std::lock_guard<std::mutex> lock(session->mutex);
+        if (session->nextSample < session->capacity) {
+            boundarySample = session->nextSample++;
+            sampleAvailable = true;
+        } else {
+            if (closesActive) ++session->dropped;
+            if (opensNext) ++session->dropped;
+        }
+    }
+    if (!sampleAvailable) {
+        if (closesActive)
+            std::fprintf(stderr,
+                "matter_gpu_stage_incomplete stage=%s step=%u reason=counter_capacity\n",
+                span.stage.c_str(), span.root);
+        if (opensNext)
+            std::fprintf(stderr,
+                "matter_gpu_timing_span_unavailable stage=%s step=%u reason=counter_capacity\n",
+                stage, root);
+        if (closesActive) {
+            span.active = false;
+            span.session.reset();
+            span.commandKey = nullptr;
+            span.stage.clear();
+        }
+        return [command computeCommandEncoder];
+    }
+
+    if (closesActive) {
+        std::lock_guard<std::mutex> lock(session->mutex);
+        session->records.push_back(CounterTimingRecord{
+            span.stage, span.root, span.begin, boundarySample});
+        span.active = false;
+        span.session.reset();
+        span.commandKey = nullptr;
+        span.stage.clear();
+    }
+    if (opensNext) {
+        span.session = session;
+        span.commandKey = commandKey;
+        span.stage = stage;
+        span.root = root;
+        span.begin = boundarySample;
+        span.active = true;
+    }
+
+    auto* pass = [MTLComputePassDescriptor computePassDescriptor];
+    pass.sampleBufferAttachments[0].sampleBuffer = session->buffer;
+    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = boundarySample;
+    pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = MTLCounterDontSample;
     return [command computeCommandEncoderWithDescriptor:pass];
 }
 } // namespace numi::matter::detail

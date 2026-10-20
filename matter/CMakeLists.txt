@@ -62,6 +62,18 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-partitioned-reduction-basis-check
+    tools/partitioned_reduction_basis_check.cpp)
+target_include_directories(numi-matter-partitioned-reduction-basis-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-partitioned-reduction-basis-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.partitioned_reduction_basis
+        COMMAND numi-matter-partitioned-reduction-basis-check)
+    set_tests_properties(matter.compiler.partitioned_reduction_basis PROPERTIES
+        TIMEOUT 30 LABELS "matter;fem;preconditioner;cpu;synthetic")
+endif()
 add_executable(numi-matter-cardboard-constituent-volume-damage-check
     tools/cardboard_constituent_volume_damage_check.cpp)
 target_compile_options(numi-matter-cardboard-constituent-volume-damage-check PRIVATE
@@ -1023,6 +1035,12 @@ if(APPLE)
         add_test(NAME matter.compiler.cardboard_full_contact_armijo COMMAND numi-matter-cardboard-full-contact-armijo-check
             "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter" --cpu-only)
         set_tests_properties(matter.compiler.cardboard_full_contact_armijo PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;contact;armijo;synthetic")
+        add_test(NAME matter.metal.fem_armijo_global_measurements
+            COMMAND numi-matter-cardboard-full-contact-armijo-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter"
+                --armijo-alpha-publication)
+        set_tests_properties(matter.metal.fem_armijo_global_measurements PROPERTIES
+            TIMEOUT 60 LABELS "matter;metal;armijo;reduction;synthetic")
         add_test(NAME matter.compiler.cardboard_compensated_full_contact
             COMMAND numi-matter-cardboard-full-contact-armijo-check
                 "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter"

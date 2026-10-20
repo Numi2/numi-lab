@@ -1,0 +1,46 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+      Start  50: matter.physics.mixed_mpm_fem
+ 1/11 Test  #50: matter.physics.mixed_mpm_fem ................................   Passed    0.87 sec
+      Start  51: matter.physics.monolithic_multiphysics
+ 2/11 Test  #51: matter.physics.monolithic_multiphysics ......................   Passed    0.11 sec
+      Start  56: matter.runtime.topology_rollback
+ 3/11 Test  #56: matter.runtime.topology_rollback ............................   Passed    0.07 sec
+      Start  58: matter.runtime.production_transaction_rollback
+ 4/11 Test  #58: matter.runtime.production_transaction_rollback ..............   Passed    0.07 sec
+      Start  63: matter.runtime.mpm_transaction_rollback
+ 5/11 Test  #63: matter.runtime.mpm_transaction_rollback .....................   Passed   17.66 sec
+      Start  67: matter.runtime.adaptive_promotion_rollback
+ 6/11 Test  #67: matter.runtime.adaptive_promotion_rollback ..................   Passed    0.77 sec
+      Start 165: matter.compiler.partitioned_reduction_basis
+ 7/11 Test #165: matter.compiler.partitioned_reduction_basis .................   Passed    0.01 sec
+      Start 248: matter.metal.fgmres_true_residual_kernel_contract
+ 8/11 Test #248: matter.metal.fgmres_true_residual_kernel_contract ...........   Passed    0.24 sec
+      Start 259: matter.metal.fem_armijo_global_measurements
+ 9/11 Test #259: matter.metal.fem_armijo_global_measurements .................   Passed    0.29 sec
+      Start 265: matter.metal.cardboard_contact_node_incidence_sort_native
+10/11 Test #265: matter.metal.cardboard_contact_node_incidence_sort_native ...   Passed    0.03 sec
+      Start 304: matter.metal.vascular_cavity
+11/11 Test #304: matter.metal.vascular_cavity ................................   Passed    6.36 sec
+
+100% tests passed out of 11
+
+Label Time Summary:
+armijo            =   0.29 sec*proc (1 test)
+cardboard         =   0.03 sec*proc (1 test)
+cavity            =   6.36 sec*proc (1 test)
+contact           =   0.03 sec*proc (1 test)
+cpu               =   0.01 sec*proc (1 test)
+fem               =   0.01 sec*proc (1 test)
+fgmres            =   0.24 sec*proc (1 test)
+human             =   6.36 sec*proc (1 test)
+matter            =  26.48 sec*proc (11 tests)
+metal             =  26.44 sec*proc (9 tests)
+native-kernel     =   0.03 sec*proc (1 test)
+physics           =  19.55 sec*proc (6 tests)
+preconditioner    =   0.01 sec*proc (1 test)
+reduction         =   0.29 sec*proc (1 test)
+synthetic         =   0.56 sec*proc (4 tests)
+true-residual     =   0.24 sec*proc (1 test)
+vascular          =   6.36 sec*proc (1 test)
+
+Total Test time (real) =  26.49 sec

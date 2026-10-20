@@ -4181,6 +4181,189 @@ kernel void nm_fem_select_backtracking(
         }
     }
 }
+// Distributed residual norm for the explicit-FEM Armijo gate. Each 256-row
+// logical tile is covered by one SIMD32 group (eight rows per lane); a second
+// per-environment SIMD reduction joins the compact tile partials. Scratch is
+// float2[environmentCount * ceil((femNodeCount + rigidCapacity)/256)], with
+// x = squared-norm contribution and y = finite-row flag.
+constant uint kFEMArmijoNormTileItems = 256u;
+
+inline uint femArmijoNormTileCount(const NMMatterDispatchGPU dispatch) {
+    const uint rows = dispatch.femNodeCount +
+        dispatch.rigidGeneralizedCapacity;
+    return max(1u, (rows + kFEMArmijoNormTileItems - 1u) /
+        kFEMArmijoNormTileItems);
+}
+
+inline float femArmijoNormContribution(
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const uint item,
+    device const float4* residual,
+    device const NMFEMNodeStateGPU* candidateNodes,
+    thread bool& finite
+) {
+    if (item < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + item;
+        const NMFEMNodeStateGPU state = candidateNodes[node];
+        if (!isfinite(state.restAndFixed.w) ||
+            !isfinite(state.positionAndMass.w)) {
+            finite = false;
+            return 0.0f;
+        }
+        if (state.restAndFixed.w > 0.5f ||
+            state.positionAndMass.w <= 0.0f) return 0.0f;
+        const float3 value = residual[node].xyz;
+        if (!all(isfinite(value))) {
+            finite = false;
+            return 0.0f;
+        }
+        const float contribution = dot(value, value);
+        finite = finite && isfinite(contribution);
+        return isfinite(contribution) ? contribution : 0.0f;
+    }
+    const uint dof = item - dispatch.femNodeCount;
+    if (dof >= dispatch.rigidGeneralizedCapacity) return 0.0f;
+    const uint rigidBase = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount +
+        dispatch.environmentCount * dispatch.mpmActiveNodeCapacity +
+        environment * dispatch.rigidGeneralizedCapacity;
+    const float value = residual[rigidBase + dof].x;
+    finite = finite && isfinite(value);
+    const float contribution = value * value;
+    finite = finite && isfinite(contribution);
+    return isfinite(contribution) ? contribution : 0.0f;
+}
+
+inline float2 femArmijoNormTilePartial(
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const uint tile,
+    const uint lane,
+    device const float4* residual,
+    device const NMFEMNodeStateGPU* candidateNodes
+) {
+    float sum = 0.0f;
+    bool finite = true;
+    const uint first = tile * kFEMArmijoNormTileItems + lane;
+    for (uint offset = 0u; offset < kFEMArmijoNormTileItems;
+         offset += 32u) {
+        const uint item = first + offset;
+        if (item < dispatch.femNodeCount +
+                dispatch.rigidGeneralizedCapacity)
+            sum += femArmijoNormContribution(
+                dispatch, environment, item, residual, candidateNodes, finite);
+    }
+    return float2(sum, finite ? 1.0f : 0.0f);
+}
+
+kernel void nm_fem_armijo_measure_base_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* residual [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(2)]],
+    device float2* partials [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = femArmijoNormTileCount(dispatch);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= 32u) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    float2 partial = femArmijoNormTilePartial(
+        dispatch, environment, tile, lane, residual, candidateNodes);
+    partial.x = simd_sum(partial.x);
+    partial.y = simd_all(partial.y > 0.5f) ? 1.0f : 0.0f;
+    if (lane == 0u)
+        partials[environment * tilesPerEnvironment + tile] = partial;
+}
+
+kernel void nm_fem_armijo_measure_base_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float2* partials [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u) return;
+    const uint tilesPerEnvironment = femArmijoNormTileCount(dispatch);
+    float laneNorm2 = 0.0f;
+    bool laneFinite = true;
+    for (uint tile = lane; tile < tilesPerEnvironment; tile += 32u) {
+        const float2 partial = partials[group * tilesPerEnvironment + tile];
+        laneNorm2 += partial.x;
+        laneFinite = laneFinite && partial.y > 0.5f;
+    }
+    const float norm2 = simd_sum(laneNorm2);
+    const bool finite = simd_all(laneFinite);
+    if (lane == 0u) {
+        const float norm = finite && isfinite(norm2)
+            ? sqrt(max(norm2, 0.0f)) : INFINITY;
+        metrics[group] = float4(norm, INFINITY, 0.0f, 0.0f);
+    }
+}
+
+kernel void nm_fem_armijo_measure_trial_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* residual [[buffer(1)]],
+    device const NMFEMNodeStateGPU* trialCandidate [[buffer(2)]],
+    device const float4* metrics [[buffer(3)]],
+    device const NMMatterStatusGPU* trialStatuses [[buffer(4)]],
+    device float2* partials [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tilesPerEnvironment = femArmijoNormTileCount(dispatch);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= 32u) return;
+    const uint environment = group / tilesPerEnvironment;
+    if (metrics[environment].w > 0.5f ||
+        !environmentHealthy(trialStatuses, environment)) return;
+    const uint tile = group - environment * tilesPerEnvironment;
+    float2 partial = femArmijoNormTilePartial(
+        dispatch, environment, tile, lane, residual, trialCandidate);
+    partial.x = simd_sum(partial.x);
+    partial.y = simd_all(partial.y > 0.5f) ? 1.0f : 0.0f;
+    if (lane == 0u)
+        partials[environment * tilesPerEnvironment + tile] = partial;
+}
+
+kernel void nm_fem_armijo_measure_trial_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* metrics [[buffer(1)]],
+    device const NMMatterStatusGPU* trialStatuses [[buffer(2)]],
+    device const float2* partials [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u) return;
+    float4 state = metrics[group];
+    // Keep the old accepted-trial early return and status rejection exactly.
+    if (state.w > 0.5f) return;
+    if (!environmentHealthy(trialStatuses, group)) {
+        if (lane == 0u) {
+            state.y = INFINITY;
+            metrics[group] = state;
+        }
+        return;
+    }
+    const uint tilesPerEnvironment = femArmijoNormTileCount(dispatch);
+    float laneNorm2 = 0.0f;
+    bool laneFinite = true;
+    for (uint tile = lane; tile < tilesPerEnvironment; tile += 32u) {
+        const float2 partial = partials[group * tilesPerEnvironment + tile];
+        laneNorm2 += partial.x;
+        laneFinite = laneFinite && partial.y > 0.5f;
+    }
+    const float norm2 = simd_sum(laneNorm2);
+    const bool finite = simd_all(laneFinite);
+    if (lane == 0u) {
+        state.y = finite && isfinite(norm2)
+            ? sqrt(max(norm2, 0.0f)) : INFINITY;
+        metrics[group] = state;
+    }
+}
+
 // Opt-in pure-explicit-FEM globalization. Every trial is evaluated from the
 // same Newton candidate and accepted material history; these kernels write
 // only private scratch arenas until the normal solution application runs.
@@ -5105,6 +5288,216 @@ kernel void nm_fem_armijo_validate_geometry(
             line.y = minimumJ;
             lineSearch[lineSlot] = line;
         }
+    }
+}
+
+// Parallel tiled geometry validation. Immutable uint4 descriptors are ordered
+// by object and local element offset: x=object, y=absolute tetrahedron index,
+// z=element count (at most 256), w=global tile ordinal. uint2 object ranges are
+// [first tile, tile count]. Per-environment uint2 partials contain min-J bits
+// through the tile's first failure and that lane (or NM_INVALID_INDEX).
+constant uint kFEMArmijoGeometryTileItems = 256u;
+constant uint kFEMArmijoGeometrySimdgroupCount = 8u;
+
+kernel void nm_fem_armijo_validate_geometry_tiles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const NMFEMNodeStateGPU* trialCandidate [[buffer(7)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    constant uint& writeObjectLineSearch [[buffer(10)]],
+    constant uint& tileCount [[buffer(11)]],
+    device const uint4* tileDescriptors [[buffer(12)]],
+    device const uint2* objectTileRanges [[buffer(13)]],
+    device uint2* tilePartials [[buffer(14)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint groupCount = dispatch.environmentCount * tileCount;
+    if (tileCount == 0u || group >= groupCount) return;
+    const uint environment = group / tileCount;
+    const uint tile = group - environment * tileCount;
+    const uint partialIndex = environment * tileCount + tile;
+    if (!environmentHealthy(trialStatuses, environment)) {
+        if (lane == 0u)
+            tilePartials[partialIndex] = uint2(as_type<uint>(INFINITY),
+                                                NM_INVALID_INDEX);
+        return;
+    }
+
+    const uint4 descriptor = tileDescriptors[tile];
+    const uint objectIndex = descriptor.x;
+    if (objectIndex >= dispatch.objectCount) {
+        if (lane == 0u)
+            tilePartials[partialIndex] = uint2(as_type<uint>(INFINITY),
+                                                NM_INVALID_INDEX);
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const uint objectBase = environment * dispatch.objectCount + objectIndex;
+    const NMSchedulerStateGPU scheduler = schedulers[objectBase];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[objectBase];
+
+    bool descriptorValid = false;
+    if (descriptor.y >= object.elementOffset) {
+        const uint localOffset = descriptor.y - object.elementOffset;
+        descriptorValid = descriptor.z > 0u &&
+            descriptor.z <= kFEMArmijoGeometryTileItems &&
+            descriptor.w == tile &&
+            descriptor.y < dispatch.tetrahedronCount &&
+            descriptor.z <= dispatch.tetrahedronCount - descriptor.y &&
+            localOffset < object.elementCount &&
+            descriptor.z <= object.elementCount - localOffset;
+    }
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep) ||
+        !descriptorValid) {
+        if (lane == 0u)
+            tilePartials[partialIndex] = uint2(as_type<uint>(INFINITY),
+                                                NM_INVALID_INDEX);
+        return;
+    }
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint tetrahedronIndex = descriptor.y + lane;
+    float candidateMinimumJ = INFINITY;
+    uint candidateFailureLane = NM_INVALID_INDEX;
+    if (lane < descriptor.z) {
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if (tetrahedron.identity.y == objectIndex &&
+            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u) {
+            const float determinantValue = determinant(
+                tetrahedronDeformation(tetrahedron, trialCandidate, nodeBase));
+            candidateMinimumJ = min(INFINITY, determinantValue);
+            const NMMaterialGPU material = materials[tetrahedron.identity.x];
+            if (!isfinite(determinantValue) ||
+                determinantValue < max(dispatch.numericalLimits.z,
+                    material.validity.x) ||
+                determinantValue > material.validity.y)
+                candidateFailureLane = lane;
+        }
+    }
+
+    threadgroup uint simdFailures[kFEMArmijoGeometrySimdgroupCount];
+    threadgroup float simdMinimums[kFEMArmijoGeometrySimdgroupCount];
+    threadgroup uint firstFailureLane;
+    const uint simdgroup = lane / 32u;
+    const uint simdFirstFailure = simd_min(candidateFailureLane);
+    if ((lane & 31u) == 0u) simdFailures[simdgroup] = simdFirstFailure;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simdgroup == 0u) {
+        const uint firstFailure = simd_min(
+            lane < kFEMArmijoGeometrySimdgroupCount
+                ? simdFailures[lane] : NM_INVALID_INDEX);
+        if (lane == 0u) firstFailureLane = firstFailure;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const float eligibleMinimumJ =
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+            ? candidateMinimumJ : INFINITY;
+    const float simdMinimumJ = simd_min(eligibleMinimumJ);
+    if ((lane & 31u) == 0u) simdMinimums[simdgroup] = simdMinimumJ;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simdgroup == 0u) {
+        const float tileMinimumJ = simd_min(
+            lane < kFEMArmijoGeometrySimdgroupCount
+                ? simdMinimums[lane] : INFINITY);
+        if (lane == 0u)
+            tilePartials[partialIndex] = uint2(as_type<uint>(tileMinimumJ),
+                                                firstFailureLane);
+    }
+}
+
+kernel void nm_fem_armijo_validate_geometry_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const NMFEMNodeStateGPU* trialCandidate [[buffer(7)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    constant uint& writeObjectLineSearch [[buffer(10)]],
+    constant uint& tileCount [[buffer(11)]],
+    device const uint4* tileDescriptors [[buffer(12)]],
+    device const uint2* objectTileRanges [[buffer(13)]],
+    device const uint2* tilePartials [[buffer(14)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u ||
+        !environmentHealthy(trialStatuses, environment)) return;
+    const uint objectBase = environment * dispatch.objectCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    threadgroup uint stopObjects;
+    if (lane == 0u) stopObjects = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+         ++objectIndex) {
+        if (!environmentHealthy(trialStatuses, environment)) break;
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const uint lineSlot = objectBase + objectIndex;
+        const NMSchedulerStateGPU scheduler = schedulers[lineSlot];
+        const NMAdaptiveStateGPU adaptiveState = adaptive[lineSlot];
+        if (object.representation != NM_REPRESENTATION_FEM ||
+            !objectDue(object, scheduler, adaptiveState, microstep)) continue;
+
+        const uint2 tileRange = objectTileRanges[objectIndex];
+        uint objectTileCount = 0u;
+        if (tileRange.x <= tileCount)
+            objectTileCount = min(tileRange.y, tileCount - tileRange.x);
+        uint laneFirstFailureTile = NM_INVALID_INDEX;
+        for (uint ordinal = lane; ordinal < objectTileCount; ordinal += 32u) {
+            const uint2 partial = tilePartials[
+                environment * tileCount + tileRange.x + ordinal];
+            if (partial.y != NM_INVALID_INDEX)
+                laneFirstFailureTile = min(laneFirstFailureTile, ordinal);
+        }
+        const uint firstFailureTile = simd_min(laneFirstFailureTile);
+
+        float laneMinimumJ = INFINITY;
+        for (uint ordinal = lane; ordinal < objectTileCount; ordinal += 32u) {
+            if (firstFailureTile != NM_INVALID_INDEX &&
+                ordinal > firstFailureTile) continue;
+            const uint2 partial = tilePartials[
+                environment * tileCount + tileRange.x + ordinal];
+            laneMinimumJ = min(laneMinimumJ, as_type<float>(partial.x));
+        }
+        const float minimumJ = simd_min(laneMinimumJ);
+        if (lane == 0u && writeObjectLineSearch != 0u) {
+            float4 line = lineSearch[lineSlot];
+            line.x = 0.0f;
+            line.y = minimumJ;
+            lineSearch[lineSlot] = line;
+        }
+        if (lane == 0u && firstFailureTile != NM_INVALID_INDEX) {
+            const uint tileIndex = tileRange.x + firstFailureTile;
+            const uint2 partial = tilePartials[
+                environment * tileCount + tileIndex];
+            const uint4 descriptor = tileDescriptors[tileIndex];
+            const uint tetrahedronIndex = descriptor.y + partial.y;
+            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                dispatch, tetrahedra, environment, tetrahedronIndex);
+            const float determinantValue = determinant(
+                tetrahedronDeformation(tetrahedron, trialCandidate, nodeBase));
+            const NMMaterialGPU material = materials[tetrahedron.identity.x];
+            recordFailure(trialStatuses[environment],
+                NM_STATUS_INVALID_DEFORMATION, objectIndex,
+                microstep.solverIteration,
+                float4(determinantValue, material.validity.x,
+                    material.validity.y, dispatch.numericalLimits.z));
+            stopObjects = 1u;
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (stopObjects != 0u) break;
     }
 }
 

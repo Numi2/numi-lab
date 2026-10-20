@@ -24,6 +24,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <initializer_list>
 #include <limits>
 #include <map>
 #include <memory>
@@ -2834,6 +2835,603 @@ PrivateSelfSweepRun runPrivateSelfSweepKernelCase(
     return {status, inputBuffersJSON, *audit};
 }
 
+const auto dispatch = [](id<MTLDevice> targetDevice,
+                              id<MTLCommandQueue> targetQueue,
+                              id<MTLComputePipelineState> pipeline,
+                              std::initializer_list<std::pair<NSUInteger,
+                                  id<MTLBuffer>>> bindings,
+                              const NSUInteger groupCount,
+                              const NSUInteger threadgroupWidth) {
+        require(targetDevice != nil && targetQueue != nil,
+                "Armijo reduction fixture device or queue is unavailable");
+        id<MTLCommandBuffer> command = [targetQueue commandBuffer];
+        require(command != nil,
+                "Armijo reduction fixture command buffer allocation failed");
+        id<MTLComputeCommandEncoder> encoder =
+            [command computeCommandEncoder];
+        require(encoder != nil,
+                "Armijo reduction fixture compute encoder allocation failed");
+        [encoder setComputePipelineState:pipeline];
+        for (const auto& binding : bindings)
+            [encoder setBuffer:binding.second offset:0u atIndex:binding.first];
+        [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(threadgroupWidth, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+                "Armijo reduction fixture native command did not complete");
+    };
+
+void verifyArmijoTiledResidualNorms(
+        id<MTLDevice> device, id<MTLLibrary> library,
+        id<MTLCommandQueue> queue) {
+    auto makePipeline = [&](const char* name) -> id<MTLComputePipelineState> {
+        id<MTLFunction> function = [library newFunctionWithName:
+            [NSString stringWithUTF8String:name]];
+        require(function != nil, std::string("production kernel is missing: ") + name);
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, std::string("could not create production pipeline ") +
+            name + ": " + (error != nil
+                ? std::string([[error description] UTF8String])
+                : std::string("unknown Metal pipeline error")));
+        return pipeline;
+    };
+    const auto basePartial = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_measure_base_partial");
+    const auto baseFinish = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_measure_base_finish");
+    const auto trialPartial = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_measure_trial_partial");
+    const auto trialFinish = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_measure_trial_finish");
+
+
+
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t femNodes = 513u;
+    constexpr std::uint32_t rigidCapacity = 3u;
+    constexpr std::uint32_t mpmCapacity = 2u;
+    constexpr std::uint32_t tileRows = 256u;
+    const std::uint32_t tileCount =
+        (femNodes + rigidCapacity + tileRows - 1u) / tileRows;
+    NMMatterDispatchGPU config{};
+    config.environmentCount = environments;
+    config.femNodeCount = femNodes;
+    config.mpmActiveNodeCapacity = mpmCapacity;
+    config.rigidGeneralizedCapacity = rigidCapacity;
+
+    std::vector<NMFEMNodeStateGPU> nodes(
+        std::size_t(environments) * femNodes);
+    std::vector<nm_float4> residual(
+        2u * std::size_t(environments) * femNodes +
+        std::size_t(environments) * mpmCapacity +
+        std::size_t(environments) * rigidCapacity,
+        nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment) {
+        for (std::uint32_t node = 0u; node < femNodes; ++node) {
+            NMFEMNodeStateGPU& state =
+                nodes[std::size_t(environment) * femNodes + node];
+            state.positionAndMass.w = 1.0f;
+            state.restAndFixed.w = 0.0f;
+            const float x = 0.01f * float(int(node % 13u) - 6);
+            const float y = 0.007f * float(int(node % 11u) - 5);
+            const float z = 0.003f * float(int(node % 7u) - 3);
+            residual[std::size_t(environment) * femNodes + node] =
+                {x, y, z, 1000.0f};
+        }
+    }
+    // Dirichlet and zero-mass rows are masked before residual finiteness is
+    // tested, matching the solved free-row norm exactly.
+    nodes[1].restAndFixed.w = 1.0f;
+    nodes[2].positionAndMass.w = 0.0f;
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    residual[1] = {nan, nan, nan, 0.0f};
+    residual[2] = {nan, nan, nan, 0.0f};
+    nodes[std::size_t(femNodes) * (environments - 1u) + femNodes - 1u]
+        .positionAndMass.w = nan;
+    const std::size_t rigidBase =
+        2u * std::size_t(environments) * femNodes +
+        std::size_t(environments) * mpmCapacity;
+    residual[rigidBase + 0u] = {2.0f, nan, nan, nan};
+    residual[rigidBase + 1u] = {-1.0f, nan, nan, nan};
+    residual[rigidBase + 2u] = {0.5f, nan, nan, nan};
+
+    double expectedNorm2 = 0.0;
+    for (std::uint32_t node = 0u; node < femNodes; ++node) {
+        if (node == 1u || node == 2u) continue;
+        const nm_float4 value = residual[node];
+        expectedNorm2 += double(value.x) * value.x;
+        expectedNorm2 += double(value.y) * value.y;
+        expectedNorm2 += double(value.z) * value.z;
+    }
+    for (std::uint32_t dof = 0u; dof < rigidCapacity; ++dof) {
+        const double value = residual[rigidBase + dof].x;
+        expectedNorm2 += value * value;
+    }
+    const double expectedNorm = std::sqrt(expectedNorm2);
+
+    struct NormPartial { float sum2; float finite; };
+    static_assert(sizeof(NormPartial) == 8u);
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{config});
+    auto nodesBuffer = makeBuffer(device, nodes);
+    auto residualBuffer = makeBuffer(device, residual);
+    std::vector<NormPartial> partials(
+        std::size_t(environments) * tileCount, NormPartial{-1.0f, 0.0f});
+    auto partialsBuffer = makeBuffer(device, partials);
+    std::vector<nm_float4> metricsValues(environments,
+        nm_float4{-5.0f, -6.0f, -7.0f, -8.0f});
+    auto metricsBuffer = makeBuffer(device, metricsValues);
+
+    dispatch(device, queue, basePartial, {
+        {0u, dispatchBuffer}, {1u, residualBuffer},
+        {2u, nodesBuffer}, {3u, partialsBuffer}},
+        std::size_t(environments) * tileCount, 32u);
+    dispatch(device, queue, baseFinish, {
+        {0u, dispatchBuffer}, {1u, partialsBuffer}, {2u, metricsBuffer}},
+        environments, 32u);
+    const auto* measuredBase =
+        static_cast<const nm_float4*>(metricsBuffer.contents);
+    require(std::isfinite(measuredBase[0].x) &&
+            std::abs(double(measuredBase[0].x) - expectedNorm) <=
+                std::max(1.0e-6, expectedNorm * 2.0e-5) &&
+            std::isinf(measuredBase[1].x),
+        "tiled base norm changed free-row masks, rigid x rows, or finite rejection");
+    require(std::isinf(measuredBase[0].y) && measuredBase[0].z == 0.0f &&
+            measuredBase[0].w == 0.0f,
+        "tiled base norm changed Armijo metric initialization");
+
+    // Independently poison an included residual row so the finite flag is
+    // tested for both candidate masks and residual values themselves.
+    const std::size_t lastEnvironmentNode =
+        std::size_t(environments) * femNodes - 1u;
+    static_cast<NMFEMNodeStateGPU*>(nodesBuffer.contents)
+        [lastEnvironmentNode].positionAndMass.w = 1.0f;
+    static_cast<nm_float4*>(residualBuffer.contents)
+        [lastEnvironmentNode].x = nan;
+    dispatch(device, queue, basePartial, {
+        {0u, dispatchBuffer}, {1u, residualBuffer},
+        {2u, nodesBuffer}, {3u, partialsBuffer}},
+        std::size_t(environments) * tileCount, 32u);
+    dispatch(device, queue, baseFinish, {
+        {0u, dispatchBuffer}, {1u, partialsBuffer}, {2u, metricsBuffer}},
+        environments, 32u);
+    require(std::isinf(measuredBase[1].x),
+        "tiled base norm did not reject a nonfinite active residual row");
+
+    // The trial shares the same multi-tile norm but must preserve the old
+    // accepted-state early return and unhealthy-status rejection behavior.
+    std::vector<NMMatterStatusGPU> trialStatuses(environments);
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment) {
+        trialStatuses[environment].code = NM_STATUS_SUCCESS;
+        trialStatuses[environment].environment = environment;
+    }
+    auto trialStatusBuffer = makeBuffer(device, trialStatuses);
+    auto trialNodesBuffer = makeBuffer(device, nodes);
+    std::vector<nm_float4> trialMetrics{
+        nm_float4{3.25f, -11.0f, 0.125f, 0.0f},
+        nm_float4{2.0f, 4.0f, 0.5f, 0.0f}};
+    auto trialMetricsBuffer = makeBuffer(device, trialMetrics);
+    dispatch(device, queue, trialPartial, {
+        {0u, dispatchBuffer}, {1u, residualBuffer},
+        {2u, trialNodesBuffer}, {3u, trialMetricsBuffer},
+        {4u, trialStatusBuffer}, {5u, partialsBuffer}},
+        std::size_t(environments) * tileCount, 32u);
+    dispatch(device, queue, trialFinish, {
+        {0u, dispatchBuffer}, {1u, trialMetricsBuffer},
+        {2u, trialStatusBuffer}, {3u, partialsBuffer}},
+        environments, 32u);
+    auto* measuredTrial = static_cast<nm_float4*>(trialMetricsBuffer.contents);
+    require(std::abs(double(measuredTrial[0].y) - expectedNorm) <=
+                std::max(1.0e-6, expectedNorm * 2.0e-5) &&
+            measuredTrial[0].x == 3.25f && measuredTrial[0].z == 0.125f &&
+            measuredTrial[0].w == 0.0f && std::isinf(measuredTrial[1].y),
+        "tiled trial norm changed metrics preservation or finite rejection");
+
+    trialStatuses[1].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    std::memcpy(trialStatusBuffer.contents, trialStatuses.data(),
+        trialStatuses.size() * sizeof(trialStatuses[0]));
+    measuredTrial[1] = {2.0f, 4.0f, 0.5f, 0.0f};
+    dispatch(device, queue, trialPartial, {
+        {0u, dispatchBuffer}, {1u, residualBuffer},
+        {2u, trialNodesBuffer}, {3u, trialMetricsBuffer},
+        {4u, trialStatusBuffer}, {5u, partialsBuffer}},
+        std::size_t(environments) * tileCount, 32u);
+    dispatch(device, queue, trialFinish, {
+        {0u, dispatchBuffer}, {1u, trialMetricsBuffer},
+        {2u, trialStatusBuffer}, {3u, partialsBuffer}},
+        environments, 32u);
+    require(std::isinf(measuredTrial[1].y) && measuredTrial[1].x == 2.0f &&
+            measuredTrial[1].z == 0.5f && measuredTrial[1].w == 0.0f,
+        "tiled trial norm did not preserve unhealthy-status rejection");
+
+    trialStatuses[1].code = NM_STATUS_SUCCESS;
+    std::memcpy(trialStatusBuffer.contents, trialStatuses.data(),
+        trialStatuses.size() * sizeof(trialStatuses[0]));
+    measuredTrial[1] = {2.0f, 17.0f, 0.5f, 1.0f};
+    dispatch(device, queue, trialPartial, {
+        {0u, dispatchBuffer}, {1u, residualBuffer},
+        {2u, trialNodesBuffer}, {3u, trialMetricsBuffer},
+        {4u, trialStatusBuffer}, {5u, partialsBuffer}},
+        std::size_t(environments) * tileCount, 32u);
+    dispatch(device, queue, trialFinish, {
+        {0u, dispatchBuffer}, {1u, trialMetricsBuffer},
+        {2u, trialStatusBuffer}, {3u, partialsBuffer}},
+        environments, 32u);
+    require(measuredTrial[1].x == 2.0f && measuredTrial[1].y == 17.0f &&
+            measuredTrial[1].z == 0.5f && measuredTrial[1].w == 1.0f,
+        "accepted trial metric was not preserved by the tiled early return");
+    std::cout << "armijo_tiled_norms=true nodes=513 environments=2 "
+                 "free_row_masks=true finite_flags=true rejection_state=true result=PASS\n";
+}
+
+struct ArmijoGeometryUInt2 {
+    std::uint32_t x;
+    std::uint32_t y;
+};
+static_assert(sizeof(ArmijoGeometryUInt2) == 8u);
+
+void verifyArmijoParallelGeometryValidator(
+        id<MTLDevice> device, id<MTLLibrary> library,
+        id<MTLCommandQueue> queue) {
+    auto makePipeline = [&](const char* name) -> id<MTLComputePipelineState> {
+        id<MTLFunction> function = [library newFunctionWithName:
+            [NSString stringWithUTF8String:name]];
+        require(function != nil, std::string("production kernel is missing: ") + name);
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, std::string("could not create production pipeline ") +
+            name + ": " + (error != nil
+                ? std::string([[error description] UTF8String])
+                : std::string("unknown Metal pipeline error")));
+        return pipeline;
+    };
+    const auto legacy = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_validate_geometry");
+    const auto tiles = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_validate_geometry_tiles");
+    const auto finish = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_validate_geometry_finish");
+
+
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t objectCount = 5u;
+    struct ObjectRange {
+        std::uint32_t first;
+        std::uint32_t count;
+    };
+    const std::array<ObjectRange, objectCount> nonemptyRanges{{
+        {2u, 300u}, {305u, 270u}, {575u, 0u}, {575u, 1u}, {576u, 2u},
+    }};
+    const std::uint32_t tetrahedronCount =
+        nonemptyRanges.back().first + nonemptyRanges.back().count;
+    const std::uint32_t femNodeCount = 4u * tetrahedronCount;
+
+    auto run = [&](const bool failures, const bool zeroTetWorld) {
+        NMMatterDispatchGPU dispatchData{};
+        dispatchData.environmentCount = environments;
+        dispatchData.objectCount = objectCount;
+        dispatchData.femNodeCount = zeroTetWorld ? 0u : femNodeCount;
+        dispatchData.tetrahedronCount = zeroTetWorld ? 0u : tetrahedronCount;
+        dispatchData.numericalLimits.z = 0.1f;
+
+        NMMicrostepGPU microstep{};
+        microstep.microtick = 0u;
+        microstep.solverIteration = 23u;
+
+        std::vector<NMContinuumObjectGPU> objects(objectCount);
+        std::vector<NMSchedulerStateGPU> schedulers(
+            std::size_t(environments) * objectCount);
+        std::vector<NMAdaptiveStateGPU> adaptive(
+            std::size_t(environments) * objectCount);
+        std::vector<NMMaterialGPU> materials(1u);
+        materials[0].validity = {0.2f, 2.0f, 0.0f, 0.0f};
+
+        for (std::uint32_t objectIndex = 0u; objectIndex < objectCount;
+             ++objectIndex) {
+            NMContinuumObjectGPU& object = objects[objectIndex];
+            object.representation = NM_REPRESENTATION_FEM;
+            object.flags = objectIndex == 3u ? 0u : NM_OBJECT_ACTIVE;
+            object.elementOffset = zeroTetWorld ? 0u
+                : nonemptyRanges[objectIndex].first;
+            object.elementCount = zeroTetWorld ? 0u
+                : nonemptyRanges[objectIndex].count;
+            object.solver.y = 0u;
+            for (std::uint32_t environment = 0u;
+                 environment < environments; ++environment) {
+                const std::size_t index =
+                    std::size_t(environment) * objectCount + objectIndex;
+                schedulers[index].numerical.w =
+                    objectIndex == 4u ? 0.0f : 1.0f;
+                adaptive[index].activeRepresentation = NM_REPRESENTATION_FEM;
+            }
+        }
+
+        std::vector<NMTetrahedronGPU> tetrahedra(
+            zeroTetWorld ? 0u : std::size_t(environments) * tetrahedronCount);
+        std::vector<NMFEMNodeStateGPU> candidateNodes(
+            std::size_t(environments) * dispatchData.femNodeCount);
+        if (!zeroTetWorld) {
+            for (std::uint32_t environment = 0u;
+                 environment < environments; ++environment) {
+                for (std::uint32_t tetrahedronIndex = 0u;
+                     tetrahedronIndex < tetrahedronCount; ++tetrahedronIndex) {
+                    NMTetrahedronGPU& tetrahedron =
+                        tetrahedra[std::size_t(environment) *
+                            tetrahedronCount + tetrahedronIndex];
+                    const std::uint32_t node = 4u * tetrahedronIndex;
+                    tetrahedron.nodes = {node, node + 1u, node + 2u, node + 3u};
+                    tetrahedron.inverseRestRow0 = {1.0f, 0.0f, 0.0f, 0.0f};
+                    tetrahedron.inverseRestRow1 = {0.0f, 1.0f, 0.0f, 0.0f};
+                    tetrahedron.inverseRestRow2 = {0.0f, 0.0f, 1.0f, 0.0f};
+                    tetrahedron.identity = {
+                        0u, NM_INVALID_INDEX, 0u, NM_OBJECT_ACTIVE};
+                    const std::array<nm_float4, 4> rest{{
+                        {0.0f, 0.0f, 0.0f, 1.0f},
+                        {1.0f, 0.0f, 0.0f, 1.0f},
+                        {0.0f, 1.0f, 0.0f, 1.0f},
+                        {0.0f, 0.0f, 1.0f, 1.0f},
+                    }};
+                    const std::size_t nodeBase =
+                        std::size_t(environment) * femNodeCount + node;
+                    for (std::uint32_t local = 0u; local < 4u; ++local)
+                        candidateNodes[nodeBase + local].positionAndMass =
+                            rest[local];
+                }
+            }
+            for (std::uint32_t objectIndex = 0u;
+                 objectIndex < objectCount; ++objectIndex) {
+                const ObjectRange range = nonemptyRanges[objectIndex];
+                for (std::uint32_t local = 0u; local < range.count; ++local) {
+                    const std::uint32_t index = range.first + local;
+                    for (std::uint32_t environment = 0u;
+                         environment < environments; ++environment)
+                        tetrahedra[std::size_t(environment) *
+                            tetrahedronCount + index].identity.y = objectIndex;
+                }
+            }
+            if (failures) {
+                const auto setJacobian = [&](const std::uint32_t environment,
+                                             const std::uint32_t tet,
+                                             const float value) {
+                    const std::size_t nodeBase =
+                        std::size_t(environment) * femNodeCount + 4u * tet + 1u;
+                    candidateNodes[nodeBase].positionAndMass.x = value;
+                };
+                // Environment 0: object 0 has a high-J failure, a later
+                // same-tile failure, and a second-tile failure. The earliest
+                // failure must win, while its line minimum includes only the
+                // valid prefix plus that first high-J failure.
+                setJacobian(0u, 2u + 3u, 0.8f);
+                setJacobian(0u, 2u + 8u, 3.0f);
+                setJacobian(0u, 2u + 12u, -1.0f);
+                setJacobian(0u, 2u + 277u, -0.5f);
+                // Environment 1 reaches object 1 after a valid object-0
+                // prefix. Put the first failure in its second tile and a
+                // later failure in the same tile.
+                setJacobian(1u, 305u + 250u, 0.6f);
+                setJacobian(1u, 305u + 257u, 3.0f);
+                setJacobian(1u, 305u + 262u, -1.0f);
+            }
+        }
+
+        std::vector<nm_uint4> descriptors;
+        std::vector<ArmijoGeometryUInt2> ranges(objectCount);
+        if (!zeroTetWorld) {
+            for (std::uint32_t objectIndex = 0u;
+                 objectIndex < objectCount; ++objectIndex) {
+                const ObjectRange range = nonemptyRanges[objectIndex];
+                const std::uint32_t firstTile =
+                    static_cast<std::uint32_t>(descriptors.size());
+                for (std::uint32_t firstLocal = 0u; firstLocal < range.count;
+                     firstLocal += 256u) {
+                    const std::uint32_t count =
+                        std::min(256u, range.count - firstLocal);
+                    descriptors.push_back({objectIndex,
+                        range.first + firstLocal, count,
+                        static_cast<std::uint32_t>(descriptors.size())});
+                }
+                ranges[objectIndex] = {
+                    firstTile,
+                    static_cast<std::uint32_t>(descriptors.size()) - firstTile,
+                };
+            }
+        }
+        const std::uint32_t tileCount =
+            static_cast<std::uint32_t>(descriptors.size());
+        std::vector<ArmijoGeometryUInt2> partials(
+            std::size_t(environments) * std::max(1u, tileCount),
+            ArmijoGeometryUInt2{NM_INVALID_INDEX, NM_INVALID_INDEX});
+
+        std::vector<NMMatterStatusGPU> initialStatuses(environments);
+        std::vector<nm_float4> initialLines(
+            std::size_t(environments) * objectCount);
+        for (std::uint32_t environment = 0u;
+             environment < environments; ++environment) {
+            initialStatuses[environment].code = NM_STATUS_SUCCESS;
+            initialStatuses[environment].environment = environment;
+            initialStatuses[environment].objectIndex = NM_INVALID_INDEX;
+            initialStatuses[environment].failingIndex = NM_INVALID_INDEX;
+            for (std::uint32_t objectIndex = 0u;
+                 objectIndex < objectCount; ++objectIndex) {
+                const std::size_t index =
+                    std::size_t(environment) * objectCount + objectIndex;
+                initialLines[index] = {
+                    0.25f + 0.01f * float(index),
+                    -10.0f - float(index),
+                    20.0f + float(index),
+                    30.0f + float(index),
+                };
+            }
+        }
+        std::vector<NMMatterStatusGPU> legacyStatuses = initialStatuses;
+        std::vector<NMMatterStatusGPU> parallelStatuses = initialStatuses;
+        std::vector<nm_float4> legacyLines = initialLines;
+        std::vector<nm_float4> parallelLines = initialLines;
+
+        const std::uint32_t writeObjectLineSearch = 1u;
+        auto dispatchBuffer = makeBuffer(device,
+            std::vector<NMMatterDispatchGPU>{dispatchData});
+        auto microstepBuffer = makeBuffer(device,
+            std::vector<NMMicrostepGPU>{microstep});
+        auto objectBuffer = makeBuffer(device, objects);
+        auto materialBuffer = makeBuffer(device, materials);
+        auto tetrahedronBuffer = makeBuffer(device, tetrahedra);
+        auto schedulerBuffer = makeBuffer(device, schedulers);
+        auto adaptiveBuffer = makeBuffer(device, adaptive);
+        auto candidateBuffer = makeBuffer(device, candidateNodes);
+        auto legacyStatusBuffer = makeBuffer(device, legacyStatuses);
+        auto parallelStatusBuffer = makeBuffer(device, parallelStatuses);
+        auto legacyLineBuffer = makeBuffer(device, legacyLines);
+        auto parallelLineBuffer = makeBuffer(device, parallelLines);
+        auto writeFlagBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{writeObjectLineSearch});
+        auto tileCountBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{tileCount});
+        auto descriptorBuffer = makeBuffer(device, descriptors);
+        auto rangeBuffer = makeBuffer(device, ranges);
+        auto partialBuffer = makeBuffer(device, partials);
+        for (id<MTLBuffer> buffer : {
+                dispatchBuffer, microstepBuffer, objectBuffer, materialBuffer,
+                tetrahedronBuffer, schedulerBuffer, adaptiveBuffer,
+                candidateBuffer, legacyStatusBuffer, parallelStatusBuffer,
+                legacyLineBuffer, parallelLineBuffer, writeFlagBuffer,
+                tileCountBuffer, descriptorBuffer, rangeBuffer, partialBuffer})
+            require(buffer != nil,
+                "Armijo geometry validator buffer allocation failed");
+
+        dispatch(device, queue, legacy, {
+            {0u, dispatchBuffer}, {1u, microstepBuffer},
+            {2u, objectBuffer}, {3u, materialBuffer},
+            {4u, tetrahedronBuffer}, {5u, schedulerBuffer},
+            {6u, adaptiveBuffer}, {7u, candidateBuffer},
+            {8u, legacyStatusBuffer}, {9u, legacyLineBuffer},
+            {10u, writeFlagBuffer}},
+            environments, 1u);
+        if (tileCount != 0u) {
+            dispatch(device, queue, tiles, {
+                {0u, dispatchBuffer}, {1u, microstepBuffer},
+                {2u, objectBuffer}, {3u, materialBuffer},
+                {4u, tetrahedronBuffer}, {5u, schedulerBuffer},
+                {6u, adaptiveBuffer}, {7u, candidateBuffer},
+                {8u, parallelStatusBuffer}, {9u, parallelLineBuffer},
+                {10u, writeFlagBuffer}, {11u, tileCountBuffer},
+                {12u, descriptorBuffer}, {13u, rangeBuffer},
+                {14u, partialBuffer}},
+                std::size_t(environments) * tileCount, 256u);
+        }
+        dispatch(device, queue, finish, {
+            {0u, dispatchBuffer}, {1u, microstepBuffer},
+            {2u, objectBuffer}, {3u, materialBuffer},
+            {4u, tetrahedronBuffer}, {5u, schedulerBuffer},
+            {6u, adaptiveBuffer}, {7u, candidateBuffer},
+            {8u, parallelStatusBuffer}, {9u, parallelLineBuffer},
+            {10u, writeFlagBuffer}, {11u, tileCountBuffer},
+            {12u, descriptorBuffer}, {13u, rangeBuffer},
+            {14u, partialBuffer}},
+            environments, 32u);
+
+        const auto* measuredLegacyStatuses =
+            static_cast<const NMMatterStatusGPU*>(legacyStatusBuffer.contents);
+        const auto* measuredParallelStatuses =
+            static_cast<const NMMatterStatusGPU*>(parallelStatusBuffer.contents);
+        const auto* measuredLegacyLines =
+            static_cast<const nm_float4*>(legacyLineBuffer.contents);
+        const auto* measuredParallelLines =
+            static_cast<const nm_float4*>(parallelLineBuffer.contents);
+        require(std::memcmp(measuredLegacyStatuses, measuredParallelStatuses,
+                    environments * sizeof(NMMatterStatusGPU)) == 0,
+                "parallel Armijo geometry validator changed status diagnostics or failure order");
+        require(std::memcmp(measuredLegacyLines, measuredParallelLines,
+                    std::size_t(environments) * objectCount * sizeof(nm_float4)) == 0,
+                "parallel Armijo geometry validator changed object line-search prefix");
+
+        if (!failures) {
+            for (std::uint32_t environment = 0u;
+                 environment < environments; ++environment)
+                require(measuredParallelStatuses[environment].code ==
+                            NM_STATUS_SUCCESS,
+                    "valid or skipped geometry unexpectedly failed validation");
+            if (!zeroTetWorld) {
+                const std::size_t base = 0u;
+                require(measuredParallelLines[base + 0u].x == 0.0f &&
+                        measuredParallelLines[base + 0u].y == 1.0f &&
+                        measuredParallelLines[base + 1u].x == 0.0f &&
+                        measuredParallelLines[base + 1u].y == 1.0f &&
+                        measuredParallelLines[base + 2u].x == 0.0f &&
+                        std::isinf(measuredParallelLines[base + 2u].y) &&
+                        std::memcmp(&measuredParallelLines[base + 3u],
+                            &initialLines[base + 3u], sizeof(nm_float4)) == 0 &&
+                        std::memcmp(&measuredParallelLines[base + 4u],
+                            &initialLines[base + 4u], sizeof(nm_float4)) == 0,
+                    "parallel validator mishandled zero-element, inactive, or not-due objects");
+            } else {
+                for (std::uint32_t environment = 0u;
+                     environment < environments; ++environment) {
+                    const std::size_t base =
+                        std::size_t(environment) * objectCount;
+                    for (std::uint32_t objectIndex = 0u; objectIndex < 3u;
+                         ++objectIndex)
+                        require(measuredParallelLines[base + objectIndex].x == 0.0f &&
+                                std::isinf(measuredParallelLines[base + objectIndex].y),
+                            "zero-tile geometry finish did not publish +inf for an empty due FEM object");
+                    require(std::memcmp(&measuredParallelLines[base + 3u],
+                                &initialLines[base + 3u], sizeof(nm_float4)) == 0 &&
+                            std::memcmp(&measuredParallelLines[base + 4u],
+                                &initialLines[base + 4u], sizeof(nm_float4)) == 0,
+                        "zero-tile finish changed inactive or not-due line-search entries");
+                }
+            }
+        } else {
+            require(measuredParallelStatuses[0].code ==
+                        NM_STATUS_INVALID_DEFORMATION &&
+                    measuredParallelStatuses[0].objectIndex == 0u &&
+                    measuredParallelStatuses[0].failingIndex ==
+                        microstep.solverIteration &&
+                    measuredParallelStatuses[0].diagnostics.x == 3.0f &&
+                    measuredParallelStatuses[0].diagnostics.y == 0.2f &&
+                    measuredParallelStatuses[0].diagnostics.z == 2.0f &&
+                    measuredParallelStatuses[0].diagnostics.w == 0.1f &&
+                    measuredParallelStatuses[1].code ==
+                        NM_STATUS_INVALID_DEFORMATION &&
+                    measuredParallelStatuses[1].objectIndex == 1u &&
+                    measuredParallelStatuses[1].failingIndex ==
+                        microstep.solverIteration &&
+                    measuredParallelStatuses[1].diagnostics.x == 3.0f &&
+                    measuredParallelStatuses[1].diagnostics.y == 0.2f &&
+                    measuredParallelStatuses[1].diagnostics.z == 2.0f &&
+                    measuredParallelStatuses[1].diagnostics.w == 0.1f,
+                "parallel geometry failure witness was not the earliest object/tile/lane in each environment");
+            require(measuredParallelLines[0].x == 0.0f &&
+                    measuredParallelLines[0].y == 0.8f &&
+                    std::memcmp(&measuredParallelLines[1], &initialLines[1],
+                        sizeof(nm_float4)) == 0 &&
+                    measuredParallelLines[objectCount + 0u].x == 0.0f &&
+                    measuredParallelLines[objectCount + 0u].y == 1.0f &&
+                    measuredParallelLines[objectCount + 1u].x == 0.0f &&
+                    measuredParallelLines[objectCount + 1u].y == 0.6f &&
+                    std::memcmp(&measuredParallelLines[objectCount + 2u],
+                        &initialLines[objectCount + 2u], sizeof(nm_float4)) == 0,
+                "parallel geometry failure changed the exact legacy object line-search prefix");
+        }
+    };
+
+    run(false, false);
+    run(true, false);
+    run(false, true);
+    std::cout << "armijo_parallel_geometry_validator=true"
+              << " tiles=256 environments=2 disjoint_objects=true"
+              << " first_failure_diagnostics=true exact_line_prefix=true"
+              << " inactive_due_skips=true zero_element=true zero_tiles=true"
+              << " legacy_parity=true result=PASS\n";
+}
+
 void verifyArmijoAlphaPublication() {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     require(device != nil, "Armijo alpha publication test requires a Metal device");
@@ -2872,6 +3470,8 @@ void verifyArmijoAlphaPublication() {
         "numi_matter_metal::nm_rigid_apply_candidate_solution");
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "Armijo alpha publication command queue unavailable");
+    verifyArmijoTiledResidualNorms(device, library, queue);
+    verifyArmijoParallelGeometryValidator(device, library, queue);
 
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;

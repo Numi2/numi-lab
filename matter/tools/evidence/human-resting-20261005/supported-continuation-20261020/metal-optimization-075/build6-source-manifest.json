@@ -1,0 +1,13 @@
+{
+  "base_revision": "ea2cbd8489e054a22be20811b8f5d4f6615fa502",
+  "source_sha256": {
+    "matter/src/runtime.mm": "a3bd72e298ea8b61c8c45edc24bc57fc6de55dd9cd3641bb16cd3946865fe686",
+    "matter/src/metal/fgmres.metalinc": "4a890c29879af293c211dec66cad3e0170824210e70b248e49569d3fc8dbbccc",
+    "matter/src/metal/contact.metalinc": "bbdc91de984dff3781713bd552433f4c265cf9f948670ee5b55d3f3b86dc4326",
+    "matter/include/numi/matter/shared.h": "f5d68d5a9828473c49371ff68790af049f7f723df9abddf1d53bfdc3790556bf",
+    "matter/tools/fgmres_true_residual_native_check.mm": "0fa749f4120a0531dd2edc61c739ce4f8868972b01557c96442554151e4999ff",
+    "matter/tools/cardboard_contact_node_incidence_sort_native_check.mm": "585cbcdd1538a24d725f38e2d26fd2b70310ad314bdebd45a37357810c152acc"
+  },
+  "device": "Apple M6, 12 GPU cores, 16 GiB RAM",
+  "frozen_utc": "2026-10-20T16:08:18.455580+00:00"
+}

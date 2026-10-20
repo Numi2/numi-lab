@@ -1637,6 +1637,512 @@ kernel void nm_contact_sort_surface_primitives(
     }
 }
 
+inline uint surfaceRadixTileCount(const uint count) {
+    return count / 32u + (count % 32u != 0u ? 1u : 0u);
+}
+
+// Stable emitter for the parallel Morton radix path. Keys stay indexed by
+// original primitive ID; compact indices preserve source primitive order and
+// are the only values ping-ponged by the radix passes.
+kernel void nm_contact_emit_surface_morton_records(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device uint* keysA [[buffer(2)]],
+    device uint* scratch [[buffer(3)]],
+    device uint* indicesA [[buffer(4)]],
+    device uint* indicesB [[buffer(5)]],
+    device uint* activeCounts [[buffer(6)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(7)]],
+    constant uint& useArmijoSurfaceCache [[buffer(8)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || lane >= 32u) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    if (primitiveCount == 0u) {
+        if (lane == 0u) activeCounts[environment] = 0u;
+        return;
+    }
+    const uint primitiveBase = environment * primitiveCount;
+    float3 localMinimum = float3(INFINITY);
+    float3 localMaximum = float3(-INFINITY);
+    for (uint local = lane; local < primitiveCount; local += 32u) {
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            primitives[primitiveBase + local];
+        if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+        const float3 centroid = 0.5f * (
+            primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+        localMinimum = min(localMinimum, centroid);
+        localMaximum = max(localMaximum, centroid);
+    }
+    const float3 boundsMinimum = float3(
+        simd_min(localMinimum.x), simd_min(localMinimum.y),
+        simd_min(localMinimum.z));
+    const float3 boundsMaximum = float3(
+        simd_max(localMaximum.x), simd_max(localMaximum.y),
+        simd_max(localMaximum.z));
+    const float3 inverseExtent = 1.0f /
+        max(boundsMaximum - boundsMinimum, float3(1.0e-12f));
+
+    uint compactedCount = 0u;
+    for (uint first = 0u; first < primitiveCount; first += 32u) {
+        const uint local = first + lane;
+        const bool selected = local < primitiveCount &&
+            (primitives[primitiveBase + local].identity.w &
+             NM_TOPOLOGY_ACTIVE) != 0u;
+        const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+        const uint count = simd_sum(selected ? 1u : 0u);
+        if (selected) {
+            const NMContinuumSurfacePrimitiveGPU primitive =
+                primitives[primitiveBase + local];
+            const float3 centroid = 0.5f * (
+                primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+            keysA[primitiveBase + local] = surfaceMortonKey(
+                (centroid - boundsMinimum) * inverseExtent);
+            indicesA[primitiveBase + compactedCount + prefix] = local;
+        }
+        compactedCount += count;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u) activeCounts[environment] = compactedCount;
+}
+
+
+// Parallel front end for the surface radix path. Each 32-primitive tile
+// produces centroid bounds and an active count; the later stages reduce the
+// bounds and prefix tile counts before emitting stable compact indices.
+kernel void nm_contact_surface_morton_tile_bounds(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device float4* boundsScratch [[buffer(2)]],
+    device uint* radixScratch [[buffer(3)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(4)]],
+    constant uint& useArmijoSurfaceCache [[buffer(5)]],
+    constant uint& tileCount [[buffer(6)]],
+    constant uint& scratchStride [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (tileCount == 0u || scratchStride == 0u) return;
+    const uint environment = group / tileCount;
+    const uint tile = group - environment * tileCount;
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint local = tile * 32u + lane;
+    const bool inRange = local < primitiveCount;
+    const uint primitiveBase = environment * primitiveCount;
+    const bool selected = inRange &&
+        (primitives[primitiveBase + local].identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+    float3 minimum = float3(INFINITY);
+    float3 maximum = float3(-INFINITY);
+    if (selected) {
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            primitives[primitiveBase + local];
+        const float3 centroid = 0.5f * (
+            primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+        minimum = centroid;
+        maximum = centroid;
+    }
+    const float3 tileMinimum = float3(
+        simd_min(minimum.x), simd_min(minimum.y), simd_min(minimum.z));
+    const float3 tileMaximum = float3(
+        simd_max(maximum.x), simd_max(maximum.y), simd_max(maximum.z));
+    const uint activeInTile = simd_sum(selected ? 1u : 0u);
+    if (lane == 0u) {
+        const ulong boundsBase = ulong(environment) *
+            (2ul * tileCount + 2ul) + 2ul * tile;
+        boundsScratch[boundsBase] = float4(tileMinimum, 0.0f);
+        boundsScratch[boundsBase + 1ul] = float4(tileMaximum, 0.0f);
+        radixScratch[ulong(environment) * scratchStride + tile] = activeInTile;
+    }
+}
+
+kernel void nm_contact_surface_morton_bounds_reduce(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* boundsScratch [[buffer(1)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(2)]],
+    constant uint& useArmijoSurfaceCache [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || tileCount == 0u) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    const ulong boundsBase = ulong(environment) *
+        (2ul * tileCount + 2ul);
+    float3 localMinimum = float3(INFINITY);
+    float3 localMaximum = float3(-INFINITY);
+    for (uint tile = lane; tile < tileCount; tile += 256u) {
+        localMinimum = min(localMinimum, boundsScratch[
+            boundsBase + 2ul * tile].xyz);
+        localMaximum = max(localMaximum, boundsScratch[
+            boundsBase + 2ul * tile + 1ul].xyz);
+    }
+    const float3 groupMinimum = float3(
+        simd_min(localMinimum.x), simd_min(localMinimum.y),
+        simd_min(localMinimum.z));
+    const float3 groupMaximum = float3(
+        simd_max(localMaximum.x), simd_max(localMaximum.y),
+        simd_max(localMaximum.z));
+    threadgroup float3 groupMinimums[8];
+    threadgroup float3 groupMaximums[8];
+    const uint simdgroup = lane / 32u;
+    if ((lane & 31u) == 0u) {
+        groupMinimums[simdgroup] = groupMinimum;
+        groupMaximums[simdgroup] = groupMaximum;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        float3 minimum = float3(INFINITY);
+        float3 maximum = float3(-INFINITY);
+        for (uint groupIndex = 0u; groupIndex < 8u; ++groupIndex) {
+            minimum = min(minimum, groupMinimums[groupIndex]);
+            maximum = max(maximum, groupMaximums[groupIndex]);
+        }
+        const ulong output = boundsBase + 2ul * tileCount;
+        boundsScratch[output] = float4(minimum, 0.0f);
+        boundsScratch[output + 1ul] = float4(maximum, 0.0f);
+    }
+}
+
+// Blelloch exclusive scans over 256-tile blocks. The scratch layout is
+// counts[0:T], localOffsets[T:2T], blockSums[2T:2T+B]. Histogram passes later
+// reuse the same words after emission is complete.
+kernel void nm_contact_surface_morton_scan_tile_counts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint* radixScratch [[buffer(1)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(2)]],
+    constant uint& useArmijoSurfaceCache [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    constant uint& blockCount [[buffer(5)]],
+    constant uint& scratchStride [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (tileCount == 0u || blockCount == 0u || scratchStride == 0u) return;
+    const uint environment = group / blockCount;
+    const uint block = group - environment * blockCount;
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    constexpr uint scanWidth = 256u;
+    const uint firstTile = block * scanWidth;
+    const ulong base = ulong(environment) * scratchStride;
+    threadgroup uint scan[scanWidth];
+    const uint tile = firstTile + lane;
+    scan[lane] = tile < tileCount ? radixScratch[base + tile] : 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint offset = 1u; offset < scanWidth; offset <<= 1u) {
+        const uint index = (lane + 1u) * (offset << 1u) - 1u;
+        if (index < scanWidth) scan[index] += scan[index - offset];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    const uint total = scan[scanWidth - 1u];
+    if (lane == 0u) scan[scanWidth - 1u] = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint offset = scanWidth >> 1u; offset != 0u; offset >>= 1u) {
+        const uint index = (lane + 1u) * (offset << 1u) - 1u;
+        if (index < scanWidth) {
+            const uint left = scan[index - offset];
+            scan[index - offset] = scan[index];
+            scan[index] += left;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (tile < tileCount)
+        radixScratch[base + tileCount + tile] = scan[lane];
+    if (lane == 0u)
+        radixScratch[base + 2ul * tileCount + block] = total;
+}
+
+// Scan the much smaller block-sum level in SIMD chunks, entirely on device,
+// and publish the total active primitive count for the radix passes.
+kernel void nm_contact_surface_morton_scan_block_offsets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint* radixScratch [[buffer(1)]],
+    device uint* activeCounts [[buffer(2)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(3)]],
+    constant uint& useArmijoSurfaceCache [[buffer(4)]],
+    constant uint& tileCount [[buffer(5)]],
+    constant uint& blockCount [[buffer(6)]],
+    constant uint& scratchStride [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    if (tileCount == 0u || blockCount == 0u || scratchStride == 0u) {
+        if (lane == 0u) activeCounts[environment] = 0u;
+        return;
+    }
+    const ulong base = ulong(environment) * scratchStride +
+        2ul * tileCount;
+    uint carry = 0u;
+    for (uint first = 0u; first < blockCount; first += 32u) {
+        const uint block = first + lane;
+        const uint value = block < blockCount ? radixScratch[base + block] : 0u;
+        const uint prefix = simd_prefix_exclusive_sum(value);
+        const uint total = simd_sum(value);
+        if (block < blockCount) radixScratch[base + block] = carry + prefix;
+        carry += total;
+    }
+    if (lane == 0u) activeCounts[environment] = carry;
+}
+
+kernel void nm_contact_surface_morton_scan_add_block_offsets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint* radixScratch [[buffer(1)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(2)]],
+    constant uint& useArmijoSurfaceCache [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    constant uint& blockCount [[buffer(5)]],
+    constant uint& scratchStride [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalTiles = dispatch.environmentCount * tileCount;
+    if (global >= totalTiles || tileCount == 0u || blockCount == 0u ||
+        scratchStride == 0u) return;
+    const uint environment = global / tileCount;
+    const uint tile = global - environment * tileCount;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    const ulong base = ulong(environment) * scratchStride;
+    const uint block = tile / 256u;
+    const uint blockOffset = radixScratch[base + 2ul * tileCount + block];
+    radixScratch[base + tileCount + tile] += blockOffset;
+}
+
+// Emit one primitive per thread after tile bounds and stable tile offsets are
+// available. Each group is exactly one 32-record tile, so SIMD prefix order is
+// the original primitive order even when the primitive count is not a multiple
+// of 32 or there are multiple environments.
+kernel void nm_contact_emit_surface_morton_records_parallel(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device uint* keysA [[buffer(2)]],
+    device const float4* boundsScratch [[buffer(3)]],
+    device uint* radixScratch [[buffer(4)]],
+    device uint* indicesA [[buffer(5)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(6)]],
+    constant uint& useArmijoSurfaceCache [[buffer(7)]],
+    constant uint& tileCount [[buffer(8)]],
+    constant uint& scratchStride [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (tileCount == 0u || scratchStride == 0u) return;
+    const uint environment = group / tileCount;
+    const uint tile = group - environment * tileCount;
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    const ulong scratchBase = ulong(environment) * scratchStride;
+    if (radixScratch[scratchBase + tile] == 0u) return;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint local = tile * 32u + lane;
+    const uint primitiveBase = environment * primitiveCount;
+    const bool selected = local < primitiveCount &&
+        (primitives[primitiveBase + local].identity.w &
+         NM_TOPOLOGY_ACTIVE) != 0u;
+    // All lanes must participate in the SIMD prefix, including the tail of
+    // the final primitive tile.
+    const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+    if (!selected) return;
+    const NMContinuumSurfacePrimitiveGPU primitive =
+        primitives[primitiveBase + local];
+    const ulong boundsBase = ulong(environment) *
+        (2ul * tileCount + 2ul) + 2ul * tileCount;
+    const float3 minimum = boundsScratch[boundsBase].xyz;
+    const float3 maximum = boundsScratch[boundsBase + 1ul].xyz;
+    const float3 centroid = 0.5f * (
+        primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+    const float3 inverseExtent = 1.0f /
+        max(maximum - minimum, float3(1.0e-12f));
+    keysA[primitiveBase + local] = surfaceMortonKey(
+        (centroid - minimum) * inverseExtent);
+    const uint tileOffset = radixScratch[scratchBase + tileCount + tile];
+    indicesA[primitiveBase + tileOffset + prefix] = local;
+}
+
+kernel void nm_contact_surface_morton_radix_histogram(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* keysA [[buffer(1)]],
+    device const uint* indicesA [[buffer(2)]],
+    device const uint* indicesB [[buffer(3)]],
+    device const uint* activeCounts [[buffer(4)]],
+    device uint* scratch [[buffer(5)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(6)]],
+    constant uint& useArmijoSurfaceCache [[buffer(7)]],
+    constant uint& maxTileCount [[buffer(8)]],
+    constant uint& scratchStride [[buffer(9)]],
+    constant uint& radixPass [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (maxTileCount == 0u || scratchStride == 0u) return;
+    const uint environment = group / maxTileCount;
+    const uint tile = group - environment * maxTileCount;
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint activeCount = min(activeCounts[environment], primitiveCount);
+    const uint activeTiles = surfaceRadixTileCount(activeCount);
+    // Inactive bounded-fallback groups return before threadgroup work. The
+    // single-environment path can dispatch exactly activeTiles indirectly.
+    if (tile >= activeTiles) return;
+    const uint primitiveBase = environment * primitiveCount;
+    device const uint* sourceIndices = (radixPass & 1u) == 0u
+        ? indicesA + primitiveBase : indicesB + primitiveBase;
+
+    threadgroup atomic_uint bucketCounts[bucketCount];
+    if (lane < bucketCount)
+        atomic_store_explicit(&bucketCounts[lane], 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint localRecord = tile * tileWidth + lane;
+    if (localRecord < activeCount) {
+        const uint primitive = sourceIndices[localRecord];
+        if (primitive < primitiveCount) {
+            const uint key = keysA[primitiveBase + primitive];
+            const uint bucket = (key >> (4u * radixPass)) & 0x0fu;
+            atomic_fetch_add_explicit(
+                &bucketCounts[bucket], 1u, memory_order_relaxed);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const ulong scratchBase = ulong(environment) * scratchStride +
+        ulong(tile) * bucketCount;
+    if (lane < bucketCount) {
+        scratch[scratchBase + lane] =
+            atomic_load_explicit(&bucketCounts[lane], memory_order_relaxed);
+    }
+}
+
+kernel void nm_contact_surface_morton_radix_prefix(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device uint* scratch [[buffer(2)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(3)]],
+    constant uint& useArmijoSurfaceCache [[buffer(4)]],
+    constant uint& maxTileCount [[buffer(5)]],
+    constant uint& scratchStride [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || maxTileCount == 0u ||
+        scratchStride == 0u) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    constexpr uint bucketCount = 16u;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint activeCount = min(activeCounts[environment], primitiveCount);
+    const uint activeTiles = min(maxTileCount,
+        surfaceRadixTileCount(activeCount));
+    const ulong environmentBase = ulong(environment) * scratchStride;
+    threadgroup uint bucketTotals[bucketCount];
+    if (lane < bucketCount) {
+        uint total = 0u;
+        for (uint tile = 0u; tile < activeTiles; ++tile)
+            total += scratch[environmentBase + ulong(tile) * bucketCount + lane];
+        bucketTotals[lane] = total;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint totalForLane = lane < bucketCount ? bucketTotals[lane] : 0u;
+    const uint bucketBase = simd_prefix_exclusive_sum(totalForLane);
+    if (lane < bucketCount) {
+        uint running = bucketBase;
+        for (uint tile = 0u; tile < activeTiles; ++tile) {
+            const ulong index = environmentBase + ulong(tile) * bucketCount + lane;
+            const uint count = scratch[index];
+            scratch[index] = running;
+            running += count;
+        }
+    }
+}
+
+kernel void nm_contact_surface_morton_radix_scatter(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* keysA [[buffer(1)]],
+    device uint* indicesA [[buffer(2)]],
+    device uint* indicesB [[buffer(3)]],
+    device uint* scratch [[buffer(4)]],
+    device const uint* activeCounts [[buffer(5)]],
+    device const uint* armijoSurfaceCacheFlags [[buffer(6)]],
+    constant uint& useArmijoSurfaceCache [[buffer(7)]],
+    constant uint& maxTileCount [[buffer(8)]],
+    constant uint& scratchStride [[buffer(9)]],
+    constant uint& radixPass [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (maxTileCount == 0u || scratchStride == 0u) return;
+    const uint environment = group / maxTileCount;
+    const uint tile = group - environment * maxTileCount;
+    if (environment >= dispatch.environmentCount) return;
+    if (useArmijoSurfaceCache != 0u &&
+        armijoSurfaceCacheFlags[environment] != 0u) return;
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint activeCount = min(activeCounts[environment], primitiveCount);
+    const uint activeTiles = surfaceRadixTileCount(activeCount);
+    if (tile >= activeTiles) return;
+    const uint primitiveBase = environment * primitiveCount;
+    device const uint* sourceIndices = (radixPass & 1u) == 0u
+        ? indicesA + primitiveBase : indicesB + primitiveBase;
+    device uint* destinationIndices = (radixPass & 1u) == 0u
+        ? indicesB + primitiveBase : indicesA + primitiveBase;
+    const uint localRecord = tile * tileWidth + lane;
+    const bool inRange = localRecord < activeCount;
+    const uint primitive = inRange ? sourceIndices[localRecord]
+        : NM_INVALID_INDEX;
+    const bool valid = inRange && primitive < primitiveCount;
+    const uint key = valid ? keysA[primitiveBase + primitive] : 0u;
+    const uint digit = (key >> (4u * radixPass)) & 0x0fu;
+    const ulong tileScratchBase = ulong(environment) * scratchStride +
+        ulong(tile) * bucketCount;
+    uint output = 0u;
+    for (uint bucket = 0u; bucket < bucketCount; ++bucket) {
+        const bool selected = valid && digit == bucket;
+        const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+        if (selected)
+            output = scratch[tileScratchBase + bucket] + prefix;
+    }
+    if (valid) destinationIndices[output] = primitive;
+}
+
+// Build a Metal indirect threadgroup count from one environment's active
+// record count. This uses the existing NMIndirectDispatchGPU ABI, with the
+// first three words matching MTLDispatchThreadgroupsIndirectArguments.
+// recordsPerActive is six for contact corners and one for surface primitives.
+kernel void nm_contact_prepare_radix_tile_dispatch(
+    device const uint* activeCounts [[buffer(0)]],
+    device NMIndirectDispatchGPU* activeDispatch [[buffer(1)]],
+    constant uint& activeCountLimit [[buffer(2)]],
+    constant uint& recordsPerActive [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (lane != 0u) return;
+    constexpr uint tileWidth = 32u;
+    const uint activeCount = min(activeCounts[0], activeCountLimit);
+    const ulong activeRecords = ulong(activeCount) * ulong(recordsPerActive);
+    const uint groups = uint((activeRecords + tileWidth - 1u) / tileWidth);
+    activeDispatch[0] = {
+        groups, 1u, 1u, uint(min(activeRecords, ulong(0xffffffffu)))
+    };
+}
+
 inline bool surfaceAABBOverlap(
     const NMContinuumSurfacePrimitiveGPU left,
     const NMContinuumSurfacePrimitiveGPU right
@@ -6797,7 +7303,7 @@ kernel void nm_contact_emit_deformable_node_corners(
 
     constexpr ulong invalidKey = ~0ul;
     ulong key = invalidKey;
-    uint payload = 0u;
+    uint payload = NM_INVALID_INDEX;
     const ulong logicalRecordCount = 6ul * ulong(capacity);
     if (ulong(localRecord) < logicalRecordCount && capacity != 0u) {
         const uint activeSlot = localRecord / 6u;
@@ -7001,6 +7507,355 @@ kernel void nm_contact_scatter_deformable_node_incidence(
                 cursor < range.first + range.count)
                 nodeIncidence[cursor++] = 8u * slot + local;
     }
+}
+
+// Stable 4-bit LSD radix builder for active deformable-contact corners.
+// The input payload array is already in (active slot, local corner) order.
+// Stable passes by node therefore retain the legacy deterministic incidence
+// order while touching only the compacted active prefix.
+inline uint deformableCornerRadixNode(
+    const uint payload,
+    const uint capacity,
+    const uint nodeCount,
+    device const NMDeformableContactGPU* contacts,
+    const uint contactBase
+) {
+    if (payload == NM_INVALID_INDEX) return NM_INVALID_INDEX;
+    const uint slot = payload / 8u;
+    const uint local = payload - slot * 8u;
+    if (slot >= capacity || local >= 6u) return NM_INVALID_INDEX;
+    const NMDeformableContactGPU contact = contacts[contactBase + slot];
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u)
+        return NM_INVALID_INDEX;
+    const uint node = deformableContactNode(contact, local);
+    return node < nodeCount ? node : NM_INVALID_INDEX;
+}
+
+inline uint deformableCornerRadixKey(
+    const uint payload,
+    const uint capacity,
+    const uint nodeCount,
+    device const NMDeformableContactGPU* contacts,
+    const uint contactBase
+) {
+    return deformableCornerRadixNode(
+        payload, capacity, nodeCount, contacts, contactBase);
+}
+
+kernel void nm_contact_deformable_node_radix_histogram(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* sortPayloads [[buffer(2)]],
+    device const uint* nodeIncidence [[buffer(3)]],
+    device const uint* activeCounts [[buffer(4)]],
+    device uint* radixScratch [[buffer(5)]],
+    constant uint& paddedCapacity [[buffer(6)]],
+    constant uint& maxTileCount [[buffer(7)]],
+    constant uint& radixPass [[buffer(8)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (maxTileCount == 0u) return;
+    const uint environment = group / maxTileCount;
+    const uint tile = group - environment * maxTileCount;
+    if (environment >= dispatch.environmentCount) return;
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint logicalCapacity = 6u * capacity;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    const uint activeRecords = 6u * activeCount;
+    const uint activeTiles = (activeRecords + tileWidth - 1u) / tileWidth;
+    // The host may use a GPU-written indirect group count for a single
+    // environment. The bounded multi-environment fallback keeps this early
+    // return so inactive tiles do no threadgroup initialization or scratch IO.
+    if (tile >= activeTiles) return;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint contactBase = environment * capacity;
+    const ulong sortBase = ulong(environment) * paddedCapacity;
+    const ulong incidenceBase = ulong(environment) * logicalCapacity;
+    device const uint* source = (radixPass & 1u) == 0u
+        ? sortPayloads + sortBase : nodeIncidence + incidenceBase;
+
+    threadgroup atomic_uint bucketCounts[bucketCount];
+    if (lane < bucketCount)
+        atomic_store_explicit(&bucketCounts[lane], 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint localRecord = tile * tileWidth + lane;
+    if (localRecord < activeRecords) {
+        const uint payload = source[localRecord];
+        const uint key = deformableCornerRadixKey(
+            payload, capacity, nodeCount, contacts, contactBase);
+        const uint bucket = (key >> (4u * radixPass)) & 0x0fu;
+        atomic_fetch_add_explicit(
+            &bucketCounts[bucket], 1u, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const ulong scratchBase =
+        ulong(environment) * maxTileCount * bucketCount +
+        ulong(tile) * bucketCount;
+    if (lane < bucketCount) {
+        radixScratch[scratchBase + lane] =
+            atomic_load_explicit(&bucketCounts[lane], memory_order_relaxed);
+    }
+}
+
+// Convert tile histograms to absolute bucket-and-tile output offsets. The
+// sixteen bucket lanes scan tiles independently, then a SIMD prefix gives the
+// global base of each bucket. No node-sized serial prefix is involved.
+kernel void nm_contact_deformable_node_radix_prefix(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device uint* radixScratch [[buffer(2)]],
+    constant uint& maxTileCount [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || maxTileCount == 0u) return;
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    const uint activeCount = min(
+        activeCounts[environment], dispatch.deformableContactCapacity);
+    const uint activeRecords = 6u * activeCount;
+    const uint activeTiles = min(
+        maxTileCount, (activeRecords + tileWidth - 1u) / tileWidth);
+    const ulong environmentBase = ulong(environment) * maxTileCount * bucketCount;
+    threadgroup uint bucketTotals[bucketCount];
+    if (lane < bucketCount) {
+        uint total = 0u;
+        for (uint tile = 0u; tile < activeTiles; ++tile)
+            total += radixScratch[environmentBase + ulong(tile) * bucketCount + lane];
+        bucketTotals[lane] = total;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint totalForLane = lane < bucketCount ? bucketTotals[lane] : 0u;
+    const uint bucketBase = simd_prefix_exclusive_sum(totalForLane);
+    if (lane < bucketCount) {
+        uint running = bucketBase;
+        for (uint tile = 0u; tile < activeTiles; ++tile) {
+            const ulong index = environmentBase + ulong(tile) * bucketCount + lane;
+            const uint count = radixScratch[index];
+            radixScratch[index] = running;
+            running += count;
+        }
+    }
+}
+
+kernel void nm_contact_deformable_node_radix_scatter(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* sortPayloads [[buffer(2)]],
+    device uint* nodeIncidence [[buffer(3)]],
+    device const uint* activeCounts [[buffer(4)]],
+    device uint* radixScratch [[buffer(5)]],
+    device uint* sortedPayloads [[buffer(6)]],
+    constant uint& paddedCapacity [[buffer(7)]],
+    constant uint& maxTileCount [[buffer(8)]],
+    constant uint& radixPass [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (maxTileCount == 0u) return;
+    const uint environment = group / maxTileCount;
+    const uint tile = group - environment * maxTileCount;
+    if (environment >= dispatch.environmentCount) return;
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint logicalCapacity = 6u * capacity;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    const uint activeRecords = 6u * activeCount;
+    const uint activeTiles = (activeRecords + tileWidth - 1u) / tileWidth;
+    if (tile >= activeTiles) return;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint contactBase = environment * capacity;
+    const ulong sortBase = ulong(environment) * paddedCapacity;
+    const ulong incidenceBase = ulong(environment) * logicalCapacity;
+    device const uint* source = (radixPass & 1u) == 0u
+        ? sortPayloads + sortBase : nodeIncidence + incidenceBase;
+    device uint* destination = (radixPass & 1u) == 0u
+        ? nodeIncidence + incidenceBase : sortedPayloads + sortBase;
+    const uint localRecord = tile * tileWidth + lane;
+    const bool inRange = localRecord < activeRecords;
+    const uint payload = inRange ? source[localRecord] : NM_INVALID_INDEX;
+    const uint key = inRange ? deformableCornerRadixKey(
+        payload, capacity, nodeCount, contacts, contactBase) : NM_INVALID_INDEX;
+    const uint digit = (key >> (4u * radixPass)) & 0x0fu;
+    const ulong tileScratchBase =
+        ulong(environment) * maxTileCount * bucketCount +
+        ulong(tile) * bucketCount;
+    uint output = 0u;
+    for (uint bucket = 0u; bucket < bucketCount; ++bucket) {
+        const bool selected = inRange && digit == bucket;
+        const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+        if (selected)
+            output = radixScratch[tileScratchBase + bucket] + prefix;
+    }
+    if (inRange) destination[output] = payload;
+}
+
+inline uint lowerBoundDeformableCornerPayloadNode(
+    device const uint* sortedPayloads,
+    const ulong payloadBase,
+    const uint activeRecords,
+    const uint node,
+    const bool upperBound,
+    const uint capacity,
+    const uint nodeCount,
+    device const NMDeformableContactGPU* contacts,
+    const uint contactBase
+) {
+    uint lower = 0u;
+    uint upper = activeRecords;
+    while (lower < upper) {
+        const uint middle = lower + (upper - lower) / 2u;
+        const uint key = deformableCornerRadixKey(
+            sortedPayloads[payloadBase + middle], capacity, nodeCount,
+            contacts, contactBase);
+        const bool precedes = upperBound ? key <= node : key < node;
+        if (precedes) lower = middle + 1u;
+        else upper = middle;
+    }
+    return lower;
+}
+
+kernel void nm_contact_count_deformable_node_incidence_radix(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* sortedPayloads [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
+    constant uint& sortedStride [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * nodeCount;
+    if (global >= totalNodes || nodeCount == 0u) return;
+    const uint environment = global / nodeCount;
+    const uint node = global - environment * nodeCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint activeRecords = 6u * min(activeCounts[environment], capacity);
+    const ulong payloadBase = ulong(environment) * sortedStride;
+    const uint contactBase = environment * capacity;
+    const uint begin = lowerBoundDeformableCornerPayloadNode(
+        sortedPayloads, payloadBase, activeRecords, node, false, capacity,
+        nodeCount, contacts, contactBase);
+    const uint end = lowerBoundDeformableCornerPayloadNode(
+        sortedPayloads, payloadBase, activeRecords, node, true, capacity,
+        nodeCount, contacts, contactBase);
+    nodeRanges[global] = {0u, end - begin, NM_INVALID_INDEX, 0u};
+}
+
+// The eight-pass large-node fallback ends in sortPayloads. Copy its active
+// sorted prefix into the logical incidence arena; seven passes already end in
+// nodeIncidence and need no copy.
+kernel void nm_contact_copy_deformable_node_radix_result(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* sortedPayloads [[buffer(1)]],
+    device const uint* activeCounts [[buffer(2)]],
+    device uint* nodeIncidence [[buffer(3)]],
+    constant uint& sortedStride [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint paddedCapacity = sortedStride;
+    if (paddedCapacity == 0u) return;
+    const uint environment = global / paddedCapacity;
+    const uint local = global - environment * paddedCapacity;
+    if (environment >= dispatch.environmentCount) return;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint activeRecords = 6u * min(activeCounts[environment], capacity);
+    if (local >= activeRecords) return;
+    const uint payload = sortedPayloads[global];
+    if (payload == NM_INVALID_INDEX) return;
+    const uint incidenceStride = 6u * capacity;
+    nodeIncidence[environment * incidenceStride + local] = payload;
+}
+
+// Hierarchical 256-node exclusive scan. Each tile writes local offsets and a
+// tile sum; a separate SIMD scan of tile sums supplies the environment prefix.
+kernel void nm_contact_scan_deformable_node_incidence_tiles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device uint* tileSumsAndOffsets [[buffer(2)]],
+    constant uint& tileCount [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (tileCount == 0u) return;
+    const uint environment = group / tileCount;
+    const uint tile = group - environment * tileCount;
+    if (environment >= dispatch.environmentCount) return;
+    constexpr uint tileWidth = 256u;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint localNode = tile * tileWidth + lane;
+    const uint rangeBase = environment * nodeCount;
+    const uint value = localNode < nodeCount
+        ? nodeRanges[rangeBase + localNode].count : 0u;
+    threadgroup uint scan[tileWidth];
+    scan[lane] = value;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint offset = 1u; offset < tileWidth; offset <<= 1u) {
+        const uint add = lane >= offset ? scan[lane - offset] : 0u;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        scan[lane] += add;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (localNode < nodeCount)
+        nodeRanges[rangeBase + localNode].first = scan[lane] - value;
+    if (lane == tileWidth - 1u)
+        tileSumsAndOffsets[environment * tileCount + tile] = scan[lane];
+}
+
+kernel void nm_contact_scan_deformable_node_incidence_tile_offsets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint* tileSumsAndOffsets [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& tileCount [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || tileCount == 0u) return;
+    uint carry = 0u;
+    const uint tileBase = environment * tileCount;
+    for (uint first = 0u; first < tileCount; first += 32u) {
+        const uint tile = first + lane;
+        const uint value = tile < tileCount
+            ? tileSumsAndOffsets[tileBase + tile] : 0u;
+        const uint prefix = simd_prefix_exclusive_sum(value);
+        const uint total = simd_sum(value);
+        if (tile < tileCount)
+            tileSumsAndOffsets[tileBase + tile] = carry + prefix;
+        carry += total;
+    }
+    if (lane == 0u) {
+        const uint capacity = 6u * dispatch.deformableContactCapacity;
+        if (carry > capacity)
+            recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, carry,
+                float4(float(carry), float(capacity), 0.0f, 0.0f));
+    }
+}
+
+kernel void nm_contact_scan_deformable_node_incidence_add_tile_offsets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const uint* tileSumsAndOffsets [[buffer(2)]],
+    constant uint& tileCount [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * nodeCount;
+    if (global >= totalNodes || nodeCount == 0u || tileCount == 0u) return;
+    const uint environment = global / nodeCount;
+    const uint node = global - environment * nodeCount;
+    const uint tile = node / 256u;
+    const uint incidenceBase =
+        6u * environment * dispatch.deformableContactCapacity;
+    const uint tileOffset = tileSumsAndOffsets[environment * tileCount + tile];
+    nodeRanges[global].first += incidenceBase + tileOffset;
 }
 
 inline float4 quaternionConjugate(const float4 quaternion) {

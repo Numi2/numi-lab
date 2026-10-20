@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -98,7 +99,16 @@ void executeCase(id<MTLDevice> device,
                  id<MTLComputePipelineState> countLegacy,
                  id<MTLComputePipelineState> scan,
                  id<MTLComputePipelineState> scatter,
-                 id<MTLComputePipelineState> scatterLegacy) {
+                 id<MTLComputePipelineState> scatterLegacy,
+                 id<MTLComputePipelineState> radixHistogram,
+                 id<MTLComputePipelineState> radixPrefix,
+                 id<MTLComputePipelineState> radixScatter,
+                 id<MTLComputePipelineState> countRadix,
+                 id<MTLComputePipelineState> copyRadix,
+                 id<MTLComputePipelineState> scanTiles,
+                 id<MTLComputePipelineState> scanTileOffsets,
+                 id<MTLComputePipelineState> scanAddTileOffsets,
+                 const std::uint32_t radixPassCount) {
     const WorkspaceLayout workspace = checkedWorkspaceLayout(
         kCapacity, kEnvironments, kNodes);
     require(workspace.valid && workspace.paddedPerEnvironment == 32u,
@@ -109,6 +119,12 @@ void executeCase(id<MTLDevice> device,
     dispatch.femNodeCount = kNodes - dispatch.gridNodeCount;
     dispatch.deformableContactCapacity = kCapacity;
     const std::uint32_t padded = workspace.paddedPerEnvironment;
+    const std::uint32_t logicalCapacity = 6u * kCapacity;
+    const std::uint32_t maxTileCount = (padded + 31u) / 32u;
+    const std::uint32_t scanTileCount = (kNodes + 255u) / 256u;
+    require(radixPassCount == 7u || radixPassCount == 8u,
+            "native radix check requires seven or eight complete key passes");
+    const Result expected = buildLegacyReference(kNodes, kCapacity, environments);
 
     const auto contacts = packContacts(environments);
     std::vector<std::uint32_t> activeIndices(kEnvironments * kCapacity);
@@ -143,7 +159,12 @@ void executeCase(id<MTLDevice> device,
         device, kEnvironments);
     id<MTLBuffer> legacyStatuses = zeroBuffer<NMMatterStatusGPU>(
         device, kEnvironments);
-
+    id<MTLBuffer> radixRanges = zeroBuffer<NMIncidenceRangeGPU>(
+        device, kEnvironments * kNodes);
+    id<MTLBuffer> radixIncidence = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * logicalCapacity, kInvalid);
+    id<MTLBuffer> radixStatuses = zeroBuffer<NMMatterStatusGPU>(
+        device, kEnvironments);
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "Metal command queue allocation failed");
     id<MTLCommandBuffer> command = [queue commandBuffer];
@@ -211,6 +232,118 @@ void executeCase(id<MTLDevice> device,
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
+    // Re-emit the compact active prefix before radix sorting; the prior
+    // bitonic pass has permuted the payload records in place.
+    [encoder setComputePipelineState:emit];
+    bindDispatch();
+    [encoder setBuffer:contactsBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:activeIndicesBuffer offset:0u atIndex:2u];
+    [encoder setBuffer:activeCountsBuffer offset:0u atIndex:3u];
+    [encoder setBuffer:sortKeys offset:0u atIndex:4u];
+    [encoder setBuffer:sortPayloads offset:0u atIndex:5u];
+    [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+    [encoder dispatchThreads:MTLSizeMake(sortThreads, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    const NSUInteger radixGroups =
+        NSUInteger(kEnvironments) * maxTileCount;
+    for (std::uint32_t pass = 0u; pass < radixPassCount; ++pass) {
+        [encoder setComputePipelineState:radixHistogram];
+        bindDispatch();
+        [encoder setBuffer:contactsBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:sortPayloads offset:0u atIndex:2u];
+        [encoder setBuffer:radixIncidence offset:0u atIndex:3u];
+        [encoder setBuffer:activeCountsBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:sortKeys offset:0u atIndex:5u];
+        [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:7u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:8u];
+        [encoder dispatchThreadgroups:MTLSizeMake(radixGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:radixPrefix];
+        bindDispatch();
+        [encoder setBuffer:activeCountsBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:sortKeys offset:0u atIndex:2u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:3u];
+        [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:radixScatter];
+        bindDispatch();
+        [encoder setBuffer:contactsBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:sortPayloads offset:0u atIndex:2u];
+        [encoder setBuffer:radixIncidence offset:0u atIndex:3u];
+        [encoder setBuffer:activeCountsBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:sortKeys offset:0u atIndex:5u];
+        [encoder setBuffer:sortPayloads offset:0u atIndex:6u];
+        [encoder setBytes:&padded length:sizeof(padded) atIndex:7u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:9u];
+        [encoder dispatchThreadgroups:MTLSizeMake(radixGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+
+    id<MTLBuffer> sortedRadixPayloads = (radixPassCount & 1u) != 0u
+        ? radixIncidence : sortPayloads;
+    [encoder setComputePipelineState:countRadix];
+    bindDispatch();
+    [encoder setBuffer:contactsBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:sortedRadixPayloads offset:0u atIndex:2u];
+    [encoder setBuffer:activeCountsBuffer offset:0u atIndex:3u];
+    [encoder setBuffer:radixRanges offset:0u atIndex:4u];
+    const std::uint32_t sortedStride = (radixPassCount & 1u) != 0u
+        ? logicalCapacity : padded;
+    [encoder setBytes:&sortedStride length:sizeof(sortedStride) atIndex:5u];
+    [encoder dispatchThreads:MTLSizeMake(kEnvironments * kNodes, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    const NSUInteger scanGroups =
+        NSUInteger(kEnvironments) * scanTileCount;
+    [encoder setComputePipelineState:scanTiles];
+    bindDispatch();
+    [encoder setBuffer:radixRanges offset:0u atIndex:1u];
+    [encoder setBuffer:sortKeys offset:0u atIndex:2u];
+    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+    [encoder dispatchThreadgroups:MTLSizeMake(scanGroups, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:scanTileOffsets];
+    bindDispatch();
+    [encoder setBuffer:sortKeys offset:0u atIndex:1u];
+    [encoder setBuffer:radixStatuses offset:0u atIndex:2u];
+    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+    [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:scanAddTileOffsets];
+    bindDispatch();
+    [encoder setBuffer:radixRanges offset:0u atIndex:1u];
+    [encoder setBuffer:sortKeys offset:0u atIndex:2u];
+    [encoder setBytes:&scanTileCount length:sizeof(scanTileCount) atIndex:3u];
+    [encoder dispatchThreads:MTLSizeMake(kEnvironments * kNodes, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    if ((radixPassCount & 1u) == 0u) {
+        [encoder setComputePipelineState:copyRadix];
+        bindDispatch();
+        [encoder setBuffer:sortPayloads offset:0u atIndex:1u];
+        [encoder setBuffer:activeCountsBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:radixIncidence offset:0u atIndex:3u];
+        [encoder setBytes:&padded length:sizeof(padded) atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(sortThreads, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+
     // Build the same prepared fixture with the production legacy GPU count /scan/
     // scatter pipeline, then compare both GPU outputs and the CPU legacy oracle.
     [encoder setComputePipelineState:countLegacy];
@@ -244,7 +377,6 @@ void executeCase(id<MTLDevice> device,
     require(command.status == MTLCommandBufferStatusCompleted,
             "native sorted incidence command buffer failed");
 
-    const Result expected = buildLegacyReference(kNodes, kCapacity, environments);
     Result actual;
     actual.ranges.resize(kEnvironments * kNodes);
     actual.incidence.resize(kEnvironments * kCapacity * 6u);
@@ -255,6 +387,15 @@ void executeCase(id<MTLDevice> device,
     const auto* gpuLegacyIncidence = static_cast<const std::uint32_t*>(
         legacyIncidence.contents);
     const auto* gpuStatuses = static_cast<const NMMatterStatusGPU*>(statuses.contents);
+    const auto* gpuRadixRanges = static_cast<const NMIncidenceRangeGPU*>(
+        radixRanges.contents);
+    const auto* gpuRadixIncidence = static_cast<const std::uint32_t*>(
+        radixIncidence.contents);
+    const auto* gpuRadixStatuses = static_cast<const NMMatterStatusGPU*>(
+        radixStatuses.contents);
+    Result radixGPU;
+    radixGPU.ranges.resize(kEnvironments * kNodes);
+    radixGPU.incidence.resize(kEnvironments * logicalCapacity);
     Result legacyGPU;
     legacyGPU.ranges.resize(kEnvironments * kNodes);
     legacyGPU.incidence.resize(kEnvironments * kCapacity * 6u);
@@ -262,10 +403,14 @@ void executeCase(id<MTLDevice> device,
         actual.ranges[i] = {gpuRanges[i].first, gpuRanges[i].count};
         legacyGPU.ranges[i] = {gpuLegacyRanges[i].first,
                                gpuLegacyRanges[i].count};
+        radixGPU.ranges[i] = {gpuRadixRanges[i].first,
+                              gpuRadixRanges[i].count};
         require(gpuRanges[i].objectIndex == NM_INVALID_INDEX &&
                     gpuRanges[i].reserved == 0u &&
                     gpuLegacyRanges[i].objectIndex == NM_INVALID_INDEX &&
-                    gpuLegacyRanges[i].reserved == 0u,
+                    gpuLegacyRanges[i].reserved == 0u &&
+                    gpuRadixRanges[i].objectIndex == NM_INVALID_INDEX &&
+                    gpuRadixRanges[i].reserved == 0u,
                 "native incidence range metadata differs from the legacy initializer");
     }
     std::copy(gpuIncidence, gpuIncidence + actual.incidence.size(),
@@ -273,19 +418,29 @@ void executeCase(id<MTLDevice> device,
     std::copy(gpuLegacyIncidence,
               gpuLegacyIncidence + legacyGPU.incidence.size(),
               legacyGPU.incidence.begin());
+    std::copy(gpuRadixIncidence,
+              gpuRadixIncidence + radixGPU.incidence.size(),
+              radixGPU.incidence.begin());
     require(actual.ranges == expected.ranges &&
                 actual.incidence == expected.incidence,
             "native sorted CSR differs from the complete CPU legacy output");
     require(legacyGPU.ranges == expected.ranges &&
                 legacyGPU.incidence == expected.incidence,
             "native legacy CSR differs from the complete CPU reference output");
-    require(actual.ranges == legacyGPU.ranges &&
-                actual.incidence == legacyGPU.incidence,
-            "native sorted CSR differs from native legacy CSR");
+    require(radixGPU.ranges == expected.ranges &&
+                radixGPU.incidence == expected.incidence,
+            "native radix CSR differs from the complete CPU legacy output");
+    require(radixGPU.ranges == legacyGPU.ranges &&
+                radixGPU.incidence == legacyGPU.incidence,
+            "native radix CSR differs from native legacy CSR");
     for (const NMMatterStatusGPU& status :
          std::span<const NMMatterStatusGPU>(gpuStatuses, kEnvironments))
         require(status.code == 0u,
                 "native sorted incidence reported a capacity/status failure");
+    for (const NMMatterStatusGPU& status :
+         std::span<const NMMatterStatusGPU>(gpuRadixStatuses, kEnvironments))
+        require(status.code == 0u,
+                "native radix incidence reported a capacity/status failure");
     const auto* gpuLegacyStatuses = static_cast<const NMMatterStatusGPU*>(
         legacyStatuses.contents);
     for (const NMMatterStatusGPU& status :
@@ -329,6 +484,443 @@ std::vector<Environment> invalidSlotCase() {
     environments[1].activeCount = 99u;
     return environments;
 }
+std::uint32_t spreadMorton10(const std::uint32_t value) {
+    std::uint32_t spread = value & 0x000003ffu;
+    spread = (spread | (spread << 16u)) & 0x030000ffu;
+    spread = (spread | (spread << 8u)) & 0x0300f00fu;
+    spread = (spread | (spread << 4u)) & 0x030c30c3u;
+    spread = (spread | (spread << 2u)) & 0x09249249u;
+    return spread;
+}
+
+std::uint32_t surfaceMortonKeyCPU(
+    const std::array<float, 3>& center,
+    const std::array<float, 3>& minimum,
+    const std::array<float, 3>& maximum
+) {
+    std::array<std::uint32_t, 3> quantized{};
+    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+        const float inverseExtent = 1.0f /
+            std::max(maximum[axis] - minimum[axis], 1.0e-12f);
+        const float normalized = (center[axis] - minimum[axis]) * inverseExtent;
+        quantized[axis] = static_cast<std::uint32_t>(std::clamp(
+            normalized * 1023.0f, 0.0f, 1023.0f));
+    }
+    return spreadMorton10(quantized[0]) |
+        (spreadMorton10(quantized[1]) << 1u) |
+        (spreadMorton10(quantized[2]) << 2u);
+}
+
+std::vector<NMContinuumSurfacePrimitiveGPU> makeSurfaceFixture(
+    const bool allInactive
+) {
+    constexpr std::uint32_t primitiveCount = 70u;
+    std::vector<NMContinuumSurfacePrimitiveGPU> primitives(
+        kEnvironments * primitiveCount);
+    for (std::uint32_t environment = 0u; environment < kEnvironments;
+         ++environment) {
+        for (std::uint32_t local = 0u; local < primitiveCount; ++local) {
+            const std::uint32_t pattern = (local + 3u * environment) % 9u;
+            const float x = float(pattern % 3u);
+            const float y = float(pattern / 3u);
+            const float z = float((2u * pattern + environment) % 5u);
+            const bool active = !allInactive &&
+                (environment == 0u ? local % 5u != 0u : local % 4u != 0u);
+            NMContinuumSurfacePrimitiveGPU& primitive =
+                primitives[environment * primitiveCount + local];
+            primitive.nodesAndObject = {local, local + 1u, local + 2u, 0u};
+            primitive.identity = {
+                local, NM_CONTINUUM_SURFACE_TRIANGLE, 0u,
+                active ? NM_TOPOLOGY_ACTIVE : 0u};
+            primitive.boundsMinimum = {x - 0.5f, y - 0.25f, z - 0.75f, 0.0f};
+            primitive.boundsMaximum = {x + 0.5f, y + 0.25f, z + 0.75f, 0.0f};
+        }
+    }
+    return primitives;
+}
+
+void executeSurfaceRadixCase(
+    id<MTLDevice> device,
+    const bool allInactive,
+    id<MTLComputePipelineState> legacySort,
+    id<MTLComputePipelineState> emit,
+    id<MTLComputePipelineState> tileBounds,
+    id<MTLComputePipelineState> boundsReduce,
+    id<MTLComputePipelineState> scanTileCounts,
+    id<MTLComputePipelineState> scanBlockOffsets,
+    id<MTLComputePipelineState> scanAddBlockOffsets,
+    id<MTLComputePipelineState> emitParallel,
+    id<MTLComputePipelineState> prepareRadixDispatch,
+    id<MTLComputePipelineState> histogram,
+    id<MTLComputePipelineState> prefix,
+    id<MTLComputePipelineState> scatter
+) {
+    constexpr std::uint32_t primitiveCount = 70u;
+    constexpr std::uint32_t radixBucketCount = 16u;
+    constexpr std::uint32_t radixPassCount = 8u;
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = kEnvironments;
+    dispatch.gridNodeCount = 2u;
+    dispatch.tetrahedronCount = (primitiveCount - dispatch.gridNodeCount) / 4u;
+    const std::uint32_t maxTileCount = primitiveCount / 32u +
+        (primitiveCount % 32u != 0u ? 1u : 0u);
+    const std::uint32_t scanBlockCount = maxTileCount / 256u +
+        (maxTileCount % 256u != 0u ? 1u : 0u);
+    const std::uint32_t scratchStride = std::max(
+        primitiveCount, maxTileCount * radixBucketCount);
+    const std::uint32_t useArmijoSurfaceCache = 0u;
+    const auto primitives = makeSurfaceFixture(allInactive);
+    std::vector<std::uint32_t> cacheFlags(kEnvironments, 0u);
+
+    id<MTLBuffer> dispatchBuffer = inputBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatch});
+    id<MTLBuffer> primitivesBuffer = inputBuffer(device, primitives);
+    id<MTLBuffer> cacheFlagsBuffer = inputBuffer(device, cacheFlags);
+    id<MTLBuffer> legacyKeysA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> legacyKeysB = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> legacyIndicesA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> legacyIndicesB = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> legacyCounts = zeroBuffer<std::uint32_t>(device, kEnvironments);
+    id<MTLBuffer> keysA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> scratch = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * scratchStride, 0u);
+    id<MTLBuffer> indicesA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> indicesB = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> activeCounts = zeroBuffer<std::uint32_t>(
+        device, kEnvironments);
+    id<MTLBuffer> parallelKeysA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> parallelScratch = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * scratchStride, 0u);
+    id<MTLBuffer> parallelBounds = zeroBuffer<nm_float4>(
+        device, kEnvironments * (2u * maxTileCount + 2u));
+    id<MTLBuffer> parallelIndicesA = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> parallelIndicesB = zeroBuffer<std::uint32_t>(
+        device, kEnvironments * primitiveCount, kInvalid);
+    id<MTLBuffer> parallelActiveCounts = zeroBuffer<std::uint32_t>(
+        device, kEnvironments);
+    id<MTLBuffer> preparedDispatch = zeroBuffer<NMIndirectDispatchGPU>(
+        device, 1u);
+
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "surface radix queue allocation failed");
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    require(command != nil, "surface radix command buffer allocation failed");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(encoder != nil, "surface radix encoder allocation failed");
+    const auto bindDispatch = [&] {
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+    };
+
+    [encoder setComputePipelineState:legacySort];
+    bindDispatch();
+    [encoder setBuffer:primitivesBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:legacyKeysA offset:0u atIndex:2u];
+    [encoder setBuffer:legacyKeysB offset:0u atIndex:3u];
+    [encoder setBuffer:legacyIndicesA offset:0u atIndex:4u];
+    [encoder setBuffer:legacyIndicesB offset:0u atIndex:5u];
+    [encoder setBuffer:legacyCounts offset:0u atIndex:6u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:7u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:8u];
+    [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:emit];
+    bindDispatch();
+    [encoder setBuffer:primitivesBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:keysA offset:0u atIndex:2u];
+    [encoder setBuffer:scratch offset:0u atIndex:3u];
+    [encoder setBuffer:indicesA offset:0u atIndex:4u];
+    [encoder setBuffer:indicesB offset:0u atIndex:5u];
+    [encoder setBuffer:activeCounts offset:0u atIndex:6u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:7u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:8u];
+    [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    const NSUInteger radixGroups =
+        NSUInteger(kEnvironments) * maxTileCount;
+    for (std::uint32_t pass = 0u; pass < radixPassCount; ++pass) {
+        [encoder setComputePipelineState:histogram];
+        bindDispatch();
+        [encoder setBuffer:keysA offset:0u atIndex:1u];
+        [encoder setBuffer:indicesA offset:0u atIndex:2u];
+        [encoder setBuffer:indicesB offset:0u atIndex:3u];
+        [encoder setBuffer:activeCounts offset:0u atIndex:4u];
+        [encoder setBuffer:scratch offset:0u atIndex:5u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:6u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:9u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+        [encoder dispatchThreadgroups:MTLSizeMake(radixGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:prefix];
+        bindDispatch();
+        [encoder setBuffer:activeCounts offset:0u atIndex:1u];
+        [encoder setBuffer:scratch offset:0u atIndex:2u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:3u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:4u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:5u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:6u];
+        [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:scatter];
+        bindDispatch();
+        [encoder setBuffer:keysA offset:0u atIndex:1u];
+        [encoder setBuffer:indicesA offset:0u atIndex:2u];
+        [encoder setBuffer:indicesB offset:0u atIndex:3u];
+        [encoder setBuffer:scratch offset:0u atIndex:4u];
+        [encoder setBuffer:activeCounts offset:0u atIndex:5u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:6u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:9u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+        [encoder dispatchThreadgroups:MTLSizeMake(radixGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+
+    const NSUInteger tileGroups = NSUInteger(kEnvironments) * maxTileCount;
+    [encoder setComputePipelineState:tileBounds];
+    bindDispatch();
+    [encoder setBuffer:primitivesBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:parallelBounds offset:0u atIndex:2u];
+    [encoder setBuffer:parallelScratch offset:0u atIndex:3u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:4u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:5u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:6u];
+    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:7u];
+    [encoder dispatchThreadgroups:MTLSizeMake(tileGroups, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:boundsReduce];
+    bindDispatch();
+    [encoder setBuffer:parallelBounds offset:0u atIndex:1u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:2u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:4u];
+    [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:scanTileCounts];
+    bindDispatch();
+    [encoder setBuffer:parallelScratch offset:0u atIndex:1u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:2u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:4u];
+    [encoder setBytes:&scanBlockCount length:sizeof(scanBlockCount) atIndex:5u];
+    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:6u];
+    [encoder dispatchThreadgroups:MTLSizeMake(
+            NSUInteger(kEnvironments) * scanBlockCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:scanBlockOffsets];
+    bindDispatch();
+    [encoder setBuffer:parallelScratch offset:0u atIndex:1u];
+    [encoder setBuffer:parallelActiveCounts offset:0u atIndex:2u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:3u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:4u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:5u];
+    [encoder setBytes:&scanBlockCount length:sizeof(scanBlockCount) atIndex:6u];
+    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:7u];
+    [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:scanAddBlockOffsets];
+    bindDispatch();
+    [encoder setBuffer:parallelScratch offset:0u atIndex:1u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:2u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:3u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:4u];
+    [encoder setBytes:&scanBlockCount length:sizeof(scanBlockCount) atIndex:5u];
+    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:6u];
+    [encoder dispatchThreads:MTLSizeMake(tileGroups, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    [encoder setComputePipelineState:emitParallel];
+    bindDispatch();
+    [encoder setBuffer:primitivesBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:parallelKeysA offset:0u atIndex:2u];
+    [encoder setBuffer:parallelBounds offset:0u atIndex:3u];
+    [encoder setBuffer:parallelScratch offset:0u atIndex:4u];
+    [encoder setBuffer:parallelIndicesA offset:0u atIndex:5u];
+    [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:6u];
+    [encoder setBytes:&useArmijoSurfaceCache
+              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+    [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+    [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:9u];
+    [encoder dispatchThreadgroups:MTLSizeMake(tileGroups, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    const std::uint32_t activeCountLimit = primitiveCount;
+    const std::uint32_t recordsPerActive = 1u;
+    [encoder setComputePipelineState:prepareRadixDispatch];
+    [encoder setBuffer:parallelActiveCounts offset:0u atIndex:0u];
+    [encoder setBuffer:preparedDispatch offset:0u atIndex:1u];
+    [encoder setBytes:&activeCountLimit length:sizeof(activeCountLimit) atIndex:2u];
+    [encoder setBytes:&recordsPerActive length:sizeof(recordsPerActive) atIndex:3u];
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    for (std::uint32_t pass = 0u; pass < radixPassCount; ++pass) {
+        [encoder setComputePipelineState:histogram];
+        bindDispatch();
+        [encoder setBuffer:parallelKeysA offset:0u atIndex:1u];
+        [encoder setBuffer:parallelIndicesA offset:0u atIndex:2u];
+        [encoder setBuffer:parallelIndicesB offset:0u atIndex:3u];
+        [encoder setBuffer:parallelActiveCounts offset:0u atIndex:4u];
+        [encoder setBuffer:parallelScratch offset:0u atIndex:5u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:6u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:9u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+        [encoder dispatchThreadgroups:MTLSizeMake(tileGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:prefix];
+        bindDispatch();
+        [encoder setBuffer:parallelActiveCounts offset:0u atIndex:1u];
+        [encoder setBuffer:parallelScratch offset:0u atIndex:2u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:3u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:4u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:5u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:6u];
+        [encoder dispatchThreadgroups:MTLSizeMake(kEnvironments, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:scatter];
+        bindDispatch();
+        [encoder setBuffer:parallelKeysA offset:0u atIndex:1u];
+        [encoder setBuffer:parallelIndicesA offset:0u atIndex:2u];
+        [encoder setBuffer:parallelIndicesB offset:0u atIndex:3u];
+        [encoder setBuffer:parallelScratch offset:0u atIndex:4u];
+        [encoder setBuffer:parallelActiveCounts offset:0u atIndex:5u];
+        [encoder setBuffer:cacheFlagsBuffer offset:0u atIndex:6u];
+        [encoder setBytes:&useArmijoSurfaceCache
+                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+        [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
+        [encoder setBytes:&scratchStride length:sizeof(scratchStride) atIndex:9u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:10u];
+        [encoder dispatchThreadgroups:MTLSizeMake(tileGroups, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+            "native surface Morton radix command buffer failed");
+
+    const auto* oldCount = static_cast<const std::uint32_t*>(legacyCounts.contents);
+    const auto* newCount = static_cast<const std::uint32_t*>(activeCounts.contents);
+    const auto* oldIndices = static_cast<const std::uint32_t*>(legacyIndicesA.contents);
+    const auto* newIndices = static_cast<const std::uint32_t*>(indicesA.contents);
+    const auto* parallelCount = static_cast<const std::uint32_t*>(
+        parallelActiveCounts.contents);
+    const auto* parallelIndices = static_cast<const std::uint32_t*>(
+        parallelIndicesA.contents);
+    const auto* prepared = static_cast<const NMIndirectDispatchGPU*>(
+        preparedDispatch.contents);
+    require(prepared[0].threadgroupsX ==
+                (parallelCount[0] + 31u) / 32u &&
+                prepared[0].threadgroupsY == 1u &&
+                prepared[0].threadgroupsZ == 1u &&
+                prepared[0].reserved == parallelCount[0],
+            "GPU radix indirect group preparation differs from active surface count");
+    for (std::uint32_t environment = 0u; environment < kEnvironments;
+         ++environment) {
+        const std::size_t base = std::size_t(environment) * primitiveCount;
+        std::array<float, 3> minimum{
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity()};
+        std::array<float, 3> maximum{
+            -std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity()};
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> keyed;
+        for (std::uint32_t local = 0u; local < primitiveCount; ++local) {
+            const NMContinuumSurfacePrimitiveGPU& primitive = primitives[base + local];
+            if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+            const std::array<float, 3> center{
+                0.5f * (primitive.boundsMinimum.x + primitive.boundsMaximum.x),
+                0.5f * (primitive.boundsMinimum.y + primitive.boundsMaximum.y),
+                0.5f * (primitive.boundsMinimum.z + primitive.boundsMaximum.z)};
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                minimum[axis] = std::min(minimum[axis], center[axis]);
+                maximum[axis] = std::max(maximum[axis], center[axis]);
+            }
+        }
+        for (std::uint32_t local = 0u; local < primitiveCount; ++local) {
+            const NMContinuumSurfacePrimitiveGPU& primitive = primitives[base + local];
+            if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+            const std::array<float, 3> center{
+                0.5f * (primitive.boundsMinimum.x + primitive.boundsMaximum.x),
+                0.5f * (primitive.boundsMinimum.y + primitive.boundsMaximum.y),
+                0.5f * (primitive.boundsMinimum.z + primitive.boundsMaximum.z)};
+            keyed.emplace_back(surfaceMortonKeyCPU(center, minimum, maximum), local);
+        }
+        std::stable_sort(keyed.begin(), keyed.end(),
+            [](const auto& left, const auto& right) {
+                return left.first < right.first;
+            });
+        require(oldCount[environment] == keyed.size() &&
+                    newCount[environment] == keyed.size() &&
+                    parallelCount[environment] == keyed.size(),
+                "native surface active count differs from fixture activity");
+        for (std::size_t index = 0u; index < keyed.size(); ++index) {
+            const std::uint32_t expected = keyed[index].second;
+            require(oldIndices[base + index] == expected,
+                    "legacy native surface Morton order differs from stable CPU oracle");
+            require(newIndices[base + index] == expected,
+                    "radix native surface Morton order differs from stable CPU oracle");
+            require(newIndices[base + index] == oldIndices[base + index],
+                    "radix native surface order differs from legacy Morton order");
+            require(parallelIndices[base + index] == expected,
+                    "tiled radix native surface order differs from stable CPU oracle");
+        }
+    }
+}
+
 }
 
 int main() {
@@ -358,18 +950,89 @@ int main() {
                 "nm_contact_scatter_deformable_node_incidence_sorted");
             const auto scatterLegacy = makePipeline(device, library,
                 "nm_contact_scatter_deformable_node_incidence");
+            const auto radixHistogram = makePipeline(device, library,
+                "nm_contact_deformable_node_radix_histogram");
+            const auto radixPrefix = makePipeline(device, library,
+                "nm_contact_deformable_node_radix_prefix");
+            const auto radixScatter = makePipeline(device, library,
+                "nm_contact_deformable_node_radix_scatter");
+            const auto countRadix = makePipeline(device, library,
+                "nm_contact_count_deformable_node_incidence_radix");
+            const auto copyRadix = makePipeline(device, library,
+                "nm_contact_copy_deformable_node_radix_result");
+            const auto scanTiles = makePipeline(device, library,
+                "nm_contact_scan_deformable_node_incidence_tiles");
+            const auto scanTileOffsets = makePipeline(device, library,
+                "nm_contact_scan_deformable_node_incidence_tile_offsets");
+            const auto scanAddTileOffsets = makePipeline(device, library,
+                "nm_contact_scan_deformable_node_incidence_add_tile_offsets");
+            const auto surfaceLegacySort = makePipeline(device, library,
+                "nm_contact_sort_surface_primitives");
+            const auto surfaceEmit = makePipeline(device, library,
+                "nm_contact_emit_surface_morton_records");
+            const auto surfaceTileBounds = makePipeline(device, library,
+                "nm_contact_surface_morton_tile_bounds");
+            const auto surfaceBoundsReduce = makePipeline(device, library,
+                "nm_contact_surface_morton_bounds_reduce");
+            const auto surfaceScanTileCounts = makePipeline(device, library,
+                "nm_contact_surface_morton_scan_tile_counts");
+            const auto surfaceScanBlockOffsets = makePipeline(device, library,
+                "nm_contact_surface_morton_scan_block_offsets");
+            const auto surfaceScanAddBlockOffsets = makePipeline(device, library,
+                "nm_contact_surface_morton_scan_add_block_offsets");
+            const auto surfaceEmitParallel = makePipeline(device, library,
+                "nm_contact_emit_surface_morton_records_parallel");
+            const auto prepareRadixDispatch = makePipeline(device, library,
+                "nm_contact_prepare_radix_tile_dispatch");
+            const auto surfaceRadixHistogram = makePipeline(device, library,
+                "nm_contact_surface_morton_radix_histogram");
+            const auto surfaceRadixPrefix = makePipeline(device, library,
+                "nm_contact_surface_morton_radix_prefix");
+            const auto surfaceRadixScatter = makePipeline(device, library,
+                "nm_contact_surface_morton_radix_scatter");
+
+            executeSurfaceRadixCase(device, false, surfaceLegacySort,
+                surfaceEmit, surfaceTileBounds, surfaceBoundsReduce,
+                surfaceScanTileCounts, surfaceScanBlockOffsets,
+                surfaceScanAddBlockOffsets, surfaceEmitParallel,
+                prepareRadixDispatch, surfaceRadixHistogram, surfaceRadixPrefix, surfaceRadixScatter);
+            ++checks;
+            executeSurfaceRadixCase(device, true, surfaceLegacySort,
+                surfaceEmit, surfaceTileBounds, surfaceBoundsReduce,
+                surfaceScanTileCounts, surfaceScanBlockOffsets,
+                surfaceScanAddBlockOffsets, surfaceEmitParallel,
+                prepareRadixDispatch, surfaceRadixHistogram, surfaceRadixPrefix, surfaceRadixScatter);
+            ++checks;
 
             executeCase(device, explicitCase(), emit, bitonic, countSorted,
-                        countLegacy, scan, scatter, scatterLegacy);
+                        countLegacy, scan, scatter, scatterLegacy,
+                        radixHistogram, radixPrefix, radixScatter, countRadix,
+                        copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
+                        7u);
+            ++checks;
+            // Force the full-width fallback on the small fixture. The high
+            // key digit is zero here, while this exercises the even-pass
+            // ping-pong parity and final copy used for large node domains.
+            executeCase(device, explicitCase(), emit, bitonic, countSorted,
+                        countLegacy, scan, scatter, scatterLegacy,
+                        radixHistogram, radixPrefix, radixScatter, countRadix,
+                        copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
+                        8u);
             ++checks;
             executeCase(device, zeroActiveCase(), emit, bitonic, countSorted,
-                        countLegacy, scan, scatter, scatterLegacy);
+                        countLegacy, scan, scatter, scatterLegacy,
+                        radixHistogram, radixPrefix, radixScatter, countRadix,
+                        copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
+                        7u);
             ++checks;
             executeCase(device, invalidSlotCase(), emit, bitonic, countSorted,
-                        countLegacy, scan, scatter, scatterLegacy);
+                        countLegacy, scan, scatter, scatterLegacy,
+                        radixHistogram, radixPrefix, radixScatter, countRadix,
+                        copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
+                        7u);
             ++checks;
-            std::cout << "PASS native deterministic sorted contact incidence; checks="
-                      << checks << "; cases=3; environments=2; physical_steps=0\n";
+            std::cout << "PASS native deterministic radix contact incidence and surface Morton sort; checks="
+                      << checks << " ; incidence_runs=4; surface_runs=2; environments=2; physical_steps=0\n";
             return 0;
         } catch (const std::exception& exception) {
             std::cerr << "FAIL native deterministic sorted contact incidence: "
