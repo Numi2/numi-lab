@@ -1,0 +1,7 @@
+# Unified contact-slope verification 037
+
+All completed preparation, interface, geometry, CPU catalog, and native rollback checks passed. The native test accepted two 125 microsecond steps (execution exit 0; wall 34.8018 s). The injected step-1 post-dynamics rejection was followed by a same-context retry; the native log reports unchanged root-muscle coordinates, vascular state, adapter history, and respiratory presentation, and restored body/DOF properties. Replay markers and terminal two-step FEM/registered-ligament audits are retained in `native/selected_stdout.log`.
+
+The CPU catalog fixture passed with 28 registered rows. The contact geometry receipt includes eight contact-slope cases (maximum FP64 relative error 1.5202e-6 and absolute energy error 1.8747e-7 J); this is synthetic arithmetic/geometry evidence. Compact-boundary audit reports 27,714 positive tetrahedra, 9,418/9,418 expected exposed faces, zero nonmanifold faces, zero bad boundary edges, and zero self-crossings. The FEM backtracking fixture passed both coordinate modes (rejected J 0.3139282, accepted alpha 0.5 with minimum J 0.656964).
+
+This package records the verifier two-step injected rollback test, not a long-horizon physiological or sustained-contact result. The separate 32-step native run is packaged independently. Compiled executables, detailed compact-boundary tables, the full 13.7 MB stdout, and the 297 MB output pack were not copied; their relevant identities are recorded.

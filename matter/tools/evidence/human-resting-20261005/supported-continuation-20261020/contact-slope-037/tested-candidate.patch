@@ -1,0 +1,298 @@
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+index 02f75834..1b4504ab 100644
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -952,6 +952,27 @@ inline bool deformableBarrierEnergyAt(
+     return isfinite(separation) && isfinite(energy);
+ }
+ 
++// Derivative of the current IPC potential along the Newton path, before
++// endpoint rounding. The actual rounded endpoints still own CCD and energy
++// acceptance. A rounded alpha=1 chord is not this path's derivative.
++inline float contactBarrierDirectionalDerivative(
++    const NMDeformableContactGPU contact,
++    const float3 displacement[6],
++    const float dt
++) {
++    float impulseDotDisplacement = 0.0f;
++    for (uint local = 0u; local < 6u; ++local) {
++        const uint supportNode = deformableContactNode(contact, local);
++        if (supportNode == NM_INVALID_INDEX) continue;
++        const float3 barrierImpulse =
++            deformableContactWeight(contact, local) * contact.barrier.x *
++                contact.normalAndTOI.xyz -
++            contact.mollifier.y * deformableMollifierGradient(contact, local);
++        impulseDotDisplacement += dot(barrierImpulse, displacement[local]);
++    }
++    return -impulseDotDisplacement / max(dt, 1.0e-20f);
++}
++
+ inline uint3 sortedSurfaceNodes(uint3 nodes) {
+     if (nodes.x > nodes.y) {
+         const uint value = nodes.x;
+@@ -10767,22 +10788,9 @@ kernel void nm_contact_limit_deformable_line_search(
+                 dispatch,
+                 schedulers[environment * dispatch.objectCount +
+                            contact.identity.x]);
+-            float impulseDotDisplacement = 0.0f;
+-            for (uint local = 0u; local < 6u; ++local) {
+-                const uint supportNode =
+-                    deformableContactNode(contact, local);
+-                if (supportNode == NM_INVALID_INDEX) continue;
+-                const float3 barrierImpulse =
+-                    deformableContactWeight(contact, local) *
+-                        contact.barrier.x *
+-                        contact.normalAndTOI.xyz -
+-                    contact.mollifier.y *
+-                        deformableMollifierGradient(contact, local);
+-                impulseDotDisplacement += dot(
+-                    barrierImpulse, displacement[local]);
+-            }
+             const float directionalDerivative =
+-                -impulseDotDisplacement / max(dt, 1.0e-20f);
++                contactBarrierDirectionalDerivative(
++                    contact, analyticDisplacement, dt);
+             if (!isfinite(directionalDerivative)) {
+                 recordFailure(
+                     statuses[environment], NM_STATUS_CONTACT_FAILURE,
+diff --git a/matter/tools/cardboard_contact_geometry_check.metal b/matter/tools/cardboard_contact_geometry_check.metal
+index dccc8343..e021c104 100644
+--- a/matter/tools/cardboard_contact_geometry_check.metal
++++ b/matter/tools/cardboard_contact_geometry_check.metal
+@@ -1,7 +1,89 @@
+ #include "../src/matter_kernels.metal"
+ namespace numi_matter_metal {
+ kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]], uint global [[thread_position_in_grid]]) {
+-    if (global>=112u) return;
++    if (global>=120u) return;
++    if (global>=112u) {
++        const uint test=global-112u;
++        float3 origin=float3(0.0f);
++        float3 point=float3(0.004f,0.006f,0.008f);
++        float3 a=float3(0.0f), b=float3(0.02f,0.0f,0.0f),
++               c=float3(0.0f,0.02f,0.0f);
++        float thickness=0.02f;
++        const float dt=0.01f;
++        if (test==3u) {
++            b=float3(0.02f,0.0f,0.0f);
++            c=float3(0.01f,0.0001f,0.0f);
++            point=float3(0.012f,0.00004f,0.008f);
++        }
++        if (test>=6u) {
++            origin=float3(8192.0f,-4096.0f,2048.0f);
++            point=origin+float3(0.00390625f,0.005859375f,0.0078125f);
++            a=origin;
++            b=origin+float3(0.01953125f,0.0f,0.0f);
++            c=origin+float3(0.0f,0.01953125f,0.0f);
++            thickness=0.02f;
++        }
++        const float3 positions[4]={point,a,b,c};
++        float3 barycentric,closest;
++        MRCompensatedPositionGPU relative;
++        float separation;
++        const bool witnessValid=contactCompensatedVertexTriangleWitness(
++            point,a,b,c,barycentric,closest,relative,separation);
++        float3 firstGradient,secondGradient;
++        const float mollifier=ipcFeatureMollifierDifferential(
++            b-a,c-a,firstGradient,secondGradient);
++        const float inverseResponse=1.0f;
++        const float closingSpeed=0.0f;
++        const float4 baseResponse=ipcBarrierResponse(
++            separation,thickness,inverseResponse,dt,closingSpeed,false,0.0f,0.0f);
++        const float baseEnergy=ipcBarrierEnergy(
++            separation,thickness,baseResponse.w,false,0.0f);
++        NMDeformableContactGPU contact{};
++        contact.nodes=uint4(0u,1u,2u,3u);
++        contact.extraNodes=uint4(NM_INVALID_INDEX);
++        contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++        contact.weights=float4(1.0f,-barycentric.x,-barycentric.y,-barycentric.z);
++        contact.normalAndTOI=float4(separation>0.0f
++            ? (relative.high.xyz+relative.low.xyz)/separation : float3(0.0f),0.0f);
++        contact.barrier=float4(baseResponse.x*mollifier,
++            baseResponse.y*mollifier,thickness,baseResponse.w*mollifier);
++        contact.mollifier=float4(mollifier,dt*baseEnergy,
++            dt*dt*baseResponse.y,baseResponse.w);
++        contact.mollifierGradientRow0=float4(0.0f);
++        contact.mollifierGradientRow1=float4(-firstGradient-secondGradient,0.0f);
++        contact.mollifierGradientRow2=float4(firstGradient,0.0f);
++        contact.mollifierGradientRow3=float4(secondGradient,0.0f);
++        float3 analytic[6]={float3(0.0f),float3(0.0f),float3(0.0f),
++                            float3(0.0f),float3(0.0f),float3(0.0f)};
++        if (test==0u) analytic[0]=float3(0.0f,0.0f,0.0002f);
++        if (test==1u) analytic[0]=float3(0.0f,0.0f,-0.0002f);
++        if (test==2u) analytic[0]=float3(0.0001f,-0.00015f,0.00008f);
++        if (test==3u) analytic[3]=float3(0.0f,0.00001f,0.0f);
++        if (test==4u) {
++            const float3 translation=float3(0.0002f,-0.0001f,0.0003f);
++            for(uint i=0u;i<4u;++i) analytic[i]=translation;
++        }
++        if (test==6u || test==7u) analytic[0]=float3(0.0f,0.0f,0.00001f);
++        float3 rounded[6]={float3(0.0f),float3(0.0f),float3(0.0f),
++                           float3(0.0f),float3(0.0f),float3(0.0f)};
++        for(uint i=0u;i<6u;++i) rounded[i]=analytic[i];
++        if (test>=6u) rounded[0]=(point+analytic[0])-point;
++        const float analyticDerivative=contactBarrierDirectionalDerivative(
++            contact,analytic,dt);
++        const float roundedDerivative=contactBarrierDirectionalDerivative(
++            contact,rounded,dt);
++        const float usedDerivative=test==7u?roundedDerivative:analyticDerivative;
++        const uint base=global*18u;
++        for(uint j=0u;j<18u;++j)output[base+j]=float4(0.0f);
++        output[base]=float4(float(test),usedDerivative,dt,0.01f);
++        for(uint i=0u;i<4u;++i)output[base+1u+i]=float4(positions[i],0.0f);
++        for(uint i=0u;i<6u;++i)output[base+5u+i]=float4(analytic[i],0.0f);
++        output[base+11u]=float4(thickness,baseResponse.w,mollifier,baseEnergy);
++        output[base+12u]=float4(analyticDerivative,roundedDerivative,
++            length(rounded[0]),witnessValid?1.0f:0.0f);
++        output[base+13u]=float4(barycentric,baseResponse.x);
++        return;
++    }
+     if (global>=109u) {
+         const uint test=global-109u;
+         const float3 a=float3(0.0f), b=float3(0.02f,0.0f,0.0f), c=float3(0.0f,0.02f,0.0f);
+diff --git a/matter/tools/cardboard_contact_geometry_check.mm b/matter/tools/cardboard_contact_geometry_check.mm
+index 285b9e69..4b991dc9 100644
+--- a/matter/tools/cardboard_contact_geometry_check.mm
++++ b/matter/tools/cardboard_contact_geometry_check.mm
+@@ -24,7 +24,7 @@
+ 
+ namespace {
+ using Vector = std::array<double, 3>;
+-constexpr std::size_t kRows = 112u;
++constexpr std::size_t kRows = 120u;
+ constexpr std::size_t kWordsPerRow = 72u;
+ constexpr std::size_t kBytes = kRows * kWordsPerRow * sizeof(float);
+ void require(bool okay, const char* message) {
+@@ -243,6 +243,85 @@ double triangleMollifier(Vector a,Vector b,Vector c) {
+     const double ratio=std::clamp((dot(crossUV,crossUV)/(uu*vv))/1.0e-3,0.0,1.0);
+     return ratio*(2.0-ratio);
+ }
++double vertexTrianglePotential(const std::array<Vector,4>& position,
++                               double thickness,double stiffness) {
++    const auto oracle=triangleOracle(
++        position[0],position[1],position[2],position[3]);
++    return triangleMollifier(position[1],position[2],position[3])*
++        barrierEnergy(oracle.separation,thickness,stiffness);
++}
++struct ContactSlopeErrors {
++    double finiteDifference;
++    double analytic;
++    double used;
++    double rounded;
++    double relativeError;
++    double absoluteError;
++    double roundedChordLength;
++};
++ContactSlopeErrors contactSlopeErrors(const float* row) {
++    const unsigned test=static_cast<unsigned>(row[0]);
++    require(test<8u,"invalid contact-slope fixture id");
++    std::array<Vector,4> base{};
++    for(unsigned i=0u;i<4u;++i)base[i]=vectorAt(row,1u+i);
++    std::array<Vector,4> plus=base,minus=base;
++    std::array<Vector,6> direction{};
++    const double epsilon=row[3u];
++    const double dt=row[2u];
++    const double thickness=row[11u*4u];
++    const double stiffness=row[11u*4u+1u];
++    require(epsilon>0.0&&dt>0.0&&thickness>0.0&&stiffness>0.0,
++        "invalid contact-slope potential parameters");
++    for(unsigned i=0u;i<6u;++i)direction[i]=vectorAt(row,5u+i);
++    for(unsigned i=0u;i<4u;++i) {
++        plus[i]=add(base[i],scale(direction[i],epsilon));
++        minus[i]=subtract(base[i],scale(direction[i],epsilon));
++    }
++    const double finiteDifference=(
++        vertexTrianglePotential(plus,thickness,stiffness)-
++        vertexTrianglePotential(minus,thickness,stiffness))/(2.0*epsilon);
++    const double analytic=row[12u*4u];
++    const double used=row[1u];
++    const double rounded=row[12u*4u+1u];
++    const double magnitude=std::max({std::abs(finiteDifference),
++        std::abs(analytic),1.0e-12});
++    const double absoluteError=std::abs(analytic-finiteDifference);
++    const double relativeError=absoluteError/magnitude;
++    const double roundedChordLength=row[12u*4u+2u];
++    require(row[12u*4u+3u]==1.0f,"contact-slope fixture rejected its VT witness");
++    if(test==0u)require(finiteDifference<0.0&&analytic<0.0,
++        "positive normal displacement did not lower the barrier");
++    if(test==1u)require(finiteDifference>0.0&&analytic>0.0,
++        "negative normal displacement did not raise the barrier");
++    if(test==2u||test==3u)
++        require(std::abs(finiteDifference)>1.0e-8,
++            "mixed or mollifier direction failed to exercise the potential");
++    if(test==4u||test==5u)
++        require(std::abs(used)<=1.0e-5&&std::abs(analytic)<=1.0e-5,
++            "translation or fixed direction produced a contact slope");
++    if(test==6u) {
++        require(roundedChordLength==0.0&&std::abs(analytic)>1.0e-5,
++            "below-ULP analytic direction did not retain its nonzero slope");
++        require(std::abs(rounded)<=1.0e-5,
++            "rounded endpoint chord unexpectedly retained a below-ULP slope");
++    }
++    if(test==7u) {
++        require(roundedChordLength==0.0&&std::abs(finiteDifference)>1.0e-5,
++            "rounded-chord negative control did not erase a nonzero oracle slope");
++        require(std::abs(rounded)<=1.0e-5&&std::abs(used-rounded)<=1.0e-7,
++            "negative control did not feed the rounded endpoint chord to the helper");
++        require(std::abs(used-finiteDifference)>0.99*std::abs(finiteDifference),
++            "rounded-chord negative control did not lose the analytic slope");
++    } else {
++        require(std::abs(used-analytic)<=1.0e-7,
++            "contact slope fixture did not exercise its recorded analytic helper result");
++    }
++    if(test!=4u&&test!=5u)
++        require(relativeError<=5.0e-3||absoluteError<=2.0e-5,
++            "contact barrier directional derivative disagrees with independent FP64 centered energy difference");
++    return {finiteDifference,analytic,used,rounded,relativeError,
++        absoluteError,roundedChordLength};
++}
+ struct TriangleErrors { double gap,relative,bary,energy,legacy,oracleGap,oracleNormal; };
+ TriangleErrors triangleErrors(const float* row) {
+     const Vector p=vectorAt(row,1u),a=vectorAt(row,2u),b=vectorAt(row,3u),c=vectorAt(row,4u);
+@@ -634,6 +713,8 @@ int main(int argc,const char** argv) {
+             double vfGapMaximum=0.0,vfRelativeMaximum=0.0,vfBaryMaximum=0.0,vfEnergyMaximum=0.0,vfLegacyMaximum=0.0;
+             double vfCapturedGapMaximum=0.0,vfCapturedNormalMaximum=0.0,vfCapturedLegacyMaximum=0.0;
+             double mappedWeightMaximum=0.0,mappedWitnessMaximum=0.0,mappedDirectionMaximum=0.0,mappedTorqueMaximum=0.0;
++            double contactSlopeRelativeMaximum=0.0,contactSlopeAbsoluteMaximum=0.0;
++            std::array<double,8> contactSlopeOracle{};
+             for (std::size_t i = 0u; i < kRows; ++i) {
+                 const float* row = words+i*kWordsPerRow;
+                 for (unsigned j = 0u; j < kWordsPerRow; ++j)
+@@ -643,6 +724,16 @@ int main(int argc,const char** argv) {
+                     const auto errors = mollifierError(row);
+                     valueMaximum = std::max(valueMaximum,errors[0]);
+                     gradientMaximum = std::max(gradientMaximum,errors[1]);
++                } else if(i>=112u&&i<120u) {
++                    const auto errors=contactSlopeErrors(row);
++                    const unsigned test=static_cast<unsigned>(row[0u]);
++                    contactSlopeOracle[test]=errors.finiteDifference;
++                    if(test!=4u&&test!=5u) {
++                        contactSlopeRelativeMaximum=std::max(
++                            contactSlopeRelativeMaximum,errors.relativeError);
++                        contactSlopeAbsoluteMaximum=std::max(
++                            contactSlopeAbsoluteMaximum,errors.absoluteError);
++                    }
+                 } else if(i>=102u&&i<109u) {
+                     const auto errors=triangleErrors(row);
+                     vfGapMaximum=std::max(vfGapMaximum,errors.gap); vfRelativeMaximum=std::max(vfRelativeMaximum,errors.relative);
+@@ -671,13 +762,19 @@ int main(int argc,const char** argv) {
+                     if(i==96u) baselineOldWitnessError=errors[2];
+                 }
+             }
++            require(contactSlopeOracle[0]<0.0&&contactSlopeOracle[1]>0.0&&
++                    contactSlopeOracle[6]<0.0&&contactSlopeOracle[7]<0.0,
++                "contact-slope cases do not cover the expected signed slopes");
++            require(contactSlopeRelativeMaximum<=5.0e-3 ||
++                    contactSlopeAbsoluteMaximum<=2.0e-5,
++                "contact-slope analytical regression exceeded its independent FP64 gate");
+             require(baselineOldWitnessError>5.0e-9,
+                 "legacy rounded-world-point control did not reproduce the witness error");
+             require(std::abs((eeOracleDistances[1]-eeOracleDistances[0])-8.754313078e-9)<=2.0e-10 &&
+                     std::abs((eeOracleDistances[2]-eeOracleDistances[0])-0.352480818e-9)<=2.0e-10,
+                 "captured EE trial gaps do not reproduce the independent FP64 increase");
+             require(vfCapturedLegacyMaximum>1.0e-9,"captured legacy rounded-world-point VF control did not reproduce the measured nanometer-scale witness error");
+-            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError);
++            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7]);
+             require(nearestMaximum <= 1.0e-3 && valueMaximum <= 1.0e-3 && gradientMaximum <= 1.0e-3 &&
+                     eeDistanceMaximum <= 2.0e-10 && eeVectorMaximum <= 2.0e-9 &&
+                     eeArithmeticVectorMaximum <= 2.0e-10 &&

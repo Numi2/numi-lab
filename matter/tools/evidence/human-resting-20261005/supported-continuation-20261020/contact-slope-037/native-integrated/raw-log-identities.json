@@ -1,0 +1,27 @@
+{
+  "note": "Full logs remain in the original completed run directory and are hash-bound here.",
+  "selected-stderr.log": {
+    "line_count": 7,
+    "sha256": "06bbdc04d9a9c7b0a76f1a3c9df5f0de9cc3a880da39a28adcc763b898190307",
+    "size_bytes": 3045
+  },
+  "selected-stdout.log": {
+    "line_count": 4,
+    "sha256": "2f99edffc1c566cd7b11ec75ae89ae69b12da42d6c4ad33632957d29c21d47e0",
+    "size_bytes": 402
+  },
+  "stderr.log": {
+    "copied_into_evidence": false,
+    "line_count": 21,
+    "sha256": "a8468927194fca1c746d769facefddf5e405617b06802de6b6b9ddc1b7549ae9",
+    "size_bytes": 5487,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/stderr.log"
+  },
+  "stdout.log": {
+    "copied_into_evidence": false,
+    "line_count": 264,
+    "sha256": "33c33a4dddc344d8750d8bf9e17e8db6832bb24e825d2c6f9559f1b33977788a",
+    "size_bytes": 117615,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/stdout.log"
+  }
+}

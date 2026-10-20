@@ -1,0 +1,254 @@
+{
+  "action_paths": [
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack"
+  ],
+  "allocated_bytes_by_st_blocks_after_unique_inodes": 297078784,
+  "allocated_bytes_by_st_blocks_before_unique_inodes": 891236352,
+  "allocated_bytes_delta_after_minus_before": -594157568,
+  "canonical_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+  "completed_hardlink_path_count": 2,
+  "created_utc": "2026-10-20T05:59:08.264847+00:00",
+  "df_after_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 177563308  19590584    91%  913686 195905840    0%   /System/Volumes/Data\n",
+  "df_available_kib_delta_after_minus_before": 580212,
+  "df_before_k_pretransaction_readonly_snapshot": {
+    "available_kib": 19010372,
+    "blocks_kib": 239311296,
+    "capacity": "91%",
+    "filesystem": "/dev/disk3s5",
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 178143520  19010372    91%  913688 190103720    0%   /System/Volumes/Data\n",
+    "used_kib": 178143520
+  },
+  "lsof_after": [
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "method": "Fresh SHA-256/size and lsof checks on exact allowlist; duplicate pathnames atomically replaced by same-device hardlinks to 035 canonical. File contents unchanged.",
+  "mutations": [
+    {
+      "canonical_at_mutation": {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107272,
+        "mtime_ns": 1792474284899322872,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "pretransaction": {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107433,
+        "mtime_ns": 1792474920324069914,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack"
+    },
+    {
+      "canonical_at_mutation": {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107272,
+        "mtime_ns": 1792474284899322872,
+        "nlink": 2,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "pretransaction": {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107715,
+        "mtime_ns": 1792475490677794768,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack"
+    }
+  ],
+  "no_active_native_process_after": true,
+  "no_candidate_path_open_after": true,
+  "nominal_logical_bytes_unlinked": 594157568,
+  "paths_after": [
+    {
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "device": 16777231,
+      "inode": 3107272,
+      "mtime_ns": 1792474284899322872,
+      "nlink": 3,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232
+    },
+    {
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "device": 16777231,
+      "inode": 3107272,
+      "mtime_ns": 1792474284899322872,
+      "nlink": 3,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232
+    },
+    {
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "device": 16777231,
+      "inode": 3107272,
+      "mtime_ns": 1792474284899322872,
+      "nlink": 3,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232
+    }
+  ],
+  "preflight": {
+    "lsof_checks": [
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "no_active_native_process": true,
+    "no_open_handles": true,
+    "paths_before": [
+      {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107272,
+        "mtime_ns": 1792474284899322872,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107433,
+        "mtime_ns": 1792474920324069914,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      },
+      {
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "device": 16777231,
+        "inode": 3107715,
+        "mtime_ns": 1792475490677794768,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232
+      }
+    ],
+    "same_sha256_and_size": true
+  },
+  "repository": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "schema": "numi.storage-hardlink-dedup.v1",
+  "scope": {
+    "all_original_pathnames_preserved": true,
+    "candidate_count": 3,
+    "exact_allowlist_paths": [
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-baseline-trace-036/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-sort-candidate-036/output/resting-human.mrvpack"
+    ],
+    "no_other_paths_touched": true,
+    "only_named_035_canonical_and_036_baseline_and_036_candidate_outputs": true
+  },
+  "source_revision_at_receipt": "878da43f57389bfd715f8db953f4512b197fb518",
+  "storage_interpretation": "Nominal logical bytes unlinked are separate from observed df and stat allocation. APFS clones, snapshots, purgeable space, and container accounting can make actual reclaim differ; df is the observed filesystem-level change and is not attributed beyond this bounded transaction.",
+  "verification": {
+    "all_names_exist": true,
+    "all_paths_share_canonical_inode": true,
+    "all_sha256_match_preflight": true,
+    "all_sizes_match_preflight": true
+  }
+}

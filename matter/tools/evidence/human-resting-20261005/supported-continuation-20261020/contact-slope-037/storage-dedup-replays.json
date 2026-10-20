@@ -1,0 +1,642 @@
+{
+  "action_paths": [
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack"
+  ],
+  "active_matching_processes_after": [],
+  "allocated_bytes_after_unique_inode": 297078784,
+  "allocated_bytes_by_st_blocks_before_all_five_distinct_inodes": 1485393920,
+  "canonical_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+  "created_utc": "2026-10-20T06:11:46.505128+00:00",
+  "df_after_k": {
+    "available_kib": 19544828,
+    "blocks_kib": 239311296,
+    "capacity": "91%",
+    "filesystem": "/dev/disk3s5",
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 177609064  19544828    91%  913864 195448280    0%   /System/Volumes/Data\n",
+    "used_kib": 177609064
+  },
+  "df_available_kib_delta_after_minus_before": 1160540,
+  "df_before_k": {
+    "available_kib": 18384288,
+    "blocks_kib": 239311296,
+    "capacity": "91%",
+    "filesystem": "/dev/disk3s5",
+    "raw": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 178769604  18384288    91%  913868 183842880    0%   /System/Volumes/Data\n",
+    "used_kib": 178769604
+  },
+  "lsof_after": [
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "open": false,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+      "returncode": 1,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "method": "For each exact duplicate, rechecked source/candidate hash and size and lsof, made a same-device temporary hardlink to the 035 canonical, then atomically replaced only the named pathname. No contents or unrelated files were edited.",
+  "mutations": [
+    {
+      "canonical_at_mutation": {
+        "acl_flags_text": "-rw-r--r--  3 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 3,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "metadata_effect": "Path now references canonical inode; content/access metadata match. Original per-copy birthtime and mtime differed and are replaced by canonical inode timestamps.",
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "posttransaction": {
+        "acl_flags_text": "-rw-r--r--  4 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 4,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "pretransaction": {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:00 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476047.6284657,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108163,
+        "mode": "0o644",
+        "mtime_ns": 1792476047651221439,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack"
+    },
+    {
+      "canonical_at_mutation": {
+        "acl_flags_text": "-rw-r--r--  4 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 4,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "metadata_effect": "Path now references canonical inode; content/access metadata match. Original per-copy birthtime and mtime differed and are replaced by canonical inode timestamps.",
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "posttransaction": {
+        "acl_flags_text": "-rw-r--r--  5 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 5,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "pretransaction": {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:01 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476088.6016862,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108178,
+        "mode": "0o644",
+        "mtime_ns": 1792476088624433898,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack"
+    },
+    {
+      "canonical_at_mutation": {
+        "acl_flags_text": "-rw-r--r--  5 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 5,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "metadata_effect": "Path now references canonical inode; content/access metadata match. Original per-copy birthtime and mtime differed and are replaced by canonical inode timestamps.",
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "posttransaction": {
+        "acl_flags_text": "-rw-r--r--  6 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 6,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "pretransaction": {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:02 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476158.0103874,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108203,
+        "mode": "0o644",
+        "mtime_ns": 1792476158036984347,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack"
+    },
+    {
+      "canonical_at_mutation": {
+        "acl_flags_text": "-rw-r--r--  6 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 6,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "fresh_lsof_checks": [
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        },
+        {
+          "open": false,
+          "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+          "returncode": 1,
+          "stderr": "",
+          "stdout": ""
+        }
+      ],
+      "metadata_effect": "Path now references canonical inode; content/access metadata match. Original per-copy birthtime and mtime differed and are replaced by canonical inode timestamps.",
+      "method": "same-device os.link to temporary pathname followed by atomic os.replace",
+      "posttransaction": {
+        "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 7,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "pretransaction": {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:07 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476430.1577315,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108323,
+        "mode": "0o644",
+        "mtime_ns": 1792476430184328867,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      "target": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack"
+    }
+  ],
+  "no_active_matching_process_after": true,
+  "no_candidate_path_open_after": true,
+  "nominal_allocated_bytes_reduced": 1188315136,
+  "nominal_logical_bytes_unlinked": 1188315136,
+  "paths_after": [
+    {
+      "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "birthtime": 1792474284.876581,
+      "device": 16777231,
+      "flags": 0,
+      "gid": 20,
+      "inode": 3107272,
+      "mode": "0o644",
+      "mtime_ns": 1792474284899322872,
+      "nlink": 7,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232,
+      "uid": 501,
+      "xattrs_text": ""
+    },
+    {
+      "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack\n",
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "birthtime": 1792474284.876581,
+      "device": 16777231,
+      "flags": 0,
+      "gid": 20,
+      "inode": 3107272,
+      "mode": "0o644",
+      "mtime_ns": 1792474284899322872,
+      "nlink": 7,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232,
+      "uid": 501,
+      "xattrs_text": ""
+    },
+    {
+      "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack\n",
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "birthtime": 1792474284.876581,
+      "device": 16777231,
+      "flags": 0,
+      "gid": 20,
+      "inode": 3107272,
+      "mode": "0o644",
+      "mtime_ns": 1792474284899322872,
+      "nlink": 7,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232,
+      "uid": 501,
+      "xattrs_text": ""
+    },
+    {
+      "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack\n",
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "birthtime": 1792474284.876581,
+      "device": 16777231,
+      "flags": 0,
+      "gid": 20,
+      "inode": 3107272,
+      "mode": "0o644",
+      "mtime_ns": 1792474284899322872,
+      "nlink": 7,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232,
+      "uid": 501,
+      "xattrs_text": ""
+    },
+    {
+      "acl_flags_text": "-rw-r--r--  7 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack\n",
+      "allocated_bytes_st_blocks_times_512": 297078784,
+      "birthtime": 1792474284.876581,
+      "device": 16777231,
+      "flags": 0,
+      "gid": 20,
+      "inode": 3107272,
+      "mode": "0o644",
+      "mtime_ns": 1792474284899322872,
+      "nlink": 7,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "st_blocks_512b": 580232,
+      "uid": 501,
+      "xattrs_text": ""
+    }
+  ],
+  "preflight": {
+    "active_matching_processes": [],
+    "df_before": {
+      "available_kib": 18384288,
+      "blocks_kib": 239311296,
+      "capacity": "91%",
+      "filesystem": "/dev/disk3s5",
+      "raw": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 178769604  18384288    91%  913868 183842880    0%   /System/Volumes/Data\n",
+      "used_kib": 178769604
+    },
+    "lsof_checks": [
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "open": false,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "metadata_compatibility_checked": [
+      "mode",
+      "uid",
+      "gid",
+      "flags",
+      "xattrs",
+      "ACL"
+    ],
+    "minimum_free_space_kib": 12582912,
+    "note": "File birthtime/mtime varied across duplicate outputs; all candidates were closed and are completed outputs.",
+    "paths_before": [
+      {
+        "acl_flags_text": "-rw-r--r--  3 numi  staff  - 297078784 Oct 19 22:31 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792474284.876581,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3107272,
+        "mode": "0o644",
+        "mtime_ns": 1792474284899322872,
+        "nlink": 3,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:00 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476047.6284657,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108163,
+        "mode": "0o644",
+        "mtime_ns": 1792476047651221439,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:01 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476088.6016862,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108178,
+        "mode": "0o644",
+        "mtime_ns": 1792476088624433898,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:02 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476158.0103874,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108203,
+        "mode": "0o644",
+        "mtime_ns": 1792476158036984347,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      },
+      {
+        "acl_flags_text": "-rw-r--r--  1 numi  staff  - 297078784 Oct 19 23:07 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack\n",
+        "allocated_bytes_st_blocks_times_512": 297078784,
+        "birthtime": 1792476430.1577315,
+        "device": 16777231,
+        "flags": 0,
+        "gid": 20,
+        "inode": 3108323,
+        "mode": "0o644",
+        "mtime_ns": 1792476430184328867,
+        "nlink": 1,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack",
+        "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+        "size_bytes": 297078784,
+        "st_blocks_512b": 580232,
+        "uid": 501,
+        "xattrs_text": ""
+      }
+    ],
+    "same_device": true,
+    "same_sha256_and_size": true
+  },
+  "repository": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "schema": "numi.storage-hardlink-dedup.v1",
+  "scope": {
+    "all_original_pathnames_preserved": true,
+    "candidate_count": 4,
+    "exact_allowlist_paths": [
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-vascular-block-035/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-037/output/resting-human.mrvpack",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-root2-tick3-037/output/resting-human.mrvpack"
+    ],
+    "no_other_paths_touched": true,
+    "only_named_035_canonical_and_four_completed_037_outputs": true
+  },
+  "source_revision_at_receipt": "878da43f57389bfd715f8db953f4512b197fb518",
+  "storage_interpretation": "Nominal logical/allocated bytes are separate from observed df. APFS clone/shared-block/snapshot accounting can make recoverable space differ. df reports the observed filesystem-level change and is not attributed beyond this bounded transaction; at least 12 GiB remained available.",
+  "verification": {
+    "access_metadata_match_canonical": true,
+    "all_names_exist": true,
+    "all_paths_share_canonical_inode": true,
+    "all_sha256_match_preflight": true,
+    "all_sizes_match_preflight": true
+  }
+}

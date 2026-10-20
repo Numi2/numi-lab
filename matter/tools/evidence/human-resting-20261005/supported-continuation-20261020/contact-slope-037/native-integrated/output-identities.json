@@ -1,0 +1,41 @@
+{
+  "files": [
+    {
+      "copied_into_evidence": false,
+      "name": "resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size_bytes": 297078784,
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-human.mrvpack"
+    },
+    {
+      "copied_into_evidence": true,
+      "name": "resting-coupled.csv",
+      "sha256": "5c3f3a224d3950055648f10934e56201d44cbaf281c66192752adcc69a416a0b",
+      "size_bytes": 3300,
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-coupled.csv"
+    },
+    {
+      "copied_into_evidence": true,
+      "name": "resting-surface-audit.csv",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "size_bytes": 894,
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-surface-audit.csv"
+    },
+    {
+      "copied_into_evidence": false,
+      "name": "resting-airway-anchor-map.json",
+      "sha256": "f516b94a8be793b9ed3601899a508942375e2ffffc44c77c93616f12f03944fa",
+      "size_bytes": 82553,
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-airway-anchor-map.json"
+    },
+    {
+      "copied_into_evidence": false,
+      "name": "resting-ocular-sclera-window.json",
+      "sha256": "e71dadccd1ccba086f4a4bdccdafd4a709dcf288f31d242a010fde688ef1f3e3",
+      "size_bytes": 1210039,
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-slope-037/output/resting-ocular-sclera-window.json"
+    }
+  ],
+  "note": "The 297 MB pack and JSON diagnostics remain only in the run directory and are hash-identified; CSV and surface audit are copied.",
+  "schema": "numi.human.native_output_identities.v1"
+}

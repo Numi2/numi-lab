@@ -1,0 +1,66 @@
+{
+  "baseline_036": {
+    "accepted_csv_rows": 24,
+    "exit_code": 1,
+    "failure": {
+      "diagnostics": [
+        3.296739237157453e-08,
+        -2.1803598926339873e-09,
+        0.25,
+        0
+      ],
+      "failing_index": 2624,
+      "matter_code": 6,
+      "microsteps": 1,
+      "object_index": 19,
+      "step": 24
+    },
+    "last_accepted_time_s": 0.00300000014249,
+    "requested_step_count": 25,
+    "run": "native-sort-baseline-trace-036"
+  },
+  "current_037": {
+    "accepted_csv_rows": 2,
+    "exit_code": 1,
+    "failure": {
+      "diagnostics": [
+        6.346143521795966e-08,
+        -8.35808158794471e-11,
+        1,
+        0
+      ],
+      "failing_index": 2624,
+      "matter_code": 6,
+      "microsteps": 3,
+      "object_index": 19,
+      "step": 2
+    },
+    "last_accepted_time_s": 0.000250000011874,
+    "requested_step_count": 32,
+    "run": "native-contact-slope-037"
+  },
+  "environment_differences": {
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_MICROTICK": {
+      "baseline_036": "1",
+      "classification": "diagnostic capture only",
+      "current_037": "0"
+    },
+    "NUMI_MATTER_GPU_TIMING_*": {
+      "baseline_036": "enabled for root-1 timing capture",
+      "classification": "diagnostic timing only",
+      "current_037": "absent"
+    },
+    "failure_receipt_path": "run-specific paths"
+  },
+  "failure_identity_comparison": {
+    "interpretation": "037 repeats the Matter code/object/index tuple at an earlier accepted horizon, with a different microstep count and diagnostic vector; this does not establish an identical failure mechanism.",
+    "same_diagnostics": false,
+    "same_matter_code_object_and_failing_index": true,
+    "same_microsteps": false,
+    "same_step": false
+  },
+  "interpretation": "037 accepts 2 rows (0.25 ms) versus 036 24 rows (3.0 ms) under unchanged strict physical settings: reduced accepted horizon, no qualification implied.",
+  "normalized_argv_equal_except_output_directory_and_step_count": true,
+  "schema": "numi.human.native_regression_comparison.v1",
+  "strict_physical_environment_equal_after_diagnostic_normalization": true
+}

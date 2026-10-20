@@ -1,0 +1,88 @@
+{
+  "items": [
+    {
+      "bytes": 297078784,
+      "copied": false,
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 82553,
+      "copied": false,
+      "sha256": "f516b94a8be793b9ed3601899a508942375e2ffffc44c77c93616f12f03944fa",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-airway-anchor-map.json"
+    },
+    {
+      "bytes": 1210039,
+      "copied": false,
+      "sha256": "e71dadccd1ccba086f4a4bdccdafd4a709dcf288f31d242a010fde688ef1f3e3",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-ocular-sclera-window.json"
+    },
+    {
+      "bytes": 3300,
+      "copied": true,
+      "sha256": "5c3f3a224d3950055648f10934e56201d44cbaf281c66192752adcc69a416a0b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-coupled.csv"
+    },
+    {
+      "bytes": 894,
+      "copied": true,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/output/resting-surface-audit.csv"
+    },
+    {
+      "bytes": 1438,
+      "copied": true,
+      "sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/result.json"
+    },
+    {
+      "bytes": 36,
+      "copied": true,
+      "sha256": "376696058181130fafa61390f83068b1e323299f39834b0fae3f8d4584893a8a",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/boundary-edge-errors.csv"
+    },
+    {
+      "bytes": 42,
+      "copied": true,
+      "sha256": "b666117b2e9e6fc7f146dee6af51fb95b3ac229820180d591394507841b02df6",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/boundary-self-crossings.csv"
+    },
+    {
+      "bytes": 78,
+      "copied": true,
+      "sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/fat-self-crossings.csv"
+    },
+    {
+      "bytes": 1284,
+      "copied": true,
+      "sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/float32-geometry.json"
+    },
+    {
+      "bytes": 379185,
+      "copied": false,
+      "sha256": "9c2f388320df30c281066d2d0df4c739fabe5a055378f319dd970622ea0458cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/compact-boundary-vertex-map.csv"
+    },
+    {
+      "bytes": 371267,
+      "copied": false,
+      "sha256": "148a4baf673c2ef3bd2aec55ca5489017ba2270cf82073652a033faff6c92d18",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/compact-exposed-boundary.csv"
+    },
+    {
+      "bytes": 1624439,
+      "copied": false,
+      "sha256": "bc40ab049cb3ad802b96a0fc842bbfa6cd4e8e04f4ea1abe966bd65bc9ca8415",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/positive-tetrahedra.csv"
+    },
+    {
+      "bytes": 3256869,
+      "copied": false,
+      "sha256": "4d20fcefca16eb4e686fd3e4edb7c820c8049702be5c991ba81267dfd8e26061",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/compact-boundary/raw-face-expected-orientation.csv"
+    }
+  ]
+}

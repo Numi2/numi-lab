@@ -1,0 +1,20 @@
+{
+  "native/selected_stdout.log": {
+    "bytes": 3583,
+    "copied": true,
+    "package_path": "native/selected_stdout.log",
+    "sha256": "520e5f1d8699cee9584b1d49a86592372316aea50a5c8b8eace082d9dc4352ba"
+  },
+  "native/stderr.log": {
+    "bytes": 2497,
+    "copied": true,
+    "sha256": "60bbcd758a9012eb7df6c074c397604fdf99de7794d88c34569f73f148db711c",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/stderr.log"
+  },
+  "native/stdout.log": {
+    "bytes": 13679342,
+    "copied": false,
+    "sha256": "9ca71144f25c871779e4ddb9952aa127d62ba52054fc8b8576395d5515ddb38f",
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/verification-037/native/stdout.log"
+  }
+}
