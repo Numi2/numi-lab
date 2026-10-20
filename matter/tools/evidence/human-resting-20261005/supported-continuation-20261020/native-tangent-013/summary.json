@@ -1,0 +1,20 @@
+{
+  "physical_validation": false,
+  "execution": {
+    "exit_code": 0,
+    "wall_s": 145.55605649994686
+  },
+  "steps": 8,
+  "simulated_s": 0.0010000000475,
+  "finite_trace": true,
+  "minimum_gap_m": 1.52557558977e-05,
+  "maximum_penetration_m": 0.0,
+  "normal_impulse_sum_Ns": 0.0,
+  "root_assistance_max_N": 0.0,
+  "root_assistance_max_Nm": 0.0,
+  "body_mass_residual_max_kg": 0.0,
+  "fem_terminal": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.706200151744 max_J=1.1113536346 max_displacement_m=0.00235779570911 max_anchor_reaction_N=3.06857150149 capture=terminal_only",
+  "fascia_terminal": "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=28 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=1 passive_ligament_max_tension_N=0.289380550385 passive_ligament_min_effective_stretch=0.999870657921 passive_ligament_max_effective_stretch=1.0001667738 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=8.57453623119e-09 body_contact_samples=495 body_contact_audited_steps=8 body_contact_closed_samples=289 body_contact_normal_force_N=0.413448393345 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=3.1349793846e-10 total_passive_ligament_force_rows=28 legacy_passive_force_rows=0 accepted_steps=8 capture=terminal_only",
+  "completion": "resting_integrated_body=completed simulated_s=0.0010000000474974513 wall_s=134.76067120799999 real_time_factor=7.4205629768196561e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+  "source_geometry_note": "28-row source-local all-185 audit uses native009 joint configuration; common root translation cancels in relative geometry. Runtime013 reran construction admission under its actual initial root."
+}

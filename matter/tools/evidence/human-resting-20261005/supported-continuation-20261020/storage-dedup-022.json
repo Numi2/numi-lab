@@ -1,0 +1,13 @@
+{
+  "method": "Completed generated packs only, equal SHA-256 and size, no open handles, atomic hardlink replacement; all paths and contents retained",
+  "before_free": 3278290944,
+  "after_free": 3575349248,
+  "files": [
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-attachment-control-021/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-quality-019/output/resting-human.mrvpack",
+      "sha256": "15be64779b1c4ab4605b3c817eb9cd062c0d081e784a3a986e3272c92326f18c",
+      "size": 297078784
+    }
+  ]
+}

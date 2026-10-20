@@ -311,6 +311,50 @@ int main() {
                         .metallib = NUMI_MATTER_METALLIB,
                     }),
                     "probe malformed FEM/body contact did not fail closed");
+            auto invalidElasticReference = femBodyContactSample;
+            invalidElasticReference.flags =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+            invalidElasticReference
+                .bodyLocalNormalAndReferenceSeparation.w = 1.0e-6f;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedElasticReferenceAdapter;
+            require(!rejectedElasticReferenceAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = nodeAnchors,
+                        .femBodyContactSamples =
+                            std::span(&invalidElasticReference, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.0f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe elastic attachment accepted nonzero reference separation");
+            auto elasticConflictedAnchors = nodeAnchors;
+            elasticConflictedAnchors[3u].bodyIndex = 0u;
+            elasticConflictedAnchors[3u].flags =
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            auto elasticZeroReference = femBodyContactSample;
+            elasticZeroReference.flags =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+            elasticZeroReference
+                .bodyLocalNormalAndReferenceSeparation.w = 0.0f;
+            numi::matter::NumiHumanTendonFEMLoadAdapter
+                rejectedElasticAnchorConflictAdapter;
+            require(!rejectedElasticAnchorConflictAdapter.initialize(runtime, {
+                        .nodeLoads = nodeLoads,
+                        .nodeAnchors = elasticConflictedAnchors,
+                        .femBodyContactSamples =
+                            std::span(&elasticZeroReference, 1u),
+                        .endpointCount = 2u,
+                        .environmentCount = 1u,
+                        .productionForceOwnerFraction = 0.0f,
+                    }, {
+                        .metallib = NUMI_MATTER_METALLIB,
+                    }),
+                    "probe elastic attachment accepted a simultaneous hard anchor");
             NMNumiHumanPassiveRoutedBandGPU routedBand{};
             routedBand.originBodyIndex = 0u;
             routedBand.pulleyBodyIndex = 0u;
@@ -524,14 +568,14 @@ int main() {
             id<MTLBuffer> poseBuffer = [device
                 newBufferWithBytes:poses.data() length:sizeof(poses)
                 options:MTLResourceStorageModeShared];
-            std::array<float, 24u> pointJacobians{};
+            std::array<float, 144u> pointJacobians{};
             pointJacobians[0u] = pointJacobians[3u] =
                 pointJacobians[6u] = pointJacobians[9u] = 1.0f;
             id<MTLBuffer> jacobianBuffer = [device
                 newBufferWithBytes:pointJacobians.data()
                 length:pointJacobians.size() * sizeof(float)
                 options:MTLResourceStorageModeShared];
-            std::array<float, 2u> generalizedForces{};
+            std::array<float, 12u> generalizedForces{};
             constexpr float sourceMuscleRow = 4.0f;
             id<MTLBuffer> generalizedForceBuffer = [device
                 newBufferWithBytes:generalizedForces.data()
@@ -566,7 +610,8 @@ int main() {
                                      auto& activeAdapter,
                                      const std::uint32_t step,
                                      const bool accepted,
-                                     const bool injectMatterFailure = false) {
+                                     const bool injectMatterFailure = false,
+                                     const bool sixDof = false) {
                 stand.code = accepted
                     ? MR_NUMI_HUMAN_STAND_SUCCESS
                     : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
@@ -590,11 +635,11 @@ int main() {
                 pass.stepIndex = step;
                 pass.environmentCount = 1u;
                 pass.endpointCount = 2u;
-                pass.dofCount = 1u;
+                pass.dofCount = sixDof ? 6u : 1u;
                 pass.muscleCount = 1u;
-                pass.generalizedForceStride = 1u;
-                pass.generalizedForceOffset = 1u;
-                pass.pointJacobianStride = 24u;
+                pass.generalizedForceStride = sixDof ? 6u : 1u;
+                pass.generalizedForceOffset = sixDof ? 6u : 1u;
+                pass.pointJacobianStride = sixDof ? 144u : 24u;
                 pass.bodyJacobianPointOffset = 0u;
                 pass.bodyPoseStride = 2u;
                 pass.articulationFirstBody = 0u;
@@ -632,12 +677,16 @@ int main() {
                     const auto published=runtime.encodeAcceptedControlCursorPublication((__bridge void*)command,step,0u,cursor);
                     require(published.encoded,"adapter deferred cursor publication rejected");
                 }
-                id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
-                require(blit != nil, "probe reaction blit is unavailable");
-                [blit copyFromBuffer:runtimeReactionBuffer sourceOffset:0u
-                            toBuffer:reactionReadback destinationOffset:0u
-                                size:4u * sizeof(nm_float4)];
-                [blit endEncoding];
+                if (!sixDof) {
+                    id<MTLBlitCommandEncoder> blit =
+                        [command blitCommandEncoder];
+                    require(blit != nil,
+                            "probe reaction blit is unavailable");
+                    [blit copyFromBuffer:runtimeReactionBuffer sourceOffset:0u
+                                toBuffer:reactionReadback destinationOffset:0u
+                                    size:4u * sizeof(nm_float4)];
+                    [blit endEncoding];
+                }
                 [command commit];
                 [command waitUntilCompleted];
                 require(command.status == MTLCommandBufferStatusCompleted,
@@ -1039,6 +1088,331 @@ int main() {
                             1.0e-6 &&
                         diagnostics.fingerprint != 0u,
                     diagnosticFailure.c_str());
+
+            // Exercise the opt-in isotropic finite point spring through the
+            // same adapter kernels, with unrelated loads disabled. One exact
+            // zero-load hard anchor satisfies the adapter's attachment source
+            // invariant and stays outside the spring slave node.
+            // Six generalized-coordinate probes independently read the exact
+            // rigid reaction force and moment from the owning wrench path.
+            std::vector<NMNumiHumanTendonFEMNodeLoadGPU> elasticNodeLoads(4u);
+            std::vector<NMNumiHumanTendonFEMNodeAnchorGPU>
+                elasticNodeAnchors(4u);
+            for (auto& load : elasticNodeLoads)
+                std::fill_n(load.endpointIndex, 4u, NM_INVALID_INDEX);
+            for (auto& anchor : elasticNodeAnchors)
+                anchor.bodyIndex = NM_INVALID_INDEX;
+            elasticNodeAnchors[0u].bodyIndex = 1u;
+            elasticNodeAnchors[0u].flags =
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            elasticNodeAnchors[0u].localPoint = {0.0f, 0.0f, 0.0f, 0.0f};
+            constexpr float elasticArea = 1.0e-4f;
+            constexpr float elasticPressureOverclosure = 1.0e6f;
+            constexpr float elasticStrainPerPressure = 1.0e-6f;
+            constexpr float elasticSpringConstant =
+                elasticArea * elasticPressureOverclosure;
+            const std::array<std::array<float, 3u>, 2u> elasticTargets{{
+                {{0.0005f, 0.001f, 0.012f}},
+                {{-0.0015f, -0.001f, 0.008f}},
+            }};
+            const std::array<float, 3u> frameTranslation{
+                0.003f, -0.002f, 0.001f};
+            const float halfSqrtTwo = std::sqrt(0.5f);
+            std::array<std::array<double, 2u>, 2u> frameEnergies{};
+            std::array<std::array<double, 2u>, 2u> frameForceMagnitudes{};
+            std::uint32_t elasticAcceptedPasses = 0u;
+            const auto rotateZ90 = [](const std::array<float, 3u>& v) {
+                return std::array<float, 3u>{-v[1u], v[0u], v[2u]};
+            };
+            const auto cross3 = [](const std::array<float, 3u>& a,
+                                   const std::array<float, 3u>& b) {
+                return std::array<float, 3u>{
+                    a[1u] * b[2u] - a[2u] * b[1u],
+                    a[2u] * b[0u] - a[0u] * b[2u],
+                    a[0u] * b[1u] - a[1u] * b[0u]};
+            };
+            for (std::uint32_t targetIndex = 0u;
+                 targetIndex < elasticTargets.size(); ++targetIndex) {
+                NMNumiHumanFEMBodyContactSampleGPU elasticSample{};
+                elasticSample.slaveNode = 3u;
+                elasticSample.bodyIndex = 0u;
+                elasticSample.flags =
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+                elasticSample.bodyLocalPointAndArea = {
+                    elasticTargets[targetIndex][0u],
+                    elasticTargets[targetIndex][1u],
+                    elasticTargets[targetIndex][2u], elasticArea};
+                elasticSample.bodyLocalNormalAndReferenceSeparation = {
+                    0.0f, 0.0f, 1.0f, 0.0f};
+                elasticSample.stiffnessAndNormalStrainPerPressure = {
+                    elasticPressureOverclosure, elasticStrainPerPressure,
+                    0.0f, 0.0f};
+                for (std::uint32_t frame = 0u; frame < 2u; ++frame) {
+                    auto frameSource = source;
+                    if (frame != 0u) {
+                        for (auto& point : frameSource.objects[0u].femNodes) {
+                            const auto original = point;
+                            point = {
+                                -original[1u] + frameTranslation[0u],
+                                original[0u] + frameTranslation[1u],
+                                original[2u] + frameTranslation[2u]};
+                        }
+                        for (auto& point :
+                             frameSource.objects[0u].femReferenceNodes) {
+                            const auto original = point;
+                            point = {
+                                -original[1u] + frameTranslation[0u],
+                                original[0u] + frameTranslation[1u],
+                                original[2u] + frameTranslation[2u]};
+                        }
+                    }
+                    auto frameCompiled =
+                        numi::matter::compileWorld(frameSource, compileOptions);
+                    require(frameCompiled.succeeded(),
+                            "probe elastic transformed world did not compile");
+                    numi::matter::Runtime elasticRuntime;
+                    const auto elasticInitialized = elasticRuntime.initialize(
+                        frameCompiled.world, {
+                            .metallib = NUMI_MATTER_METALLIB,
+                            .environmentCount = 1u,
+                            .captureEvents = true,
+                            .captureDiagnostics = true,
+                            .automaticIdentification = false,
+                            .adaptiveTransfer = false,
+                        });
+                    require(elasticInitialized.encoded && elasticRuntime.valid(),
+                            "probe elastic runtime did not initialize");
+                    auto frameInitial = elasticRuntime.snapshot();
+                    require(frameInitial.available &&
+                                frameInitial.femNodes.size() == 4u,
+                            "probe elastic initial state is unavailable");
+                    numi::matter::NumiHumanTendonFEMLoadAdapter elasticAdapter;
+                    require(elasticAdapter.initialize(elasticRuntime, {
+                                .nodeLoads = elasticNodeLoads,
+                                .nodeAnchors = elasticNodeAnchors,
+                                .femBodyContactSamples =
+                                    std::span(&elasticSample, 1u),
+                                .endpointCount = 2u,
+                                .environmentCount = 1u,
+                                .productionForceOwnerFraction = 0.0f,
+                            }, {
+                                .metallib = NUMI_MATTER_METALLIB,
+                            }),
+                            "probe elastic FEM/body attachment did not initialize");
+                    const auto elasticProgram = elasticAdapter.program();
+                    require(elasticProgram.valid(),
+                            "probe elastic FEM/body attachment program is invalid");
+                    poses[0u].position = frame == 0u
+                        ? mr_float4{0.001f, 0.0f, 0.0f, 0.0f}
+                        : mr_float4{
+                            frameTranslation[0u],
+                            frameTranslation[1u] + 0.001f,
+                            frameTranslation[2u], 0.0f};
+                    poses[0u].orientation = frame == 0u
+                        ? mr_float4{0.0f, 0.0f, 0.0f, 1.0f}
+                        : mr_float4{
+                            0.0f, 0.0f, halfSqrtTwo, halfSqrtTwo};
+                    poses[1u].position = frame == 0u
+                        ? mr_float4{0.0f, 0.0f, 0.0f, 0.0f}
+                        : mr_float4{
+                            frameTranslation[0u],
+                            frameTranslation[1u],
+                            frameTranslation[2u], 0.0f};
+                    poses[1u].orientation = poses[0u].orientation;
+                    std::memcpy(poseBuffer.contents, poses.data(),
+                                sizeof(poses));
+                    const auto rotateVector = [&](const std::array<float, 3u>& v) {
+                        return frame == 0u ? v : rotateZ90(v);
+                    };
+                    const std::array<float, 3u> targetLocal{
+                        elasticTargets[targetIndex][0u],
+                        elasticTargets[targetIndex][1u],
+                        elasticTargets[targetIndex][2u]};
+                    auto targetWorld = rotateVector(targetLocal);
+                    targetWorld[0u] += poses[0u].position.x;
+                    targetWorld[1u] += poses[0u].position.y;
+                    targetWorld[2u] += poses[0u].position.z;
+                    const std::array<float, 3u> targetBodyPosition{
+                        poses[0u].position.x, poses[0u].position.y,
+                        poses[0u].position.z};
+                    const std::array<float, 3u> nodePosition{
+                        frameInitial.femNodes[3u].positionAndMass.x,
+                        frameInitial.femNodes[3u].positionAndMass.y,
+                        frameInitial.femNodes[3u].positionAndMass.z};
+                    std::array<float, 3u> bodyForce{};
+                    std::array<float, 3u> targetOffset{};
+                    for (unsigned axis = 0u; axis < 3u; ++axis) {
+                        targetOffset[axis] = targetWorld[axis] -
+                            nodePosition[axis];
+                        bodyForce[axis] = -elasticSpringConstant *
+                            targetOffset[axis];
+                    }
+                    const std::array<float, 3u> bodyTorque = cross3(
+                        {targetWorld[0u] - targetBodyPosition[0u],
+                         targetWorld[1u] - targetBodyPosition[1u],
+                         targetWorld[2u] - targetBodyPosition[2u]},
+                        bodyForce);
+                    const std::array<float, 3u> generalizedBodyTorque =
+                        frame == 0u
+                            ? bodyTorque
+                            : std::array<float, 3u>{
+                                bodyTorque[1u], -bodyTorque[0u],
+                                bodyTorque[2u]};
+                    pointJacobians.fill(0.0f);
+                    const auto setJacobian = [&](const std::uint32_t point,
+                                                 const std::uint32_t dof,
+                                                 const std::array<float, 3u>& value) {
+                        const std::size_t base = std::size_t(point) * 18u;
+                        pointJacobians[base + dof] = value[0u];
+                        pointJacobians[base + 6u + dof] = value[1u];
+                        pointJacobians[base + 12u + dof] = value[2u];
+                    };
+                    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                        std::array<float, 3u> translation{};
+                        translation[axis] = 1.0f;
+                        setJacobian(0u, axis, translation);
+                        setJacobian(1u, axis, translation);
+                        setJacobian(2u, axis, translation);
+                        setJacobian(3u, axis, translation);
+                    }
+                    const std::array<std::uint32_t, 3u> torqueProbePoint{
+                        2u, 1u, 1u};
+                    const std::array<std::array<float, 3u>, 3u>
+                        torqueProbeDelta = frame == 0u
+                            ? std::array<std::array<float, 3u>, 3u>{{
+                                {{0.0f, 0.0f, 2.0f}},
+                                {{0.0f, 0.0f, -2.0f}},
+                                {{0.0f, 2.0f, 0.0f}}}}
+                            : std::array<std::array<float, 3u>, 3u>{{
+                                {{0.0f, 0.0f, 2.0f}},
+                                {{0.0f, 0.0f, -2.0f}},
+                                {{-2.0f, 0.0f, 0.0f}}}};
+                    for (std::uint32_t torqueAxis = 0u;
+                         torqueAxis < 3u; ++torqueAxis) {
+                        const auto dof = torqueAxis + 3u;
+                        setJacobian(
+                            torqueProbePoint[torqueAxis], dof,
+                            torqueProbeDelta[torqueAxis]);
+                    }
+                    std::memcpy(jacobianBuffer.contents,
+                                pointJacobians.data(),
+                                pointJacobians.size() * sizeof(float));
+                    execute(elasticProgram, elasticAdapter,
+                            0u, true, false, true);
+                    ++elasticAcceptedPasses;
+                    const auto forceOutput = static_cast<const float*>(
+                        generalizedForceBuffer.contents);
+                    for (unsigned axis = 0u; axis < 3u; ++axis) {
+                        require(std::isfinite(forceOutput[6u + axis]) &&
+                                    std::abs(forceOutput[6u + axis] -
+                                             bodyForce[axis]) <= 2.0e-4f,
+                                "probe elastic body reaction force differs from exact spring force");
+                        require(std::isfinite(forceOutput[9u + axis]) &&
+                                    std::abs(forceOutput[9u + axis] -
+                                             generalizedBodyTorque[axis]) <= 2.0e-6f,
+                                "probe elastic body reaction moment differs from exact spring moment");
+                    }
+                    const float expectedBodyForceZSign =
+                        targetIndex == 0u ? -1.0f : 1.0f;
+                    require(bodyForce[2u] * expectedBodyForceZSign > 0.0f,
+                            "probe elastic spring did not restore on both sides of its reference plane");
+                    {
+                        const auto springState = elasticRuntime.snapshot();
+                        const auto springDiagnostics =
+                            elasticAdapter.diagnostics();
+                        require(springState.available &&
+                                    springState.femNodes.size() == 4u,
+                                "probe elastic accepted state is unavailable");
+                        const std::array<double, 3u> springDelta{
+                            double(targetWorld[0u]) - nodePosition[0u],
+                            double(targetWorld[1u]) - nodePosition[1u],
+                            double(targetWorld[2u]) - nodePosition[2u]};
+                        const double springDistance = std::sqrt(
+                            springDelta[0u] * springDelta[0u] +
+                            springDelta[1u] * springDelta[1u] +
+                            springDelta[2u] * springDelta[2u]);
+                        const double expectedEnergy = 0.5 *
+                            elasticSpringConstant * springDistance *
+                            springDistance;
+                        const double expectedForce =
+                            elasticSpringConstant * springDistance;
+                        frameEnergies[targetIndex][frame] = expectedEnergy;
+                        frameForceMagnitudes[targetIndex][frame] =
+                            expectedForce;
+                        std::cerr << "elastic_gpu_audit target=" << targetIndex
+                                  << " frame=" << frame
+                                  << " expected_force_n=" << expectedForce
+                                  << " actual_force_n="
+                                  << springDiagnostics
+                                         .femBodyContactNormalForceNewtons
+                                  << " expected_energy_j=" << expectedEnergy
+                                  << " actual_energy_j="
+                                  << springDiagnostics
+                                         .femBodyContactStoredEnergyJoules
+                                  << " force_residual_n="
+                                  << springDiagnostics
+                                         .femBodyContactForceResidualNewtons
+                                  << " moment_residual_nm="
+                                  << springDiagnostics
+                                         .femBodyContactMomentResidualNewtonMeters
+                                  << "\n";
+                        require(springDiagnostics.initialized &&
+                                    springDiagnostics
+                                            .femBodyContactSampleCount == 1u &&
+                                    springDiagnostics
+                                            .femBodyContactClosedSampleCount == 1u &&
+                                    std::abs(
+                                        springDiagnostics
+                                            .femBodyContactNormalForceNewtons -
+                                        expectedForce) <= 2.0e-4 &&
+                                    std::abs(
+                                        springDiagnostics
+                                            .femBodyContactStoredEnergyJoules -
+                                        expectedEnergy) <= 2.0e-6 &&
+                                    springDiagnostics
+                                            .femBodyContactForceResidualNewtons <=
+                                        1.0e-6 &&
+                                    springDiagnostics
+                                            .femBodyContactMomentResidualNewtonMeters <=
+                                        1.0e-6,
+                                "probe elastic GPU energy/reaction audit differs from point-spring oracle");
+                        const double h = 1.0e-6;
+                        double maximumGradientResidual = 0.0;
+                        for (unsigned axis = 0u; axis < 3u; ++axis) {
+                            auto plus = springDelta;
+                            auto minus = springDelta;
+                            plus[axis] -= h;
+                            minus[axis] += h;
+                            const auto energy = [&](const auto& d) {
+                                return 0.5 * elasticSpringConstant *
+                                    (d[0u] * d[0u] + d[1u] * d[1u] +
+                                     d[2u] * d[2u]);
+                            };
+                            const double finiteDifferenceForce = -(
+                                energy(plus) - energy(minus)) / (2.0 * h);
+                            const double analyticForce =
+                                elasticSpringConstant * springDelta[axis];
+                            maximumGradientResidual = std::max(
+                                maximumGradientResidual,
+                                std::abs(finiteDifferenceForce - analyticForce));
+                        }
+                        require(maximumGradientResidual <= 1.0e-8,
+                                "probe elastic energy finite-difference gradient differs from spring force");
+                    }
+                }
+            }
+            require(elasticAcceptedPasses == 4u &&
+                        std::abs(frameEnergies[0u][0u] -
+                                 frameEnergies[0u][1u]) <= 2.0e-6 &&
+                        std::abs(frameEnergies[1u][0u] -
+                                 frameEnergies[1u][1u]) <= 2.0e-6 &&
+                        std::abs(frameForceMagnitudes[0u][0u] -
+                                 frameForceMagnitudes[0u][1u]) <= 2.0e-4 &&
+                        std::abs(frameForceMagnitudes[1u][0u] -
+                                 frameForceMagnitudes[1u][1u]) <= 2.0e-4,
+                    "probe elastic spring is not objective under rigid frame motion");
+
             std::cout
                 << "numi_human_tendon_fem_load=passed"
                 << " device=\"" << initialized.device << "\""
@@ -1134,6 +1508,11 @@ int main() {
                 << " extension_phases=all_four extension_identity=semantic_address_independent"
                 << " extension_partial_identity=fail_closed extension_rejection_markers=verified"
                 << " production_owner_fraction=0.1"
+                << " elastic_body_attachment=verified"
+                << " elastic_body_attachment_passes=" << elasticAcceptedPasses
+                << " elastic_force_moment_energy_gradient=verified"
+                << " elastic_bidirectional_attraction_repulsion=verified"
+                << " elastic_rigid_motion_objectivity=verified"
                 << "\n";
             return 0;
         } catch (const std::exception& error) {

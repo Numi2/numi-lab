@@ -1,0 +1,15 @@
+Accepted FEM skin-transfer max-row witness fixture
+
+Scope: CPU-only unit fixture for report metadata; no native scene, geometry asset, GPU, or physical-mechanics run.
+Repository revision: c927871bafc1194f8ef314fc0687e4d123d11dd8
+Compiler: Apple clang 21.0.0 (clang-2100.3.34.2)
+Command:
+  clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 -Iapps tests/human_accepted_fem_skin_transfer_mixed_donor.cpp -o /tmp/human_accepted_fem_skin_transfer_mixed_donor
+  /tmp/human_accepted_fem_skin_transfer_mixed_donor
+Output:
+  PASS mixed-donor face membership, exact one-hot ancestry, source-connected one-ring mapping, fail-closed missing assignment
+
+The known-maximum fixture has two projected rows over two faces incident to representative vertex 0. It selects detail array index 1 / source vertex 702 / donor 7 / representative 0 / input face 1 with vertices [0,3,4], at 0.03 m, for both maximum projection and maximum ancestry fallback. A separate donor-tree projection confirms the chosen face index is reported while the representative remains the UINT32_MAX sentinel and the ancestry-fallback witness is invalid.
+
+Source SHA-256: 22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5  apps/NumiHumanAcceptedFEMSkinTransfer.hpp
+Test SHA-256:   36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd  tests/human_accepted_fem_skin_transfer_mixed_donor.cpp

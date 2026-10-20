@@ -1,0 +1,2 @@
+exit=1
+reason=GPU force audit is pre-dynamics; fixture oracle incorrectly used post-step FEM position

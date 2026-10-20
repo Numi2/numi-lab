@@ -1,0 +1,13 @@
+CPU-only receipt consistency checks; no native solver rerun
+PASS failure_witness: exit=1 segment=18 matter=5
+PASS accepted_csv_rows: rows=18 steps=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+PASS accepted_time_span: first=0.000125000005937 final=0.00225000010687
+PASS frozen_attachment_ids: count=20 retained_8467_donor139=True
+PASS max_projection_witness: source_donor_representative_face=('14622', '128', '859', '1690')
+PASS recorded_binary_binding: invocation=af112c6cf363382b21beafb7d28ccdeb592b4c69811dac1aed02416bc22f09a8 provenance=af112c6cf363382b21beafb7d28ccdeb592b4c69811dac1aed02416bc22f09a8
+PASS binary_path_reuse_documented: recorded=af112c6cf363382b21beafb7d28ccdeb592b4c69811dac1aed02416bc22f09a8 current_path=83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e
+PASS source_binding_present: source_digest=c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37 source_files=12
+PASS input_asset_manifest: 13 argv input files hashed; no input files copied
+PASS hard20_reproduction_note: captured invocation is historical; later executable requires environment variable
+PASS contact_metrics: zero normal impulse, penetration, and root assistance across accepted rows
+all_checks_pass=true

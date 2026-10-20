@@ -1,0 +1,171 @@
+{
+  "schema": "numi.human.verification_023_source_binary_comparison.v1",
+  "base_revision_022": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "base_revision_023": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "executable_sha256_022": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "executable_sha256_023": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "executable_same": true,
+  "metallib_sha256_same": true,
+  "suite_library_sha256_same": true,
+  "shared_source_path_count": 14,
+  "all_shared_source_hashes_identical_022_vs_023": true,
+  "source_hashes_022_vs_023": [
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "sha256_022": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "sha256_023": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "same": true
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256_022": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "sha256_023": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "same": true
+    },
+    {
+      "path": "apps/NumiHumanRegisteredLigaments.hpp",
+      "sha256_022": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "sha256_023": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "same": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "sha256_022": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "sha256_023": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "same": true
+    },
+    {
+      "path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "sha256_022": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "sha256_023": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "same": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256_022": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "sha256_023": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "same": true
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256_022": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "sha256_023": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "same": true
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "sha256_022": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "sha256_023": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "same": true
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "sha256_022": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "sha256_023": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "same": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256_022": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "sha256_023": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "same": true
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "sha256_022": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "sha256_023": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "same": true
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "sha256_022": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+      "sha256_023": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+      "same": true
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "sha256_022": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "sha256_023": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "same": true
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256_022": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "sha256_023": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "same": true
+    }
+  ],
+  "current_source_checks": {
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": {
+      "checked": true,
+      "current_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "matches_023_provenance": true
+    },
+    "apps/NumiHumanCoarseTissuePreparation.hpp": {
+      "checked": true,
+      "current_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "matches_023_provenance": true
+    },
+    "apps/NumiHumanRegisteredLigaments.hpp": {
+      "checked": true,
+      "current_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "matches_023_provenance": true
+    },
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": {
+      "checked": true,
+      "current_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "matches_023_provenance": true
+    },
+    "apps/NumiHumanSkinRigidPlacement.hpp": {
+      "checked": true,
+      "current_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "matches_023_provenance": true
+    },
+    "apps/NumiHumanWholeBodySkinReduction.hpp": {
+      "checked": true,
+      "current_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "matches_023_provenance": true
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "checked": true,
+      "current_sha256": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "matches_023_provenance": true
+    },
+    "matter/include/numi/matter/numi_human_shared.h": {
+      "checked": true,
+      "current_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "matches_023_provenance": true
+    },
+    "matter/src/metal/fem.metalinc": {
+      "checked": true,
+      "current_sha256": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "matches_023_provenance": true
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "checked": true,
+      "current_sha256": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "matches_023_provenance": true
+    },
+    "matter/src/metal/numi_human.metalinc": {
+      "checked": true,
+      "current_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "matches_023_provenance": true
+    },
+    "matter/src/metal/vascular.metalinc": {
+      "checked": true,
+      "current_sha256": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+      "matches_023_provenance": true
+    },
+    "matter/src/numi_human.mm": {
+      "checked": true,
+      "current_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "matches_023_provenance": true
+    },
+    "matter/src/runtime.mm": {
+      "checked": false,
+      "reason": "runtime diagnostic extension is in progress; 023 is bound to contemporaneous provenance and tested binary"
+    }
+  },
+  "runtime_mm_current_check_skipped": true,
+  "basis": "Compared exact contemporaneous 022 and 023 run provenance; tested executable SHA is unchanged. Current runtime.mm may include a later diagnostic-only extension."
+}

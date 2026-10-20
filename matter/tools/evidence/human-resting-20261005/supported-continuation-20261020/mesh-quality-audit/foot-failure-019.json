@@ -1,0 +1,292 @@
+{
+  "schema": "human_supported_tissue_failure_tet_audit_v1",
+  "run": "native-quality-019",
+  "scope": "Read-only CPU geometry mapping and accepted-witness Jacobian check; not a physical tissue qualification.",
+  "object": "BodyParts3D whole-body skin-fat bonded shell",
+  "local_tet": 17981,
+  "object_tet_count": 27714,
+  "skin_tet_count": 13857,
+  "fat_tet_index": 4124,
+  "source_face_index": 1374,
+  "source_face_id": 16821,
+  "source_face_sorted_local_vertex_ids": [
+    692,
+    693,
+    694
+  ],
+  "source_face_source_vertex_ids": [
+    8467,
+    8473,
+    8482
+  ],
+  "source_face_donor_body_ids": [
+    139,
+    139,
+    139
+  ],
+  "fat_split_slot": 2,
+  "tet_local_node_ids": [
+    692,
+    3024,
+    3025,
+    3026
+  ],
+  "reference_metrics_candidate018_csv": {
+    "signed_det_m3": 4.2068152724353905e-09,
+    "volume_m3": 7.011358787392318e-10,
+    "condition": 75.33953895612073,
+    "singular_values_m": [
+      0.013805101280842598,
+      0.001663018979629362,
+      0.00018323846246103213
+    ],
+    "min_altitude_m": 0.0002354949856112474,
+    "altitudes_by_node_m": [
+      0.0015610633267763602,
+      0.0002354949856112474,
+      0.00029048009714369605,
+      0.0019364568605340778
+    ],
+    "max_edge_m": 0.008454274477416887,
+    "mean_ratio": 0.0962882950801817,
+    "normalized_abs_det": 0.006961845983586645
+  },
+  "reference_metrics_after_float32_roundtrip": {
+    "signed_det_m3": 4.2068152724353905e-09,
+    "volume_m3": 7.011358787392318e-10,
+    "condition": 75.33953895612073,
+    "singular_values_m": [
+      0.013805101280842598,
+      0.001663018979629362,
+      0.00018323846246103213
+    ],
+    "min_altitude_m": 0.0002354949856112474,
+    "altitudes_by_node_m": [
+      0.0015610633267763602,
+      0.0002354949856112474,
+      0.00029048009714369605,
+      0.0019364568605340778
+    ],
+    "max_edge_m": 0.008454274477416887,
+    "mean_ratio": 0.0962882950801817,
+    "normalized_abs_det": 0.006961845983586645
+  },
+  "native_initial_reference_metrics": {
+    "signed_det_m3": 4.207548187168556e-09,
+    "volume_m3": 7.012580311947593e-10,
+    "condition": 75.32619825165878,
+    "singular_values_m": [
+      0.01380508296274553,
+      0.0016630185960626299,
+      0.00018327067186669712
+    ],
+    "min_altitude_m": 0.00023553612784500542,
+    "altitudes_by_node_m": [
+      0.0015613421394626186,
+      0.00023553612784500542,
+      0.00029053111163085984,
+      0.0019364823951167893
+    ],
+    "max_edge_m": 0.008454255477162049,
+    "mean_ratio": 0.09629972276523226,
+    "normalized_abs_det": 0.006963105828820607
+  },
+  "native_initial_pose_fit": {
+    "proper_rotation_determinant": 1.0000000000000009,
+    "max_rigid_fit_residual_m": 2.5255674707260226e-08,
+    "rms_rigid_fit_residual_m": 1.7736855582451696e-08
+  },
+  "accepted_metrics": {
+    "signed_det_m3": 1.5230913153392633e-09,
+    "volume_m3": 2.5384855255654387e-10,
+    "condition": 207.40307894301372,
+    "singular_values_m": [
+      0.013796363604210956,
+      0.001659632296638777,
+      6.651956988546761e-05
+    ],
+    "min_altitude_m": 8.543166237874367e-05,
+    "altitudes_by_node_m": [
+      0.0005701154924249518,
+      8.543166237874367e-05,
+      0.00010609954547822691,
+      0.0013885786687245652
+    ],
+    "max_edge_m": 0.008455556118596287,
+    "mean_ratio": 0.048998072978519346,
+    "normalized_abs_det": 0.0025194132731071756
+  },
+  "accepted_J_recomputed_from_logged_xyz": 0.3619902250874085,
+  "accepted_J_reported_in_stderr": 0.36213095505356147,
+  "accepted_J_absolute_difference": 0.00014072996615294153,
+  "rejected_trial_J": 0.33994558453559875,
+  "rest_det_reported_in_stderr_m3": 4.207548187168561e-09,
+  "nodes": [
+    {
+      "tet_corner": 0,
+      "local_node_id": 692,
+      "source_local_vertex": 692,
+      "source_vertex_id": 8467,
+      "donor_body_id": 139,
+      "global_node_id": 4790,
+      "fixed_to_body": null,
+      "initial_xyz_m": [
+        -0.16456285119056702,
+        -1.733280062675476,
+        0.2416146993637085
+      ],
+      "accepted_xyz_m": [
+        -0.16456247866153717,
+        -1.7332903146743774,
+        0.241586372256279
+      ],
+      "displacement_m": 3.0127516901902074e-05,
+      "accepted_velocity_m_s": [
+        0.003233548952266574,
+        -0.021153170615434647,
+        -0.02783680520951748
+      ]
+    },
+    {
+      "tet_corner": 1,
+      "local_node_id": 3024,
+      "source_local_vertex": 692,
+      "source_vertex_id": 8467,
+      "donor_body_id": 139,
+      "global_node_id": 7122,
+      "fixed_to_body": 139,
+      "initial_xyz_m": [
+        -0.15880084037780762,
+        -1.7305543422698975,
+        0.23828987777233124
+      ],
+      "accepted_xyz_m": [
+        -0.15877024829387665,
+        -1.7307207584381104,
+        0.23821787536144257
+      ],
+      "displacement_m": 0.00018388736719982074,
+      "accepted_velocity_m_s": [
+        0.026941297575831413,
+        -0.1430511474609375,
+        -0.06306171417236328
+      ]
+    },
+    {
+      "tet_corner": 2,
+      "local_node_id": 3025,
+      "source_local_vertex": 693,
+      "source_vertex_id": 8473,
+      "donor_body_id": 139,
+      "global_node_id": 7123,
+      "fixed_to_body": null,
+      "initial_xyz_m": [
+        -0.1576666235923767,
+        -1.7303519248962402,
+        0.2376977503299713
+      ],
+      "accepted_xyz_m": [
+        -0.15765543282032013,
+        -1.7303787469863892,
+        0.2376733273267746
+      ],
+      "displacement_m": 3.796236273371613e-05,
+      "accepted_velocity_m_s": [
+        0.020548300817608833,
+        -0.05136981979012489,
+        -0.019774828106164932
+      ]
+    },
+    {
+      "tet_corner": 3,
+      "local_node_id": 3026,
+      "source_local_vertex": 694,
+      "source_vertex_id": 8482,
+      "donor_body_id": 139,
+      "global_node_id": 7124,
+      "fixed_to_body": null,
+      "initial_xyz_m": [
+        -0.1591111123561859,
+        -1.730010986328125,
+        0.23615466058254242
+      ],
+      "accepted_xyz_m": [
+        -0.15909890830516815,
+        -1.7300516366958618,
+        0.23613081872463226
+      ],
+      "displacement_m": 4.8680852981337575e-05,
+      "accepted_velocity_m_s": [
+        0.010287653654813766,
+        -0.04631543904542923,
+        -0.013166406191885471
+      ]
+    }
+  ],
+  "interpretation": {
+    "reference_element_is_an_anisotropic_precision_sliver": false,
+    "evidence": "CSV rest condition 75.34, normalized absolute determinant 0.00696 (vs 1e-5 admission floor), minimum altitude 0.235 mm; Float32 roundtrip leaves these values unchanged at reported precision. Native initial witness fits the CSV tet under a proper rigid transform with max residual 25.3 nm.",
+    "accepted_state": "Logged accepted-coordinate witness shrinks signed volume to about 36.2% of its initial value, lowers minimum altitude to 0.0854 mm, and raises condition to about 207. This is a large local deformation in the accepted numerical state, not evidence of float32 loss in the reference element; its physical validity is not established."
+  },
+  "input_sha256": {
+    "wholebody_skin_header": "c774e18e6594675bb1e6e432019ea82426864034c6a4cba1bbf2233680db4f65",
+    "coarse_tissue_preparation_header": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+    "candidate018_csv": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+    "native019_stderr": "bc3cae8acac3174981b833a074307eecfb986a6eba46d3e7db49c4950e5624b1",
+    "native019_invocation": "382cdd35657d7f3e1091232e2a0f621bef74e5e722eecac53d88030f3b5992d1",
+    "native019_failure_json": "7fef8f319bc35b11b75cbac9b840fb99af0cf108fc1c803228a0be87653ab34e"
+  },
+  "source_face_csv_coordinates": [
+    {
+      "local_vertex_id": 692,
+      "source_vertex_id": 8467,
+      "donor_body_id": 139,
+      "skin_xyz_m": [
+        -0.16456295549869537,
+        0.030501874163746834,
+        0.41938361525535583
+      ],
+      "fat_xyz_m": [
+        -0.15880094468593597,
+        0.03387376666069031,
+        0.4220508933067322
+      ],
+      "skin_thickness_m": 0.002256551583442991,
+      "fat_thickness_m": 0.007189214130950191
+    },
+    {
+      "local_vertex_id": 693,
+      "source_vertex_id": 8473,
+      "donor_body_id": 139,
+      "skin_xyz_m": [
+        -0.16180463135242462,
+        0.031240161508321762,
+        0.41845008730888367
+      ],
+      "fat_xyz_m": [
+        -0.15766672790050507,
+        0.03446933254599571,
+        0.42224299907684326
+      ],
+      "skin_thickness_m": 0.002058021494251736,
+      "fat_thickness_m": 0.0064757988115356395
+    },
+    {
+      "local_vertex_id": 694,
+      "source_vertex_id": 8482,
+      "donor_body_id": 139,
+      "skin_xyz_m": [
+        -0.16543135046958923,
+        0.033404573798179626,
+        0.4203615188598633
+      ],
+      "fat_xyz_m": [
+        -0.15911121666431427,
+        0.036018144339323044,
+        0.42255690693855286
+      ],
+      "skin_thickness_m": 0.002257530241342977,
+      "fat_thickness_m": 0.007182936106228732
+    }
+  ]
+}

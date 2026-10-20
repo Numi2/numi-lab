@@ -1,0 +1,413 @@
+{
+  "ancestry": {
+    "candidate_face_orders_changed": 0,
+    "candidate_faces_missing_from_header": 0,
+    "candidate_odd_winding_flips": 0,
+    "candidate_source_vertex_map_matches_header": true,
+    "reduced_face_index": 3947,
+    "reduced_local_vertices": [
+      899,
+      902,
+      901
+    ],
+    "source_face_index": 95151,
+    "source_vertex_indices": [
+      18170,
+      18202,
+      18200
+    ]
+  },
+  "audit_script_sha256": "3328212a93305af26cccad65a807b45a095e8b1090c4f372fd2e594f02b7e152",
+  "baseline_sorted_id_decomposition": {
+    "faces": 4619,
+    "fat_tet_condition_counts": {
+      "above_1e3": 243,
+      "above_1e4": 167,
+      "above_1e5": 50,
+      "max_condition": 1390381.0344351802
+    },
+    "max_per_face_condition": 1390381.0344351802,
+    "per_face_max_condition_above_1e3": 224,
+    "per_face_max_condition_above_1e4": 156,
+    "skin_tet_condition_counts": {
+      "above_1e3": 104,
+      "above_1e4": 41,
+      "above_1e5": 4,
+      "max_condition": 179107.58318077977
+    },
+    "worst_face_index": 3947
+  },
+  "basis": "Reference coordinates from the frozen header; triangle order evaluated with the existing three-tet staircase decomposition. Shape metrics use double arithmetic. Normalized determinant guard probe first quantizes each node coordinate to float32, then measures in double.",
+  "candidate_024_source_order": {
+    "max_per_face_condition": 1390381.034443595,
+    "min_per_face_mean_ratio": 9.606830012172584e-05,
+    "note": "Same face tuples/order as the header; these metrics model the file\u2019s source order, while current runtime sorts each triangle by local vertex ID before decomposition.",
+    "per_face_max_condition_above_1e3": 161,
+    "per_face_max_condition_above_1e4": 81
+  },
+  "coordinate_receipt_max_abs_difference_m": {
+    "deep": 0.0,
+    "interface": 0.0,
+    "outer": 4.995727387324678e-09
+  },
+  "face_witness": {
+    "coordinates_m": {
+      "899": {
+        "fat_deep": [
+          -0.08486028015613556,
+          0.22049075365066528,
+          2.032681703567505
+        ],
+        "outer": [
+          -0.0949880928,
+          0.227062941,
+          2.03528762
+        ],
+        "skin_fat_interface": [
+          -0.09297855943441391,
+          0.22575895488262177,
+          2.0347700119018555
+        ]
+      },
+      "901": {
+        "fat_deep": [
+          -0.08340194076299667,
+          0.22405774891376495,
+          2.0229721069335938
+        ],
+        "outer": [
+          -0.0927395597,
+          0.231914937,
+          2.0248785
+        ],
+        "skin_fat_interface": [
+          -0.09087713062763214,
+          0.23036634922027588,
+          2.0245046615600586
+        ]
+      },
+      "902": {
+        "fat_deep": [
+          -0.08403971046209335,
+          0.22339944541454315,
+          2.0253536701202393
+        ],
+        "outer": [
+          -0.0933902487,
+          0.231083214,
+          2.02782083
+        ],
+        "skin_fat_interface": [
+          -0.09154624491930008,
+          0.22954688966274261,
+          2.027325391769409
+        ]
+      }
+    },
+    "six_orders": [
+      {
+        "both_bands": {
+          "max_condition": 1390381.034443595,
+          "min_mean_ratio": 0.00017742080632920175,
+          "min_sigma_m": 1.558624395348401e-08
+        },
+        "fat": {
+          "max_condition": 1390381.034443595,
+          "min_mean_ratio": 0.00017742080632920175,
+          "min_sigma_m": 1.558624395348401e-08
+        },
+        "local_vertex_order": [
+          899,
+          902,
+          901
+        ],
+        "permutation": [
+          0,
+          1,
+          2
+        ],
+        "preserves_source_winding": true,
+        "skin": {
+          "max_condition": 74.26693100507457,
+          "min_mean_ratio": 0.06403945071695201,
+          "min_sigma_m": 0.00020900672603079904
+        }
+      },
+      {
+        "both_bands": {
+          "max_condition": 1390381.0344351802,
+          "min_mean_ratio": 0.00017742080632860842,
+          "min_sigma_m": 1.558624395357834e-08
+        },
+        "fat": {
+          "max_condition": 1390381.0344351802,
+          "min_mean_ratio": 0.00017742080632860842,
+          "min_sigma_m": 1.558624395357834e-08
+        },
+        "local_vertex_order": [
+          899,
+          901,
+          902
+        ],
+        "permutation": [
+          0,
+          2,
+          1
+        ],
+        "preserves_source_winding": false,
+        "skin": {
+          "max_condition": 88.3594306001903,
+          "min_mean_ratio": 0.06403945071695201,
+          "min_sigma_m": 0.000209006726030799
+        }
+      },
+      {
+        "both_bands": {
+          "max_condition": 673.9809467912743,
+          "min_mean_ratio": 0.03197438863618965,
+          "min_sigma_m": 2.6137231445916032e-05
+        },
+        "fat": {
+          "max_condition": 673.9809467912743,
+          "min_mean_ratio": 0.03197438863618965,
+          "min_sigma_m": 2.6137231445916032e-05
+        },
+        "local_vertex_order": [
+          902,
+          899,
+          901
+        ],
+        "permutation": [
+          1,
+          0,
+          2
+        ],
+        "preserves_source_winding": false,
+        "skin": {
+          "max_condition": 55.77084756777999,
+          "min_mean_ratio": 0.08278914552616241,
+          "min_sigma_m": 0.0001624781074818673
+        }
+      },
+      {
+        "both_bands": {
+          "max_condition": 1517.535317784711,
+          "min_mean_ratio": 0.011903245814338782,
+          "min_sigma_m": 9.748826519403141e-06
+        },
+        "fat": {
+          "max_condition": 1517.535317784711,
+          "min_mean_ratio": 0.011903245814338782,
+          "min_sigma_m": 9.748826519403141e-06
+        },
+        "local_vertex_order": [
+          902,
+          901,
+          899
+        ],
+        "permutation": [
+          1,
+          2,
+          0
+        ],
+        "preserves_source_winding": true,
+        "skin": {
+          "max_condition": 55.77084756777978,
+          "min_mean_ratio": 0.08089470085207388,
+          "min_sigma_m": 0.00016247810748186794
+        }
+      },
+      {
+        "both_bands": {
+          "max_condition": 700.9228582574707,
+          "min_mean_ratio": 0.03011074240631647,
+          "min_sigma_m": 2.6527913672976658e-05
+        },
+        "fat": {
+          "max_condition": 700.9228582574707,
+          "min_mean_ratio": 0.03011074240631647,
+          "min_sigma_m": 2.6527913672976658e-05
+        },
+        "local_vertex_order": [
+          901,
+          899,
+          902
+        ],
+        "permutation": [
+          2,
+          0,
+          1
+        ],
+        "preserves_source_winding": true,
+        "skin": {
+          "max_condition": 200.02683907591,
+          "min_mean_ratio": 0.03877817866871859,
+          "min_sigma_m": 8.360543527223679e-05
+        }
+      },
+      {
+        "both_bands": {
+          "max_condition": 757.2618817211702,
+          "min_mean_ratio": 0.018737155363660888,
+          "min_sigma_m": 2.2042292195874535e-05
+        },
+        "fat": {
+          "max_condition": 757.2618817211702,
+          "min_mean_ratio": 0.018737155363660888,
+          "min_sigma_m": 2.2042292195874535e-05
+        },
+        "local_vertex_order": [
+          901,
+          902,
+          899
+        ],
+        "permutation": [
+          2,
+          1,
+          0
+        ],
+        "preserves_source_winding": false,
+        "skin": {
+          "max_condition": 61.782347299338234,
+          "min_mean_ratio": 0.07231824097008441,
+          "min_sigma_m": 0.00019635753342304226
+        }
+      }
+    ]
+  },
+  "independent_best_order_lower_bound": {
+    "all_six": {
+      "faces_without_order_at_or_below_1e3": 45,
+      "faces_without_order_at_or_below_1e4": 5,
+      "max_best_condition": 37961.29470135153,
+      "scope": "Independent per-face optimistic lower bound; shared-edge conformity is not enforced."
+    },
+    "preserving_source_winding": {
+      "faces_without_order_at_or_below_1e3": 58,
+      "faces_without_order_at_or_below_1e4": 7,
+      "max_best_condition": 52738.259440539856,
+      "scope": "Independent per-face optimistic lower bound; shared-edge conformity is not enforced.",
+      "unfixable_over_1e4": [
+        {
+          "best_condition": 52738.259440539856,
+          "face_index": 1884,
+          "local_vertices": [
+            938,
+            1112,
+            1276
+          ]
+        },
+        {
+          "best_condition": 37961.2947013599,
+          "face_index": 2049,
+          "local_vertices": [
+            1292,
+            1314,
+            1295
+          ]
+        },
+        {
+          "best_condition": 25609.78514536441,
+          "face_index": 2861,
+          "local_vertices": [
+            1804,
+            1819,
+            1839
+          ]
+        },
+        {
+          "best_condition": 32510.598118353926,
+          "face_index": 3016,
+          "local_vertices": [
+            1869,
+            1897,
+            1918
+          ]
+        },
+        {
+          "best_condition": 10217.813050548153,
+          "face_index": 3371,
+          "local_vertices": [
+            2203,
+            2085,
+            2057
+          ]
+        },
+        {
+          "best_condition": 14172.406800261931,
+          "face_index": 3629,
+          "local_vertices": [
+            2081,
+            2158,
+            2202
+          ]
+        },
+        {
+          "best_condition": 13260.675927900984,
+          "face_index": 4416,
+          "local_vertices": [
+            1248,
+            1283,
+            1286
+          ]
+        }
+      ]
+    }
+  },
+  "inputs": {
+    "admitted_coordinates": {
+      "path": "tools/evidence/human-wholebody-skinfat-20261019/c296/admitted-layer-coordinates.csv",
+      "sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a"
+    },
+    "candidate": {
+      "path": "tools/evidence/human-wholebody-skinfat-20261019/c296/candidate-024-safe.txt",
+      "sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526"
+    },
+    "embedded_source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "header": {
+      "path": "git HEAD:apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200"
+    },
+    "prism_builder": {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81"
+    }
+  },
+  "normalized_det_guard_probe": {
+    "1mm_radial_shell_1m_semi_axis_octahedron_control": {
+      "below_floor": 0,
+      "max": 0.0003535488387336345,
+      "min": 0.000353195294446702,
+      "tets": 24
+    },
+    "1um_radial_shell_1m_semi_axis_octahedron": {
+      "below_floor": 24,
+      "max": 3.582482123425994e-07,
+      "min": 3.58247849337223e-07,
+      "tets": 24
+    },
+    "definition": "abs(det([p1-p0,p2-p0,p3-p0])) / Lmax^3; p are float32-quantized and differences/determinant/norms are evaluated in double. Sign/winding remains a separate check.",
+    "fat": {
+      "baseline_median": 0.045147013629385516,
+      "baseline_min": 6.191213381533542e-08,
+      "baseline_p01": 1.8020421190230486e-05,
+      "baseline_tets": 13857,
+      "baseline_tets_below_floor": 103,
+      "tets_all_six_orders": 83142
+    },
+    "floor": 1e-05,
+    "skin": {
+      "baseline_median": 0.022209013033100047,
+      "baseline_min": 1.8062963212510432e-07,
+      "baseline_p01": 0.00023950442947098767,
+      "baseline_tets": 13857,
+      "baseline_tets_below_floor": 25,
+      "tets_all_six_orders": 83142
+    }
+  },
+  "schema": "whole_body_skin_fat_prism_order_quality_v1",
+  "topology_only_interpretation": {
+    "conclusion": "If this count is nonzero, ordering alone cannot put every face below 1e4, even before shared-edge conformity. A zero count is only necessary, not sufficient, for a globally conforming topology.",
+    "positive_winding_faces_without_any_order_at_or_below_1e4": 7
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "source_base_revision": "a143f2a0385262c1c946de0807b2fcedfc2a9d79",
+  "executable_sha256": "338947eb1126ec937f29ce0d8b4617a4fc889ebe16c69692f332cdfe315971a1",
+  "metallib_sha256": "88d547fa98f2962b0d75031c507af5b963448008e8b6237313ef17edcecefa51",
+  "source_sha256": {
+    "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+    "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "apps/numilab_human_myosim_visual_probe.mm": "f143e175643a5596afd4e37761e65c5ec85b25e5d48105e568883a2377a236b9",
+    "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+    "matter/src/metal/numi_human.metalinc": "da046c2ddd8ce53cc500e5bafd691354ffe532c5f8d02b2959e66ae86925a460",
+    "matter/src/metal/vascular.metalinc": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+    "matter/src/runtime.mm": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+    "matter/src/metal/fem.metalinc": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48"
+  },
+  "actual_pose_geometry_audit_sha256": "1e346c4202051a1578de3cf16e9f77deda1a7cfd5f91b617ba09887d1635a037",
+  "host": "numi.local"
+}

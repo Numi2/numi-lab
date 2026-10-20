@@ -1,0 +1,23 @@
+{
+  "physical_validation": false,
+  "numerical_run_pass": false,
+  "supported_contact_pass": false,
+  "requested_steps": 32,
+  "accepted_steps": 13,
+  "last_published_time_s": 0.00162500007718,
+  "failed_requested_step": 14,
+  "failed_target_time_s": 0.00175,
+  "failure_owner": "whole-body skin-fat FEM object15",
+  "status_code": 5,
+  "status_name": "NM_STATUS_INVALID_DEFORMATION",
+  "global_tet": 29447,
+  "rejected_J": 0.342317670583725,
+  "material_minimum_J": 0.35,
+  "bed_impulse_sum_Ns": 0.0,
+  "maximum_published_penetration_m": 0.0,
+  "root_assistance_max_N": 0.0,
+  "body_mass_residual_max_kg": 0.0,
+  "finite_published_trace": true,
+  "brain_accepted_time_us": 1625,
+  "limitations": "No complete support contact or sustained tissue validation. Failure-state receipt alone does not prove all rollback bytes unchanged. Source-local ligament admission remains separate."
+}

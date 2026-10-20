@@ -1,0 +1,8 @@
+{
+  "vertices": 2332, "faces": 4619,
+  "float32_coordinates": true,
+  "surface_self_audit": {"outer_ok": 1, "skin_ok": 1, "fat_ok": 1, "outer_crossings": 0, "skin_crossings": 0, "fat_crossings": 0, "boundary_edges": [45,45,45], "boundary_loops": [2,2,2], "errors": ["","",""]},
+  "surface_cross_audit": {"outer_skin_ok": 1, "outer_skin_pairs": 0, "outer_skin_tested": 67095, "skin_fat_ok": 1, "skin_fat_pairs": 0, "skin_fat_tested": 55451, "outer_fat_ok": 1, "outer_fat_pairs": 0, "outer_fat_tested": 49618, "errors": ["","",""]},
+  "sorted_prism_tets": {"skin_ok": 1, "fat_ok": 1, "paired_volume_gate_skin_ok": 1, "paired_volume_gate_fat_ok": 1, "bad_source_orientation_skin": 0, "bad_source_orientation_fat": 0, "weak_emitted_tets_skin": 0, "weak_emitted_tets_fat": 0, "gate_min_skin_tet_m3": 2.7591759070803086e-12, "gate_min_fat_tet_m3": 4.5386607508824657e-13, "skin_count": 13857, "fat_count": 13857, "skin_nonpositive": 0, "fat_nonpositive": 0, "skin_degenerate": 0, "fat_degenerate": 0, "skin_min_volume_m3": 2.7591759070803086e-12, "fat_min_volume_m3": 4.5386607508824657e-13, "skin_sum_m3": 0.0034525706415818092, "fat_sum_m3": 0.011652343238944875, "skin_reference_m3": 0.0034525706415818092, "fat_reference_m3": 0.011652343238944875},
+  "overall_float32_geometry_ok": 1
+}

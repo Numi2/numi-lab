@@ -1,0 +1,8 @@
+{
+  "schema": "numi.human.verification_023_input_asset_reference.v1",
+  "argv_file_input_paths_match_022": true,
+  "input_file_count": 13,
+  "sha256_list": "input-assets-sha256.txt",
+  "reference_source": "elastic-attachment-022/native-integrated/input-assets-sha256.txt",
+  "scope": "The 022 SHA/size/path list is reused because all 13 file-valued argv inputs match 023 exactly; no input assets copied."
+}

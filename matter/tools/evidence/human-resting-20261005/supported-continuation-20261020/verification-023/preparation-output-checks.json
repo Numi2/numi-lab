@@ -1,0 +1,103 @@
+{
+  "schema": "numi.human.verification_023_preparation_output_check.v1",
+  "checks": [
+    {
+      "path": "compact-boundary.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "compact-boundary.run.log",
+      "actual_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "preparation_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "matches": true
+    },
+    {
+      "path": "float32-audit.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "float32-audit.run.log",
+      "actual_sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "preparation_sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "matches": true
+    },
+    {
+      "path": "human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "actual_sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "preparation_sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "matches": true
+    },
+    {
+      "path": "human_skin_fat_from_layers_precomputed.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_skin_fat_from_layers_precomputed.run.log",
+      "actual_sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "preparation_sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "matches": true
+    },
+    {
+      "path": "human_wholebody_skin_layers.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_wholebody_skin_layers.run.log",
+      "actual_sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "preparation_sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "matches": true
+    },
+    {
+      "path": "numi_human_registered_ligaments_test.compile.log",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preparation_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "numi_human_registered_ligaments_test.run.log",
+      "actual_sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "preparation_sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "matches": true
+    },
+    {
+      "path": "fem-body-interface.run.log",
+      "actual_sha256": "679c75cc08769f7aff4cf3321d1ce98613e8e95230f907e580e80ed334764476",
+      "preparation_sha256": "679c75cc08769f7aff4cf3321d1ce98613e8e95230f907e580e80ed334764476",
+      "matches": true
+    },
+    {
+      "path": "compact-boundary/result.json",
+      "actual_sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "preparation_sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "matches": true
+    },
+    {
+      "path": "float32-geometry.json",
+      "actual_sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "preparation_sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "matches": true
+    },
+    {
+      "path": "fat-self-crossings.csv",
+      "actual_sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "preparation_sha256": "3d745aca529718dfa2db630ed46dd8a006c022fa19b11a4f268147c5f2d96cd6",
+      "matches": true
+    }
+  ],
+  "all_receipted_outputs_match": true,
+  "note": "Executable test binaries are not copied; source preparation provenance and compile/run logs are retained."
+}

@@ -13,8 +13,8 @@
 #include <vector>
 namespace metalrobo::registered_ligaments {
 using V3=inferred_acl::V3;
-enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, knee };
-inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v3-bones-43a31ef4771e";
+enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, elbow, knee };
+inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v4-elbow-rcl-bones-43a31ef4771e";
 inline constexpr double kC4=1e-3,kLambdaMax=1.05,kMaxProjectionM=.020,kMaxJointResidualM=.0002;
 inline constexpr std::array<std::uint8_t,32> kReferenceBonesPayloadSha256{{
  0x43,0xa3,0x1e,0xf4,0x77,0x1e,0x2a,0x38,0x3a,0xe2,0xc7,0xca,0xab,0x1b,0x99,0x4f,
@@ -124,13 +124,16 @@ inline std::vector<Spec> referenceCatalog(){
  constexpr std::string_view as="Ji et al., Front Bioeng Biotechnol 2025, doi:10.3389/fbioe.2025.1697096, Table 2; stiffness priors cited to Hoefnagels et al. 2007.";
  constexpr std::string_view ag="Inferred named ankle-region fibers use exact-invocation source-mesh surface witnesses projected in the supported mortise pose. Fibula shares the tibia rigid owner and navicular is unavailable. Each straight path is checked against all 185 retained registered source-bone meshes; open meshes do not prove closed-solid clearance or enthesis identity.";
  constexpr std::string_view al="FE spring priors, not subject measurements. Superior and inferior ATFL regional fibers use separate cited stiffness priors; anchors are inferred and zero-prestrain is assigned at construction. Effective area is stiffness-preserving normalization, not measured.";
+ constexpr std::string_view es="Rahman et al., Adv Biomech Appl 2014;1(3):169-185, doi:10.12989/aba.2014.1.3.169, Table 3: RCL linear-region stiffness coefficient 15.5 N/mm per bundle, three modeled bundles. The catalog aggregates those priors to 46.5 N/mm (46500 N/m) in one effective row; it is not a subject-specific measurement or an exact reproduction of Rahman zero-load lengths.";
+ constexpr std::string_view eg="Inferred radial-collateral-to-radial-head regional proxy. NHMYO2 SHA-256 e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b ECRB route nodes 763/1215, sites 682/1103, mark the lateral epicondylar neighborhood; source NHRIGID ulna-radius joints 42/92 locate the radial-head neighborhood. Endpoint anchors are projections to stable source surfaces 12/13 and 16/17 in the exact supported pose.";
+ constexpr std::string_view el="The radial collateral ligament normally blends with the annular ligament; no independent annular-ligament body is present. This is an inferred straight radial-head proxy, not a measured RCL enthesis or annular wrap. MCL anterior/posterior and LUCL rows are intentionally not instantiated: bounded NHMYO landmark-neighborhood searches at the supported pose did not yield all-185-mesh-clear, non-inward straight paths for this owner; their absence here is a representation limit, not evidence that the ligaments are absent. Three published bundle tangent priors are combined into one line; the effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Exact-pose all-185 source-mesh segment checks run at construction; open surface meshes do not prove closed-solid clearance. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
  std::vector<Spec> v;auto add=[&](std::string_view n,Group g,unsigned side,unsigned b0,unsigned s0,unsigned b1,unsigned s1,unsigned fp,unsigned fc,V3 x,V3 y,double k,double a,bool am,std::string_view ks,std::string_view gs,std::string_view l){
   const bool splitIlf=n=="iliofemoral_lateral"||n=="iliofemoral_medial";
   Spec spec;spec.name=n;spec.group=g;spec.side=side;spec.body0=b0;spec.stable0=s0;spec.body1=b1;spec.stable1=s1;
   spec.frameParent=fp;spec.frameChild=fc;spec.seed0=x;spec.seed1=y;spec.stiffnessNPerM=k;spec.areaM2=a;
   spec.areaMeasured=am&&!splitIlf;spec.areaIsAssumedSplit=splitIlf;spec.stiffnessSource=ks;spec.geometrySource=gs;spec.limitations=l;
   spec.requiresPinnedSourceIdentity=true;
-  spec.expectedFrameJoint=g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):(side==0?150u:136u);
+  spec.expectedFrameJoint=g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):g==Group::elbow?(side==0?91u:41u):(side==0?150u:136u);
   auto witness=[&](V3 p0,V3 p1){spec.seed0=p0;spec.seed1=p1;spec.seedLateralityMirrored=false;};
   // Exact-invocation source-mesh witnesses, in each source joint frame (m).
   // These are inferred regional proxies, not measured subject entheses.
@@ -147,6 +150,7 @@ inline std::vector<Spec> referenceCatalog(){
   else if(n=="anterior_tibiotalar") witness(side==0?V3{.012921,.014373,.021524}:V3{.014198,.013982,-.022502},side==0?V3{.014191,.001188,.016064}:V3{.010697,-.000925,-.017029});
   else if(n=="tibiocalcaneal") witness(side==0?V3{.0027626773808151484,.01667203940451145,.023803692311048508}:V3{.001981951529160142,.015796242281794548,-.02046188712120056},side==0?V3{.00022980802168603987,-.0142558254301548,.019495569169521332}:V3{.0000623340965830721,-.014136694371700287,-.02014334686100483});
   else if(n=="posterior_tibiotalar") witness(side==0?V3{-.002293,.020198,.018242}:V3{-.003675,.020437,-.014791},side==0?V3{-.010004,.002604,.013728}:V3{-.011908,.003734,-.009455});
+  else if(n=="elbow_rcl") witness(side==0?V3{.004511761,-.003844726,-.028748974}:V3{.005582781,-.000521388,.028226875},side==0?V3{-.001601858,-.008539562,-.027125230}:V3{.003317729,-.007840753,.027638573});
   v.push_back(spec);
  };
  for(unsigned side=0;side<2;++side){
@@ -166,6 +170,8 @@ inline std::vector<Spec> referenceCatalog(){
   add("anterior_tibiotalar",Group::ankle,side,tib,tid,tal,taid,tib,tal,{.012,.012,-.020},{.012,0,-.012},122600,10e-6,false,as,ag,al);
   add("tibiocalcaneal",Group::ankle,side,tib,tid,cal,caid,tib,tal,{0,.012,-.020},{0,-.020,-.015},80000,10e-6,false,as,ag,al);
   add("posterior_tibiotalar",Group::ankle,side,tib,tid,tal,taid,tib,tal,{-.012,.012,-.020},{-.018,0,-.012},60000,10e-6,false,as,ag,al);
+  unsigned humElbow=r?41:91,humid=r?12:13,ulna=r?42:92,rad=r?43:93,radid=r?16:17;
+  add("elbow_rcl",Group::elbow,side,humElbow,humid,rad,radid,humElbow,ulna,{.006,-.002,.028},{.003,-.008,.028},46500,10e-6,false,es,eg,el);
  }
  return v;
 }

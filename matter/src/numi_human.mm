@@ -820,12 +820,18 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             const double normalLength = std::sqrt(
                 normal.x * normal.x + normal.y * normal.y +
                 normal.z * normal.z);
+            const std::uint32_t elasticFlags =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+            const bool elasticAttachment = sample.flags == elasticFlags;
             if (sample.slaveNode >= source.nodeLoads.size() ||
                 sample.bodyIndex == NM_INVALID_INDEX ||
-                sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE ||
+                (sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE &&
+                 !elasticAttachment) ||
                 sample.reserved0 != 0u || !finiteScale(point) ||
                 point.w <= 0.0f || !finiteScale(normal) ||
                 std::abs(normalLength - 1.0) > 1.0e-5 || normal.w < 0.0f ||
+                (elasticAttachment && normal.w != 0.0f) ||
                 !finiteScale(stiffness) || stiffness.x <= 0.0f ||
                 stiffness.y <= 0.0f || stiffness.z != 0.0f ||
                 stiffness.w != 0.0f || contactedNode[sample.slaveNode] ||

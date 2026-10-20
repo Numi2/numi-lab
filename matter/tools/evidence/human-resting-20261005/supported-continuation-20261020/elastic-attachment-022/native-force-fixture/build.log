@@ -1,0 +1,40 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o
+FAILED: [code=1] CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o 
+/usr/bin/clang++ -DNUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter\" -DNUMI_MATTER_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib\" -I/Users/numi/numi-human-aortic-contact-opt-20261019/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o -MF CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o.d -o CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/apps/numi_human_tendon_fem_load_probe.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/apps/numi_human_tendon_fem_load_probe.mm:1159:40: error: no viable overloaded '='
+ 1159 |                     poses[0u].position = frame == 0u
+      |                     ~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~
+ 1160 |                         ? nm_float4{0.001f, 0.0f, 0.0f, 0.0f}
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1161 |                         : nm_float4{
+      |                         ~~~~~~~~~~~~
+ 1162 |                             frameTranslation[0u],
+      |                             ~~~~~~~~~~~~~~~~~~~~~
+ 1163 |                             frameTranslation[1u] + 0.001f,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1164 |                             frameTranslation[2u], 0.0f};
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: no known conversion from 'nm_float4' to 'const mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: no known conversion from 'nm_float4' to 'mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/apps/numi_human_tendon_fem_load_probe.mm:1165:43: error: no viable overloaded '='
+ 1165 |                     poses[0u].orientation = frame == 0u
+      |                     ~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~
+ 1166 |                         ? nm_float4{0.0f, 0.0f, 0.0f, 1.0f}
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1167 |                         : nm_float4{
+      |                         ~~~~~~~~~~~~
+ 1168 |                             0.0f, 0.0f, halfSqrtTwo, halfSqrtTwo};
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: no known conversion from 'nm_float4' to 'const mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: no known conversion from 'nm_float4' to 'mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+2 errors generated.
+ninja: build stopped: subcommand failed.

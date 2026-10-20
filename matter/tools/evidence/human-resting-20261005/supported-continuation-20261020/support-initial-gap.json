@@ -1,0 +1,158 @@
+{
+  "initialPose": {
+    "initialization": "preserved construction pose; world translation applied 0; initial velocity zero",
+    "poseQOverrides": [
+      [
+        36,
+        0.1
+      ],
+      [
+        74,
+        0.1
+      ]
+    ],
+    "rootPoseArgvFloat64": [
+      -0.05000000074505806,
+      0.20000000298023224,
+      0.10571993142366409,
+      -0.7009092642998509,
+      0.0,
+      0.0,
+      0.7132504491541817
+    ],
+    "rootPoseFloat32": [
+      -0.05000000074505806,
+      0.20000000298023224,
+      0.10571993142366409,
+      -0.7009092569351196,
+      0.0,
+      0.0,
+      0.713250458240509
+    ],
+    "rootPoseFloat32LittleEndianSha256": "a01b30b5d36b6a48c9cd44b1d585c2ccebfe3be741a5ad57f5c82c17f36f83c9"
+  },
+  "interpretation": {
+    "contactLaw": "Support row stabilization=0.2 and slop=0.002 m. The native contact kernel sets targetGap=(1-stabilization)*min(initialSeparation,0), recovering 20% of an initial overlap per root step. Thus a roughly 0.1 mm starting overlap creates a short first-step impulse; rows 2+ in native rollback-010 have zero normal impulse.",
+    "poseAndPlane": "NHCNT ground normal is +Z and the world frame is x-forward/y-left/z-up. The current native first-step contact gap agrees with the independent source support witness within about 5.3 micrometers; this does not indicate a bed-direction or registration-frame mismatch.",
+    "rootSpeed": "The 0.436 m/s progress field is the floating-root origin generalized linear speed (the source prints acceptedV[0:3]), not a direct whole-body COM speed. At accepted step 1, the logged COM is 0.957 m from the root origin, and the root orientation also changes; a substantial root-origin velocity can therefore coexist with a much smaller total COM translation. Do not interpret the root-origin speed as a whole-body translational launch speed or as evidence of a bed-direction error.",
+    "transfer": "Rigid placement check validated 2332 coarse vertices with maximum point residual 1.74 micrometers. The separate FEM transfer reports 3.66 mm RMS and 42.6 mm maximum projection; this affects mapping fidelity but is not the source of this stand-contact impulse."
+  },
+  "nativeFirstStep": {
+    "contactOwner": "existing_metal_stand / full registered source skin partition",
+    "femSkinSelfContact": "deferred material-column binding; not this support force owner",
+    "initialVelocityWasZero": true,
+    "maximumGeneralizedAccelerationMetersPerSecondSquared": 10504.3652344,
+    "meanSupportForceNewtons": 37558.34198,
+    "minimumContactGapMeters": -0.000101144665678,
+    "normalImpulseNewtonSeconds": 4.6947927475,
+    "peakPenetrationMeters": 0.000101144665678,
+    "reportedRootOriginSpeedMetersPerSecond": 0.436138286131,
+    "rootAssistanceForceNewtons": 0.0,
+    "rootAssistanceTorqueNewtonMeters": 0.0,
+    "rootOrientationXyzw": [
+      -0.700932860374,
+      -1.85408152902e-05,
+      -1.40892934724e-05,
+      0.713227272034
+    ],
+    "rootOriginLinearVelocityMetersPerSecond": [
+      -0.0629691630602,
+      0.0261369813234,
+      -0.430776447058
+    ],
+    "rootToCenterOfMassDistanceMeters": 0.9571354291215068,
+    "rootToCenterOfMassOffsetWorldMeters": [
+      0.024988763139200003,
+      -0.95677612615,
+      0.007952095684999994
+    ],
+    "simulationTimeSeconds": 0.000125
+  },
+  "proposedPhysicalInitializationCorrection": {
+    "calculation": "deltaZ = targetClearance - measuredSeedGap; candidateZ = float32(oldZ + deltaZ). This is a common rigid re-placement and creates no force.",
+    "candidateRootPoseFloat32": [
+      -0.05000000074505806,
+      0.20000000298023224,
+      0.10583633184432983,
+      -0.7009092569351196,
+      0.0,
+      0.0,
+      0.713250458240509
+    ],
+    "candidateRootZFloat32Meters": 0.10583633184432983,
+    "deltaRootTranslationMeters": [
+      0.0,
+      0.0,
+      0.000116398432
+    ],
+    "exactTangentCandidateRootZFloat32Meters": 0.10582633316516876,
+    "ifAuthoredRootMustRemainFixedEquivalentBedPlaneZFloat32Meters": -0.00011639843136081472,
+    "operation": "Apply one common rigid translation along the bed normal before release, then retain zero initial velocity and the existing contact solver.",
+    "status": "Candidate only; not applied or native-replayed. Recheck all 32 current-pose support witnesses after selecting root-versus-bed ownership.",
+    "targetClearanceMeters": 1e-05
+  },
+  "schema": "numi.support_initial_gap_adjustment.v1",
+  "scope": "Read-only audit receipt with a proposed initialization correction; no native inputs, sources, or forces were changed.",
+  "source": {
+    "catalogSourceSha256": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+    "invocationSha256": "d9bc57e6c5c4091505bb4ba23a5932e2b365619059eeb4289ae042586bb7b7c2",
+    "nativeBinarySha256": "5a4cb6b812fddffd9a0e7317bff1a7fccf62c8eef864b7f0768360674cc0ed34",
+    "nativeRun": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010",
+    "relatedNativeRun009": {
+      "invocationSha256": "d66117177c274e736753d51ff7644f6a33b42dd98dd2e95760da7398d97dfeb5",
+      "run": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009",
+      "sourceInvocationSha256": "c00c08e1eb0ef9bd3d9261807e8736fadcb42a759218620f95f1433f277a90f4",
+      "steps": 4
+    },
+    "repositoryHead": "a143f2a0385262c1c946de0807b2fcedfc2a9d79",
+    "rigidPayload": {
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+    },
+    "skinPayload": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    "sourceInvocationSha256": "d66117177c274e736753d51ff7644f6a33b42dd98dd2e95760da7398d97dfeb5",
+    "supportPayload": {
+      "abi": "NHCNT1/1",
+      "contactCount": 32,
+      "engineBodyCount": 157,
+      "groundFriction": 1.0,
+      "groundNormalFloat32": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "groundNormalFloat32LittleEndianSha256": "caccb9a8fbd2401135207066c4b53d6e88467839318ea2f1e8bfadf8fef6844e",
+      "groundPointFloat32M": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "sourceRigidSha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975"
+    }
+  },
+  "witness": {
+    "authoredWorldWitnessM": [
+      0.018327204510569572,
+      -0.8561059832572937,
+      0.0
+    ],
+    "bodyIndex": 128,
+    "bodyLocalPointM": [
+      -0.11739002168178558,
+      -0.027642853558063507,
+      -0.04347643628716469
+    ],
+    "currentPoseSignedPlaneGap_m": -0.000106398432,
+    "currentPoseSurfacePointZ_m": -0.000106398432,
+    "kind": "NHCNT source support skin vertex at exact source-pose FK and invocation root transform",
+    "measurementBasis": "Independent source-geometry FK replay of the retained NHRIGID/NHCNT/skin payloads using this exact root pose and q overrides; this is a construction-pose witness, not a full-body penetration certificate.",
+    "recordIndexZeroBased": 4,
+    "skinVertexArrayIndexZeroBased": 34318,
+    "sourceGeometryIndexOneBased": 34319
+  }
+}

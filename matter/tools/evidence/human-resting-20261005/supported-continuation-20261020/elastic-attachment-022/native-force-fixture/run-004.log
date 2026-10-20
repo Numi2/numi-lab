@@ -1,0 +1,2 @@
+elastic_gpu_audit target=0 frame=0 expected_force_n=0.265289 actual_force_n=0.269258 expected_energy_j=0.000351892 actual_energy_j=0.0003625 force_residual_n=0 moment_residual_nm=1.09663e-11
+numi_human_tendon_fem_load=failed error="probe elastic GPU energy/reaction audit differs from point-spring oracle"

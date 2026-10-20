@@ -1,7 +1,7 @@
 // Passive low-strain continuum reference for subcutaneous human adipose.
 // Alkhouli et al. measured initial tensile modulus 1.6 +/- 0.8 kPa in paired
 // subcutaneous samples (n=19); modulus rose to 11.7 +/- 6.4 kPa by 30% strain.
-// Source: Am J Physiol Endocrinol Metab 305:E1189-E1196 (2013),
+// Source: Am J Physiol Endocrinol Metab 305:E1427-E1435 (2013),
 // DOI 10.1152/ajpendo.00111.2013, PMID 24105412.
 // The default is the measured initial tangent mapped to an isotropic
 // compressible neo-Hookean solid using explicit nu=0.45. This does not

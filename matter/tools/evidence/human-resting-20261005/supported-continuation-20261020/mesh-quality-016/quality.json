@@ -1,0 +1,28 @@
+{
+  "scope": "Offline bounded inferred inner-layer correction candidate only; not admitted",
+  "source_coordinates_sha256": "0cd3bbb35d423573a91b808c44bae42393358a523be7a30110c42a3321dc188a",
+  "target_normalized_determinant": 0.001,
+  "max_component_displacement_mm": 0.3,
+  "variable_nodes": 2934,
+  "iterations": 1000,
+  "solver_message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+  "elapsed_s": 5.008521749987267,
+  "gradient_check": {
+    "finite_difference": 5689.989705570041,
+    "analytic": 5689.960317388763
+  },
+  "before": {
+    "min_q": 6.191213381533103e-08,
+    "max_condition": 1390381.0343863966,
+    "above_1000": 347
+  },
+  "after": {
+    "min_q": -0.0001227774612527297,
+    "max_condition": 2652762.7384548825,
+    "above_1000": 45
+  },
+  "max_displacement_mm": 0.5196498490217021,
+  "outer_unchanged": true,
+  "positive": false,
+  "below_target": 460
+}

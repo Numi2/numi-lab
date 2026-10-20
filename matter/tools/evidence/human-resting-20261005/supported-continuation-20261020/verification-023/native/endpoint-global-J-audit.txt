@@ -1,0 +1,6 @@
+Derived from the exact 22 resting_FEM_object_capture=summary lines in selected_stdout.log; no node or tetrahedron rows retained here.
+object_count=22 node_count=14302 tetrahedron_count=54565
+global_min_J=0.7171654806 object=Human/BodyParts3D/stable-9/reduced-cavity-wall-v1
+global_max_J=1.105405007 object=spleen-FJ2561
+terminal_audit_min_J=0.717165480643 terminal_audit_max_J=1.10540500724
+terminal/global agreement: reported values differ only by summary precision rounding.

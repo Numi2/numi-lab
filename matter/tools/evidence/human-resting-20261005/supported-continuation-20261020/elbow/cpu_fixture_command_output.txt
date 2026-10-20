@@ -1,0 +1,5 @@
+Command:
+cd /Users/numi/numi-human-aortic-contact-opt-20261019 && clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iinclude -Imatter/include -Iapps tests/numi_human_registered_ligaments_test.cpp -o /tmp/numi-human-registered-ligaments-check && /tmp/numi-human-registered-ligaments-check
+
+Output:
+registered_ligament_cpu_fixture=passed catalog_rows=28 synthetic_stiffness_N_per_m=42000

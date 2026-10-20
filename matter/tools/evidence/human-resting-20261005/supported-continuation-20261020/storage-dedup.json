@@ -1,0 +1,19 @@
+{
+  "method": "Identical immutable completed generated packs only; all paths retained by hardlinks; fresh run directories required",
+  "before_free": 1834790912,
+  "after_free": 2428985344,
+  "files": [
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-profile-011/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009/output/resting-human.mrvpack",
+      "sha256": "c4da502914b063378998377dd907e92d284d669469d2a9cc99ba5e7632528c60",
+      "size": 297078784
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-parallel-012/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009/output/resting-human.mrvpack",
+      "sha256": "c4da502914b063378998377dd907e92d284d669469d2a9cc99ba5e7632528c60",
+      "size": 297078784
+    }
+  ]
+}

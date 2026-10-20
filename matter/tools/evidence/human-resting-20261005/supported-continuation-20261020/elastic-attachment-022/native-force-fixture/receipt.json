@@ -1,0 +1,136 @@
+{
+  "schema": "numi_human_fem_body_elastic_attachment_probe_v1",
+  "host": "numi.local",
+  "head": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "build_command": "cmake --build build-integrated-validation-20261019/profile-build-039 --target metalrobo_numilab_human_tendon_fem_load_probe -j 2 (independent adapter frame step index 0)\nbuild_exit=0",
+  "run_command": "build-integrated-validation-20261019/profile-build-039/bin/metalrobo_numilab_human_tendon_fem_load_probe\nrun_exit=0",
+  "source_sha256": {
+    "apps/numi_human_tendon_fem_load_probe.mm": "906d4a318464da84e826330b295361fd0c29f6ec6903f31c6746ca61bc814c3a",
+    "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+    "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+    "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c"
+  },
+  "probe_binary": {
+    "path": "build-integrated-validation-20261019/profile-build-039/bin/metalrobo_numilab_human_tendon_fem_load_probe",
+    "sha256": "3d993fbab4bccc34bd587fed5bd2aebbd7725aef0752e3b214de7c00055e3520"
+  },
+  "matter_metallib": {
+    "path": "build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib",
+    "sha256": "f8b2b28542b6e809569b2bace46e89c26f10c3fea3b9c6a0471a9c6469349712"
+  },
+  "build_log_sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688",
+  "result": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-007.log",
+    "sha256": "679c75cc08769f7aff4cf3321d1ce98613e8e95230f907e580e80ed334764476",
+    "exit_code": 0,
+    "contains_pass_marker": true
+  },
+  "historical_runs": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-002.log",
+      "sha256": "0a526f0137d3e258619e3ce70b9bbac744a1c015aa25bde367de57b2599a1a0f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-003.log",
+      "sha256": "b36f954b952c8a5f9eefcd0d519e829f8a1346a54ff05a49f63fda2e728c9a90"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-004.log",
+      "sha256": "bf4366360b1b6d4149808f68526b325136f40bab3b50d1ad238b1451221b2788"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-005.log",
+      "sha256": "5bf6b7b02be859793b5188a336c7b5537315baa57d7b7045acfc9a8da0a7d67e"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-006.log",
+      "sha256": "e51eb2dab702f73cccb40bdb8b741eb74cd3f61c70e6ff756537ac9fd7ddfff2"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-007.log",
+      "sha256": "679c75cc08769f7aff4cf3321d1ce98613e8e95230f907e580e80ed334764476"
+    }
+  ],
+  "failed_attempt_records": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-attempt-001.txt",
+      "sha256": "fd64743cefa6551b2ed7e7d2b52007854b9ef99dc6f432d7dac81089704b4d8e",
+      "text": "exit=1\nreason=elastic adapter requires at least one anchor; first fixture had none"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-attempt-002.txt",
+      "sha256": "f49ec0ee1efbdcaf404d513fb5648397e42f25f1371eb3232bd10e84f890bcad",
+      "text": "exit=1\nreason=pass.generalizedForceOffset must follow muscle-row storage for six dofs; workspace allocation expanded to 12 floats"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-attempt-003.txt",
+      "sha256": "a17fd6b56b3f68d9569d07ccc2110fe34843b5454f9f526d65f859d452b9cc5b",
+      "text": "exit=1\nreason=GPU force audit is pre-dynamics; fixture oracle incorrectly used post-step FEM position"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-attempt-004.txt",
+      "sha256": "159fe783f4c28d36588e338604e6ba72b383de9e9dee3be7dd08b803b5b71371",
+      "text": "exit=1\nreason=Runtime restore cannot rebase compiled rest geometry; objectivity fixture now compiles a SE3-transformed source world before Runtime initialization"
+    }
+  ],
+  "build_attempt_logs": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-002.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-003.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-004.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-005.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-006.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-007.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/build-008.log",
+      "sha256": "c18275fcf66286dcde97e1b22429213f30743933874baca3c19e1cc6a6089688"
+    }
+  ],
+  "run_attempt_logs": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-002.log",
+      "sha256": "0a526f0137d3e258619e3ce70b9bbac744a1c015aa25bde367de57b2599a1a0f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-003.log",
+      "sha256": "b36f954b952c8a5f9eefcd0d519e829f8a1346a54ff05a49f63fda2e728c9a90"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-004.log",
+      "sha256": "bf4366360b1b6d4149808f68526b325136f40bab3b50d1ad238b1451221b2788"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-005.log",
+      "sha256": "5bf6b7b02be859793b5188a336c7b5537315baa57d7b7045acfc9a8da0a7d67e"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-006.log",
+      "sha256": "e51eb2dab702f73cccb40bdb8b741eb74cd3f61c70e6ff756537ac9fd7ddfff2"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run-007.log",
+      "sha256": "679c75cc08769f7aff4cf3321d1ce98613e8e95230f907e580e80ed334764476"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/elastic-attachment-022/native-force-fixture/run.log",
+      "sha256": "1dc48255660be49b65350c2e36b6b4e0322cd18e243ed747cf5edbec09673319"
+    }
+  ]
+}

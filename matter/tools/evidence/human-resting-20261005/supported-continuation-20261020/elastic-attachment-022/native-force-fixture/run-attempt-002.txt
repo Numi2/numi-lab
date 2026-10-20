@@ -1,0 +1,2 @@
+exit=1
+reason=pass.generalizedForceOffset must follow muscle-row storage for six dofs; workspace allocation expanded to 12 floats

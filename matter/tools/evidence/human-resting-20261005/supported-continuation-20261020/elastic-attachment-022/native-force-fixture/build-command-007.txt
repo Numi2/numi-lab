@@ -1,0 +1,2 @@
+cmake --build build-integrated-validation-20261019/profile-build-039 --target metalrobo_numilab_human_tendon_fem_load_probe -j 2 (compile separate rotated world per frame)
+build_exit=0

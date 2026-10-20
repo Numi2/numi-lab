@@ -125,22 +125,27 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
 
 enum NMNumiHumanFEMBodyContactFlags : nm_u32 {
     NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE = 1u << 0u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT = 1u << 1u,
 };
 
-// Frictionless elastic-foundation contact between one deformable FEM node and
-// a body-following tangent plane. Normal action/reaction is assembled into the
-// FEM external-force and articulated-body wrench arenas in the same borrowed
-// command buffer. Tangential displacement is deliberately unconstrained, so
-// this is a gliding interface rather than a tie or an inferred friction law.
+// Body-following interaction between one deformable FEM node and a rigid body.
+// ACTIVE alone retains frictionless elastic-foundation contact against a
+// tangent plane. ACTIVE | ELASTIC_ATTACHMENT instead applies an isotropic
+// finite spring to bodyLocalPointAndArea.xyz, with stiffness.x times area as
+// the spring constant; stiffness.y remains its strain-per-pressure scale.
+// Both modes assemble equal/opposite force and body wrench in the same
+// borrowed command buffer. No ABI fields are added.
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactSampleGPU {
     nm_u32 slaveNode;
     nm_u32 bodyIndex;
     nm_u32 flags;
     nm_u32 reserved0;
 
-    // xyz body-local plane origin; w slave tributary area [m^2].
+    // xyz body-local plane origin, or elastic zero-strain target; w area [m^2].
     nm_float4 bodyLocalPointAndArea;
-    // xyz body-local outward unit normal; w reference separation [m].
+    // xyz body-local outward/reference unit normal; w reference separation [m].
+    // Elastic attachment mode requires w == 0 and uses xyz only as the
+    // coincident-point fallback direction.
     nm_float4 bodyLocalNormalAndReferenceSeparation;
     // x pressure-over-closure stiffness [Pa/m]; y normal strain per unit
     // pressure [1/Pa]; zw reserved zero.

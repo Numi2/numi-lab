@@ -1,0 +1,190 @@
+{
+  "schema": "numi.human.supported_verify_022_retained_evidence.v1",
+  "base_revision": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "current_head": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "base_revision_matches": true,
+  "source_file_hashes_match": true,
+  "source_hashes": [
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "expected_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "current_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "expected_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "current_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "expected_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "current_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanRegisteredLigaments.hpp",
+      "expected_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "current_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "matches": true
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "expected_sha256": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "current_sha256": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "matches": true
+    },
+    {
+      "path": "tools/verify_human_supported_tissue.sh",
+      "expected_sha256": "fbe1f09d979f3efa2469235a7dba200d709168697a7dbba27730f89ebf945f7b",
+      "current_sha256": "fbe1f09d979f3efa2469235a7dba200d709168697a7dbba27730f89ebf945f7b",
+      "matches": true
+    },
+    {
+      "path": "tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+      "expected_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "current_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "matches": true
+    },
+    {
+      "path": "tests/human_wholebody_skin_layers.cpp",
+      "expected_sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "current_sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "matches": true
+    },
+    {
+      "path": "tests/human_skin_fat_from_layers_precomputed.cpp",
+      "expected_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "current_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "matches": true
+    },
+    {
+      "path": "tests/numi_human_registered_ligaments_test.cpp",
+      "expected_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "current_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "matches": true
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "expected_sha256": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "current_sha256": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "expected_sha256": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "current_sha256": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "matches": true
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "expected_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "current_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "expected_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "current_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "matches": true
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "expected_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "current_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "matches": true
+    }
+  ],
+  "input_identity_matches_current_header_and_geometry_receipt": true,
+  "input_identity_values": {
+    "coordinates_sha256": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+    "header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68"
+  },
+  "packaged_output_hashes_match_preparation_receipt": true,
+  "output_hashes": [
+    {
+      "path": "build.log",
+      "expected_sha256": "e10d273281b768cd67a65ca340a25ab111f32d92120559c6f6e4c0099d7b9d22",
+      "packaged_sha256": "e10d273281b768cd67a65ca340a25ab111f32d92120559c6f6e4c0099d7b9d22",
+      "matches": true
+    },
+    {
+      "path": "numi_human_registered_ligaments_test.compile.log",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packaged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "numi_human_registered_ligaments_test.run.log",
+      "expected_sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "packaged_sha256": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873",
+      "matches": true
+    },
+    {
+      "path": "human_accepted_fem_skin_transfer_mixed_donor.compile.log",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packaged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_accepted_fem_skin_transfer_mixed_donor.run.log",
+      "expected_sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "packaged_sha256": "3980353f8d21f90aaec24382d197c0ec5b747786e36777f3396d0314f1573a6b",
+      "matches": true
+    },
+    {
+      "path": "human_wholebody_skin_layers.compile.log",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packaged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_wholebody_skin_layers.run.log",
+      "expected_sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "packaged_sha256": "ef448a102b89edf87952056a842ee697e46ffcdb7b9aebe7bda93ec59c27d9b5",
+      "matches": true
+    },
+    {
+      "path": "human_skin_fat_from_layers_precomputed.compile.log",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packaged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "human_skin_fat_from_layers_precomputed.run.log",
+      "expected_sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "packaged_sha256": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174",
+      "matches": true
+    },
+    {
+      "path": "compact-boundary/result.json",
+      "expected_sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "packaged_sha256": "f7d1858f1038e1f5ceb227da5e5c015e825022872567d265724a3b88e89a50a8",
+      "matches": true
+    },
+    {
+      "path": "compact-boundary.run.log",
+      "expected_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "packaged_sha256": "1ce113fd5b5eba7fe40065dd5c3bb83fea1f5d054d87d7bd89a6952183034ce4",
+      "matches": true
+    },
+    {
+      "path": "float32-geometry.json",
+      "expected_sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "packaged_sha256": "a05b723daf6fa70e478d47b627a5ff401248bdf10ea73a52f5f7fa066c5cfd53",
+      "matches": true
+    },
+    {
+      "path": "float32-audit.run.log",
+      "expected_sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "packaged_sha256": "4c3161ec2cbfcaeb0e354d21091926a53834c403109e15f65df8bbf958db4290",
+      "matches": true
+    }
+  ],
+  "four_fixture_compile_run_pairs_present": true,
+  "geometry_receipts_pass": true,
+  "native_solver_run_included": false,
+  "binary_retained": false,
+  "executable_sha256_recorded_in_provenance_not_copied": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e"
+}

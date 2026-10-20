@@ -1,0 +1,3 @@
+Compact native failure witness 015 evidence. Files copied from native-supported-failure-witness-015: provenance, exact invocation, execution result, stderr, selected stdout, coupled CSV, and common-field failure receipt. No input packs or large geometry products are copied.
+
+The exact source invocation used 28 registered ligament force rows. The run reached 13 accepted coupled rows, then reported the invalid skin-fat bonded-shell deformation captured in failure-summary.txt and common-field-failure.json. The selected stderr/stdout retain the source-geometry admission and failure witness. csv-parity.txt compares the first 13 coupled data rows against the actual native-supported-tangent-014 run and its evidence copy.

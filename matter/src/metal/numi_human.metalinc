@@ -212,13 +212,20 @@ inline bool humanFEMBodyContactState(
     thread float3& normal,
     thread float& closure
 ) {
-    if (sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE ||
+    const uint elasticFlags =
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    const bool elasticAttachment = sample.flags == elasticFlags;
+    if ((sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE &&
+         !elasticAttachment) ||
         sample.reserved0 != 0u ||
         !finite4(sample.bodyLocalPointAndArea) ||
         !finite4(sample.bodyLocalNormalAndReferenceSeparation) ||
         !finite4(sample.stiffnessAndNormalStrainPerPressure) ||
         sample.bodyLocalPointAndArea.w <= 0.0f ||
         sample.bodyLocalNormalAndReferenceSeparation.w < 0.0f ||
+        (elasticAttachment &&
+         sample.bodyLocalNormalAndReferenceSeparation.w != 0.0f) ||
         sample.stiffnessAndNormalStrainPerPressure.x <= 0.0f ||
         sample.stiffnessAndNormalStrainPerPressure.y <= 0.0f ||
         any(sample.stiffnessAndNormalStrainPerPressure.zw != float2(0.0f)) ||
@@ -233,14 +240,30 @@ inline bool humanFEMBodyContactState(
     slavePoint = slaveState.positionAndMass.xyz;
     const float3 planeOrigin = bodyPose.position.xyz + humanQuaternionRotate(
         bodyPose.orientation, sample.bodyLocalPointAndArea.xyz);
-    normal = humanQuaternionRotate(bodyPose.orientation, localNormal);
-    const float separation = dot(slavePoint - planeOrigin, normal);
-    // Project onto the live tangent plane so tangential sliding produces no
-    // artificial moment arm and no shear force.
-    bodyPoint = slavePoint - separation * normal;
-    closure = max(
-        0.0f,
-        sample.bodyLocalNormalAndReferenceSeparation.w - separation - 1.0e-7f);
+    const float3 referenceNormal = humanQuaternionRotate(
+        bodyPose.orientation, localNormal);
+    if (elasticAttachment) {
+        // Signed vector from the deformable node to the body's zero-strain
+        // target. Existing pressure * area assembly is exactly k * delta,
+        // where k = stiffness.x * area. At coincidence closure is zero; the
+        // rotated reference normal is used only as a finite direction value.
+        const float3 targetDisplacement = planeOrigin - slavePoint;
+        closure = length(targetDisplacement);
+        normal = closure > 0.0f
+            ? targetDisplacement / closure
+            : referenceNormal;
+        bodyPoint = planeOrigin;
+    } else {
+        normal = referenceNormal;
+        const float separation = dot(slavePoint - planeOrigin, normal);
+        // Project onto the live tangent plane so tangential sliding produces
+        // no artificial moment arm and no shear force.
+        bodyPoint = slavePoint - separation * normal;
+        closure = max(
+            0.0f,
+            sample.bodyLocalNormalAndReferenceSeparation.w - separation -
+                1.0e-7f);
+    }
     return finite4(float4(slavePoint, closure)) &&
         finite4(float4(bodyPoint, 0.0f)) && finite4(float4(normal, 0.0f));
 }

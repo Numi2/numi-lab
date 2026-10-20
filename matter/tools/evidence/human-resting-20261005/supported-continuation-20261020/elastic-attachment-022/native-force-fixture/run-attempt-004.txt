@@ -1,0 +1,2 @@
+exit=1
+reason=Runtime restore cannot rebase compiled rest geometry; objectivity fixture now compiles a SE3-transformed source world before Runtime initialization

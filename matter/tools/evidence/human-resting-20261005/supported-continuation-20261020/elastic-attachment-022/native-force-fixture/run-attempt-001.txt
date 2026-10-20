@@ -1,0 +1,2 @@
+exit=1
+reason=elastic adapter requires at least one anchor; first fixture had none

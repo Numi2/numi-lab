@@ -1,0 +1,99 @@
+{
+  "host": "numi.local",
+  "visual_verification": false,
+  "scope": "CPU preparation/regression and native build evidence; no sustained-contact claim",
+  "source_sha256": {
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+    "apps/NumiHumanWholeBodySkinReduction.hpp": "c774e18e6594675bb1e6e432019ea82426864034c6a4cba1bbf2233680db4f65",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "apps/numilab_human_myosim_visual_probe.mm": "94a54d649dd0c7f8c63d3bf672d3aa0e0c717da4e0e4dc0dfe94c4bb7b6e9876",
+    "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25"
+  },
+  "compiler_library_sha256": "5607f29152c8945e097cba86fd1a9021d414c5dcdcd38e9be57ed1afdcb2338b",
+  "tests": [
+    {
+      "name": "wholebody-layers-019",
+      "source": "tests/human_wholebody_skin_layers.cpp",
+      "source_sha256": "0f9f7d7e59b8ff7b9602547792978dec114ba63a83867cdda6ef76cf7d5adff9",
+      "compile_argv": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-Iapps",
+        "-Iinclude",
+        "-Imatter/include",
+        "tests/human_wholebody_skin_layers.cpp",
+        "-o",
+        "build-integrated-validation-20261019/wholebody-layers-019"
+      ],
+      "binary_sha256": "2456587b8f49e32ce1a39b59d88e82e294fc3da64e4a8991d7d9825ea9a67ce2",
+      "compile_exit_code": 0,
+      "run_exit_code": 0,
+      "logs_sha256": {
+        "wholebody-layers-019.compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "wholebody-layers-019.run.log": "f4bb2eb42dbe570cac001a251fbaa32fc891a4eb2f5d3fd621fbb7cf2e9f5bbd"
+      }
+    },
+    {
+      "name": "from-layers-019",
+      "source": "tests/human_skin_fat_from_layers_precomputed.cpp",
+      "source_sha256": "7b1606634bb6d4b4bf330a96968443e4f742d54e9cbc75d98d698d822d02d2e1",
+      "compile_argv": [
+        "clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-Iapps",
+        "-Iinclude",
+        "-Imatter/include",
+        "tests/human_skin_fat_from_layers_precomputed.cpp",
+        "build-integrated-validation-20261019/profile-build-039/matter/libnumi_matter_compiler.a",
+        "-framework",
+        "Foundation",
+        "-o",
+        "build-integrated-validation-20261019/from-layers-019"
+      ],
+      "binary_sha256": "f7d24d2c4a0c67361ee2efa29363fa2b3904fcf5b5e60aa774b05a19fffbc5a3",
+      "compile_exit_code": 0,
+      "run_exit_code": 0,
+      "logs_sha256": {
+        "from-layers-019.compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "from-layers-019.run.log": "825b9edbd1e96107be244cd9e095b1a3ccbad15f047b9b35002e5405d77d4174"
+      }
+    },
+    {
+      "name": "ligaments-019",
+      "source": "tests/numi_human_registered_ligaments_test.cpp",
+      "source_sha256": "db79e84fe4a7c67b34e8ff90a81aad43f0e018e7df0d9a522e5c71e2a37f45d5",
+      "compile_argv": [
+        "clang++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fno-fast-math",
+        "-Iinclude",
+        "-Imatter/include",
+        "-Iapps",
+        "tests/numi_human_registered_ligaments_test.cpp",
+        "-o",
+        "build-integrated-validation-20261019/ligaments-019"
+      ],
+      "binary_sha256": "d900212729306dca3a995273c314bd1241b1c5f939cec80ef756d93ca69ffe32",
+      "compile_exit_code": 0,
+      "run_exit_code": 0,
+      "logs_sha256": {
+        "ligaments-019.compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ligaments-019.run.log": "0d60035107f1eedd94b9a77e92e69c5d2836b7d6130d2442c8af47c145bdd873"
+      }
+    }
+  ]
+}

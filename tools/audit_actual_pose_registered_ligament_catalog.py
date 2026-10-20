@@ -77,10 +77,12 @@ def body_frame(joints,poses,pair):
 def frame_info(name,side):
  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return ((144,145) if side==0 else (130,131))
  if "glenohumeral" in name or "coracohumeral" in name:return ((90,91) if side==0 else (40,41))
+ if name=="elbow_rcl":return ((91,92) if side==0 else (41,42))
  return ((150,151) if side==0 else (136,137))
 def stable_pair(name,side):
  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return (19,3) if side==0 else (18,2)
  if "glenohumeral" in name or "coracohumeral" in name:return (11,13) if side==0 else (10,12)
+ if name=="elbow_rcl":return (13,17) if side==0 else (12,16)
  if name in {"anterior_talofibular_superior","anterior_talofibular_inferior","posterior_talofibular"}:return (21,23) if side==0 else (20,22)
  if name=="calcaneofibular":return (21,7) if side==0 else (20,6)
  if name in {"anterior_tibiotalar","posterior_tibiotalar"}:return (5,23) if side==0 else (4,22)
@@ -149,7 +151,7 @@ def main():
  for name in sorted(names):
   for side in (0,1):
    s0,s1=stable_pair(name,side);pair=frame_info(name,side);ji,frame=body_frame(joints,pose,pair)
-   fk_joint_expected=(144 if side==0 else 130) if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"} else ((90 if side==0 else 40) if ("glenohumeral" in name or "coracohumeral" in name) else (150 if side==0 else 136))
+   fk_joint_expected=(144 if side==0 else 130) if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"} else ((90 if side==0 else 40) if ("glenohumeral" in name or "coracohumeral" in name) else ((91 if side==0 else 41) if name=="elbow_rcl" else (150 if side==0 else 136)))
    if ji!=fk_joint_expected:raise RuntimeError(f"frame joint mismatch {name} side {side}: got {ji} expected {fk_joint_expected}")
    key=(pair,ji)
    if key not in meshes_cache:

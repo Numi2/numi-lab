@@ -1,0 +1,13 @@
+{
+  "doi": "10.12989/aba.2014.1.3.169",
+  "publisher_record": "https://www.techno-press.com/papers/358",
+  "primary_paper_text_mirror": "https://www.researchgate.net/publication/277649639_Development_and_validation_of_a_computational_multibody_model_of_the_elbow_joint",
+  "verification": "Primary article text Table 3, independently inspected on 2026-10-20; official publisher PDF inaccessible (403/redirect).",
+  "table3_stiffness_coefficient_N_per_mm": {
+    "aRCL": 15.5,
+    "cRCL": 15.5,
+    "pRCL": 15.5
+  },
+  "implemented_aggregate_N_per_m": 46500,
+  "limitations": "Aggregation into one zero-prestrain regional chord is an inferred reference model; different geometry and toe law from the source. This does not reproduce source specimen zero-load lengths, damping or wrapping."
+}

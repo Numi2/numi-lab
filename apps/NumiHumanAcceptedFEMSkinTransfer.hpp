@@ -23,12 +23,25 @@ public:
         float restDistance = 0;
     };
     struct Pose { Point translation{}; std::array<double,4> rotation{0,0,0,1}; };
+    // Stable admission witness: detail indices address the input arrays, sourceVertexIndex is detailSource[detailVertexIndex], and coarseFaceIndex addresses faces. A donor-tree projection has no coarse representative.
+    struct ProjectionWitness {
+        bool valid=false;
+        std::size_t detailVertexIndex=std::numeric_limits<std::size_t>::max();
+        std::uint32_t sourceVertexIndex=std::numeric_limits<std::uint32_t>::max();
+        std::uint32_t donorBodyIndex=std::numeric_limits<std::uint32_t>::max();
+        std::uint32_t coarseRepresentativeIndex=std::numeric_limits<std::uint32_t>::max();
+        std::size_t coarseFaceIndex=std::numeric_limits<std::size_t>::max();
+        Face coarseFaceVertices{};
+        double distance=0;
+    };
     struct BuildReport {
         std::size_t detailVertexCount=0, coarseVertexCount=0, faceCount=0;
         std::size_t exactAncestryRows=0, projectedRows=0, donorTreeCount=0, inactiveRows=0;
         std::size_t ancestryFallbackRows=0;
         double maximumProjectionDistance=0, rmsProjectionDistance=0;
         double maximumAncestryFallbackDistance=0, rmsAncestryFallbackDistance=0;
+        ProjectionWitness maximumProjectionWitness{};
+        ProjectionWitness maximumAncestryFallbackWitness{};
     };
 
     // Build once while registered triangles are in scope. Source IDs provide
@@ -73,14 +86,18 @@ public:
             exact.emplace(Key{coarseDonor[i],coarseSource[i]},static_cast<std::uint32_t>(i));
 
         std::unordered_map<std::uint32_t,std::vector<Face>> donorFaces;
+        std::unordered_map<std::uint32_t,std::vector<std::size_t>> donorFaceIndices;
         std::vector<std::vector<Face>> incidentFaces(coarseRest.size());
+        std::vector<std::vector<std::size_t>> incidentFaceIndices(coarseRest.size());
         std::vector<Face> incidentFace(coarseRest.size());
         std::vector<std::uint8_t> hasIncident(coarseRest.size(),0), incidentCorner(coarseRest.size(),0);
-        for(const Face& f:faces) {
+        for(std::size_t faceIndex=0;faceIndex<faces.size();++faceIndex) {
+            const Face& f=faces[faceIndex];
             if(f[0]>=coarseRest.size() || f[1]>=coarseRest.size() || f[2]>=coarseRest.size())
                 return fail("coarse face index out of range");
             for(std::uint8_t k=0;k<3;++k) {
                 incidentFaces[f[k]].push_back(f);
+                incidentFaceIndices[f[k]].push_back(faceIndex);
                 if(!hasIncident[f[k]]) { hasIncident[f[k]]=1; incidentFace[f[k]]=f; incidentCorner[f[k]]=k; }
             }
             // A mixed-donor triangle is valid transfer support for each donor
@@ -90,7 +107,10 @@ public:
                 const auto donor=coarseDonor[f[k]];
                 bool alreadyAdded=false;
                 for(std::uint8_t j=0;j<k;++j) alreadyAdded|=(coarseDonor[f[j]]==donor);
-                if(!alreadyAdded) donorFaces[donor].push_back(f);
+                if(!alreadyAdded) {
+                    donorFaces[donor].push_back(f);
+                    donorFaceIndices[donor].push_back(faceIndex);
+                }
             }
         }
         std::unordered_map<std::uint32_t,std::size_t> treeIndex;
@@ -99,12 +119,29 @@ public:
             treeIndex[entry.first]=trees_.size();
             trees_.emplace_back();
             trees_.back().faces=std::move(entry.second);
+            trees_.back().faceIndices=std::move(donorFaceIndices[entry.first]);
             trees_.back().build(coarseRest);
         }
         BuildReport r;
         r.detailVertexCount=detailRest.size(); r.coarseVertexCount=coarseRest.size();
         r.faceCount=faces.size(); r.donorTreeCount=trees_.size();
         double sum2=0, maxd=0, ancestrySum2=0, ancestryMax=0;
+        const auto makeProjectionWitness=[&](std::size_t detailIndex,
+                                             std::uint32_t representativeIndex,
+                                             const Face& face,
+                                             std::size_t faceIndex,
+                                             double distance) {
+            ProjectionWitness witness{};
+            witness.valid=true;
+            witness.detailVertexIndex=detailIndex;
+            witness.sourceVertexIndex=detailSource[detailIndex];
+            witness.donorBodyIndex=detailDonor[detailIndex];
+            witness.coarseRepresentativeIndex=representativeIndex;
+            witness.coarseFaceIndex=faceIndex;
+            witness.coarseFaceVertices=face;
+            witness.distance=distance;
+            return witness;
+        };
         for(std::size_t i=0;i<detailRest.size();++i) {
             if(!detailUsed[i]) { rows_[i].donorBodyIndex=detailDonor[i]; ++r.inactiveRows; continue; }
             auto it=exact.find(Key{detailDonor[i],detailSource[i]});
@@ -115,6 +152,7 @@ public:
                 continue;
             }
             Hit h;
+            std::uint32_t representativeIndex=std::numeric_limits<std::uint32_t>::max();
             auto ti=treeIndex.find(detailDonor[i]);
             if(!detailRepresentativeCoarseIndex && ti!=treeIndex.end()) {
                 if(!trees_[ti->second].nearest(detailRest[i],coarseRest,h))
@@ -122,19 +160,23 @@ public:
             } else {
                 if(!detailRepresentativeCoarseIndex)
                     return fail("no coarse faces for detail donor and no source ancestry map");
-                const std::uint32_t representative=(*detailRepresentativeCoarseIndex)[i];
-                if(representative==std::numeric_limits<std::uint32_t>::max())
+                representativeIndex=(*detailRepresentativeCoarseIndex)[i];
+                if(representativeIndex==std::numeric_limits<std::uint32_t>::max())
                     return fail("active detail vertex has no source-connected coarse representative");
-                if(representative>=coarseRest.size())
+                if(representativeIndex>=coarseRest.size())
                     return fail("source ancestry representative index is out of range");
-                const std::uint32_t coarseVertex=representative;
+                const std::uint32_t coarseVertex=representativeIndex;
                 if(incidentFaces[coarseVertex].empty())
                     return fail("source ancestry representative has no incident coarse face");
-                for(const Face& f:incidentFaces[coarseVertex]) {
+                for(std::size_t localFace=0;localFace<incidentFaces[coarseVertex].size();++localFace) {
+                    const Face& f=incidentFaces[coarseVertex][localFace];
                     std::array<double,3> bary{};
                     const Point q=closest(detailRest[i],coarseRest[f[0]],coarseRest[f[1]],coarseRest[f[2]],bary);
                     const double d=std::sqrt(dist2(detailRest[i],q));
-                    if(d<h.distance) { h.face=f; h.bary=bary; h.distance=d; }
+                    if(d<h.distance) {
+                        h.face=f; h.faceIndex=incidentFaceIndices[coarseVertex][localFace];
+                        h.bary=bary; h.distance=d;
+                    }
                 }
                 const double parentDistance=std::sqrt(dist2(detailRest[i],coarseRest[coarseVertex]));
                 const double boundTolerance=1.0e-10*std::max(1.0,parentDistance);
@@ -142,13 +184,22 @@ public:
                     return fail("incident-face projection exceeds source representative distance bound");
                 ++r.ancestryFallbackRows;
                 ancestrySum2+=h.distance*h.distance;
-                ancestryMax=std::max(ancestryMax,h.distance);
+                if(!r.maximumAncestryFallbackWitness.valid || h.distance>ancestryMax) {
+                    ancestryMax=h.distance;
+                    r.maximumAncestryFallbackWitness=makeProjectionWitness(
+                        i,representativeIndex,h.face,h.faceIndex,h.distance);
+                }
             }
             if(h.distance>maxProjection) return fail("projection exceeds configured distance");
             auto& row=rows_[i];
             for(int k=0;k<3;++k) { row.coarseVertex[k]=h.face[k]; row.weight[k]=float(h.bary[k]); }
             row.donorBodyIndex=detailDonor[i]; row.restDistance=float(h.distance);
-            ++r.projectedRows; sum2+=h.distance*h.distance; maxd=std::max(maxd,h.distance);
+            ++r.projectedRows; sum2+=h.distance*h.distance;
+            if(!r.maximumProjectionWitness.valid || h.distance>maxd) {
+                maxd=h.distance;
+                r.maximumProjectionWitness=makeProjectionWitness(
+                    i,representativeIndex,h.face,h.faceIndex,h.distance);
+            }
         }
         r.maximumProjectionDistance=maxd;
         r.rmsProjectionDistance=r.projectedRows ? std::sqrt(sum2/r.projectedRows):0;
@@ -249,10 +300,18 @@ private:
     struct Box {
         Point lo{INFINITY,INFINITY,INFINITY}, hi{-INFINITY,-INFINITY,-INFINITY};
     };
-    struct Hit { Face face{}; std::array<double,3> bary{}; double distance=INFINITY; };
+    struct Hit {
+        Face face{};
+        std::size_t faceIndex=std::numeric_limits<std::size_t>::max();
+        std::array<double,3> bary{};
+        double distance=INFINITY;
+    };
     struct Node { Box box; std::uint32_t begin=0,end=0; int left=-1,right=-1; };
     struct Tree {
-        std::vector<Face> faces; std::vector<std::uint32_t> order; std::vector<Node> nodes;
+        std::vector<Face> faces;
+        std::vector<std::size_t> faceIndices;
+        std::vector<std::uint32_t> order;
+        std::vector<Node> nodes;
         void build(const std::vector<Point>& p) {
             order.resize(faces.size()); std::iota(order.begin(),order.end(),0);
             nodes.clear(); buildNode(0,std::uint32_t(order.size()),p);
@@ -287,9 +346,13 @@ private:
             const auto& n=nodes[id]; if(boxDist2(n.box,q)>h.distance*h.distance)return;
             if(n.left<0) {
                 for(auto j=n.begin;j<n.end;++j) {
-                    const auto& f=faces[order[j]]; std::array<double,3>w{};
+                    const auto faceSlot=order[j];
+                    const auto& f=faces[faceSlot]; std::array<double,3>w{};
                     auto x=closest(q,p[f[0]],p[f[1]],p[f[2]],w); double d=dist2(q,x);
-                    if(d<h.distance*h.distance){h.face=f;h.bary=w;h.distance=std::sqrt(d);}
+                    if(d<h.distance*h.distance) {
+                        h.face=f; h.faceIndex=faceIndices[faceSlot];
+                        h.bary=w; h.distance=std::sqrt(d);
+                    }
                 } return;
             }
             auto dl=boxDist2(nodes[n.left].box,q),dr=boxDist2(nodes[n.right].box,q);

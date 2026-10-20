@@ -1,0 +1,131 @@
+{
+  "after": {
+    "sha256": "c774e18e6594675bb1e6e432019ea82426864034c6a4cba1bbf2233680db4f65",
+    "source": "apps/NumiHumanWholeBodySkinReduction.hpp"
+  },
+  "app_source": {
+    "after_path": "apps/numilab_human_myosim_visual_probe.mm",
+    "after_sha256": "94a54d649dd0c7f8c63d3bf672d3aa0e0c717da4e0e4dc0dfe94c4bb7b6e9876",
+    "before_path": "git HEAD:apps/numilab_human_myosim_visual_probe.mm",
+    "before_sha256": "f143e175643a5596afd4e37761e65c5ec85b25e5d48105e568883a2377a236b9"
+  },
+  "audit_script_sha256": "78c9641b1e50cb63f0f10bfeb8717049eea17e41814f15dd2a57992981125311",
+  "before": {
+    "revision": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+    "sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+    "source": "git HEAD:apps/NumiHumanWholeBodySkinReduction.hpp"
+  },
+  "exterior_and_source_ownership": {
+    "arrays": {
+      "kWholeBodySkinDonorFrames": {
+        "after_block_sha256": "216b82a2c03ef5080069aded209d99c114a8256d3faed4f022ade77029252143",
+        "before_block_sha256": "216b82a2c03ef5080069aded209d99c114a8256d3faed4f022ade77029252143",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinFaces": {
+        "after_block_sha256": "025f25248e099f13e28dba3cbf92b3e25100d2290c34acdbca47dbfc098667ba",
+        "before_block_sha256": "025f25248e099f13e28dba3cbf92b3e25100d2290c34acdbca47dbfc098667ba",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinMechanicalDonorLocalDeltas": {
+        "after_block_sha256": "d509f4ccba04d9dbf8ba4477adae3c2e9c644d643131d87181c776784d62b779",
+        "before_block_sha256": "d509f4ccba04d9dbf8ba4477adae3c2e9c644d643131d87181c776784d62b779",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinMechanicalWorldDeltas": {
+        "after_block_sha256": "cfa7176c8eae61b941e6cef477ae2aafeb6fe04124e62541941fd1ae8ec9f74d",
+        "before_block_sha256": "cfa7176c8eae61b941e6cef477ae2aafeb6fe04124e62541941fd1ae8ec9f74d",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinOutwardDirections": {
+        "after_block_sha256": "bec035aae07c1fbd3f76612a2513bb85961ca3dcc03c748f0b44eace8fd9671a",
+        "before_block_sha256": "bec035aae07c1fbd3f76612a2513bb85961ca3dcc03c748f0b44eace8fd9671a",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinSourceFaces": {
+        "after_block_sha256": "3552745224a3d8d6c996cc8f644c161c736963f34f647b6e8e0f605945036313",
+        "before_block_sha256": "3552745224a3d8d6c996cc8f644c161c736963f34f647b6e8e0f605945036313",
+        "exactly_unchanged": true
+      },
+      "kWholeBodySkinSourceVertices": {
+        "after_block_sha256": "2685d170a35a0f7df8b98683621d88c3f3001664d3ea3c26958707007e5aca4f",
+        "before_block_sha256": "2685d170a35a0f7df8b98683621d88c3f3001664d3ea3c26958707007e5aca4f",
+        "exactly_unchanged": true
+      }
+    },
+    "derived_registered_outer_plus_mechanical_delta_max_abs_difference_m": 0.0,
+    "vertex_rows_before_after": [
+      2332,
+      2332
+    ]
+  },
+  "layer_coordinate_fields": {
+    "kWholeBodyFatDeepLocal": {
+      "after_block_sha256": "4467a5f2a025f68de833ad54cc16be7702531a8adbb43fae08d615fcb5d138e9",
+      "before_block_sha256": "6ec4f5a50191b763da748866f7ecde2df46d98d3345f3fd9db3916f26fa4ce10",
+      "exactly_unchanged": false
+    },
+    "kWholeBodyFatDeepWorld": {
+      "after_block_sha256": "ee37891df2ace06e6135fcaa85adb4af30f669f78df176845afb91ff8387d339",
+      "before_block_sha256": "9ffda8b8a156232204526e167ea1457ecaa3d06915917018192859566a96f60f",
+      "exactly_unchanged": false
+    },
+    "kWholeBodyFatThicknessM": {
+      "after_block_sha256": "3bafe1aa98ae29fbb601daed66db44d20995e3b2fd58bd276668665e1aaef699",
+      "before_block_sha256": "d51e07afd7530274f3861fd6c36eb18991d4439114eb3bbae8a36238b74837da",
+      "exactly_unchanged": false
+    },
+    "kWholeBodySkinInnerLocal": {
+      "after_block_sha256": "84b56861459b3a3256a8104487ce1dd87658f18ea64ac0b4d1c5867cce6a6574",
+      "before_block_sha256": "3c4616649189d5447baedb4b05c582ce4d9fee9dc4a5d6fb836b092049b0609a",
+      "exactly_unchanged": false
+    },
+    "kWholeBodySkinInnerWorld": {
+      "after_block_sha256": "8d3a90d6aac3912825abaf69ed0ebf0ed41e1723dbd3861e6b1de8aa08fb284d",
+      "before_block_sha256": "636963595179fb1f911d5275239ded479f91e4579d38b87b5cf22ef6697eef65",
+      "exactly_unchanged": false
+    },
+    "kWholeBodySkinThicknessM": {
+      "after_block_sha256": "d2140b02ed21d5a4d3b6901277834040a0aa2de3fde881f305f6e77ecc09381d",
+      "before_block_sha256": "96615501482ce0b355338e96e00e0db4c0e0ebe5de299c100bf7f1deb1dc3dde",
+      "exactly_unchanged": false
+    }
+  },
+  "mass_partition": {
+    "after_uses_explicit_debit_constants": true,
+    "before_formula_is_original_volume_times_density": {
+      "fat": true,
+      "skin": true
+    },
+    "debit_kg_after": {
+      "kWholeBodyFatMassDebitKg": 10.487108964465744,
+      "kWholeBodySkinMassDebitKg": 3.4525707761420956
+    },
+    "debit_kg_before": {
+      "kWholeBodyFatMassDebitKg": 10.487108964465744,
+      "kWholeBodySkinMassDebitKg": 3.4525707761420956
+    },
+    "layer_volume_exactly_unchanged": {
+      "kWholeBodyFatLayerVolumeM3": false,
+      "kWholeBodySkinLayerVolumeM3": false
+    },
+    "layer_volume_m3_after": {
+      "kWholeBodyFatLayerVolumeM3": 0.011652343238944806,
+      "kWholeBodySkinLayerVolumeM3": 0.003452570641581807
+    },
+    "layer_volume_m3_before": {
+      "kWholeBodyFatLayerVolumeM3": 0.011652343293850826,
+      "kWholeBodySkinLayerVolumeM3": 0.0034525707761420958
+    },
+    "per_tissue_exactly_unchanged": {
+      "kWholeBodyFatMassDebitKg": true,
+      "kWholeBodySkinMassDebitKg": true
+    },
+    "total_debit_exactly_unchanged": true,
+    "total_debit_kg_after": 13.93967974060784,
+    "total_debit_kg_before": 13.93967974060784
+  },
+  "schema": "whole_body_skin_fat_source_preservation_v1",
+  "source_payload_sha256_after": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "source_payload_sha256_before": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+}

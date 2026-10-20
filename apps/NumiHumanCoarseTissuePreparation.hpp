@@ -567,6 +567,22 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
     auto addTet=[&](std::array<std::uint32_t,4> ids,std::uint32_t face){
         double v=tetVolume(o.femNodes[ids[0]],o.femNodes[ids[1]],o.femNodes[ids[2]],o.femNodes[ids[3]]);
         if(v<0){std::swap(ids[0],ids[1]);v=-v;}if(!std::isfinite(v)||v<=layer.volumeM3*1e-15)return false;
+        // Positive volume alone admits nanometre-altitude slivers that lose their
+        // reference deformation in Float32. Check the emitted reference points,
+        // without clamping the physical Jacobian or changing runtime tolerances.
+        std::array<V3,4> emitted{};
+        for(unsigned i=0;i<4u;++i)for(unsigned axis=0;axis<3u;++axis)
+            emitted[i][axis]=static_cast<double>(static_cast<float>(o.femNodes[ids[i]][axis]));
+        double longest=0.0;
+        for(unsigned i=0;i<4u;++i)for(unsigned j=i+1u;j<4u;++j)
+            longest=std::max(longest,norm(sub(emitted[i],emitted[j])));
+        const double normalizedDet=6.0*tetVolume(emitted[0],emitted[1],emitted[2],emitted[3])/
+            (longest*longest*longest);
+        if(!std::isfinite(normalizedDet)||normalizedDet<1.0e-5){
+            error="shell Float32 reference tetrahedron is ill-conditioned at source face "+
+                std::to_string(source.sourceFaceIndices.empty()?face:source.sourceFaceIndices[face]);
+            return false;
+        }
         o.tetrahedra.push_back({ids});out.report.tetSourceFace.push_back(source.sourceFaceIndices.empty()?face:source.sourceFaceIndices[face]);tetVolumeSum+=v;
         for(auto node:ids)nodalMass[node]+=rho*v/4.0;
         const unsigned faces[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
@@ -578,7 +594,10 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
         // Global vertex order fixes every side-quad diagonal consistently across adjacent source triangles.
         if(!addTet({a,b,c,static_cast<std::uint32_t>(n+c)},fi)||
            !addTet({a,b,static_cast<std::uint32_t>(n+b),static_cast<std::uint32_t>(n+c)},fi)||
-           !addTet({a,static_cast<std::uint32_t>(n+a),static_cast<std::uint32_t>(n+b),static_cast<std::uint32_t>(n+c)},fi))return fail("shell layer contains an inverted/degenerate prism tetrahedron");
+           !addTet({a,static_cast<std::uint32_t>(n+a),static_cast<std::uint32_t>(n+b),static_cast<std::uint32_t>(n+c)},fi)){
+            if(error.empty())error="shell layer contains an inverted/degenerate prism tetrahedron";
+            return false;
+        }
     }
     if(o.tetrahedra.size()>kMaxShellTets||std::abs(tetVolumeSum-layer.volumeM3)>1e-6*layer.volumeM3)return fail("shell tetrahedra fail cap or closed-volume conservation");
     std::set<std::array<std::uint32_t,3>> boundary,expected;std::map<std::array<std::uint32_t,2>,unsigned> boundaryEdges;

@@ -28,8 +28,8 @@ static mr_float4 qmul(mr_float4 a,mr_float4 b){
 
 int main(){
  const auto catalog=referenceCatalog();
- check(catalog.size()==26u,"catalog row count");
- std::array<unsigned,3> counts{};
+ check(catalog.size()==28u,"catalog row count");
+ std::array<unsigned,5> counts{};
  for(const auto& s:catalog){
   check(s.side<2u,"side range");
   check(s.stiffnessNPerM>0&&std::isfinite(s.stiffnessNPerM),"finite positive literature stiffness");
@@ -39,12 +39,12 @@ int main(){
   check(s.group!=Group::knee,"knee owner excluded");
   counts[static_cast<unsigned>(s.group)]++;
  }
- check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u,"bilateral regional coverage");
+ check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u,"regional coverage excludes duplicate knee owner");
  for(const auto name:{"iliofemoral_lateral","iliofemoral_medial","pubofemoral",
                      "ischiofemoral","superior_glenohumeral_capsuloligament","coracohumeral_capsuloligament",
                      "anterior_talofibular_superior","anterior_talofibular_inferior","calcaneofibular",
                      "posterior_talofibular","anterior_tibiotalar",
-                     "tibiocalcaneal","posterior_tibiotalar"}){
+                     "tibiocalcaneal","posterior_tibiotalar","elbow_rcl"}){
   const auto left=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==0u&&s.name==name;});
   const auto right=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==1u&&s.name==name;});
   check(left!=catalog.end()&&right!=catalog.end(),"bilateral named row");
@@ -63,6 +63,20 @@ int main(){
          left->areaMeasured&&right->areaMeasured&&
          left->limitations.find("route-first sites 672/1093")!=std::string_view::npos,
          "CHL retains its cited cohort prior and source-site limitation");
+  if(name==std::string_view("elbow_rcl")){
+   check(left->group==Group::elbow&&right->group==Group::elbow&&
+         left->body0==91u&&left->stable0==13u&&left->body1==93u&&left->stable1==17u&&
+         right->body0==41u&&right->stable0==12u&&right->body1==43u&&right->stable1==16u,
+         "RCL radial-head proxy uses registered humerus and radius surfaces");
+   check(left->frameParent==91u&&left->frameChild==92u&&left->body1!=left->frameChild&&
+         right->frameParent==41u&&right->frameChild==42u&&right->body1!=right->frameChild,
+         "RCL uses the humerus-ulna frame while terminating on radius");
+   check(near(left->stiffnessNPerM,46500.0,1e-9)&&
+         near(right->stiffnessNPerM,46500.0,1e-9)&&
+         !left->areaMeasured&&!right->areaMeasured&&
+         left->limitations.find("annular ligament")!=std::string_view::npos,
+         "RCL combines three literature bundle priors without claiming subject area or annular attachment");
+  }
  }
  Frame f;f.q={0,0,0,1};
  const auto mirroredLeft=detail::seed(f,{.01,.02,.03},0u,true);
@@ -186,6 +200,89 @@ int main(){
        inferred_acl::detail::norm(inferred_acl::detail::sub(
        worldPoint(poses[1],built.row.secondLocalPoint),before1))<2e-7,
        "COM rebase preserves attachment world points");
+
+ // RCL topology: the anatomical endpoint is on radius body 2 although the
+ // declared reference frame is the humerus-ulna joint (bodies 0 and 1).
+ Spec rclTopology;
+ rclTopology.name="synthetic_three_body_rcl_topology";
+ rclTopology.group=Group::elbow;rclTopology.side=1u;
+ rclTopology.body0=0u;rclTopology.stable0=12u;
+ rclTopology.body1=2u;rclTopology.stable1=16u;
+ rclTopology.frameParent=0u;rclTopology.frameChild=1u;
+ rclTopology.seed0={0,0,0};rclTopology.seed1={.1,0,0};
+ rclTopology.seedLateralityMirrored=false;
+ rclTopology.stiffnessNPerM=46500;rclTopology.areaM2=10e-6;
+ rclTopology.stiffnessSource="synthetic topology regression";
+ rclTopology.geometrySource="synthetic three-body endpoint fixture";
+ rclTopology.limitations="not anatomical data";
+
+ EngineModel threeBodyModel;
+ MRJointDescriptorGPU humerusUlna{};
+ humerusUlna.parentBody=0u;humerusUlna.childBody=1u;
+ humerusUlna.parentAnchor={.1f,0,0,0};humerusUlna.childAnchor={0,0,0,0};
+ humerusUlna.parentRotation={0,0,0,1};humerusUlna.childRotation={0,0,0,1};
+ threeBodyModel.joints.push_back(humerusUlna);
+ std::array<MRBodyStateGPU,3> threeBodyPoses{};
+ threeBodyPoses[0].position={0,0,0,0};threeBodyPoses[0].orientation={0,0,0,1};
+ threeBodyPoses[1].position={.1f,0,0,0};threeBodyPoses[1].orientation={0,0,0,1};
+ const mr_float4 radiusQ{0,0,.7071067812f,.7071067812f};
+ threeBodyPoses[2].position={.2f,.05f,0,0};
+ threeBodyPoses[2].orientation=radiusQ;
+ const std::array<V3,3> humerusEndpointVertices{{
+   {.1,-.02,-.02},{.1,.02,-.02},{.1,0,.02}}};
+ const std::array<V3,3> humerusEndpointNormals{{
+   {1,0,0},{1,0,0},{1,0,0}}};
+ const std::array<V3,3> radiusLocalVertices{{
+   {-.07,0,-.02},{-.03,0,-.02},{-.05,0,.02}}};
+ const std::array<V3,3> radiusLocalNormals{{
+   {0,1,0},{0,1,0},{0,1,0}}};
+ std::array<V3,3> radiusEndpointVertices{},radiusEndpointNormals{};
+ for(std::size_t i=0;i<3;++i){
+  radiusEndpointVertices[i]=inferred_acl::detail::add(
+      inferred_acl::detail::xyz(threeBodyPoses[2].position),
+      inferred_acl::detail::rotate(radiusQ,radiusLocalVertices[i]));
+  radiusEndpointNormals[i]=inferred_acl::detail::rotate(radiusQ,radiusLocalNormals[i]);
+ }
+ const std::array<std::uint32_t,3> topologyTriangles{{0,1,2}};
+ std::array<std::uint8_t,32> humerusHash{},radiusHash{};
+ humerusHash[0]=12;radiusHash[0]=16;
+ const std::array<BoneSurface,2> topologySurfaces{{
+  {0u,12u,22u,humerusHash,humerusEndpointVertices,humerusEndpointNormals,topologyTriangles},
+  {2u,16u,24u,radiusHash,radiusEndpointVertices,radiusEndpointNormals,topologyTriangles}}};
+ const auto rclBuilt=cookReference(rclTopology,threeBodyModel,threeBodyPoses,topologySurfaces);
+ check(rclBuilt.row.firstBodyIndex==0u&&rclBuilt.row.secondBodyIndex==2u&&
+       rclBuilt.provenance.frameParent==0u&&rclBuilt.provenance.frameChild==1u&&
+       rclBuilt.row.secondBodyIndex!=rclBuilt.provenance.frameChild,
+       "RCL endpoint owner is radius, distinct from humerus-ulna frame child");
+ const auto cookedRadiusPoint=worldPoint(threeBodyPoses[2],rclBuilt.row.secondLocalPoint);
+ check(inferred_acl::detail::norm(inferred_acl::detail::sub(
+       cookedRadiusPoint,{.2,0,0}))<2e-7,
+       "RCL cooked second local attachment reconstructs on rotated radius surface");
+ check(inferred_acl::detail::norm(inferred_acl::detail::sub(
+       worldPoint(threeBodyPoses[1],rclBuilt.row.secondLocalPoint),cookedRadiusPoint))>.05,
+       "RCL attachment is not expressed in the frame-child ulna coordinates");
+ const auto initialFrame=detail::frame(rclTopology,threeBodyModel,threeBodyPoses,{});
+ const auto initialLocal=rclBuilt.row.secondLocalPoint;
+ auto movedRadiusPoses=threeBodyPoses;
+ movedRadiusPoses[2].position={.27f,-.03f,.04f,0};
+ movedRadiusPoses[2].orientation={0,.2588190451f,0,.9659258263f};
+ const auto movedFrame=detail::frame(rclTopology,threeBodyModel,movedRadiusPoses,{});
+ check(inferred_acl::detail::norm(inferred_acl::detail::sub(initialFrame.p,movedFrame.p))<1e-12&&
+       inferred_acl::detail::norm(inferred_acl::detail::sub(
+         inferred_acl::detail::xyz(threeBodyPoses[1].position),
+         inferred_acl::detail::xyz(movedRadiusPoses[1].position)))==0,
+       "radius-only motion leaves humerus-ulna reference frame fixed");
+ const auto movedRadiusPoint=worldPoint(movedRadiusPoses[2],initialLocal);
+ const auto expectedMovedRadiusPoint=inferred_acl::detail::add(
+     inferred_acl::detail::xyz(movedRadiusPoses[2].position),
+     inferred_acl::detail::rotate(movedRadiusPoses[2].orientation,
+                                  {initialLocal.x,initialLocal.y,initialLocal.z}));
+ check(inferred_acl::detail::norm(inferred_acl::detail::sub(
+       movedRadiusPoint,expectedMovedRadiusPoint))<2e-7&&
+       inferred_acl::detail::norm(inferred_acl::detail::sub(
+       movedRadiusPoint,cookedRadiusPoint))>.02,
+       "independent radius translation and rotation move the cooked endpoint");
+
  std::cout<<"registered_ligament_cpu_fixture=passed catalog_rows="<<catalog.size()
           <<" synthetic_stiffness_N_per_m="<<synthetic.stiffnessNPerM<<"\n";
 }

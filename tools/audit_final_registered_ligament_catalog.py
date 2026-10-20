@@ -23,6 +23,7 @@ CATALOG={
  "anterior_tibiotalar":(5,4,23,22,"ankle"),
  "tibiocalcaneal":(5,4,7,6,"ankle"),
  "posterior_tibiotalar":(5,4,23,22,"ankle"),
+ "elbow_rcl":(13,12,17,16,"elbow"),
 }
 def parse_vec(s):return tuple(float(x.strip()) for x in s.split(","))
 def parse_header():
@@ -42,6 +43,7 @@ def parse_header():
 def frame_pair(region,side):
  if region=="hip":return (144,145) if side==0 else (130,131)
  if region=="shoulder":return (90,91) if side==0 else (40,41)
+ if region=="elbow":return (91,92) if side==0 else (41,42)
  return (150,151) if side==0 else (136,137)
 def topology(tris):return lp.mesh_topology(np.asarray(tris,dtype=np.int32))
 def load_vertex_normals(sid,frame,bb,bp,records,vertex0):

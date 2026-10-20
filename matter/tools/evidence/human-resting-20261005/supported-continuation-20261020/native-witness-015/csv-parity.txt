@@ -1,0 +1,7 @@
+Comparison: native-supported-failure-witness-015/output/resting-coupled.csv vs native-supported-tangent-014/output/resting-coupled.csv (actual build-integrated-validation-20261019 run paths).
+014 evidence copy matches the actual 014 CSV byte-for-byte.
+CSV rows including header: 14 in each. Header byte-equal: yes.
+Data rows compared: 13; each row 1 through 13 byte-equal: yes.
+Complete CSV file SHA-256 (015 and 014): 323cd0df1cc0b985de4e00ed6be4b0a388bd95c69cbe81968334fb6b15c517e2 (identical).
+First-13-data-row stream SHA-256 (015 and 014): 0ee6bb0f0c4ae4807380f2fcaae5852e6e66851df63857d564c2241ce7983739 (identical).
+Result: bitwise parity for all first 13 coupled CSV data rows; in fact the complete CSV files are identical.

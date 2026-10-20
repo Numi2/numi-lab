@@ -1,0 +1,125 @@
+{
+  "schema": "numi.human.native_elastic_attachment_022_source_binary_verification.v1",
+  "base_revision": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "current_head": "c927871bafc1194f8ef314fc0687e4d123d11dd8",
+  "top_level_invocation_source_sha256_annotation": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+  "annotation_note": "Inherited legacy top-level invocation field; see invocation-annotation.md. Use provenance.source_sha256 file map for actual tested source.",
+  "invocation_binary_sha256": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "provenance_executable_sha256": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "current_executable_sha256": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "source_hash_checks": [
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "expected_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "current_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "expected_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "current_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "expected_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "current_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanRegisteredLigaments.hpp",
+      "expected_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "current_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "expected_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "current_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "expected_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "current_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "matches": true
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "expected_sha256": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "current_sha256": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "expected_sha256": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "current_sha256": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "expected_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "current_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/vascular.metalinc",
+      "expected_sha256": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+      "current_sha256": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+      "matches": true
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "expected_sha256": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "current_sha256": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+      "matches": true
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "expected_sha256": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "current_sha256": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+      "matches": true
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "expected_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "current_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "matches": true
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "expected_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "current_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "matches": true
+    }
+  ],
+  "input_asset_paths_match_021_manifest": true,
+  "input_asset_paths": [
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+    "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia"
+  ],
+  "checks": {
+    "input_asset_paths_match_021_and_manifest": true,
+    "all_current_source_hashes_match_nested_provenance": true,
+    "current_head_matches_provenance_base": true,
+    "invocation_and_provenance_executable_hash_match_current_path": true,
+    "20_elastic_zero_hard_ties": true,
+    "28_ligament_rows_26_fascia_regions": true,
+    "mass_accounting_residuals_close": true,
+    "root_assistance_zero": true,
+    "accepted_steps_contiguous": true,
+    "failure_receipt_matches_run": true
+  },
+  "all_checks_pass": true
+}

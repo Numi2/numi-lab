@@ -40,6 +40,27 @@ int main(){
  double mapErr=0;for(std::size_t i=0;i<s.worldPoints.size();i++){const auto&m=s.worldToDonorLocalLinear[i];auto map=[&](V3 v){return V3{m[0]*v[0]+m[1]*v[1]+m[2]*v[2],m[3]*v[0]+m[4]*v[1]+m[5]*v[2],m[6]*v[0]+m[7]*v[1]+m[8]*v[2]};};mapErr=std::max(mapErr,norm(sub(sub(sl.innerLocal[i],sl.outerLocal[i]),map(sub(sl.innerWorld[i],sl.outerWorld[i])))));mapErr=std::max(mapErr,norm(sub(sub(fl.innerLocal[i],fl.outerLocal[i]),map(sub(fl.innerWorld[i],fl.outerWorld[i])))));}
  if(mapErr>1e-12)return 3;
  numi::matter::WorldSource w;w.compactImmutableFEMSurfaces=true;w.frameTimestep=0.001;w.environmentCount=1;w.materials={material("dermis",900,1300),material("adipose",700,1100)};std::array<std::uint64_t,4> id{1,2,3,4};PreparedOrganicFEM ps,pf;double sd=sl.volumeM3*1120,fd=fl.volumeM3*880;
+ // A positive-volume shell can still be numerically unusable at Float32:
+ // 1 um layer on a 1 m octahedron. Its two boundaries are individually valid.
+ {
+  PairedBoundaryLayer thin=sl;thin.innerWorld.clear();thin.innerLocal.clear();
+  double volume=0.0;
+  for(std::size_t i=0;i<s.worldPoints.size();++i){
+   const auto d=mul(s.outwardWorldNormals[i],-1e-6);
+   thin.innerWorld.push_back(add(thin.outerWorld[i],d));
+   const auto& m=s.worldToDonorLocalLinear[i];
+   thin.innerLocal.push_back(add(thin.outerLocal[i],V3{m[0]*d[0]+m[1]*d[1]+m[2]*d[2],m[3]*d[0]+m[4]*d[1]+m[5]*d[2],m[6]*d[0]+m[7]*d[1]+m[8]*d[2]}));
+  }
+  for(auto f:s.faces){std::sort(f.begin(),f.end());auto a=f[0],b=f[1],c=f[2];
+   volume+=std::abs(tetVolume(thin.outerWorld[a],thin.outerWorld[b],thin.outerWorld[c],thin.innerWorld[c]))+
+     std::abs(tetVolume(thin.outerWorld[a],thin.outerWorld[b],thin.innerWorld[b],thin.innerWorld[c]))+
+     std::abs(tetVolume(thin.outerWorld[a],thin.innerWorld[a],thin.innerWorld[b],thin.innerWorld[c]));
+  }
+  thin.volumeM3=volume;PreparedShellFEM rejected;std::string witness;
+  if(preparePairedBoundaryFEM(w,s,thin,0,"dermis","sliver regression",volume*1120,"thin",0,false,rejected,witness)||
+     witness.find("ill-conditioned")==std::string::npos||!w.objects.empty())return 24;
+  std::cout<<"positive_volume_float32_sliver=REJECTED source_witness=PASS\n";
+ }
  if(!appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,sl,fl,"skin","fat",id,ps,pf,e)){std::cerr<<e<<"\n";return 4;}
  auto badVolume=sl;badVolume.volumeM3*=2.0;PreparedOrganicFEM rejectedSkin,rejectedFat;std::string rejectedError;
  if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,badVolume,fl,"bad skin","bad fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("volume")==std::string::npos)return 18;

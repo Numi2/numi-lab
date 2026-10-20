@@ -1,0 +1,55 @@
+{
+  "method": "Exact SHA-256 and size matches among completed generated packs; no open handles; all paths retained by hardlinks; fresh run directories required",
+  "before_free": 1533517824,
+  "after_free": 3910840320,
+  "files": [
+    {
+      "path": "build-integrated-validation-20261019/native-integration-profile-008/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/native-integration-profile-009/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/native-integration-profile-010/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/native-integration-smoke-002/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/native-integration-smoke-004/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/native-integration-smoke-006/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/native-integration-profile-007/output/resting-human.mrvpack",
+      "sha256": "d7766f1a6b89172aec1cdea93a8e7c021220fd7382f9c1d51b6bd2817b53221e",
+      "size": 297140224
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-tangent-013/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-failure-witness-015/output/resting-human.mrvpack",
+      "sha256": "9f0a69f94d3967395ef9d355b987e1682028f26a3f17c8512f8f1b73799ed3ed",
+      "size": 297078784
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-tangent-014/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-failure-witness-015/output/resting-human.mrvpack",
+      "sha256": "9f0a69f94d3967395ef9d355b987e1682028f26a3f17c8512f8f1b73799ed3ed",
+      "size": 297078784
+    }
+  ]
+}

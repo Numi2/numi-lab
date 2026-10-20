@@ -1,0 +1,8 @@
+{
+  "source_original_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/column-direction-trial-001/direct-coordinate-repair-025/solve-031/audit-f32.cpp",
+  "retained_source": "retained-float32-audit.cpp",
+  "source_sha256": "c1c26d0947174e184e57fb7c925cc9a2bacf65341d7a249798de32114e421c0d",
+  "binary_path": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-layer-fitting-296/column-direction-trial-001/direct-coordinate-repair-025/solve-031/audit-f32",
+  "binary_sha256": "17d56dc3cb304b2c9efc22e37b30105dc3fa07785644982e0ae3d9844139133a",
+  "note": "Retained pre-existing C296 source and executable used for the Float32 cross-surface check; historical scientific instrument, not a new physics owner."
+}

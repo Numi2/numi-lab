@@ -9874,6 +9874,65 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << status.diagnostics.y << ',' << status.diagnostics.z << ','
                       << status.diagnostics.w << "]"
                       << " failure_owner=passive_tissue_runtime";
+            // Failure-only inspection of existing accepted snapshots. Never
+            // treat the rolled-back nodes as the rejected Newton candidate.
+            if (status.code == NM_STATUS_INVALID_DEFORMATION &&
+                status.failingIndex < continuumTransaction->restingAuditTetrahedra.size()) {
+                const auto& tet = continuumTransaction->restingAuditTetrahedra[status.failingIndex];
+                const auto& initial = continuumTransaction->initial.femNodes;
+                if (std::all_of(tet.begin(), tet.end(), [&](auto n) {
+                        return n < failed.femNodes.size() && n < initial.size(); })) {
+                    const auto determinantAt = [&](bool current) {
+                        std::array<std::array<double,3>,3> e{};
+                        for (unsigned j=0; j<3; ++j) {
+                            const auto& a=initial[tet[0]].positionAndMass;
+                            const auto& b=initial[tet[j+1]].positionAndMass;
+                            const auto point=[&](unsigned n, unsigned axis) {
+                                const auto& node=failed.femNodes[n];
+                                const float* pos=&node.positionAndMass.x;
+                                if (node.referenceDisplacementAndMode.w==1.0f) {
+                                    const float* rest=&node.restAndFixed.x;
+                                    const float* disp=&node.referenceDisplacementAndMode.x;
+                                    return double(rest[axis])+double(disp[axis]);
+                                }
+                                return double(pos[axis]);
+                            };
+                            e[j] = current
+                                ? std::array<double,3>{point(tet[j+1],0)-point(tet[0],0),
+                                    point(tet[j+1],1)-point(tet[0],1),
+                                    point(tet[j+1],2)-point(tet[0],2)}
+                                : std::array<double,3>{double(b.x)-a.x,double(b.y)-a.y,double(b.z)-a.z};
+                        }
+                        return e[0][0]*(e[1][1]*e[2][2]-e[1][2]*e[2][1])
+                             - e[0][1]*(e[1][0]*e[2][2]-e[1][2]*e[2][0])
+                             + e[0][2]*(e[1][0]*e[2][1]-e[1][1]*e[2][0]);
+                    };
+                    const double restDet=determinantAt(false);
+                    std::cerr << "\nresting_fem_failure_accepted_witness global_tet="
+                        << status.failingIndex << " rejected_J=" << status.diagnostics.x
+                        << " accepted_J=" << determinantAt(true)/restDet
+                        << " rest_det_m3=" << restDet
+                        << " state=rolled_back_accepted_not_rejected_candidate";
+                    for (const auto& range:continuumTransaction->restingFEMAuditRanges)
+                        if (status.failingIndex>=range.firstTetrahedron &&
+                            status.failingIndex-range.firstTetrahedron<range.tetrahedronCount)
+                            std::cerr << " object=\"" << range.objectName << "\" local_tet="
+                                << status.failingIndex-range.firstTetrahedron;
+                    for (unsigned corner=0; corner<4; ++corner) {
+                        const auto n=tet[corner];const auto& node=failed.femNodes[n];
+                        const auto& rest=initial[n].positionAndMass;
+                        const auto anchor=n<continuumTransaction->restingFEMAuditAnchorBodies.size()
+                            ? continuumTransaction->restingFEMAuditAnchorBodies[n] : NM_INVALID_INDEX;
+                        std::cerr << "\nresting_fem_failure_accepted_node global=" << n
+                            << " anchor_body=" << anchor << " fixed=" << node.restAndFixed.w
+                            << " initial_xyz_m=[" << rest.x << ',' << rest.y << ',' << rest.z << ']'
+                            << " accepted_xyz_m=[" << node.positionAndMass.x << ','
+                                << node.positionAndMass.y << ',' << node.positionAndMass.z << ']'
+                            << " accepted_velocity_m_s=[" << node.velocityAndInverseMass.x << ','
+                                << node.velocityAndInverseMass.y << ',' << node.velocityAndInverseMass.z << ']';
+                    }
+                }
+            }
         }
         std::cerr << "\n";
         reportDeformableContactFailures(failed);
@@ -19389,6 +19448,21 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     PreparedOrganicFEM preparedSkin,preparedFat,preparedProstate;
     std::vector<PreparedOrganicFEM> preparedOrganBatch;
     PreparedOrganicFEM preparedLeftOpticNerve,preparedRightOpticNerve;
+    // Reference hard ties are retained only as a matched numerical control.
+    const char* hardSkinAttachmentSetting=std::getenv("NUMI_HUMAN_SKIN_HARD_ATTACHMENT_REFERENCE");
+    require(!hardSkinAttachmentSetting||std::strcmp(hardSkinAttachmentSetting,"0")==0||
+                std::strcmp(hardSkinAttachmentSetting,"1")==0,
+            "NUMI_HUMAN_SKIN_HARD_ATTACHMENT_REFERENCE must be 0 or 1");
+    const bool elasticSkinAttachments=enableWholeBodySkinFat&&
+        (!hardSkinAttachmentSetting||std::strcmp(hardSkinAttachmentSetting,"0")==0);
+    double skinAttachmentShearScale=1.0;
+    if(const char* setting=std::getenv("NUMI_HUMAN_SKIN_ATTACHMENT_SHEAR_SCALE")){
+        char* end=nullptr;skinAttachmentShearScale=std::strtod(setting,&end);
+        require(end!=setting&&end&&*end=='\0'&&std::isfinite(skinAttachmentShearScale)&&
+                    skinAttachmentShearScale>=0.5&&skinAttachmentShearScale<=1.5,
+                "skin attachment shear scale must lie within the source prior bounds [0.5,1.5]");
+    }
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> skinElasticAttachmentSamples;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> skinReferenceAnchors;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> prostateReferenceAnchors;
     std::vector<std::pair<std::uint32_t,NMNumiHumanTendonFEMNodeAnchorGPU>> organBatchReferenceAnchors;
@@ -19560,7 +19634,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" max_normal_residual="<<skinPlacement.maximumNormalResidual
                 <<" max_frame_residual="<<skinPlacement.maximumFrameResidual<<"\n";
         }
-        const double skinDebit=skinLayer.volumeM3*1000.0,fatDebit=fatLayer.volumeM3*900.0;
+        const double skinDebit=enableWholeBodySkinFat?kWholeBodySkinMassDebitKg:skinLayer.volumeM3*1000.0;
+        const double fatDebit=enableWholeBodySkinFat?kWholeBodyFatMassDebitKg:fatLayer.volumeM3*900.0;
         if(enableWholeBodySkinFat) {
             require(skinLayer.innerWorld.size()==region.worldPoints.size()&&
                     fatLayer.innerWorld.size()==region.worldPoints.size()&&
@@ -19734,7 +19809,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" source_payload_sha256="<<skinSourcePayloadSHA256
                 <<" detail_vertices="<<detailCount
                 <<" active_detail_vertices="<<(detailCount-wholeBodySkinTransferReport.inactiveRows)
-                <<" inactive_orphan_rows="<<wholeBodySkinTransferReport.inactiveRows
+                <<" unreferenced_detail_vertices="<<wholeBodySkinTransferReport.inactiveRows
                 <<" coarse_vertices="<<wholeBodySkinTransferReport.coarseVertexCount
                 <<" coarse_faces="<<wholeBodySkinTransferReport.faceCount
                 <<" exact_ancestry_rows="<<wholeBodySkinTransferReport.exactAncestryRows
@@ -19744,6 +19819,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" rms_projection_m="<<wholeBodySkinTransferReport.rmsProjectionDistance
                 <<" ancestry_fallback_max_m="<<wholeBodySkinTransferReport.maximumAncestryFallbackDistance
                 <<" ancestry_fallback_rms_m="<<wholeBodySkinTransferReport.rmsAncestryFallbackDistance
+                <<" max_projection_source_vertex="<<wholeBodySkinTransferReport.maximumProjectionWitness.sourceVertexIndex
+                <<" max_projection_donor_body="<<wholeBodySkinTransferReport.maximumProjectionWitness.donorBodyIndex
+                <<" max_projection_representative="<<wholeBodySkinTransferReport.maximumProjectionWitness.coarseRepresentativeIndex
+                <<" max_projection_face="<<wholeBodySkinTransferReport.maximumProjectionWitness.coarseFaceIndex
                 <<" first_global_outer_fem_node="<<wholeBodySkinFirstGlobalFEMNode
                 <<" accepted_snapshot_owner=Runtime::snapshot"
                 <<" render_sync_owner=NumiHumanRestingVisual::render_waitUntilCompleted"
@@ -19764,9 +19843,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         const std::size_t allNodes=aclNodeCount+shell.femNodes.size();
         const std::size_t anchorBudget=allNodes/32u;
         if(enableWholeBodySkinFat){
-            // A point attachment must not prescribe motion into a micron-high
-            // sliver before its free neighbours can solve. Choose inferred
-            // attachment sites from well-resolved material neighbourhoods.
+            // Preserve the retained attachment identities through geometric repair.
+            // Eligibility is rechecked; it must never silently select a different
+            // mechanical constraint because inner-layer coordinates changed.
             constexpr double kMinimumAnchorIncidentAltitudeM=5.0e-5;
             std::vector<double> incidentAltitude(shell.femNodes.size(),std::numeric_limits<double>::infinity());
             for(const auto& tet:shell.tetrahedra) {
@@ -19784,72 +19863,95 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 }
                 for(auto node:id)incidentAltitude[node]=std::min(incidentAltitude[node],quality);
             }
-            struct Candidate {float confidence;std::uint32_t localVertex,sourceVertex,body;V3 world;double altitude;};
-            std::map<std::uint32_t,std::vector<Candidate>> byDonor;
-            std::size_t lowQualityAnchorSites=0u;
-            for(std::uint32_t localVertex=0;localVertex<region.sourceVertexIndices.size();localVertex++){
-                const auto sourceVertex=region.sourceVertexIndices[localVertex];
-                const auto body=dominantSkinDonorBody(*skin,sourceVertex);
-                if(body>=pose.size())continue;
-                float confidence=0.0f;
-                for(std::size_t binding=0;binding<skin->bindings.size();binding++){
-                    const float weight=skin->fullWeights[std::size_t(sourceVertex)*skin->bindings.size()+binding];
-                    require(std::isfinite(weight)&&weight>=0.0f,
-                            "whole-body skin anchor source weight is invalid");
-                    confidence=std::max(confidence,weight);
-                }
-                const auto deepNode=2u*region.worldPoints.size()+localVertex;
-                if(incidentAltitude[deepNode]<kMinimumAnchorIncidentAltitudeM){++lowQualityAnchorSites;continue;}
-                byDonor[body].push_back({confidence,localVertex,sourceVertex,body,region.worldPoints[localVertex],incidentAltitude[deepNode]});
-            }
-            for(auto& [body,candidates]:byDonor){
-                std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){
-                    return a.altitude!=b.altitude?a.altitude>b.altitude:
-                        (a.confidence!=b.confidence?a.confidence>b.confidence:a.localVertex<b.localVertex);
-                });
+            // Finite compliance represents unresolved retaining connective tissue
+            // at the same inferred source sites. mu/h is a declared effective
+            // shear foundation prior from the existing adipose material; it is
+            // not a measured ligament modulus or a duplicated tissue mass.
+            double attachmentShearPa=0.0;
+            for(const auto& parameter:source.materials[fatMaterialIndex].parameters)
+                if(parameter.name=="shear")attachmentShearPa=parameter.defaultValue*skinAttachmentShearScale;
+            require(std::isfinite(attachmentShearPa)&&attachmentShearPa>0.0,
+                    "skin retaining interface has no positive source material shear prior");
+            std::vector<double> attachmentArea(region.worldPoints.size(),0.0);
+            for(const auto& face:region.faces){
+                const double area=0.5*norm(cross(sub(fatLayer.innerWorld[face[1]],fatLayer.innerWorld[face[0]]),
+                    sub(fatLayer.innerWorld[face[2]],fatLayer.innerWorld[face[0]])));
+                require(std::isfinite(area)&&area>0.0,"skin retaining interface has a degenerate source face");
+                for(const auto node:face)attachmentArea[node]+=area/3.0;
             }
             std::map<std::uint32_t,std::vector<V3>> selectedPerDonor;
-            std::size_t selectedCount=0u;
             constexpr float kMinimumAnchorWeight=0.85f;
             constexpr double kMinimumAnchorSpacingM=0.025;
-            for(std::size_t round=0u;round<3u&&selectedCount<anchorBudget;round++){
-                for(const auto& [body,candidates]:byDonor){
-                    if(selectedCount>=anchorBudget)break;
-                    auto& selected=selectedPerDonor[body];
-                    if(selected.size()>round||candidates.size()<=round)continue;
-                    for(const auto& candidate:candidates){
-                        if(candidate.confidence<kMinimumAnchorWeight)continue;
-                        const bool separated=std::all_of(selected.begin(),selected.end(),[&](const V3& point){
-                            return norm(sub(candidate.world,point))>=kMinimumAnchorSpacingM;
-                        });
-                        if(!separated)continue;
-                        const auto deepFatLocal=static_cast<std::uint32_t>(
-                            2u*region.worldPoints.size()+candidate.localVertex);
-                        const auto global64=std::uint64_t(preparedSkin.firstGlobalFEMNode)+deepFatLocal;
-                        require(global64<=std::numeric_limits<std::uint32_t>::max(),
-                                "whole-body deep-fat anchor index exceeds runtime range");
-                        const auto global=static_cast<std::uint32_t>(global64);
-                        const auto row=std::find_if(preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end(),
-                            [&](const auto& x){return x.nodeIndex==global;});
-                        if(row==preparedSkin.donorMassNodes.end()||row->donorBody!=body)continue;
-                        NMNumiHumanTendonFEMNodeAnchorGPU anchor{};anchor.bodyIndex=body;
-                        anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
-                        anchor.localPoint={float(row->localPosition[0]),float(row->localPosition[1]),
-                                           float(row->localPosition[2]),0.0f};
-                        require(deepFatLocal<shell.femNodes.size()&&
-                                std::find(shell.femFixedNodes.begin(),shell.femFixedNodes.end(),deepFatLocal)==shell.femFixedNodes.end(),
-                                "whole-body deep-fat external anchor is duplicated or out of range");
-                        shell.femFixedNodes.push_back(deepFatLocal);
-                        skinReferenceAnchors.push_back({global,anchor});
-                        selected.push_back(candidate.world);++selectedCount;break;
-                    }
+            require(kWholeBodySkinDeepAttachmentSites.size()<=anchorBudget,
+                    "frozen skin-fat attachment set exceeds its shared node budget");
+            for(const auto& site:kWholeBodySkinDeepAttachmentSites){
+                const auto localVertex=site.reducedVertex;
+                require(localVertex<region.sourceVertexIndices.size()&&
+                            region.sourceVertexIndices[localVertex]==site.sourceVertex&&
+                            dominantSkinDonorBody(*skin,site.sourceVertex)==site.donorBody&&
+                            site.donorBody<pose.size(),
+                        "frozen skin-fat attachment lost its anatomical source/donor identity");
+                float confidence=0.0f;
+                for(std::size_t binding=0;binding<skin->bindings.size();binding++){
+                    const float weight=skin->fullWeights[std::size_t(site.sourceVertex)*skin->bindings.size()+binding];
+                    require(std::isfinite(weight)&&weight>=0.0f,
+                            "whole-body skin attachment source weight is invalid");
+                    confidence=std::max(confidence,weight);
                 }
+                const auto deepFatLocal=static_cast<std::uint32_t>(2u*region.worldPoints.size()+localVertex);
+                require(confidence>=kMinimumAnchorWeight&&
+                            incidentAltitude[deepFatLocal]>=kMinimumAnchorIncidentAltitudeM,
+                        "frozen skin-fat attachment no longer meets its reference weight/quality bounds");
+                auto& selected=selectedPerDonor[site.donorBody];
+                require(selected.size()<3u&&std::all_of(selected.begin(),selected.end(),[&](const V3& point){
+                            return norm(sub(region.worldPoints[localVertex],point))>=kMinimumAnchorSpacingM;
+                        }),"frozen skin-fat attachment spacing or donor count is invalid");
+                const auto global64=std::uint64_t(preparedSkin.firstGlobalFEMNode)+deepFatLocal;
+                require(global64<=std::numeric_limits<std::uint32_t>::max(),
+                        "whole-body deep-fat attachment index exceeds runtime range");
+                const auto global=static_cast<std::uint32_t>(global64);
+                const auto row=std::find_if(preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end(),
+                    [&](const auto& x){return x.nodeIndex==global;});
+                require(row!=preparedSkin.donorMassNodes.end()&&row->donorBody==site.donorBody,
+                        "frozen skin-fat attachment has no matching donor-local mass row");
+                NMNumiHumanTendonFEMNodeAnchorGPU anchor{};anchor.bodyIndex=site.donorBody;
+                anchor.flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+                anchor.localPoint={float(row->localPosition[0]),float(row->localPosition[1]),
+                                   float(row->localPosition[2]),0.0f};
+                require(deepFatLocal<shell.femNodes.size()&&
+                            std::find(shell.femFixedNodes.begin(),shell.femFixedNodes.end(),deepFatLocal)==shell.femFixedNodes.end(),
+                        "whole-body deep-fat external attachment is duplicated or out of range");
+                if(elasticSkinAttachments){
+                    const auto& frame=region.worldToDonorLocalLinear[localVertex];
+                    const auto normalWorld=region.outwardWorldNormals[localVertex];
+                    V3 localNormal{};for(unsigned a=0;a<3u;a++)for(unsigned b=0;b<3u;b++)localNormal[a]+=frame[3u*a+b]*normalWorld[b];
+                    localNormal=mul(localNormal,1.0/norm(localNormal));
+                    const double thickness=fatThickness[localVertex];
+                    require(std::isfinite(thickness)&&thickness>0.0&&attachmentArea[localVertex]>0.0,
+                            "skin retaining interface has invalid thickness or tributary area");
+                    NMNumiHumanFEMBodyContactSampleGPU sample{};
+                    sample.slaveNode=global;sample.bodyIndex=site.donorBody;
+                    sample.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+                    sample.bodyLocalPointAndArea={anchor.localPoint.x,anchor.localPoint.y,anchor.localPoint.z,float(attachmentArea[localVertex])};
+                    sample.bodyLocalNormalAndReferenceSeparation={float(localNormal[0]),float(localNormal[1]),float(localNormal[2]),0.0f};
+                    sample.stiffnessAndNormalStrainPerPressure={float(attachmentShearPa/thickness),float(1.0/attachmentShearPa),0.0f,0.0f};
+                    skinElasticAttachmentSamples.push_back(sample);
+                }else{
+                    shell.femFixedNodes.push_back(deepFatLocal);
+                    skinReferenceAnchors.push_back({global,anchor});
+                }
+                selected.push_back(region.worldPoints[localVertex]);
+                std::cout<<"whole_body_skin_attachment source_vertex="<<site.sourceVertex
+                    <<" donor_body="<<site.donorBody<<" local_vertex="<<localVertex
+                    <<" incident_altitude_m="<<incidentAltitude[deepFatLocal]<<std::endl;
             }
-            require(!skinReferenceAnchors.empty()&&skinReferenceAnchors.size()<=anchorBudget,
-                    "whole-body skin-fat distributed deep-fat support anchors exceed the shared 1/32 node budget");
+            require(skinReferenceAnchors.size()+skinElasticAttachmentSamples.size()==kWholeBodySkinDeepAttachmentSites.size(),
+                    "frozen whole-body skin-fat attachment set is incomplete");
             std::cout<<"whole_body_skin_anchor_quality minimum_incident_altitude_m="<<kMinimumAnchorIncidentAltitudeM
-                <<" excluded_sites="<<lowQualityAnchorSites<<" selected="<<skinReferenceAnchors.size()
-                <<" ownership=existing_kinematic_attachment inferred_sites=true geometry_unchanged=true"<<std::endl;
+                <<" selected="<<(skinReferenceAnchors.size()+skinElasticAttachmentSamples.size())
+                <<" hard_ties="<<skinReferenceAnchors.size()<<" elastic_attachments="<<skinElasticAttachmentSamples.size()
+                <<" shear_prior_pa="<<attachmentShearPa
+                <<" ownership=existing_FEM_body_interface inferred_sites=true identities=frozen_c927_reference"<<std::endl;
         }else{
             std::vector<std::pair<float,std::uint32_t>> confidence;
             for(std::uint32_t node=0;node<region.sourceVertexIndices.size();node++){
@@ -19887,6 +19989,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<";skin_field_range_m="<<preparedSkin.layerThicknessMinM<<","<<preparedSkin.layerThicknessMaxM
                 <<";fat_field_range_m="<<preparedFat.layerThicknessMinM<<","<<preparedFat.layerThicknessMaxM
                 <<";geometry=precomputed_exact_boundaries"
+                <<";attachment_mode="<<(elasticSkinAttachments?"finite_elastic_mu_over_h":"hard_reference")
+                <<";attachment_shear_scale="<<skinAttachmentShearScale
                 <<";layer_fit_method="<<kWholeBodySkinLayerFitMethod
                 <<";layer_receipt_sha256="<<kWholeBodySkinLayerReceiptSHA256
                 <<";mechanical_moved_vertices="<<wholeBodyMechanicalAudit.movedVertexCount
@@ -20700,6 +20804,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                  fasciaBodyContactSamples.size()<=fascia.nodes.size()/2u&&
                  fasciaBodyGlideRegionCoverage==fascia.regions.size()),
             "whole regional fascia gliding-contact coverage is incomplete");
+    double maximumSkinAttachmentInertialRatio=0.0;
+    for(const auto& sample:skinElasticAttachmentSamples){
+        require(sample.slaveNode<compiled.world.fem.nodes.size(),"skin elastic attachment escaped its FEM node arena");
+        const auto& node=compiled.world.fem.nodes[sample.slaveNode];
+        require(node.restAndFixed.w==0.0f&&node.positionAndMass.w>0.0f,
+                "skin elastic attachment duplicated a hard tie or lost physical mass");
+        const double stiffness=double(sample.stiffnessAndNormalStrainPerPressure.x)*sample.bodyLocalPointAndArea.w;
+        const double ratio=stiffness*dt*dt/node.positionAndMass.w;
+        require(std::isfinite(ratio)&&ratio<0.25,"skin elastic attachment timestep exceeds its explicit inertial bound");
+        maximumSkinAttachmentInertialRatio=std::max(maximumSkinAttachmentInertialRatio,ratio);
+    }
+    fasciaBodyContactSamples.insert(fasciaBodyContactSamples.end(),skinElasticAttachmentSamples.begin(),skinElasticAttachmentSamples.end());
+    std::cout<<"whole_body_skin_elastic_attachment_binding samples="<<skinElasticAttachmentSamples.size()
+        <<" hard_ties="<<skinReferenceAnchors.size()<<" maximum_k_dt2_over_node_mass="<<maximumSkinAttachmentInertialRatio
+        <<" stiffness=existing_adipose_mu_times_tributary_area_over_fat_thickness"
+        <<" added_mass_kg=0 state=existing_FEM_nodes_and_rigid_bodies"<<std::endl;
     validateExternalStaticAnchors(skinReferenceAnchors,"skin",0u,
         static_cast<std::uint32_t>(compiled.world.fem.nodes.size()));
     validateExternalStaticAnchors(prostateReferenceAnchors,"prostate",0u,

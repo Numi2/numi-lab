@@ -1,0 +1,7 @@
+{
+  "capture_requested": true,
+  "endpoint_numerical_files_found": [],
+  "surface_audit_data_rows": 0,
+  "global_fem_J_extrema_available": false,
+  "note": "Failure receipt and accepted coupled trace are retained. No separate full endpoint-state/J-extrema file was present; the surface-audit CSV contains only its header."
+}

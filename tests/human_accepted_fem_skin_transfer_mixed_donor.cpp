@@ -51,6 +51,47 @@ int main() {
     for(auto v:projected.coarseVertex) assert(v<3); // only the representative's one-ring
     assert(std::abs(projected.restDistance-.1f)<1e-6f);
     assert(report.maximumAncestryFallbackDistance<=std::sqrt(.2*.2+.2*.2+.1*.1)+1e-9);
+    assert(report.maximumProjectionWitness.valid);
+    assert(report.maximumProjectionWitness.detailVertexIndex==1);
+    assert(report.maximumProjectionWitness.sourceVertexIndex==99);
+    assert(report.maximumProjectionWitness.donorBodyIndex==9);
+    assert(report.maximumProjectionWitness.coarseRepresentativeIndex==0);
+    assert(report.maximumProjectionWitness.coarseFaceIndex==0);
+    assert((report.maximumProjectionWitness.coarseFaceVertices==T::Face{0,1,2}));
+    assert(report.maximumProjectionWitness.distance==report.maximumProjectionDistance);
+    assert(report.maximumAncestryFallbackWitness.valid);
+    assert(report.maximumAncestryFallbackWitness.detailVertexIndex==1);
+    assert(report.maximumAncestryFallbackWitness.coarseFaceIndex==0);
+    // A second fixture makes maximum selection distinguish two source rows and
+    // two incident coarse faces, so both witness identity and chosen face are
+    // checked rather than only report population.
+    const std::vector<T::Point> witnessCoarse{
+        {0,0,0},{1,0,0},{0,1,0},{-1,0,0},{0,-1,0}};
+    const std::vector<std::uint32_t> witnessCoarseSource{10,11,12,13,14};
+    const std::vector<std::uint32_t> witnessCoarseDonor{7,7,7,7,7};
+    const std::vector<T::Face> witnessFaces{{0,1,2},{0,3,4}};
+    const std::vector<T::Point> witnessDetail{{.15,.15,.01},{-.15,-.15,.03}};
+    const std::vector<std::uint32_t> witnessSource{701,702}, witnessDonor{7,7};
+    const std::vector<std::uint8_t> witnessUsed{1,1};
+    const std::vector<std::uint32_t> witnessRepresentative{0,0};
+    assert(transfer.build(witnessDetail,witnessSource,witnessDonor,witnessUsed,
+                          witnessCoarse,witnessCoarseSource,witnessCoarseDonor,
+                          witnessFaces,&report,&error,
+                          std::numeric_limits<double>::infinity(),&witnessRepresentative));
+    assert(report.projectedRows==2 && report.ancestryFallbackRows==2);
+    assert(std::abs(report.maximumProjectionDistance-.03)<1e-12);
+    assert(std::abs(report.maximumAncestryFallbackDistance-.03)<1e-12);
+    const auto& maxProjection=report.maximumProjectionWitness;
+    assert(maxProjection.valid && maxProjection.detailVertexIndex==1);
+    assert(maxProjection.sourceVertexIndex==702 && maxProjection.donorBodyIndex==7);
+    assert(maxProjection.coarseRepresentativeIndex==0 && maxProjection.coarseFaceIndex==1);
+    const T::Face expectedMaxFace{0,3,4};
+    assert(maxProjection.coarseFaceVertices==expectedMaxFace);
+    assert(maxProjection.distance==report.maximumProjectionDistance);
+    const auto& maxAncestry=report.maximumAncestryFallbackWitness;
+    assert(maxAncestry.valid && maxAncestry.detailVertexIndex==1);
+    assert(maxAncestry.sourceVertexIndex==702 && maxAncestry.coarseFaceIndex==1);
+    assert(maxAncestry.coarseFaceVertices==expectedMaxFace);
     // No active row may silently use an absent ancestry assignment.
     representative[1]=std::numeric_limits<std::uint32_t>::max();
     assert(!transfer.build(detail,detailSource,detailDonor,used,coarse,coarseSource,
@@ -65,6 +106,13 @@ int main() {
     assert(transfer.build(detailOne,srcOne,donorOne,usedOne,coarse,coarseSource,
                           coarseDonor,faces,&report,&error));
     assert(report.projectedRows==1 && report.ancestryFallbackRows==0);
+    assert(report.maximumProjectionWitness.valid);
+    assert(report.maximumProjectionWitness.detailVertexIndex==0);
+    assert(report.maximumProjectionWitness.sourceVertexIndex==99);
+    assert(report.maximumProjectionWitness.coarseRepresentativeIndex==
+           std::numeric_limits<std::uint32_t>::max());
+    assert(report.maximumProjectionWitness.coarseFaceIndex==0);
+    assert(!report.maximumAncestryFallbackWitness.valid);
 
     // With an ancestry map, even a donor that exists elsewhere must stay in
     // the assigned representative's incident patch rather than jumping to a
