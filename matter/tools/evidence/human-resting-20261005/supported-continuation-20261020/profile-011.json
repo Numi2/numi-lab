@@ -1,0 +1,604 @@
+{
+  "classification": "exploratory sampled locator; dropped counters, estimates not full unbiased GPU totals",
+  "source_revision": "a143f2a0",
+  "trace_rows_compared": 2,
+  "trace_differences": [],
+  "trace_prefix_equal": true,
+  "dropped_counter_record_lines": [
+    "matter_gpu_timing_samples_dropped count=702 capacity=4096"
+  ],
+  "kernels": [
+    {
+      "kernel": "nm_fem_build_algorithmic_tangent_cache",
+      "sample_count": 2,
+      "sample_total_ms": 266.166167,
+      "mean_ms": 133.0830835,
+      "dispatch_count": 96,
+      "extrapolated_ms": 12775.976015999999
+    },
+    {
+      "kernel": "nm_fgmres_orthogonalize_and_finish_column",
+      "sample_count": 72,
+      "sample_total_ms": 57.336788999999996,
+      "mean_ms": 0.7963442916666666,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 2446.369664
+    },
+    {
+      "kernel": "nm_mixed_apply_operator_nodes",
+      "sample_count": 291,
+      "sample_total_ms": 32.217054,
+      "mean_ms": 0.11071152577319587,
+      "dispatch_count": 12388,
+      "extrapolated_ms": 1371.4943812783504
+    },
+    {
+      "kernel": "nm_contact_sort_surface_primitives",
+      "sample_count": 2,
+      "sample_total_ms": 20.211833,
+      "mean_ms": 10.1059165,
+      "dispatch_count": 100,
+      "extrapolated_ms": 1010.59165
+    },
+    {
+      "kernel": "nm_fgmres_precondition_patches",
+      "sample_count": 72,
+      "sample_total_ms": 21.594666,
+      "mean_ms": 0.2999259166666667,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 921.372416
+    },
+    {
+      "kernel": "nm_mixed_apply_operator_elements",
+      "sample_count": 291,
+      "sample_total_ms": 10.620026,
+      "mean_ms": 0.03649493470790378,
+      "dispatch_count": 12388,
+      "extrapolated_ms": 452.099251161512
+    },
+    {
+      "kernel": "nm_fem_apply_operator_elements",
+      "sample_count": 72,
+      "sample_total_ms": 10.278663,
+      "mean_ms": 0.14275920833333333,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 438.556288
+    },
+    {
+      "kernel": "matter_after_microstep",
+      "sample_count": 3,
+      "sample_total_ms": 365.53858399999996,
+      "mean_ms": 121.84619466666665,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    },
+    {
+      "kernel": "nm_contact_compact_deformable",
+      "sample_count": 2,
+      "sample_total_ms": 6.007458,
+      "mean_ms": 3.003729,
+      "dispatch_count": 100,
+      "extrapolated_ms": 300.37289999999996
+    },
+    {
+      "kernel": "nm_fgmres_gather_nodes",
+      "sample_count": 72,
+      "sample_total_ms": 6.534127,
+      "mean_ms": 0.09075176388888889,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 278.7894186666667
+    },
+    {
+      "kernel": "nm_fem_internal_forces",
+      "sample_count": 2,
+      "sample_total_ms": 5.4145,
+      "mean_ms": 2.70725,
+      "dispatch_count": 100,
+      "extrapolated_ms": 270.725
+    },
+    {
+      "kernel": "nm_vascular_operator",
+      "sample_count": 72,
+      "sample_total_ms": 4.9519589999999996,
+      "mean_ms": 0.06877720833333333,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 211.28358399999996
+    },
+    {
+      "kernel": "nm_fgmres_precondition_coarse",
+      "sample_count": 72,
+      "sample_total_ms": 4.5471200000000005,
+      "mean_ms": 0.06315444444444446,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 194.01045333333337
+    },
+    {
+      "kernel": "matter_after_frame_begin",
+      "sample_count": 1,
+      "sample_total_ms": 184.660042,
+      "mean_ms": 184.660042,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_node_incidence",
+      "sample_count": 2,
+      "sample_total_ms": 1.2644579999999999,
+      "mean_ms": 0.6322289999999999,
+      "dispatch_count": 100,
+      "extrapolated_ms": 63.222899999999996
+    },
+    {
+      "kernel": "nm_contact_narrowphase_deformable",
+      "sample_count": 2,
+      "sample_total_ms": 1.110458,
+      "mean_ms": 0.555229,
+      "dispatch_count": 100,
+      "extrapolated_ms": 55.5229
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_candidates",
+      "sample_count": 2,
+      "sample_total_ms": 0.9432499999999999,
+      "mean_ms": 0.47162499999999996,
+      "dispatch_count": 100,
+      "extrapolated_ms": 47.162499999999994
+    },
+    {
+      "kernel": "nm_fgmres_field_smooth",
+      "sample_count": 217,
+      "sample_total_ms": 1.075924,
+      "mean_ms": 0.004958175115207374,
+      "dispatch_count": 9216,
+      "extrapolated_ms": 45.694541861751155
+    },
+    {
+      "kernel": "nm_contact_count_deformable_candidates",
+      "sample_count": 2,
+      "sample_total_ms": 0.8995,
+      "mean_ms": 0.44975,
+      "dispatch_count": 100,
+      "extrapolated_ms": 44.975
+    },
+    {
+      "kernel": "nm_vascular_cavity_operator",
+      "sample_count": 72,
+      "sample_total_ms": 0.979213,
+      "mean_ms": 0.013600180555555556,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 41.77975466666667
+    },
+    {
+      "kernel": "nm_fgmres_begin",
+      "sample_count": 4,
+      "sample_total_ms": 0.760416,
+      "mean_ms": 0.190104,
+      "dispatch_count": 192,
+      "extrapolated_ms": 36.499967999999996
+    },
+    {
+      "kernel": "nm_fgmres_build_preconditioner",
+      "sample_count": 4,
+      "sample_total_ms": 0.704,
+      "mean_ms": 0.176,
+      "dispatch_count": 192,
+      "extrapolated_ms": 33.792
+    },
+    {
+      "kernel": "nm_vascular_limit_line_search",
+      "sample_count": 4,
+      "sample_total_ms": 0.6315839999999999,
+      "mean_ms": 0.15789599999999998,
+      "dispatch_count": 192,
+      "extrapolated_ms": 30.316031999999996
+    },
+    {
+      "kernel": "nm_fgmres_measure_correction",
+      "sample_count": 2,
+      "sample_total_ms": 0.609334,
+      "mean_ms": 0.304667,
+      "dispatch_count": 96,
+      "extrapolated_ms": 29.248032000000002
+    },
+    {
+      "kernel": "nm_fgmres_field_smoother_initialize",
+      "sample_count": 72,
+      "sample_total_ms": 0.532373,
+      "mean_ms": 0.007394069444444444,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 22.714581333333335
+    },
+    {
+      "kernel": "nm_fgmres_precondition",
+      "sample_count": 72,
+      "sample_total_ms": 0.527749,
+      "mean_ms": 0.007329847222222223,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 22.517290666666668
+    },
+    {
+      "kernel": "nm_fem_select_backtracking",
+      "sample_count": 2,
+      "sample_total_ms": 0.450167,
+      "mean_ms": 0.2250835,
+      "dispatch_count": 96,
+      "extrapolated_ms": 21.608016
+    },
+    {
+      "kernel": "nm_vascular_precondition",
+      "sample_count": 72,
+      "sample_total_ms": 0.425876,
+      "mean_ms": 0.005914944444444444,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 18.17070933333333
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_candidate_counts",
+      "sample_count": 2,
+      "sample_total_ms": 0.21804099999999998,
+      "mean_ms": 0.10902049999999999,
+      "dispatch_count": 100,
+      "extrapolated_ms": 10.90205
+    },
+    {
+      "kernel": "nm_fgmres_add_cohesive_operator",
+      "sample_count": 72,
+      "sample_total_ms": 0.236375,
+      "mean_ms": 0.003282986111111111,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 10.085333333333333
+    },
+    {
+      "kernel": "nm_vascular_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.191083,
+      "mean_ms": 0.0955415,
+      "dispatch_count": 100,
+      "extrapolated_ms": 9.55415
+    },
+    {
+      "kernel": "nm_fem_build_mechanical_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.173459,
+      "mean_ms": 0.0867295,
+      "dispatch_count": 100,
+      "extrapolated_ms": 8.67295
+    },
+    {
+      "kernel": "nm_contact_limit_deformable_line_search",
+      "sample_count": 2,
+      "sample_total_ms": 0.144333,
+      "mean_ms": 0.0721665,
+      "dispatch_count": 96,
+      "extrapolated_ms": 6.9279839999999995
+    },
+    {
+      "kernel": "nm_fgmres_accumulate",
+      "sample_count": 4,
+      "sample_total_ms": 0.140501,
+      "mean_ms": 0.03512525,
+      "dispatch_count": 192,
+      "extrapolated_ms": 6.744047999999999
+    },
+    {
+      "kernel": "nm_contact_build_surface_primitives",
+      "sample_count": 2,
+      "sample_total_ms": 0.122208,
+      "mean_ms": 0.061104,
+      "dispatch_count": 100,
+      "extrapolated_ms": 6.1104
+    },
+    {
+      "kernel": "nm_fgmres_field_smoother_export",
+      "sample_count": 72,
+      "sample_total_ms": 0.14258300000000002,
+      "mean_ms": 0.0019803194444444447,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 6.083541333333335
+    },
+    {
+      "kernel": "nm_fgmres_accumulate_fields",
+      "sample_count": 4,
+      "sample_total_ms": 0.11674999999999999,
+      "mean_ms": 0.029187499999999998,
+      "dispatch_count": 192,
+      "extrapolated_ms": 5.603999999999999
+    },
+    {
+      "kernel": "nm_fgmres_precondition_cross",
+      "sample_count": 72,
+      "sample_total_ms": 0.130498,
+      "mean_ms": 0.0018124722222222223,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 5.567914666666667
+    },
+    {
+      "kernel": "nm_fgmres_restart_residual_nodes",
+      "sample_count": 2,
+      "sample_total_ms": 0.113042,
+      "mean_ms": 0.056521,
+      "dispatch_count": 96,
+      "extrapolated_ms": 5.426016000000001
+    },
+    {
+      "kernel": "matter_after_candidate_ready",
+      "sample_count": 3,
+      "sample_total_ms": 4.909042,
+      "mean_ms": 1.6363473333333334,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    },
+    {
+      "kernel": "nm_fgmres_precondition_mpm_objects",
+      "sample_count": 72,
+      "sample_total_ms": 0.108627,
+      "mean_ms": 0.0015087083333333333,
+      "dispatch_count": 3072,
+      "extrapolated_ms": 4.634752
+    },
+    {
+      "kernel": "nm_contact_build_surface_bvh_level",
+      "sample_count": 35,
+      "sample_total_ms": 0.073833,
+      "mean_ms": 0.0021095142857142854,
+      "dispatch_count": 1500,
+      "extrapolated_ms": 3.164271428571428
+    },
+    {
+      "kernel": "nm_contact_accumulate_fem_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.060208,
+      "mean_ms": 0.030104,
+      "dispatch_count": 100,
+      "extrapolated_ms": 3.0103999999999997
+    },
+    {
+      "kernel": "respiratory_mechanics",
+      "sample_count": 1,
+      "sample_total_ms": 2.9155,
+      "mean_ms": 2.9155,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    },
+    {
+      "kernel": "nm_vascular_cavity_schur_preconditioner",
+      "sample_count": 4,
+      "sample_total_ms": 0.055583,
+      "mean_ms": 0.01389575,
+      "dispatch_count": 192,
+      "extrapolated_ms": 2.667984
+    },
+    {
+      "kernel": "nm_vascular_begin_working_set",
+      "sample_count": 2,
+      "sample_total_ms": 0.051625000000000004,
+      "mean_ms": 0.025812500000000002,
+      "dispatch_count": 96,
+      "extrapolated_ms": 2.478
+    },
+    {
+      "kernel": "nm_vascular_cavity_forces",
+      "sample_count": 2,
+      "sample_total_ms": 0.029790999999999998,
+      "mean_ms": 0.014895499999999999,
+      "dispatch_count": 100,
+      "extrapolated_ms": 1.48955
+    },
+    {
+      "kernel": "nm_fgmres_finalize_cycle",
+      "sample_count": 4,
+      "sample_total_ms": 0.031001,
+      "mean_ms": 0.00775025,
+      "dispatch_count": 192,
+      "extrapolated_ms": 1.488048
+    },
+    {
+      "kernel": "nm_fgmres_accumulate_vascular",
+      "sample_count": 4,
+      "sample_total_ms": 0.019042,
+      "mean_ms": 0.0047605,
+      "dispatch_count": 192,
+      "extrapolated_ms": 0.9140159999999999
+    },
+    {
+      "kernel": "nm_fem_apply_solution",
+      "sample_count": 2,
+      "sample_total_ms": 0.018834,
+      "mean_ms": 0.009417,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.904032
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_active_work",
+      "sample_count": 2,
+      "sample_total_ms": 0.017082,
+      "mean_ms": 0.008541,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.8541
+    },
+    {
+      "kernel": "nm_contact_build_surface_bvh_leaves",
+      "sample_count": 2,
+      "sample_total_ms": 0.016417,
+      "mean_ms": 0.0082085,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.8208500000000001
+    },
+    {
+      "kernel": "matter_pre",
+      "sample_count": 1,
+      "sample_total_ms": 0.741708,
+      "mean_ms": 0.741708,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    },
+    {
+      "kernel": "nm_contact_count_deformable_node_incidence",
+      "sample_count": 2,
+      "sample_total_ms": 0.011625,
+      "mean_ms": 0.0058125,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.58125
+    },
+    {
+      "kernel": "nm_mixed_apply_kkt_solution",
+      "sample_count": 2,
+      "sample_total_ms": 0.011001,
+      "mean_ms": 0.0055005,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.5280480000000001
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_node_incidence",
+      "sample_count": 2,
+      "sample_total_ms": 0.009958,
+      "mean_ms": 0.004979,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.4979
+    },
+    {
+      "kernel": "nm_contact_accumulate_deformable_fem_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.009916000000000001,
+      "mean_ms": 0.004958000000000001,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.4958000000000001
+    },
+    {
+      "kernel": "nm_fgmres_restart_residual_vascular",
+      "sample_count": 2,
+      "sample_total_ms": 0.010249999999999999,
+      "mean_ms": 0.005124999999999999,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.49199999999999994
+    },
+    {
+      "kernel": "nm_fgmres_import_field_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.009583000000000001,
+      "mean_ms": 0.004791500000000001,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.45998400000000006
+    },
+    {
+      "kernel": "nm_vascular_resolve_working_set",
+      "sample_count": 2,
+      "sample_total_ms": 0.009042,
+      "mean_ms": 0.004521,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.43401599999999996
+    },
+    {
+      "kernel": "nm_human_support_limit_line_search",
+      "sample_count": 4,
+      "sample_total_ms": 0.0075,
+      "mean_ms": 0.001875,
+      "dispatch_count": 192,
+      "extrapolated_ms": 0.36
+    },
+    {
+      "kernel": "nm_mixed_prepare_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.006916,
+      "mean_ms": 0.003458,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.3458
+    },
+    {
+      "kernel": "nm_fem_add_cohesive_residual",
+      "sample_count": 2,
+      "sample_total_ms": 0.006625,
+      "mean_ms": 0.0033125,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.33125
+    },
+    {
+      "kernel": "nm_contact_publish_deformable_history",
+      "sample_count": 2,
+      "sample_total_ms": 0.006875,
+      "mean_ms": 0.0034375,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.33
+    },
+    {
+      "kernel": "nm_mixed_build_residual_diagonal",
+      "sample_count": 2,
+      "sample_total_ms": 0.006291,
+      "mean_ms": 0.0031455,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.31455
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_active_counts",
+      "sample_count": 4,
+      "sample_total_ms": 0.0060420000000000005,
+      "mean_ms": 0.0015105000000000001,
+      "dispatch_count": 200,
+      "extrapolated_ms": 0.30210000000000004
+    },
+    {
+      "kernel": "nm_human_support_validate_final_line_search",
+      "sample_count": 2,
+      "sample_total_ms": 0.0052499999999999995,
+      "mean_ms": 0.0026249999999999997,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.252
+    },
+    {
+      "kernel": "nm_fem_synchronize_environment_line_search",
+      "sample_count": 4,
+      "sample_total_ms": 0.005167,
+      "mean_ms": 0.00129175,
+      "dispatch_count": 192,
+      "extrapolated_ms": 0.248016
+    },
+    {
+      "kernel": "nm_contact_limit_rigid_line_search",
+      "sample_count": 2,
+      "sample_total_ms": 0.004834,
+      "mean_ms": 0.002417,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.232032
+    },
+    {
+      "kernel": "nm_mpm_limit_implicit_line_search",
+      "sample_count": 2,
+      "sample_total_ms": 0.004666,
+      "mean_ms": 0.002333,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.223968
+    },
+    {
+      "kernel": "nm_human_support_resolve_working_set",
+      "sample_count": 2,
+      "sample_total_ms": 0.004166,
+      "mean_ms": 0.002083,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.19996800000000003
+    },
+    {
+      "kernel": "nm_vascular_apply_solution",
+      "sample_count": 2,
+      "sample_total_ms": 0.003834,
+      "mean_ms": 0.001917,
+      "dispatch_count": 96,
+      "extrapolated_ms": 0.184032
+    },
+    {
+      "kernel": "nm_contact_compact_active",
+      "sample_count": 2,
+      "sample_total_ms": 0.002834,
+      "mean_ms": 0.001417,
+      "dispatch_count": 100,
+      "extrapolated_ms": 0.14170000000000002
+    },
+    {
+      "kernel": "brain_advance",
+      "sample_count": 1,
+      "sample_total_ms": 0.015291,
+      "mean_ms": 0.015291,
+      "dispatch_count": null,
+      "extrapolated_ms": null
+    }
+  ]
+}

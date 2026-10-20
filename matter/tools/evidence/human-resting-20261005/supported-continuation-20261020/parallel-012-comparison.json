@@ -1,0 +1,20 @@
+{
+  "physical_validation": false,
+  "baseline": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009",
+  "candidate": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-parallel-012",
+  "steps": 4,
+  "dt_s": 0.000125,
+  "simulated_s": 0.0005,
+  "baseline_wall_s": 88.83947554195765,
+  "candidate_wall_s": 82.85566279198974,
+  "wall_speedup": 1.0722197197913963,
+  "row_count": [
+    4,
+    4
+  ],
+  "exact_csv_equality": true,
+  "field_differences": [],
+  "baseline_csv_sha256": "fa489d9e7a2048451729c3a71f0411d99344a7d761abbf4a177ded1dbc57d502",
+  "candidate_csv_sha256": "fa489d9e7a2048451729c3a71f0411d99344a7d761abbf4a177ded1dbc57d502",
+  "limitation": "Short development timing includes launch; no real-time or sustained support qualification."
+}

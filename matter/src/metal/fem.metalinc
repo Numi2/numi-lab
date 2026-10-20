@@ -3112,6 +3112,168 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     }
     validEntries[global] = 1u;
 }
+
+// The same local material Jacobian as the serial reference above. Nine threads
+// evaluate disjoint columns at one fixed Newton state; no constitutive equation,
+// projection, physical state or summation order changes. Scratch validity is a
+// column-completion bit mask until the finalize dispatch publishes the usual 0/1.
+kernel void nm_fem_prepare_algorithmic_tangent_columns(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device uint* validEntries [[buffer(13)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total=dispatch.environmentCount*dispatch.tetrahedronCount;
+    if(global>=total||dispatch.tetrahedronCount==0u)return;
+    const uint environment=global/dispatch.tetrahedronCount;
+    if(forceCompletedCacheRebuild==0u&&microstep.solverIteration>0u&&
+       fgmresStates[environment].nonlinear.w>0.5f)return;
+    validEntries[global]=0u;
+}
+kernel void nm_fem_finalize_algorithmic_tangent_columns(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device uint* validEntries [[buffer(13)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total=dispatch.environmentCount*dispatch.tetrahedronCount;
+    if(global>=total||dispatch.tetrahedronCount==0u)return;
+    const uint environment=global/dispatch.tetrahedronCount;
+    if(forceCompletedCacheRebuild==0u&&microstep.solverIteration>0u&&
+       fgmresStates[environment].nonlinear.w>0.5f)return;
+    validEntries[global]=validEntries[global]==0x1ffu?1u:0u;
+}
+kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device float* tangentCache [[buffer(12)]],
+    device uint* validEntries [[buffer(13)]],
+    device const NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    uint columnGlobal [[thread_position_in_grid]]
+) {
+    const uint global = columnGlobal / 9u;
+    const uint column = columnGlobal % 9u;
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint environment = global / dispatch.tetrahedronCount;
+    // The full nonlinear convergence latch is written only after the
+    // production residual/correction/support gates pass. Later statically
+    // encoded Newton-tail iterations leave the accepted candidate unchanged;
+    // retain its exact cache instead of projecting all 9 columns again.
+    // Newton iteration zero always rebuilds, even if this state buffer still
+    // carries a latch from the preceding transaction.
+    if (forceCompletedCacheRebuild == 0u &&
+        microstep.solverIteration > 0u &&
+        fgmresStates[environment].nonlinear.w > 0.5f)
+        return;
+
+    const uint tetrahedronIndex =
+        global - environment * dispatch.tetrahedronCount;
+    if (!environmentHealthy(statuses, environment)) return;
+
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
+    const uint objectIndex = tetrahedron.identity.y;
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount)
+        return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep) ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+        return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, candidate, nodeBase
+    );
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    // Learned ICNN tangents are assembled by the direct FGMRES path as a
+    // separate term; leave these entries invalid for mode-2 fallback.
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) return;
+    float deformationLow[9];
+    const float3x3 preciseLocalF = femMaterialDeformationWords(
+        object, tetrahedron, material, candidate, nodeBase,
+        deformation, deformationLow
+    );
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
+    const uint parameterBase = environment * dispatch.parameterCount;
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3x3 localRate = femMaterialInput(
+        object, tetrahedron, deformationRate
+    );
+    const uint cacheBase = global * 81u;
+
+    // matrixComponents uses row-major scalar order even though Metal matrices
+    // are column-major. Store each evaluated response as one column of that
+    // explicit row-major linear map.
+    {
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] = component == column ? 1.0f : 0.0f;
+        // Material-frame map: FGMRES and RAP apply femMaterialOutput once.
+        const float3x3 localDirection = componentsMatrix(directionComponents);
+        const float3x3 localRateDirection =
+            localDirection / max(dt, 1.0e-12f);
+        bool valid = true;
+        float3x3 analytic;
+        float3x3 materialTangent;
+        evaluateAlgorithmicStressTangent(
+            material,
+            programs,
+            instructions,
+            environmentParameters + parameterBase,
+            internalState,
+            preciseLocalF,
+            localDirection,
+            localRate,
+            localRateDirection,
+            dt,
+            material.bulk.y,
+            analytic,
+            materialTangent,
+            valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+            deformationLow
+        );
+        if (!valid) return;
+        float responseComponents[9];
+        matrixComponents(materialTangent, responseComponents);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(responseComponents[row])) return;
+            tangentCache[cacheBase + row * 9u + column] =
+                responseComponents[row];
+        }
+    }
+    // A separate finalize dispatch publishes validity only after all columns.
+    atomic_fetch_or_explicit(reinterpret_cast<device atomic_uint*>(validEntries) + global,
+        1u << column, memory_order_relaxed);
+}
 kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

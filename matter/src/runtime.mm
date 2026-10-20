@@ -4895,6 +4895,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_status5_capture",
             "nm_matter_capture_first_failure",
             "nm_fem_build_algorithmic_tangent_cache",
+            "nm_fem_prepare_algorithmic_tangent_columns",
+            "nm_fem_build_algorithmic_tangent_cache_columns",
+            "nm_fem_finalize_algorithmic_tangent_columns",
             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
             "nm_fem_cohesive_face_forces",
             "nm_fem_accumulate_cohesive_page_forces",
@@ -22985,7 +22988,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const char* tangentCacheBuilder =
                     state.femCacheProjectionReuseEnabled
                         ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
-                        : "nm_fem_build_algorithmic_tangent_cache";
+                        : "nm_fem_build_algorithmic_tangent_cache_columns";
                 const auto bindTangentCache = [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro
@@ -23013,9 +23016,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(forceCompletedCacheRebuild)
                               atIndex:16u];
                 };
-                dispatchThreads(tangentCacheBuilder, tetrahedronTotal,
+                if (!state.femCacheProjectionReuseEnabled) {
+                    dispatchThreads("nm_fem_prepare_algorithmic_tangent_columns",
+                        tetrahedronTotal, bindTangentCache);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                dispatchThreads(tangentCacheBuilder,
+                    state.femCacheProjectionReuseEnabled
+                        ? tetrahedronTotal : tetrahedronTotal * 9u,
                     bindTangentCache);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!state.femCacheProjectionReuseEnabled) {
+                    dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
+                        tetrahedronTotal, bindTangentCache);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
             }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z)) {

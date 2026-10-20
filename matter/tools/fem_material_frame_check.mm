@@ -63,7 +63,7 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
 
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
-    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline;
+    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline;
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
@@ -88,9 +88,45 @@ struct Device {
         need(library!=nil,"production Matter Metal program unavailable");
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
         operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
-        tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");}
+        tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
+        cachePreparePipeline=make(@"numi_matter_metal::nm_fem_prepare_algorithmic_tangent_columns");
+        cacheColumnsPipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns");
+        cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");}
     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
+// Incomplete/failed columns must never publish a valid cache, and a completed
+// Newton tail must preserve its scratch rather than resetting it.
+void checkColumnValidityPublication(Device& d) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.tetrahedronCount=3;
+    NMMicrostepGPU micro{};micro.solverIteration=1;
+    std::uint32_t force=0;
+    std::vector<NMFGMRESStateGPU> states(2);states[1].nonlinear.w=1;
+    const auto state=buffer(d.device,states);
+    const auto run=[&](id<MTLComputePipelineState> pipeline,std::vector<std::uint32_t> values) {
+        auto valid=buffer(d.device,values);auto command=[d.queue commandBuffer];
+        auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:pipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+        [encoder setBytes:&micro length:sizeof(micro) atIndex:1];
+        [encoder setBuffer:valid offset:0 atIndex:13];[encoder setBuffer:state offset:0 atIndex:15];
+        [encoder setBytes:&force length:sizeof(force) atIndex:16];
+        [encoder dispatchThreads:MTLSizeMake(values.size(),1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,"column validity command failed");
+        const auto* result=static_cast<const std::uint32_t*>(valid.contents);
+        return std::vector<std::uint32_t>(result,result+values.size());
+    };
+    need(run(d.cacheFinalizePipeline,{0x1ff,1,0xff,1,0,1})==
+             std::vector<std::uint32_t>({1,0,0,1,0,1}),"partial columns published or completed tail changed");
+    need(run(d.cachePreparePipeline,{1,1,1,1,0,1})==
+             std::vector<std::uint32_t>({0,0,0,1,0,1}),"cache reset changed completed tail");
+    micro.solverIteration=0;
+    need(run(d.cachePreparePipeline,{1,1,1,1,0,1})==std::vector<std::uint32_t>(6,0),
+         "new transaction retained prior convergence latch cache");
+    micro.solverIteration=1;force=1;
+    need(run(d.cachePreparePipeline,{1,1,1,1,0,1})==std::vector<std::uint32_t>(6,0),
+         "forced completed cache rebuild did not reset all entries");
+    std::cout<<"parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset\n";
+}
 struct Inputs {
     std::vector<NMFEMNodeStateGPU> nodes;
     std::vector<NMFEMFieldStateGPU> fields;
@@ -124,6 +160,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
     const auto tangentCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
     const auto tangentCacheValid=buffer(d.device,std::vector<std::uint32_t>(count));
+    const auto serialCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
+    const auto serialValid=buffer(d.device,std::vector<std::uint32_t>(count));
     const auto fallbackMetrics=buffer(d.device,
         std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
@@ -141,14 +179,25 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         [encoder setBuffer:state offset:0 atIndex:9];
         [encoder setBuffer:schedulers offset:0 atIndex:10];
         [encoder setBuffer:adaptive offset:0 atIndex:11];
-        [encoder setBuffer:tangentCache offset:0 atIndex:12];
-        [encoder setBuffer:tangentCacheValid offset:0 atIndex:13];
+        [encoder setBuffer:serialCache offset:0 atIndex:12];
+        [encoder setBuffer:serialValid offset:0 atIndex:13];
         [encoder setBuffer:status offset:0 atIndex:14];
         [encoder setBuffer:solver offset:0 atIndex:15];
         [encoder setBytes:&forceCompletedCacheRebuild
             length:sizeof(forceCompletedCacheRebuild) atIndex:16];
         [encoder dispatchThreads:MTLSizeMake(count,1,1)
             threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setBuffer:tangentCache offset:0 atIndex:12];
+        [encoder setBuffer:tangentCacheValid offset:0 atIndex:13];
+        [encoder setComputePipelineState:d.cachePreparePipeline];
+        [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setComputePipelineState:d.cacheColumnsPipeline];
+        [encoder dispatchThreads:MTLSizeMake(count*9u,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setComputePipelineState:d.cacheFinalizePipeline];
+        [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
     }
     [encoder setComputePipelineState:tangent?d.operatorPipeline:d.forcePipeline];
@@ -173,6 +222,12 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         const auto* valid=static_cast<const std::uint32_t*>(tangentCacheValid.contents);
         for(unsigned i=0;i<count;++i)need(valid[i]==1u,
             "production tangent cache did not build an active tetrahedron entry index="+std::to_string(i));
+        need(std::memcmp(serialValid.contents,tangentCacheValid.contents,count*sizeof(std::uint32_t))==0,
+             "parallel tangent cache validity differs from serial reference");
+        need(std::memcmp(serialCache.contents,tangentCache.contents,std::size_t(count)*81u*sizeof(float))==0,
+             "parallel tangent columns differ from serial reference");
+        std::cout<<"parallel_tangent_columns=bitwise_equal reference_entries="<<count
+                 <<" scalar_entries="<<count*81u<<" environments=2\n";
     }
     const auto* values=static_cast<const NMFEMElementVectorGPU*>(output.contents);return {values,values+count};
 }
@@ -786,6 +841,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     need(paper.succeeded(),"source-derived bilinear paper material parse failed: "+
          diagnostic(paper.diagnostics));
     Device device;std::cout<<std::setprecision(17)<<"frame_device="<<[device.device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
+    checkColumnValidityPublication(device);
     directChecks(device,parsed.material);learnedFrameChecks(device);integratedChecks(device,parsed.material);
     checkAcceptedPlasticCacheActions(device,paper.material);
     std::cout<<"fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;

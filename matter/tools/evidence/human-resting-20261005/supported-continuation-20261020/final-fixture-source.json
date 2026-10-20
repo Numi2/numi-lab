@@ -1,0 +1,12 @@
+{
+  "source_sha256": {
+    "matter/src/runtime.mm": "c631b704ba43ae3c728989792b04ea52ada191045485ea30a9209df2da1710d6",
+    "matter/src/metal/fem.metalinc": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+    "matter/tools/fem_material_frame_check.mm": "0da791ae1a2e9c4b8772151444a1b62711e14fcea945b4474e16fa0388bb8e89"
+  },
+  "metallib_sha256": "88d547fa98f2962b0d75031c507af5b963448008e8b6237313ef17edcecefa51",
+  "fixture_sha256": "6bd4b35967a3b9ff3ab136aac87084148c5161172bd418ee0d2de5d814758cb9",
+  "exit_code": 0,
+  "command": "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fem-material-frame-check matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+  "physical_validation": false
+}
