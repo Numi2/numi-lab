@@ -1,0 +1,95 @@
+{
+  "records": [
+    {
+      "stage": "matter_pre",
+      "root": 0,
+      "elapsed_ns": 705209
+    },
+    {
+      "stage": "brain_advance",
+      "root": 0,
+      "elapsed_ns": 14541
+    },
+    {
+      "stage": "respiratory_mechanics",
+      "root": 0,
+      "elapsed_ns": 2797750
+    },
+    {
+      "stage": "matter_after_frame_begin",
+      "root": 0,
+      "elapsed_ns": 2184754042
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "root": 0,
+      "elapsed_ns": 31966416
+    },
+    {
+      "stage": "matter_after_microstep",
+      "root": 0,
+      "elapsed_ns": 3992981167
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "root": 0,
+      "elapsed_ns": 31974084
+    },
+    {
+      "stage": "matter_after_microstep",
+      "root": 0,
+      "elapsed_ns": 1988670917
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "root": 0,
+      "elapsed_ns": 32090208
+    },
+    {
+      "stage": "matter_after_microstep",
+      "root": 0,
+      "elapsed_ns": 1816518333
+    },
+    {
+      "stage": "respiratory_gas_exchange",
+      "root": 0,
+      "elapsed_ns": 1748125
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "root": 0,
+      "elapsed_ns": 32095875
+    },
+    {
+      "stage": "matter_after_microstep",
+      "root": 0,
+      "elapsed_ns": 69584
+    },
+    {
+      "stage": "matter_post",
+      "root": 0,
+      "elapsed_ns": 24084
+    },
+    {
+      "stage": "brain_resolve",
+      "root": 0,
+      "elapsed_ns": 1334
+    },
+    {
+      "stage": "respiratory_resolve",
+      "root": 0,
+      "elapsed_ns": 696333
+    }
+  ],
+  "counter_record_count": 16,
+  "coarse_continuum_ns": 10111120626,
+  "all_observed_stages_ns": 10117108002,
+  "accepted_rows": 1,
+  "physical_prefix_byte_identical": true,
+  "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-predictor-guard-043b/output/resting-coupled.csv",
+  "execution": {
+    "exit_code": 0,
+    "wall_s": 23.3320854579797
+  },
+  "interpretation": "Coarse continuum stage intervals dominate this single root. GPU timestamp intervals include all work encoded between those stage boundaries; names do not identify individual kernels. Profiling is observational and not an optimization."
+}

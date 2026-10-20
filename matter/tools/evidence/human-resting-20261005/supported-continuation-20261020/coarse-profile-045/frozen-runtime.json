@@ -1,0 +1,10 @@
+{
+  "base_revision": "be3dcf2cb0e2f79cd40bd59271ef45bf1b088519",
+  "published_source_receipt": "../vascular-initial-guess-043/published-source-identities-043b.json",
+  "runtime_sha256": {
+    "bin/numi-human-native": "74bd6388906580df99180562ba4c98be6632b8c0d8ad1460fe0cc7812efa93bb",
+    "lib/libmetalrobo.dylib": "e548dbfc5fafd425eb7112d09f37713f59ef968faa54243ca430079b5dad942a",
+    "matter/shaders/NumiMatter.metallib": "5867309c673eeeaa561a841403e1f8a85e96ec60333f76a75e0ac6c00a24cbe1",
+    "shaders/MetalRobo.metallib": "2cca8a93f5d679c1c4b486906dfffa282a2cbe6f5daef81d166a19f9e3916cb7"
+  }
+}
