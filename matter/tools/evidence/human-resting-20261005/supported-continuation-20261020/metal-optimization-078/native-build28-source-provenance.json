@@ -1,0 +1,24 @@
+{
+  "artifact_manifest_sha256": "d5b13e909bbe9380f542b26c9f9c40fc479b4f21c4083a8321ed3cca0cd22679",
+  "artifacts": {
+    "NumiMatter.metallib": "ab62a8280692bdce223b448820f21cb1da5397ec063c4ae19b5b18ade76b0307",
+    "libmetalrobo.dylib": "7dc076b9fb00056cd373946858fb6632e3a840c4380c4ba439f2607d880ca366",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "8e67b8758ac4075974ebe0c51aad076f9cb4e454be3f2083d772c8663d6c234a",
+    "source-manifest.json": "80a97371791fe25efe0f184142817850b44412020f58dc9a0588b5d6714242aa",
+    "source.patch": "1a9869e516bab46392928dcc8f868c5054a7207939bbce0f2864ca47c06a6db0"
+  },
+  "base_revision": "5e2f0b11884839a0a2e973c5e5d88be38057b43f",
+  "build": "perf078-build28",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build28-frozen",
+  "schema": 1,
+  "source_archive_sha256": "8e67b8758ac4075974ebe0c51aad076f9cb4e454be3f2083d772c8663d6c234a",
+  "source_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "543f7dad59b155e1a99332d31c87cfe03c338af1a7594b69aff41d9432b10357",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "1a9869e516bab46392928dcc8f868c5054a7207939bbce0f2864ca47c06a6db0"
+}

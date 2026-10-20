@@ -1,0 +1,74 @@
+{
+  "artifact_manifest_sha256": "93094ffccdaafe9bb89411656f756c04a1d6aa04558e986a62417dd41d9a5870",
+  "artifacts": {
+    "NumiMatter.metallib": "2389d3a6f42cfc5c1bd49add09521494bdfbca5abb5fbae751a4ab582e8a1db7",
+    "libmetalrobo.dylib": "1b2b457a3868bbc87c44041895a3f2f7e73db810b106e2340fe5d2479e70abbf",
+    "numi-human-native": "efc3aeaa620c0d441d0795d11d67c42fad30c3fdab2a47cc8b2a570ad588d092",
+    "source-changes.tar.gz": "3be354c836abf9600c3b9010939944e606fe633e04c1023edfa596d3c4017831",
+    "source-manifest.json": "03b3d81e41a189a069017866bb701c8905b000855a3cc96a4c1f05ffb1669174",
+    "source.patch": "6aac2f8f13a64c8f302202c6ba9d4b35dbc7f5db3f6e2223543c2352c75529b2"
+  },
+  "base_revision": "5e2f0b11884839a0a2e973c5e5d88be38057b43f",
+  "build": "perf078-build29",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build29-frozen",
+  "schema": 1,
+  "source_archive_sha256": "3be354c836abf9600c3b9010939944e606fe633e04c1023edfa596d3c4017831",
+  "source_files": [
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "f612bcf7d85be05435b58314220ac7e26422a88d9f2a4ee28beeb757e4af6195",
+      "status": " M"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "76ed7d8a2df9934fe8bc1a335e8a1c80adbc1ea82c42c4e08de8edc4b05c5402",
+      "status": " M"
+    },
+    {
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "adc034bb32220f05eb10bca2827e1f59e272fde04b99d9b14a05142354d1d594",
+      "status": " M"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "sha256": "4e132340bd5d1216df799ef7cd8a9465407e309b070dc6391457dd5c7e9c1357",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/detail/gravity_scale.hpp",
+      "sha256": "4baee6b3d0bd1fd479b43a7457c3fff743d1eb13e22fe6192e76e7a33a6c9ef3",
+      "status": "??"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "0613ea283bef645ae29020196c7d6b1091266bd0496afff326cf97da7ecee7a7",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+      "sha256": "b887fe79408508f32f83f16deda1ab90611e2ef58e131f6856d2ab693f6404c8",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "sha256": "229d4739cc3620f9d19c5f9ca7e4a1b5531d7a863fd2769d8c4c23cfab60023b",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "4ee278f2d91a4a6f2eedd0e413c38e880258f2de79039c0b8cbad1d33eeb8447",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/gravity_scale_transaction_check.cpp",
+      "sha256": "9c5dae29e872be5ac022e5cf9c6f6469ca077a8441c73db9ad64df3a8d33ab03",
+      "status": "??"
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+      "sha256": "deb6e0cb65eac73bf42b606236237e4d7b302c692784a592f9dc8f7b1943613f",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "6aac2f8f13a64c8f302202c6ba9d4b35dbc7f5db3f6e2223543c2352c75529b2"
+}

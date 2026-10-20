@@ -7323,7 +7323,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << " first_step=1"
                   << " full_gravity_step=" << restingGravityRampSteps
                   << " initial_scale=0 full_scale=1"
-                  << " matter_gravity=unchanged"
+                  << " matter_gravity=shared_accepted_step_ramp"
                   << std::endl;
     }
     std::cout << "human_stand_solver_path="
@@ -20183,6 +20183,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(partitionedPreconditionerRequested)
         require(enableWholeBodySkinFat,
                 "Human partitioned coarse preconditioner requires registered whole-body skin/fat");
+    const char* partitionedMassWhitenSetting=
+        std::getenv("NUMI_HUMAN_PARTITIONED_MASS_WHITEN");
+    require(!partitionedMassWhitenSetting||
+                std::strcmp(partitionedMassWhitenSetting,"0")==0||
+                std::strcmp(partitionedMassWhitenSetting,"1")==0,
+            "NUMI_HUMAN_PARTITIONED_MASS_WHITEN must be 0 or 1");
+    const bool partitionedMassWhitenRequested=
+        partitionedMassWhitenSetting&&
+        std::strcmp(partitionedMassWhitenSetting,"1")==0;
+    if(partitionedMassWhitenRequested)
+        require(enableWholeBodySkinFat&&
+                    (partitionedReductionDiagnostic||
+                     partitionedPreconditionerRequested),
+                "Human partitioned mass whitening requires a registered skin/fat reduction build");
     std::vector<PreparedOrganicFEM> preparedOrganBatch;
     PreparedOrganicFEM preparedLeftOpticNerve,preparedRightOpticNerve;
     // Reference hard ties are retained only as a matched numerical control.
@@ -22267,7 +22281,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         compiled.world, wholeBodySkinObjectIndex,
                         *skinFatReductionSourceLabels,
                         source.objects.at(wholeBodySkinObjectIndex),
-                        partitionedPreconditionerRequested, reductionError);
+                        partitionedPreconditionerRequested,
+                        partitionedMassWhitenRequested, reductionError);
             require(!partitionedPreconditionerRequested ||
                         compiled.world.mixedSolver.executionBudgets.z == 6u,
                     "Human partitioned coarse preconditioner requires admitted selector 6");
@@ -22310,6 +22325,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" label_source=registered_skin_fat_donor_body_ids"
                         <<" mapped_global_fem_rows="
                         <<reductionCandidate.globalFEMNodeIndices.size()
+                        <<" mass_whitened="
+                        <<(partitionedMassWhitenRequested?"true":"false")
                         <<" runtime_coordinate_projection=disabled"
                         <<" runtime_coarse_preconditioner="
                         <<(partitionedPreconditionerRequested?"enabled":"disabled")
@@ -22394,7 +22411,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         owner->prepareSharedCompiledWorld =
             [retainedLabels=std::move(retainedLabels),
              retainedShell=std::move(retainedShell),
-             retainedObjectIndex](numi::matter::CompiledWorld& finalWorld) {
+             retainedObjectIndex,
+             partitionedMassWhitenRequested](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
@@ -22402,7 +22420,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     metalrobo::human::coarse_tissue::
                         buildAndInstallRegisteredSkinFatPreconditioner(
                             finalWorld, retainedObjectIndex, *retainedLabels,
-                            *retainedShell, true, handoffError);
+                            *retainedShell, true,
+                            partitionedMassWhitenRequested, handoffError);
                 require(finalCandidate.valid(),
                         "final shared Human skin/fat coarse metadata rebuild failed: "+
                             (handoffError.empty()
@@ -22418,7 +22437,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" source_rows="
                     <<finalWorld.humanPartitionedPreconditioner.basisNodeCount
                     <<" source_geometry_order=verified"
-                    <<" source_anatomical_labels=retained"<<std::endl;
+                    <<" source_anatomical_labels=retained"
+                    <<" mass_whitened="
+                    <<(partitionedMassWhitenRequested?"true":"false")
+                    <<std::endl;
             };
     }
     for(const auto& tet:compiled.world.fem.tetrahedra)owner->auditTetrahedra.push_back({tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w});
@@ -31185,6 +31207,14 @@ int main(int argc, char** argv) {
                         appendSource("resting_acl_footprint_metrics_side_"+side,
                             std::as_bytes(std::span(footprintMetrics)));
                     }                }
+                metalrobo::MetalNumiHumanGravityScaleRamp matterGravityRamp{};
+                if (restingGravityRampSteps.value_or(0u) != 0u) {
+                    matterGravityRamp.firstAcceptedStep = 1u;
+                    matterGravityRamp.fullGravityAcceptedStep =
+                        restingGravityRampSteps.value();
+                    matterGravityRamp.initialScale = 0.0f;
+                    matterGravityRamp.fullGravityScale = 1.0f;
+                }
                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
                     rigid.model,sourceIdentity,restingDenseVascular,
                     separationReleaseStep.value_or(MR_INVALID_INDEX),separationSeamDofIndex,
@@ -31195,7 +31225,8 @@ int main(int argc, char** argv) {
                         ? &*restingPassiveFasciaOwner->aorticWall : nullptr,
                     restingPassiveFasciaOwner
                         ? restingPassiveFasciaOwner->prepareSharedCompiledWorld
-                        : std::function<void(numi::matter::CompiledWorld&)>{});
+                        : std::function<void(numi::matter::CompiledWorld&)>{},
+                    matterGravityRamp);
                 const char* restingFgmresBudgetSetting =
                     std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
                 // A bounded override uses Matter's existing restarted solve.

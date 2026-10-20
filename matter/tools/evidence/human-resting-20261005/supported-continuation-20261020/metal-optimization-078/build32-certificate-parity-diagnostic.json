@@ -1,0 +1,6 @@
+{
+  "cycles": 384,
+  "max_absolute_true_minus_arnoldi": 6.356999999999506e-10,
+  "maximum_relative_to_rhs": 2.5677182324011694e-05,
+  "note": "Trace labels in build32 retain legacy operator_scope text; execution uses full coupled helper, reserved bit8. STRICT_INNER env in this diagnostic invocation is ignored; actual knob is NM_FEM_STRICT_INNER_FORCING. No strict claim."
+}

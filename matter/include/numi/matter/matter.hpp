@@ -2084,6 +2084,12 @@ public:
         const RuntimeConfiguration& configuration = {}
     );
     [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    // Applies a per-transaction scale to the immutable compiled gravity vector.
+    // The Runtime dispatch and its source fingerprint are not mutated.
+    [[nodiscard]] RuntimeDiagnostics encodeWithGravityScale(
+        const EncodeRequest& request,
+        float gravityScale
+    );
     // Encodes publication of the accepted transaction cursor into an active
     // borrowed command buffer. Call only after the final external owner gate
     // has been written in that command buffer. Matter statuses are always
@@ -2345,7 +2351,8 @@ private:
     ) noexcept;
     [[nodiscard]] RuntimeDiagnostics encodeImpl(
         const EncodeRequest& request,
-        bool retainPreparedState
+        bool retainPreparedState,
+        float gravityScale
     );
     [[nodiscard]] bool applyPreparedStateImpl(
         const AcceptedStateApplyPassView& pass

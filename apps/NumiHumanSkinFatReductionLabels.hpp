@@ -5,6 +5,8 @@
 // provenance only; it does not enable reduced coordinates in the runtime.
 #include "NumiHumanCoarseTissuePreparation.hpp"
 #include "numi/matter/compiled_world_partitioned_reduction.hpp"
+#include "numi/matter/partitioned_reduction_mass_whitening.hpp"
+#include "numi/matter/partitioned_reduction_sparse_support.hpp"
 
 #include <algorithm>
 #include <array>
@@ -121,6 +123,7 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     const RegisteredSkinFatReductionSourceLabels& labels,
     const numi::matter::ObjectSource& sourceShell,
     const bool installPayload,
+    const bool massWhiten,
     std::string& error
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
@@ -167,6 +170,21 @@ buildAndInstallRegisteredSkinFatPreconditioner(
         if (candidate.sourceNodeIndices[row] != row ||
             candidate.globalFEMNodeIndices[row] != descriptor.stateOffset + row)
             return fail("fresh compiled skin/fat basis node rows differ from the exact source object order");
+    }
+    if (massWhiten) {
+        std::vector<double> sourceMass;
+        sourceMass.reserve(candidate.globalFEMNodeIndices.size());
+        for (const std::uint32_t globalNode : candidate.globalFEMNodeIndices) {
+            if (globalNode >= world.fem.nodes.size())
+                return fail("mass-whitening source row escaped the compiled FEM mass array");
+            sourceMass.push_back(static_cast<double>(
+                world.fem.nodes[globalNode].positionAndMass.w));
+        }
+        const auto whitening =
+            numi::matter::massWhitenPartitionedReductionBasis(
+                candidate.basis, sourceMass);
+        if (!whitening.valid())
+            return fail("compiled skin/fat mass whitening failed: " + whitening.error);
     }
     if (!installPayload) {
         error.clear();
@@ -230,6 +248,18 @@ buildAndInstallRegisteredSkinFatPreconditioner(
         payload.blockModeIndices.size() != payload.modeCount ||
         payload.regionLabels.size() != payload.regionCount)
         return fail("fresh Human partitioned preconditioner payload packing is inconsistent");
+    if (massWhiten) {
+        // Rebuild deterministic row/mode support from the exact transformed
+        // Float32 payload. Runtime repeats this same builder after handoff.
+        const auto support = numi::matter::buildPartitionedReductionSparseSupport(
+            std::span<const nm_float4>(payload.basisValues),
+            payload.basisNodeCount, payload.modeCount,
+            std::span<const std::uint32_t>(payload.blockModeIndices),
+            payload.regionCount, payload.blockModeCount);
+        if (!support.valid())
+            return fail("mass-whitened Human payload sparse support is invalid: " +
+                        support.error);
+    }
     payload.enabled = true;
     world.humanPartitionedPreconditioner = std::move(payload);
     error.clear();

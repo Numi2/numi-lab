@@ -52,8 +52,9 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn('"NM_FEM_TRUE_RESIDUAL_CERTIFY"', RUNTIME)
         self.assertIn('std::strcmp(certification, "1") == 0', RUNTIME)
         self.assertIn('std::strcmp(certification, "0") != 0', RUNTIME)
-        assign = section(RUNTIME, "femTrueResidualEnabled = femTrueResidualCertificationRequested ||",
+        assign = section(RUNTIME, "femTrueResidualEnabled = state.femHumanHybridCoordinatesEnabled ||",
                          "dispatchThreads(\"nm_vascular_begin_working_set\"")
+        self.assertIn("state.femHumanHybridCoordinatesEnabled", assign)
         self.assertIn("femTrueResidualCertificationRequested", assign)
         self.assertIn("femTrueResidualRootSelected", assign)
         # Selector-based readback remains an observer and is disabled when the
@@ -83,7 +84,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
     def test_cycle_cap_rejects_certification_not_silent_skips(self):
         check = section(RUNTIME, "if (femTrueResidualEnabled && restartCycleCount > 64u)",
                         "const bool femCoupledCaptureNewtonSelected =")
-        self.assertIn("if (femTrueResidualCertificationRequested)", check)
+        self.assertRegex(check, r"if \(femTrueResidualCertificationRequested\s*\|\|\s*state.femHumanHybridCoordinatesEnabled\)")
         self.assertIn("restart_cycle_cap_64", check)
         self.assertIn("return diagnostics", check)
         self.assertIn("femTrueResidualEnabled = false", check)

@@ -1,0 +1,32 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 166: matter.runtime.gravity_scale_transaction
+1/6 Test #166: matter.runtime.gravity_scale_transaction ............   Passed    0.00 sec
+    Start 169: matter.compiler.partitioned_reduction_basis
+2/6 Test #169: matter.compiler.partitioned_reduction_basis .........   Passed    0.25 sec
+    Start 173: matter.compiler.regional_schur_condensation
+3/6 Test #173: matter.compiler.regional_schur_condensation .........   Passed    0.00 sec
+    Start 180: matter.analysis.fgmres_true_residual_contract
+4/6 Test #180: matter.analysis.fgmres_true_residual_contract .......   Passed    0.07 sec
+    Start 253: matter.metal.fgmres_true_residual_kernel_contract
+5/6 Test #253: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.35 sec
+    Start 270: matter.metal.partitioned_reduction_projection
+6/6 Test #270: matter.metal.partitioned_reduction_projection .......   Passed    0.04 sec
+
+100% tests passed out of 6
+
+Label Time Summary:
+contract          =   0.07 sec*proc (1 test)
+cpu               =   0.33 sec*proc (4 tests)
+fem               =   0.29 sec*proc (3 tests)
+fgmres            =   0.42 sec*proc (2 tests)
+gravity           =   0.00 sec*proc (1 test)
+human             =   0.00 sec*proc (1 test)
+matter            =   0.72 sec*proc (6 tests)
+metal             =   0.39 sec*proc (2 tests)
+preconditioner    =   0.29 sec*proc (2 tests)
+runtime           =   0.00 sec*proc (1 test)
+solver            =   0.00 sec*proc (1 test)
+synthetic         =   0.64 sec*proc (4 tests)
+true-residual     =   0.42 sec*proc (2 tests)
+
+Total Test time (real) =   0.72 sec

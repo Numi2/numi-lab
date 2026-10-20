@@ -183,6 +183,8 @@ struct DeviceKernels {
     id<MTLComputePipelineState> hybridZeroSelected = nil;
     id<MTLComputePipelineState> hybridPackModes = nil;
     id<MTLComputePipelineState> hybridClearInactiveField = nil;
+    id<MTLComputePipelineState> hybridGatherQRHS = nil;
+    id<MTLComputePipelineState> hybridPackPreconditionedQ = nil;
 
     DeviceKernels() {
         device = MTLCreateSystemDefaultDevice();
@@ -247,6 +249,8 @@ struct DeviceKernels {
         hybridZeroSelected = pipeline(@"nm_partitioned_reduction_hybrid_zero_selected");
         hybridPackModes = pipeline(@"nm_partitioned_reduction_hybrid_pack_modes");
         hybridClearInactiveField = pipeline(@"nm_partitioned_reduction_hybrid_clear_inactive_field");
+        hybridGatherQRHS = pipeline(@"nm_partitioned_reduction_hybrid_gather_q_rhs");
+        hybridPackPreconditionedQ = pipeline(@"nm_partitioned_reduction_hybrid_pack_preconditioned_q");
         std::cout << "device=" << name
                   << " projection=matrix_free_partitioned_basis"
                   << " environments=2 fixed_rows=preserved anchors=one_hot\n";
@@ -1399,6 +1403,103 @@ void verify() {
              after.z == before.z && after.w == before.w,
              "hybrid lift changed an unrelated solver tail entry");
     }
+
+    // The hybrid right preconditioner reads q from its second FEM span, solves
+    // the same regional blocks, and stores back q while selected fine xyz stays
+    // zero. Unmapped anchor modes and invalid regional solves are identity.
+    std::vector<nm_float4> hybridPreconditionSource(hybridUnknownCount, nm_float4{});
+    for (std::uint32_t environment = 0u; environment < environmentCount; ++environment) {
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            const float value = 0.013f * static_cast<float>(1u + environment * 17u + mode);
+            hybridPreconditionSource[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode] =
+                    nm_float4{value, 9.0f, 8.0f, 7.0f};
+        }
+    }
+    auto hybridPreconditionSourceBuffer =
+        makeBuffer(kernels.device, hybridPreconditionSource);
+    std::vector<float> hybridQResidual(
+        static_cast<std::size_t>(environmentCount) * hybridBasis.modeCount, 0.0f);
+    auto hybridQResidualBuffer = makeBuffer(kernels.device, hybridQResidual);
+    kernels.dispatchFine(kernels.hybridGatherQRHS,
+        MTLSizeMake(static_cast<NSUInteger>(environmentCount) * hybridBasis.modeCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, hybridPreconditionSourceBuffer,
+         hybridQResidualBuffer});
+    const auto* gatheredQ = static_cast<const float*>(hybridQResidualBuffer.contents);
+    for (std::uint32_t environment = 0u; environment < environmentCount; ++environment)
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode)
+            need(close(gatheredQ[static_cast<std::size_t>(environment) *
+                         hybridBasis.modeCount + mode],
+                       hybridPreconditionSource[fineCount +
+                           static_cast<std::size_t>(environment) * globalNodeCount + mode].x),
+                 "hybrid q RHS gather did not preserve the reduced-coordinate residual");
+
+    std::vector<nm_float4> hybridPreconditionOutput(hybridUnknownCount, nm_float4{});
+    auto hybridPreconditionOutputBuffer =
+        makeBuffer(kernels.device, hybridPreconditionOutput);
+    kernels.dispatchFine(kernels.hybridClearInactiveField,
+        MTLSizeMake(fineCount, 1u, 1u),
+        {hybridBlockDispatchBuffer, hybridPreconditionOutputBuffer});
+    kernels.dispatchFine(kernels.hybridPackPreconditionedQ,
+        MTLSizeMake(static_cast<NSUInteger>(environmentCount) * hybridBasis.modeCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, blockModeBuffer, coefficientBuffer,
+         solveValidBuffer, hybridPreconditionSourceBuffer,
+         hybridPreconditionOutputBuffer});
+    const auto* packedQ =
+        static_cast<const nm_float4*>(hybridPreconditionOutputBuffer.contents);
+    for (std::uint32_t environment = 0u; environment < environmentCount; ++environment) {
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            float expected = hybridPreconditionSource[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode].x;
+            bool mapped = false;
+            for (std::uint32_t region = 0u; region < regionCount; ++region) {
+                for (std::uint32_t local = 0u; local < blockModeCount; ++local) {
+                    if (blockModeIndices[static_cast<std::size_t>(region) *
+                                         blockModeCount + local] != mode) continue;
+                    mapped = true;
+                    if (gpuSolveValid[static_cast<std::size_t>(environment) *
+                                      regionCount + region] != 0u)
+                        expected = gpuCoefficients[
+                            (static_cast<std::size_t>(environment) * regionCount + region) *
+                                blockModeCount + local];
+                }
+            }
+            const auto& actual = packedQ[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode];
+            need(close(actual.x, expected, 3.0e-6, 6.0e-4) &&
+                 actual.y == 0.0f && actual.z == 0.0f && actual.w == 0.0f,
+                 mapped ? "hybrid regional q solve scatter differs from reference"
+                        : "hybrid unmapped q mode did not retain identity fallback");
+        }
+    }
+
+
+    std::vector<std::uint32_t> invalidHybridSolve(
+        static_cast<std::size_t>(environmentCount) * regionCount, 0u);
+    auto invalidHybridSolveBuffer = makeBuffer(kernels.device, invalidHybridSolve);
+    std::vector<nm_float4> identityQOutput(hybridUnknownCount, nm_float4{});
+    auto identityQOutputBuffer = makeBuffer(kernels.device, identityQOutput);
+    kernels.dispatchFine(kernels.hybridPackPreconditionedQ,
+        MTLSizeMake(static_cast<NSUInteger>(environmentCount) * hybridBasis.modeCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, blockModeBuffer, coefficientBuffer,
+         invalidHybridSolveBuffer, hybridPreconditionSourceBuffer,
+         identityQOutputBuffer});
+    const auto* identityQ =
+        static_cast<const nm_float4*>(identityQOutputBuffer.contents);
+    for (std::uint32_t environment = 0u; environment < environmentCount; ++environment)
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            const auto& expected = hybridPreconditionSource[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode];
+            const auto& actual = identityQ[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode];
+            need(actual.x == expected.x && actual.y == 0.0f &&
+                 actual.z == 0.0f && actual.w == 0.0f,
+                 "invalid hybrid regional solve did not use identity q fallback");
+        }
+
     std::cout << "hybrid_Bq_BTf_adjoint=pass random_directions=2"
               << " fine_complement=preserved pressure_w=preserved tail=preserved\n";
 

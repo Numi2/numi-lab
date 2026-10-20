@@ -1116,4 +1116,57 @@ kernel void nm_partitioned_reduction_hybrid_pack_modes(
     vector[field] = nm_float4(value, 0.0f, 0.0f, 0.0f);
 }
 
+// Read the hybrid reduced-coordinate residual from the inactive second FEM
+// span. In hybrid mode this span stores q, not an independent nodal field.
+kernel void nm_partitioned_reduction_hybrid_gather_q_rhs(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* source [[buffer(1)]],
+    device float* reducedValues [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.modeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.modeCount;
+    const uint mode = gid - environment * dispatch.modeCount;
+    const ulong nodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    const ulong qIndex = nodes + ulong(environment) * dispatch.globalNodeCount + mode;
+    reducedValues[gid] = source[qIndex].x;
+}
+
+// Map regional solves back into q. Invalid factors preserve q (identity).
+kernel void nm_partitioned_reduction_hybrid_pack_preconditioned_q(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* blockModeIndices [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const uint* solveValid [[buffer(3)]],
+    device const nm_float4* source [[buffer(4)]],
+    device nm_float4* destination [[buffer(5)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.modeCount;
+    if (gid >= total || dispatch.modeCount == 0u) return;
+    const uint environment = gid / dispatch.modeCount;
+    const uint mode = gid - environment * dispatch.modeCount;
+    const ulong nodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    const ulong qIndex = nodes + ulong(environment) * dispatch.globalNodeCount + mode;
+    float value = source[qIndex].x; // identity fallback for unmapped/invalid blocks
+    bool found = false;
+    for (uint region = 0u; region < dispatch.regionCount; ++region) {
+        const ulong block = ulong(environment) * dispatch.regionCount + region;
+        for (uint blockMode = 0u; blockMode < dispatch.blockModeCount; ++blockMode) {
+            if (blockModeIndices[region * dispatch.blockModeCount + blockMode] != mode)
+                continue;
+            if (found) {
+                // A duplicate map is ambiguous; keep the exact identity action.
+                destination[qIndex] = nm_float4(source[qIndex].x, 0.0f, 0.0f, 0.0f);
+                return;
+            }
+            found = true;
+            if (solveValid[block] != 0u)
+                value = coefficients[block * dispatch.blockModeCount + blockMode];
+        }
+    }
+    destination[qIndex] = nm_float4(value, 0.0f, 0.0f, 0.0f);
+}
+
 } // namespace numi_matter_metal

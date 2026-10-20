@@ -45,10 +45,56 @@ struct RegionalSchurGraphLayout {
 // nm_fgmres_graph_build_patch_matrices. This is only exact if the caller's
 // externalCouplingAnchors is the complete endpoint set for all non-tet A
 // entries; otherwise this function must not be admitted.
-// Expand a candidate dynamic FEM surface face to all nodes of every
-// adjacent tetrahedron. Contact can activate at any point on a compiled
-// surface, so anchoring only the initial contact endpoints or face vertices
-// is not enough to keep the exact contact Jacobian out of A_ii.
+// The static surface primitive emitter reads only adjacency.x and sides.x,
+// then emits the three vertices opposite sides.x. A contact feature (including
+// a clipped/mortar feature) is mapped back onto those primitive vertices, so
+// these are the complete potential FEM contact endpoints. Keep both adjacency
+// sides in the descriptor to mirror NMFEMSurfaceFaceGPU, but deliberately
+// consume only the side the emitter actually uses. Disabled faces are skipped
+// before validating their unused geometry, matching the emitter's early exit.
+struct RegionalSchurSurfaceFace {
+    std::array<std::uint32_t, 2> adjacency{};
+    std::array<std::uint32_t, 2> oppositeCorners{};
+    std::uint32_t flags = 0u;
+};
+
+[[nodiscard]] inline bool regionalSchurContactTopologyIsImmutable(
+    const bool mutationCommandsEmpty,
+    const bool punctureChannelsEmpty
+) noexcept {
+    return mutationCommandsEmpty && punctureChannelsEmpty;
+}
+
+[[nodiscard]] inline bool appendRegionalSchurSurfaceVertexAnchors(
+    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+    const std::span<const RegionalSchurSurfaceFace> surfaceFaces,
+    const std::uint32_t disabledContactFlag,
+    std::vector<std::uint32_t>& anchors
+) {
+    constexpr std::uint32_t invalid =
+        std::numeric_limits<std::uint32_t>::max();
+    if (disabledContactFlag == 0u) return false;
+    std::vector<std::uint32_t> emitted;
+    if (surfaceFaces.size() > std::numeric_limits<std::size_t>::max() / 3u)
+        return false;
+    emitted.reserve(surfaceFaces.size() * 3u);
+    for (const RegionalSchurSurfaceFace& face : surfaceFaces) {
+        if ((face.flags & disabledContactFlag) != 0u) continue;
+        const std::uint32_t tetIndex = face.adjacency[0];
+        const std::uint32_t opposite = face.oppositeCorners[0];
+        if (tetIndex == invalid || tetIndex >= tetrahedra.size() ||
+            opposite >= 4u) return false;
+        for (std::uint32_t corner = 0u; corner < 4u; ++corner)
+            if (corner != opposite)
+                emitted.push_back(tetrahedra[tetIndex][corner]);
+    }
+    anchors.insert(anchors.end(), emitted.begin(), emitted.end());
+    return true;
+}
+
+// Conservative fallback for non-compact/dynamic surface maps. That path can
+// enumerate tet faces from rebuilt incidence, so anchor the full adjacent
+// tetrahedra unless the immutable emitted-triangle map is available.
 [[nodiscard]] inline bool appendRegionalSchurSurfaceTetAnchors(
     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
     const std::span<const std::array<std::uint32_t, 2>> surfaceAdjacencies,

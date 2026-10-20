@@ -713,6 +713,158 @@ void checkLargeNodeResidualMeasurement(
               << " result=PASS" << '\n';
 }
 
+void runTailTrueResidualDistributedCase(id<MTLDevice> device,
+    id<MTLCommandQueue> queue, id<MTLComputePipelineState> partialPipeline,
+    id<MTLComputePipelineState> finishPipeline,
+    id<MTLComputePipelineState> replacePipeline,
+    const std::uint32_t q, const std::uint32_t reserved,
+    const char* caseName) {
+    constexpr std::uint32_t n=4u, rigid=9u, support=2u, vascular=3u;
+    const std::uint32_t rows=2u*n+rigid+support+vascular;
+    NMMatterDispatchGPU d{}; d.abiVersion=NM_MATTER_ABI_VERSION;
+    d.environmentCount=1u; d.objectCount=1u; d.femNodeCount=n;
+    d.rigidGeneralizedCapacity=rigid;
+    NMFGMRESLayoutGPU l{}; l.unknownCount=rows;
+    l.supportContactCount=support; l.supportBase=2u*n+rigid;
+    l.vascularUnknownCount=vascular; l.vascularBase=l.supportBase+support;
+    l.vascularResidualTolerance=1.0f; l.vascularReserved=q; l.reserved=reserved;
+    NMMixedSolverGPU solver{}; solver.residualTolerances.x=0.25f;
+    solver.regularization.x=1.0e-8f;
+    NMFGMRESStateGPU initial{}; initial.diagnostics={0.125f,2.0f,1.0f,0.0f};
+    initial.nonlinear={4.0f,0.0f,0.0f,0.0f};
+    NMMatterStatusGPU healthy{}; healthy.code=NM_STATUS_SUCCESS;
+    healthy.environment=0u;
+    std::vector<nm_float4> rhs(rows,nm_float4{}), action(rows,nm_float4{});
+    const nm_float4 sentinel{91.25f,-13.5f,7.75f,3.125f};
+    std::vector<nm_float4> residual(rows,sentinel), expected(rows,sentinel);
+    double norm2=0.0; float maximum=0.0f;
+    auto setRow=[&](std::uint32_t row,nm_float4 b,nm_float4 ax,bool scalar){
+        rhs[row]=b; action[row]=ax;
+        nm_float4 r{b.x-ax.x,b.y-ax.y,b.z-ax.z,b.w-ax.w};
+        if(scalar) r.y=r.z=r.w=0.0f;
+        expected[row]=r;
+        norm2+=double(r.x)*r.x+double(r.y)*r.y+
+            double(r.z)*r.z+double(r.w)*r.w;
+        maximum=std::max(maximum,std::max(std::max(std::abs(r.x),std::abs(r.y)),
+            std::max(std::abs(r.z),std::abs(r.w))));
+    };
+    for(std::uint32_t i=0;i<n;++i){float f=float(i+1u);
+        setRow(i,{.018f*f,-.011f*f,.007f*f,.004f*f},
+            {.003f*f,.001f*f,-.002f*f,.001f*f},false);}
+    for(std::uint32_t i=0;i<q;++i){float f=float(i+1u);
+        setRow(n+i,{.09f*f,-.035f*f,.022f*f,.013f*f},
+            {.012f*f,.005f*f,-.004f*f,.003f*f},false);}
+    // Poison every unused row in the inactive field span.
+    for(std::uint32_t i=n+q;i<2u*n;++i){
+        rhs[i]={500.0f,-400.0f,300.0f,-200.0f};
+        action[i]={-100.0f,80.0f,-60.0f,40.0f};}
+    for(std::uint32_t i=0;i<rigid;++i){float f=float(i+1u);
+        setRow(2u*n+i,{.021f*f,700.0f,-800.0f,900.0f},
+            {.004f*f,-300.0f,200.0f,-100.0f},true);}
+    for(std::uint32_t i=0;i<support;++i){float f=float(i+1u);
+        setRow(l.supportBase+i,{.052f*f,-.027f*f,.019f*f,.008f*f},
+            {.006f*f,.003f*f,-.002f*f,.001f*f},false);}
+    for(std::uint32_t i=0;i<vascular;++i){float f=float(i+1u);
+        setRow(l.vascularBase+i,{-.061f*f,.031f*f,.024f*f,-.017f*f},
+            {-.008f*f,.004f*f,.005f*f,-.003f*f},false);}
+    const float expectedNorm=float(std::sqrt(norm2));
+    require(expectedNorm<1.0f,"tail fixture should pass unchanged completion gate");
+
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto lb=makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{l});
+    auto sb=makeBuffer(device,std::vector<NMMixedSolverGPU>{solver});
+    auto rb=makeBuffer(device,rhs), ab=makeBuffer(device,action);
+    auto xb=makeBuffer(device,residual);
+    auto states=makeBuffer(device,std::vector<NMFGMRESStateGPU>{initial});
+    auto metrics=makeBuffer(device,std::vector<nm_float4>{{-1,-1,-1,-1}});
+    auto diag=makeBuffer(device,std::vector<NMMatterStatusGPU>{healthy});
+    auto prod=makeBuffer(device,std::vector<NMMatterStatusGPU>{healthy});
+    auto forcing=makeBuffer(device,std::vector<float>{0.5f});
+    auto replace=makeBuffer(device,std::vector<std::uint32_t>{1u});
+    auto propagate=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto partials=makeBuffer(device,std::vector<nm_float4>{{-7,-7,-7,-7}});
+    const std::vector<std::pair<NSUInteger,id<MTLBuffer>>> binds{
+        {0u,db},{30u,lb},{1u,sb},{2u,rb},{3u,ab},{4u,xb},{5u,states},
+        {6u,metrics},{7u,forcing},{8u,diag},{9u,replace},{10u,prod},
+        {11u,propagate},{24u,partials}};
+    dispatch(device,queue,partialPipeline,binds,1u,256u);
+    dispatch(device,queue,finishPipeline,binds,1u,32u);
+    dispatch(device,queue,replacePipeline,binds,1u,256u);
+    const auto got=readBuffer<nm_float4>(xb,rows);
+    const auto m=readBuffer<nm_float4>(metrics,1u)[0];
+    const auto st=readBuffer<NMFGMRESStateGPU>(states,1u)[0];
+    require(readBuffer<NMMatterStatusGPU>(diag,1u)[0].code==NM_STATUS_SUCCESS &&
+            readBuffer<NMMatterStatusGPU>(prod,1u)[0].code==NM_STATUS_SUCCESS,
+        "tail distributed residual changed healthy status");
+    require(close(m.x,expectedNorm,std::max(1.0e-7f,expectedNorm*3.0e-5f)),
+        "tail norm omitted/included an unexpected row or padding");
+    require(close(m.z,maximum,1.0e-7f)&&close(m.y,initial.diagnostics.x)&&
+            close(m.w,initial.diagnostics.y),"tail residual metrics mismatch");
+    require(st.diagnostics.z==1.0f,
+        "tail measurement lost the pre-existing completion latch");
+    for(std::uint32_t i=0;i<rows;++i){
+        const auto&a=got[i]; const auto&e=expected[i];
+        require(a.x==e.x&&a.y==e.y&&a.z==e.z&&a.w==e.w,
+            (i>=n+q && i<2u*n)
+                ? "tail replacement changed ignored field padding"
+                : "tail replacement changed an active vector row");
+    }
+    if (reserved==9u) {
+        auto runInvalidLayout = [&](NMMatterDispatchGPU invalidDispatch,
+                                    NMFGMRESLayoutGPU invalidLayout,
+                                    const char* failureMessage) {
+            const std::uint32_t propagateFailure = 1u;
+            const nm_float4 metricSentinel{-1.0f,-1.0f,-1.0f,-1.0f};
+            std::memcpy([db contents],&invalidDispatch,sizeof(invalidDispatch));
+            std::memcpy([lb contents],&invalidLayout,sizeof(invalidLayout));
+            std::memcpy([states contents],&initial,sizeof(initial));
+            std::memcpy([diag contents],&healthy,sizeof(healthy));
+            std::memcpy([prod contents],&healthy,sizeof(healthy));
+            std::memcpy([propagate contents],&propagateFailure,sizeof(propagateFailure));
+            std::memcpy([xb contents],residual.data(),residual.size()*sizeof(nm_float4));
+            std::memcpy([metrics contents],&metricSentinel,sizeof(metricSentinel));
+            dispatch(device,queue,partialPipeline,binds,1u,256u);
+            dispatch(device,queue,finishPipeline,binds,1u,32u);
+            dispatch(device,queue,replacePipeline,binds,1u,256u);
+            require(readBuffer<NMMatterStatusGPU>(diag,1u)[0].code==NM_STATUS_INVALID_DISPATCH &&
+                    readBuffer<NMMatterStatusGPU>(prod,1u)[0].code==NM_STATUS_INVALID_DISPATCH,
+                failureMessage);
+            const auto unchangedResidual=readBuffer<nm_float4>(xb,rows);
+            const auto unchangedMetrics=readBuffer<nm_float4>(metrics,1u);
+            require(std::memcmp(unchangedResidual.data(),residual.data(),
+                        residual.size()*sizeof(nm_float4))==0 &&
+                    std::memcmp(unchangedMetrics.data(),&metricSentinel,sizeof(metricSentinel))==0 &&
+                    readBuffer<NMFGMRESStateGPU>(states,1u)[0].diagnostics.z==initial.diagnostics.z,
+                "invalid full-tail layout partially replaced residual, metrics, or latch");
+        };
+        NMFGMRESLayoutGPU badOffset=l;
+        badOffset.supportBase += 1u;
+        runInvalidLayout(d,badOffset,
+            "ordinary full-tail certificate accepted a malformed support offset");
+        NMMatterDispatchGPU badCapacity=d;
+        badCapacity.rigidGeneralizedCapacity -= 1u;
+        runInvalidLayout(badCapacity,l,
+            "ordinary full-tail certificate accepted a mismatched rigid capacity");
+        NMFGMRESLayoutGPU badCount=l;
+        badCount.unknownCount -= 1u;
+        runInvalidLayout(d,badCount,
+            "ordinary full-tail certificate accepted an undersized unknown arena");
+    }
+    std::cout<<caseName<<"_tail_true_residual=true rigid=9 q="<<q<<" support=2 "
+                "vascular=3 inactive_field_padding="<<(n-q)<<" prelatched=true "
+                "replacement=true result=PASS\\n";
+}
+
+void checkHybridTailTrueResidualDistributed(id<MTLDevice> device,
+    id<MTLCommandQueue> queue, id<MTLComputePipelineState> partialPipeline,
+    id<MTLComputePipelineState> finishPipeline,
+    id<MTLComputePipelineState> replacePipeline) {
+    runTailTrueResidualDistributedCase(device,queue,partialPipeline,finishPipeline,
+        replacePipeline,2u,5u,"hybrid");
+    runTailTrueResidualDistributedCase(device,queue,partialPipeline,finishPipeline,
+        replacePipeline,0u,9u,"ordinary");
+}
+
 void checkDistributedBeginAndCorrection(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library,
     id<MTLComputePipelineState> legacyBegin,
@@ -2349,6 +2501,35 @@ void checkRegionalSchurInteriorExtraction(
     std::cout << "regional_schur_Aii_extraction=exact bounds=guarded result=PASS\\n";
 }
 
+void checkCertificationStateCopy(id<MTLDevice> device,
+    id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto kernel = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_certification_operator_states");
+    NMMatterDispatchGPU shape{}; shape.environmentCount = 2u;
+    std::vector<NMFGMRESStateGPU> original(2u);
+    original[0].diagnostics = {3.0f, 4.0f, 1.0f, 6.0f};
+    original[1].diagnostics = {7.0f, 8.0f, 1.0f, 9.0f};
+    std::vector<NMMatterStatusGPU> health(2u);
+    health[0].code = NM_STATUS_SUCCESS;
+    health[1].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    auto source = makeBuffer(device, original);
+    auto result = makeBuffer(device, std::vector<NMFGMRESStateGPU>(2u));
+    auto copiedHealth = makeBuffer(device, std::vector<NMMatterStatusGPU>(2u));
+    dispatch(device, queue, kernel, {{0u, makeBuffer(device, std::vector{shape})},
+        {1u, source}, {2u, result}, {3u, makeBuffer(device, health)},
+        {4u, copiedHealth}}, 1u, 32u);
+    auto values = readBuffer<NMFGMRESStateGPU>(result, 2u);
+    auto actualHealth = readBuffer<NMMatterStatusGPU>(copiedHealth, 2u);
+    require(std::memcmp(actualHealth.data(), health.data(), sizeof(NMMatterStatusGPU)*2u) == 0,
+        "certification must preserve source failure status");
+    auto expected = original; expected[0].diagnostics.z = 0.0f;
+    require(std::memcmp(values.data(), expected.data(), sizeof(NMFGMRESStateGPU)*2u) == 0,
+        "certification must clear only a healthy copied completion latch");
+    auto unchanged = readBuffer<NMFGMRESStateGPU>(source, 2u);
+    require(std::memcmp(unchanged.data(), original.data(), sizeof(NMFGMRESStateGPU)*2u) == 0,
+        "certification must preserve production solver state");
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -2366,6 +2547,7 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            checkCertificationStateCopy(device, queue, library);
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
             auto operatorICBRanges = pipeline(device, library,
@@ -2819,6 +3001,7 @@ int main(int argc, const char* argv[]) {
             if(argc==2){checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,20682u);checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,32768u);}
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,8192u);
+            checkHybridTailTrueResidualDistributed(device, queue, trueResidualPartial, trueResidualFinish, trueResidualReplace);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

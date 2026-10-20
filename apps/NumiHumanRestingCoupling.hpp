@@ -8,6 +8,7 @@
 #include "metalrobo/numi_human_resting_visual_gpu.h"
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <charconv>
 #include <cstddef>
@@ -57,6 +58,7 @@ private:
     std::uint32_t seamDofPatchCount=0u;
     bool commonFailureCaptureEnabled=false;
     id<MTLBuffer> bodyTemplate;
+    metalrobo::MetalNumiHumanGravityScaleRamp gravityScaleRamp{};
     std::uint64_t fingerprint;
     std::uint64_t baseFingerprint=0u;
     numi::matter::NumiHumanTendonFEMLoadAdapter tendonFEMAdapter;
@@ -75,11 +77,13 @@ public:
                             std::span<const MRDofPropertiesGPU> releasePatchRecords={},
                             const numi::matter::WorldSource* tissueSource=nullptr,
                             const numi::human::vessel_wall_coupling::Built* aorticWallBinding=nullptr,
-                            std::function<void(numi::matter::CompiledWorld&)> solverPrepare={}):
+                            std::function<void(numi::matter::CompiledWorld&)> solverPrepare={},
+                            metalrobo::MetalNumiHumanGravityScaleRamp gravityRamp={}):
         physiology(network,parameters,dt,denseVascular,tissueSource,
                    std::move(solverPrepare)),
         brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
-        seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
+        seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex),
+        gravityScaleRamp(gravityRamp) {
         using numi::human::need;
         if(aorticWallBinding) {
             numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
@@ -193,6 +197,16 @@ public:
              "resting presentation allocation");
         fingerprint=brain.rootProgramIdentity^0x4e48524553543031ull;
         fingerprint^=(std::uint64_t(seamDofReleaseStep)<<32u)|seamDofIndex;
+        if (gravityScaleRamp.configured()) {
+            fingerprint=combineFingerprint(fingerprint,
+                gravityScaleRamp.firstAcceptedStep);
+            fingerprint=combineFingerprint(fingerprint,
+                gravityScaleRamp.fullGravityAcceptedStep);
+            fingerprint=combineFingerprint(fingerprint,
+                std::bit_cast<std::uint32_t>(gravityScaleRamp.initialScale));
+            fingerprint=combineFingerprint(fingerprint,
+                std::bit_cast<std::uint32_t>(gravityScaleRamp.fullGravityScale));
+        }
         if(!fingerprint)fingerprint=1;
         baseFingerprint=fingerprint;
     }
@@ -283,7 +297,8 @@ public:
         return tendonFEMBindingEnabled ? &tendonFEMAdapter : nullptr;
     }
     static metalrobo::MetalNumiHumanTendonLoadPass makeTendonFEMPass(
-        const metalrobo::MetalNumanXTransactionPass& p) {
+        const metalrobo::MetalNumanXTransactionPass& p,
+        const float matterGravityScale = 1.0f) {
         using numi::human::need;
         auto narrow=[](std::uint64_t value,const char* name) {
             need(value<=UINT32_MAX,std::string("Human FEM pass ")+name+
@@ -323,6 +338,7 @@ public:
         pass.bodyJacobianPointOffset=p.bodyJacobianPointOffset;
         pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
         pass.articulationFirstBody=p.articulationFirstBody;
+        pass.matterGravityScale=matterGravityScale;
         return pass;
     }
     void initializeInitialCommonCoordinates() {
@@ -724,6 +740,8 @@ public:
             need(p.phase==metalrobo::MetalNumanXTransactionPhase::postDynamics,"invalid resting transaction phase");
             bridge(validateBody);r.phase=EncodePhase::postCommit;
         }
+        const float matterGravityScale =
+            gravityScaleRamp.scaleAtAcceptedStep(p.stepIndex + 1u);
         auto& respiration=*physiology.respiration;
         numi::human::Respiration::PhysicsLease lease{};
         lease.commandBuffer=p.commandBuffer;
@@ -760,7 +778,8 @@ public:
             ~PhysicsLeaseScope(){owner.clearPhysicsLease(commandBuffer);}
         } leaseScope{respiration,p.commandBuffer};
         if(tendonFEMBindingEnabled) {
-            const auto adapterPass=makeTendonFEMPass(p);
+            const auto adapterPass=makeTendonFEMPass(
+                p, matterGravityScale);
             const auto encodeAdapter=p.phase==
                     metalrobo::MetalNumanXTransactionPhase::preDynamics
                 ? tendonFEMAdapterProgram.encodePreDynamics
@@ -772,7 +791,8 @@ public:
                     ? "Human FEM adapter rejected the borrowed RestingRun pass"
                     : adapterDiagnostic.message);
         } else {
-            auto result=physiology.runtime.encode(r);
+            auto result=physiology.runtime.encodeWithGravityScale(
+                r, matterGravityScale);
             need(result.encoded,result.message);
         }
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::preDynamics) {

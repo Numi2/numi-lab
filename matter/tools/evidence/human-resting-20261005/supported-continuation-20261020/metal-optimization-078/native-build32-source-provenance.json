@@ -1,0 +1,109 @@
+{
+  "artifact_manifest_sha256": "f4af01ab0adcd67cb1598240bed4c09db31b4ffd3f0d0cde92bd95483c54bb93",
+  "artifacts": {
+    "NumiMatter.metallib": "2ad848fff0fb671af48610c4dfd47804ffd8ebeda2957d4e28124d5ce1954b86",
+    "libmetalrobo.dylib": "46ae865f5d75c3b5f747504483002e0426f85e1ca4e86e683dfe17e7ba3af22e",
+    "numi-human-native": "efc3aeaa620c0d441d0795d11d67c42fad30c3fdab2a47cc8b2a570ad588d092",
+    "source-changes.tar.gz": "260e65229bbd82a31a26a36d34bd1d77a126d130cee81a63fcd9bc581ab7f95f",
+    "source-manifest.json": "1c552ef15b214624b02746c51357659ba91a25b2bff27d3460bd104ee78d472a",
+    "source.patch": "98e7d6e2510feba4fc4ae77dfd777c0c80ef5820fdb288967133c5bdd273f7f9"
+  },
+  "base_revision": "5e2f0b11884839a0a2e973c5e5d88be38057b43f",
+  "build": "perf078-build32",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build32-frozen",
+  "schema": 1,
+  "source_archive_sha256": "260e65229bbd82a31a26a36d34bd1d77a126d130cee81a63fcd9bc581ab7f95f",
+  "source_files": [
+    {
+      "path": "apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "f612bcf7d85be05435b58314220ac7e26422a88d9f2a4ee28beeb757e4af6195",
+      "status": " M"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "76ed7d8a2df9934fe8bc1a335e8a1c80adbc1ea82c42c4e08de8edc4b05c5402",
+      "status": " M"
+    },
+    {
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "adc034bb32220f05eb10bca2827e1f59e272fde04b99d9b14a05142354d1d594",
+      "status": " M"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "sha256": "4e132340bd5d1216df799ef7cd8a9465407e309b070dc6391457dd5c7e9c1357",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/detail/gravity_scale.hpp",
+      "sha256": "4baee6b3d0bd1fd479b43a7457c3fff743d1eb13e22fe6192e76e7a33a6c9ef3",
+      "status": "??"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "0613ea283bef645ae29020196c7d6b1091266bd0496afff326cf97da7ecee7a7",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+      "sha256": "15c90a91f451eb6588e265e7c467fecfa93f26096b2dd6e1a8532d0b8270b126",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "f231c28dd672e7ad877279257453984db28b20316e3ede58e7a69c69f4cb3499",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+      "sha256": "b887fe79408508f32f83f16deda1ab90611e2ef58e131f6856d2ab693f6404c8",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "sha256": "229d4739cc3620f9d19c5f9ca7e4a1b5531d7a863fd2769d8c4c23cfab60023b",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_schur_condensation.hpp",
+      "sha256": "cdf78d1af8d5ae43c57ca8977d54333a43f2e26bca1225ec88a31de4a0bdb4de",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "e6ec9cab43b3ec48b973f690f3c68dd13207205cf193a3f195887625cde1543e",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "3d352ef574d50f2a5c7fe55f3c747a44f7e9fa38814302b22c7bc5ce2bf2bea3",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/gravity_scale_transaction_check.cpp",
+      "sha256": "9c5dae29e872be5ac022e5cf9c6f6469ca077a8441c73db9ad64df3a8d33ab03",
+      "status": "??"
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+      "sha256": "c3cccd1a1dd39da68fa8160355ad6d45fc064823add251869def4df92eba9d0a",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+      "sha256": "deb6e0cb65eac73bf42b606236237e4d7b302c692784a592f9dc8f7b1943613f",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_schur_condensation_check.cpp",
+      "sha256": "403bf5926736d0d04bf0d99a932d58b48657fdc686d86428b52868201fd6f8db",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/test_true_residual_certification_contract.py",
+      "sha256": "2338069d7ef66b8c4a53214961405d1e3a426ef7e34997e7b965d4ca69046835",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "98e7d6e2510feba4fc4ae77dfd777c0c80ef5820fdb288967133c5bdd273f7f9"
+}

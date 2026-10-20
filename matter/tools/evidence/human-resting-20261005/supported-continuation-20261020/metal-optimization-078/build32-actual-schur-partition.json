@@ -1,0 +1,21 @@
+[
+  {
+    "schema": 3,
+    "valid": true,
+    "patches": 949,
+    "eligible_patches": 34,
+    "interior_patch_nodes": 48,
+    "interface_patch_slots": 29623,
+    "external_anchors": 10299,
+    "attachment_nodes": 0,
+    "field_boundary_nodes": 0,
+    "cohesive_nodes": 0,
+    "static_contact_pair_nodes": 0,
+    "potential_surface_contact_nodes": 10083,
+    "vascular_binding_nodes": 0,
+    "cavity_face_nodes": 216,
+    "mixed_graph_block_nodes": 0,
+    "former_two_way_policy_nodes": 14202,
+    "error": ""
+  }
+]

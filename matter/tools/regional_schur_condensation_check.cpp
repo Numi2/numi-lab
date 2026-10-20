@@ -11,6 +11,9 @@
 using numi::matter::detail::RegionalGraphSchwarzLayout;
 using numi::matter::detail::RegionalGraphSchwarzPatch;
 using numi::matter::detail::buildRegionalSchurGraphLayout;
+using numi::matter::detail::appendRegionalSchurSurfaceVertexAnchors;
+using numi::matter::detail::RegionalSchurSurfaceFace;
+using numi::matter::detail::regionalSchurContactTopologyIsImmutable;
 
 namespace {
 bool require(const bool value, const char* message, std::uint32_t& checks) {
@@ -96,44 +99,107 @@ int main() {
                   graph.patchNodes[objectBoundary.interfacePatchValues[0]]==2u &&
                   graph.patchNodes[objectBoundary.interfacePatchValues[1]]==3u,
         "shared nodes across same-tag objects were not retained on interface",checks);
-    // Every node of a tetrahedron adjacent to a compiled dynamic-contact
-    // surface is an interface node, including vertices that are not current
-    // pair endpoints. A remote interior remains eligible.
-    const std::array<std::array<std::uint32_t,4>,3> surfaceTets{{
-        {{0u,1u,2u,3u}}, {{1u,2u,3u,4u}}, {{2u,3u,4u,5u}}
+    // In the immutable compact surface map, contact primitives use the
+    // first adjacency/side only. Each active contact corner is sourced from
+    // the triangle's three primitive vertices (mortar features remain
+    // barycentric on those same vertices); the opposite tetrahedron vertex
+    // and the non-emitted second adjacency must not be anchored.
+    constexpr std::uint32_t disabledContactFace = 1u << 31u;
+    const std::array<std::array<std::uint32_t,4>,3> surfaceVertexTets{{
+        {{0u,1u,2u,3u}}, {{1u,2u,3u,6u}}, {{2u,3u,4u,5u}}
     }};
-    const std::array<std::array<std::uint32_t,2>,1> dynamicSurface{{{{0u,1u}}}};
+    const std::array<RegionalSchurSurfaceFace,3> emittedSurfaceFaces{{
+        {{{0u,1u}}, {{0u,3u}}, 0u}, // emitted tet 0 side 0 => {1,2,3}
+        {{{2u,UINT32_MAX}}, {{2u,UINT32_MAX}}, disabledContactFace},
+        {{{2u,UINT32_MAX}}, {{1u,UINT32_MAX}}, 0u}, // {2,4,5}, excludes 3
+    }};
     std::vector<std::uint32_t> surfaceAnchors;
-    ok &= require(numi::matter::detail::appendRegionalSchurSurfaceTetAnchors(
-            surfaceTets, dynamicSurface, surfaceAnchors),
-        "valid dynamic surface adjacency failed to produce interface anchors",checks);
+    ok &= require(appendRegionalSchurSurfaceVertexAnchors(
+            surfaceVertexTets, emittedSurfaceFaces, disabledContactFace,
+            surfaceAnchors),
+        "valid emitted static surface faces failed to produce vertex anchors",checks);
     std::sort(surfaceAnchors.begin(), surfaceAnchors.end());
     surfaceAnchors.erase(std::unique(surfaceAnchors.begin(), surfaceAnchors.end()),
                          surfaceAnchors.end());
+    const std::vector<std::uint32_t> expectedSurfaceVertices{1u,2u,3u,4u,5u};
+    ok &= require(surfaceAnchors == expectedSurfaceVertices,
+        "surface anchors included an opposite/disabled/non-emitted node",checks);
     RegionalGraphSchwarzLayout surfaceGraph;
-    surfaceGraph.nodeCount=6u;
+    surfaceGraph.nodeCount=7u;
     surfaceGraph.environmentCount=1u;
-    surfaceGraph.patchNodes={0u,1u,2u,3u,4u,5u};
-    surfaceGraph.patches={{0u,6u,0u,0u}};
+    surfaceGraph.patchNodes={0u,1u,2u,3u,4u,5u,6u};
+    surfaceGraph.patches={{0u,7u,0u,0u}};
     const std::array<std::array<std::uint32_t,2>,3> surfaceSources{{
         {{0u,10u}}, {{0u,10u}}, {{0u,10u}}
     }};
     const auto surfaceLayout=buildRegionalSchurGraphLayout(
-        surfaceGraph,surfaceTets,surfaceSources,surfaceAnchors);
+        surfaceGraph,surfaceVertexTets,surfaceSources,surfaceAnchors);
     ok &= require(surfaceLayout.valid() &&
-                  surfaceLayout.patches[0].interiorCount==1u &&
+                  surfaceLayout.patches[0].interiorCount==2u &&
                   surfaceLayout.patches[0].interfaceCount==5u &&
-                  surfaceGraph.patchNodes[surfaceLayout.interiorPatchValues[0]]==5u,
-        "dynamic surface closure did not anchor both adjacent tets",checks);
+                  surfaceGraph.patchNodes[surfaceLayout.interiorPatchValues[0]]==0u &&
+                  surfaceGraph.patchNodes[surfaceLayout.interiorPatchValues[1]]==6u,
+        "three-vertex contact superset did not retain both adjacent tet opposite vertices",checks);
+
+    // A disabled emitted record is ignored before touching its invalid
+    // geometry, matching nm_contact_build_surface_primitives' disabled-face
+    // early return. An enabled invalid descriptor fails without appending a
+    // partial anchor prefix.
+    const std::array<RegionalSchurSurfaceFace,1> disabledInvalidFace{{
+        {{{UINT32_MAX,UINT32_MAX}}, {{UINT32_MAX,UINT32_MAX}},
+         disabledContactFace}
+    }};
+    const std::size_t anchorCountBeforeDisabled = surfaceAnchors.size();
+    ok &= require(appendRegionalSchurSurfaceVertexAnchors(
+            surfaceVertexTets, disabledInvalidFace, disabledContactFace,
+            surfaceAnchors) &&
+          surfaceAnchors.size()==anchorCountBeforeDisabled,
+        "disabled surface face was not skipped safely",checks);
+    const std::array<RegionalSchurSurfaceFace,2> malformedEnabledFaces{{
+        {{{0u,UINT32_MAX}}, {{0u,UINT32_MAX}}, 0u},
+        {{{99u,UINT32_MAX}}, {{2u,UINT32_MAX}}, 0u}
+    }};
+    const std::size_t anchorCountBeforeMalformed = surfaceAnchors.size();
+    ok &= require(!appendRegionalSchurSurfaceVertexAnchors(
+            surfaceVertexTets, malformedEnabledFaces, disabledContactFace,
+            surfaceAnchors) &&
+          surfaceAnchors.size()==anchorCountBeforeMalformed,
+        "malformed enabled surface map did not fail atomically",checks);
+
+    // Mutation and puncture topology remain fail-closed for this static
+    // surface-map proof; it cannot be reused after a topology-changing edit.
+    ok &= require(regionalSchurContactTopologyIsImmutable(true,true) &&
+                  !regionalSchurContactTopologyIsImmutable(false,true) &&
+                  !regionalSchurContactTopologyIsImmutable(true,false) &&
+                  !regionalSchurContactTopologyIsImmutable(false,false),
+        "mutable or punctured FEM topology was admitted for static anchors",checks);
+
+    // The non-compact dynamic-map fallback retains the previous conservative
+    // behavior and validates both adjacency indices.
+    const std::array<std::array<std::uint32_t,4>,3> surfaceTets{{
+        {{0u,1u,2u,3u}}, {{1u,2u,3u,4u}}, {{2u,3u,4u,5u}}
+    }};
+    const std::array<std::array<std::uint32_t,2>,1> dynamicSurface{{{{0u,1u}}}};
+    RegionalGraphSchwarzLayout dynamicGraph;
+    dynamicGraph.nodeCount=6u;
+    dynamicGraph.environmentCount=1u;
+    dynamicGraph.patchNodes={0u,1u,2u,3u,4u,5u};
+    dynamicGraph.patches={{0u,6u,0u,0u}};
+    std::vector<std::uint32_t> dynamicAnchors;
+    ok &= require(numi::matter::detail::appendRegionalSchurSurfaceTetAnchors(
+            surfaceTets, dynamicSurface, dynamicAnchors),
+        "valid dynamic surface adjacency failed conservative fallback",checks);
     const std::array<std::array<std::uint32_t,2>,1> invalidSurface{{{{3u,UINT32_MAX}}}};
+    const std::size_t dynamicAnchorCountBeforeInvalid = dynamicAnchors.size();
     ok &= require(!numi::matter::detail::appendRegionalSchurSurfaceTetAnchors(
-            surfaceTets, invalidSurface, surfaceAnchors),
-        "out-of-range dynamic surface adjacency was not rejected",checks);
+            surfaceTets, invalidSurface, dynamicAnchors) &&
+          dynamicAnchors.size()==dynamicAnchorCountBeforeInvalid,
+        "out-of-range dynamic surface adjacency was not rejected atomically",checks);
     // A runtime implicit spring endpoint must also be supplied as an external
     // anchor; if it consumes the last interior, exact condensation is disabled.
-    surfaceAnchors.push_back(5u);
+    dynamicAnchors.push_back(5u);
     ok &= require(!buildRegionalSchurGraphLayout(
-            surfaceGraph,surfaceTets,surfaceSources,surfaceAnchors).valid(),
+            dynamicGraph,surfaceTets,surfaceSources,dynamicAnchors).valid(),
         "spring endpoint that covers the last interior did not fail closed",checks);
 
     const std::array<std::uint32_t,6> allAnchors{{0u,1u,2u,3u,4u,5u}};

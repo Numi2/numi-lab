@@ -1,0 +1,1 @@
+myosim_articulated_visual=failed error="--resting-gravity-ramp-steps requires a released authored resting pose and a horizon at least as long as the ramp"

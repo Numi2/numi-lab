@@ -6062,6 +6062,23 @@ kernel void nm_fgmres_clear_true_auxiliary(
     metrics[global] = float4(-1.0f);
 }
 
+// Certification must execute the entire current A after Krylov convergence.
+// Copy only solver state; production convergence/history are never reset.
+kernel void nm_fgmres_prepare_certification_operator_states(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* source [[buffer(1)]],
+    device NMFGMRESStateGPU* destination [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    diagnosticStatuses[environment] = statuses[environment];
+    NMFGMRESStateGPU value = source[environment];
+    if (environmentHealthy(statuses, environment)) value.diagnostics.z = 0.0f;
+    destination[environment] = value;
+}
+
 // Recompute r=b-Ax from the preserved Newton right-hand side and the same
 // matrix-free FEM tangent used by Arnoldi. This is scoped by the host to a
 // single explicit-FEM object with no MPM, mixed fields, or other KKT blocks.
@@ -7212,7 +7229,7 @@ inline uint fgmresTrueResidualMeasurementItemCount(
     const NMMatterDispatchGPU dispatch,
     const NMFGMRESLayoutGPU layout
 ) {
-    return (layout.reserved & 4u) != 0u
+    return (layout.reserved & 12u) != 0u
         ? fgmresOrthogonalItemCount(dispatch, layout)
         : 2u * dispatch.femNodeCount +
             min(dispatch.rigidGeneralizedCapacity, 6u);
@@ -7226,11 +7243,23 @@ inline bool fgmresTrueResidualHasInvalidDispatch(
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint expectedUnknownCount = 2u * totalNodes +
         6u * dispatch.environmentCount;
-    if ((layout.reserved & 4u) != 0u &&
-        (dispatch.mpmActiveNodeCapacity != 0u ||
-         layout.supportContactCount != 0u ||
-         layout.vascularUnknownCount != 0u))
-        return true;
+    if ((layout.reserved & 12u) != 0u) {
+        // Hybrid and full-coupled certification preserve every tail. Verify the
+        // contiguous arena rather than the legacy six-free-rigid coupon.
+        const ulong rigidEnd = ulong(2u) * totalNodes +
+            ulong(dispatch.environmentCount) * dispatch.rigidGeneralizedCapacity;
+        const ulong supportEnd = rigidEnd +
+            ulong(dispatch.environmentCount) * layout.supportContactCount;
+        const ulong vascularEnd = supportEnd +
+            ulong(dispatch.environmentCount) * layout.vascularUnknownCount;
+        return dispatch.mpmActiveNodeCapacity != 0u ||
+            fgmresTransportUnknownsActive(layout) ||
+            ((layout.reserved & 4u) != 0u &&
+             layout.vascularReserved > dispatch.femNodeCount) ||
+            ulong(layout.supportBase) != rigidEnd ||
+            ulong(layout.vascularBase) != supportEnd ||
+            ulong(layout.unknownCount) != vascularEnd;
+    }
     return hasFreeRigidTail &&
         (dispatch.rigidGeneralizedCapacity != 6u ||
          dispatch.rigidQCapacity != 0u ||
@@ -7898,7 +7927,7 @@ kernel void nm_fgmres_true_residual_distributed_partial(
     float maximumAbsolute = 0.0f;
     bool finiteResidual = true;
     if (item < itemCount) {
-        if ((layout.reserved & 4u) != 0u) {
+        if ((layout.reserved & 12u) != 0u) {
             const uint row = fgmresOrthogonalVectorIndex(
                 dispatch, layout, environment, item);
             if (row != NM_INVALID_INDEX) {
@@ -8071,7 +8100,7 @@ kernel void nm_fgmres_true_residual_distributed_replace(
     uint global [[thread_position_in_grid]]
 ) {
     if (replaceResidual == 0u) return;
-    if ((layout.reserved & 4u) != 0u) {
+    if ((layout.reserved & 12u) != 0u) {
         const uint items = fgmresOrthogonalItemCount(dispatch, layout);
         const ulong totalItems = ulong(dispatch.environmentCount) * items;
         if (global >= totalItems || items == 0u) return;

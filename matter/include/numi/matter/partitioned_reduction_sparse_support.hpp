@@ -29,6 +29,44 @@ struct PartitionedReductionSparseSupport {
     [[nodiscard]] bool valid() const noexcept { return error.empty(); }
 };
 
+// Hybrid Bq requires bijective coordinates and a race-free source row map.
+// The compiled Human owner promises strictly ascending global node IDs; retain
+// that contract here so GPU lift/scatter never aliases two basis rows.
+[[nodiscard]] inline std::string validatePartitionedHybridIndexMaps(
+    const std::span<const std::uint32_t> globalFEMNodeIndices,
+    const std::uint32_t basisNodeCount,
+    const std::uint32_t globalNodeCount,
+    const std::span<const std::uint32_t> blockModeIndices,
+    const std::uint32_t modeCount,
+    const std::uint32_t regionCount,
+    const std::uint32_t blockModeCount
+) {
+    if (basisNodeCount == 0u || globalNodeCount == 0u || modeCount == 0u ||
+        regionCount == 0u || blockModeCount == 0u || blockModeCount > 32u ||
+        globalFEMNodeIndices.size() != basisNodeCount ||
+        blockModeIndices.size() != modeCount ||
+        static_cast<std::uint64_t>(regionCount) * blockModeCount != modeCount)
+        return "hybrid index map dimensions do not match the full basis";
+
+    for (std::uint32_t row = 0u; row < basisNodeCount; ++row) {
+        const std::uint32_t node = globalFEMNodeIndices[row];
+        if (node >= globalNodeCount)
+            return "hybrid source node is outside the compiled FEM range";
+        if (row != 0u && globalFEMNodeIndices[row - 1u] >= node)
+            return "hybrid source nodes must be unique and strictly ascending";
+    }
+
+    std::vector<std::uint8_t> modeSeen(modeCount, 0u);
+    for (const std::uint32_t mode : blockModeIndices) {
+        if (mode >= modeCount)
+            return "hybrid regional mode is outside the full coordinate range";
+        if (modeSeen[mode] != 0u)
+            return "hybrid regional mode map contains a duplicate coordinate";
+        modeSeen[mode] = 1u;
+    }
+    return {};
+}
+
 // Builds deterministic compact support from the exact uploaded float B. The
 // caller supplies the existing region-major [region][localMode] global-mode
 // map; no thresholds are used, so a coefficient is present iff any xyz

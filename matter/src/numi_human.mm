@@ -2316,7 +2316,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->deferAcceptedControlCursorPublication;
         request.deferAcceptedStepExtensionFinalization =
             state_->deferAcceptedStepExtensionFinalization;
-        const auto pre = state_->runtime->encode(request);
+        const auto pre = state_->runtime->encodeWithGravityScale(
+            request, pass.matterGravityScale);
         ++state_->runtimePreDynamicsEncodeCount;
         if (!pre.encoded) {
             state_->message = "Human tendon/FEM Matter pre-dynamics failed: " + pre.message;
@@ -2516,7 +2517,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->deferAcceptedControlCursorPublication;
             request.deferAcceptedStepExtensionFinalization =
                 state_->deferAcceptedStepExtensionFinalization;
-            const auto post = state_->runtime->encode(request);
+            const auto post = state_->runtime->encodeWithGravityScale(
+                request, pass.matterGravityScale);
             ++state_->runtimePostCommitEncodeCount;
             if (!post.encoded) {
                 state_->message =

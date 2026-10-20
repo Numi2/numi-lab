@@ -149,6 +149,8 @@ struct MetalNumiHumanTendonLoadPass {
     std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
     std::uint32_t bodyPoseStride = 0u;
     std::uint32_t articulationFirstBody = 0u;
+    // Per-transaction Matter gravity scale; default preserves legacy behavior.
+    float matterGravityScale = 1.0f;
 };
 
 using MetalNumiHumanTendonLoadEncode = bool (*)(

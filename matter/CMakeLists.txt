@@ -79,6 +79,20 @@ if(BUILD_TESTING)
         PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-gravity-scale-transaction-check
+    tools/gravity_scale_transaction_check.cpp)
+target_include_directories(numi-matter-gravity-scale-transaction-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_compile_options(numi-matter-gravity-scale-transaction-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.runtime.gravity_scale_transaction
+        COMMAND numi-matter-gravity-scale-transaction-check)
+    set_tests_properties(matter.runtime.gravity_scale_transaction PROPERTIES
+        TIMEOUT 30 LABELS "matter;runtime;human;gravity;cpu")
+endif()
+
 add_executable(numi-matter-human-implicit-spring-inertial-guard-check
     tools/human_implicit_spring_inertial_guard_check.cpp)
 target_compile_options(numi-matter-human-implicit-spring-inertial-guard-check PRIVATE

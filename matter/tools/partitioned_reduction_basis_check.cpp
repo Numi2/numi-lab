@@ -1,4 +1,7 @@
 #include "numi/matter/partitioned_reduction_basis.hpp"
+#include "numi/matter/compiled_world_partitioned_reduction.hpp"
+#include "numi/matter/partitioned_reduction_mass_whitening.hpp"
+#include "numi/matter/partitioned_reduction_sparse_support.hpp"
 
 #include <array>
 #include <cmath>
@@ -12,6 +15,11 @@
 namespace {
 using Position = std::array<double, 3>;
 using Tet = std::array<std::uint32_t, 4>;
+
+void verifyMassWhiteningCase(
+    numi::matter::PartitionedReductionBasis basis,
+    std::span<const double> masses,
+    std::uint32_t expectedModesPerRegion);
 
 [[noreturn]] void fail(const std::string& message) {
     std::cerr << "partitioned reduction basis check failed: " << message << '\n';
@@ -256,6 +264,201 @@ void runValidCase() {
             nodalWork += displacement[node][axis] * force[node][axis];
     require(near(reducedWork, nodalWork, 2.0e-12),
             "B^T f fails virtual-work equality");
+
+    verifyMassWhiteningCase(basis, masses, 6u);
+    auto affineBasis = basis;
+    require(numi::matter::compiled_reduction_detail::finalizeAffineModes(
+                affineBasis, 4u, 512u, positions, masses, fixed),
+            "compiled affine fixture could not construct the Human twelve-mode blocks");
+    verifyMassWhiteningCase(std::move(affineBasis), masses, 12u);
+}
+
+void verifyMassWhiteningCase(
+    numi::matter::PartitionedReductionBasis basis,
+    const std::span<const double> masses,
+    const std::uint32_t expectedModesPerRegion
+) {
+    using namespace numi::matter;
+    const PartitionedReductionBasis original = basis;
+    std::vector<std::uint32_t> regionalMap;
+    for (const auto& region : basis.regions) {
+        std::uint32_t retained = 0u;
+        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
+            const auto& descriptor = basis.modes[mode];
+            if (descriptor.kind == PartitionedReductionModeKind::anchorTranslation ||
+                descriptor.regionLabel != region.sourceLabel) continue;
+            regionalMap.push_back(mode);
+            ++retained;
+        }
+        require(retained == expectedModesPerRegion,
+                "mass whitening fixture has the wrong regional mode count");
+    }
+    const auto supportBefore = buildPartitionedReductionSparseSupport(
+        std::span<const nm_float4>(basis.values), basis.nodeCount, basis.modeCount,
+        std::span<const std::uint32_t>(regionalMap),
+        static_cast<std::uint32_t>(basis.regions.size()), expectedModesPerRegion);
+    require(supportBefore.valid(), supportBefore.error);
+
+    const auto report = massWhitenPartitionedReductionBasis(basis, masses);
+    require(report.valid(), report.error);
+    require(report.regions.size() == basis.regions.size(),
+            "mass whitening did not return one factor per source region");
+    require(report.maximumRegionalIdentityResidual <= 5.0e-4,
+            "mass whitening roundoff residual exceeds the production bound");
+
+    const auto supportAfter = buildPartitionedReductionSparseSupport(
+        std::span<const nm_float4>(basis.values), basis.nodeCount, basis.modeCount,
+        std::span<const std::uint32_t>(regionalMap),
+        static_cast<std::uint32_t>(basis.regions.size()), expectedModesPerRegion);
+    require(supportAfter.valid(), supportAfter.error);
+    require(supportAfter.regionSupportRows == supportBefore.regionSupportRows,
+            "mass whitening changed the exact anatomical source-row support");
+
+    for (const auto& block : report.regions) {
+        const std::size_t count = block.modeIndices.size();
+        require(count == expectedModesPerRegion &&
+                    block.choleskyLower.size() == count * count,
+                "mass whitening factor dimensions do not match its region");
+        for (std::size_t row = 0u; row < count; ++row) {
+            for (std::size_t column = 0u; column < count; ++column) {
+                const double expected = row == column ? 1.0 : 0.0;
+                const double actual = basis.projectedMass[
+                    static_cast<std::size_t>(block.modeIndices[row]) *
+                        basis.modeCount + block.modeIndices[column]];
+                require(near(actual, expected, 5.0e-4),
+                        "regional B^T M B is not identity after whitening");
+            }
+        }
+
+        // B_original = B_whitened L^T, so every original column remains in
+        // exactly the same regional span.
+        for (std::size_t originalColumn = 0u; originalColumn < count;
+             ++originalColumn) {
+            for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
+                std::array<double, 3> reconstructed{};
+                for (std::size_t rebasedColumn = 0u; rebasedColumn < count;
+                     ++rebasedColumn) {
+                    const double factor = block.choleskyLower[
+                        originalColumn * count + rebasedColumn];
+                    const nm_float4& value = basis.values[
+                        static_cast<std::size_t>(block.modeIndices[rebasedColumn]) *
+                            basis.nodeCount + node];
+                    reconstructed[0] += factor * value.x;
+                    reconstructed[1] += factor * value.y;
+                    reconstructed[2] += factor * value.z;
+                }
+                const nm_float4& expected = original.values[
+                    static_cast<std::size_t>(block.modeIndices[originalColumn]) *
+                        basis.nodeCount + node];
+                require(near(reconstructed[0], expected.x, 3.0e-4) &&
+                            near(reconstructed[1], expected.y, 3.0e-4) &&
+                            near(reconstructed[2], expected.z, 3.0e-4),
+                        "mass whitening changed the regional basis span");
+            }
+        }
+    }
+
+    for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
+        if (basis.modes[mode].kind !=
+                PartitionedReductionModeKind::anchorTranslation) continue;
+        for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
+            const nm_float4& before = original.values[
+                static_cast<std::size_t>(mode) * basis.nodeCount + node];
+            const nm_float4& after = basis.values[
+                static_cast<std::size_t>(mode) * basis.nodeCount + node];
+            require(before.x == after.x && before.y == after.y &&
+                        before.z == after.z && before.w == after.w,
+                    "mass whitening changed a sensitive-anchor identity mode");
+        }
+    }
+    for (const std::uint32_t node : basis.anchorNodes) {
+        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
+            if (basis.modes[mode].kind ==
+                    PartitionedReductionModeKind::anchorTranslation) continue;
+            const nm_float4& value = basis.values[
+                static_cast<std::size_t>(mode) * basis.nodeCount + node];
+            require(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f,
+                    "mass whitening introduced regional motion at a sensitive anchor");
+        }
+    }
+
+    std::vector<Position> force(basis.nodeCount);
+    for (std::uint32_t node = 0u; node < basis.nodeCount; ++node)
+        force[node] = {0.03 * (node + 1u), -0.017 * (node + 2u),
+                       0.011 * (node % 13u)};
+    std::vector<double> q(basis.modeCount);
+    for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode)
+        q[mode] = 0.007 * static_cast<double>(mode + 1u) - 0.03;
+    std::vector<double> reducedForce(basis.modeCount, 0.0);
+    std::vector<Position> displacement(basis.nodeCount);
+    require(projectPartitionedNodalForce(basis, force, reducedForce) &&
+                combinePartitionedPreconditionerModes(basis, q, displacement),
+            "mass-whitened basis rejected force or coordinate mapping");
+    double reducedWork = 0.0;
+    for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode)
+        reducedWork += q[mode] * reducedForce[mode];
+    double nodalWork = 0.0;
+    for (std::uint32_t node = 0u; node < basis.nodeCount; ++node)
+        for (std::size_t axis = 0u; axis < 3u; ++axis)
+            nodalWork += displacement[node][axis] * force[node][axis];
+    require(near(reducedWork, nodalWork, 2.0e-12),
+            "mass-whitened B^T f violates virtual-work equality");
+
+    // A singular regional block must fail transactionally.
+    PartitionedReductionBasis singular = original;
+    const auto& firstBlock = report.regions.front();
+    const std::uint32_t first = firstBlock.modeIndices[0];
+    const std::uint32_t duplicate = firstBlock.modeIndices[1];
+    for (std::uint32_t node = 0u; node < singular.nodeCount; ++node)
+        singular.values[static_cast<std::size_t>(duplicate) *
+            singular.nodeCount + node] =
+            singular.values[static_cast<std::size_t>(first) *
+                singular.nodeCount + node];
+    const auto singularValues = singular.values;
+    const auto singularMass = singular.projectedMass;
+    const auto singularReport =
+        massWhitenPartitionedReductionBasis(singular, masses);
+    require(!singularReport.valid(),
+            "rank-deficient regional mass Gram matrix was admitted");
+    require(singular.values.size() == singularValues.size() &&
+                std::equal(singular.values.begin(), singular.values.end(),
+                           singularValues.begin(),
+                           [](const nm_float4& a, const nm_float4& b) {
+                               return a.x == b.x && a.y == b.y &&
+                                   a.z == b.z && a.w == b.w;
+                           }) && singular.projectedMass == singularMass,
+            "failed mass whitening partially mutated the original basis");
+}
+
+void runHybridIndexMapCases() {
+    using numi::matter::validatePartitionedHybridIndexMaps;
+    const std::vector<std::uint32_t> nodes{1u, 4u, 8u};
+    const std::vector<std::uint32_t> modes{0u, 1u, 2u, 3u};
+    require(validatePartitionedHybridIndexMaps(nodes, 3u, 10u, modes,
+                4u, 2u, 2u).empty(),
+            "valid ascending node map and complete regional mode map were rejected");
+
+    const std::vector<std::uint32_t> duplicateNodes{1u, 4u, 4u};
+    require(!validatePartitionedHybridIndexMaps(duplicateNodes, 3u, 10u,
+                modes, 4u, 2u, 2u).empty(),
+            "duplicate source nodes were admitted into a race-prone lift map");
+    const std::vector<std::uint32_t> unsortedNodes{1u, 8u, 4u};
+    require(!validatePartitionedHybridIndexMaps(unsortedNodes, 3u, 10u,
+                modes, 4u, 2u, 2u).empty(),
+            "unsorted source rows were admitted");
+    const std::vector<std::uint32_t> outOfRangeNodes{1u, 4u, 10u};
+    require(!validatePartitionedHybridIndexMaps(outOfRangeNodes, 3u, 10u,
+                modes, 4u, 2u, 2u).empty(),
+            "out-of-range source rows were admitted");
+
+    const std::vector<std::uint32_t> incompleteModes{0u, 1u, 2u};
+    require(!validatePartitionedHybridIndexMaps(nodes, 3u, 10u,
+                incompleteModes, 4u, 2u, 2u).empty(),
+            "incomplete regional map left a hybrid coordinate without a region");
+    const std::vector<std::uint32_t> duplicateModes{0u, 1u, 2u, 2u};
+    require(!validatePartitionedHybridIndexMaps(nodes, 3u, 10u,
+                duplicateModes, 4u, 2u, 2u).empty(),
+            "duplicate regional modes were admitted");
 }
 
 void runRejectCase() {
@@ -277,8 +480,10 @@ void runRejectCase() {
 
 int main() {
     runValidCase();
+    runHybridIndexMapCases();
     runRejectCase();
     std::cout << "partitioned reduction basis: source preservation, partition unity, "
-                 "rigid motion, projected mass, B^T f, virtual work, and reject case passed\n";
+                 "rigid motion, projected mass, B^T f, virtual work, hybrid index-map validation, "
+                 "regional mass whitening, span, anchor preservation, and reject cases passed\n";
     return 0;
 }
