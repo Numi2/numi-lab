@@ -514,6 +514,225 @@ void checkDistributedBeginAndCorrection(
                 "legacy_controls=true result=PASS\n";
 }
 
+
+void checkInexactNewtonForcing(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> prepare,
+    id<MTLComputePipelineState> commit) {
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    dispatchData.objectCount = 1u;
+    dispatchData.femNodeCount = 1u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 2u;
+    layout.reserved = 1u;
+    NMMixedSolverGPU solver{};
+    solver.residualTolerances.x = 1.0e-8f;
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE;
+    NMSchedulerStateGPU scheduler{};
+    scheduler.numerical.w = 1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    NMMicrostepGPU microstep{};
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    NMFGMRESStateGPU state{};
+    state.nonlinear.w = 0.0f;
+
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    auto solverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{solver});
+    auto restartBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto iterationBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto forcingBuffer = makeBuffer(device, std::vector<float>{0.1f});
+    auto partialBuffer = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{100.0f, 0.0f, 1.0f, 0.0f}});
+    auto historyBuffer = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{77.0f, 88.0f, 1.0f, 1.0f}});
+    auto etaBuffer = makeBuffer(device, std::vector<float>{-1.0f});
+    auto objectsBuffer = makeBuffer(device,
+        std::vector<NMContinuumObjectGPU>{object});
+    auto schedulersBuffer = makeBuffer(device,
+        std::vector<NMSchedulerStateGPU>{scheduler});
+    auto adaptiveBuffer = makeBuffer(device,
+        std::vector<NMAdaptiveStateGPU>{adaptive});
+    auto microstepBuffer = makeBuffer(device,
+        std::vector<NMMicrostepGPU>{microstep});
+    auto lineSearchBuffer = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{1.0f, 0.0f, 0.0f, 0.0f}});
+    auto environmentAlphaBuffer = makeBuffer(device,
+        std::vector<float>{1.0f});
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy});
+    auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{state});
+
+    const auto runPrepare = [&] {
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {1u, solverBuffer},
+            {14u, restartBuffer}, {15u, forcingBuffer},
+            {16u, iterationBuffer}, {24u, partialBuffer},
+            {25u, historyBuffer}, {26u, etaBuffer},
+            {30u, layoutBuffer}}, 1u, 32u);
+    };
+    const auto runCommit = [&] {
+        dispatch(device, queue, commit, {
+            {0u, dispatchBuffer}, {1u, objectsBuffer},
+            {2u, schedulersBuffer}, {3u, adaptiveBuffer},
+            {4u, microstepBuffer}, {5u, lineSearchBuffer},
+            {6u, environmentAlphaBuffer}, {7u, statusBuffer},
+            {8u, stateBuffer}, {9u, historyBuffer}}, 1u, 32u);
+    };
+    const auto setIteration = [&](const std::uint32_t value) {
+        *static_cast<std::uint32_t*>([iterationBuffer contents]) = value;
+    };
+    const auto setRestart = [&](const std::uint32_t value) {
+        *static_cast<std::uint32_t*>([restartBuffer contents]) = value;
+    };
+    const auto setPartialNormSquared = [&](const float value) {
+        static_cast<nm_float4*>([partialBuffer contents])[0].x = value;
+    };
+    const auto setPartialSupportAdmissible = [&](const float value) {
+        static_cast<nm_float4*>([partialBuffer contents])[0].z = value;
+    };
+    const auto readHistory = [&] {
+        return readBuffer<nm_float4>(historyBuffer, 1u)[0];
+    };
+    const auto readEta = [&] {
+        return readBuffer<float>(etaBuffer, 1u)[0];
+    };
+
+    // A new root discards stale history and preserves its legacy schedule.
+    setIteration(0u);
+    setRestart(0u);
+    runPrepare();
+    auto h = readHistory();
+    require(close(readEta(), 0.1f) && h.x == 0.0f && h.z == 0.0f &&
+            h.w == 1.0f && close(h.y, 10.0f),
+        "EW initial/root-reset preparation did not use legacy forcing");
+
+    // Only a committed positive line-search candidate advances the base norm.
+    runCommit();
+    h = readHistory();
+    require(close(h.x, 10.0f) && h.z == 1.0f && h.w == 0.0f,
+        "accepted FEM candidate did not commit its staged base norm");
+
+    setPartialNormSquared(25.0f);
+    setIteration(1u);
+    runPrepare();
+    require(close(readEta(), 0.225f, 2.0e-6f),
+        "EW ratio forcing did not use the consecutive full RHS norms");
+
+    // Restart tails must reuse the prepared scalar and must not restage history.
+    const nm_float4 beforeRestart = readHistory();
+    const float etaBeforeRestart = readEta();
+    setPartialNormSquared(400.0f);
+    setRestart(1u);
+    runPrepare();
+    h = readHistory();
+    require(close(readEta(), etaBeforeRestart) &&
+            std::memcmp(&h, &beforeRestart, sizeof(h)) == 0,
+        "restart-cycle preparation changed EW eta or accepted history");
+
+    // A second accepted candidate commits the new base norm.
+    setRestart(0u);
+    runCommit();
+    h = readHistory();
+    require(close(h.x, 5.0f) && h.z == 1.0f && h.w == 0.0f,
+        "second accepted FEM candidate did not advance EW history");
+
+    // A base already complete is a no-op and does not advance the ratio.
+    setPartialNormSquared(4.0f);
+    setIteration(2u);
+    runPrepare();
+    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
+        NMFGMRESStateGPU{};
+    static_cast<NMFGMRESStateGPU*>([stateBuffer contents])->nonlinear.w = 1.0f;
+    runCommit();
+    h = readHistory();
+    require(close(h.x, 5.0f) && h.z == 1.0f && h.w == 0.0f,
+        "already-complete nonlinear base advanced EW history");
+
+    // Rejected line search invalidates the ratio so the next solve falls back.
+    setPartialNormSquared(9.0f);
+    setIteration(2u);
+    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
+        NMFGMRESStateGPU{};
+    runPrepare();
+    static_cast<nm_float4*>([lineSearchBuffer contents])[0].x = 0.0f;
+    runCommit();
+    h = readHistory();
+    require(h.z == 0.0f && h.w == 0.0f,
+        "rejected line-search candidate retained EW history");
+
+    // An unhealthy environment also invalidates the ratio.
+    static_cast<nm_float4*>([lineSearchBuffer contents])[0].x = 1.0f;
+    setPartialNormSquared(16.0f);
+    setIteration(3u);
+    runPrepare();
+    auto badStatus = healthy;
+    badStatus.code = NM_STATUS_CONTACT_FAILURE;
+    *static_cast<NMMatterStatusGPU*>([statusBuffer contents]) = badStatus;
+    runCommit();
+    h = readHistory();
+    require(h.z == 0.0f && h.w == 0.0f,
+        "unhealthy environment retained EW history");
+    *static_cast<NMMatterStatusGPU*>([statusBuffer contents]) = healthy;
+
+    // Nonfinite reduction input cannot be hidden by sqrt(max(norm2, 0)).
+    setPartialNormSquared(NAN);
+    setIteration(3u);
+    runPrepare();
+    h = readHistory();
+    require(close(readEta(), 0.1f) && h.z == 0.0f && h.w == 0.0f,
+        "nonfinite full RHS partial did not invalidate EW history/fallback");
+
+    // With no due FEM object there is no accepted material candidate to commit.
+    setPartialNormSquared(9.0f);
+    setIteration(0u);
+    runPrepare();
+    static_cast<NMSchedulerStateGPU*>([schedulersBuffer contents])[0]
+        .numerical.w = 0.0f;
+    runCommit();
+    h = readHistory();
+    require(h.x == 0.0f && h.z == 0.0f && h.w == 1.0f,
+        "no-op environment without due FEM objects advanced EW history");
+
+    // Support inadmissibility is the begin reduction's validity gate. Even
+    // with a finite full RHS, it must invalidate old EW history and use the
+    // legacy forcing for this solve.
+    static_cast<NMSchedulerStateGPU*>([schedulersBuffer contents])[0]
+        .numerical.w = 1.0f;
+    setPartialSupportAdmissible(1.0f);
+    setPartialNormSquared(9.0f);
+    setIteration(0u);
+    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
+        NMFGMRESStateGPU{};
+    runPrepare();
+    runCommit();
+    h = readHistory();
+    require(close(h.x, 3.0f) && h.z == 1.0f,
+        "support-gate fixture did not establish accepted EW history");
+    setPartialNormSquared(16.0f);
+    setPartialSupportAdmissible(0.0f);
+    setIteration(1u);
+    runPrepare();
+    h = readHistory();
+    require(close(readEta(), 0.1f) && h.z == 0.0f && h.w == 0.0f,
+        "inadmissible support partial retained EW history or skipped fallback");
+
+    std::cout << "inexact_newton_forcing=true full_rhs=true accepted_history=true "
+                 "restart_preserved=true reject_status_reset=true NaN_fallback=true "
+                 "support_gate=true no_op_preserved=true result=PASS\n";
+}
+
 void checkDistributedCGS2(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -1179,6 +1398,10 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_begin_distributed_finish");
             auto beginBasis0 = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_begin_distributed_basis0");
+            auto ewPrepare = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_prepare_inexact_newton_forcing");
+            auto ewCommit = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_commit_inexact_newton_history");
             auto correctionLegacy = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_measure_correction");
             auto correctionPartial = pipeline(device, library,
@@ -1194,6 +1417,7 @@ int main(int argc, const char* argv[]) {
             checkDistributedBeginAndCorrection(
                 device,queue,library,beginLegacy,beginPartial,beginFinish,
                 beginBasis0,correctionLegacy,correctionPartial,correctionFinish);
+            checkInexactNewtonForcing(device, queue, ewPrepare, ewCommit);
             auto cgs2Partial = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_partial");
             auto cgs2ReduceRow = pipeline(device, library,

@@ -7172,6 +7172,128 @@ kernel void nm_fgmres_begin_distributed_partial(
         partials[environment * tilesPerEnvironment + tile] = tileValue;
 }
 
+// Opt-in Eisenstat-Walker forcing preparation. The partials are the full
+// production FGMRES RHS norm contributions, with the same row masks as the
+// begin measurement; this deliberately does not use the narrower Armijo norm.
+// History layout per environment: x = previous accepted base norm,
+// y = current staged base norm, z = previous norm valid, w = current staged.
+kernel void nm_fgmres_prepare_inexact_newton_forcing(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    constant uint& restartCycle [[buffer(14)]],
+    constant float& legacyForcing [[buffer(15)]],
+    constant uint& nonlinearIteration [[buffer(16)]],
+    device const float4* partials [[buffer(24)]],
+    device float4* history [[buffer(25)]],
+    device float* eta [[buffer(26)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (group >= dispatch.environmentCount || lane >= 32u ||
+        restartCycle != 0u) return;
+    const uint environment = group;
+    const uint tiles = fgmresMeasurementTileCount(
+        fgmresBeginMeasurementItemCount(dispatch, layout));
+    float norm2Local = 0.0f;
+    float norm2Correction = 0.0f;
+    bool localSupportAdmissible = true;
+    for (uint tile = lane; tile < tiles; tile += 32u) {
+        const float4 partial = partials[environment * tiles + tile];
+        fgmresCompensatedAdd(norm2Local, norm2Correction, partial.x);
+        localSupportAdmissible = localSupportAdmissible && partial.z > 0.5f;
+    }
+    const float norm2 = simd_sum(norm2Local);
+    const bool supportAdmissible = simd_all(localSupportAdmissible);
+    if (lane != 0u) return;
+
+    device float4& state = history[environment];
+    if (nonlinearIteration == 0u) state = float4(0.0f);
+    const float norm = sqrt(max(norm2, 0.0f));
+    const bool currentValid = isfinite(norm2) && norm2 >= 0.0f &&
+        isfinite(norm) && supportAdmissible;
+    state.y = norm;
+    state.w = currentValid ? 1.0f : 0.0f;
+    if (!currentValid) state.z = 0.0f;
+
+    float selected = legacyForcing;
+    if (nonlinearIteration > 0u && currentValid && state.z > 0.5f &&
+        isfinite(state.x) && state.x > 0.0f) {
+        const float ratio = norm / state.x;
+        const float candidate = 0.9f * ratio * ratio;
+        if (isfinite(candidate)) {
+            const float floor = min(0.25f,
+                sqrt(max(solver.residualTolerances.x, 0.0f)));
+            selected = clamp(candidate, floor, 0.25f);
+        }
+    }
+    eta[environment] = selected;
+}
+
+// Commit EW history only for a real accepted Newton update. A rejected line
+// search or unhealthy environment invalidates the ratio and falls back to the
+// legacy schedule next time. An already-converged/no-column solve and a
+// no-op environment with no due FEM object do not advance the history.
+kernel void nm_fgmres_commit_inexact_newton_history(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(3)]],
+    constant NMMicrostepGPU& microstep [[buffer(4)]],
+    device const float4* objectLineSearch [[buffer(5)]],
+    device const float* environmentLineSearch [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
+    device float4* history [[buffer(9)]],
+    uint group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (group >= dispatch.environmentCount || lane != 0u) return;
+    const uint environment = group;
+    device float4& state = history[environment];
+    if (!environmentHealthy(statuses, environment)) {
+        state.z = 0.0f;
+        state.w = 0.0f;
+        return;
+    }
+    if (state.w <= 0.5f) return;
+    // begin_finish carries the outer nonlinear-convergence latch across
+    // restart tails. Do not advance on a base that was already complete.
+    if (fgmresStates[environment].nonlinear.w > 0.5f) {
+        state.w = 0.0f;
+        return;
+    }
+
+    const float sharedAlpha = environmentLineSearch[environment];
+    if (!isfinite(sharedAlpha) || sharedAlpha <= 0.0f) {
+        state.z = 0.0f;
+        state.w = 0.0f;
+        return;
+    }
+    bool hasDueFEM = false;
+    bool accepted = true;
+    for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+         ++objectIndex) {
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        if (object.representation != NM_REPRESENTATION_FEM) continue;
+        const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+        if (!objectDue(object, schedulers[objectGlobal],
+                       adaptive[objectGlobal], microstep)) continue;
+        hasDueFEM = true;
+        const float alpha = objectLineSearch[objectGlobal].x;
+        if (!isfinite(alpha) || alpha <= 0.0f) accepted = false;
+    }
+    if (!hasDueFEM) return;
+    if (accepted && isfinite(state.y)) {
+        state.x = state.y;
+        state.z = 1.0f;
+        state.w = 0.0f;
+    } else {
+        state.z = 0.0f;
+        state.w = 0.0f;
+    }
+}
+
 // Compact begin finalizer preserves the nonlinear latch, support gate,
 // forcing target, history reset, and root-local indirect-dispatch state.
 kernel void nm_fgmres_begin_distributed_finish(

@@ -1,0 +1,39 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  50: matter.physics.mixed_mpm_fem
+1/9 Test  #50: matter.physics.mixed_mpm_fem ................................   Passed    0.88 sec
+    Start  51: matter.physics.monolithic_multiphysics
+2/9 Test  #51: matter.physics.monolithic_multiphysics ......................   Passed    0.11 sec
+    Start  56: matter.runtime.topology_rollback
+3/9 Test  #56: matter.runtime.topology_rollback ............................   Passed    0.07 sec
+    Start  58: matter.runtime.production_transaction_rollback
+4/9 Test  #58: matter.runtime.production_transaction_rollback ..............   Passed    0.08 sec
+    Start  67: matter.runtime.adaptive_promotion_rollback
+5/9 Test  #67: matter.runtime.adaptive_promotion_rollback ..................   Passed    0.77 sec
+    Start 248: matter.metal.fgmres_true_residual_kernel_contract
+6/9 Test #248: matter.metal.fgmres_true_residual_kernel_contract ...........   Passed    0.24 sec
+    Start 259: matter.metal.fem_armijo_global_measurements
+7/9 Test #259: matter.metal.fem_armijo_global_measurements .................   Passed    0.28 sec
+    Start 265: matter.metal.cardboard_contact_node_incidence_sort_native
+8/9 Test #265: matter.metal.cardboard_contact_node_incidence_sort_native ...   Passed    0.20 sec
+    Start 304: matter.metal.vascular_cavity
+9/9 Test #304: matter.metal.vascular_cavity ................................   Passed    6.36 sec
+
+100% tests passed out of 9
+
+Label Time Summary:
+armijo           =   0.28 sec*proc (1 test)
+cardboard        =   0.20 sec*proc (1 test)
+cavity           =   6.36 sec*proc (1 test)
+contact          =   0.20 sec*proc (1 test)
+fgmres           =   0.24 sec*proc (1 test)
+human            =   6.36 sec*proc (1 test)
+matter           =   8.99 sec*proc (9 tests)
+metal            =   8.78 sec*proc (8 tests)
+native-kernel    =   0.20 sec*proc (1 test)
+physics          =   1.91 sec*proc (5 tests)
+reduction        =   0.28 sec*proc (1 test)
+synthetic        =   0.72 sec*proc (3 tests)
+true-residual    =   0.24 sec*proc (1 test)
+vascular         =   6.36 sec*proc (1 test)
+
+Total Test time (real) =   8.99 sec

@@ -39,6 +39,86 @@ inline MRCompensatedScalar nmPaperStateWords(NMPaperCandidateState state,unsigne
     return {state.high[index],state.low ? state.low[index] : 0.0f};
 }
 
+// Reusable two-word pivoted LU for a fixed local material Jacobian. Pivot
+// selection and all elimination arithmetic match nmPaperSolveCompensatedSystem.
+// Unlike the one-RHS routine below, this stores L multipliers and the row
+// permutation so multiple right-hand sides can reuse one factorization.
+inline bool nmPaperFactorCompensatedSystem(
+    NM_PAPER_THREAD MRCompensatedScalar* matrix,
+    NM_PAPER_THREAD unsigned* pivots,
+    const unsigned count) {
+    if (count==0u||count>NM_MAX_MATERIAL_STATE) return false;
+    for (unsigned column=0u;column<count;++column) {
+        unsigned pivot=column;
+        const auto diagonal=matrix[column*count+column];
+        float pivotMagnitude=abs(diagonal.high+diagonal.low);
+        for (unsigned row=column+1u;row<count;++row) {
+            const auto value=matrix[row*count+column];
+            const float magnitude=abs(value.high+value.low);
+            if (magnitude>pivotMagnitude) { pivot=row; pivotMagnitude=magnitude; }
+        }
+        if (!(pivotMagnitude>1.0e-8f)||!mrCompensatedFinite(pivotMagnitude)) return false;
+        pivots[column]=pivot;
+        if (pivot!=column) {
+            // Swapping the already-built L columns is required when the pivot
+            // sequence is replayed against each original RHS.
+            for (unsigned entry=0u;entry<count;++entry) {
+                const auto value=matrix[column*count+entry];
+                matrix[column*count+entry]=matrix[pivot*count+entry];
+                matrix[pivot*count+entry]=value;
+            }
+        }
+        const auto pivotValue=matrix[column*count+column];
+        for (unsigned row=column+1u;row<count;++row) {
+            const auto factor=mrCompensatedDivide(matrix[row*count+column],pivotValue);
+            matrix[row*count+column]=factor;
+            for (unsigned entry=column+1u;entry<count;++entry) {
+                matrix[row*count+entry]=mrCompensatedAdd(matrix[row*count+entry],
+                    mrCompensatedNegate(mrCompensatedMultiply(
+                        factor,matrix[column*count+entry])));
+            }
+        }
+    }
+    return true;
+}
+
+inline bool nmPaperSolveFactoredCompensatedSystem(
+    NM_PAPER_THREAD const MRCompensatedScalar* factor,
+    NM_PAPER_THREAD const unsigned* pivots,
+    NM_PAPER_THREAD MRCompensatedScalar* rightHandSide,
+    const unsigned count) {
+    if (count==0u||count>NM_MAX_MATERIAL_STATE) return false;
+    for (unsigned column=0u;column<count;++column) {
+        const unsigned pivot=pivots[column];
+        if (pivot>=count) return false;
+        if (pivot!=column) {
+            const auto value=rightHandSide[column];
+            rightHandSide[column]=rightHandSide[pivot];
+            rightHandSide[pivot]=value;
+        }
+    }
+    // Forward substitution is the same ordered compensated RHS update used
+    // during the legacy elimination, replayed against the stored L factors.
+    for (unsigned column=0u;column<count;++column) {
+        for (unsigned row=column+1u;row<count;++row) {
+            rightHandSide[row]=mrCompensatedAdd(rightHandSide[row],
+                mrCompensatedNegate(mrCompensatedMultiply(
+                    factor[row*count+column],rightHandSide[column])));
+        }
+    }
+    for (int row=int(count)-1;row>=0;--row) {
+        MRCompensatedScalar value=rightHandSide[unsigned(row)];
+        for (unsigned column=unsigned(row)+1u;column<count;++column)
+            value=mrCompensatedAdd(value,mrCompensatedNegate(mrCompensatedMultiply(
+                factor[unsigned(row)*count+column],rightHandSide[column])));
+        rightHandSide[unsigned(row)]=mrCompensatedDivide(
+            value,factor[unsigned(row)*count+unsigned(row)]);
+        if (!mrCompensatedFinite(rightHandSide[unsigned(row)].high)||
+            !mrCompensatedFinite(rightHandSide[unsigned(row)].low)) return false;
+    }
+    return true;
+}
+
 // Two-word pivoted elimination for the local implicit tangent solve. It keeps
 // the same pivot floor and equations as solveLocalMaterialSystem; only the
 // arithmetic precision of the compensated-material path changes.

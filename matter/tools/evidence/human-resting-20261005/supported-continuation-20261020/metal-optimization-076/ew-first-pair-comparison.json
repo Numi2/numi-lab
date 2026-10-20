@@ -1,0 +1,193 @@
+{
+  "baseline": "global-icb-baseline-1",
+  "candidate": "global-icb-ew-work-1",
+  "passed": false,
+  "failures": [
+    "max_anchor_reaction_N"
+  ],
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "baseline": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "candidate": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "passed": true
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "baseline": [
+        -0.02502410394,
+        -0.756760931555,
+        0.113638610195
+      ],
+      "candidate": [
+        -0.02502410394,
+        -0.756760931555,
+        0.113638610195
+      ],
+      "passed": true
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "baseline": [
+        -0.0624427348375,
+        0.0258136503398,
+        -0.474548637867
+      ],
+      "candidate": [
+        -0.0624413192272,
+        0.0258135721087,
+        -0.474547535181
+      ],
+      "passed": true
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "baseline": [
+        515.89465332
+      ],
+      "candidate": [
+        515.871276855
+      ],
+      "passed": true
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "baseline": [
+        0.47933479884
+      ],
+      "candidate": [
+        0.479333518542
+      ],
+      "passed": true
+    },
+    {
+      "metric": "penetration_m",
+      "baseline": [
+        4.15507420257e-05
+      ],
+      "candidate": [
+        4.1550687456e-05
+      ],
+      "passed": true
+    },
+    {
+      "metric": "contact_count",
+      "baseline": [
+        7.0
+      ],
+      "candidate": [
+        7.0
+      ],
+      "passed": true
+    },
+    {
+      "metric": "min_J",
+      "baseline": [
+        0.968948862679
+      ],
+      "candidate": [
+        0.968930091542
+      ],
+      "passed": true
+    },
+    {
+      "metric": "max_J",
+      "baseline": [
+        1.11645574729
+      ],
+      "candidate": [
+        1.11551006066
+      ],
+      "passed": true
+    },
+    {
+      "metric": "max_displacement_m",
+      "baseline": [
+        0.000817398958951
+      ],
+      "candidate": [
+        0.000817554066901
+      ],
+      "passed": true
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "baseline": [
+        2.42182409184
+      ],
+      "candidate": [
+        2.51183820907
+      ],
+      "passed": false
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "baseline": [
+        0.254089236259
+      ],
+      "candidate": [
+        0.254089236259
+      ],
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "baseline": [
+        0.0
+      ],
+      "candidate": [
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "baseline": [
+        2.67889332389e-08
+      ],
+      "candidate": [
+        2.67889332389e-08
+      ],
+      "passed": true
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "baseline": [
+        3.14538621902
+      ],
+      "candidate": [
+        3.15761899948
+      ],
+      "passed": true
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "baseline": [
+        0.0
+      ],
+      "candidate": [
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "baseline": [
+        1.84023405882e-08
+      ],
+      "candidate": [
+        8.90824327082e-09
+      ],
+      "passed": true
+    }
+  ],
+  "speedup": 1.2063712124592147
+}

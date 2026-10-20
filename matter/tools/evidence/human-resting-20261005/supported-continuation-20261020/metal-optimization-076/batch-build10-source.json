@@ -1,0 +1,13 @@
+{
+  "matter/include/numi/matter/paper_compensated_bytecode.h": "0b8cd0b8a267d4b0fd3cf018484b2a343d97d20d9f02b5f88327732370cf11cd",
+  "matter/include/numi/matter/shared.h": "1f5e5981516c45712c8a7339ce30f1ef83283520fc0defa661745ab8bdacc3dc",
+  "matter/src/compiler_impl.cpp": "be3ab467824dc91962b72e7be6fcd7be68092824e0ec0e0c0532b31ba65fb078",
+  "matter/src/constitutive_impl.cpp": "f9244b7819ed5715d6f13d34905f6beb9328a76c26fa73db9fde9dcf07ddb9ef",
+  "matter/src/metal/common.metalinc": "9d9f61a48c37922857ff361aaf7f8efc35f647cbd00c1f04f85833ee9a3d8260",
+  "matter/src/metal/fem.metalinc": "d5f1bc27e9bae9f3807039e16aae91c91dfb2dcc9658b4eea33526bb8859a111",
+  "matter/src/metal/fgmres.metalinc": "91185b733133de1f176cd9f1981a9cee66461bcac9eba4c006d40a73da6113fd",
+  "matter/src/runtime.mm": "b4f15f3732f058a804b8fd4fe0835970b8bb18d3e66e288184b902b8087a8ec1",
+  "matter/src/validation_impl.cpp": "6561fc7eeb7be40d8a1e8e3c7b406f3e4d966e8e13cd3c3c4714b1779bc59acb",
+  "matter/tools/fem_material_frame_check.mm": "f5909698472639cf6548466f293d2572d5f6d9fcdfae167e5ab6bf9bc92ca840",
+  "matter/tools/fgmres_true_residual_native_check.mm": "e4554c85c4b2c2635b86574c691d05db2a068091c07f8b48b3ffe36ed4957c90"
+}

@@ -1,0 +1,32 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 248: matter.metal.fgmres_true_residual_kernel_contract
+1/2 Test #248: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.22 sec
+    Start 300: matter.metal.fem_material_frame
+2/2 Test #300: matter.metal.fem_material_frame .....................***Failed    0.35 sec
+frame_device=Apple M6 abi=46
+parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+fem material frame check failed: canonical tangent closed form disagrees with independent oracle material=human_skin_dermis_frequency_specific_effective.nmatter direct=2.086899618211691 cached=2.086899618211691
+
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+fgmres           =   0.22 sec*proc (1 test)
+human            =   0.35 sec*proc (1 test)
+material         =   0.35 sec*proc (1 test)
+matter           =   0.57 sec*proc (2 tests)
+metal            =   0.22 sec*proc (1 test)
+synthetic        =   0.22 sec*proc (1 test)
+true-residual    =   0.22 sec*proc (1 test)
+
+Total Test time (real) =   0.58 sec
+
+The following tests FAILED:
+	300 - matter.metal.fem_material_frame (Failed)          human material matter
+Errors while running CTest

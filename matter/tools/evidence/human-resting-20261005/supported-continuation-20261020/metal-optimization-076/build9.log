@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/11] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o
+[2/11] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o
+[3/11] Linking CXX executable matter/numi-matter-cardboard-contact-node-incidence-sort-native-check
+[4/11] Linking CXX executable matter/numi-matter-fem-material-frame-check
+[5/11] Building OBJCXX object matter/CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o
+[6/11] Linking CXX executable matter/numi-matter-vascular-cavity-check
+[7/11] Building OBJCXX object CMakeFiles/metalrobo_matter_physics_probe.dir/apps/matter_physics_probe.mm.o
+[8/11] Linking OBJCXX executable bin/metalrobo_matter_physics_probe
+[9/11] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-full-contact-armijo-check.dir/tools/cardboard_full_contact_armijo_check.mm.o
+[10/11] Linking CXX executable matter/numi-matter-cardboard-full-contact-armijo-check

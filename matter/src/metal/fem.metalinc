@@ -3349,6 +3349,38 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     );
     const uint cacheBase = global * 81u;
 
+    // A proven 15-state material can share A=R_z and B=P_z across all nine
+    // columns. One column-zero lane owns the whole batch; other basis lanes
+    // return, and the usual finalize kernel publishes only a complete mask.
+    if (usesShared15StateTangentFactorization(material)) {
+        if (column != 0u) return;
+        // A failed validity certificate leaves this cache entry unpublished;
+        // the established direct operator/final certificate owns rejection.
+        const float determinantValue = determinant(deformation);
+        float validityMargin = 1.0f;
+        if (!isfinite(determinantValue) ||
+            determinantValue < material.validity.x ||
+            determinantValue > material.validity.y ||
+            !evaluateMaterialValidity(
+                material, programs, instructions,
+                environmentParameters + parameterBase, internalState,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                validityMargin, deformationLow) || !(validityMargin > 0.0f))
+            return;
+        float tangentColumns[81];
+        if (!evaluateShared15StateTangentColumns(
+                material, programs, instructions,
+                environmentParameters + parameterBase, internalState,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                deformationLow, tangentColumns)) return;
+        for (uint index = 0u; index < 81u; ++index)
+            tangentCache[cacheBase + index] = tangentColumns[index];
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(validEntries) + global,
+            0x1ffu, memory_order_relaxed);
+        return;
+    }
+
     // matrixComponents uses row-major scalar order even though Metal matrices
     // are column-major. Store each evaluated response as one column of that
     // explicit row-major linear map.
@@ -3418,6 +3450,87 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     atomic_fetch_or_explicit(reinterpret_cast<device atomic_uint*>(validEntries) + global,
         1u << column, memory_order_relaxed);
 }
+// Native checker hook for the reusable two-word local factorization. Each
+// GPU lane compares nine RHS solutions against the legacy one-RHS elimination
+// and reports the compensated local residual from the retained original A.
+kernel void nm_fem_test_compensated_local_factor(
+    device const float2* matrices [[buffer(0)]],
+    device const float2* rightHandSides [[buffer(1)]],
+    device float2* factoredSolutions [[buffer(2)]],
+    device float2* legacySolutions [[buffer(3)]],
+    device float* localResiduals [[buffer(4)]],
+    device uint* resultMasks [[buffer(5)]],
+    constant uint& count [[buffer(6)]],
+    device uint* pivotTrace [[buffer(7)]],
+    uint testIndex [[thread_position_in_grid]]
+) {
+    if (count!=15u) return;
+    const uint matrixBase=testIndex*count*count;
+    const uint rhsBase=testIndex*9u*count;
+    MRCompensatedScalar original[16u*16u];
+    MRCompensatedScalar factor[16u*16u];
+    MRCompensatedScalar legacyMatrix[16u*16u];
+    unsigned pivots[16u];
+    for (uint i=0u;i<count*count;++i) {
+        const float2 value=matrices[matrixBase+i];
+        original[i]={value.x,value.y};
+        factor[i]=original[i];
+    }
+    const bool factorSucceeded=
+        nmPaperFactorCompensatedSystem(factor,pivots,count);
+    uint legacyMask=0u;
+    uint factoredMask=0u;
+    for (uint rhsIndex=0u;rhsIndex<9u;++rhsIndex) {
+        MRCompensatedScalar legacyRhs[16u];
+        MRCompensatedScalar factoredRhs[16u];
+        for (uint i=0u;i<count*count;++i) legacyMatrix[i]=original[i];
+        for (uint row=0u;row<count;++row) {
+            const float2 value=rightHandSides[rhsBase+rhsIndex*count+row];
+            legacyRhs[row]={value.x,value.y};
+            factoredRhs[row]=legacyRhs[row];
+        }
+        const bool legacySucceeded=
+            nmPaperSolveCompensatedSystem(legacyMatrix,legacyRhs,count);
+        if (legacySucceeded) legacyMask|=1u<<rhsIndex;
+        bool factoredSucceeded=false;
+        if (factorSucceeded)
+            factoredSucceeded=nmPaperSolveFactoredCompensatedSystem(
+                factor,pivots,factoredRhs,count);
+        if (factoredSucceeded) factoredMask|=1u<<rhsIndex;
+        float residualMaximum=-1.0f;
+        for (uint row=0u;row<count;++row) {
+            const uint output=rhsBase+rhsIndex*count+row;
+            legacySolutions[output]=legacySucceeded
+                ? float2(legacyRhs[row].high,legacyRhs[row].low) : float2(0.0f);
+            factoredSolutions[output]=factoredSucceeded
+                ? float2(factoredRhs[row].high,factoredRhs[row].low) : float2(0.0f);
+        }
+        if (factoredSucceeded) {
+            residualMaximum=0.0f;
+            for (uint row=0u;row<count;++row) {
+                MRCompensatedScalar residual{
+                    -rightHandSides[rhsBase+rhsIndex*count+row].x,
+                    -rightHandSides[rhsBase+rhsIndex*count+row].y};
+                for (uint column=0u;column<count;++column) {
+                    residual=mrCompensatedAdd(residual,
+                        mrCompensatedMultiply(
+                            original[row*count+column],
+                            factoredRhs[column]));
+                }
+                residualMaximum=max(residualMaximum,abs(
+                    residual.high+residual.low));
+            }
+        }
+        localResiduals[testIndex*9u+rhsIndex]=residualMaximum;
+    }
+    for (uint pivot=0u;pivot<count;++pivot)
+        pivotTrace[testIndex*count+pivot]=factorSucceeded
+            ? pivots[pivot] : 0xffffffffu;
+    resultMasks[testIndex*3u]=factorSucceeded?1u:0u;
+    resultMasks[testIndex*3u+1u]=legacyMask;
+    resultMasks[testIndex*3u+2u]=factoredMask;
+}
+
 kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3505,6 +3618,30 @@ kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
     // Keep full-size local arrays even though this reuse policy is 15-state.
     float reusedProjectedState[NM_MAX_MATERIAL_STATE];
     float reusedProjectedLow[NM_MAX_MATERIAL_STATE];
+
+    if (usesShared15StateTangentFactorization(material)) {
+        const float determinantValue = determinant(deformation);
+        float validityMargin = 1.0f;
+        if (!isfinite(determinantValue) ||
+            determinantValue < material.validity.x ||
+            determinantValue > material.validity.y ||
+            !evaluateMaterialValidity(
+                material, programs, instructions,
+                environmentParameters + parameterBase, internalState,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                validityMargin, deformationLow) || !(validityMargin > 0.0f))
+            return;
+        float tangentColumns[81];
+        if (!evaluateShared15StateTangentColumns(
+                material, programs, instructions,
+                environmentParameters + parameterBase, internalState,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                deformationLow, tangentColumns)) return;
+        for (uint index = 0u; index < 81u; ++index)
+            tangentCache[cacheBase + index] = tangentColumns[index];
+        validEntries[global] = 1u;
+        return;
+    }
 
     // matrixComponents uses row-major scalar order even though Metal matrices
     // are column-major. Store each evaluated response as one column of that

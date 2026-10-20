@@ -1,0 +1,2228 @@
+diff --git a/matter/include/numi/matter/paper_compensated_bytecode.h b/matter/include/numi/matter/paper_compensated_bytecode.h
+index 2e3ca103..f39f8d0c 100644
+--- a/matter/include/numi/matter/paper_compensated_bytecode.h
++++ b/matter/include/numi/matter/paper_compensated_bytecode.h
+@@ -39,6 +39,86 @@ inline MRCompensatedScalar nmPaperStateWords(NMPaperCandidateState state,unsigne
+     return {state.high[index],state.low ? state.low[index] : 0.0f};
+ }
+ 
++// Reusable two-word pivoted LU for a fixed local material Jacobian. Pivot
++// selection and all elimination arithmetic match nmPaperSolveCompensatedSystem.
++// Unlike the one-RHS routine below, this stores L multipliers and the row
++// permutation so multiple right-hand sides can reuse one factorization.
++inline bool nmPaperFactorCompensatedSystem(
++    NM_PAPER_THREAD MRCompensatedScalar* matrix,
++    NM_PAPER_THREAD unsigned* pivots,
++    const unsigned count) {
++    if (count==0u||count>NM_MAX_MATERIAL_STATE) return false;
++    for (unsigned column=0u;column<count;++column) {
++        unsigned pivot=column;
++        const auto diagonal=matrix[column*count+column];
++        float pivotMagnitude=abs(diagonal.high+diagonal.low);
++        for (unsigned row=column+1u;row<count;++row) {
++            const auto value=matrix[row*count+column];
++            const float magnitude=abs(value.high+value.low);
++            if (magnitude>pivotMagnitude) { pivot=row; pivotMagnitude=magnitude; }
++        }
++        if (!(pivotMagnitude>1.0e-8f)||!mrCompensatedFinite(pivotMagnitude)) return false;
++        pivots[column]=pivot;
++        if (pivot!=column) {
++            // Swapping the already-built L columns is required when the pivot
++            // sequence is replayed against each original RHS.
++            for (unsigned entry=0u;entry<count;++entry) {
++                const auto value=matrix[column*count+entry];
++                matrix[column*count+entry]=matrix[pivot*count+entry];
++                matrix[pivot*count+entry]=value;
++            }
++        }
++        const auto pivotValue=matrix[column*count+column];
++        for (unsigned row=column+1u;row<count;++row) {
++            const auto factor=mrCompensatedDivide(matrix[row*count+column],pivotValue);
++            matrix[row*count+column]=factor;
++            for (unsigned entry=column+1u;entry<count;++entry) {
++                matrix[row*count+entry]=mrCompensatedAdd(matrix[row*count+entry],
++                    mrCompensatedNegate(mrCompensatedMultiply(
++                        factor,matrix[column*count+entry])));
++            }
++        }
++    }
++    return true;
++}
++
++inline bool nmPaperSolveFactoredCompensatedSystem(
++    NM_PAPER_THREAD const MRCompensatedScalar* factor,
++    NM_PAPER_THREAD const unsigned* pivots,
++    NM_PAPER_THREAD MRCompensatedScalar* rightHandSide,
++    const unsigned count) {
++    if (count==0u||count>NM_MAX_MATERIAL_STATE) return false;
++    for (unsigned column=0u;column<count;++column) {
++        const unsigned pivot=pivots[column];
++        if (pivot>=count) return false;
++        if (pivot!=column) {
++            const auto value=rightHandSide[column];
++            rightHandSide[column]=rightHandSide[pivot];
++            rightHandSide[pivot]=value;
++        }
++    }
++    // Forward substitution is the same ordered compensated RHS update used
++    // during the legacy elimination, replayed against the stored L factors.
++    for (unsigned column=0u;column<count;++column) {
++        for (unsigned row=column+1u;row<count;++row) {
++            rightHandSide[row]=mrCompensatedAdd(rightHandSide[row],
++                mrCompensatedNegate(mrCompensatedMultiply(
++                    factor[row*count+column],rightHandSide[column])));
++        }
++    }
++    for (int row=int(count)-1;row>=0;--row) {
++        MRCompensatedScalar value=rightHandSide[unsigned(row)];
++        for (unsigned column=unsigned(row)+1u;column<count;++column)
++            value=mrCompensatedAdd(value,mrCompensatedNegate(mrCompensatedMultiply(
++                factor[unsigned(row)*count+column],rightHandSide[column])));
++        rightHandSide[unsigned(row)]=mrCompensatedDivide(
++            value,factor[unsigned(row)*count+unsigned(row)]);
++        if (!mrCompensatedFinite(rightHandSide[unsigned(row)].high)||
++            !mrCompensatedFinite(rightHandSide[unsigned(row)].low)) return false;
++    }
++    return true;
++}
++
+ // Two-word pivoted elimination for the local implicit tangent solve. It keeps
+ // the same pivot floor and equations as solveLocalMaterialSystem; only the
+ // arithmetic precision of the compensated-material path changes.
+diff --git a/matter/include/numi/matter/shared.h b/matter/include/numi/matter/shared.h
+index ab122197..37705489 100644
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -166,6 +166,8 @@ enum NMMaterialFlags : nm_u32 {
+     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION = 1u << 6u,
+     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION = 1u << 7u,
+     NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION = 1u << 8u,
++    NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT = 1u << 9u,
++    NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION = 1u << 10u,
+ };
+ 
+ enum NMMaterialProjectionKind : nm_u32 {
+diff --git a/matter/src/compiler_impl.cpp b/matter/src/compiler_impl.cpp
+index 4c08cf32..4a215902 100644
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -1088,6 +1088,74 @@ CompileResult compileWorld(
+                 scalar.flags|=2u;
+             }
+         }
++        // This tag certifies that a single local LU is valid for all nine
++        // deformation-direction RHS. Prove it from the emitted roles rather
++        // than source spelling: R, R_z, P_z, state initialization and validity
++        // must not consume the direction opcode. NM_EXPR_RATE remains allowed
++        // because Fdot is fixed across the nine columns of this Newton cache.
++        const auto roleHasNoDeformationDirection =
++            [&](const std::uint32_t first, const std::uint32_t count) {
++                if (first == NM_INVALID_INDEX || count == 0u ||
++                    first > world.scalarPrograms.size() ||
++                    count > world.scalarPrograms.size() - first) {
++                    return false;
++                }
++                for (std::uint32_t local = 0u; local < count; ++local) {
++                    const NMScalarProgramGPU& scalar =
++                        world.scalarPrograms[first + local];
++                    if (scalar.firstInstruction > world.instructions.size() ||
++                        scalar.instructionCount >
++                            world.instructions.size() - scalar.firstInstruction) {
++                        return false;
++                    }
++                    for (std::uint32_t item = 0u;
++                         item < scalar.instructionCount; ++item) {
++                        if (world.instructions[
++                                scalar.firstInstruction + item].opcode ==
++                            NM_EXPR_DF) {
++                            return false;
++                        }
++                    }
++                }
++                return true;
++            };
++        constexpr std::uint32_t sharedFactorRequiredFlags =
++            NM_MATERIAL_HAS_STATE |
++            NM_MATERIAL_HAS_IMPLICIT_STATE |
++            NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++            NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++        const bool sharedFactorLayout =
++            program.gpu.constitutiveKind == NM_CONSTITUTIVE_BYTECODE &&
++            program.gpu.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++            program.gpu.stateCount == 15u &&
++            program.gpu.parameterCount == 28u &&
++            (program.gpu.flags & sharedFactorRequiredFlags) ==
++                sharedFactorRequiredFlags &&
++            (program.gpu.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u &&
++            program.gpu.viscousStressProgramOffset == NM_INVALID_INDEX &&
++            program.gpu.viscousTangentProgramOffset == NM_INVALID_INDEX &&
++            program.gpu.dissipationProgram == NM_INVALID_INDEX;
++        const bool sharedFactorProof =
++            sharedFactorLayout &&
++            roleHasNoDeformationDirection(
++                program.gpu.stateUpdateProgramOffset,
++                program.gpu.stateCount) &&
++            roleHasNoDeformationDirection(
++                program.gpu.implicitResidualProgramOffset,
++                program.gpu.stateCount) &&
++            roleHasNoDeformationDirection(
++                program.gpu.implicitJacobianProgramOffset,
++                program.gpu.stateCount * program.gpu.stateCount) &&
++            roleHasNoDeformationDirection(
++                program.gpu.stressStateDerivativeProgramOffset,
++                9u * program.gpu.stateCount) &&
++            (program.gpu.validityProgram == NM_INVALID_INDEX ||
++             roleHasNoDeformationDirection(program.gpu.validityProgram, 1u));
++        if (sharedFactorProof) {
++            program.gpu.flags |=
++                NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
++        }
++
+         world.parameters.insert(
+             world.parameters.end(),
+             program.parameters.begin(),
+diff --git a/matter/src/constitutive_impl.cpp b/matter/src/constitutive_impl.cpp
+index 753ef809..921a0e11 100644
+--- a/matter/src/constitutive_impl.cpp
++++ b/matter/src/constitutive_impl.cpp
+@@ -1091,6 +1091,198 @@ private:
+     return std::nullopt;
+ }
+ 
++
++[[nodiscard]] bool canonicalCompressibleNeoHookeanEnergy(
++    const MaterialProgram& material
++) {
++    // This deliberately matches the complete authored energy tree, not a
++    // material name or a constitutive hint. Its three parameter slots are
++    // fixed so the Metal tangent can read the runtime-overridden mu and bulk
++    // modulus directly without adding indices or changing the GPU record.
++    if (material.hint != ConstitutiveHint::generic ||
++        material.parameters.size() != 3u ||
++        material.parameters[0].name != "density" ||
++        material.parameters[1].name != "shear" ||
++        material.parameters[2].name != "bulk" ||
++        !material.internalState.empty() ||
++        !material.stateUpdateRoots.empty() ||
++        !material.stateImplicitRoots.empty() ||
++        material.dissipationRoot != NM_INVALID_INDEX ||
++        material.learned.has_value() ||
++        material.paperHillScalarInitializer ||
++        material.paperCompensatedArithmetic ||
++        material.paperHillAccurateProjection ||
++        material.genericCompensatedImplicitProjection ||
++        material.genericBilinear15AccurateProjection ||
++        material.genericBilinear15StrictStateCertification) {
++        return false;
++    }
++    // The mixed-material defaults are inert. Reject any extra multiphysics,
++    // active-fibre, or cohesive contribution so this tag describes the
++    // complete stateless mechanical operator, not one term in a larger law.
++    const MixedMaterialSource mixedDefaults{};
++    const MixedMaterialSource& mixed = material.mixed;
++    if (mixed.bulkModulus != mixedDefaults.bulkModulus ||
++        mixed.thermalExpansion != mixedDefaults.thermalExpansion ||
++        mixed.biotCoefficient != mixedDefaults.biotCoefficient ||
++        mixed.referenceTemperature != mixedDefaults.referenceTemperature ||
++        mixed.heatCapacity != mixedDefaults.heatCapacity ||
++        mixed.thermalConductivity != mixedDefaults.thermalConductivity ||
++        mixed.heatSource != mixedDefaults.heatSource ||
++        mixed.jouleHeatFraction != mixedDefaults.jouleHeatFraction ||
++        mixed.poreStorage != mixedDefaults.poreStorage ||
++        mixed.poreMobility != mixedDefaults.poreMobility ||
++        mixed.poreSource != mixedDefaults.poreSource ||
++        mixed.electricalConductivity != mixedDefaults.electricalConductivity ||
++        mixed.activationDiffusivity != mixedDefaults.activationDiffusivity ||
++        mixed.activationOnRate != mixedDefaults.activationOnRate ||
++        mixed.activationOffRate != mixedDefaults.activationOffRate ||
++        mixed.fibreDirection != mixedDefaults.fibreDirection ||
++        mixed.maximumActiveTension != mixedDefaults.maximumActiveTension ||
++        mixed.activationThreshold != mixedDefaults.activationThreshold ||
++        mixed.activationSlope != mixedDefaults.activationSlope ||
++        mixed.cohesiveStrength != mixedDefaults.cohesiveStrength ||
++        mixed.fractureEnergy != mixedDefaults.fractureEnergy) {
++        return false;
++    }
++
++    const ExpressionGraph& graph = material.expressions;
++    const auto expression = [&](const std::uint32_t node) -> const Expr* {
++        return node < graph.nodes.size() ? &graph.nodes[node] : nullptr;
++    };
++    const auto isConstant = [&](const std::uint32_t node, const double value) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::constant &&
++            item->constant == value;
++    };
++    const auto isParameter = [&](const std::uint32_t node, const std::uint32_t index) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::parameter &&
++            item->index == index;
++    };
++    const auto isF = [&](const std::uint32_t node, const std::uint32_t index) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::deformation &&
++            item->index == index;
++    };
++    const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
++                              const std::uint32_t left, const std::uint32_t right) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == kind &&
++            item->arguments[0] == left && item->arguments[1] == right;
++    };
++    const auto isSquareF = [&](const std::uint32_t node, const std::uint32_t index) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::multiply &&
++            isF(item->arguments[0], index) && isF(item->arguments[1], index);
++    };
++    const auto isI1 = [&](const auto& self, const std::uint32_t node,
++                          const std::uint32_t component) -> bool {
++        const Expr* item = expression(node);
++        if (component == 0u) {
++            return item != nullptr && item->kind == ExprKind::add &&
++                isConstant(item->arguments[0], 0.0) &&
++                isSquareF(item->arguments[1], 0u);
++        }
++        return item != nullptr && item->kind == ExprKind::add &&
++            self(self, item->arguments[0], component - 1u) &&
++            isSquareF(item->arguments[1], component);
++    };
++    const auto isDet2 = [&](const std::uint32_t node,
++                            const std::uint32_t a,
++                            const std::uint32_t b,
++                            const std::uint32_t c,
++                            const std::uint32_t d) {
++        const Expr* item = expression(node);
++        if (item == nullptr || item->kind != ExprKind::subtract) return false;
++        const Expr* left = expression(item->arguments[0]);
++        const Expr* right = expression(item->arguments[1]);
++        return left != nullptr && right != nullptr &&
++            left->kind == ExprKind::multiply && right->kind == ExprKind::multiply &&
++            isF(left->arguments[0], a) && isF(left->arguments[1], b) &&
++            isF(right->arguments[0], c) && isF(right->arguments[1], d);
++    };
++    const auto isDeterminant = [&](const std::uint32_t node) {
++        const Expr* item = expression(node);
++        if (item == nullptr || item->kind != ExprKind::add) return false;
++        const Expr* subtract = expression(item->arguments[0]);
++        if (subtract == nullptr || subtract->kind != ExprKind::subtract) return false;
++        const Expr* a = expression(subtract->arguments[0]);
++        const Expr* b = expression(subtract->arguments[1]);
++        const Expr* c = expression(item->arguments[1]);
++        return a != nullptr && b != nullptr && c != nullptr &&
++            a->kind == ExprKind::multiply &&
++            b->kind == ExprKind::multiply &&
++            c->kind == ExprKind::multiply &&
++            isF(a->arguments[0], 0u) &&
++            isDet2(a->arguments[1], 4u, 8u, 5u, 7u) &&
++            isF(b->arguments[0], 1u) &&
++            isDet2(b->arguments[1], 3u, 8u, 5u, 6u) &&
++            isF(c->arguments[0], 2u) &&
++            isDet2(c->arguments[1], 3u, 7u, 4u, 6u);
++    };
++    const auto isLogJ = [&](const std::uint32_t node) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::logarithm &&
++            isDeterminant(item->arguments[0]);
++    };
++    const auto isHalfParameter = [&](const std::uint32_t node,
++                                     const std::uint32_t parameter) {
++        const Expr* item = expression(node);
++        if (item == nullptr || item->kind != ExprKind::multiply) return false;
++        return (isConstant(item->arguments[0], 0.5) &&
++                isParameter(item->arguments[1], parameter)) ||
++               (isConstant(item->arguments[1], 0.5) &&
++                isParameter(item->arguments[0], parameter));
++    };
++    const auto isScaledTerm = [&](const std::uint32_t node,
++                                  const std::uint32_t parameter,
++                                  const auto& matchesBody) {
++        const Expr* item = expression(node);
++        if (item == nullptr || item->kind != ExprKind::multiply) return false;
++        return (isHalfParameter(item->arguments[0], parameter) &&
++                matchesBody(item->arguments[1])) ||
++               (isHalfParameter(item->arguments[1], parameter) &&
++                matchesBody(item->arguments[0]));
++    };
++
++    const auto energy = expression(material.energyRoot);
++    if (energy == nullptr || energy->kind != ExprKind::add) return false;
++    const std::uint32_t term0 = energy->arguments[0];
++    const std::uint32_t term1 = energy->arguments[1];
++    const auto isTwiceLogJ = [&](const std::uint32_t node) {
++        const Expr* item = expression(node);
++        return item != nullptr && item->kind == ExprKind::multiply &&
++            ((isConstant(item->arguments[0], 2.0) &&
++              isLogJ(item->arguments[1])) ||
++             (isConstant(item->arguments[1], 2.0) &&
++              isLogJ(item->arguments[0])));
++    };
++    const auto matchesShearTerm = [&](const std::uint32_t term) {
++        return isScaledTerm(term, 1u, [&](const std::uint32_t body) {
++            const Expr* subtract = expression(body);
++            if (subtract == nullptr || subtract->kind != ExprKind::subtract)
++                return false;
++            const Expr* invariantMinusThree =
++                expression(subtract->arguments[0]);
++            return invariantMinusThree != nullptr &&
++                invariantMinusThree->kind == ExprKind::subtract &&
++                isI1(isI1, invariantMinusThree->arguments[0], 8u) &&
++                isConstant(invariantMinusThree->arguments[1], 3.0) &&
++                isTwiceLogJ(subtract->arguments[1]);
++        });
++    };
++    const auto matchesBulkTerm = [&](const std::uint32_t term) {
++        return isScaledTerm(term, 2u, [&](const std::uint32_t body) {
++            const Expr* power = expression(body);
++            return power != nullptr && power->kind == ExprKind::integerPower &&
++                power->integer == 2 && isLogJ(power->arguments[0]);
++        });
++    };
++    return (matchesShearTerm(term0) && matchesBulkTerm(term1)) ||
++        (matchesShearTerm(term1) && matchesBulkTerm(term0));
++}
++
+ [[nodiscard]] std::uint32_t constitutiveKind(const ConstitutiveHint hint) {
+     switch (hint) {
+     case ConstitutiveHint::neoHookean: return NM_CONSTITUTIVE_NEO_HOOKEAN;
+@@ -1532,7 +1724,9 @@ ConstitutiveCompileResult compileConstitutive(
+         (material.genericBilinear15AccurateProjection
+             ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u) |
+         (material.genericBilinear15StrictStateCertification
+-            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u);
++            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u) |
++        (canonicalCompressibleNeoHookeanEnergy(material)
++            ? NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT : 0u);
+     gpu.stateInitialOffset = NM_INVALID_INDEX;
+     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
+     gpu.dissipationProgram = NM_INVALID_INDEX;
+@@ -1699,6 +1893,12 @@ ConstitutiveCompileResult compileConstitutive(
+         const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
+         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+     }
++    if ((result.program.gpu.flags &
++         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u) {
++        const std::uint32_t policy =
++            NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
++        fingerprint = hashBytes(&policy, sizeof(policy), fingerprint);
++    }
+     if (result.program.dissipation.has_value()) {
+         fingerprint = hashBytes(
+             result.program.dissipation->instructions.data(),
+diff --git a/matter/src/metal/common.metalinc b/matter/src/metal/common.metalinc
+index 3d947a5e..5b77c57e 100644
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -917,6 +917,95 @@ inline float3x3 evaluateStress(
+     , nullptr, deformationLow);
+ }
+ 
++
++inline bool usesCanonicalCompressibleNeoHookeanTangent(
++    const NMMaterialGPU material,
++    thread const float* deformationLow
++) {
++    if ((material.flags &
++         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) == 0u ||
++        material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
++        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
++        material.parameterCount != 3u || material.stateCount != 0u ||
++        material.dissipationProgram != NM_INVALID_INDEX ||
++        material.viscousStressProgramOffset != NM_INVALID_INDEX ||
++        material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
++        material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
++        material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
++        material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
++        material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX ||
++        (material.flags & (NM_MATERIAL_HAS_STATE |
++                           NM_MATERIAL_HAS_DISSIPATION |
++                           NM_MATERIAL_HAS_IMPLICIT_STATE |
++                           NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
++                           NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
++                           NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
++                           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++                           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
++                           NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)) != 0u) {
++        return false;
++    }
++    // The closed form consumes the existing FP32 local F directly. Never
++    // bypass bytecode's compensated input path if a caller supplies low words.
++    if (deformationLow != nullptr) {
++        for (uint component = 0u; component < 9u; ++component) {
++            if (deformationLow[component] != 0.0f) return false;
++        }
++    }
++    return true;
++}
++
++inline bool evaluateCanonicalCompressibleNeoHookeanTangent(
++    const NMMaterialGPU material,
++    device const float* parameters,
++    const float3x3 deformation,
++    const float3x3 deformationDirection,
++    thread float3x3& tangent,
++    thread bool& valid,
++    thread bool* nonfiniteOutput = nullptr
++) {
++    if (parameters == nullptr || material.parameterOffset > 0xfffffffdu)
++        return false;
++    const float shear = parameters[material.parameterOffset + 1u];
++    const float bulk = parameters[material.parameterOffset + 2u];
++    const float j = determinant(deformation);
++    if (!isfinite(shear) || !isfinite(bulk) || !isfinite(j) || !(j > 0.0f)) {
++        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
++        valid = false;
++        tangent = float3x3(0.0f);
++        return true;
++    }
++    // Repository invert3x3 returns F^-T (the cofactor matrix divided by J).
++    // Keep that exact orientation for P and form F^-1 only for tr(F^-1 H).
++    float3x3 inverseTransposeF;
++    if (!invert3x3(deformation, inverseTransposeF)) return false;
++    const float logJ = log(j);
++    const float3x3 inverseDirection =
++        transpose(inverseTransposeF) * deformationDirection;
++    const float volumeDirection = inverseDirection[0][0] +
++        inverseDirection[1][1] + inverseDirection[2][2];
++    const float3x3 inverseTransposeDirectionProduct =
++        inverseTransposeF * transpose(deformationDirection) * inverseTransposeF;
++    const float3x3 result =
++        shear * deformationDirection +
++        bulk * volumeDirection * inverseTransposeF -
++        (bulk * logJ - shear) * inverseTransposeDirectionProduct;
++    if (!isfinite(logJ) || !isfinite(volumeDirection) ||
++        !all(isfinite(inverseTransposeF[0])) ||
++        !all(isfinite(inverseTransposeF[1])) ||
++        !all(isfinite(inverseTransposeF[2])) ||
++        !all(isfinite(result[0])) || !all(isfinite(result[1])) ||
++        !all(isfinite(result[2]))) {
++        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
++        valid = false;
++        tangent = float3x3(0.0f);
++        return true;
++    }
++    tangent = result;
++    return true;
++}
++
++
+ template <typename StatePointer, typename CandidatePointer>
+ inline float3x3 evaluateTangentVectorWithCandidate(
+     const NMMaterialGPU material,
+@@ -937,6 +1026,15 @@ inline float3x3 evaluateTangentVectorWithCandidate(
+     thread const float* deformationLow = nullptr,
+     thread MRCompensatedScalar* tangentWordsOutput = nullptr
+ ) {
++    if (tangentWordsOutput == nullptr &&
++        usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
++        float3x3 canonicalTangent;
++        if (evaluateCanonicalCompressibleNeoHookeanTangent(
++                material, parameters, deformation, deformationDirection,
++                canonicalTangent, valid, nonfiniteOutput)) {
++            return canonicalTangent;
++        }
++    }
+     float f[9];
+     float direction[9];
+     float rate[9];
+@@ -1261,9 +1359,11 @@ inline bool evaluateImplicitMaterialSystem(
+                     instructions,parameters+material.parameterOffset,
+                     acceptedState,candidateState,f,direction,rate,timestep,
+                     temperature,valid,nonfiniteOutput,deformationLow);
+-                jacobian[matrixIndex]=jacobianWordsOutput[matrixIndex].high+
+-                    jacobianWordsOutput[matrixIndex].low;
++                if (jacobian != nullptr)
++                    jacobian[matrixIndex]=jacobianWordsOutput[matrixIndex].high+
++                        jacobianWordsOutput[matrixIndex].low;
+             } else {
++                if (jacobian == nullptr) return false;
+                 jacobian[matrixIndex]=evaluateScalarProgramWithCandidate(
+                     material.implicitJacobianProgramOffset +
+                         matrixIndex,
+@@ -1452,6 +1552,26 @@ inline bool usesStrictBilinear15StateCertification(
+         NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u;
+ }
+ 
++
++inline bool usesShared15StateTangentFactorization(
++    const NMMaterialGPU material) {
++    constexpr uint requiredFlags =
++        NM_MATERIAL_HAS_STATE |
++        NM_MATERIAL_HAS_IMPLICIT_STATE |
++        NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
++        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
++    return material.stateCount == 15u &&
++        material.parameterCount == 28u &&
++        material.constitutiveKind == NM_CONSTITUTIVE_BYTECODE &&
++        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++        (material.flags & requiredFlags) == requiredFlags &&
++        (material.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u &&
++        material.dissipationProgram == NM_INVALID_INDEX &&
++        material.viscousStressProgramOffset == NM_INVALID_INDEX &&
++        material.viscousTangentProgramOffset == NM_INVALID_INDEX;
++}
++
+ inline bool projectMaterialState(
+     const NMMaterialGPU material,
+     device const NMScalarProgramGPU* programs,
+@@ -1978,6 +2098,7 @@ inline float3x3 evaluateAlgorithmicStress(
+     , nullptr, deformationLow);
+ }
+ 
++
+ inline void evaluateAlgorithmicStressTangent(
+     const NMMaterialGPU material,
+     device const NMScalarProgramGPU* programs,
+@@ -2463,6 +2584,134 @@ inline void evaluateAlgorithmicStressTangent(
+     }
+ }
+ 
++// Build a full material-frame tangent for the exact compensated generic
++// 15-state policy by evaluating one local A=R_z and B=P_z, factoring A once,
++// and applying its pivoted two-word LU to all nine C=R_F H right-hand sides.
++inline bool evaluateShared15StateTangentColumns(
++    const NMMaterialGPU material,
++    device const NMScalarProgramGPU* programs,
++    device const NMExpressionInstructionGPU* instructions,
++    device const float* parameters,
++    device const float* acceptedState,
++    const float3x3 deformation,
++    const float3x3 deformationRate,
++    const float timestep,
++    const float temperature,
++    thread const float* deformationLow,
++    thread float* tangentColumns
++) {
++    if (!usesShared15StateTangentFactorization(material) ||
++        acceptedState == nullptr || deformationLow == nullptr ||
++        tangentColumns == nullptr) return false;
++    const uint count=material.stateCount;
++    float projectedState[NM_MAX_MATERIAL_STATE];
++    float projectedLow[NM_MAX_MATERIAL_STATE];
++    if (!projectMaterialState(
++            material,programs,instructions,parameters,acceptedState,
++            deformation,deformationRate,timestep,temperature,projectedState,
++            nullptr,nullptr,nullptr,nullptr,nullptr,deformationLow,
++            projectedLow)) return false;
++    const NMPaperCandidateState candidate{projectedState,projectedLow};
++    bool valid=true;
++    bool nonfinite=false;
++    const float3x3 projectedStress=evaluateStressWithCandidate(
++        material,programs,instructions,parameters,acceptedState,candidate,
++        deformation,deformationRate,timestep,temperature,valid,&nonfinite,
++        deformationLow);
++    if (!valid || !all(isfinite(projectedStress[0])) ||
++        !all(isfinite(projectedStress[1])) ||
++        !all(isfinite(projectedStress[2]))) return false;
++
++    float residual[16u];
++    MRCompensatedScalar residualWords[16u];
++    MRCompensatedScalar factor[16u * 16u];
++    const float3x3 zeroDirection=float3x3(0.0f);
++    if (!evaluateImplicitMaterialSystem(
++            material,programs,instructions,parameters,acceptedState,candidate,
++            deformation,zeroDirection,deformationRate,timestep,temperature,
++            residual,nullptr,true,&nonfinite,deformationLow,residualWords,
++            factor)) return false;
++    unsigned pivots[16u];
++    if (!nmPaperFactorCompensatedSystem(factor,pivots,count)) return false;
++
++    float f[9];
++    float zeroDirectionComponents[9]={0.0f,0.0f,0.0f,0.0f,0.0f,
++                                      0.0f,0.0f,0.0f,0.0f};
++    float rate[9];
++    matrixComponents(deformation,f);
++    matrixComponents(deformationRate,rate);
++    MRCompensatedScalar responseWords[81];
++    MRCompensatedScalar solutions[9u * 16u];
++    for (uint column=0u;column<9u;++column) {
++        float basisComponents[9];
++        for (uint component=0u;component<9u;++component)
++            basisComponents[component]=component==column?1.0f:0.0f;
++        const float3x3 basis=componentsMatrix(basisComponents);
++        const float3x3 rateDirection=basis/max(timestep,1.0e-12f);
++        float direction[9];
++        float rateDirectionComponents[9];
++        matrixComponents(basis,direction);
++        matrixComponents(rateDirection,rateDirectionComponents);
++        MRCompensatedScalar fixedWords[9];
++        bool tangentNonfinite=false;
++        const float3x3 fixedTangent=evaluateTangentVectorWithCandidate(
++            material,programs,instructions,parameters,acceptedState,candidate,
++            deformation,basis,deformationRate,rateDirection,timestep,
++            temperature,valid,&tangentNonfinite,deformationLow,fixedWords);
++        if (!valid || !all(isfinite(fixedTangent[0])) ||
++            !all(isfinite(fixedTangent[1])) ||
++            !all(isfinite(fixedTangent[2])) ||
++            tangentNonfinite) return false;
++        for (uint component=0u;component<9u;++component) {
++            if (!mrCompensatedFinite(fixedWords[component].high) ||
++                !mrCompensatedFinite(fixedWords[component].low)) return false;
++            responseWords[component*9u+column]=fixedWords[component];
++        }
++        MRCompensatedScalar rhs[16u];
++        for (uint state=0u;state<count;++state) {
++            const MRCompensatedScalar derivative=
++                evaluateScalarProgramWordsWithCandidate(
++                    material.implicitDeformationProgramOffset+state,
++                    programs,instructions,parameters+material.parameterOffset,
++                    acceptedState,candidate,f,direction,rate,timestep,
++                    temperature,valid,&nonfinite,deformationLow);
++            if (!valid) return false;
++            rhs[state]=mrCompensatedNegate(derivative);
++        }
++        if (!nmPaperSolveFactoredCompensatedSystem(
++                factor,pivots,rhs,count)) return false;
++        for (uint row=0u;row<count;++row)
++            solutions[column*count+row]=rhs[row];
++    }
++
++    // Stream B one stress component at a time to keep only one state row of
++    // P_z live. The contraction order within each response matches the legacy
++    // component-then-state compensated accumulation exactly.
++    MRCompensatedScalar stateDerivative[16u];
++    for (uint component=0u;component<9u;++component) {
++        for (uint state=0u;state<count;++state) {
++            stateDerivative[state]=evaluateScalarProgramWordsWithCandidate(
++                material.stressStateDerivativeProgramOffset+
++                    component*count+state,
++                programs,instructions,parameters+material.parameterOffset,
++                acceptedState,candidate,f,zeroDirectionComponents,rate,
++                timestep,temperature,valid,&nonfinite,deformationLow);
++            if (!valid) return false;
++        }
++        for (uint column=0u;column<9u;++column) {
++            MRCompensatedScalar total=responseWords[component*9u+column];
++            for (uint state=0u;state<count;++state) {
++                total=mrCompensatedAdd(total,mrCompensatedMultiply(
++                    stateDerivative[state],solutions[column*count+state]));
++            }
++            const float value=total.high+total.low;
++            if (!isfinite(value)) return false;
++            tangentColumns[component*9u+column]=value;
++        }
++    }
++    return true;
++}
++
+ inline bool evaluateMaterialValidity(
+     const NMMaterialGPU material,
+     device const NMScalarProgramGPU* programs,
+diff --git a/matter/src/metal/fem.metalinc b/matter/src/metal/fem.metalinc
+index 08b947c0..20267829 100644
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3349,6 +3349,38 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+     );
+     const uint cacheBase = global * 81u;
+ 
++    // A proven 15-state material can share A=R_z and B=P_z across all nine
++    // columns. One column-zero lane owns the whole batch; other basis lanes
++    // return, and the usual finalize kernel publishes only a complete mask.
++    if (usesShared15StateTangentFactorization(material)) {
++        if (column != 0u) return;
++        // A failed validity certificate leaves this cache entry unpublished;
++        // the established direct operator/final certificate owns rejection.
++        const float determinantValue = determinant(deformation);
++        float validityMargin = 1.0f;
++        if (!isfinite(determinantValue) ||
++            determinantValue < material.validity.x ||
++            determinantValue > material.validity.y ||
++            !evaluateMaterialValidity(
++                material, programs, instructions,
++                environmentParameters + parameterBase, internalState,
++                preciseLocalF, localRate, dt, material.bulk.y,
++                validityMargin, deformationLow) || !(validityMargin > 0.0f))
++            return;
++        float tangentColumns[81];
++        if (!evaluateShared15StateTangentColumns(
++                material, programs, instructions,
++                environmentParameters + parameterBase, internalState,
++                preciseLocalF, localRate, dt, material.bulk.y,
++                deformationLow, tangentColumns)) return;
++        for (uint index = 0u; index < 81u; ++index)
++            tangentCache[cacheBase + index] = tangentColumns[index];
++        atomic_fetch_or_explicit(
++            reinterpret_cast<device atomic_uint*>(validEntries) + global,
++            0x1ffu, memory_order_relaxed);
++        return;
++    }
++
+     // matrixComponents uses row-major scalar order even though Metal matrices
+     // are column-major. Store each evaluated response as one column of that
+     // explicit row-major linear map.
+@@ -3418,6 +3450,87 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+     atomic_fetch_or_explicit(reinterpret_cast<device atomic_uint*>(validEntries) + global,
+         1u << column, memory_order_relaxed);
+ }
++// Native checker hook for the reusable two-word local factorization. Each
++// GPU lane compares nine RHS solutions against the legacy one-RHS elimination
++// and reports the compensated local residual from the retained original A.
++kernel void nm_fem_test_compensated_local_factor(
++    device const float2* matrices [[buffer(0)]],
++    device const float2* rightHandSides [[buffer(1)]],
++    device float2* factoredSolutions [[buffer(2)]],
++    device float2* legacySolutions [[buffer(3)]],
++    device float* localResiduals [[buffer(4)]],
++    device uint* resultMasks [[buffer(5)]],
++    constant uint& count [[buffer(6)]],
++    device uint* pivotTrace [[buffer(7)]],
++    uint testIndex [[thread_position_in_grid]]
++) {
++    if (count!=15u) return;
++    const uint matrixBase=testIndex*count*count;
++    const uint rhsBase=testIndex*9u*count;
++    MRCompensatedScalar original[16u*16u];
++    MRCompensatedScalar factor[16u*16u];
++    MRCompensatedScalar legacyMatrix[16u*16u];
++    unsigned pivots[16u];
++    for (uint i=0u;i<count*count;++i) {
++        const float2 value=matrices[matrixBase+i];
++        original[i]={value.x,value.y};
++        factor[i]=original[i];
++    }
++    const bool factorSucceeded=
++        nmPaperFactorCompensatedSystem(factor,pivots,count);
++    uint legacyMask=0u;
++    uint factoredMask=0u;
++    for (uint rhsIndex=0u;rhsIndex<9u;++rhsIndex) {
++        MRCompensatedScalar legacyRhs[16u];
++        MRCompensatedScalar factoredRhs[16u];
++        for (uint i=0u;i<count*count;++i) legacyMatrix[i]=original[i];
++        for (uint row=0u;row<count;++row) {
++            const float2 value=rightHandSides[rhsBase+rhsIndex*count+row];
++            legacyRhs[row]={value.x,value.y};
++            factoredRhs[row]=legacyRhs[row];
++        }
++        const bool legacySucceeded=
++            nmPaperSolveCompensatedSystem(legacyMatrix,legacyRhs,count);
++        if (legacySucceeded) legacyMask|=1u<<rhsIndex;
++        bool factoredSucceeded=false;
++        if (factorSucceeded)
++            factoredSucceeded=nmPaperSolveFactoredCompensatedSystem(
++                factor,pivots,factoredRhs,count);
++        if (factoredSucceeded) factoredMask|=1u<<rhsIndex;
++        float residualMaximum=-1.0f;
++        for (uint row=0u;row<count;++row) {
++            const uint output=rhsBase+rhsIndex*count+row;
++            legacySolutions[output]=legacySucceeded
++                ? float2(legacyRhs[row].high,legacyRhs[row].low) : float2(0.0f);
++            factoredSolutions[output]=factoredSucceeded
++                ? float2(factoredRhs[row].high,factoredRhs[row].low) : float2(0.0f);
++        }
++        if (factoredSucceeded) {
++            residualMaximum=0.0f;
++            for (uint row=0u;row<count;++row) {
++                MRCompensatedScalar residual{
++                    -rightHandSides[rhsBase+rhsIndex*count+row].x,
++                    -rightHandSides[rhsBase+rhsIndex*count+row].y};
++                for (uint column=0u;column<count;++column) {
++                    residual=mrCompensatedAdd(residual,
++                        mrCompensatedMultiply(
++                            original[row*count+column],
++                            factoredRhs[column]));
++                }
++                residualMaximum=max(residualMaximum,abs(
++                    residual.high+residual.low));
++            }
++        }
++        localResiduals[testIndex*9u+rhsIndex]=residualMaximum;
++    }
++    for (uint pivot=0u;pivot<count;++pivot)
++        pivotTrace[testIndex*count+pivot]=factorSucceeded
++            ? pivots[pivot] : 0xffffffffu;
++    resultMasks[testIndex*3u]=factorSucceeded?1u:0u;
++    resultMasks[testIndex*3u+1u]=legacyMask;
++    resultMasks[testIndex*3u+2u]=factoredMask;
++}
++
+ kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+@@ -3506,6 +3619,30 @@ kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
+     float reusedProjectedState[NM_MAX_MATERIAL_STATE];
+     float reusedProjectedLow[NM_MAX_MATERIAL_STATE];
+ 
++    if (usesShared15StateTangentFactorization(material)) {
++        const float determinantValue = determinant(deformation);
++        float validityMargin = 1.0f;
++        if (!isfinite(determinantValue) ||
++            determinantValue < material.validity.x ||
++            determinantValue > material.validity.y ||
++            !evaluateMaterialValidity(
++                material, programs, instructions,
++                environmentParameters + parameterBase, internalState,
++                preciseLocalF, localRate, dt, material.bulk.y,
++                validityMargin, deformationLow) || !(validityMargin > 0.0f))
++            return;
++        float tangentColumns[81];
++        if (!evaluateShared15StateTangentColumns(
++                material, programs, instructions,
++                environmentParameters + parameterBase, internalState,
++                preciseLocalF, localRate, dt, material.bulk.y,
++                deformationLow, tangentColumns)) return;
++        for (uint index = 0u; index < 81u; ++index)
++            tangentCache[cacheBase + index] = tangentColumns[index];
++        validEntries[global] = 1u;
++        return;
++    }
++
+     // matrixComponents uses row-major scalar order even though Metal matrices
+     // are column-major. Store each evaluated response as one column of that
+     // explicit row-major linear map.
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+index 6a1dac1f..73a27916 100644
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -7172,6 +7172,128 @@ kernel void nm_fgmres_begin_distributed_partial(
+         partials[environment * tilesPerEnvironment + tile] = tileValue;
+ }
+ 
++// Opt-in Eisenstat-Walker forcing preparation. The partials are the full
++// production FGMRES RHS norm contributions, with the same row masks as the
++// begin measurement; this deliberately does not use the narrower Armijo norm.
++// History layout per environment: x = previous accepted base norm,
++// y = current staged base norm, z = previous norm valid, w = current staged.
++kernel void nm_fgmres_prepare_inexact_newton_forcing(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    constant uint& restartCycle [[buffer(14)]],
++    constant float& legacyForcing [[buffer(15)]],
++    constant uint& nonlinearIteration [[buffer(16)]],
++    device const float4* partials [[buffer(24)]],
++    device float4* history [[buffer(25)]],
++    device float* eta [[buffer(26)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]
++) {
++    if (group >= dispatch.environmentCount || lane >= 32u ||
++        restartCycle != 0u) return;
++    const uint environment = group;
++    const uint tiles = fgmresMeasurementTileCount(
++        fgmresBeginMeasurementItemCount(dispatch, layout));
++    float norm2Local = 0.0f;
++    float norm2Correction = 0.0f;
++    bool localSupportAdmissible = true;
++    for (uint tile = lane; tile < tiles; tile += 32u) {
++        const float4 partial = partials[environment * tiles + tile];
++        fgmresCompensatedAdd(norm2Local, norm2Correction, partial.x);
++        localSupportAdmissible = localSupportAdmissible && partial.z > 0.5f;
++    }
++    const float norm2 = simd_sum(norm2Local);
++    const bool supportAdmissible = simd_all(localSupportAdmissible);
++    if (lane != 0u) return;
++
++    device float4& state = history[environment];
++    if (nonlinearIteration == 0u) state = float4(0.0f);
++    const float norm = sqrt(max(norm2, 0.0f));
++    const bool currentValid = isfinite(norm2) && norm2 >= 0.0f &&
++        isfinite(norm) && supportAdmissible;
++    state.y = norm;
++    state.w = currentValid ? 1.0f : 0.0f;
++    if (!currentValid) state.z = 0.0f;
++
++    float selected = legacyForcing;
++    if (nonlinearIteration > 0u && currentValid && state.z > 0.5f &&
++        isfinite(state.x) && state.x > 0.0f) {
++        const float ratio = norm / state.x;
++        const float candidate = 0.9f * ratio * ratio;
++        if (isfinite(candidate)) {
++            const float floor = min(0.25f,
++                sqrt(max(solver.residualTolerances.x, 0.0f)));
++            selected = clamp(candidate, floor, 0.25f);
++        }
++    }
++    eta[environment] = selected;
++}
++
++// Commit EW history only for a real accepted Newton update. A rejected line
++// search or unhealthy environment invalidates the ratio and falls back to the
++// legacy schedule next time. An already-converged/no-column solve and a
++// no-op environment with no due FEM object do not advance the history.
++kernel void nm_fgmres_commit_inexact_newton_history(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMContinuumObjectGPU* objects [[buffer(1)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(3)]],
++    constant NMMicrostepGPU& microstep [[buffer(4)]],
++    device const float4* objectLineSearch [[buffer(5)]],
++    device const float* environmentLineSearch [[buffer(6)]],
++    device const NMMatterStatusGPU* statuses [[buffer(7)]],
++    device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
++    device float4* history [[buffer(9)]],
++    uint group [[threadgroup_position_in_grid]],
++    uint lane [[thread_index_in_threadgroup]]
++) {
++    if (group >= dispatch.environmentCount || lane != 0u) return;
++    const uint environment = group;
++    device float4& state = history[environment];
++    if (!environmentHealthy(statuses, environment)) {
++        state.z = 0.0f;
++        state.w = 0.0f;
++        return;
++    }
++    if (state.w <= 0.5f) return;
++    // begin_finish carries the outer nonlinear-convergence latch across
++    // restart tails. Do not advance on a base that was already complete.
++    if (fgmresStates[environment].nonlinear.w > 0.5f) {
++        state.w = 0.0f;
++        return;
++    }
++
++    const float sharedAlpha = environmentLineSearch[environment];
++    if (!isfinite(sharedAlpha) || sharedAlpha <= 0.0f) {
++        state.z = 0.0f;
++        state.w = 0.0f;
++        return;
++    }
++    bool hasDueFEM = false;
++    bool accepted = true;
++    for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
++         ++objectIndex) {
++        const NMContinuumObjectGPU object = objects[objectIndex];
++        if (object.representation != NM_REPRESENTATION_FEM) continue;
++        const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
++        if (!objectDue(object, schedulers[objectGlobal],
++                       adaptive[objectGlobal], microstep)) continue;
++        hasDueFEM = true;
++        const float alpha = objectLineSearch[objectGlobal].x;
++        if (!isfinite(alpha) || alpha <= 0.0f) accepted = false;
++    }
++    if (!hasDueFEM) return;
++    if (accepted && isfinite(state.y)) {
++        state.x = state.y;
++        state.z = 1.0f;
++        state.w = 0.0f;
++    } else {
++        state.z = 0.0f;
++        state.w = 0.0f;
++    }
++}
++
+ // Compact begin finalizer preserves the nonlinear latch, support gate,
+ // forcing target, history reset, and root-local indirect-dispatch state.
+ kernel void nm_fgmres_begin_distributed_finish(
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index 7fde380c..6f32fcff 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2971,6 +2971,9 @@ struct Runtime::State {
+     bool fgmresCGS2ICBEnabled = false;
+     id<MTLBuffer> fgmresOrthogonalPartials = nil;
+     id<MTLBuffer> fgmresMeasurementPartials = nil;
++    bool fgmresInexactNewtonForcingEnabled = false;
++    id<MTLBuffer> fgmresInexactNewtonHistory = nil;
++    id<MTLBuffer> fgmresInexactNewtonEta = nil;
+     id<MTLBuffer> fgmresCGS2ExecutionRange = nil;
+     std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Commands{};
+     std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Constants{};
+@@ -4126,7 +4129,24 @@ RuntimeDiagnostics Runtime::initialize(
+             diagnostics.message = "distributed global measurements require explicit value 1";
+             return diagnostics;
+         }
++        const char* inexactNewtonForcing =
++            std::getenv("NM_FGMRES_INEXACT_NEWTON_FORCING");
++        if (inexactNewtonForcing != nullptr &&
++            std::strcmp(inexactNewtonForcing, "1") != 0) {
++            diagnostics.message =
++                "inexact Newton forcing requires explicit value 1";
++            return diagnostics;
++        }
++        if (inexactNewtonForcing != nullptr &&
++            (distributedGlobals == nullptr ||
++             world.dispatch.environmentCount != 1u)) {
++            diagnostics.message =
++                "inexact Newton forcing requires distributed global measurements and one environment";
++            return diagnostics;
++        }
+         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
++        candidate->fgmresInexactNewtonForcingEnabled =
++            inexactNewtonForcing != nullptr;
+         candidate->fgmresDistributedCGS2Enabled = distributedCGS2 != nullptr;
+         candidate->fgmresCGS2ICBEnabled = cgs2ICB != nullptr;
+         candidate->objectLayout = world.objects;
+@@ -5103,6 +5123,8 @@ RuntimeDiagnostics Runtime::initialize(
+             "nm_fgmres_measure_true_residual",
+             "nm_fgmres_begin",
+             "nm_fgmres_begin_distributed_partial",
++            "nm_fgmres_prepare_inexact_newton_forcing",
++            "nm_fgmres_commit_inexact_newton_history",
+             "nm_fgmres_begin_distributed_finish",
+             "nm_fgmres_begin_distributed_basis0",
+             "nm_fgmres_correction_distributed_partial",
+@@ -5418,6 +5440,10 @@ RuntimeDiagnostics Runtime::initialize(
+                  std::strcmp(name, "nm_fem_armijo_validate_geometry_tiles") == 0 ||
+                  std::strcmp(name, "nm_fem_armijo_validate_geometry_finish") == 0))
+                 continue;
++            if (!candidate->fgmresInexactNewtonForcingEnabled &&
++                (std::strcmp(name, "nm_fgmres_prepare_inexact_newton_forcing") == 0 ||
++                 std::strcmp(name, "nm_fgmres_commit_inexact_newton_history") == 0))
++                continue;
+             if (!candidate->fgmresDistributedCGS2Enabled &&
+                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) continue;
+             if (!candidate->vascularBlockPredictorEnabled &&
+@@ -5874,8 +5900,62 @@ RuntimeDiagnostics Runtime::initialize(
+         candidate->mixedSolver = uploads.one(
+             std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u),
+             valid, candidate->residentBytes);
++        const char* canonicalTangentSetting =
++            std::getenv("NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT");
++        if (canonicalTangentSetting != nullptr &&
++            std::strcmp(canonicalTangentSetting, "0") != 0 &&
++            std::strcmp(canonicalTangentSetting, "1") != 0) {
++            diagnostics.message =
++                "NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT must be 0 or 1";
++            return diagnostics;
++        }
++        const char* sharedLocalSetting =
++            std::getenv("NM_FEM_SHARED_LOCAL_FACTORIZATION");
++        if (sharedLocalSetting != nullptr &&
++            std::strcmp(sharedLocalSetting, "0") != 0 &&
++            std::strcmp(sharedLocalSetting, "1") != 0) {
++            diagnostics.message =
++                "NM_FEM_SHARED_LOCAL_FACTORIZATION must be 0 or 1";
++            return diagnostics;
++        }
++        auto executionMaterials = world.materials;
++        if (sharedLocalSetting == nullptr ||
++            std::strcmp(sharedLocalSetting, "1") != 0) {
++            for (auto& material : executionMaterials)
++                material.flags &= ~NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
++        }
++        if (sharedLocalSetting != nullptr &&
++            std::strcmp(sharedLocalSetting, "1") == 0) {
++            const auto eligibleCount = std::count_if(
++                executionMaterials.begin(), executionMaterials.end(),
++                [](const NMMaterialGPU& material) {
++                    return (material.flags &
++                        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u;
++                });
++            std::fprintf(stderr,
++                "matter_shared_local_factorization_eligible_materials=%zu total_materials=%zu\n",
++                static_cast<std::size_t>(eligibleCount), executionMaterials.size());
++        }
++        if (canonicalTangentSetting == nullptr ||
++            std::strcmp(canonicalTangentSetting, "1") != 0) {
++            for (auto& material : executionMaterials)
++                material.flags &=
++                    ~NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
++        }
++        if (canonicalTangentSetting != nullptr &&
++            std::strcmp(canonicalTangentSetting, "1") == 0) {
++            const auto eligibleCount = std::count_if(
++                executionMaterials.begin(), executionMaterials.end(),
++                [](const NMMaterialGPU& material) {
++                    return (material.flags &
++                        NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u;
++                });
++            std::fprintf(stderr,
++                "matter_canonical_tangent_eligible_materials=%zu total_materials=%zu\n",
++                static_cast<std::size_t>(eligibleCount), executionMaterials.size());
++        }
+         candidate->materials = uploads.one(
+-            std::span<const NMMaterialGPU>(world.materials),
++            std::span<const NMMaterialGPU>(executionMaterials),
+             valid, candidate->residentBytes);
+         candidate->cohesiveMaterials = uploads.one(
+             std::span<const NMCohesiveMaterialGPU>(world.cohesiveMaterials),
+@@ -8062,6 +8142,14 @@ RuntimeDiagnostics Runtime::initialize(
+             candidate->fgmresMeasurementPartials = privateScratch<nm_float4>(
+                 candidate->device, static_cast<std::size_t>(tiles * environments),
+                 valid, candidate->residentBytes);
++            if (candidate->fgmresInexactNewtonForcingEnabled) {
++                candidate->fgmresInexactNewtonHistory =
++                    privateScratch<nm_float4>(candidate->device,
++                        environments, valid, candidate->residentBytes);
++                candidate->fgmresInexactNewtonEta =
++                    privateScratch<float>(candidate->device,
++                        environments, valid, candidate->residentBytes);
++            }
+         }
+         if (candidate->fgmresDistributedCGS2Enabled) {
+             const std::uint64_t tiles = (mixedUnknownWidth + 255u) / 256u;
+@@ -11674,20 +11762,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 bind();
+                 [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:24u];
+             };
++            const auto bindForcingConsumer = [&] {
++                bindPartials();
++                if (begin && state.fgmresInexactNewtonForcingEnabled)
++                    [encoder setBuffer:state.fgmresInexactNewtonEta
++                        offset:0u atIndex:15u];
++            };
+             dispatchGroups256(begin ? "nm_fgmres_begin_distributed_partial" :
+                 (correction ? "nm_fgmres_correction_distributed_partial" :
+                     "nm_fgmres_true_residual_distributed_partial"),
+                 environments * tiles, bindPartials);
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-            dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
+-                (correction ? "nm_fgmres_correction_distributed_finish" :
+-                    "nm_fgmres_true_residual_distributed_finish"),
+-                environments, bindPartials);
++            if (begin && state.fgmresInexactNewtonForcingEnabled) {
++                dispatchGroups32("nm_fgmres_prepare_inexact_newton_forcing",
++                    environments, [&] {
++                    bindPartials();
++                    [encoder setBuffer:state.fgmresInexactNewtonHistory
++                        offset:0u atIndex:25u];
++                    [encoder setBuffer:state.fgmresInexactNewtonEta
++                        offset:0u atIndex:26u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
++            if (begin && state.fgmresInexactNewtonForcingEnabled)
++                dispatchGroups32("nm_fgmres_begin_distributed_finish",
++                    environments, bindForcingConsumer);
++            else
++                dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
++                    (correction ? "nm_fgmres_correction_distributed_finish" :
++                        "nm_fgmres_true_residual_distributed_finish"),
++                    environments, bindPartials);
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             if (begin) {
+                 const NSUInteger basisTiles = std::max<NSUInteger>(1u, (activeItems + 255u) / 256u);
+-                dispatchGroups256("nm_fgmres_begin_distributed_basis0",
+-                    environments * basisTiles, bindPartials);
++                if (state.fgmresInexactNewtonForcingEnabled)
++                    dispatchGroups256("nm_fgmres_begin_distributed_basis0",
++                        environments * basisTiles, bindForcingConsumer);
++                else
++                    dispatchGroups256("nm_fgmres_begin_distributed_basis0",
++                        environments * basisTiles, bindPartials);
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             } else if (!correction) {
+                 dispatchThreads("nm_fgmres_true_residual_distributed_replace",
+@@ -27063,7 +27176,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                             bind(cmd, 1u, state.mixedSolver); scalar(cmd, 2u, offsetof(CGS2Constants, column));
+                             bind(cmd, 3u, state.fgmresHessenberg); bind(cmd, 4u, state.fgmresRotations);
+                             bind(cmd, 5u, state.fgmresLeastSquares); bind(cmd, 6u, state.fgmresStates);
+-                            scalar(cmd, 7u, offsetof(CGS2Constants, forcing)); bind(cmd, 8u, state.fgmresOrthogonalPartials);
++                            if (state.fgmresInexactNewtonForcingEnabled)
++                                bind(cmd, 7u, state.fgmresInexactNewtonEta);
++                            else
++                                scalar(cmd, 7u, offsetof(CGS2Constants, forcing));
++                            bind(cmd, 8u, state.fgmresOrthogonalPartials);
+                             bind(cmd, 9u, state.fgmresNodeActiveDispatch); bind(cmd, 10u, state.fgmresElementActiveDispatch);
+                             finish(cmd, environments, 32u);
+                             cmd = command("nm_fgmres_cgs2_normalize");
+@@ -27091,6 +27208,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                 state.fgmresElementActiveDispatch})
+                             [encoder useResource:resource usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+                         [encoder useResource:state.mixedSolver usage:MTLResourceUsageRead];
++                        if (state.fgmresInexactNewtonForcingEnabled)
++                            [encoder useResource:state.fgmresInexactNewtonEta
++                                usage:MTLResourceUsageRead];
+                         [encoder useResource:state.fgmresCGS2Constants[cacheIndex] usage:MTLResourceUsageRead];
+                         [encoder useResource:state.fgmresCGS2Commands[cacheIndex] usage:MTLResourceUsageRead];
+                         [encoder executeCommandsInBuffer:state.fgmresCGS2Commands[cacheIndex]
+@@ -27144,7 +27264,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:state.fgmresRotations offset:0u atIndex:4u];
+                         [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:5u];
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+-                        [encoder setBytes:&linearForcing length:sizeof(linearForcing) atIndex:7u];
++                        if (state.fgmresInexactNewtonForcingEnabled)
++                            [encoder setBuffer:state.fgmresInexactNewtonEta
++                                         offset:0u atIndex:7u];
++                        else
++                            [encoder setBytes:&linearForcing
++                                       length:sizeof(linearForcing) atIndex:7u];
+                         [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:8u];
+                         [encoder setBuffer:state.fgmresNodeActiveDispatch offset:0u atIndex:9u];
+                         [encoder setBuffer:state.fgmresElementActiveDispatch offset:0u atIndex:10u];
+@@ -27197,8 +27322,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                      offset:0u atIndex:8u];
+                         [encoder setBuffer:state.fgmresStates
+                                      offset:0u atIndex:9u];
+-                        [encoder setBytes:&linearForcing
+-                                   length:sizeof(linearForcing) atIndex:10u];
++                        if (state.fgmresInexactNewtonForcingEnabled)
++                            [encoder setBuffer:state.fgmresInexactNewtonEta
++                                         offset:0u atIndex:10u];
++                        else
++                            [encoder setBytes:&linearForcing
++                                       length:sizeof(linearForcing) atIndex:10u];
+                         [encoder setBuffer:state.fgmresNodeActiveDispatch
+                                      offset:0u atIndex:11u];
+                         [encoder setBuffer:state.fgmresElementActiveDispatch
+@@ -27235,8 +27364,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                            length:sizeof(iterationOffset) atIndex:6u];
+                 [encoder setBytes:&finalRestartCycle
+                            length:sizeof(finalRestartCycle) atIndex:7u];
+-                [encoder setBytes:&linearForcing
+-                           length:sizeof(linearForcing) atIndex:8u];
++                if (state.fgmresInexactNewtonForcingEnabled)
++                    [encoder setBuffer:state.fgmresInexactNewtonEta
++                                 offset:0u atIndex:8u];
++                else
++                    [encoder setBytes:&linearForcing
++                               length:sizeof(linearForcing) atIndex:8u];
+                 [encoder setBuffer:state.fgmresRotations
+                              offset:0u atIndex:9u];
+                 [encoder setBuffer:state.fgmresRestartCoefficients
+@@ -27712,8 +27845,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                     [encoder setBuffer:state.femTrueResidualMetrics
+                                  offset:0u atIndex:6u];
+-                    [encoder setBytes:&linearForcing
+-                               length:sizeof(linearForcing) atIndex:7u];
++                    if (state.fgmresInexactNewtonForcingEnabled)
++                        [encoder setBuffer:state.fgmresInexactNewtonEta
++                                     offset:0u atIndex:7u];
++                    else
++                        [encoder setBytes:&linearForcing
++                                   length:sizeof(linearForcing) atIndex:7u];
+                     [encoder setBuffer:state.femTrueResidualStatuses
+                                  offset:0u atIndex:8u];
+                     [encoder setBytes:&replaceTrueResidual
+@@ -30946,6 +31083,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
+                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+             }, WorkDomain::femNodes);
++            if (state.fgmresInexactNewtonForcingEnabled) {
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchGroups32("nm_fgmres_commit_inexact_newton_history",
++                    environments, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:3u];
++                    [encoder setBytes:&micro length:sizeof(micro) atIndex:4u];
++                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:5u];
++                    [encoder setBuffer:state.environmentLineSearch
++                                 offset:0u atIndex:6u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
++                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
++                    [encoder setBuffer:state.fgmresInexactNewtonHistory
++                                 offset:0u atIndex:9u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
+             dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
+                 setDispatch();
+                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
+diff --git a/matter/src/validation_impl.cpp b/matter/src/validation_impl.cpp
+index a4208980..303b6b04 100644
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -42,7 +42,9 @@ constexpr std::uint32_t kKnownMaterialFlags =
+     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+-    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
++    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION |
++    NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT |
++    NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+ constexpr std::uint32_t kKnownObjectFlags =
+     NM_OBJECT_ACTIVE |
+     NM_OBJECT_TWO_WAY_COUPLED |
+@@ -1176,6 +1178,39 @@ private:
+                 (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u;
+             const bool genericBilinear15StrictStateCertification =
+                 (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)!=0u;
++            const bool canonicalCompressibleNeoHookeanTangent =
++                (material.flags &
++                 NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u;
++            const bool shared15StateTangentFactorization =
++                (material.flags &
++                 NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u;
++            if (canonicalCompressibleNeoHookeanTangent &&
++                (material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
++                 material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
++                 material.parameterCount != 3u || material.stateCount != 0u ||
++                 (material.flags & (NM_MATERIAL_HAS_STATE |
++                                    NM_MATERIAL_HAS_DISSIPATION |
++                                    NM_MATERIAL_HAS_IMPLICIT_STATE |
++                                    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
++                                    NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
++                                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
++                                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++                                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
++                                    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)) != 0u ||
++                 // stateInitialOffset is the canonical arena cursor even
++                 // for a stateless material; the world-level range check
++                 // validates this zero-length span against stateCursor.
++                 material.stateUpdateProgramOffset != NM_INVALID_INDEX ||
++                 material.dissipationProgram != NM_INVALID_INDEX ||
++                 material.viscousStressProgramOffset != NM_INVALID_INDEX ||
++                 material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
++                 material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
++                 material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
++                 material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
++                 material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX)) {
++                return failIndexed("material", index,
++                    "canonical compressible neo-Hookean tangent tag has an unsupported runtime layout");
++            }
+             const bool finiteElasticStarchArithmetic =
+                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
+                 (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
+@@ -1229,6 +1264,71 @@ private:
+                 return failIndexed("material",index,
+                     "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a valid bounded local budget");
+             }
++            if (shared15StateTangentFactorization) {
++                const auto roleHasNoDeformationDirection =
++                    [&](const std::uint32_t first,
++                        const std::uint32_t count) {
++                        if (first == NM_INVALID_INDEX || count == 0u ||
++                            !rangeWithin(first, count,
++                                         world_.scalarPrograms.size())) {
++                            return false;
++                        }
++                        for (std::uint32_t local = 0u;
++                             local < count; ++local) {
++                            const NMScalarProgramGPU& scalar =
++                                world_.scalarPrograms[first + local];
++                            if (!rangeWithin(scalar.firstInstruction,
++                                             scalar.instructionCount,
++                                             world_.instructions.size())) {
++                                return false;
++                            }
++                            for (std::uint32_t item = 0u;
++                                 item < scalar.instructionCount; ++item) {
++                                if (world_.instructions[
++                                        scalar.firstInstruction + item].opcode ==
++                                    NM_EXPR_DF) {
++                                    return false;
++                                }
++                            }
++                        }
++                        return true;
++                    };
++                const bool sharedFactorLayout =
++                    genericCompensatedProjection &&
++                    genericBilinear15AccurateProjection &&
++                    material.constitutiveKind == NM_CONSTITUTIVE_BYTECODE &&
++                    material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++                    material.stateCount == 15u &&
++                    material.parameterCount == 28u &&
++                    (material.flags & NM_MATERIAL_HAS_STATE) != 0u &&
++                    (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u &&
++                    (material.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u &&
++                    material.stateUpdateProgramOffset != NM_INVALID_INDEX &&
++                    material.dissipationProgram == NM_INVALID_INDEX &&
++                    material.viscousStressProgramOffset == NM_INVALID_INDEX &&
++                    material.viscousTangentProgramOffset == NM_INVALID_INDEX;
++                const bool sharedFactorProof =
++                    sharedFactorLayout &&
++                    roleHasNoDeformationDirection(
++                        material.stateUpdateProgramOffset,
++                        material.stateCount) &&
++                    roleHasNoDeformationDirection(
++                        material.implicitResidualProgramOffset,
++                        material.stateCount) &&
++                    roleHasNoDeformationDirection(
++                        material.implicitJacobianProgramOffset,
++                        material.stateCount * material.stateCount) &&
++                    roleHasNoDeformationDirection(
++                        material.stressStateDerivativeProgramOffset,
++                        9u * material.stateCount) &&
++                    (material.validityProgram == NM_INVALID_INDEX ||
++                     roleHasNoDeformationDirection(
++                         material.validityProgram, 1u));
++                if (!sharedFactorProof) {
++                    return failIndexed("material", index,
++                        "shared 15-state tangent factorization tag lacks its emitted no-direction proof or eligible no-dissipation layout");
++                }
++            }
+             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
+                 !finiteElasticStarchArithmetic &&
+                 !genericCompensatedProjection &&
+diff --git a/matter/tools/fem_material_frame_check.mm b/matter/tools/fem_material_frame_check.mm
+index c21bd0f1..e12e4e07 100644
+--- a/matter/tools/fem_material_frame_check.mm
++++ b/matter/tools/fem_material_frame_check.mm
+@@ -63,7 +63,7 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
+ 
+ struct Device {
+     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
+-    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline;
++    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cacheProjectionReusePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline,factorTestPipeline;
+     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
+         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
+         queue=[device newCommandQueue];NSError* error=nil;
+@@ -89,9 +89,11 @@ struct Device {
+         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
+         operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
+         tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
++        cacheProjectionReusePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic");
+         cachePreparePipeline=make(@"numi_matter_metal::nm_fem_prepare_algorithmic_tangent_columns");
+         cacheColumnsPipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns");
+-        cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");}
++        cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");
++        factorTestPipeline=make(@"numi_matter_metal::nm_fem_test_compensated_local_factor");}
+     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
+ };
+ // Incomplete/failed columns must never publish a valid cache, and a completed
+@@ -127,17 +129,207 @@ void checkColumnValidityPublication(Device& d) {
+          "forced completed cache rebuild did not reset all entries");
+     std::cout<<"parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset\n";
+ }
++void checkCompensatedLocalFactor(Device& d) {
++    constexpr unsigned n=15u;
++    constexpr unsigned rhsCount=9u;
++    constexpr unsigned caseCount=3u;
++    using WordPair=std::array<float,2>;
++    std::vector<WordPair> matrices(caseCount*n*n);
++    std::vector<WordPair> rhs(caseCount*rhsCount*n);
++    // A nonsymmetric, well-conditioned matrix with a forced first-column row
++    // pivot and low-word perturbations. Each RHS mixes cancellation scales.
++    for(unsigned row=0;row<n;++row)for(unsigned column=0;column<n;++column) {
++        const int code=int((row*37u+column*19u+7u)%17u)-8;
++        const float value=row==column?4.0f+0.125f*row:0.017f*code;
++        matrices[row*n+column]={value,std::ldexp(
++            ((row+column)&1u)?1.0f:-1.0f,-25)};
++    }
++    for(unsigned column=0;column<n;++column)
++        std::swap(matrices[column],matrices[(n-1u)*n+column]);
++    // A second nonsymmetric system starts with rows [2,0,1,...]. The first
++    // pivot swaps at column zero and the second at column one, after nonzero
++    // L coefficients exist, exercising full-row swaps in the stored factors.
++    const std::vector<WordPair> pivotSource(
++        matrices.begin(), matrices.begin() + n*n);
++    const unsigned permutedCase=2u*n*n;
++    for(unsigned row=0;row<n;++row) {
++        const unsigned sourceRow=row<3u?(row+1u)%3u:row;
++        std::copy_n(pivotSource.begin()+sourceRow*n,n,
++                    matrices.begin()+permutedCase+row*n);
++    }
++    for(unsigned testCase=0;testCase<caseCount;++testCase)
++        for(unsigned r=0;r<rhsCount;++r)for(unsigned row=0;row<n;++row) {
++            const int code=int((r*23u+row*11u+testCase*7u+3u)%19u)-9;
++            const float high=(row%5u==0u?8192.0f:0.125f)*float(code);
++            const float low=std::ldexp(
++                ((r+row+testCase)&1u)?1.0f:-1.0f,-17);
++            rhs[testCase*rhsCount*n+r*n+row]={high,low};
++        }
++    // The second matrix lies below the production pivot floor, so both
++    // one-RHS and factor-once solves must reject it for all nine RHS.
++    const unsigned second= n*n;
++    for(unsigned i=0;i<n;++i)matrices[second+i*n+i]={i+1u==n?1.0e-9f:1.0f,0.0f};
++    const auto matrixBuffer=buffer(d.device,matrices);
++    const auto rhsBuffer=buffer(d.device,rhs);
++    const auto factoredBuffer=buffer(d.device,
++        std::vector<WordPair>(caseCount*rhsCount*n));
++    const auto legacyBuffer=buffer(d.device,
++        std::vector<WordPair>(caseCount*rhsCount*n));
++    const auto residualBuffer=buffer(d.device,
++        std::vector<float>(caseCount*rhsCount,-1.0f));
++    const auto maskBuffer=buffer(d.device,std::vector<std::uint32_t>(caseCount*3u));
++    const auto pivotBuffer=buffer(d.device,
++        std::vector<std::uint32_t>(caseCount*n,0xffffffffu));
++    const std::uint32_t count=n;
++    auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
++    [encoder setComputePipelineState:d.factorTestPipeline];
++    [encoder setBuffer:matrixBuffer offset:0 atIndex:0];
++    [encoder setBuffer:rhsBuffer offset:0 atIndex:1];
++    [encoder setBuffer:factoredBuffer offset:0 atIndex:2];
++    [encoder setBuffer:legacyBuffer offset:0 atIndex:3];
++    [encoder setBuffer:residualBuffer offset:0 atIndex:4];
++    [encoder setBuffer:maskBuffer offset:0 atIndex:5];
++    [encoder setBytes:&count length:sizeof(count) atIndex:6];
++    [encoder setBuffer:pivotBuffer offset:0 atIndex:7];
++    [encoder dispatchThreads:MTLSizeMake(caseCount,1,1)
++        threadsPerThreadgroup:MTLSizeMake(2,1,1)];
++    [encoder endEncoding];[command commit];[command waitUntilCompleted];
++    need(command.status==MTLCommandBufferStatusCompleted,
++         "compensated factor test command failed");
++    const auto* masks=static_cast<const std::uint32_t*>(maskBuffer.contents);
++    const auto* pivots=static_cast<const std::uint32_t*>(pivotBuffer.contents);
++    need(pivots[2u*n]==n-1u&&pivots[2u*n+1u]==n-1u,
++         "later-pivot fixture did not swap rows after nonzero L was stored");
++    need(masks[0]==1u&&masks[1]==0x1ffu&&masks[2]==0x1ffu,
++         "row-pivot compensated factor did not solve all nine RHS");
++    need(masks[3]==0u&&masks[4]==0u&&masks[5]==0u,
++         "near-singular compensated factor did not preserve pivot-floor rejection");
++    need(masks[6]==1u&&masks[7]==0x1ffu&&masks[8]==0x1ffu,
++         "later-pivot compensated factor did not solve all nine RHS");
++    const auto* factored=static_cast<const WordPair*>(factoredBuffer.contents);
++    const auto* legacy=static_cast<const WordPair*>(legacyBuffer.contents);
++    const auto* residual=static_cast<const float*>(residualBuffer.contents);
++    double maximumParity=0.0,maximumScale=0.0,maximumResidual=0.0;
++    const unsigned parityCases[2]={0u,2u};
++    for(const unsigned testCase:parityCases)for(unsigned r=0;r<rhsCount;++r) {
++        const unsigned base=testCase*rhsCount*n+r*n;
++        maximumResidual=std::max(maximumResidual,
++            double(residual[testCase*rhsCount+r]));
++        for(unsigned row=0;row<n;++row) {
++            const unsigned i=base+row;
++            const double x=double(factored[i][0])+factored[i][1];
++            const double y=double(legacy[i][0])+legacy[i][1];
++            maximumParity=std::max(maximumParity,std::abs(x-y));
++            maximumScale=std::max(maximumScale,std::abs(y));
++        }
++    }
++    need(maximumParity<=2.0e-6*std::max(1.0,maximumScale),
++         "factor-once RHS solutions differ from legacy compensated elimination");
++    need(maximumResidual<=2.0e-3,
++         "factor-once solution has an excessive compensated local residual");
++    std::cout<<std::setprecision(12)
++        <<"compensated_factor_rhs=9 pivoted_matrix=passed"
++        <<" near_singular_rejected=passed"
++        <<" maximum_solution_parity="<<maximumParity
++        <<" maximum_local_residual="<<maximumResidual<<"\n";
++}
++void checkSharedFactorCompilerProof(MaterialProgram paperMaterial) {
++    constexpr std::uint32_t tag =
++        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
++    paperMaterial.genericCompensatedImplicitProjection = true;
++    const CompiledWorld tagged = cook(source(paperMaterial, true, false));
++    need(tagged.materials.size() == 1u &&
++         (tagged.materials[0].flags & tag) != 0u,
++         "eligible 15-state material did not receive the shared-factor proof tag");
++    need(tagged.materials[0].validityProgram != NM_INVALID_INDEX,
++         "shared-factor native fixture does not exercise its validity program");
++    std::string error;
++    need(validateCompiledWorldLayout(tagged, &error),
++         "compiler-tagged shared-factor world failed layout proof: " + error);
++
++    const auto replaceRoleOpcode = [](CompiledWorld& world,
++                                      const std::uint32_t first,
++                                      const std::uint32_t count,
++                                      const std::uint32_t replacement) {
++        if (first == NM_INVALID_INDEX ||
++            first > world.scalarPrograms.size() ||
++            count > world.scalarPrograms.size() - first) return false;
++        for (std::uint32_t local = 0u; local < count; ++local) {
++            const auto& scalar = world.scalarPrograms[first + local];
++            if (scalar.firstInstruction > world.instructions.size() ||
++                scalar.instructionCount > world.instructions.size() -
++                    scalar.firstInstruction) return false;
++            for (std::uint32_t item = 0u;
++                 item < scalar.instructionCount; ++item) {
++                auto& instruction = world.instructions[
++                    scalar.firstInstruction + item];
++                if (instruction.opcode == NM_EXPR_F) {
++                    instruction.opcode = replacement;
++                    return true;
++                }
++            }
++        }
++        return false;
++    };
++    const auto requireDirectionRejected = [&](
++            const std::uint32_t first, const std::uint32_t count,
++            const char* role) {
++        CompiledWorld damaged = tagged;
++        need(replaceRoleOpcode(damaged, first, count, NM_EXPR_DF),
++             std::string("shared-factor proof fixture has no F input in ") + role);
++        damaged.fingerprint = compiledWorldFingerprint(damaged);
++        std::string diagnosticText;
++        need(!validateCompiledWorldLayout(damaged, &diagnosticText) &&
++             diagnosticText.find(
++                 "shared 15-state tangent factorization tag lacks its emitted no-direction proof") !=
++                 std::string::npos,
++             std::string("direction opcode in ") + role +
++                 " was not rejected by the shared-factor proof: " + diagnosticText);
++    };
++    requireDirectionRejected(
++        tagged.materials[0].implicitJacobianProgramOffset,
++        tagged.materials[0].stateCount * tagged.materials[0].stateCount,
++        "A=R_z");
++    requireDirectionRejected(
++        tagged.materials[0].stressStateDerivativeProgramOffset,
++        9u * tagged.materials[0].stateCount,
++        "B=P_z");
++
++    // RATE is fixed across all nine Newton-tangent columns and must remain
++    // legal in A/B; replacing an F load exercises that exact proof rule.
++    CompiledWorld rateInput = tagged;
++    need(replaceRoleOpcode(
++             rateInput, rateInput.materials[0].implicitJacobianProgramOffset,
++             rateInput.materials[0].stateCount * rateInput.materials[0].stateCount,
++             NM_EXPR_RATE),
++         "shared-factor rate proof fixture has no F input in A=R_z");
++    rateInput.fingerprint = compiledWorldFingerprint(rateInput);
++    error.clear();
++    need(validateCompiledWorldLayout(rateInput, &error),
++         "fixed RATE input incorrectly invalidated shared-factor proof: " + error);
++
++    paperMaterial.genericCompensatedImplicitProjection = false;
++    const CompiledWorld fallback = cook(source(paperMaterial, true, false));
++    need(fallback.materials.size() == 1u &&
++         (fallback.materials[0].flags & tag) == 0u,
++         "ineligible legacy 15-state material did not retain the old cache path");
++    error.clear();
++    need(validateCompiledWorldLayout(fallback, &error),
++         "ineligible legacy 15-state world failed validation: " + error);
++    std::cout << "shared_15_state_factor_proof=passed A_DF=rejected B_DF=rejected RATE=allowed ineligible=legacy\n";
++}
++
+ struct Inputs {
+     std::vector<NMFEMNodeStateGPU> nodes;
+     std::vector<NMFEMFieldStateGPU> fields;
+     std::vector<nm_float4> direction;
+     std::vector<float> state;
+ };
+-Inputs manufactured(const CompiledWorld& w){
++Inputs manufactured(const CompiledWorld& w,
++                    const Matrix& f=Matrix{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025},
++                    const Matrix& h=Matrix{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14},
++                    const Matrix& rate=Matrix{.3,-.2,.1,.12,.22,-.18,-.1,.08,.25}){
+     Inputs v;v.nodes=repeat(w.fem.nodes);v.fields=repeat(w.fem.fields);v.direction.resize(4*w.dispatch.femNodeCount);
+-    const Matrix f{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025};
+-    const Matrix h{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14};
+-    const Matrix rate{.3,-.2,.1,.12,.22,-.18,-.1,.08,.25};
+     for(unsigned env=0;env<2;++env)for(unsigned n=0;n<w.dispatch.femNodeCount;++n){const unsigned i=env*w.dispatch.femNodeCount+n;
+         const Vec x=xyz(w.fem.nodes[n].positionAndMass),p=transform(f,x),r=transform(rate,x),d=transform(h,x);
+         v.nodes[i].positionAndMass.x=p[0];v.nodes[i].positionAndMass.y=p[1];v.nodes[i].positionAndMass.z=p[2];
+@@ -147,7 +339,7 @@ Inputs manufactured(const CompiledWorld& w){
+     for(unsigned e=0;e<2*w.dispatch.tetrahedronCount;++e)for(unsigned i=0;i<w.stateInitials.size();++i)v.state[e*w.dispatch.materialStateStride+i]=w.stateInitials[i];
+     return v;
+ }
+-std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false){
++std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false,bool projectionReuseDiagnostic=false){
+     need(!cached||tangent,"cached tangent action requires the FEM operator");
+     NMMicrostepGPU micro{};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;micro.time={w.dispatch.gravityAndTimestep.w,1/w.dispatch.gravityAndTimestep.w,0,0};
+     const std::uint32_t forceCompletedCacheRebuild=0u;
+@@ -166,7 +358,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
+         std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
+     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+     if(cached){
+-        [encoder setComputePipelineState:d.tangentCachePipeline];
++        [encoder setComputePipelineState:projectionReuseDiagnostic
++            ? d.cacheProjectionReusePipeline : d.tangentCachePipeline];
+         [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];
+         [encoder setBytes:&micro length:sizeof(micro) atIndex:1];
+         [encoder setBuffer:objects offset:0 atIndex:2];
+@@ -459,6 +652,112 @@ void learnedFrameChecks(Device& d){
+         <<" framed_icnn_world_fibre_force_error="<<frameForce<<" framed_icnn_world_fibre_tangent_error="<<frameTangent
+         <<" framed_icnn_angular_consequence="<<angular<<" trained_material_qualified=false\n";
+ }
++double materialParameter(const MaterialProgram& material,const std::string& name){
++    for(const auto& parameter:material.parameters)if(parameter.name==name)return parameter.defaultValue;
++    throw std::runtime_error("missing canonical parameter "+name);
++}
++void canonicalTangentChecks(Device& d,const std::filesystem::path& materialsDirectory){
++    constexpr std::uint32_t tag=NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
++    const std::array<const char*,3> names{
++        "human_skin_dermis_frequency_specific_effective.nmatter",
++        "human_subcutaneous_adipose_low_strain_effective.nmatter",
++        "human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter"};
++    std::uint32_t checked=0u;
++    for(const char* name:names){
++        const auto parsed=parseMatterFile((materialsDirectory/name).string());
++        need(parsed.succeeded(),"canonical tangent material parse failed: "+std::string(name)+" "+diagnostic(parsed.diagnostics));
++        const auto world=cook(source(parsed.material,true));
++        need(world.materials.size()==1u&&(world.materials[0].flags&tag)!=0u,
++             "exact canonical material was not classified: "+std::string(name));
++        auto fallback=world;
++        fallback.materials[0].flags&=~tag;
++        const double shear=materialParameter(parsed.material,"shear");
++        const double bulk=materialParameter(parsed.material,"bulk");
++        const Oracle oracle=[shear,bulk](const Matrix& f,const Matrix& h,const Matrix&,const Matrix& q){
++            const Matrix localF=ref::multiply(f,q),localH=ref::multiply(h,q);
++            const double j=ref::determinant(localF);
++            need(j>0.0&&std::isfinite(j),"canonical tangent fixture has invalid J");
++            const double logJ=std::log(j);
++            const Matrix inverseT=ref::inverseTranspose(localF);
++            const Matrix dInverseT=ref::scale(ref::multiply(ref::multiply(inverseT,ref::transpose(localH)),inverseT),-1.0);
++            const double volumeDirection=ref::contract(inverseT,localH);
++            ref::Result result;
++            result.stress=ref::multiply(ref::add(ref::scale(ref::add(localF,ref::scale(inverseT,-1.0)),shear),
++                ref::scale(inverseT,bulk*logJ)),ref::transpose(q));
++            const Matrix localTangent=ref::add(ref::add(ref::scale(localH,shear),
++                ref::scale(inverseT,bulk*volumeDirection)),
++                ref::scale(dInverseT,bulk*logJ-shear));
++            result.tangent=ref::multiply(localTangent,ref::transpose(q));
++            return result;
++        };
++        const std::array<Matrix,3> deformations{
++            Matrix{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025},
++            Matrix{.79,.015,0,.035,.91,.01,0,.02,.84},
++            Matrix{1.0,.37,.04,-.025,1.0,.11,.015,-.035,1.0}};
++        const std::array<Matrix,3> directions{
++            Matrix{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14},
++            Matrix{-.11,.08,.03,.12,.07,-.06,.04,-.09,.16},
++            Matrix{.03,.21,-.04,-.12,.06,.11,.08,-.05,-.02}};
++        double maximumOracle=0.0,maximumFallback=0.0,maximumCachedOracle=0.0,maximumFD=0.0;
++        for(std::size_t sample=0;sample<deformations.size();++sample){
++            const Inputs input=manufactured(world,deformations[sample],directions[sample]);
++            const auto force=dispatch(d,world,input,false);
++            const auto fallbackForce=dispatch(d,fallback,input,false);
++            need(same(force,fallbackForce),"canonical tangent flag changed force output");
++            const auto tangent=dispatch(d,world,input,true);
++            const auto fallbackTangent=dispatch(d,fallback,input,true);
++            const auto cached=dispatch(d,world,input,true,true);
++            const auto fallbackCached=dispatch(d,fallback,input,true,true);
++            const double oracleError=compare(world,input,tangent,true,oracle);
++            const double cachedOracleError=compare(world,input,cached,true,oracle);
++            maximumOracle=std::max(maximumOracle,oracleError);
++            maximumCachedOracle=std::max(maximumCachedOracle,cachedOracleError);
++            maximumFallback=std::max({maximumFallback,difference(tangent,fallbackTangent),difference(cached,fallbackCached)});
++            maximumFD=std::max({maximumFD,finiteDifference(d,world,input,tangent),finiteDifference(d,world,input,cached)});
++        }
++        need(maximumOracle<5e-4&&maximumCachedOracle<5e-4,
++             "canonical tangent closed form disagrees with independent oracle material="+std::string(name)+" direct="+number(maximumOracle)+" cached="+number(maximumCachedOracle));
++        need(maximumFallback<8e-4,
++             "canonical tangent differs from bytecode fallback material="+std::string(name)+" error="+number(maximumFallback));
++        need(maximumFD<4e-3,
++             "canonical tangent differs from force finite difference material="+std::string(name)+" error="+number(maximumFD));
++        std::cout<<"canonical_tangent_material="<<name<<" direct_oracle="<<maximumOracle
++            <<" cached_oracle="<<maximumCachedOracle<<" fallback="<<maximumFallback<<" fd="<<maximumFD<<"\n";
++        ++checked;
++    }
++    need(checked==names.size(),"canonical tangent target count changed");
++
++    const auto exact=parseMatter(R"(material synthetic_canonical_neohookean {
++        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000;
++        model generic; energy = 0.5*shear*(I1()-3-2*log(J()))+0.5*bulk*pow(log(J()),2);
++        valid = J(); supports fem;
++    })");
++    need(exact.succeeded(),"synthetic canonical source parse: "+diagnostic(exact.diagnostics));
++    const auto requireUntagged=[&](MaterialProgram material,const char* label){
++        const auto candidate=cook(source(material,false));
++        need((candidate.materials[0].flags&tag)==0u,std::string("false-positive canonical tangent tag: ")+label);
++    };
++    auto stateMaterial=exact.material;InternalState state;state.name="history";state.initialValue=.1;stateMaterial.internalState.push_back(state);
++    requireUntagged(stateMaterial,"stateful material");
++    auto fibreMaterial=exact.material;fibreMaterial.mixed.fibreDirection={0.0,1.0,0.0};
++    requireUntagged(fibreMaterial,"fibre-coupled material");
++    auto unrelated=parseMatter(R"(material synthetic_noncanonical_neohookean {
++        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000;
++        model generic; energy = 0.5*shear*(I1()-3)+0.5*bulk*pow(log(J()),2);
++        valid = J(); supports fem;
++    })");
++    need(unrelated.succeeded(),"synthetic noncanonical source parse: "+diagnostic(unrelated.diagnostics));
++    requireUntagged(unrelated.material,"unrelated energy");
++    auto dissipative=parseMatter(R"(material synthetic_dissipative_neohookean {
++        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000; parameter eta : Pa*s = 1;
++        model generic; energy = 0.5*shear*(I1()-3-2*log(J()))+0.5*bulk*pow(log(J()),2);
++        dissipation = 0.5*eta*pow(Fdot(0,0),2); valid = J(); supports fem;
++    })");
++    need(dissipative.succeeded(),"synthetic dissipative source parse: "+diagnostic(dissipative.diagnostics));
++    requireUntagged(dissipative.material,"dissipative material");
++    std::cout<<"canonical_tangent_false_positives=none state=fallback fibre=fallback unrelated_energy=fallback dissipation=fallback\n";
++}
++
+ void directChecks(Device& d,const MaterialProgram& guccione){
+     const auto s=source(guccione);const auto w=cook(s);const auto v=manufactured(w);
+     const auto force=dispatch(d,w,v,false),tangent=dispatch(d,w,v,true);
+@@ -512,14 +811,34 @@ void directChecks(Device& d,const MaterialProgram& guccione){
+         <<" mixed_active_force_error="<<afe<<" mixed_active_tangent_error="<<ate<<" mixed_active_fd_error="<<afd<<" mixed_source_equivalent=false\n";
+ }
+ 
++struct ScopedSharedFactorEnvironment {
++    bool hadOriginal = false;
++    std::string original;
++    ScopedSharedFactorEnvironment(const bool enabled) {
++        if (const char* value = std::getenv(
++                "NM_FEM_SHARED_LOCAL_FACTORIZATION")) {
++            hadOriginal = true;
++            original = value;
++        }
++        need(setenv("NM_FEM_SHARED_LOCAL_FACTORIZATION",
++                    enabled ? "1" : "0", 1) == 0,
++             "cannot set shared-factor test policy");
++    }
++    ~ScopedSharedFactorEnvironment() {
++        if (hadOriginal)
++            setenv("NM_FEM_SHARED_LOCAL_FACTORIZATION", original.c_str(), 1);
++        else
++            unsetenv("NM_FEM_SHARED_LOCAL_FACTORIZATION");
++    }
++};
+ struct Run {
+     Device& device;CompiledWorld world;Runtime runtime;id<MTLBuffer> statuses;
+-    Run(Device& d,const WorldSource& s):device(d),world(cook(s)){
++    Run(Device& d,const WorldSource& s,bool sharedFactorEnabled=false):device(d),world(cook(s)){
+         const auto path=std::filesystem::temp_directory_path()/(std::string("numi-frame-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
+         CompileResult package;package.world=world;std::string error;need(writePackage(package,path,&error),error);CompiledWorld loaded;
+         const bool ok=readPackage(path,loaded,nullptr,&error);std::error_code remove;std::filesystem::remove(path,remove);need(ok&&!remove&&loaded.fingerprint==world.fingerprint,"frame package roundtrip: "+error);world=std::move(loaded);
+         RuntimeConfiguration c;c.metallib=NUMI_MATTER_METALLIB;c.environmentCount=2;c.adaptiveTransfer=false;c.captureEvents=false;c.captureDiagnostics=true;
+-        const auto initialized=runtime.initialize(world,c);need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
++        const auto initialized=[&](){ScopedSharedFactorEnvironment policy(sharedFactorEnabled);return runtime.initialize(world,c);}();need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
+     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
+     void restore(const RuntimeStateSnapshot& s){const auto r=runtime.restore(s);need(r.encoded,r.message);}
+     void step(unsigned index,int reject=-1,int reset=-1,
+@@ -552,6 +871,7 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     // as a native evaluator fixture. Geometry, imposed displacement, and
+     // accepted path remain synthetic and do not calibrate a corrugated board.
+     paperMaterial.genericCompensatedImplicitProjection=true;
++    checkSharedFactorCompilerProof(paperMaterial);
+     WorldSource authored=source(paperMaterial,true,false);
+     authored.objects.front().femInitialVelocity={0.0,0.0,0.0};
+     authored.mixedSolver.femPreconditioner =
+@@ -564,9 +884,14 @@ void checkAcceptedPlasticCacheActions(Device& device,
+          world.dispatch.tetrahedronCount==2u&&
+          world.dispatch.materialStateStride>=paperMaterial.internalState.size(),
+          "source-derived bilinear paper fixture compiled with an unexpected layout");
++    need((world.materials[0].flags &
++          NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u &&
++         world.materials[0].validityProgram != NM_INVALID_INDEX,
++         "native tangent-cache fixture does not enter the proven batch branch");
+ 
+-    Run run(device,authored);
+-    Run directRun(device,directAuthored);
++    Run run(device,authored,true);
++    Run legacyCacheRun(device,authored,false);
++    Run directRun(device,directAuthored,false);
+     // The override is captured at initialization. Both cache runs then use
+     // identical authored worlds and full accepted loading/unloading paths.
+     // Restore any caller policy even if runtime initialization throws.
+@@ -592,7 +917,7 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     std::unique_ptr<Run> forcedRebuildRun;
+     {
+         ForcedTailRebuild force;
+-        forcedRebuildRun = std::make_unique<Run>(device, authored);
++        forcedRebuildRun = std::make_unique<Run>(device, authored, true);
+     }
+     const auto compareTailRebuild = [&](const RuntimeStateSnapshot& guarded,
+                                        const RuntimeStateSnapshot& forced,
+@@ -712,11 +1037,14 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     const auto plasticIndex=materialStateIndex(paperMaterial,
+                                                "accumulated_multiplier");
+     run.step(0u);
++    legacyCacheRun.step(0u);
+     directRun.step(0u);
+     forcedRebuildRun->step(0u);
+     const RuntimeStateSnapshot elastic=run.state();
++    const RuntimeStateSnapshot legacyElastic=legacyCacheRun.state();
+     const RuntimeStateSnapshot directElastic=directRun.state();
+     compareAcceptedRuns(directElastic,elastic,"elastic-initial");
++    compareAcceptedRuns(legacyElastic,elastic,"shared-factor-vs-legacy-cache-elastic");
+     const RuntimeStateSnapshot forcedElastic = forcedRebuildRun->state();
+     compareTailRebuild(elastic, forcedElastic, "elastic-initial");
+     need(elastic.solverCertificates.size()==2u,
+@@ -724,16 +1052,18 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     for(const auto& cert:elastic.solverCertificates)
+         need(cert.validity.w>0.5f,
+              "elastic bilinear paper state is not solver-certified");
+-    checkCachedOperatorActions(device,world,acceptedInputs(elastic),
+-                               "accepted-elastic-initial");
+     const auto loadTargets=paperShearTargets(elastic,5.0e-6f);
+     const auto directLoadTargets=paperShearTargets(directElastic,5.0e-6f);
++    const auto legacyLoadTargets=paperShearTargets(legacyElastic,5.0e-6f);
+     run.step(1u,-1,-1,loadTargets);
++    legacyCacheRun.step(1u,-1,-1,legacyLoadTargets);
+     directRun.step(1u,-1,-1,directLoadTargets);
+     forcedRebuildRun->step(1u,-1,-1,paperShearTargets(forcedElastic,5.0e-6f));
+     const RuntimeStateSnapshot loaded=run.state();
++    const RuntimeStateSnapshot legacyLoaded=legacyCacheRun.state();
+     const RuntimeStateSnapshot directLoaded=directRun.state();
+     compareAcceptedRuns(directLoaded,loaded,"accepted-plastic-load");
++    compareAcceptedRuns(legacyLoaded,loaded,"shared-factor-vs-legacy-cache-load");
+     compareTailRebuild(loaded,forcedRebuildRun->state(),"accepted-plastic-load");
+     need(loaded.solverCertificates.size()==2u,
+          "loaded bilinear paper snapshot lacks certificates");
+@@ -743,6 +1073,10 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     const double loadedPlastic=maximumMaterialHistory(loaded,plasticIndex);
+     need(loadedPlastic>1.0e-9,
+          "accepted bilinear-paper load did not activate plastic history");
++    const Inputs elasticInputs=acceptedInputs(elastic);
++    checkCachedOperatorActions(device,world,elasticInputs,
++                               "accepted-elastic-initial");
++    (void)dispatch(device,world,elasticInputs,true,true,true);
+     const Inputs loadedInputs=acceptedInputs(loaded);
+     checkCachedOperatorActions(device,world,loadedInputs,
+                                "accepted-plastic-after-load");
+@@ -752,12 +1086,16 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     // irreversible; this is a distinct accepted history, not a trial state.
+     const auto unloadTargets=paperShearTargets(elastic,0.0f);
+     run.step(2u,-1,-1,unloadTargets);
++    legacyCacheRun.step(2u,-1,-1,
++                       paperShearTargets(legacyElastic,0.0f));
+     directRun.step(2u,-1,-1,
+                    paperShearTargets(directElastic,0.0f));
+     forcedRebuildRun->step(2u,-1,-1,paperShearTargets(forcedElastic,0.0f));
+     const RuntimeStateSnapshot unloaded=run.state();
++    const RuntimeStateSnapshot legacyUnloaded=legacyCacheRun.state();
+     const RuntimeStateSnapshot directUnloaded=directRun.state();
+     compareAcceptedRuns(directUnloaded,unloaded,"accepted-unload");
++    compareAcceptedRuns(legacyUnloaded,unloaded,"shared-factor-vs-legacy-cache-unload");
+     compareTailRebuild(unloaded,forcedRebuildRun->state(),"accepted-unload");
+     need(unloaded.solverCertificates.size()==2u,
+          "unloaded bilinear paper snapshot lacks certificates");
+@@ -794,13 +1132,34 @@ void checkAcceptedPlasticCacheActions(Device& device,
+     // accepted load/unload fixture, then compare restored history and cleared
+     // publication certificates for both rebuilding policies.
+     run.step(3u,0);
++    legacyCacheRun.step(3u,0);
++    directRun.step(3u,0);
+     forcedRebuildRun->step(3u,0);
+     const auto rejected = run.state();
++    const auto legacyRejected = legacyCacheRun.state();
++    const auto directRejected = directRun.state();
+     compareTailRebuild(rejected,forcedRebuildRun->state(),
+                        "late-postcommit-rejection",true);
++    need(rejected.statuses.size()==legacyRejected.statuses.size()&&
++         rejected.statuses.size()==directRejected.statuses.size(),
++         "shared-factor failure status comparison arity");
++    for(std::size_t environment=0;environment<rejected.statuses.size();++environment)
++        need(rejected.statuses[environment].code==
++                 legacyRejected.statuses[environment].code&&
++             rejected.statuses[environment].code==
++                 directRejected.statuses[environment].code,
++             "shared-factor opt-in changed final status on rejection");
+     envSame(unloaded.femNodes,rejected.femNodes,0u,"guarded rejected nodes");
+     envSame(unloaded.femMaterialState,rejected.femMaterialState,0u,
+             "guarded rejected material history");
++    envSame(legacyUnloaded.femNodes,legacyRejected.femNodes,0u,
++            "legacy-cache rejected nodes");
++    envSame(legacyUnloaded.femMaterialState,legacyRejected.femMaterialState,0u,
++            "legacy-cache rejected material history");
++    envSame(directUnloaded.femNodes,directRejected.femNodes,0u,
++            "direct rejected nodes");
++    envSame(directUnloaded.femMaterialState,directRejected.femMaterialState,0u,
++            "direct rejected material history");
+ }
+ bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra);}
+ void integratedChecks(Device& d,const MaterialProgram& material){
+@@ -842,6 +1201,8 @@ int main(int argc,char** argv){@autoreleasepool{try{
+          diagnostic(paper.diagnostics));
+     Device device;std::cout<<std::setprecision(17)<<"frame_device="<<[device.device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
+     checkColumnValidityPublication(device);
++    checkCompensatedLocalFactor(device);
++    canonicalTangentChecks(device,std::filesystem::path(argv[1]).parent_path());
+     directChecks(device,parsed.material);learnedFrameChecks(device);integratedChecks(device,parsed.material);
+     checkAcceptedPlasticCacheActions(device,paper.material);
+     std::cout<<"fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;
+diff --git a/matter/tools/fgmres_true_residual_native_check.mm b/matter/tools/fgmres_true_residual_native_check.mm
+index 5dcce6f1..10d18a5b 100644
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -514,6 +514,225 @@ void checkDistributedBeginAndCorrection(
+                 "legacy_controls=true result=PASS\n";
+ }
+ 
++
++void checkInexactNewtonForcing(
++    id<MTLDevice> device, id<MTLCommandQueue> queue,
++    id<MTLComputePipelineState> prepare,
++    id<MTLComputePipelineState> commit) {
++    NMMatterDispatchGPU dispatchData{};
++    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatchData.environmentCount = 1u;
++    dispatchData.objectCount = 1u;
++    dispatchData.femNodeCount = 1u;
++    NMFGMRESLayoutGPU layout{};
++    layout.unknownCount = 2u;
++    layout.reserved = 1u;
++    NMMixedSolverGPU solver{};
++    solver.residualTolerances.x = 1.0e-8f;
++    NMContinuumObjectGPU object{};
++    object.representation = NM_REPRESENTATION_FEM;
++    object.flags = NM_OBJECT_ACTIVE;
++    NMSchedulerStateGPU scheduler{};
++    scheduler.numerical.w = 1.0f;
++    NMAdaptiveStateGPU adaptive{};
++    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
++    NMMicrostepGPU microstep{};
++    NMMatterStatusGPU healthy{};
++    healthy.code = NM_STATUS_SUCCESS;
++    NMFGMRESStateGPU state{};
++    state.nonlinear.w = 0.0f;
++
++    auto dispatchBuffer = makeBuffer(device,
++        std::vector<NMMatterDispatchGPU>{dispatchData});
++    auto layoutBuffer = makeBuffer(device,
++        std::vector<NMFGMRESLayoutGPU>{layout});
++    auto solverBuffer = makeBuffer(device,
++        std::vector<NMMixedSolverGPU>{solver});
++    auto restartBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
++    auto iterationBuffer = makeBuffer(device,
++        std::vector<std::uint32_t>{0u});
++    auto forcingBuffer = makeBuffer(device, std::vector<float>{0.1f});
++    auto partialBuffer = makeBuffer(device,
++        std::vector<nm_float4>{nm_float4{100.0f, 0.0f, 1.0f, 0.0f}});
++    auto historyBuffer = makeBuffer(device,
++        std::vector<nm_float4>{nm_float4{77.0f, 88.0f, 1.0f, 1.0f}});
++    auto etaBuffer = makeBuffer(device, std::vector<float>{-1.0f});
++    auto objectsBuffer = makeBuffer(device,
++        std::vector<NMContinuumObjectGPU>{object});
++    auto schedulersBuffer = makeBuffer(device,
++        std::vector<NMSchedulerStateGPU>{scheduler});
++    auto adaptiveBuffer = makeBuffer(device,
++        std::vector<NMAdaptiveStateGPU>{adaptive});
++    auto microstepBuffer = makeBuffer(device,
++        std::vector<NMMicrostepGPU>{microstep});
++    auto lineSearchBuffer = makeBuffer(device,
++        std::vector<nm_float4>{nm_float4{1.0f, 0.0f, 0.0f, 0.0f}});
++    auto environmentAlphaBuffer = makeBuffer(device,
++        std::vector<float>{1.0f});
++    auto statusBuffer = makeBuffer(device,
++        std::vector<NMMatterStatusGPU>{healthy});
++    auto stateBuffer = makeBuffer(device,
++        std::vector<NMFGMRESStateGPU>{state});
++
++    const auto runPrepare = [&] {
++        dispatch(device, queue, prepare, {
++            {0u, dispatchBuffer}, {1u, solverBuffer},
++            {14u, restartBuffer}, {15u, forcingBuffer},
++            {16u, iterationBuffer}, {24u, partialBuffer},
++            {25u, historyBuffer}, {26u, etaBuffer},
++            {30u, layoutBuffer}}, 1u, 32u);
++    };
++    const auto runCommit = [&] {
++        dispatch(device, queue, commit, {
++            {0u, dispatchBuffer}, {1u, objectsBuffer},
++            {2u, schedulersBuffer}, {3u, adaptiveBuffer},
++            {4u, microstepBuffer}, {5u, lineSearchBuffer},
++            {6u, environmentAlphaBuffer}, {7u, statusBuffer},
++            {8u, stateBuffer}, {9u, historyBuffer}}, 1u, 32u);
++    };
++    const auto setIteration = [&](const std::uint32_t value) {
++        *static_cast<std::uint32_t*>([iterationBuffer contents]) = value;
++    };
++    const auto setRestart = [&](const std::uint32_t value) {
++        *static_cast<std::uint32_t*>([restartBuffer contents]) = value;
++    };
++    const auto setPartialNormSquared = [&](const float value) {
++        static_cast<nm_float4*>([partialBuffer contents])[0].x = value;
++    };
++    const auto setPartialSupportAdmissible = [&](const float value) {
++        static_cast<nm_float4*>([partialBuffer contents])[0].z = value;
++    };
++    const auto readHistory = [&] {
++        return readBuffer<nm_float4>(historyBuffer, 1u)[0];
++    };
++    const auto readEta = [&] {
++        return readBuffer<float>(etaBuffer, 1u)[0];
++    };
++
++    // A new root discards stale history and preserves its legacy schedule.
++    setIteration(0u);
++    setRestart(0u);
++    runPrepare();
++    auto h = readHistory();
++    require(close(readEta(), 0.1f) && h.x == 0.0f && h.z == 0.0f &&
++            h.w == 1.0f && close(h.y, 10.0f),
++        "EW initial/root-reset preparation did not use legacy forcing");
++
++    // Only a committed positive line-search candidate advances the base norm.
++    runCommit();
++    h = readHistory();
++    require(close(h.x, 10.0f) && h.z == 1.0f && h.w == 0.0f,
++        "accepted FEM candidate did not commit its staged base norm");
++
++    setPartialNormSquared(25.0f);
++    setIteration(1u);
++    runPrepare();
++    require(close(readEta(), 0.225f, 2.0e-6f),
++        "EW ratio forcing did not use the consecutive full RHS norms");
++
++    // Restart tails must reuse the prepared scalar and must not restage history.
++    const nm_float4 beforeRestart = readHistory();
++    const float etaBeforeRestart = readEta();
++    setPartialNormSquared(400.0f);
++    setRestart(1u);
++    runPrepare();
++    h = readHistory();
++    require(close(readEta(), etaBeforeRestart) &&
++            std::memcmp(&h, &beforeRestart, sizeof(h)) == 0,
++        "restart-cycle preparation changed EW eta or accepted history");
++
++    // A second accepted candidate commits the new base norm.
++    setRestart(0u);
++    runCommit();
++    h = readHistory();
++    require(close(h.x, 5.0f) && h.z == 1.0f && h.w == 0.0f,
++        "second accepted FEM candidate did not advance EW history");
++
++    // A base already complete is a no-op and does not advance the ratio.
++    setPartialNormSquared(4.0f);
++    setIteration(2u);
++    runPrepare();
++    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
++        NMFGMRESStateGPU{};
++    static_cast<NMFGMRESStateGPU*>([stateBuffer contents])->nonlinear.w = 1.0f;
++    runCommit();
++    h = readHistory();
++    require(close(h.x, 5.0f) && h.z == 1.0f && h.w == 0.0f,
++        "already-complete nonlinear base advanced EW history");
++
++    // Rejected line search invalidates the ratio so the next solve falls back.
++    setPartialNormSquared(9.0f);
++    setIteration(2u);
++    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
++        NMFGMRESStateGPU{};
++    runPrepare();
++    static_cast<nm_float4*>([lineSearchBuffer contents])[0].x = 0.0f;
++    runCommit();
++    h = readHistory();
++    require(h.z == 0.0f && h.w == 0.0f,
++        "rejected line-search candidate retained EW history");
++
++    // An unhealthy environment also invalidates the ratio.
++    static_cast<nm_float4*>([lineSearchBuffer contents])[0].x = 1.0f;
++    setPartialNormSquared(16.0f);
++    setIteration(3u);
++    runPrepare();
++    auto badStatus = healthy;
++    badStatus.code = NM_STATUS_CONTACT_FAILURE;
++    *static_cast<NMMatterStatusGPU*>([statusBuffer contents]) = badStatus;
++    runCommit();
++    h = readHistory();
++    require(h.z == 0.0f && h.w == 0.0f,
++        "unhealthy environment retained EW history");
++    *static_cast<NMMatterStatusGPU*>([statusBuffer contents]) = healthy;
++
++    // Nonfinite reduction input cannot be hidden by sqrt(max(norm2, 0)).
++    setPartialNormSquared(NAN);
++    setIteration(3u);
++    runPrepare();
++    h = readHistory();
++    require(close(readEta(), 0.1f) && h.z == 0.0f && h.w == 0.0f,
++        "nonfinite full RHS partial did not invalidate EW history/fallback");
++
++    // With no due FEM object there is no accepted material candidate to commit.
++    setPartialNormSquared(9.0f);
++    setIteration(0u);
++    runPrepare();
++    static_cast<NMSchedulerStateGPU*>([schedulersBuffer contents])[0]
++        .numerical.w = 0.0f;
++    runCommit();
++    h = readHistory();
++    require(h.x == 0.0f && h.z == 0.0f && h.w == 1.0f,
++        "no-op environment without due FEM objects advanced EW history");
++
++    // Support inadmissibility is the begin reduction's validity gate. Even
++    // with a finite full RHS, it must invalidate old EW history and use the
++    // legacy forcing for this solve.
++    static_cast<NMSchedulerStateGPU*>([schedulersBuffer contents])[0]
++        .numerical.w = 1.0f;
++    setPartialSupportAdmissible(1.0f);
++    setPartialNormSquared(9.0f);
++    setIteration(0u);
++    *static_cast<NMFGMRESStateGPU*>([stateBuffer contents]) =
++        NMFGMRESStateGPU{};
++    runPrepare();
++    runCommit();
++    h = readHistory();
++    require(close(h.x, 3.0f) && h.z == 1.0f,
++        "support-gate fixture did not establish accepted EW history");
++    setPartialNormSquared(16.0f);
++    setPartialSupportAdmissible(0.0f);
++    setIteration(1u);
++    runPrepare();
++    h = readHistory();
++    require(close(readEta(), 0.1f) && h.z == 0.0f && h.w == 0.0f,
++        "inadmissible support partial retained EW history or skipped fallback");
++
++    std::cout << "inexact_newton_forcing=true full_rhs=true accepted_history=true "
++                 "restart_preserved=true reject_status_reset=true NaN_fallback=true "
++                 "support_gate=true no_op_preserved=true result=PASS\n";
++}
++
+ void checkDistributedCGS2(
+     id<MTLDevice> device,
+     id<MTLCommandQueue> queue,
+@@ -1179,6 +1398,10 @@ int main(int argc, const char* argv[]) {
+                 "numi_matter_metal::nm_fgmres_begin_distributed_finish");
+             auto beginBasis0 = pipeline(device, library,
+                 "numi_matter_metal::nm_fgmres_begin_distributed_basis0");
++            auto ewPrepare = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_prepare_inexact_newton_forcing");
++            auto ewCommit = pipeline(device, library,
++                "numi_matter_metal::nm_fgmres_commit_inexact_newton_history");
+             auto correctionLegacy = pipeline(device, library,
+                 "numi_matter_metal::nm_fgmres_measure_correction");
+             auto correctionPartial = pipeline(device, library,
+@@ -1194,6 +1417,7 @@ int main(int argc, const char* argv[]) {
+             checkDistributedBeginAndCorrection(
+                 device,queue,library,beginLegacy,beginPartial,beginFinish,
+                 beginBasis0,correctionLegacy,correctionPartial,correctionFinish);
++            checkInexactNewtonForcing(device, queue, ewPrepare, ewCommit);
+             auto cgs2Partial = pipeline(device, library,
+                 "numi_matter_metal::nm_fgmres_cgs2_partial");
+             auto cgs2ReduceRow = pipeline(device, library,

@@ -1,0 +1,71 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 248: matter.metal.fgmres_true_residual_kernel_contract
+1/2 Test #248: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.03 sec
+    Start 300: matter.metal.fem_material_frame
+2/2 Test #300: matter.metal.fem_material_frame .....................***Timeout 180.01 sec
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=16 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=17 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_tangent_cache_control={"schema":1,"completed_tail_rebuild":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+fgmres           =   0.03 sec*proc (1 test)
+human            = 180.01 sec*proc (1 test)
+material         = 180.01 sec*proc (1 test)
+matter           = 180.04 sec*proc (2 tests)
+metal            =   0.03 sec*proc (1 test)
+synthetic        =   0.03 sec*proc (1 test)
+true-residual    =   0.03 sec*proc (1 test)
+
+Total Test time (real) = 180.04 sec
+
+The following tests FAILED:
+	300 - matter.metal.fem_material_frame (Timeout)         human material matter
+Errors while running CTest

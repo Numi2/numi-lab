@@ -2971,6 +2971,9 @@ struct Runtime::State {
     bool fgmresCGS2ICBEnabled = false;
     id<MTLBuffer> fgmresOrthogonalPartials = nil;
     id<MTLBuffer> fgmresMeasurementPartials = nil;
+    bool fgmresInexactNewtonForcingEnabled = false;
+    id<MTLBuffer> fgmresInexactNewtonHistory = nil;
+    id<MTLBuffer> fgmresInexactNewtonEta = nil;
     id<MTLBuffer> fgmresCGS2ExecutionRange = nil;
     std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Commands{};
     std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresCGS2Constants{};
@@ -4126,7 +4129,24 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "distributed global measurements require explicit value 1";
             return diagnostics;
         }
+        const char* inexactNewtonForcing =
+            std::getenv("NM_FGMRES_INEXACT_NEWTON_FORCING");
+        if (inexactNewtonForcing != nullptr &&
+            std::strcmp(inexactNewtonForcing, "1") != 0) {
+            diagnostics.message =
+                "inexact Newton forcing requires explicit value 1";
+            return diagnostics;
+        }
+        if (inexactNewtonForcing != nullptr &&
+            (distributedGlobals == nullptr ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "inexact Newton forcing requires distributed global measurements and one environment";
+            return diagnostics;
+        }
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
+        candidate->fgmresInexactNewtonForcingEnabled =
+            inexactNewtonForcing != nullptr;
         candidate->fgmresDistributedCGS2Enabled = distributedCGS2 != nullptr;
         candidate->fgmresCGS2ICBEnabled = cgs2ICB != nullptr;
         candidate->objectLayout = world.objects;
@@ -5103,6 +5123,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_measure_true_residual",
             "nm_fgmres_begin",
             "nm_fgmres_begin_distributed_partial",
+            "nm_fgmres_prepare_inexact_newton_forcing",
+            "nm_fgmres_commit_inexact_newton_history",
             "nm_fgmres_begin_distributed_finish",
             "nm_fgmres_begin_distributed_basis0",
             "nm_fgmres_correction_distributed_partial",
@@ -5417,6 +5439,10 @@ RuntimeDiagnostics Runtime::initialize(
                  std::strcmp(name, "nm_fem_armijo_measure_trial_finish") == 0 ||
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_tiles") == 0 ||
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_finish") == 0))
+                continue;
+            if (!candidate->fgmresInexactNewtonForcingEnabled &&
+                (std::strcmp(name, "nm_fgmres_prepare_inexact_newton_forcing") == 0 ||
+                 std::strcmp(name, "nm_fgmres_commit_inexact_newton_history") == 0))
                 continue;
             if (!candidate->fgmresDistributedCGS2Enabled &&
                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) continue;
@@ -5874,8 +5900,62 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->mixedSolver = uploads.one(
             std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u),
             valid, candidate->residentBytes);
+        const char* canonicalTangentSetting =
+            std::getenv("NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT");
+        if (canonicalTangentSetting != nullptr &&
+            std::strcmp(canonicalTangentSetting, "0") != 0 &&
+            std::strcmp(canonicalTangentSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT must be 0 or 1";
+            return diagnostics;
+        }
+        const char* sharedLocalSetting =
+            std::getenv("NM_FEM_SHARED_LOCAL_FACTORIZATION");
+        if (sharedLocalSetting != nullptr &&
+            std::strcmp(sharedLocalSetting, "0") != 0 &&
+            std::strcmp(sharedLocalSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SHARED_LOCAL_FACTORIZATION must be 0 or 1";
+            return diagnostics;
+        }
+        auto executionMaterials = world.materials;
+        if (sharedLocalSetting == nullptr ||
+            std::strcmp(sharedLocalSetting, "1") != 0) {
+            for (auto& material : executionMaterials)
+                material.flags &= ~NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+        }
+        if (sharedLocalSetting != nullptr &&
+            std::strcmp(sharedLocalSetting, "1") == 0) {
+            const auto eligibleCount = std::count_if(
+                executionMaterials.begin(), executionMaterials.end(),
+                [](const NMMaterialGPU& material) {
+                    return (material.flags &
+                        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u;
+                });
+            std::fprintf(stderr,
+                "matter_shared_local_factorization_eligible_materials=%zu total_materials=%zu\n",
+                static_cast<std::size_t>(eligibleCount), executionMaterials.size());
+        }
+        if (canonicalTangentSetting == nullptr ||
+            std::strcmp(canonicalTangentSetting, "1") != 0) {
+            for (auto& material : executionMaterials)
+                material.flags &=
+                    ~NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
+        }
+        if (canonicalTangentSetting != nullptr &&
+            std::strcmp(canonicalTangentSetting, "1") == 0) {
+            const auto eligibleCount = std::count_if(
+                executionMaterials.begin(), executionMaterials.end(),
+                [](const NMMaterialGPU& material) {
+                    return (material.flags &
+                        NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u;
+                });
+            std::fprintf(stderr,
+                "matter_canonical_tangent_eligible_materials=%zu total_materials=%zu\n",
+                static_cast<std::size_t>(eligibleCount), executionMaterials.size());
+        }
         candidate->materials = uploads.one(
-            std::span<const NMMaterialGPU>(world.materials),
+            std::span<const NMMaterialGPU>(executionMaterials),
             valid, candidate->residentBytes);
         candidate->cohesiveMaterials = uploads.one(
             std::span<const NMCohesiveMaterialGPU>(world.cohesiveMaterials),
@@ -8062,6 +8142,14 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->fgmresMeasurementPartials = privateScratch<nm_float4>(
                 candidate->device, static_cast<std::size_t>(tiles * environments),
                 valid, candidate->residentBytes);
+            if (candidate->fgmresInexactNewtonForcingEnabled) {
+                candidate->fgmresInexactNewtonHistory =
+                    privateScratch<nm_float4>(candidate->device,
+                        environments, valid, candidate->residentBytes);
+                candidate->fgmresInexactNewtonEta =
+                    privateScratch<float>(candidate->device,
+                        environments, valid, candidate->residentBytes);
+            }
         }
         if (candidate->fgmresDistributedCGS2Enabled) {
             const std::uint64_t tiles = (mixedUnknownWidth + 255u) / 256u;
@@ -11674,20 +11762,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 bind();
                 [encoder setBuffer:state.fgmresMeasurementPartials offset:0u atIndex:24u];
             };
+            const auto bindForcingConsumer = [&] {
+                bindPartials();
+                if (begin && state.fgmresInexactNewtonForcingEnabled)
+                    [encoder setBuffer:state.fgmresInexactNewtonEta
+                        offset:0u atIndex:15u];
+            };
             dispatchGroups256(begin ? "nm_fgmres_begin_distributed_partial" :
                 (correction ? "nm_fgmres_correction_distributed_partial" :
                     "nm_fgmres_true_residual_distributed_partial"),
                 environments * tiles, bindPartials);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
-                (correction ? "nm_fgmres_correction_distributed_finish" :
-                    "nm_fgmres_true_residual_distributed_finish"),
-                environments, bindPartials);
+            if (begin && state.fgmresInexactNewtonForcingEnabled) {
+                dispatchGroups32("nm_fgmres_prepare_inexact_newton_forcing",
+                    environments, [&] {
+                    bindPartials();
+                    [encoder setBuffer:state.fgmresInexactNewtonHistory
+                        offset:0u atIndex:25u];
+                    [encoder setBuffer:state.fgmresInexactNewtonEta
+                        offset:0u atIndex:26u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            if (begin && state.fgmresInexactNewtonForcingEnabled)
+                dispatchGroups32("nm_fgmres_begin_distributed_finish",
+                    environments, bindForcingConsumer);
+            else
+                dispatchGroups32(begin ? "nm_fgmres_begin_distributed_finish" :
+                    (correction ? "nm_fgmres_correction_distributed_finish" :
+                        "nm_fgmres_true_residual_distributed_finish"),
+                    environments, bindPartials);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (begin) {
                 const NSUInteger basisTiles = std::max<NSUInteger>(1u, (activeItems + 255u) / 256u);
-                dispatchGroups256("nm_fgmres_begin_distributed_basis0",
-                    environments * basisTiles, bindPartials);
+                if (state.fgmresInexactNewtonForcingEnabled)
+                    dispatchGroups256("nm_fgmres_begin_distributed_basis0",
+                        environments * basisTiles, bindForcingConsumer);
+                else
+                    dispatchGroups256("nm_fgmres_begin_distributed_basis0",
+                        environments * basisTiles, bindPartials);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             } else if (!correction) {
                 dispatchThreads("nm_fgmres_true_residual_distributed_replace",
@@ -27063,7 +27176,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             bind(cmd, 1u, state.mixedSolver); scalar(cmd, 2u, offsetof(CGS2Constants, column));
                             bind(cmd, 3u, state.fgmresHessenberg); bind(cmd, 4u, state.fgmresRotations);
                             bind(cmd, 5u, state.fgmresLeastSquares); bind(cmd, 6u, state.fgmresStates);
-                            scalar(cmd, 7u, offsetof(CGS2Constants, forcing)); bind(cmd, 8u, state.fgmresOrthogonalPartials);
+                            if (state.fgmresInexactNewtonForcingEnabled)
+                                bind(cmd, 7u, state.fgmresInexactNewtonEta);
+                            else
+                                scalar(cmd, 7u, offsetof(CGS2Constants, forcing));
+                            bind(cmd, 8u, state.fgmresOrthogonalPartials);
                             bind(cmd, 9u, state.fgmresNodeActiveDispatch); bind(cmd, 10u, state.fgmresElementActiveDispatch);
                             finish(cmd, environments, 32u);
                             cmd = command("nm_fgmres_cgs2_normalize");
@@ -27091,6 +27208,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 state.fgmresElementActiveDispatch})
                             [encoder useResource:resource usage:MTLResourceUsageRead | MTLResourceUsageWrite];
                         [encoder useResource:state.mixedSolver usage:MTLResourceUsageRead];
+                        if (state.fgmresInexactNewtonForcingEnabled)
+                            [encoder useResource:state.fgmresInexactNewtonEta
+                                usage:MTLResourceUsageRead];
                         [encoder useResource:state.fgmresCGS2Constants[cacheIndex] usage:MTLResourceUsageRead];
                         [encoder useResource:state.fgmresCGS2Commands[cacheIndex] usage:MTLResourceUsageRead];
                         [encoder executeCommandsInBuffer:state.fgmresCGS2Commands[cacheIndex]
@@ -27144,7 +27264,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresRotations offset:0u atIndex:4u];
                         [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:5u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
-                        [encoder setBytes:&linearForcing length:sizeof(linearForcing) atIndex:7u];
+                        if (state.fgmresInexactNewtonForcingEnabled)
+                            [encoder setBuffer:state.fgmresInexactNewtonEta
+                                         offset:0u atIndex:7u];
+                        else
+                            [encoder setBytes:&linearForcing
+                                       length:sizeof(linearForcing) atIndex:7u];
                         [encoder setBuffer:state.fgmresOrthogonalPartials offset:0u atIndex:8u];
                         [encoder setBuffer:state.fgmresNodeActiveDispatch offset:0u atIndex:9u];
                         [encoder setBuffer:state.fgmresElementActiveDispatch offset:0u atIndex:10u];
@@ -27197,8 +27322,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:8u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:9u];
-                        [encoder setBytes:&linearForcing
-                                   length:sizeof(linearForcing) atIndex:10u];
+                        if (state.fgmresInexactNewtonForcingEnabled)
+                            [encoder setBuffer:state.fgmresInexactNewtonEta
+                                         offset:0u atIndex:10u];
+                        else
+                            [encoder setBytes:&linearForcing
+                                       length:sizeof(linearForcing) atIndex:10u];
                         [encoder setBuffer:state.fgmresNodeActiveDispatch
                                      offset:0u atIndex:11u];
                         [encoder setBuffer:state.fgmresElementActiveDispatch
@@ -27235,8 +27364,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(iterationOffset) atIndex:6u];
                 [encoder setBytes:&finalRestartCycle
                            length:sizeof(finalRestartCycle) atIndex:7u];
-                [encoder setBytes:&linearForcing
-                           length:sizeof(linearForcing) atIndex:8u];
+                if (state.fgmresInexactNewtonForcingEnabled)
+                    [encoder setBuffer:state.fgmresInexactNewtonEta
+                                 offset:0u atIndex:8u];
+                else
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:8u];
                 [encoder setBuffer:state.fgmresRotations
                              offset:0u atIndex:9u];
                 [encoder setBuffer:state.fgmresRestartCoefficients
@@ -27712,8 +27845,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.femTrueResidualMetrics
                                  offset:0u atIndex:6u];
-                    [encoder setBytes:&linearForcing
-                               length:sizeof(linearForcing) atIndex:7u];
+                    if (state.fgmresInexactNewtonForcingEnabled)
+                        [encoder setBuffer:state.fgmresInexactNewtonEta
+                                     offset:0u atIndex:7u];
+                    else
+                        [encoder setBytes:&linearForcing
+                                   length:sizeof(linearForcing) atIndex:7u];
                     [encoder setBuffer:state.femTrueResidualStatuses
                                  offset:0u atIndex:8u];
                     [encoder setBytes:&replaceTrueResidual
@@ -30946,6 +31083,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
             }, WorkDomain::femNodes);
+            if (state.fgmresInexactNewtonForcingEnabled) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_fgmres_commit_inexact_newton_history",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:3u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:4u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.fgmresInexactNewtonHistory
+                                 offset:0u atIndex:9u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];

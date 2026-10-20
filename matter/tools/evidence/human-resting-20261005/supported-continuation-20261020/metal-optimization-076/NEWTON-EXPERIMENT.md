@@ -1,0 +1,7 @@
+# Residual-adaptive inexact Newton trial
+Predeclared before implementation benchmarks. Reuse the current Newton–FGMRES owner. EW Choice 2: eta=0.9*(||F_k||/||F_previous accepted||)^2, bounded by existing sqrt(nonlinear tolerance) floor and 0.25 ceiling; fall back to exact legacy schedule on invalid/missing history. Use the complete assembled FGMRES RHS norm, not an xyz-only Armijo norm.
+
+GPU-owned transaction-local history, reset at each physical microstep's first Newton iteration. Stage base norm before the linear solve and commit history only following an eligible, healthy, accepted Newton candidate. Rejected/no-op/fallback transitions must not create accepted history. No CPU per-step update/readback. All scalar forcing consumers must use the same GPU eta; unsupported ICB paths are explicitly rejected, not silently mixed.
+
+Unchanged final nonlinear, true-residual, contact, support and vascular absolute certification. Vascular absolute cap may dominate and yield no improvement. Primary measurements: used Arnoldi columns/operator work, Newton iterations/backtracks, accepted simulated time and wall time. Compare same executable direct-CGS2 baseline vs EW, not ICB control vs direct candidate. Prediction: fewer linear columns without endpoint gate failures; do not infer benefit from lower eta or omitted work. Run focused reset/reject/nonfinite/multi-restart tests before a matched Human smoke. Failed trials retained.
+Source: https://users.wpi.edu/~walker/Papers/forcing_terms,SISC_17,1996,16-32.pdf

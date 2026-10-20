@@ -1091,6 +1091,198 @@ private:
     return std::nullopt;
 }
 
+
+[[nodiscard]] bool canonicalCompressibleNeoHookeanEnergy(
+    const MaterialProgram& material
+) {
+    // This deliberately matches the complete authored energy tree, not a
+    // material name or a constitutive hint. Its three parameter slots are
+    // fixed so the Metal tangent can read the runtime-overridden mu and bulk
+    // modulus directly without adding indices or changing the GPU record.
+    if (material.hint != ConstitutiveHint::generic ||
+        material.parameters.size() != 3u ||
+        material.parameters[0].name != "density" ||
+        material.parameters[1].name != "shear" ||
+        material.parameters[2].name != "bulk" ||
+        !material.internalState.empty() ||
+        !material.stateUpdateRoots.empty() ||
+        !material.stateImplicitRoots.empty() ||
+        material.dissipationRoot != NM_INVALID_INDEX ||
+        material.learned.has_value() ||
+        material.paperHillScalarInitializer ||
+        material.paperCompensatedArithmetic ||
+        material.paperHillAccurateProjection ||
+        material.genericCompensatedImplicitProjection ||
+        material.genericBilinear15AccurateProjection ||
+        material.genericBilinear15StrictStateCertification) {
+        return false;
+    }
+    // The mixed-material defaults are inert. Reject any extra multiphysics,
+    // active-fibre, or cohesive contribution so this tag describes the
+    // complete stateless mechanical operator, not one term in a larger law.
+    const MixedMaterialSource mixedDefaults{};
+    const MixedMaterialSource& mixed = material.mixed;
+    if (mixed.bulkModulus != mixedDefaults.bulkModulus ||
+        mixed.thermalExpansion != mixedDefaults.thermalExpansion ||
+        mixed.biotCoefficient != mixedDefaults.biotCoefficient ||
+        mixed.referenceTemperature != mixedDefaults.referenceTemperature ||
+        mixed.heatCapacity != mixedDefaults.heatCapacity ||
+        mixed.thermalConductivity != mixedDefaults.thermalConductivity ||
+        mixed.heatSource != mixedDefaults.heatSource ||
+        mixed.jouleHeatFraction != mixedDefaults.jouleHeatFraction ||
+        mixed.poreStorage != mixedDefaults.poreStorage ||
+        mixed.poreMobility != mixedDefaults.poreMobility ||
+        mixed.poreSource != mixedDefaults.poreSource ||
+        mixed.electricalConductivity != mixedDefaults.electricalConductivity ||
+        mixed.activationDiffusivity != mixedDefaults.activationDiffusivity ||
+        mixed.activationOnRate != mixedDefaults.activationOnRate ||
+        mixed.activationOffRate != mixedDefaults.activationOffRate ||
+        mixed.fibreDirection != mixedDefaults.fibreDirection ||
+        mixed.maximumActiveTension != mixedDefaults.maximumActiveTension ||
+        mixed.activationThreshold != mixedDefaults.activationThreshold ||
+        mixed.activationSlope != mixedDefaults.activationSlope ||
+        mixed.cohesiveStrength != mixedDefaults.cohesiveStrength ||
+        mixed.fractureEnergy != mixedDefaults.fractureEnergy) {
+        return false;
+    }
+
+    const ExpressionGraph& graph = material.expressions;
+    const auto expression = [&](const std::uint32_t node) -> const Expr* {
+        return node < graph.nodes.size() ? &graph.nodes[node] : nullptr;
+    };
+    const auto isConstant = [&](const std::uint32_t node, const double value) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::constant &&
+            item->constant == value;
+    };
+    const auto isParameter = [&](const std::uint32_t node, const std::uint32_t index) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::parameter &&
+            item->index == index;
+    };
+    const auto isF = [&](const std::uint32_t node, const std::uint32_t index) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::deformation &&
+            item->index == index;
+    };
+    const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
+                              const std::uint32_t left, const std::uint32_t right) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == kind &&
+            item->arguments[0] == left && item->arguments[1] == right;
+    };
+    const auto isSquareF = [&](const std::uint32_t node, const std::uint32_t index) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::multiply &&
+            isF(item->arguments[0], index) && isF(item->arguments[1], index);
+    };
+    const auto isI1 = [&](const auto& self, const std::uint32_t node,
+                          const std::uint32_t component) -> bool {
+        const Expr* item = expression(node);
+        if (component == 0u) {
+            return item != nullptr && item->kind == ExprKind::add &&
+                isConstant(item->arguments[0], 0.0) &&
+                isSquareF(item->arguments[1], 0u);
+        }
+        return item != nullptr && item->kind == ExprKind::add &&
+            self(self, item->arguments[0], component - 1u) &&
+            isSquareF(item->arguments[1], component);
+    };
+    const auto isDet2 = [&](const std::uint32_t node,
+                            const std::uint32_t a,
+                            const std::uint32_t b,
+                            const std::uint32_t c,
+                            const std::uint32_t d) {
+        const Expr* item = expression(node);
+        if (item == nullptr || item->kind != ExprKind::subtract) return false;
+        const Expr* left = expression(item->arguments[0]);
+        const Expr* right = expression(item->arguments[1]);
+        return left != nullptr && right != nullptr &&
+            left->kind == ExprKind::multiply && right->kind == ExprKind::multiply &&
+            isF(left->arguments[0], a) && isF(left->arguments[1], b) &&
+            isF(right->arguments[0], c) && isF(right->arguments[1], d);
+    };
+    const auto isDeterminant = [&](const std::uint32_t node) {
+        const Expr* item = expression(node);
+        if (item == nullptr || item->kind != ExprKind::add) return false;
+        const Expr* subtract = expression(item->arguments[0]);
+        if (subtract == nullptr || subtract->kind != ExprKind::subtract) return false;
+        const Expr* a = expression(subtract->arguments[0]);
+        const Expr* b = expression(subtract->arguments[1]);
+        const Expr* c = expression(item->arguments[1]);
+        return a != nullptr && b != nullptr && c != nullptr &&
+            a->kind == ExprKind::multiply &&
+            b->kind == ExprKind::multiply &&
+            c->kind == ExprKind::multiply &&
+            isF(a->arguments[0], 0u) &&
+            isDet2(a->arguments[1], 4u, 8u, 5u, 7u) &&
+            isF(b->arguments[0], 1u) &&
+            isDet2(b->arguments[1], 3u, 8u, 5u, 6u) &&
+            isF(c->arguments[0], 2u) &&
+            isDet2(c->arguments[1], 3u, 7u, 4u, 6u);
+    };
+    const auto isLogJ = [&](const std::uint32_t node) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::logarithm &&
+            isDeterminant(item->arguments[0]);
+    };
+    const auto isHalfParameter = [&](const std::uint32_t node,
+                                     const std::uint32_t parameter) {
+        const Expr* item = expression(node);
+        if (item == nullptr || item->kind != ExprKind::multiply) return false;
+        return (isConstant(item->arguments[0], 0.5) &&
+                isParameter(item->arguments[1], parameter)) ||
+               (isConstant(item->arguments[1], 0.5) &&
+                isParameter(item->arguments[0], parameter));
+    };
+    const auto isScaledTerm = [&](const std::uint32_t node,
+                                  const std::uint32_t parameter,
+                                  const auto& matchesBody) {
+        const Expr* item = expression(node);
+        if (item == nullptr || item->kind != ExprKind::multiply) return false;
+        return (isHalfParameter(item->arguments[0], parameter) &&
+                matchesBody(item->arguments[1])) ||
+               (isHalfParameter(item->arguments[1], parameter) &&
+                matchesBody(item->arguments[0]));
+    };
+
+    const auto energy = expression(material.energyRoot);
+    if (energy == nullptr || energy->kind != ExprKind::add) return false;
+    const std::uint32_t term0 = energy->arguments[0];
+    const std::uint32_t term1 = energy->arguments[1];
+    const auto isTwiceLogJ = [&](const std::uint32_t node) {
+        const Expr* item = expression(node);
+        return item != nullptr && item->kind == ExprKind::multiply &&
+            ((isConstant(item->arguments[0], 2.0) &&
+              isLogJ(item->arguments[1])) ||
+             (isConstant(item->arguments[1], 2.0) &&
+              isLogJ(item->arguments[0])));
+    };
+    const auto matchesShearTerm = [&](const std::uint32_t term) {
+        return isScaledTerm(term, 1u, [&](const std::uint32_t body) {
+            const Expr* subtract = expression(body);
+            if (subtract == nullptr || subtract->kind != ExprKind::subtract)
+                return false;
+            const Expr* invariantMinusThree =
+                expression(subtract->arguments[0]);
+            return invariantMinusThree != nullptr &&
+                invariantMinusThree->kind == ExprKind::subtract &&
+                isI1(isI1, invariantMinusThree->arguments[0], 8u) &&
+                isConstant(invariantMinusThree->arguments[1], 3.0) &&
+                isTwiceLogJ(subtract->arguments[1]);
+        });
+    };
+    const auto matchesBulkTerm = [&](const std::uint32_t term) {
+        return isScaledTerm(term, 2u, [&](const std::uint32_t body) {
+            const Expr* power = expression(body);
+            return power != nullptr && power->kind == ExprKind::integerPower &&
+                power->integer == 2 && isLogJ(power->arguments[0]);
+        });
+    };
+    return (matchesShearTerm(term0) && matchesBulkTerm(term1)) ||
+        (matchesShearTerm(term1) && matchesBulkTerm(term0));
+}
+
 [[nodiscard]] std::uint32_t constitutiveKind(const ConstitutiveHint hint) {
     switch (hint) {
     case ConstitutiveHint::neoHookean: return NM_CONSTITUTIVE_NEO_HOOKEAN;
@@ -1532,7 +1724,9 @@ ConstitutiveCompileResult compileConstitutive(
         (material.genericBilinear15AccurateProjection
             ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u) |
         (material.genericBilinear15StrictStateCertification
-            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u);
+            ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u) |
+        (canonicalCompressibleNeoHookeanEnergy(material)
+            ? NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
@@ -1698,6 +1892,12 @@ ConstitutiveCompileResult compileConstitutive(
     if(material.genericBilinear15StrictStateCertification) {
         const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION;
         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if ((result.program.gpu.flags &
+         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u) {
+        const std::uint32_t policy =
+            NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
+        fingerprint = hashBytes(&policy, sizeof(policy), fingerprint);
     }
     if (result.program.dissipation.has_value()) {
         fingerprint = hashBytes(

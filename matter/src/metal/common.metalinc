@@ -917,6 +917,95 @@ inline float3x3 evaluateStress(
     , nullptr, deformationLow);
 }
 
+
+inline bool usesCanonicalCompressibleNeoHookeanTangent(
+    const NMMaterialGPU material,
+    thread const float* deformationLow
+) {
+    if ((material.flags &
+         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) == 0u ||
+        material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
+        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+        material.parameterCount != 3u || material.stateCount != 0u ||
+        material.dissipationProgram != NM_INVALID_INDEX ||
+        material.viscousStressProgramOffset != NM_INVALID_INDEX ||
+        material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
+        material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
+        material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
+        material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
+        material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX ||
+        (material.flags & (NM_MATERIAL_HAS_STATE |
+                           NM_MATERIAL_HAS_DISSIPATION |
+                           NM_MATERIAL_HAS_IMPLICIT_STATE |
+                           NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                           NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                           NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+                           NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)) != 0u) {
+        return false;
+    }
+    // The closed form consumes the existing FP32 local F directly. Never
+    // bypass bytecode's compensated input path if a caller supplies low words.
+    if (deformationLow != nullptr) {
+        for (uint component = 0u; component < 9u; ++component) {
+            if (deformationLow[component] != 0.0f) return false;
+        }
+    }
+    return true;
+}
+
+inline bool evaluateCanonicalCompressibleNeoHookeanTangent(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    thread float3x3& tangent,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+) {
+    if (parameters == nullptr || material.parameterOffset > 0xfffffffdu)
+        return false;
+    const float shear = parameters[material.parameterOffset + 1u];
+    const float bulk = parameters[material.parameterOffset + 2u];
+    const float j = determinant(deformation);
+    if (!isfinite(shear) || !isfinite(bulk) || !isfinite(j) || !(j > 0.0f)) {
+        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+        valid = false;
+        tangent = float3x3(0.0f);
+        return true;
+    }
+    // Repository invert3x3 returns F^-T (the cofactor matrix divided by J).
+    // Keep that exact orientation for P and form F^-1 only for tr(F^-1 H).
+    float3x3 inverseTransposeF;
+    if (!invert3x3(deformation, inverseTransposeF)) return false;
+    const float logJ = log(j);
+    const float3x3 inverseDirection =
+        transpose(inverseTransposeF) * deformationDirection;
+    const float volumeDirection = inverseDirection[0][0] +
+        inverseDirection[1][1] + inverseDirection[2][2];
+    const float3x3 inverseTransposeDirectionProduct =
+        inverseTransposeF * transpose(deformationDirection) * inverseTransposeF;
+    const float3x3 result =
+        shear * deformationDirection +
+        bulk * volumeDirection * inverseTransposeF -
+        (bulk * logJ - shear) * inverseTransposeDirectionProduct;
+    if (!isfinite(logJ) || !isfinite(volumeDirection) ||
+        !all(isfinite(inverseTransposeF[0])) ||
+        !all(isfinite(inverseTransposeF[1])) ||
+        !all(isfinite(inverseTransposeF[2])) ||
+        !all(isfinite(result[0])) || !all(isfinite(result[1])) ||
+        !all(isfinite(result[2]))) {
+        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+        valid = false;
+        tangent = float3x3(0.0f);
+        return true;
+    }
+    tangent = result;
+    return true;
+}
+
+
 template <typename StatePointer, typename CandidatePointer>
 inline float3x3 evaluateTangentVectorWithCandidate(
     const NMMaterialGPU material,
@@ -937,6 +1026,15 @@ inline float3x3 evaluateTangentVectorWithCandidate(
     thread const float* deformationLow = nullptr,
     thread MRCompensatedScalar* tangentWordsOutput = nullptr
 ) {
+    if (tangentWordsOutput == nullptr &&
+        usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
+        float3x3 canonicalTangent;
+        if (evaluateCanonicalCompressibleNeoHookeanTangent(
+                material, parameters, deformation, deformationDirection,
+                canonicalTangent, valid, nonfiniteOutput)) {
+            return canonicalTangent;
+        }
+    }
     float f[9];
     float direction[9];
     float rate[9];
@@ -1261,9 +1359,11 @@ inline bool evaluateImplicitMaterialSystem(
                     instructions,parameters+material.parameterOffset,
                     acceptedState,candidateState,f,direction,rate,timestep,
                     temperature,valid,nonfiniteOutput,deformationLow);
-                jacobian[matrixIndex]=jacobianWordsOutput[matrixIndex].high+
-                    jacobianWordsOutput[matrixIndex].low;
+                if (jacobian != nullptr)
+                    jacobian[matrixIndex]=jacobianWordsOutput[matrixIndex].high+
+                        jacobianWordsOutput[matrixIndex].low;
             } else {
+                if (jacobian == nullptr) return false;
                 jacobian[matrixIndex]=evaluateScalarProgramWithCandidate(
                     material.implicitJacobianProgramOffset +
                         matrixIndex,
@@ -1450,6 +1550,26 @@ inline bool usesStrictBilinear15StateCertification(
     const NMMaterialGPU material) {
     return (material.flags &
         NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION) != 0u;
+}
+
+
+inline bool usesShared15StateTangentFactorization(
+    const NMMaterialGPU material) {
+    constexpr uint requiredFlags =
+        NM_MATERIAL_HAS_STATE |
+        NM_MATERIAL_HAS_IMPLICIT_STATE |
+        NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+    return material.stateCount == 15u &&
+        material.parameterCount == 28u &&
+        material.constitutiveKind == NM_CONSTITUTIVE_BYTECODE &&
+        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+        (material.flags & requiredFlags) == requiredFlags &&
+        (material.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u &&
+        material.dissipationProgram == NM_INVALID_INDEX &&
+        material.viscousStressProgramOffset == NM_INVALID_INDEX &&
+        material.viscousTangentProgramOffset == NM_INVALID_INDEX;
 }
 
 inline bool projectMaterialState(
@@ -1978,6 +2098,7 @@ inline float3x3 evaluateAlgorithmicStress(
     , nullptr, deformationLow);
 }
 
+
 inline void evaluateAlgorithmicStressTangent(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
@@ -2461,6 +2582,134 @@ inline void evaluateAlgorithmicStressTangent(
         if (diagnosticTerminalFailure != nullptr)
             *diagnosticTerminalFailure = kMaterialFailureTangentNonfinite;
     }
+}
+
+// Build a full material-frame tangent for the exact compensated generic
+// 15-state policy by evaluating one local A=R_z and B=P_z, factoring A once,
+// and applying its pivoted two-word LU to all nine C=R_F H right-hand sides.
+inline bool evaluateShared15StateTangentColumns(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    thread float* tangentColumns
+) {
+    if (!usesShared15StateTangentFactorization(material) ||
+        acceptedState == nullptr || deformationLow == nullptr ||
+        tangentColumns == nullptr) return false;
+    const uint count=material.stateCount;
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    float projectedLow[NM_MAX_MATERIAL_STATE];
+    if (!projectMaterialState(
+            material,programs,instructions,parameters,acceptedState,
+            deformation,deformationRate,timestep,temperature,projectedState,
+            nullptr,nullptr,nullptr,nullptr,nullptr,deformationLow,
+            projectedLow)) return false;
+    const NMPaperCandidateState candidate{projectedState,projectedLow};
+    bool valid=true;
+    bool nonfinite=false;
+    const float3x3 projectedStress=evaluateStressWithCandidate(
+        material,programs,instructions,parameters,acceptedState,candidate,
+        deformation,deformationRate,timestep,temperature,valid,&nonfinite,
+        deformationLow);
+    if (!valid || !all(isfinite(projectedStress[0])) ||
+        !all(isfinite(projectedStress[1])) ||
+        !all(isfinite(projectedStress[2]))) return false;
+
+    float residual[16u];
+    MRCompensatedScalar residualWords[16u];
+    MRCompensatedScalar factor[16u * 16u];
+    const float3x3 zeroDirection=float3x3(0.0f);
+    if (!evaluateImplicitMaterialSystem(
+            material,programs,instructions,parameters,acceptedState,candidate,
+            deformation,zeroDirection,deformationRate,timestep,temperature,
+            residual,nullptr,true,&nonfinite,deformationLow,residualWords,
+            factor)) return false;
+    unsigned pivots[16u];
+    if (!nmPaperFactorCompensatedSystem(factor,pivots,count)) return false;
+
+    float f[9];
+    float zeroDirectionComponents[9]={0.0f,0.0f,0.0f,0.0f,0.0f,
+                                      0.0f,0.0f,0.0f,0.0f};
+    float rate[9];
+    matrixComponents(deformation,f);
+    matrixComponents(deformationRate,rate);
+    MRCompensatedScalar responseWords[81];
+    MRCompensatedScalar solutions[9u * 16u];
+    for (uint column=0u;column<9u;++column) {
+        float basisComponents[9];
+        for (uint component=0u;component<9u;++component)
+            basisComponents[component]=component==column?1.0f:0.0f;
+        const float3x3 basis=componentsMatrix(basisComponents);
+        const float3x3 rateDirection=basis/max(timestep,1.0e-12f);
+        float direction[9];
+        float rateDirectionComponents[9];
+        matrixComponents(basis,direction);
+        matrixComponents(rateDirection,rateDirectionComponents);
+        MRCompensatedScalar fixedWords[9];
+        bool tangentNonfinite=false;
+        const float3x3 fixedTangent=evaluateTangentVectorWithCandidate(
+            material,programs,instructions,parameters,acceptedState,candidate,
+            deformation,basis,deformationRate,rateDirection,timestep,
+            temperature,valid,&tangentNonfinite,deformationLow,fixedWords);
+        if (!valid || !all(isfinite(fixedTangent[0])) ||
+            !all(isfinite(fixedTangent[1])) ||
+            !all(isfinite(fixedTangent[2])) ||
+            tangentNonfinite) return false;
+        for (uint component=0u;component<9u;++component) {
+            if (!mrCompensatedFinite(fixedWords[component].high) ||
+                !mrCompensatedFinite(fixedWords[component].low)) return false;
+            responseWords[component*9u+column]=fixedWords[component];
+        }
+        MRCompensatedScalar rhs[16u];
+        for (uint state=0u;state<count;++state) {
+            const MRCompensatedScalar derivative=
+                evaluateScalarProgramWordsWithCandidate(
+                    material.implicitDeformationProgramOffset+state,
+                    programs,instructions,parameters+material.parameterOffset,
+                    acceptedState,candidate,f,direction,rate,timestep,
+                    temperature,valid,&nonfinite,deformationLow);
+            if (!valid) return false;
+            rhs[state]=mrCompensatedNegate(derivative);
+        }
+        if (!nmPaperSolveFactoredCompensatedSystem(
+                factor,pivots,rhs,count)) return false;
+        for (uint row=0u;row<count;++row)
+            solutions[column*count+row]=rhs[row];
+    }
+
+    // Stream B one stress component at a time to keep only one state row of
+    // P_z live. The contraction order within each response matches the legacy
+    // component-then-state compensated accumulation exactly.
+    MRCompensatedScalar stateDerivative[16u];
+    for (uint component=0u;component<9u;++component) {
+        for (uint state=0u;state<count;++state) {
+            stateDerivative[state]=evaluateScalarProgramWordsWithCandidate(
+                material.stressStateDerivativeProgramOffset+
+                    component*count+state,
+                programs,instructions,parameters+material.parameterOffset,
+                acceptedState,candidate,f,zeroDirectionComponents,rate,
+                timestep,temperature,valid,&nonfinite,deformationLow);
+            if (!valid) return false;
+        }
+        for (uint column=0u;column<9u;++column) {
+            MRCompensatedScalar total=responseWords[component*9u+column];
+            for (uint state=0u;state<count;++state) {
+                total=mrCompensatedAdd(total,mrCompensatedMultiply(
+                    stateDerivative[state],solutions[column*count+state]));
+            }
+            const float value=total.high+total.low;
+            if (!isfinite(value)) return false;
+            tangentColumns[component*9u+column]=value;
+        }
+    }
+    return true;
 }
 
 inline bool evaluateMaterialValidity(

@@ -1088,6 +1088,74 @@ CompileResult compileWorld(
                 scalar.flags|=2u;
             }
         }
+        // This tag certifies that a single local LU is valid for all nine
+        // deformation-direction RHS. Prove it from the emitted roles rather
+        // than source spelling: R, R_z, P_z, state initialization and validity
+        // must not consume the direction opcode. NM_EXPR_RATE remains allowed
+        // because Fdot is fixed across the nine columns of this Newton cache.
+        const auto roleHasNoDeformationDirection =
+            [&](const std::uint32_t first, const std::uint32_t count) {
+                if (first == NM_INVALID_INDEX || count == 0u ||
+                    first > world.scalarPrograms.size() ||
+                    count > world.scalarPrograms.size() - first) {
+                    return false;
+                }
+                for (std::uint32_t local = 0u; local < count; ++local) {
+                    const NMScalarProgramGPU& scalar =
+                        world.scalarPrograms[first + local];
+                    if (scalar.firstInstruction > world.instructions.size() ||
+                        scalar.instructionCount >
+                            world.instructions.size() - scalar.firstInstruction) {
+                        return false;
+                    }
+                    for (std::uint32_t item = 0u;
+                         item < scalar.instructionCount; ++item) {
+                        if (world.instructions[
+                                scalar.firstInstruction + item].opcode ==
+                            NM_EXPR_DF) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            };
+        constexpr std::uint32_t sharedFactorRequiredFlags =
+            NM_MATERIAL_HAS_STATE |
+            NM_MATERIAL_HAS_IMPLICIT_STATE |
+            NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+            NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+        const bool sharedFactorLayout =
+            program.gpu.constitutiveKind == NM_CONSTITUTIVE_BYTECODE &&
+            program.gpu.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+            program.gpu.stateCount == 15u &&
+            program.gpu.parameterCount == 28u &&
+            (program.gpu.flags & sharedFactorRequiredFlags) ==
+                sharedFactorRequiredFlags &&
+            (program.gpu.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u &&
+            program.gpu.viscousStressProgramOffset == NM_INVALID_INDEX &&
+            program.gpu.viscousTangentProgramOffset == NM_INVALID_INDEX &&
+            program.gpu.dissipationProgram == NM_INVALID_INDEX;
+        const bool sharedFactorProof =
+            sharedFactorLayout &&
+            roleHasNoDeformationDirection(
+                program.gpu.stateUpdateProgramOffset,
+                program.gpu.stateCount) &&
+            roleHasNoDeformationDirection(
+                program.gpu.implicitResidualProgramOffset,
+                program.gpu.stateCount) &&
+            roleHasNoDeformationDirection(
+                program.gpu.implicitJacobianProgramOffset,
+                program.gpu.stateCount * program.gpu.stateCount) &&
+            roleHasNoDeformationDirection(
+                program.gpu.stressStateDerivativeProgramOffset,
+                9u * program.gpu.stateCount) &&
+            (program.gpu.validityProgram == NM_INVALID_INDEX ||
+             roleHasNoDeformationDirection(program.gpu.validityProgram, 1u));
+        if (sharedFactorProof) {
+            program.gpu.flags |=
+                NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+        }
+
         world.parameters.insert(
             world.parameters.end(),
             program.parameters.begin(),

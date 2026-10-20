@@ -63,7 +63,7 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
 
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
-    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline;
+    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cacheProjectionReusePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline,factorTestPipeline;
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
@@ -89,9 +89,11 @@ struct Device {
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
         operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
         tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
+        cacheProjectionReusePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic");
         cachePreparePipeline=make(@"numi_matter_metal::nm_fem_prepare_algorithmic_tangent_columns");
         cacheColumnsPipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns");
-        cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");}
+        cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");
+        factorTestPipeline=make(@"numi_matter_metal::nm_fem_test_compensated_local_factor");}
     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
 // Incomplete/failed columns must never publish a valid cache, and a completed
@@ -127,17 +129,223 @@ void checkColumnValidityPublication(Device& d) {
          "forced completed cache rebuild did not reset all entries");
     std::cout<<"parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset\n";
 }
+void checkCompensatedLocalFactor(Device& d) {
+    constexpr unsigned n=15u;
+    constexpr unsigned rhsCount=9u;
+    constexpr unsigned caseCount=3u;
+    using WordPair=std::array<float,2>;
+    std::vector<WordPair> matrices(caseCount*n*n);
+    std::vector<WordPair> rhs(caseCount*rhsCount*n);
+    // A nonsymmetric, well-conditioned matrix with a forced first-column row
+    // pivot and low-word perturbations. Each RHS mixes cancellation scales.
+    for(unsigned row=0;row<n;++row)for(unsigned column=0;column<n;++column) {
+        const int code=int((row*37u+column*19u+7u)%17u)-8;
+        const float value=row==column?4.0f+0.125f*row:0.017f*code;
+        matrices[row*n+column]={value,std::ldexp(
+            ((row+column)&1u)?1.0f:-1.0f,-25)};
+    }
+    for(unsigned column=0;column<n;++column)
+        std::swap(matrices[column],matrices[(n-1u)*n+column]);
+    // A second nonsymmetric system starts with rows [2,0,1,...]. The first
+    // pivot swaps at column zero and the second at column one, after nonzero
+    // L coefficients exist, exercising full-row swaps in the stored factors.
+    const std::vector<WordPair> pivotSource(
+        matrices.begin(), matrices.begin() + n*n);
+    const unsigned permutedCase=2u*n*n;
+    for(unsigned row=0;row<n;++row) {
+        const unsigned sourceRow=row<3u?(row+1u)%3u:row;
+        std::copy_n(pivotSource.begin()+sourceRow*n,n,
+                    matrices.begin()+permutedCase+row*n);
+    }
+    for(unsigned testCase=0;testCase<caseCount;++testCase)
+        for(unsigned r=0;r<rhsCount;++r)for(unsigned row=0;row<n;++row) {
+            const int code=int((r*23u+row*11u+testCase*7u+3u)%19u)-9;
+            const float high=(row%5u==0u?8192.0f:0.125f)*float(code);
+            const float low=std::ldexp(
+                ((r+row+testCase)&1u)?1.0f:-1.0f,-17);
+            rhs[testCase*rhsCount*n+r*n+row]={high,low};
+        }
+    // The second matrix lies below the production pivot floor, so both
+    // one-RHS and factor-once solves must reject it for all nine RHS.
+    const unsigned second= n*n;
+    for(unsigned i=0;i<n;++i)matrices[second+i*n+i]={i+1u==n?1.0e-9f:1.0f,0.0f};
+    const auto matrixBuffer=buffer(d.device,matrices);
+    const auto rhsBuffer=buffer(d.device,rhs);
+    const auto factoredBuffer=buffer(d.device,
+        std::vector<WordPair>(caseCount*rhsCount*n));
+    const auto legacyBuffer=buffer(d.device,
+        std::vector<WordPair>(caseCount*rhsCount*n));
+    const auto residualBuffer=buffer(d.device,
+        std::vector<float>(caseCount*rhsCount,-1.0f));
+    const auto maskBuffer=buffer(d.device,std::vector<std::uint32_t>(caseCount*3u));
+    const auto pivotBuffer=buffer(d.device,
+        std::vector<std::uint32_t>(caseCount*n,0xffffffffu));
+    const std::uint32_t count=n;
+    auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:d.factorTestPipeline];
+    [encoder setBuffer:matrixBuffer offset:0 atIndex:0];
+    [encoder setBuffer:rhsBuffer offset:0 atIndex:1];
+    [encoder setBuffer:factoredBuffer offset:0 atIndex:2];
+    [encoder setBuffer:legacyBuffer offset:0 atIndex:3];
+    [encoder setBuffer:residualBuffer offset:0 atIndex:4];
+    [encoder setBuffer:maskBuffer offset:0 atIndex:5];
+    [encoder setBytes:&count length:sizeof(count) atIndex:6];
+    [encoder setBuffer:pivotBuffer offset:0 atIndex:7];
+    [encoder dispatchThreads:MTLSizeMake(caseCount,1,1)
+        threadsPerThreadgroup:MTLSizeMake(2,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    need(command.status==MTLCommandBufferStatusCompleted,
+         "compensated factor test command failed");
+    const auto* masks=static_cast<const std::uint32_t*>(maskBuffer.contents);
+    const auto* pivots=static_cast<const std::uint32_t*>(pivotBuffer.contents);
+    need(pivots[2u*n]==n-1u&&pivots[2u*n+1u]==n-1u,
+         "later-pivot fixture did not swap rows after nonzero L was stored");
+    need(masks[0]==1u&&masks[1]==0x1ffu&&masks[2]==0x1ffu,
+         "row-pivot compensated factor did not solve all nine RHS");
+    need(masks[3]==0u&&masks[4]==0u&&masks[5]==0u,
+         "near-singular compensated factor did not preserve pivot-floor rejection");
+    need(masks[6]==1u&&masks[7]==0x1ffu&&masks[8]==0x1ffu,
+         "later-pivot compensated factor did not solve all nine RHS");
+    const auto* factored=static_cast<const WordPair*>(factoredBuffer.contents);
+    const auto* legacy=static_cast<const WordPair*>(legacyBuffer.contents);
+    const auto* residual=static_cast<const float*>(residualBuffer.contents);
+    double maximumParity=0.0,maximumScale=0.0,maximumResidual=0.0;
+    const unsigned parityCases[2]={0u,2u};
+    for(const unsigned testCase:parityCases)for(unsigned r=0;r<rhsCount;++r) {
+        const unsigned base=testCase*rhsCount*n+r*n;
+        maximumResidual=std::max(maximumResidual,
+            double(residual[testCase*rhsCount+r]));
+        for(unsigned row=0;row<n;++row) {
+            const unsigned i=base+row;
+            const double x=double(factored[i][0])+factored[i][1];
+            const double y=double(legacy[i][0])+legacy[i][1];
+            maximumParity=std::max(maximumParity,std::abs(x-y));
+            maximumScale=std::max(maximumScale,std::abs(y));
+        }
+    }
+    need(maximumParity<=2.0e-6*std::max(1.0,maximumScale),
+         "factor-once RHS solutions differ from legacy compensated elimination");
+    need(maximumResidual<=2.0e-3,
+         "factor-once solution has an excessive compensated local residual");
+    std::cout<<std::setprecision(12)
+        <<"compensated_factor_rhs=9 pivoted_matrix=passed"
+        <<" near_singular_rejected=passed"
+        <<" maximum_solution_parity="<<maximumParity
+        <<" maximum_local_residual="<<maximumResidual<<"\n";
+}
+void checkSharedFactorCompilerProof(MaterialProgram paperMaterial) {
+    constexpr std::uint32_t tag =
+        NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+    paperMaterial.genericCompensatedImplicitProjection = true;
+    paperMaterial.genericBilinear15AccurateProjection = true;
+    const CompiledWorld tagged = cook(source(paperMaterial, true, false));
+    need(tagged.materials.size() == 1u &&
+         (tagged.materials[0].flags & tag) != 0u,
+         "eligible 15-state material did not receive the shared-factor proof tag");
+    need(tagged.materials[0].validityProgram != NM_INVALID_INDEX,
+         "shared-factor native fixture does not exercise its validity program");
+    std::string error;
+    need(validateCompiledWorldLayout(tagged, &error),
+         "compiler-tagged shared-factor world failed layout proof: " + error);
+
+    const auto replaceRoleLeafOpcode = [](CompiledWorld& world,
+                                          const std::uint32_t first,
+                                          const std::uint32_t count,
+                                          const std::uint32_t replacement) {
+        if (first == NM_INVALID_INDEX ||
+            first > world.scalarPrograms.size() ||
+            count > world.scalarPrograms.size() - first) return false;
+        const auto replaceLeaf = [&](const bool constantsOnly) {
+            for (std::uint32_t local = 0u; local < count; ++local) {
+                const auto& scalar = world.scalarPrograms[first + local];
+                if (scalar.firstInstruction > world.instructions.size() ||
+                    scalar.instructionCount > world.instructions.size() -
+                        scalar.firstInstruction) return false;
+                for (std::uint32_t item = 0u;
+                     item < scalar.instructionCount; ++item) {
+                    auto& instruction = world.instructions[
+                        scalar.firstInstruction + item];
+                    const bool leaf = instruction.opcode == NM_EXPR_CONSTANT ||
+                        instruction.opcode == NM_EXPR_PARAMETER ||
+                        instruction.opcode == NM_EXPR_F ||
+                        instruction.opcode == NM_EXPR_DF ||
+                        instruction.opcode == NM_EXPR_STATE ||
+                        instruction.opcode == NM_EXPR_RATE ||
+                        instruction.opcode == NM_EXPR_NEXT_STATE;
+                    if (!leaf || (constantsOnly &&
+                                  instruction.opcode != NM_EXPR_CONSTANT))
+                        continue;
+                    // These opcodes each push one scalar. Use a valid tensor
+                    // component while leaving the stack contract unchanged.
+                    instruction.opcode = replacement;
+                    instruction.index = 0u;
+                    return true;
+                }
+            }
+            return false;
+        };
+        return replaceLeaf(true) || replaceLeaf(false);
+    };
+    const auto requireDirectionRejected = [&](
+            const std::uint32_t first, const std::uint32_t count,
+            const char* role) {
+        CompiledWorld damaged = tagged;
+        need(replaceRoleLeafOpcode(damaged, first, count, NM_EXPR_DF),
+             std::string("shared-factor proof fixture has no input leaf in ") + role);
+        damaged.fingerprint = compiledWorldFingerprint(damaged);
+        std::string diagnosticText;
+        need(!validateCompiledWorldLayout(damaged, &diagnosticText) &&
+             diagnosticText.find(
+                 "shared 15-state tangent factorization tag lacks its emitted no-direction proof") !=
+                 std::string::npos,
+             std::string("direction opcode in ") + role +
+                 " was not rejected by the shared-factor proof: " + diagnosticText);
+    };
+    requireDirectionRejected(
+        tagged.materials[0].implicitJacobianProgramOffset,
+        tagged.materials[0].stateCount * tagged.materials[0].stateCount,
+        "A=R_z");
+    requireDirectionRejected(
+        tagged.materials[0].stressStateDerivativeProgramOffset,
+        9u * tagged.materials[0].stateCount,
+        "B=P_z");
+
+    // RATE is fixed across all nine Newton-tangent columns and must remain
+    // legal in A/B; replacing an input leaf preserves its push/stack width.
+    CompiledWorld rateInput = tagged;
+    need(replaceRoleLeafOpcode(
+             rateInput, rateInput.materials[0].implicitJacobianProgramOffset,
+             rateInput.materials[0].stateCount * rateInput.materials[0].stateCount,
+             NM_EXPR_RATE),
+         "shared-factor rate proof fixture has no input leaf in A=R_z");
+    rateInput.fingerprint = compiledWorldFingerprint(rateInput);
+    error.clear();
+    need(validateCompiledWorldLayout(rateInput, &error),
+         "fixed RATE input incorrectly invalidated shared-factor proof: " + error);
+
+    paperMaterial.genericCompensatedImplicitProjection = false;
+    paperMaterial.genericBilinear15AccurateProjection = false;
+    const CompiledWorld fallback = cook(source(paperMaterial, true, false));
+    need(fallback.materials.size() == 1u &&
+         (fallback.materials[0].flags & tag) == 0u,
+         "ineligible legacy 15-state material did not retain the old cache path");
+    error.clear();
+    need(validateCompiledWorldLayout(fallback, &error),
+         "ineligible legacy 15-state world failed validation: " + error);
+    std::cout << "shared_15_state_factor_proof=passed A_DF=rejected B_DF=rejected RATE=allowed ineligible=legacy\n";
+}
+
 struct Inputs {
     std::vector<NMFEMNodeStateGPU> nodes;
     std::vector<NMFEMFieldStateGPU> fields;
     std::vector<nm_float4> direction;
     std::vector<float> state;
 };
-Inputs manufactured(const CompiledWorld& w){
+Inputs manufactured(const CompiledWorld& w,
+                    const Matrix& f=Matrix{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025},
+                    const Matrix& h=Matrix{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14},
+                    const Matrix& rate=Matrix{.3,-.2,.1,.12,.22,-.18,-.1,.08,.25}){
     Inputs v;v.nodes=repeat(w.fem.nodes);v.fields=repeat(w.fem.fields);v.direction.resize(4*w.dispatch.femNodeCount);
-    const Matrix f{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025};
-    const Matrix h{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14};
-    const Matrix rate{.3,-.2,.1,.12,.22,-.18,-.1,.08,.25};
     for(unsigned env=0;env<2;++env)for(unsigned n=0;n<w.dispatch.femNodeCount;++n){const unsigned i=env*w.dispatch.femNodeCount+n;
         const Vec x=xyz(w.fem.nodes[n].positionAndMass),p=transform(f,x),r=transform(rate,x),d=transform(h,x);
         v.nodes[i].positionAndMass.x=p[0];v.nodes[i].positionAndMass.y=p[1];v.nodes[i].positionAndMass.z=p[2];
@@ -147,7 +355,7 @@ Inputs manufactured(const CompiledWorld& w){
     for(unsigned e=0;e<2*w.dispatch.tetrahedronCount;++e)for(unsigned i=0;i<w.stateInitials.size();++i)v.state[e*w.dispatch.materialStateStride+i]=w.stateInitials[i];
     return v;
 }
-std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false){
+std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false,bool projectionReuseDiagnostic=false){
     need(!cached||tangent,"cached tangent action requires the FEM operator");
     NMMicrostepGPU micro{};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;micro.time={w.dispatch.gravityAndTimestep.w,1/w.dispatch.gravityAndTimestep.w,0,0};
     const std::uint32_t forceCompletedCacheRebuild=0u;
@@ -166,7 +374,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
     if(cached){
-        [encoder setComputePipelineState:d.tangentCachePipeline];
+        [encoder setComputePipelineState:projectionReuseDiagnostic
+            ? d.cacheProjectionReusePipeline : d.tangentCachePipeline];
         [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];
         [encoder setBytes:&micro length:sizeof(micro) atIndex:1];
         [encoder setBuffer:objects offset:0 atIndex:2];
@@ -459,6 +668,112 @@ void learnedFrameChecks(Device& d){
         <<" framed_icnn_world_fibre_force_error="<<frameForce<<" framed_icnn_world_fibre_tangent_error="<<frameTangent
         <<" framed_icnn_angular_consequence="<<angular<<" trained_material_qualified=false\n";
 }
+double materialParameter(const MaterialProgram& material,const std::string& name){
+    for(const auto& parameter:material.parameters)if(parameter.name==name)return parameter.defaultValue;
+    throw std::runtime_error("missing canonical parameter "+name);
+}
+void canonicalTangentChecks(Device& d,const std::filesystem::path& materialsDirectory){
+    constexpr std::uint32_t tag=NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT;
+    const std::array<const char*,3> names{
+        "human_skin_dermis_frequency_specific_effective.nmatter",
+        "human_subcutaneous_adipose_low_strain_effective.nmatter",
+        "human_optic_nerve_longitudinal_low_strain_isotropic_effective.nmatter"};
+    std::uint32_t checked=0u;
+    for(const char* name:names){
+        const auto parsed=parseMatterFile((materialsDirectory/name).string());
+        need(parsed.succeeded(),"canonical tangent material parse failed: "+std::string(name)+" "+diagnostic(parsed.diagnostics));
+        const auto world=cook(source(parsed.material,true));
+        need(world.materials.size()==1u&&(world.materials[0].flags&tag)!=0u,
+             "exact canonical material was not classified: "+std::string(name));
+        auto fallback=world;
+        fallback.materials[0].flags&=~tag;
+        const double shear=materialParameter(parsed.material,"shear");
+        const double bulk=materialParameter(parsed.material,"bulk");
+        const Oracle oracle=[shear,bulk](const Matrix& f,const Matrix& h,const Matrix&,const Matrix& q){
+            const Matrix localF=ref::multiply(f,q),localH=ref::multiply(h,q);
+            const double j=ref::determinant(localF);
+            need(j>0.0&&std::isfinite(j),"canonical tangent fixture has invalid J");
+            const double logJ=std::log(j);
+            const Matrix inverseT=ref::inverseTranspose(localF);
+            const Matrix dInverseT=ref::scale(ref::multiply(ref::multiply(inverseT,ref::transpose(localH)),inverseT),-1.0);
+            const double volumeDirection=ref::contract(inverseT,localH);
+            ref::Result result;
+            result.stress=ref::multiply(ref::add(ref::scale(ref::add(localF,ref::scale(inverseT,-1.0)),shear),
+                ref::scale(inverseT,bulk*logJ)),ref::transpose(q));
+            const Matrix localTangent=ref::add(ref::add(ref::scale(localH,shear),
+                ref::scale(inverseT,bulk*volumeDirection)),
+                ref::scale(dInverseT,bulk*logJ-shear));
+            result.tangent=ref::multiply(localTangent,ref::transpose(q));
+            return result;
+        };
+        const std::array<Matrix,3> deformations{
+            Matrix{1.13,.12,.04,-.025,.94,.06,.015,-.035,1.025},
+            Matrix{.79,.015,0,.035,.91,.01,0,.02,.84},
+            Matrix{1.0,.37,.04,-.025,1.0,.11,.015,-.035,1.0}};
+        const std::array<Matrix,3> directions{
+            Matrix{.19,-.13,.07,.11,-.17,.04,-.05,.09,.14},
+            Matrix{-.11,.08,.03,.12,.07,-.06,.04,-.09,.16},
+            Matrix{.03,.21,-.04,-.12,.06,.11,.08,-.05,-.02}};
+        double maximumOracle=0.0,maximumFallback=0.0,maximumCachedOracle=0.0,maximumFD=0.0;
+        for(std::size_t sample=0;sample<deformations.size();++sample){
+            const Inputs input=manufactured(world,deformations[sample],directions[sample]);
+            const auto force=dispatch(d,world,input,false);
+            const auto fallbackForce=dispatch(d,fallback,input,false);
+            need(same(force,fallbackForce),"canonical tangent flag changed force output");
+            const auto tangent=dispatch(d,world,input,true);
+            const auto fallbackTangent=dispatch(d,fallback,input,true);
+            const auto cached=dispatch(d,world,input,true,true);
+            const auto fallbackCached=dispatch(d,fallback,input,true,true);
+            const double oracleError=compare(world,input,tangent,true,oracle);
+            const double cachedOracleError=compare(world,input,cached,true,oracle);
+            maximumOracle=std::max(maximumOracle,oracleError);
+            maximumCachedOracle=std::max(maximumCachedOracle,cachedOracleError);
+            maximumFallback=std::max({maximumFallback,difference(tangent,fallbackTangent),difference(cached,fallbackCached)});
+            maximumFD=std::max({maximumFD,finiteDifference(d,world,input,tangent),finiteDifference(d,world,input,cached)});
+        }
+        need(maximumOracle<5e-4&&maximumCachedOracle<5e-4,
+             "canonical tangent closed form disagrees with independent oracle material="+std::string(name)+" direct="+number(maximumOracle)+" cached="+number(maximumCachedOracle));
+        need(maximumFallback<8e-4,
+             "canonical tangent differs from bytecode fallback material="+std::string(name)+" error="+number(maximumFallback));
+        need(maximumFD<4e-3,
+             "canonical tangent differs from force finite difference material="+std::string(name)+" error="+number(maximumFD));
+        std::cout<<"canonical_tangent_material="<<name<<" direct_oracle="<<maximumOracle
+            <<" cached_oracle="<<maximumCachedOracle<<" fallback="<<maximumFallback<<" fd="<<maximumFD<<"\n";
+        ++checked;
+    }
+    need(checked==names.size(),"canonical tangent target count changed");
+
+    const auto exact=parseMatter(R"(material synthetic_canonical_neohookean {
+        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000;
+        model generic; energy = 0.5*shear*(I1()-3-2*log(J()))+0.5*bulk*pow(log(J()),2);
+        valid = J(); supports fem;
+    })");
+    need(exact.succeeded(),"synthetic canonical source parse: "+diagnostic(exact.diagnostics));
+    const auto requireUntagged=[&](MaterialProgram material,const char* label){
+        const auto candidate=cook(source(material,false));
+        need((candidate.materials[0].flags&tag)==0u,std::string("false-positive canonical tangent tag: ")+label);
+    };
+    auto stateMaterial=exact.material;InternalState state;state.name="history";state.initialValue=.1;stateMaterial.internalState.push_back(state);
+    requireUntagged(stateMaterial,"stateful material");
+    auto fibreMaterial=exact.material;fibreMaterial.mixed.fibreDirection={0.0,1.0,0.0};
+    requireUntagged(fibreMaterial,"fibre-coupled material");
+    auto unrelated=parseMatter(R"(material synthetic_noncanonical_neohookean {
+        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000;
+        model generic; energy = 0.5*shear*(I1()-3)+0.5*bulk*pow(log(J()),2);
+        valid = J(); supports fem;
+    })");
+    need(unrelated.succeeded(),"synthetic noncanonical source parse: "+diagnostic(unrelated.diagnostics));
+    requireUntagged(unrelated.material,"unrelated energy");
+    auto dissipative=parseMatter(R"(material synthetic_dissipative_neohookean {
+        parameter density : kg/m^3 = 1000; parameter shear : Pa = 18000; parameter bulk : Pa = 700000; parameter eta : Pa*s = 1;
+        model generic; energy = 0.5*shear*(I1()-3-2*log(J()))+0.5*bulk*pow(log(J()),2);
+        dissipation = 0.5*eta*pow(Fdot(0,0),2); valid = J(); supports fem;
+    })");
+    need(dissipative.succeeded(),"synthetic dissipative source parse: "+diagnostic(dissipative.diagnostics));
+    requireUntagged(dissipative.material,"dissipative material");
+    std::cout<<"canonical_tangent_false_positives=none state=fallback fibre=fallback unrelated_energy=fallback dissipation=fallback\n";
+}
+
 void directChecks(Device& d,const MaterialProgram& guccione){
     const auto s=source(guccione);const auto w=cook(s);const auto v=manufactured(w);
     const auto force=dispatch(d,w,v,false),tangent=dispatch(d,w,v,true);
@@ -512,14 +827,34 @@ void directChecks(Device& d,const MaterialProgram& guccione){
         <<" mixed_active_force_error="<<afe<<" mixed_active_tangent_error="<<ate<<" mixed_active_fd_error="<<afd<<" mixed_source_equivalent=false\n";
 }
 
+struct ScopedSharedFactorEnvironment {
+    bool hadOriginal = false;
+    std::string original;
+    ScopedSharedFactorEnvironment(const bool enabled) {
+        if (const char* value = std::getenv(
+                "NM_FEM_SHARED_LOCAL_FACTORIZATION")) {
+            hadOriginal = true;
+            original = value;
+        }
+        need(setenv("NM_FEM_SHARED_LOCAL_FACTORIZATION",
+                    enabled ? "1" : "0", 1) == 0,
+             "cannot set shared-factor test policy");
+    }
+    ~ScopedSharedFactorEnvironment() {
+        if (hadOriginal)
+            setenv("NM_FEM_SHARED_LOCAL_FACTORIZATION", original.c_str(), 1);
+        else
+            unsetenv("NM_FEM_SHARED_LOCAL_FACTORIZATION");
+    }
+};
 struct Run {
     Device& device;CompiledWorld world;Runtime runtime;id<MTLBuffer> statuses;
-    Run(Device& d,const WorldSource& s):device(d),world(cook(s)){
+    Run(Device& d,const WorldSource& s,bool sharedFactorEnabled=false):device(d),world(cook(s)){
         const auto path=std::filesystem::temp_directory_path()/(std::string("numi-frame-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
         CompileResult package;package.world=world;std::string error;need(writePackage(package,path,&error),error);CompiledWorld loaded;
         const bool ok=readPackage(path,loaded,nullptr,&error);std::error_code remove;std::filesystem::remove(path,remove);need(ok&&!remove&&loaded.fingerprint==world.fingerprint,"frame package roundtrip: "+error);world=std::move(loaded);
         RuntimeConfiguration c;c.metallib=NUMI_MATTER_METALLIB;c.environmentCount=2;c.adaptiveTransfer=false;c.captureEvents=false;c.captureDiagnostics=true;
-        const auto initialized=runtime.initialize(world,c);need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
+        const auto initialized=[&](){ScopedSharedFactorEnvironment policy(sharedFactorEnabled);return runtime.initialize(world,c);}();need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
     void restore(const RuntimeStateSnapshot& s){const auto r=runtime.restore(s);need(r.encoded,r.message);}
     void step(unsigned index,int reject=-1,int reset=-1,
@@ -545,13 +880,15 @@ struct Run {
     }
 };
 void checkAcceptedPlasticCacheActions(Device& device,
-                                     MaterialProgram paperMaterial){
+                                     MaterialProgram paperMaterial,
+                                     const bool accurateMode){
     need(std::getenv("NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD") == nullptr,
          "cache tail parity fixture owns the completed-cache rebuild policy");
     // This source-derived 15-state bilinear-tension-fit program is used here
     // as a native evaluator fixture. Geometry, imposed displacement, and
     // accepted path remain synthetic and do not calibrate a corrugated board.
     paperMaterial.genericCompensatedImplicitProjection=true;
+    paperMaterial.genericBilinear15AccurateProjection=accurateMode;
     WorldSource authored=source(paperMaterial,true,false);
     authored.objects.front().femInitialVelocity={0.0,0.0,0.0};
     authored.mixedSolver.femPreconditioner =
@@ -564,9 +901,16 @@ void checkAcceptedPlasticCacheActions(Device& device,
          world.dispatch.tetrahedronCount==2u&&
          world.dispatch.materialStateStride>=paperMaterial.internalState.size(),
          "source-derived bilinear paper fixture compiled with an unexpected layout");
+    const bool hasSharedFactorization =
+        (world.materials[0].flags &
+         NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u;
+    need(hasSharedFactorization == accurateMode &&
+         world.materials[0].validityProgram != NM_INVALID_INDEX,
+         "native tangent-cache fixture disagrees with its accurate shared-factor mode");
 
-    Run run(device,authored);
-    Run directRun(device,directAuthored);
+    Run run(device,authored,accurateMode);
+    Run legacyCacheRun(device,authored,false);
+    Run directRun(device,directAuthored,false);
     // The override is captured at initialization. Both cache runs then use
     // identical authored worlds and full accepted loading/unloading paths.
     // Restore any caller policy even if runtime initialization throws.
@@ -592,7 +936,8 @@ void checkAcceptedPlasticCacheActions(Device& device,
     std::unique_ptr<Run> forcedRebuildRun;
     {
         ForcedTailRebuild force;
-        forcedRebuildRun = std::make_unique<Run>(device, authored);
+        forcedRebuildRun = std::make_unique<Run>(
+            device, authored, accurateMode);
     }
     const auto compareTailRebuild = [&](const RuntimeStateSnapshot& guarded,
                                        const RuntimeStateSnapshot& forced,
@@ -712,11 +1057,16 @@ void checkAcceptedPlasticCacheActions(Device& device,
     const auto plasticIndex=materialStateIndex(paperMaterial,
                                                "accumulated_multiplier");
     run.step(0u);
+    legacyCacheRun.step(0u);
     directRun.step(0u);
     forcedRebuildRun->step(0u);
     const RuntimeStateSnapshot elastic=run.state();
+    const RuntimeStateSnapshot legacyElastic=legacyCacheRun.state();
     const RuntimeStateSnapshot directElastic=directRun.state();
     compareAcceptedRuns(directElastic,elastic,"elastic-initial");
+    compareAcceptedRuns(legacyElastic,elastic,accurateMode
+        ? "shared-factor-vs-legacy-cache-elastic"
+        : "nonaccurate-vs-legacy-cache-elastic");
     const RuntimeStateSnapshot forcedElastic = forcedRebuildRun->state();
     compareTailRebuild(elastic, forcedElastic, "elastic-initial");
     need(elastic.solverCertificates.size()==2u,
@@ -724,16 +1074,20 @@ void checkAcceptedPlasticCacheActions(Device& device,
     for(const auto& cert:elastic.solverCertificates)
         need(cert.validity.w>0.5f,
              "elastic bilinear paper state is not solver-certified");
-    checkCachedOperatorActions(device,world,acceptedInputs(elastic),
-                               "accepted-elastic-initial");
     const auto loadTargets=paperShearTargets(elastic,5.0e-6f);
     const auto directLoadTargets=paperShearTargets(directElastic,5.0e-6f);
+    const auto legacyLoadTargets=paperShearTargets(legacyElastic,5.0e-6f);
     run.step(1u,-1,-1,loadTargets);
+    legacyCacheRun.step(1u,-1,-1,legacyLoadTargets);
     directRun.step(1u,-1,-1,directLoadTargets);
     forcedRebuildRun->step(1u,-1,-1,paperShearTargets(forcedElastic,5.0e-6f));
     const RuntimeStateSnapshot loaded=run.state();
+    const RuntimeStateSnapshot legacyLoaded=legacyCacheRun.state();
     const RuntimeStateSnapshot directLoaded=directRun.state();
     compareAcceptedRuns(directLoaded,loaded,"accepted-plastic-load");
+    compareAcceptedRuns(legacyLoaded,loaded,accurateMode
+        ? "shared-factor-vs-legacy-cache-load"
+        : "nonaccurate-vs-legacy-cache-load");
     compareTailRebuild(loaded,forcedRebuildRun->state(),"accepted-plastic-load");
     need(loaded.solverCertificates.size()==2u,
          "loaded bilinear paper snapshot lacks certificates");
@@ -743,6 +1097,10 @@ void checkAcceptedPlasticCacheActions(Device& device,
     const double loadedPlastic=maximumMaterialHistory(loaded,plasticIndex);
     need(loadedPlastic>1.0e-9,
          "accepted bilinear-paper load did not activate plastic history");
+    const Inputs elasticInputs=acceptedInputs(elastic);
+    checkCachedOperatorActions(device,world,elasticInputs,
+                               "accepted-elastic-initial");
+    (void)dispatch(device,world,elasticInputs,true,true,true);
     const Inputs loadedInputs=acceptedInputs(loaded);
     checkCachedOperatorActions(device,world,loadedInputs,
                                "accepted-plastic-after-load");
@@ -752,12 +1110,18 @@ void checkAcceptedPlasticCacheActions(Device& device,
     // irreversible; this is a distinct accepted history, not a trial state.
     const auto unloadTargets=paperShearTargets(elastic,0.0f);
     run.step(2u,-1,-1,unloadTargets);
+    legacyCacheRun.step(2u,-1,-1,
+                       paperShearTargets(legacyElastic,0.0f));
     directRun.step(2u,-1,-1,
                    paperShearTargets(directElastic,0.0f));
     forcedRebuildRun->step(2u,-1,-1,paperShearTargets(forcedElastic,0.0f));
     const RuntimeStateSnapshot unloaded=run.state();
+    const RuntimeStateSnapshot legacyUnloaded=legacyCacheRun.state();
     const RuntimeStateSnapshot directUnloaded=directRun.state();
     compareAcceptedRuns(directUnloaded,unloaded,"accepted-unload");
+    compareAcceptedRuns(legacyUnloaded,unloaded,accurateMode
+        ? "shared-factor-vs-legacy-cache-unload"
+        : "nonaccurate-vs-legacy-cache-unload");
     compareTailRebuild(unloaded,forcedRebuildRun->state(),"accepted-unload");
     need(unloaded.solverCertificates.size()==2u,
          "unloaded bilinear paper snapshot lacks certificates");
@@ -789,18 +1153,41 @@ void checkAcceptedPlasticCacheActions(Device& device,
         <<",\"maximum_unloaded_plastic_multiplier\":"<<unloadedPlastic
         <<",\"maximum_load_to_unload_state_difference\":"<<maximumHistoryChange
         <<",\"tangent_preconditioner_direct_cache_history_parity\":true"
+        <<",\"shared_factor_enabled\":"
+        <<(accurateMode?"true":"false")
         <<",\"physical_validation\":false}\n";
     // Deliberately reject postCommit for environment zero after the complete
     // accepted load/unload fixture, then compare restored history and cleared
     // publication certificates for both rebuilding policies.
     run.step(3u,0);
+    legacyCacheRun.step(3u,0);
+    directRun.step(3u,0);
     forcedRebuildRun->step(3u,0);
     const auto rejected = run.state();
+    const auto legacyRejected = legacyCacheRun.state();
+    const auto directRejected = directRun.state();
     compareTailRebuild(rejected,forcedRebuildRun->state(),
                        "late-postcommit-rejection",true);
+    need(rejected.statuses.size()==legacyRejected.statuses.size()&&
+         rejected.statuses.size()==directRejected.statuses.size(),
+         "shared-factor failure status comparison arity");
+    for(std::size_t environment=0;environment<rejected.statuses.size();++environment)
+        need(rejected.statuses[environment].code==
+                 legacyRejected.statuses[environment].code&&
+             rejected.statuses[environment].code==
+                 directRejected.statuses[environment].code,
+             "shared-factor opt-in changed final status on rejection");
     envSame(unloaded.femNodes,rejected.femNodes,0u,"guarded rejected nodes");
     envSame(unloaded.femMaterialState,rejected.femMaterialState,0u,
             "guarded rejected material history");
+    envSame(legacyUnloaded.femNodes,legacyRejected.femNodes,0u,
+            "legacy-cache rejected nodes");
+    envSame(legacyUnloaded.femMaterialState,legacyRejected.femMaterialState,0u,
+            "legacy-cache rejected material history");
+    envSame(directUnloaded.femNodes,directRejected.femNodes,0u,
+            "direct rejected nodes");
+    envSame(directUnloaded.femMaterialState,directRejected.femMaterialState,0u,
+            "direct rejected material history");
 }
 bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra);}
 void integratedChecks(Device& d,const MaterialProgram& material){
@@ -840,9 +1227,13 @@ int main(int argc,char** argv){@autoreleasepool{try{
     auto paper=parseMatterFile(paperPath.string());
     need(paper.succeeded(),"source-derived bilinear paper material parse failed: "+
          diagnostic(paper.diagnostics));
+    checkSharedFactorCompilerProof(paper.material);
     Device device;std::cout<<std::setprecision(17)<<"frame_device="<<[device.device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
     checkColumnValidityPublication(device);
+    checkCompensatedLocalFactor(device);
+    canonicalTangentChecks(device,std::filesystem::path(argv[1]).parent_path());
     directChecks(device,parsed.material);learnedFrameChecks(device);integratedChecks(device,parsed.material);
-    checkAcceptedPlasticCacheActions(device,paper.material);
+    checkAcceptedPlasticCacheActions(device,paper.material,false);
+    checkAcceptedPlasticCacheActions(device,paper.material,true);
     std::cout<<"fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;
 }catch(const std::exception& error){std::cerr<<"fem material frame check failed: "<<error.what()<<'\n';return 1;}}}
