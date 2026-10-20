@@ -1,0 +1,408 @@
+{
+  "schema": "numi.human.contact_armijo_024_analysis.v1",
+  "analysis_status": "complete",
+  "scope": "diagnostic capture and exact accepted-CSV prefix comparison; no physical repair or qualification",
+  "target": {
+    "root": 5,
+    "microtick": 0,
+    "contact_slot": 2941,
+    "required_failure_stage": "after_deformable_limit",
+    "required_diagnostic_reason_code": 6
+  },
+  "run": {
+    "run_dir": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-budget64-028",
+    "execution": {
+      "exit_code": 1,
+      "wall_s": 77.28314349998254
+    },
+    "invocation_sha256": "d261b1a521bfb79984ef2d46654fa750b70c12fd79e6dd6f87333ecb8060f3cc",
+    "provenance_sha256": "dc8d80231391b5c833726accad1df8228327369765c9f826388335df6c533634",
+    "source_base_revision": "837f9c49ce4a3bb9eb0860f818895a2dcb746b8c",
+    "executable_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+    "binary_sha256_from_invocation": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+    "stderr_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-budget64-028/stderr.log",
+    "stderr_sha256": "a3fbf0bd5d8fc6e5b4d9e6b7bdc5aebfb28118e9720a5307e3a9f58938a75d17",
+    "stdout_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-budget64-028/stdout.log",
+    "stdout_sha256": "57b48600a07a1affe707c74b0a2fc13233becbf4b67229ff2e0684e0c6db98c6",
+    "file_input_count": 13,
+    "file_inputs": [
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+      "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+      "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia"
+    ]
+  },
+  "trace": {
+    "matching_contact_records": 23,
+    "qualifying_failure_records": 1,
+    "selected_failure_iteration": 22,
+    "selected_failure_stage": "after_deformable_limit",
+    "selected_failure_diagnostic": {
+      "code": 6,
+      "reason": "contact_barrier_armijo_failed"
+    },
+    "trial_rows_attached": 12,
+    "trial_capture_consistent": true,
+    "parse_errors": []
+  },
+  "csv_prefix_parity": {
+    "baseline_csv": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/vascular-budget-027/native-integrated/resting-coupled.csv",
+    "candidate_csv": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-budget64-028/output/resting-coupled.csv",
+    "accepted_data_rows_required": 5,
+    "baseline_physical_lines": 6,
+    "candidate_physical_lines": 6,
+    "header_and_first_n_rows_byte_identical": true,
+    "compared_physical_lines": 6,
+    "first_differing_physical_line_zero_based": null,
+    "baseline_first_n_step_values": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "candidate_first_n_step_values": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "failure_receipt_reference": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-contact-budget64-028/common-field-failure.json",
+    "sha256": "59f5dbeac95ec13033a03841a04712f7b83c8679f3090a4c4a34aaec4ac50480",
+    "parsed": {
+      "schema": "numi.human.common_field_failure.v1",
+      "segment_start": 5,
+      "stand_code": 0,
+      "stand_completed_steps": 0,
+      "stand_failing_index": 0,
+      "matter_code": 6,
+      "matter_environment": 0,
+      "matter_object_index": 19,
+      "matter_failing_index": 2941,
+      "matter_microsteps": 0,
+      "matter_diagnostics": [
+        8.996410727490911e-09,
+        -1.0006338341467594e-13,
+        1,
+        0
+      ],
+      "terminal_world_status": {
+        "code": 0,
+        "environment": 0,
+        "control_step": 0,
+        "successful_substeps": 0,
+        "aba_code": 0,
+        "failing_substep": 0,
+        "failing_index": 0,
+        "flags": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "common_status": 0,
+      "common_iterations": 1,
+      "common_box": 0,
+      "common_box_match": true,
+      "common_residual": 2.0265579223632812e-06,
+      "candidate_common_coordinates": [
+        -0.00033321441151201725,
+        0.0004178019880782813,
+        -0.0005692931008525193,
+        0.0005033728666603565,
+        0.00024361713440157473,
+        -0.0002537438413128257,
+        0.00115266686771065
+      ],
+      "accepted_common_coordinates": [
+        -0.00033321441151201725,
+        0.0004178019880782813,
+        -0.0005692931008525193,
+        0.0005033728666603565,
+        0.00024361713440157473,
+        -0.0002537438413128257,
+        0.00115266686771065
+      ],
+      "respiratory_candidate_status": [
+        5,
+        0,
+        1,
+        0
+      ],
+      "respiratory_accepted_status": [
+        5,
+        0,
+        1,
+        0
+      ],
+      "chamber_targets_m3": [
+        3.224133615731262e-05,
+        0.00013843065244145691,
+        4.771518797497265e-05,
+        0.00011882731632795185
+      ],
+      "respiratory_candidate_control": [
+        0.0001884955127025023,
+        0.00011780970089603215,
+        12,
+        6.000000953674316
+      ],
+      "excitation_buffer": [
+        0.0001884955127025023,
+        0.00011780970089603215,
+        12,
+        6.000000953674316
+      ],
+      "brain_input": {
+        "source_time_us": 625,
+        "target_time_us": 750,
+        "source_root": 5760604677195545011,
+        "target_root": 17125075749296618917,
+        "validity_mask": 3,
+        "flags": 1,
+        "pa_o2_mmhg": 100.19954681396484,
+        "pa_co2_mmhg": 40.014244079589844
+      },
+      "brain_candidate": {
+        "timestamp_us": 750,
+        "accepted_root": 17125075749296618917,
+        "flags": 1
+      },
+      "brain_output": {
+        "target_time_us": 750,
+        "source_root": 5760604677195545011,
+        "target_root": 17125075749296618917,
+        "flags": 1,
+        "excitation": [
+          0.0001884955127025023,
+          0.00011780970089603215
+        ]
+      },
+      "trial_lower": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "trial_upper": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "matched_box_lower": [
+        -0.06640367954969406,
+        -0.018000001087784767,
+        -0.028329282999038696,
+        -0.018000001087784767,
+        -0.018000001087784767,
+        -0.030208107084035873,
+        -0.018000001087784767
+      ],
+      "matched_box_upper": [
+        0.018000001087784767,
+        0.04811039939522743,
+        0.018000001087784767,
+        0.045903708785772324,
+        0.04544926434755325,
+        0.018000001087784767,
+        0.029235227033495903
+      ],
+      "first_failure_latch": {
+        "binding_note": "buffer(2) is bound to the authoritative NMMatterStatusGPU runtime status",
+        "step": 5,
+        "matter_code": 6,
+        "stand_code": 9,
+        "matter_status": [
+          0,
+          19,
+          2941,
+          0
+        ],
+        "matter_diagnostics": [
+          8.996410727490911e-09,
+          -1.0006338341467594e-13,
+          1,
+          0
+        ],
+        "stand_status": [
+          5,
+          19,
+          64,
+          137166861
+        ],
+        "respiration_candidate_status": [
+          5,
+          0,
+          1,
+          0
+        ],
+        "respiration_accepted_status": [
+          5,
+          0,
+          1,
+          0
+        ],
+        "chamber_targets_m3": [
+          3.224133615731262e-05,
+          0.00013843065244145691,
+          4.771518797497265e-05,
+          0.00011882731632795185
+        ],
+        "respiration_control": [
+          0.0001884955127025023,
+          0.00011780970089603215,
+          12,
+          6.000000953674316
+        ],
+        "common_first": [
+          -0.00033321441151201725,
+          0.0004178019880782813,
+          -0.0005692931008525193,
+          0.0005033728666603565
+        ],
+        "common_second": [
+          0.00024361713440157473,
+          -0.0002537438413128257,
+          0.00115266686771065,
+          0
+        ],
+        "common_status": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "common_diagnostics": [
+          2.0265579223632812e-06,
+          0,
+          0,
+          0
+        ],
+        "brain_input_metadata": [
+          3,
+          1,
+          625,
+          750
+        ],
+        "brain_input_roots": [
+          3551639987,
+          1341245294,
+          1417362853,
+          3987242409
+        ],
+        "brain_input_timestamp_highs": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "brain_accepted_metadata": [
+          1,
+          625,
+          0,
+          0
+        ],
+        "brain_accepted_roots": [
+          3551639987,
+          1341245294,
+          0,
+          0
+        ],
+        "brain_candidate_metadata": [
+          1,
+          750,
+          0,
+          0
+        ],
+        "brain_candidate_root": [
+          1417362853,
+          3987242409,
+          0,
+          0
+        ],
+        "brain_output_metadata": [
+          1,
+          750,
+          0,
+          0
+        ],
+        "brain_output_roots": [
+          3551639987,
+          1341245294,
+          1417362853,
+          3987242409
+        ],
+        "brain_output_setpoints": [
+          6.000000953674316,
+          12,
+          0.5000000596046448,
+          0.0001884955127025023
+        ],
+        "brain_output_excitations": [
+          0.00011780970089603215,
+          0,
+          0,
+          0
+        ],
+        "excitation_buffer": [
+          0.0001884955127025023,
+          0.00011780970089603215,
+          12,
+          6.000000953674316
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "The captured alpha sequence describes one selected dense contact slot at one root/microtick; it does not establish a general contact correction.",
+    "A byte-identical accepted CSV prefix is a replay/control check, not proof of collision validity or sustained support."
+  ],
+  "failure_reproduction_022": {
+    "baseline_receipt": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/vascular-budget-027/native-integrated/failure.json",
+    "baseline_sha256": "59f5dbeac95ec13033a03841a04712f7b83c8679f3090a4c4a34aaec4ac50480",
+    "compared_fields": [
+      "segment_start",
+      "matter_code",
+      "matter_object_index",
+      "matter_failing_index",
+      "matter_microsteps"
+    ],
+    "expected": {
+      "segment_start": 5,
+      "matter_code": 6,
+      "matter_object_index": 19,
+      "matter_failing_index": 2941,
+      "matter_microsteps": 0
+    },
+    "actual": {
+      "segment_start": 5,
+      "matter_code": 6,
+      "matter_object_index": 19,
+      "matter_failing_index": 2941,
+      "matter_microsteps": 0
+    },
+    "fields_match": true,
+    "selected_trace_matches_slot_code_microtick": true
+  }
+}

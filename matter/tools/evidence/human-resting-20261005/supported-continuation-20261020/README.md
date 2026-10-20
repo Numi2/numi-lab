@@ -173,3 +173,35 @@ video and complete body-contact qualification remain outstanding. The full
 storage-dedup*.json record exact-size/SHA-256 consolidation of completed,
 unopened immutable generated packs. Every path/content is retained by
 hardlinks. Always create a fresh output directory for a new run.
+
+
+## Verification 026–031 and contact VF continuation
+
+Verification-029 is retained as a harness compile failure: the contact geometry checker passed a float and double to std::max. It produced no native run. Verification-030 passed the CPU geometry/interface fixtures and two-step native injected-reject/retry rollback check. Verification-031 passed the tighter final fixture with the same bounded native rollback check. Its preparation provenance records a changed C++ checker and probe hash, while the captured aggregate geometry result log remains byte-identical to 030. Packages retain exact invocation/provenance, compact logs, both-row CSVs, selected aggregate terminal audits, input identity, and source/binary hashes. The retained input asset manifest is referenced by exact argv paths; no large source assets or rendered packs are copied.
+
+The two passing verification runs each cover two accepted 125 microsecond steps with a late injected rejection and same-context retry. They verify transactional rollback and short-run FEM/fascia/ligament accounting only. They do not qualify sustained support, static equilibrium, longer supported motion, physiology, clinical plausibility, or real-time performance. The coarse exterior source surface still has open edges, despite the bonded layered FEM boundary construction/audit.
+
+The unified verification-026 and -027 checks passed, including the two-step
+downstream-rejection rollback fixture. The 32-step contact-VF attempt 027
+stopped after five accepted roots at root 5, microtick 0, object 19, slot 2941.
+Targeted six-step contact-budget64 attempt 028 reproduced that failure; its
+trace records 24 event rows and a kind-0 vertex-triangle witness. These are
+retained failures, not passing horizon results. FGMRES budget 64 is a solver
+iteration budget, not a physical-step count.
+
+Source commit 567b527fe7d21cc7234d42d04aa7e75398ce162b includes the shared
+compensated VF energy/normal/barycentric witness, mapped-parent orientation and
+triangle contact point, and a 112-case fixture against an independent oracle.
+The captured-normal error on the bound witness is 5.82e-8. These numerical and
+geometry checks do not by themselves establish a full contact horizon.
+
+Native contact-VF run 029 is separate from verification-029. It requested 32 steps at
+125 microseconds with FGMRES budget 64 and exited 1 after 22 accepted steps
+(2.75 ms) in 467.8 seconds. The earlier root-5 VF and root-20 vascular
+failures did not recur. It failed at root 22 in the whole-body skin-fat FEM
+quality gate: global tetrahedron 18652 (local 14905) had rejected J
+0.313928, below the 0.35 floor; the accepted
+rolled-back witness for that tetrahedron had J 1.001905. CSV rows show
+zero normal impulse and zero root assistance, so this does not demonstrate
+sustained bed support. The requested horizon did not complete. Compact evidence
+is in contact-vf-029/native-integrated.

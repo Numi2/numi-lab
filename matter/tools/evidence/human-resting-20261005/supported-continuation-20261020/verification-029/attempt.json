@@ -1,0 +1,12 @@
+{
+  "attempt": "verify-029",
+  "failure": "Objective-C++ harness compile failure in matter/tools/cardboard_contact_geometry_check.mm: std::max called with float and double arguments at line 260; ninja stopped.",
+  "input_identities": {
+    "coordinates_sha256": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+    "header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68"
+  },
+  "native_execution_record_present": false,
+  "raw_build_log_sha256": "88a72c571e68eb3ead5067ff77abcf1ac7a6e110c4160e56fd5d3a2841bda840",
+  "result": "failed_before_native_execution",
+  "scope": "Compilation/setup only; no native physics run resulted from this verification attempt."
+}

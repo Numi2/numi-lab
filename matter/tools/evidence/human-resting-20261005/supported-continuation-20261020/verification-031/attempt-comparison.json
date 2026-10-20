@@ -1,0 +1,25 @@
+{
+  "both_native_exit_zero": true,
+  "comparison": "verify-030 intermediate contact-geometry probe and verify-031 final tighter probe",
+  "contact_geometry_probe_sha256": {
+    "verify_030": "f52c7cab0491dc153a23423629136683fa4757e40bdde1e715feb9d92c4e81fc",
+    "verify_031": "e9f1bafc5b9b4247623e2bcdff9c4cf4c32b7455579c60a264b87cf8c4fb3832"
+  },
+  "contact_geometry_result_log_byte_identical": true,
+  "contact_geometry_result_log_sha256": {
+    "verify_030": "240e9a5081a46666287907bd5a98afb2ae4ba217157ecde325e9ee45cba84c94",
+    "verify_031": "240e9a5081a46666287907bd5a98afb2ae4ba217157ecde325e9ee45cba84c94"
+  },
+  "executable_sha256_equal": true,
+  "fixture_source_files_changed": {
+    "matter/tools/cardboard_contact_geometry_check.mm": {
+      "verify_030": "39efaa0cf93dc658c0f85d58cfc237bf3fa031ffa18c284f424f9d58978d76e8",
+      "verify_031": "64957384c6c3ee79115318c5eb408b393aba3d104a81490136eae8af0425d9a5"
+    }
+  },
+  "input_identities_equal": true,
+  "interpretation": "The preparation provenance records a changed C++ contact-geometry checker and probe SHA for 031. The compact captured aggregate result log is byte-identical between runs; runtime source, executable, and Metal library are unchanged. The two rollback runs are valid and pass, but the retained measurements do not show a changed numerical outcome.",
+  "metallib_sha256_equal": true,
+  "prepared_output_files_changed": {},
+  "runtime_source_files_changed": []
+}

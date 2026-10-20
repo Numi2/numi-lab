@@ -1,0 +1,10 @@
+{
+  "basis": "The 13 invocation input paths were matched exactly to the paths in verification-027/native/input-assets-sha256.txt. Asset bytes were not recopied or rehashed for this package; see the referenced manifest for their previously recorded SHA-256 and byte sizes.",
+  "invocation_binary_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+  "invocation_source_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+  "matched_input_asset_count": 13,
+  "missing_paths": [],
+  "reference_manifest": "supported-continuation-20261020/verification-027/native/input-assets-sha256.txt",
+  "reference_manifest_sha256": "77e378a0dfd04233b743526c67e8de33988615b63943ef0f1119e34079c26e5e",
+  "runtime_provenance_sha256": "90d22bf28b90782df90b3f78cee942037a8f4f7c4cc4b3a64d7174088d4b69e2"
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "numi.human.contact_budget64_027_028_comparison.v1",
+  "baseline": "../vascular-budget-027/native-integrated",
+  "accepted_csv_rows": 5,
+  "header_and_all_five_rows_byte_identical": true,
+  "failure_fields_compared": [
+    "segment_start",
+    "matter_code",
+    "matter_object_index",
+    "matter_failing_index",
+    "matter_microsteps",
+    "matter_diagnostics"
+  ],
+  "failure_fields_match": {
+    "segment_start": true,
+    "matter_code": true,
+    "matter_object_index": true,
+    "matter_failing_index": true,
+    "matter_microsteps": true,
+    "matter_diagnostics": true
+  },
+  "raw_fem_deformable_limit_events_root5_microtick0": 24,
+  "contact_slot_matching_events": 23,
+  "qualifying_failures": 1,
+  "selected_failure_iteration": 22,
+  "selected_failure_stage": "after_deformable_limit",
+  "selected_contact_identity": [
+    19,
+    19,
+    0,
+    1
+  ],
+  "selected_contact_source": [
+    16053,
+    16094,
+    2941,
+    1
+  ],
+  "trial_rows_attached": 12,
+  "trial_capture_consistent": true,
+  "analyzer_csv_prefix_match": true,
+  "analyzer_failure_and_trace_slot_match": true,
+  "matching_contact_records_in_analyzer": 23
+}

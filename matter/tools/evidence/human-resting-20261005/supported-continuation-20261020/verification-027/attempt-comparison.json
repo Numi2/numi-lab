@@ -1,0 +1,17 @@
+{
+  "schema": "numi.human.supported_verification_026_027_comparison.v1",
+  "verify_026_base_revision": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+  "verify_027_base_revision": "837f9c49ce4a3bb9eb0860f818895a2dcb746b8c",
+  "changed_common_source_files": {
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "026": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+      "027": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f"
+    }
+  },
+  "added_source_files": [],
+  "removed_source_files": [],
+  "shared_matter_kernel_and_runtime_sources_unchanged": true,
+  "native_input_identities_equal": true,
+  "native_file_assets_match_verify_026": true,
+  "note": "Verify-027 preparation includes the intended app-source increment. Source/library identity is bound to each preparation/native provenance; this comparison is not a claim that the two native executables are byte-identical."
+}

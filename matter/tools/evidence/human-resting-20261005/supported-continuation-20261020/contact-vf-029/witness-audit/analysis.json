@@ -1,0 +1,525 @@
+{
+  "base": {
+    "alpha": null,
+    "bary_f64": [
+      0.8553639268728757,
+      0.0,
+      0.14463607312712434
+    ],
+    "delta_f64_m": [
+      -4.105918128487207e-06,
+      9.813416752546544e-07,
+      6.915409307514664e-06
+    ],
+    "energy_f64_J": 8.99640682402726e-09,
+    "feature": "edge_ca",
+    "gap_f64_m": -1.8978715669626992e-06,
+    "normal_f64": [
+      -0.5067703246675078,
+      0.12112146998941474,
+      0.8535299804599673
+    ],
+    "old_normal_dot_true_normal": 0.9999942655919924,
+    "old_normal_gap_error_m": -4.646090871682489e-11,
+    "old_normal_signed_gap_m": -1.897918027871416e-06,
+    "separation_f64_m": 8.102128180416052e-06,
+    "traced_energy_J": 8.99641073e-09,
+    "traced_separation_m": 8.10212805e-06,
+    "trial": "base"
+  },
+  "base_weighted_position_m": [
+    -4.107346030624015e-06,
+    9.9877061110476e-07,
+    6.912021029092941e-06
+  ],
+  "capture": {
+    "algorithm": "valid face projection plus all three clamped edge projections; minimum squared distance",
+    "contact_slot": 2941,
+    "identity": [
+      19,
+      19,
+      0,
+      1
+    ],
+    "input": "recorded decimal start/trial endpoint coordinates rounded to binary32, then evaluated in float64",
+    "kind": "vertex_triangle",
+    "microtick": 0,
+    "newton_iteration": 22,
+    "root": 5
+  },
+  "limitations": [
+    "CPU-only independent geometry calculation; no GPU rerun.",
+    "Barrier energy is recomputed from serialized thickness/stiffness and source formula; feature mollifier is not separately serialized.",
+    "This diagnoses the captured old witness and does not qualify the mapped-witness repair."
+  ],
+  "old_generated_normal_f32": [
+    -0.5069855451583862,
+    0.11777522414922714,
+    0.8538703322410583
+  ],
+  "schema": "numi.human.contact_vf_fp64_witness_audit.v1",
+  "source_trace_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/selected-traces.json",
+  "source_trace_sha256": "c763beef9cbd6fe90f9ac08643f7a8bbfbed69905d9dcc661e70cba5e079029b",
+  "stderr_sha256": "a3fbf0bd5d8fc6e5b4d9e6b7bdc5aebfb28118e9720a5307e3a9f58938a75d17",
+  "stiffness_N_per_m": 18108402106368.0,
+  "thickness_m": 9.999999747378752e-06,
+  "traced_solver_plane_gap_m": -1.8973296391777694e-06,
+  "trials": [
+    {
+      "alpha": 1.0,
+      "bary_f64": [
+        0.8553217066993996,
+        0.0,
+        0.14467829330060045
+      ],
+      "delta_distance_from_base_m": -1.896541478178034e-10,
+      "delta_energy_from_base_J": 2.6103686542255834e-12,
+      "delta_f64_m": [
+        -4.1024997741445635e-06,
+        9.886789374968785e-07,
+        6.916170721224524e-06
+      ],
+      "energy_f64_J": 8.999017192681485e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.9333772206327988e-10,
+      "gap_f64_m": -1.898061221110517e-06,
+      "normal_f64": [
+        -0.5063602693162104,
+        0.1220299233685084,
+        0.853643939509144
+      ],
+      "old_normal_dot_trial_point_motion_m": -5.926513946263867e-09,
+      "old_normal_dot_true_normal": 0.999990673007704,
+      "old_normal_gap_error_m": -7.556671821860601e-11,
+      "old_normal_signed_gap_m": -1.8981367878287356e-06,
+      "separation_f64_m": 8.101938526268235e-06,
+      "traced_directional_gap_m": 7.23824342e-12,
+      "traced_trial_energy_J": 8.99900865e-09,
+      "traced_trial_separation_m": 8.10193887e-06,
+      "trial": 0,
+      "weighted_direction_f32": [
+        1.27644710801178e-07,
+        -5.960464477539063e-08,
+        8.401885764897088e-08
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "bary_f64": [
+        0.8553399641847772,
+        0.0,
+        0.1446600358152228
+      ],
+      "delta_distance_from_base_m": -1.118960906476911e-08,
+      "delta_energy_from_base_J": 1.5484783209253967e-10,
+      "delta_f64_m": [
+        -4.109415366347624e-06,
+        9.597309065245696e-07,
+        6.903253501014395e-06
+      ],
+      "energy_f64_J": 9.1512546561198e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.1220587941305837e-08,
+      "gap_f64_m": -1.9090611760274683e-06,
+      "normal_f64": [
+        -0.5079034193756464,
+        0.11861799444662983,
+        0.8532079980754902
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.0598481203771826e-08,
+      "old_normal_dot_true_normal": 0.9999989496315013,
+      "old_normal_gap_error_m": -8.498467000725538e-12,
+      "old_normal_signed_gap_m": -1.909069674494469e-06,
+      "separation_f64_m": 8.090938571351283e-06,
+      "traced_directional_gap_m": -1.10236131e-08,
+      "traced_trial_energy_J": 9.15125309e-09,
+      "traced_trial_separation_m": 8.09093854e-06,
+      "trial": 1,
+      "weighted_direction_f32": [
+        6.700883403709668e-08,
+        -5.960464477539063e-08,
+        3.5097656336802174e-08
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "bary_f64": [
+        0.8553486307602608,
+        0.0,
+        0.1446513692397392
+      ],
+      "delta_distance_from_base_m": -5.142000586022346e-09,
+      "delta_energy_from_base_J": 7.094644308191605e-11,
+      "delta_f64_m": [
+        -4.119012893363805e-06,
+        9.459896770369625e-07,
+        6.9065202172730045e-06
+      ],
+      "energy_f64_J": 9.067353267109176e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -5.232941797460267e-09,
+      "gap_f64_m": -1.9030135675487215e-06,
+      "normal_f64": [
+        -0.5087093891335097,
+        0.11683231958496691,
+        0.8529741886527444
+      ],
+      "old_normal_dot_trial_point_motion_m": -5.6283009364221925e-09,
+      "old_normal_dot_true_normal": 0.9999976134620018,
+      "old_normal_gap_error_m": -1.9323765189978998e-11,
+      "old_normal_signed_gap_m": -1.9030328913139115e-06,
+      "separation_f64_m": 8.09698617983003e-06,
+      "traced_directional_gap_m": -5.03311792e-09,
+      "traced_trial_energy_J": 9.06735576e-09,
+      "traced_trial_separation_m": 8.09698577e-06,
+      "trial": 2,
+      "weighted_direction_f32": [
+        3.19111777002945e-08,
+        -5.960464477539063e-08,
+        2.1274118466863e-08
+      ]
+    },
+    {
+      "alpha": 0.125,
+      "bary_f64": [
+        0.8553524113835483,
+        0.0,
+        0.14464758861645166
+      ],
+      "delta_distance_from_base_m": -4.188102805589462e-09,
+      "delta_energy_from_base_J": 5.7757973157198543e-11,
+      "delta_f64_m": [
+        -4.122251425112133e-06,
+        9.399953356803437e-07,
+        6.906524846667095e-06
+      ],
+      "energy_f64_J": 9.054164797184458e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -4.313822655048282e-09,
+      "gap_f64_m": -1.9020596697682886e-06,
+      "normal_f64": [
+        -0.5090493860913485,
+        0.11607832691665422,
+        0.8528742841358575
+      ],
+      "old_normal_dot_trial_point_motion_m": -6.324125667589442e-09,
+      "old_normal_dot_true_normal": 0.9999958798464799,
+      "old_normal_gap_error_m": -3.336475631604411e-11,
+      "old_normal_signed_gap_m": -1.9020930345246047e-06,
+      "separation_f64_m": 8.097940077610463e-06,
+      "traced_directional_gap_m": -4.11344336e-09,
+      "traced_trial_energy_J": 9.05416986e-09,
+      "traced_trial_separation_m": 8.09793983e-06,
+      "trial": 3,
+      "weighted_direction_f32": [
+        1.7548828168401087e-08,
+        -5.960464477539063e-08,
+        1.3823538758117593e-08
+      ]
+    },
+    {
+      "alpha": 0.0625,
+      "bary_f64": [
+        0.8553618496580198,
+        0.0,
+        0.14463815034198024
+      ],
+      "delta_distance_from_base_m": -5.3893660646800185e-09,
+      "delta_energy_from_base_J": 7.436850579628902e-11,
+      "delta_f64_m": [
+        -4.101392868730014e-06,
+        9.846351890496763e-07,
+        6.911313153709631e-06
+      ],
+      "energy_f64_J": 9.070775329823549e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -5.390545834850379e-09,
+      "gap_f64_m": -1.9032609330273792e-06,
+      "normal_f64": [
+        -0.506548742990245,
+        0.12160886149673276,
+        0.8535922069586105
+      ],
+      "old_normal_dot_trial_point_motion_m": -3.777336665677922e-09,
+      "old_normal_dot_true_normal": 0.9999924628896416,
+      "old_normal_gap_error_m": -6.10260139862921e-11,
+      "old_normal_signed_gap_m": -1.9033219590413655e-06,
+      "separation_f64_m": 8.096738814351372e-06,
+      "traced_directional_gap_m": -5.39283507e-09,
+      "traced_trial_energy_J": 9.07078235e-09,
+      "traced_trial_separation_m": 8.09673838e-06,
+      "trial": 4,
+      "weighted_direction_f32": [
+        1.06370592334315e-08,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.03125,
+      "bary_f64": [
+        0.8553625774918736,
+        0.0,
+        0.1446374225081264
+      ],
+      "delta_distance_from_base_m": -3.5021805257159932e-09,
+      "delta_energy_from_base_J": 4.8282138687360096e-11,
+      "delta_f64_m": [
+        -4.102976649794643e-06,
+        9.83481177052603e-07,
+        6.912748402171376e-06
+      ],
+      "energy_f64_J": 9.04468896271462e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -3.5026795301310303e-09,
+      "gap_f64_m": -1.9013737474884152e-06,
+      "normal_f64": [
+        -0.5066262659678569,
+        0.12143802875523828,
+        0.853570519525779
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999931277988097,
+      "old_normal_gap_error_m": -5.565538723548808e-11,
+      "old_normal_signed_gap_m": -1.9014294028756506e-06,
+      "separation_f64_m": 8.098625999890336e-06,
+      "traced_directional_gap_m": -3.50416718e-09,
+      "traced_trial_energy_J": 9.04469211e-09,
+      "traced_trial_separation_m": 8.09862559e-06,
+      "trial": 5,
+      "weighted_direction_f32": [
+        6.911769379058796e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.015625,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 6,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.0078125,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 7,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.00390625,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 8,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.001953125,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 9,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.0009765625,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 10,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "alpha": 0.00048828125,
+      "bary_f64": [
+        0.8553631990388839,
+        0.0,
+        0.14463680096111609
+      ],
+      "delta_distance_from_base_m": -1.887722394925797e-09,
+      "delta_energy_from_base_J": 2.6004042465561038e-11,
+      "delta_f64_m": [
+        -4.104334345111926e-06,
+        9.8249568736275e-07,
+        6.913974058789241e-06
+      ],
+      "energy_f64_J": 9.02241086649282e-09,
+      "feature": "edge_ca",
+      "fp64_normal_directional_gap_m": -1.8878665297705766e-09,
+      "gap_f64_m": -1.899759289357625e-06,
+      "normal_f64": [
+        -0.5066929020665897,
+        0.1212921631715081,
+        0.8535517056092815
+      ],
+      "old_normal_dot_trial_point_motion_m": -1.888668332838961e-09,
+      "old_normal_dot_true_normal": 0.9999936673407029,
+      "old_normal_gap_error_m": -5.1296063044390934e-11,
+      "old_normal_signed_gap_m": -1.8998105854206694e-06,
+      "separation_f64_m": 8.100240458021127e-06,
+      "traced_directional_gap_m": -1.88866833e-09,
+      "traced_trial_energy_J": 9.02240327e-09,
+      "traced_trial_separation_m": 8.10024085e-06,
+      "trial": 11,
+      "weighted_direction_f32": [
+        3.725290298461914e-09,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

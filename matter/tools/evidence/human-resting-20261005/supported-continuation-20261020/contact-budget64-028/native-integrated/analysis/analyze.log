@@ -1,0 +1,10 @@
+{
+  "analysis_status": "complete",
+  "trace_matches": 23,
+  "qualifying_failures": 1,
+  "selected_trial_rows": 12,
+  "csv_first_n_parity": true,
+  "summary": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/summary.json",
+  "selected_traces": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/selected-traces.json",
+  "tsv": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/selected-traces.tsv"
+}

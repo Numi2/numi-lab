@@ -1,0 +1,1 @@
+Verification 029 failed before native execution. The retained raw build log reports a float/double type mismatch in std::max in the contact-geometry test harness at line 260. No native execution record or physics result is attributed to this failed verification. The source geometry identity is retained for comparison.
