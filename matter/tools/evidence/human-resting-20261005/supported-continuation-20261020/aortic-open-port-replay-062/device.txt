@@ -1,0 +1,3 @@
+      Model Name: Mac mini
+      Chip: Apple M6
+      Memory: 16 GB
